@@ -58,7 +58,12 @@ Note that this design calls it just `Provider`, which is appropriate because in 
 
 ### connect
 
-Works like Redux `connect`, but supports one more property, `mapQueriesToProps`.
+Works like Redux `connect`, but supports two more properties:
+
+- `mapQueriesToProps` to connect GraphQL queries to fetch data
+- `mapMutationsToProps` to connect mutations with your components
+
+It also uses keyword arguments instead of positional arguments, since that lets you more easily omit certain fields when you don't need them.
 
 Basic Apollo version:
 
@@ -67,7 +72,7 @@ import { connect } from 'apollo-react';
 
 import Category from '../components/Category';
 
-function mapQueriesToProps(watchQuery, ownProps) {
+function mapQueriesToProps(watchQuery, ownProps, state) {
   return {
     category: watchQuery({
       query: `
@@ -87,9 +92,45 @@ function mapQueriesToProps(watchQuery, ownProps) {
   }
 }
 
-const CategoryWithData = connect(
+function mapMutationsToProps(mutate, ownProps, state) {
+  return {
+    onPostReply(raw) {
+      return mutate({
+        mutation: `
+          mutation postReply(
+            $topic_id: ID!
+            $category_id: ID!
+            $raw: String!
+          ) {
+            createPost(
+              topic_id: $topic_id
+              category: $category_id
+              raw: $raw
+            ) {
+              id
+              cooked
+            }
+          }
+        `,
+        variables: {
+          // Use the container component's props
+          topic_id: ownProps.topic_id,
+
+          // Use the redux state
+          category_id: state.selectedCategory,
+
+          // Use an argument passed from the callback
+          raw,
+        }
+      });
+    }
+  }
+}
+
+const CategoryWithData = connect({
   mapQueriesToProps,
-)(Category);
+  mapMutationsToProps,
+})(Category);
 
 export default CategoryWithData;
 ```
@@ -115,10 +156,11 @@ function mapStateToProps(state, ownProps) {
   }
 }
 
-const CategoryWithData = connect(
+const CategoryWithData = connect({
   mapQueriesToProps,
+  mapMutationsToProps,
   mapStateToProps,
-)(Category);
+})(Category);
 
 export default CategoryWithData;
 ```
