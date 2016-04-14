@@ -72,7 +72,7 @@ import { connect } from 'apollo-react';
 
 import Category from '../components/Category';
 
-function mapQueriesToProps(watchQuery, ownProps, state) {
+function mapQueriesToProps({ watchQuery, ownProps, state }) {
   return {
     category: watchQuery({
       query: `
@@ -92,7 +92,7 @@ function mapQueriesToProps(watchQuery, ownProps, state) {
   }
 }
 
-function mapMutationsToProps(mutate, ownProps, state) {
+function mapMutationsToProps({ mutate, ownProps, state }) {
   return {
     onPostReply(raw) {
       return mutate({
@@ -150,7 +150,7 @@ Using in concert with Redux:
 ```js
 // ... same as above
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps({ state, ownProps }) {
   return {
     selectedCategory: state.selectedCategory,
   }
