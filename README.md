@@ -6,7 +6,7 @@ Use your GraphQL server data in your React components, with the Apollo Client.
 
 I'd like to base this very heavily on the [`react-redux` API](https://github.com/reactjs/react-redux/blob/master/docs/api.md#api) and have the same parts - a `Provider` component and a `connect` function. Ideally, if you are using Apollo and Redux together, you don't have to nest calls to providers and containers - they should just work together. So, here we go!
 
-### ApolloProvider
+### Provider
 
 Injects an ApolloClient instance into a React view tree. You can use it instead of the Redux `Provider`, if you want to. But you don't have to:
 
