@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import {
-  Store
+  Store,
 } from 'redux';
 
 // XXX add in type defs from apollo-client
@@ -19,40 +19,40 @@ export declare interface ProviderProps {
 }
 
 export default class Provider extends Component<ProviderProps, any> {
-  public store: Store<any>;
-  // public client: ApolloClient;
-  public client: any;
-
   static propTypes = {
     store: PropTypes.shape({
       subscribe: PropTypes.func.isRequired,
       dispatch: PropTypes.func.isRequired,
-      getState: PropTypes.func.isRequired
+      getState: PropTypes.func.isRequired,
     }),
     client: PropTypes.object.isRequired,
     children: PropTypes.element.isRequired,
-  }
+  };
 
   static childContextTypes = {
     store: PropTypes.object.isRequired,
     client: PropTypes.object.isRequired,
-  }
+  };
+
+  public store: Store<any>;
+  // public client: ApolloClient;
+  public client: any;
 
   constructor(props, context) {
     super(props, context);
     this.client = props.client;
-    this.store = props.store
+    this.store = props.store;
   }
 
   getChildContext() {
     return {
       store: this.store,
       client: this.client,
-    }
+    };
   }
 
-  render(){
-    const { children } = this.props
-    return Children.only(children)
+  render() {
+    const { children } = this.props;
+    return Children.only(children);
   }
-}
+};

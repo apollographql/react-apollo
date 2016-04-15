@@ -2,28 +2,69 @@
 
 import * as React from 'react';
 import * as chai from 'chai';
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow } from 'enzyme';
+// import * as TestUtils from 'react-addons-test-utils';
 import { createStore } from 'redux';
 
 declare function require(name: string);
-const chaiEnzyme = require('chai-enzyme');
-chai.use(chaiEnzyme()) // Note the invocation at the end
-const { expect, assert } = chai;
+import chaiEnzyme = require('chai-enzyme');
+
+chai.use(chaiEnzyme()); // Note the invocation at the end
+const { expect } = chai;
 
 import Provider from '../src/Provider';
 
 describe('<Provider /> Component', () => {
 
+  class Child extends React.Component<any, { store: any, client: any}> {
+    render() {
+      return <div />;
+    }
+  };
+
+  // XXX why isn't this working with TestUtils typing?
+  // Child.contextType = {
+  //   store: React.PropTypes.object.isRequired,
+  //   client: React.PropTypes.object.isRequired,
+  // };
+
   it('should render children components', () => {
-    const store = createStore(() => ({}))
+    const store = createStore(() => ({}));
 
     const wrapper = shallow(
       <Provider store={store} client={{}}>
-        <div className="unique" />
+        <div className='unique' />
       </Provider>
     );
 
-    expect(wrapper.contains(<div className="unique" />)).to.equal(true);
+    expect(wrapper.contains(<div className='unique' />)).to.equal(true);
   });
+
+  it('should throw if rendered without a child component', () => {
+    const store = createStore(() => ({}));
+
+    try {
+      shallow(
+        <Provider store={store} client={{}} />
+      );
+    } catch (e) {
+      expect(e).to.be.instanceof(Error);
+    }
+
+  });
+
+  // it('should add the store to the child context', () => {
+  //     const store = createStore(() => ({}));
+
+  //     const tree = TestUtils.renderIntoDocument(
+  //       <Provider store={store} client={{}}>
+  //         <Child />
+  //       </Provider>
+  //     ) as React.Component<any, any>;
+
+  //     const child = TestUtils.findRenderedComponentWithType(tree, Child as ComponentClass<any>);
+  //     expect(child.context.store).to.deep.equal(store);
+
+  //   });
 
 });

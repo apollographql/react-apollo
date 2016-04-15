@@ -25,34 +25,33 @@ import {
 } from 'react-redux';
 
 import {
-  Store
+  Store,
 } from 'redux';
 
-export declare interface MapQueriesToPropsOptions{
-  watchQuery(opts: any): any; // WatchQueryHandle
+export declare interface MapQueriesToPropsOptions {
   ownProps: any;
   state: any;
+  watchQuery(opts: any): any; // WatchQueryHandle
 };
 
-export declare interface MapMutationsToPropsOptions{
-  mutate(opts: any): any; // MutationHandle
-  onPostReply(any): any; // MutationHandle
+export declare interface MapMutationsToPropsOptions {
   ownProps: any;
   state: any;
+  mutate(opts: any): any; // MutationHandle
+  onPostReply(raw: any): any; // MutationHandle
 };
 
 export declare interface ConnectOptions {
-  // mapStateToProps, mapDispatchToProps, mergeProps, options
   mapStateToProps: IMapStateToProps;
-  mapDispatchToProps: IMapDispatchToProps,
-  mergeProps(stateProps: any, dispatchProps: any, ownProps: any): any;
+  mapDispatchToProps: IMapDispatchToProps;
   options: IConnectOptions;
+  mergeProps(stateProps: any, dispatchProps: any, ownProps: any): any;
   mapQueriesToProps(opts: MapQueriesToPropsOptions): any; // WatchQueryHandle
   mapMutationsToProps(opts: MapMutationsToPropsOptions): any; // Mutation Handle
 };
 
-const defaultMapQueriesToProps = opts => ({});
-const defaultMapMutationsToProps = opts => ({});
+const defaultMapQueriesToProps = opts => ({ });
+const defaultMapMutationsToProps = opts => ({ });
 const defaultQueryData = {
   loading: true,
   error: null,
@@ -89,8 +88,8 @@ export default function connect(opts: ConnectOptions) {
         mergeProps,
         options
       )(WrappedComponent);
-    }
-  }
+    };
+  };
 
   /*
 
@@ -123,8 +122,11 @@ export default function connect(opts: ConnectOptions) {
     const apolloConnectDisplayName = `Apollo(Connect(${getDisplayName(WrappedComponent)}))`;
 
     class ApolloConnect extends Component<any, any> {
+      static displayName = apolloConnectDisplayName;
+      static WrappedComponent = WrappedComponent;
+
       public version: number;
-      public store: Store<any>;;
+      public store: Store<any>;
       public client: any; // apollo client
       public state: any; // redux state
       public props: any; // passed props
@@ -134,9 +136,6 @@ export default function connect(opts: ConnectOptions) {
       public hasQueryDataChanged: boolean;
       public hasMutationDataChanged: boolean;
       public renderedElement: any;
-
-      static displayName = apolloConnectDisplayName
-      static WrappedComponent = WrappedComponent
 
       constructor(props, context) {
         super(props, context);
@@ -157,18 +156,18 @@ export default function connect(opts: ConnectOptions) {
         this.data = {};
       }
 
-      componentWillMount(){
-        //
-      }
+      // componentWillMount(){
+
+      // }
 
       // best practice says make external requests in `componentDidMount` as to
       // not block rendering
-      componentDidMount(){
+      componentDidMount() {
         const { props, state } = this;
         this.subscribeToAllQueries(props, state);
       }
 
-      componentWillRecieveProps(nextProps, nextState){
+      componentWillRecieveProps(nextProps, nextState) {
         // we got new props, we need to unsubscribe and re-watch all handles
         // with the new data
         // XXX determine if any of this data is actually used somehow
@@ -179,15 +178,15 @@ export default function connect(opts: ConnectOptions) {
         }
       }
 
-      shouldComponentUpdate(){
+      shouldComponentUpdate() {
         return this.haveOwnPropsChanged || this.hasQueryDataChanged || this.hasMutationDataChanged;
       }
 
-      componentWillUnmount(){
+      componentWillUnmount() {
         this.unsubcribeAllQueries();
       }
 
-      subscribeToAllQueries(props: any, state: any){
+      subscribeToAllQueries(props: any, state: any) {
         const { watchQuery } = this.client;
 
         const queryHandles = mapQueriesToProps({
@@ -199,7 +198,11 @@ export default function connect(opts: ConnectOptions) {
         if (isObject && Object.keys(queryHandles).length) {
           this.queryHandles = queryHandles;
 
-          for (const key in queryHandles){
+          for (const key in queryHandles) {
+            if (!queryHandles.hasOwnProperty(key)) {
+              continue;
+            }
+
             const handle = queryHandles[key];
 
             // bind key to state for updating
@@ -210,15 +213,18 @@ export default function connect(opts: ConnectOptions) {
         }
       }
 
-      unsubcribeAllQueries(){
+      unsubcribeAllQueries() {
         if (this.queryHandles) {
           for (const key in this.queryHandles) {
+            if (!this.queryHandles.hasOwnProperty(key)) {
+              continue;
+            }
             this.queryHandles[key].stop();
           }
         }
       }
 
-      handleQueryData(handle: any, key: string){
+      handleQueryData(handle: any, key: string) {
         // bind each handle to updating and rerendering when data
         // has been recieved
         handle.onResult(({ error, data }) => {
@@ -235,15 +241,12 @@ export default function connect(opts: ConnectOptions) {
         });
       }
 
-      render(){
+      render() {
         const {
           haveOwnPropsChanged,
           hasQueryDataChanged,
           hasMutationDataChanged,
           renderedElement,
-          data,
-          state,
-          props,
         } = this;
 
         this.haveOwnPropsChanged = false;
@@ -252,7 +255,12 @@ export default function connect(opts: ConnectOptions) {
 
         const mergedPropsAndData = assign(this.props, this.data);
 
-        if (!hasQueryDataChanged && !hasMutationDataChanged && renderedElement) {
+        if (
+          !haveOwnPropsChanged &&
+          !hasQueryDataChanged &&
+          !hasMutationDataChanged &&
+          renderedElement
+         ) {
           return renderedElement;
         }
 
@@ -272,6 +280,8 @@ export default function connect(opts: ConnectOptions) {
       options
     )(ApolloConnect);
 
-  }
+  };
 
-}
+};
+
+

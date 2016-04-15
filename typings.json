@@ -3,6 +3,7 @@
     "enzyme": "registry:dt/enzyme#1.2.0+20160324040416",
     "mocha": "registry:dt/mocha#2.2.5+20160317120654",
     "react": "registry:dt/react#0.14.0+20160319053454",
+    "react-addons-test-utils": "registry:dt/react-addons-test-utils#0.14.0+20160316155526",
     "react-dom": "registry:dt/react-dom#0.14.0+20160316155526"
   },
   "devDependencies": {

@@ -23,7 +23,7 @@
       true,
       140
     ],
-    "member-access": true,
+    "member-access": false,
     "member-ordering": [
       true,
       "public-before-private",
@@ -54,7 +54,7 @@
     "no-inferrable-types": false,
     "no-internal-module": true,
     "no-null-keyword": false,
-    "no-require-imports": true,
+    "no-require-imports": false,
     "no-shadowed-variable": true,
     "no-switch-case-fall-through": true,
     "no-trailing-whitespace": true,
@@ -125,7 +125,7 @@
       false
     ],
     "variable-name": [
-      true,
+      false,
       "check-format",
       "allow-leading-underscore",
       "ban-keywords"
