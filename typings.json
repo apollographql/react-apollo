@@ -1,0 +1,19 @@
+{
+  "ambientDependencies": {
+    "enzyme": "registry:dt/enzyme#1.2.0+20160324040416",
+    "mocha": "registry:dt/mocha#2.2.5+20160317120654",
+    "react": "registry:dt/react#0.14.0+20160319053454",
+    "react-dom": "registry:dt/react-dom#0.14.0+20160316155526"
+  },
+  "devDependencies": {
+    "chai": "registry:npm/chai#3.5.0+20160328084239",
+    "chai-enzyme": "registry:npm/chai-enzyme#0.4.0+20160310114720",
+    "sinon": "registry:npm/sinon#1.16.0+20160309002336"
+  },
+  "dependencies": {
+    "invariant": "registry:npm/invariant#2.0.0+20160211003958",
+    "lodash": "registry:npm/lodash#4.0.0+20160412191219",
+    "object-assign": "registry:npm/object-assign#4.0.1+20160301180549",
+    "react-redux": "registry:npm/react-redux#4.4.0+20160207114942"
+  }
+}
