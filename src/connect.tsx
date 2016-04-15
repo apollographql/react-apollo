@@ -3,6 +3,7 @@
 import {
   Component,
   createElement,
+  PropTypes,
 } from 'react';
 
 // XXX setup type definitions for individual lodash libs
@@ -42,12 +43,12 @@ export declare interface MapMutationsToPropsOptions {
 };
 
 export declare interface ConnectOptions {
-  mapStateToProps: IMapStateToProps;
-  mapDispatchToProps: IMapDispatchToProps;
-  options: IConnectOptions;
-  mergeProps(stateProps: any, dispatchProps: any, ownProps: any): any;
-  mapQueriesToProps(opts: MapQueriesToPropsOptions): any; // WatchQueryHandle
-  mapMutationsToProps(opts: MapMutationsToPropsOptions): any; // Mutation Handle
+  mapStateToProps?: IMapStateToProps;
+  mapDispatchToProps?: IMapDispatchToProps;
+  options?: IConnectOptions;
+  mergeProps?(stateProps: any, dispatchProps: any, ownProps: any): any;
+  mapQueriesToProps?(opts: MapQueriesToPropsOptions): any; // WatchQueryHandle
+  mapMutationsToProps?(opts: MapMutationsToPropsOptions): any; // Mutation Handle
 };
 
 const defaultMapQueriesToProps = opts => ({ });
@@ -65,7 +66,12 @@ function getDisplayName(WrappedComponent) {
 // Helps track hot reloading.
 let nextVersion = 0;
 
-export default function connect(opts: ConnectOptions) {
+export default function connect(opts?: ConnectOptions) {
+
+  if (!opts) {
+    opts = {};
+  }
+
   let { mapQueriesToProps, mapMutationsToProps } = opts;
 
   // clean up the options for passing to redux
@@ -124,6 +130,10 @@ export default function connect(opts: ConnectOptions) {
     class ApolloConnect extends Component<any, any> {
       static displayName = apolloConnectDisplayName;
       static WrappedComponent = WrappedComponent;
+      static contextTypes = {
+        store: PropTypes.object.isRequired,
+        client: PropTypes.object.isRequired,
+      };
 
       public version: number;
       public store: Store<any>;
@@ -156,18 +166,18 @@ export default function connect(opts: ConnectOptions) {
         this.data = {};
       }
 
-      // componentWillMount(){
-
-      // }
-
-      // best practice says make external requests in `componentDidMount` as to
-      // not block rendering
-      componentDidMount() {
+      componentWillMount() {
         const { props, state } = this;
         this.subscribeToAllQueries(props, state);
       }
 
-      componentWillRecieveProps(nextProps, nextState) {
+      // // best practice says make external requests in `componentDidMount` as to
+      // // not block rendering
+      // componentDidMount() {
+
+      // }
+
+      componentWillReceiveProps(nextProps, nextState) {
         // we got new props, we need to unsubscribe and re-watch all handles
         // with the new data
         // XXX determine if any of this data is actually used somehow
@@ -253,7 +263,7 @@ export default function connect(opts: ConnectOptions) {
         this.hasQueryDataChanged = false;
         this.hasMutationDataChanged = false;
 
-        const mergedPropsAndData = assign(this.props, this.data);
+        const mergedPropsAndData = assign({}, this.props, this.data);
 
         if (
           !haveOwnPropsChanged &&
@@ -265,7 +275,6 @@ export default function connect(opts: ConnectOptions) {
         }
 
         this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);
-
         return this.renderedElement;
       }
 

@@ -10,12 +10,11 @@ import {
   Store,
 } from 'redux';
 
-// XXX add in type defs from apollo-client
-// import ApolloClient from "apollo-client"
+import ApolloClient from 'apollo-client';
 
 export declare interface ProviderProps {
   store: Store<any>;
-  client: any;
+  client: ApolloClient;
 }
 
 export default class Provider extends Component<ProviderProps, any> {
@@ -35,8 +34,7 @@ export default class Provider extends Component<ProviderProps, any> {
   };
 
   public store: Store<any>;
-  // public client: ApolloClient;
-  public client: any;
+  public client: ApolloClient;
 
   constructor(props, context) {
     super(props, context);
