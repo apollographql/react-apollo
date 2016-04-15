@@ -610,8 +610,9 @@ describe('connect', () => {
 
       @connect({ mapQueriesToProps })
       class Container extends React.Component<any, any> {
-        componentWillReceiveProps(nextProps) {
-          expect(nextProps.luke.result).to.deep.equal(data);
+        componentDidUpdate(prevProps) {
+          expect(prevProps.luke.loading).to.be.true;
+          expect(this.props.luke.result).to.deep.equal(data);
           done();
         }
         render() {
