@@ -5,6 +5,7 @@ import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore } from 'redux';
 import { connect as ReactReduxConnect } from 'react-redux';
+// import { spy } from 'sinon';
 
 import {
   GraphQLResult,
@@ -478,6 +479,152 @@ describe('connect', () => {
       expect(props.people).to.exist;
       expect(props.people.loading).to.be.true;
     });
+
+    it('allows for multiple queries', () => {
+      const store = createStore(() => ({
+        foo: 'bar',
+        baz: 42,
+        hello: 'world',
+      }));
+
+      const peopleQuery = `
+        query people($count: Int) {
+          allPeople(first: $count) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const peopleData = {
+        allPeople: {
+          people: [
+            {
+              name: 'Luke Skywalker',
+            },
+          ],
+        },
+      };
+
+      // const shipData = {
+      //   allStarships: {
+      //     starships: [
+      //       {
+      //         name: 'CR90 corvette',
+      //       },
+      //     ],
+      //   },
+      // };
+
+      const shipQuery = `
+        query starships($count: Int) {
+          allStarships(first: $count) {
+            starships {
+              name
+            }
+          }
+        }
+      `;
+
+      const variables = { count: 1 };
+
+      const networkInterface = mockNetworkInterface({
+        request: { query: peopleQuery, variables },
+        result: { data: peopleData },
+      });
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      function mapQueriesToProps({ watchQuery }) {
+        return {
+          people: watchQuery({ query: peopleQuery, variables }),
+          ships: watchQuery({ query: shipQuery, variables }),
+        };
+      };
+
+      @connect({ mapQueriesToProps })
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      const wrapper = mount(
+        <ProviderMock store={store} client={client}>
+          <Container />
+        </ProviderMock>
+      );
+
+      const props = wrapper.find('span').props() as any;
+
+      expect(props.people).to.exist;
+      expect(props.people.loading).to.be.true;
+
+      expect(props.ships).to.exist;
+      expect(props.ships.loading).to.be.true;
+    });
+
+
+    it('should update the props of the child component when data is returned', (done) => {
+      const store = createStore(() => ({ }));
+
+      const query = `
+        query people {
+          luke: allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const data = {
+        luke: {
+          people: [
+            {
+              name: 'Luke Skywalker',
+            },
+          ],
+        },
+      };
+
+      const networkInterface = mockNetworkInterface({
+        request: { query },
+        result: { data },
+      });
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      function mapQueriesToProps({ watchQuery }) {
+        return {
+          luke: watchQuery({
+            query,
+          }),
+        };
+      };
+
+      @connect({ mapQueriesToProps })
+      class Container extends React.Component<any, any> {
+        componentWillReceiveProps(nextProps) {
+          expect(nextProps.luke.result).to.deep.equal(data);
+          done();
+        }
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      mount(
+        <ProviderMock store={store} client={client}>
+          <Container />
+        </ProviderMock>
+      );
+    });
   });
 });
 
@@ -497,13 +644,11 @@ function mockNetworkInterface(
   const queryMock = (req: Request) => {
     return new Promise((resolve, reject) => {
       // network latency
-      setTimeout(() => {
-        const resultData = requestToResultMap[requestToKey(req)];
-        if (!resultData) {
-          throw new Error(`Passed request that wasn't mocked: ${requestToKey(req)}`);
-        }
-        resolve(resultData);
-      }, 100);
+      const resultData = requestToResultMap[requestToKey(req)];
+      if (!resultData) {
+        throw new Error(`Passed request that wasn't mocked: ${requestToKey(req)}`);
+      }
+      resolve(resultData);
 
     });
   };
