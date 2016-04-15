@@ -161,7 +161,7 @@ export default function connect(opts?: ConnectOptions) {
         );
 
         const storeState = this.store.getState();
-        this.state = { storeState };
+        this.state = assign({}, storeState);
 
         this.data = {};
       }

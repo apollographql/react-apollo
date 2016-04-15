@@ -246,17 +246,7 @@ describe('connect', () => {
 
      function mapQueriesToProps({ watchQuery }) {
         return {
-          category: watchQuery({
-            query: `
-              query people {
-                allPeople(first: 1) {
-                  people {
-                    name
-                  }
-                }
-              }
-            `,
-          }),
+          people: watchQuery({ query }),
         };
       };
 
@@ -275,8 +265,218 @@ describe('connect', () => {
 
       const props = wrapper.find('span').props() as any;
 
-      expect(props.category).to.exist;
-      expect(props.category.loading).to.be.true;
+      expect(props.people).to.exist;
+      expect(props.people.loading).to.be.true;
+    });
+
+    it('allows variables as part of the request', () => {
+      const store = createStore(() => ({
+        foo: 'bar',
+        baz: 42,
+        hello: 'world',
+      }));
+
+      const query = `
+        query people($count: Int) {
+          allPeople(first: $count) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        count: 1,
+      };
+
+      const data = {
+        allPeople: {
+          people: [
+            {
+              name: 'Luke Skywalker',
+            },
+          ],
+        },
+      };
+
+
+      const networkInterface = mockNetworkInterface({
+        request: { query, variables },
+        result: { data },
+      });
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+     function mapQueriesToProps({ watchQuery }) {
+        return {
+          people: watchQuery({ query, variables }),
+        };
+      };
+
+      @connect({ mapQueriesToProps })
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      const wrapper = mount(
+        <ProviderMock store={store} client={client}>
+          <Container pass='through' baz={50} />
+        </ProviderMock>
+      );
+
+      const props = wrapper.find('span').props() as any;
+
+      expect(props.people).to.exist;
+      expect(props.people.loading).to.be.true;
+    });
+
+    it('can use passed props as part of the query', () => {
+      const store = createStore(() => ({
+        foo: 'bar',
+        baz: 42,
+        hello: 'world',
+      }));
+
+      const query = `
+        query people($count: Int) {
+          allPeople(first: $count) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        count: 1,
+      };
+
+      const data = {
+        allPeople: {
+          people: [
+            {
+              name: 'Luke Skywalker',
+            },
+          ],
+        },
+      };
+
+
+      const networkInterface = mockNetworkInterface({
+        request: { query, variables },
+        result: { data },
+      });
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      function mapQueriesToProps({ watchQuery, ownProps }) {
+        expect(ownProps.passedCountProp).to.equal(2);
+        return {
+          people: watchQuery({
+            query,
+            variables: {
+              count: ownProps.passedCountProp,
+            },
+          }),
+        };
+      };
+
+      @connect({ mapQueriesToProps })
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      const wrapper = mount(
+        <ProviderMock store={store} client={client}>
+          <Container passedCountProp={2} />
+        </ProviderMock>
+      );
+
+      const props = wrapper.find('span').props() as any;
+
+      expect(props.people).to.exist;
+      expect(props.people.loading).to.be.true;
+    });
+
+    it('can use the redux state as part of the query', () => {
+      const store = createStore(() => ({
+        foo: 'bar',
+        baz: 42,
+        hello: 'world',
+      }));
+
+      const query = `
+        query people($count: Int) {
+          allPeople(first: $count) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        count: 1,
+      };
+
+      const data = {
+        allPeople: {
+          people: [
+            {
+              name: 'Luke Skywalker',
+            },
+          ],
+        },
+      };
+
+
+      const networkInterface = mockNetworkInterface({
+        request: { query, variables },
+        result: { data },
+      });
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      function mapQueriesToProps({ watchQuery, state }) {
+        expect(state.hello).to.equal('world');
+        return {
+          people: watchQuery({
+            query,
+            variables: {
+              count: 1,
+            },
+          }),
+        };
+      };
+
+      @connect({ mapQueriesToProps })
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      const wrapper = mount(
+        <ProviderMock store={store} client={client}>
+          <Container passedCountProp={2} />
+        </ProviderMock>
+      );
+
+      const props = wrapper.find('span').props() as any;
+
+      expect(props.people).to.exist;
+      expect(props.people.loading).to.be.true;
     });
   });
 });
