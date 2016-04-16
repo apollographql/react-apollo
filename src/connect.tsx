@@ -253,23 +253,21 @@ export default function connect(opts?: ConnectOptions) {
         // has been recieved
 
         // XXX use newer subscribe method
-        // XXX merge this.data instead of a full replace
         /*
 
         handle.subscribe({
           onResult(({ error, data }) => {
-            this.data[key] = {
+            this.data[key] = assign(this.data[key], {
               loading: false,
               result: data,
               error,
-            }
+            });
           }),
           onError((error) => {
-            this.data[key] = {
+            this.data[key] = assign(this.data[key], {
               loading: false,
-              result: null, //
               error,
-            }
+            });
           }),
         })
 
