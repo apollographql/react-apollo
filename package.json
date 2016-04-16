@@ -1,11 +1,67 @@
 {
-  "name": "apollo-react",
+  "name": "react-apollo",
   "version": "0.0.1",
   "description": "React data container for Apollo Client",
-  "main": "index.js",
+  "main": "./lib/src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "npm run compile",
+    "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
+    "posttest": "npm run lint",
+    "compile": "tsc",
+    "watch": "tsc -w",
+    "prepublish": "npm run compile",
+    "lint": "tslint src/*.ts* && tslint test/*.ts*",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot --full-trace lib/test/tests.js",
+    "postcoverage": "remap-istanbul --input coverage/coverage.json --type lcovonly --output coverage/lcov.info"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "apollostack/react-apollo"
+  },
+  "keywords": [
+    "ecmascript",
+    "es2015",
+    "jsnext",
+    "javascript",
+    "relay",
+    "npm",
+    "react"
+  ],
+  "author": "James Baxley <james.baxley@newspring.cc>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0-0",
+    "redux": "^2.0.0 || ^3.0.0",
+    "apollo-client": "0.0.5"
+  },
+  "devDependencies": {
+    "apollo-client": "0.0.5",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
+    "chai-enzyme": "^0.4.2",
+    "cheerio": "^0.20.0",
+    "enzyme": "^2.2.0",
+    "graphql": "^0.5.0",
+    "istanbul": "^0.4.2",
+    "jsdom": "^8.3.1",
+    "mocha": "^2.3.3",
+    "react": "^15.0.1",
+    "react-addons-test-utils": "^15.0.1",
+    "react-dom": "^0.14.8",
+    "redux": "^3.4.0",
+    "remap-istanbul": "^0.5.1",
+    "source-map-support": "^0.4.0",
+    "swapi-graphql": "0.0.4",
+    "tslint": "^3.6.0",
+    "typescript": "^1.8.9",
+    "typescript-require": "^0.2.9-1",
+    "typings": "^0.7.9"
+  },
+  "dependencies": {
+    "hoist-non-react-statics": "^1.0.5",
+    "lodash.isequal": "^4.1.1",
+    "lodash.isobject": "^3.0.2",
+    "object-assign": "^4.0.1",
+    "react-redux": "^4.4.4"
+  }
 }

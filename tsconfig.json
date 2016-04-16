@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "declaration": true,
+    "noImplicitAny": false,
+    "rootDir": ".",
+    "outDir": "lib",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "pretty": true,
+    "removeComments": true,
+    "jsx": "react"
+  },
+  "exclude": [
+    "typings",
+    "node_modules",
+    "dist",
+    "lib",
+    "test/fixtures"
+   ]
+}
