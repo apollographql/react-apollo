@@ -2,9 +2,10 @@
 
 Use your GraphQL server data in your React components, with the Apollo Client.
 
-## API sketch
-
-I'd like to base this very heavily on the [`react-redux` API](https://github.com/reactjs/react-redux/blob/master/docs/api.md#api) and have the same parts - a `Provider` component and a `connect` function. Ideally, if you are using Apollo and Redux together, you don't have to nest calls to providers and containers - they should just work together. So, here we go!
+- [Provider](#Provider)
+- [connect](#connect)
+- [Additional Props](#Additional Props)
+- [Using in concert with Redux:](#Using in concert with Redux:)
 
 ### Provider
 
@@ -54,7 +55,7 @@ ReactDOM.render(
 )
 ```
 
-Note that this design calls it just `Provider`, which is appropriate because in the base case you can use it instead of the Redux provider.
+The wrapper is called `Provider` because in the base case you can use it instead of the Redux provider or you can use it as an Apollo enhanced Redux Provider.
 
 ### connect
 
@@ -72,9 +73,9 @@ import { connect } from 'apollo-react';
 
 import Category from '../components/Category';
 
-function mapQueriesToProps({ watchQuery, ownProps, state }) {
+function mapQueriesToProps({ ownProps, state }) {
   return {
-    category: watchQuery({
+    category: {
       query: `
         query getCategory($categoryId: Int!) {
           category(id: $categoryId) {
@@ -88,44 +89,42 @@ function mapQueriesToProps({ watchQuery, ownProps, state }) {
       },
       forceFetch: false,
       returnPartialData: true,
-    })
-  }
-}
+    },
+  };
+};
 
-function mapMutationsToProps({ mutate, ownProps, state }) {
+function mapMutationsToProps({ ownProps, state }) {
   return {
-    onPostReply(raw) {
-      return mutate({
-        mutation: `
-          mutation postReply(
-            $topic_id: ID!
-            $category_id: ID!
-            $raw: String!
+    postReply: (raw) => ({
+      mutation: `
+        mutation postReply(
+          $topic_id: ID!
+          $category_id: ID!
+          $raw: String!
+        ) {
+          createPost(
+            topic_id: $topic_id
+            category: $category_id
+            raw: $raw
           ) {
-            createPost(
-              topic_id: $topic_id
-              category: $category_id
-              raw: $raw
-            ) {
-              id
-              cooked
-            }
+            id
+            cooked
           }
-        `,
-        variables: {
-          // Use the container component's props
-          topic_id: ownProps.topic_id,
-
-          // Use the redux state
-          category_id: state.selectedCategory,
-
-          // Use an argument passed from the callback
-          raw,
         }
-      });
-    }
-  }
-}
+      `,
+      variables: {
+        // Use the container component's props
+        topic_id: ownProps.topic_id,
+
+        // Use the redux state
+        category_id: state.selectedCategory,
+
+        // Use an argument passed from the triggering of the mutation
+        raw,
+      }
+    }),
+  };
+};
 
 const CategoryWithData = connect({
   mapQueriesToProps,
@@ -135,7 +134,7 @@ const CategoryWithData = connect({
 export default CategoryWithData;
 ```
 
-Note that `watchQuery` takes the same arguments as [`ApolloClient#watchQuery`](http://docs.apollostack.com/apollo-client/index.html#watchQuery). In this case, the `Category` component will get a prop called `category`, which has the following keys:
+Each key on the object returned by mapQueriesToProps should be made up of the same possible arguments as [`ApolloClient#watchQuery`](http://docs.apollostack.com/apollo-client/index.html#watchQuery). In this case, the `Category` component will get a prop called `category`, which has the following keys:
 
 ```js
 {
@@ -145,7 +144,23 @@ Note that `watchQuery` takes the same arguments as [`ApolloClient#watchQuery`](h
 }
 ```
 
-Using in concert with Redux:
+mapMutationsToProps returns an object made up of keys and values that are custom functions to call the mutation. These can be used in children components (for instance, on a event handler) to trigger the mutation. The resulting function must return the same possible arguents as [`ApolloClient#mutate`](http://docs.apollostack.com/apollo-client/index.html#mutate). In this case, the `Category` component will get a prop called `postReply`, which has the following keys:
+
+```js
+{
+  loading: boolean,
+  error: Error,
+  result: GraphQLResult,
+}
+```
+
+The `Category` component will also get a prop of `mutations` that will have a key of `postReply`. This key is the method that triggers the mutation and can take custom arguments (e.g. `this.props.mutations.postReply('Apollo and React are really great!')). These arguments are passed to the method that creates the mutation.
+
+### Additional Props
+
+Redux's connect will pass `dispatch` as a prop unless action creators are passed using `mapDisptachToProps`. Likewise, the Apollo connect exposes part of the apollo-client api to props under the keys `query` and `mutate`. These correspond to the Apollo methods and can be used for custom needs outside of the ability of the wrapper component.
+
+### Using in concert with Redux
 
 ```js
 // ... same as above
