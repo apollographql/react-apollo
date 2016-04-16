@@ -13,7 +13,7 @@ import {
 import ApolloClient from 'apollo-client';
 
 export declare interface ProviderProps {
-  store: Store<any>;
+  store?: Store<any>;
   client: ApolloClient;
 }
 
@@ -39,7 +39,16 @@ export default class Provider extends Component<ProviderProps, any> {
   constructor(props, context) {
     super(props, context);
     this.client = props.client;
-    this.store = props.store;
+
+    if (props.store) {
+      this.store = props.store;
+      return;
+    }
+
+    // intialize the built in store if none is passed in
+    props.client.initStore();
+    this.store = props.client.store;
+
   }
 
   getChildContext() {

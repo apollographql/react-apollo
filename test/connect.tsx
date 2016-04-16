@@ -5,6 +5,7 @@ import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore } from 'redux';
 import { connect as ReactReduxConnect } from 'react-redux';
+import assign = require('object-assign');
 // import { spy } from 'sinon';
 
 import {
@@ -50,6 +51,123 @@ describe('connect', () => {
     }
   };
 
+  describe('prop api', () => {
+    it('should pass `ApolloClient.query` as props.query', () => {
+      const store = createStore(() => ({ }));
+      const query = `
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const data = {
+        allPeople: {
+          people: [
+            {
+              name: 'Luke Skywalker',
+            },
+          ],
+        },
+      };
+
+      const networkInterface = mockNetworkInterface({
+        request: { query },
+        result: { data },
+      });
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      @connect()
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      const wrapper = mount(
+        <ProviderMock store={store} client={client}>
+          <Container pass='through' baz={50} />
+        </ProviderMock>
+      );
+
+
+      const props = wrapper.find('span').props() as any;
+
+      expect(props.query).to.exist;
+      expect(props.query({ query })).to.be.instanceof(Promise);
+
+    });
+
+    it('should pass `ApolloClient.mutate` as props.mutate', () => {
+      const store = createStore(() => ({ }));
+      const client = new ApolloClient();
+
+      @connect()
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      const wrapper = mount(
+        <ProviderMock store={store} client={client}>
+          <Container pass='through' baz={50} />
+        </ProviderMock>
+      );
+
+
+      const props = wrapper.find('span').props() as any;
+
+      expect(props.mutate).to.exist;
+      try {
+        expect(props.mutate()).to.be.instanceof(Promise);
+      } catch (e) {
+        expect(e).to.be.instanceof(TypeError);
+      };
+
+    });
+
+    it('should pass mutation methods as props.mutations dictionary', () => {
+      const store = createStore(() => ({ }));
+
+      function mapMutationsToProps() {
+        return {
+          test: () => ({
+            mutate: ``,
+          }),
+        };
+      };
+
+      @connect({ mapMutationsToProps })
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props} />;
+        }
+      };
+
+      const wrapper = mount(
+        <ProviderMock store={store} client={{}}>
+          <Container pass='through' baz={50} />
+        </ProviderMock>
+      );
+
+
+      const props = wrapper.find('span').props() as any;
+
+      expect(props.mutations).to.exist;
+      expect(props.mutations.test).to.exist;
+      expect(props.mutations.test).to.be.instanceof(Function);
+
+    });
+
+  });
+
   describe('redux passthrough', () => {
     it('should allow mapStateToProps', () => {
       const store = createStore(() => ({
@@ -86,7 +204,10 @@ describe('connect', () => {
         </ProviderMock>
       );
 
-      const reduxProps = wrapper.find('span').props();
+      const reduxProps = assign({}, wrapper.find('span').props(), {
+        query: undefined,
+        mutate: undefined,
+      });
       const apolloProps = apolloWrapper.find('span').props();
 
       expect(reduxProps).to.deep.equal(apolloProps);
@@ -137,7 +258,10 @@ describe('connect', () => {
         </ProviderMock>
       );
 
-      const reduxProps = wrapper.find('span').props() as any;
+      const reduxProps = assign({}, wrapper.find('span').props(), {
+        query: () => {/* tslint  */},
+        mutate: () => {/* tslint  */},
+      }) as any;
       const apolloProps = apolloWrapper.find('span').props() as any;
 
       expect(reduxProps.doSomething()).to.deep.equal(apolloProps.doSomething());
@@ -198,7 +322,10 @@ describe('connect', () => {
         </ProviderMock>
       );
 
-      const reduxProps = wrapper.find('span').props() as any;
+      const reduxProps = assign({}, wrapper.find('span').props(), {
+        query: () => {/* tslint  */},
+        mutate: () => {/* tslint  */},
+      }) as any;
       const apolloProps = apolloWrapper.find('span').props() as any;
 
       expect(reduxProps.makeSomething()).to.deep.equal(apolloProps.makeSomething());
@@ -209,420 +336,871 @@ describe('connect', () => {
   });
 
   describe('apollo methods', () => {
-    it('binds a query to props', () => {
-      const store = createStore(() => ({
-        foo: 'bar',
-        baz: 42,
-        hello: 'world',
-      }));
+    describe('queries', () => {
+      it('binds a query to props', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
 
-      const query = `
-        query people {
-          allPeople(first: 1) {
-            people {
-              name
+        const query = `
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
             }
           }
-        }
-      `;
+        `;
 
-      const data = {
-        allPeople: {
-          people: [
-            {
-              name: 'Luke Skywalker',
-            },
-          ],
-        },
-      };
-
-      const networkInterface = mockNetworkInterface({
-        request: { query },
-        result: { data },
-      });
-
-      const client = new ApolloClient({
-        networkInterface,
-      });
-
-     function mapQueriesToProps() {
-        return {
-          people: { query },
-        };
-      };
-
-      @connect({ mapQueriesToProps })
-      class Container extends React.Component<any, any> {
-        render() {
-          return <Passthrough {...this.props} />;
-        }
-      };
-
-      const wrapper = mount(
-        <ProviderMock store={store} client={client}>
-          <Container pass='through' baz={50} />
-        </ProviderMock>
-      );
-
-      const props = wrapper.find('span').props() as any;
-
-      expect(props.people).to.exist;
-      expect(props.people.loading).to.be.true;
-    });
-
-    it('allows variables as part of the request', () => {
-      const store = createStore(() => ({
-        foo: 'bar',
-        baz: 42,
-        hello: 'world',
-      }));
-
-      const query = `
-        query people($count: Int) {
-          allPeople(first: $count) {
-            people {
-              name
-            }
-          }
-        }
-      `;
-
-      const variables = {
-        count: 1,
-      };
-
-      const data = {
-        allPeople: {
-          people: [
-            {
-              name: 'Luke Skywalker',
-            },
-          ],
-        },
-      };
-
-
-      const networkInterface = mockNetworkInterface({
-        request: { query, variables },
-        result: { data },
-      });
-
-      const client = new ApolloClient({
-        networkInterface,
-      });
-
-     function mapQueriesToProps() {
-        return {
-          people: { query, variables },
-        };
-      };
-
-      @connect({ mapQueriesToProps })
-      class Container extends React.Component<any, any> {
-        render() {
-          return <Passthrough {...this.props} />;
-        }
-      };
-
-      const wrapper = mount(
-        <ProviderMock store={store} client={client}>
-          <Container pass='through' baz={50} />
-        </ProviderMock>
-      );
-
-      const props = wrapper.find('span').props() as any;
-
-      expect(props.people).to.exist;
-      expect(props.people.loading).to.be.true;
-    });
-
-    it('can use passed props as part of the query', () => {
-      const store = createStore(() => ({
-        foo: 'bar',
-        baz: 42,
-        hello: 'world',
-      }));
-
-      const query = `
-        query people($count: Int) {
-          allPeople(first: $count) {
-            people {
-              name
-            }
-          }
-        }
-      `;
-
-      const variables = {
-        count: 1,
-      };
-
-      const data = {
-        allPeople: {
-          people: [
-            {
-              name: 'Luke Skywalker',
-            },
-          ],
-        },
-      };
-
-
-      const networkInterface = mockNetworkInterface({
-        request: { query, variables },
-        result: { data },
-      });
-
-      const client = new ApolloClient({
-        networkInterface,
-      });
-
-      function mapQueriesToProps({ ownProps }) {
-        expect(ownProps.passedCountProp).to.equal(2);
-        return {
-          people: {
-            query,
-            variables: {
-              count: ownProps.passedCountProp,
-            },
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
           },
         };
-      };
 
-      @connect({ mapQueriesToProps })
-      class Container extends React.Component<any, any> {
-        render() {
-          return <Passthrough {...this.props} />;
-        }
-      };
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
 
-      const wrapper = mount(
-        <ProviderMock store={store} client={client}>
-          <Container passedCountProp={2} />
-        </ProviderMock>
-      );
+        const client = new ApolloClient({
+          networkInterface,
+        });
 
-      const props = wrapper.find('span').props() as any;
+      function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
 
-      expect(props.people).to.exist;
-      expect(props.people.loading).to.be.true;
-    });
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
 
-    it('can use the redux state as part of the query', () => {
-      const store = createStore(() => ({
-        foo: 'bar',
-        baz: 42,
-        hello: 'world',
-      }));
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
 
-      const query = `
-        query people($count: Int) {
-          allPeople(first: $count) {
-            people {
-              name
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.loading).to.be.true;
+      });
+
+      it('allows variables as part of the request', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = `
+          query people($count: Int) {
+            allPeople(first: $count) {
+              people {
+                name
+              }
             }
           }
-        }
-      `;
+        `;
 
-      const variables = {
-        count: 1,
-      };
+        const variables = {
+          count: 1,
+        };
 
-      const data = {
-        allPeople: {
-          people: [
-            {
-              name: 'Luke Skywalker',
-            },
-          ],
-        },
-      };
-
-
-      const networkInterface = mockNetworkInterface({
-        request: { query, variables },
-        result: { data },
-      });
-
-      const client = new ApolloClient({
-        networkInterface,
-      });
-
-      function mapQueriesToProps({ state }) {
-        expect(state.hello).to.equal('world');
-        return {
-          people: {
-            query,
-            variables: {
-              count: 1,
-            },
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
           },
         };
-      };
 
-      @connect({ mapQueriesToProps })
-      class Container extends React.Component<any, any> {
-        render() {
-          return <Passthrough {...this.props} />;
-        }
-      };
 
-      const wrapper = mount(
-        <ProviderMock store={store} client={client}>
-          <Container passedCountProp={2} />
-        </ProviderMock>
-      );
+        const networkInterface = mockNetworkInterface({
+          request: { query, variables },
+          result: { data },
+        });
 
-      const props = wrapper.find('span').props() as any;
-
-      expect(props.people).to.exist;
-      expect(props.people.loading).to.be.true;
-    });
-
-    it('allows for multiple queries', () => {
-      const store = createStore(() => ({
-        foo: 'bar',
-        baz: 42,
-        hello: 'world',
-      }));
-
-      const peopleQuery = `
-        query people($count: Int) {
-          allPeople(first: $count) {
-            people {
-              name
-            }
-          }
-        }
-      `;
-
-      const peopleData = {
-        allPeople: {
-          people: [
-            {
-              name: 'Luke Skywalker',
-            },
-          ],
-        },
-      };
-
-      // const shipData = {
-      //   allStarships: {
-      //     starships: [
-      //       {
-      //         name: 'CR90 corvette',
-      //       },
-      //     ],
-      //   },
-      // };
-
-      const shipQuery = `
-        query starships($count: Int) {
-          allStarships(first: $count) {
-            starships {
-              name
-            }
-          }
-        }
-      `;
-
-      const variables = { count: 1 };
-
-      const networkInterface = mockNetworkInterface({
-        request: { query: peopleQuery, variables },
-        result: { data: peopleData },
-      });
-
-      const client = new ApolloClient({
-        networkInterface,
-      });
+        const client = new ApolloClient({
+          networkInterface,
+        });
 
       function mapQueriesToProps() {
-        return {
-          people: { query: peopleQuery, variables },
-          ships: { query: shipQuery, variables },
+          return {
+            people: { query, variables },
+          };
         };
-      };
 
-      @connect({ mapQueriesToProps })
-      class Container extends React.Component<any, any> {
-        render() {
-          return <Passthrough {...this.props} />;
-        }
-      };
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
 
-      const wrapper = mount(
-        <ProviderMock store={store} client={client}>
-          <Container />
-        </ProviderMock>
-      );
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
 
-      const props = wrapper.find('span').props() as any;
+        const props = wrapper.find('span').props() as any;
 
-      expect(props.people).to.exist;
-      expect(props.people.loading).to.be.true;
+        expect(props.people).to.exist;
+        expect(props.people.loading).to.be.true;
+      });
 
-      expect(props.ships).to.exist;
-      expect(props.ships.loading).to.be.true;
-    });
+      it('can use passed props as part of the query', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
 
-
-    it('should update the props of the child component when data is returned', (done) => {
-      const store = createStore(() => ({ }));
-
-      const query = `
-        query people {
-          luke: allPeople(first: 1) {
-            people {
-              name
+        const query = `
+          query people($count: Int) {
+            allPeople(first: $count) {
+              people {
+                name
+              }
             }
           }
-        }
-      `;
+        `;
 
-      const data = {
-        luke: {
-          people: [
-            {
-              name: 'Luke Skywalker',
-            },
-          ],
-        },
-      };
-
-      const networkInterface = mockNetworkInterface({
-        request: { query },
-        result: { data },
-      });
-
-      const client = new ApolloClient({
-        networkInterface,
-      });
-
-      function mapQueriesToProps() {
-        return {
-          luke: { query },
+        const variables = {
+          count: 1,
         };
-      };
 
-      @connect({ mapQueriesToProps })
-      class Container extends React.Component<any, any> {
-        componentDidUpdate(prevProps) {
-          expect(prevProps.luke.loading).to.be.true;
-          expect(this.props.luke.result).to.deep.equal(data);
-          done();
-        }
-        render() {
-          return <Passthrough {...this.props} />;
-        }
-      };
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
 
-      mount(
-        <ProviderMock store={store} client={client}>
-          <Container />
-        </ProviderMock>
-      );
+
+        const networkInterface = mockNetworkInterface({
+          request: { query, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps({ ownProps }) {
+          expect(ownProps.passedCountProp).to.equal(2);
+          return {
+            people: {
+              query,
+              variables: {
+                count: ownProps.passedCountProp,
+              },
+            },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container passedCountProp={2} />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.loading).to.be.true;
+      });
+
+      it('can use the redux state as part of the query', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = `
+          query people($count: Int) {
+            allPeople(first: $count) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const variables = {
+          count: 1,
+        };
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+
+        const networkInterface = mockNetworkInterface({
+          request: { query, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps({ state }) {
+          expect(state.hello).to.equal('world');
+          return {
+            people: {
+              query,
+              variables: {
+                count: 1,
+              },
+            },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container passedCountProp={2} />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.loading).to.be.true;
+      });
+
+      it('allows for multiple queries', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const peopleQuery = `
+          query people($count: Int) {
+            allPeople(first: $count) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const peopleData = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        // const shipData = {
+        //   allStarships: {
+        //     starships: [
+        //       {
+        //         name: 'CR90 corvette',
+        //       },
+        //     ],
+        //   },
+        // };
+
+        const shipQuery = `
+          query starships($count: Int) {
+            allStarships(first: $count) {
+              starships {
+                name
+              }
+            }
+          }
+        `;
+
+        const variables = { count: 1 };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: peopleQuery, variables },
+          result: { data: peopleData },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps() {
+          return {
+            people: { query: peopleQuery, variables },
+            ships: { query: shipQuery, variables },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.loading).to.be.true;
+
+        expect(props.ships).to.exist;
+        expect(props.ships.loading).to.be.true;
+      });
+
+
+      it('should update the props of the child component when data is returned', (done) => {
+        const store = createStore(() => ({ }));
+
+        const query = `
+          query people {
+            luke: allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          luke: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps() {
+          return {
+            luke: { query },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          componentDidUpdate(prevProps) {
+            expect(prevProps.luke.loading).to.be.true;
+            expect(this.props.luke.result).to.deep.equal(data);
+            done();
+          }
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+      });
+    });
+
+    describe('mutations', () => {
+      it('should bind mutation data to props', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const mutation = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const variables = {
+          listId: '1',
+        };
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps() {
+          return {
+            makeListPrivate: () => ({
+              mutation,
+              variables,
+            }),
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.makeListPrivate).to.exist;
+        expect(props.makeListPrivate.loading).to.be.true;
+      });
+
+      it('should bind multiple mutation keys to props', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const mutation1 = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const mutation2 = `
+          mutation makeListReallyPrivate($listId: ID!) {
+            makeListReallyPrivate(id: $listId)
+          }
+        `;
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation1 },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps() {
+          return {
+            makeListPrivate: () => ({
+              mutation1,
+            }),
+            makeListReallyPrivate: () => ({
+              mutation2,
+            }),
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.makeListPrivate).to.exist;
+        expect(props.makeListPrivate.loading).to.be.true;
+        expect(props.makeListReallyPrivate).to.exist;
+        expect(props.makeListReallyPrivate.loading).to.be.true;
+      });
+
+      it('should bind mutation handler to `props.mutations[key]`', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const mutation = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const variables = {
+          listId: '1',
+        };
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps() {
+          return {
+            makeListPrivate: () => ({
+              mutation,
+            }),
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.makeListPrivate).to.exist;
+        expect(props.makeListPrivate.loading).to.be.true;
+
+        expect(props.mutations).to.exist;
+        expect(props.mutations.makeListPrivate).to.exist;
+        expect(props.mutations.makeListPrivate).to.be.instanceof(Function);
+      });
+
+      it('should update the props of the child component when data is returned', (done) => {
+        const store = createStore(() => ({ }));
+
+        const mutation = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const variables = {
+          listId: '1',
+        };
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps() {
+          return {
+            makeListPrivate: () => ({
+              mutation,
+              variables,
+            }),
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          componentDidMount() {
+            // call the muation
+            this.props.mutations.makeListPrivate();
+          }
+
+          componentDidUpdate(prevProps) {
+            expect(prevProps.makeListPrivate.loading).to.be.true;
+            expect(this.props.makeListPrivate.result).to.deep.equal(data);
+            done();
+          }
+
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+      });
+
+      it('can use passed props as part of the mutation', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const mutation = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const variables = {
+          listId: '1',
+        };
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps({ ownProps }) {
+          expect(ownProps.listId).to.equal('1');
+          return {
+            makeListPrivate: () => {
+              return {
+                mutation,
+                variables: {
+                  listId: ownProps.listId,
+                },
+              };
+            },
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          componentDidMount() {
+            // call the muation
+            this.props.mutations.makeListPrivate();
+          }
+
+          componentDidUpdate(prevProps) {
+            expect(prevProps.makeListPrivate.loading).to.be.true;
+            expect(this.props.makeListPrivate.result).to.deep.equal(data);
+            done();
+          }
+
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container listId={'1'} />
+          </ProviderMock>
+        );
+      });
+
+      it('can use the redux store as part of the mutation', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          listId: '1',
+        }));
+
+        const mutation = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const variables = {
+          listId: '1',
+        };
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps({ state }) {
+          expect(state.listId).to.equal('1');
+          return {
+            makeListPrivate: () => {
+              return {
+                mutation,
+                variables: {
+                  listId: state.listId,
+                },
+              };
+            },
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          componentDidMount() {
+            // call the muation
+            this.props.mutations.makeListPrivate();
+          }
+
+          componentDidUpdate(prevProps) {
+            expect(prevProps.makeListPrivate.loading).to.be.true;
+            expect(this.props.makeListPrivate.result).to.deep.equal(data);
+            done();
+          }
+
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container listId={'1'} />
+          </ProviderMock>
+        );
+      });
+
+      it('should allow passing custom arugments to mutation handle', (done) => {
+        const store = createStore(() => ({ }));
+
+        const mutation = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const variables = {
+          listId: '1',
+        };
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps() {
+          return {
+            makeListPrivate: (listId) => {
+              // expect(listId).to.equal('1');
+              return {
+                mutation,
+                variables: {
+                  listId,
+                },
+              };
+            },
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          componentDidMount() {
+            // call the muation
+            this.props.mutations.makeListPrivate('1');
+          }
+
+          componentDidUpdate(prevProps) {
+            expect(prevProps.makeListPrivate.loading).to.be.true;
+            expect(this.props.makeListPrivate.result).to.deep.equal(data);
+            done();
+          }
+
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+      });
+
     });
   });
 });

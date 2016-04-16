@@ -44,6 +44,16 @@ describe('<Provider /> Component', () => {
     expect(wrapper.contains(<div className='unique' />)).to.equal(true);
   });
 
+  it('should not require a store', () => {
+    const wrapper = shallow(
+      <Provider client={client}>
+        <div className='unique' />
+      </Provider>
+    );
+
+    expect(wrapper.contains(<div className='unique' />)).to.equal(true);
+  });
+
   // it('should throw if rendered without a child component', () => {
   //   const store = createStore(() => ({}));
 

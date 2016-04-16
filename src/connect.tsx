@@ -29,6 +29,12 @@ import {
   Store,
 } from 'redux';
 
+import ApolloClient from 'apollo-client';
+
+import {
+  GraphQLResult,
+} from 'graphql';
+
 export declare interface MapQueriesToPropsOptions {
   ownProps: any;
   state: any;
@@ -55,6 +61,7 @@ const defaultQueryData = {
   error: null,
   result: null,
 };
+const defaultMutationData = assign({}, defaultQueryData);
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -74,25 +81,6 @@ export default function connect(opts?: ConnectOptions) {
   // clean up the options for passing to redux
   delete opts.mapQueriesToProps;
   delete opts.mapMutationsToProps;
-
-  /*
-
-    This connect is a wrapper around react-redux's connect. If called
-    without any apollo specific actions, we can pass the props straight to
-    react-redux's connect and call it quits
-
-  */
-  if (!mapQueriesToProps && !mapMutationsToProps) {
-    const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
-    return function passReactReduxArgumentsPlain(WrappedComponent) {
-      return ReactReduxConnect(
-        mapStateToProps,
-        mapDispatchToProps,
-        mergeProps,
-        options
-      )(WrappedComponent);
-    };
-  };
 
   /*
 
@@ -132,19 +120,27 @@ export default function connect(opts?: ConnectOptions) {
         client: PropTypes.object.isRequired,
       };
 
-      public version: number;
-      public store: Store<any>;
-      public client: any; // apollo client
+      // react and react dev tools (HMR) needs
       public state: any; // redux state
       public props: any; // passed props
-      public data: any; // apollo data
+      public version: number;
 
-      public queryHandles: any;
-      public haveOwnPropsChanged: boolean;
-      public hasQueryDataChanged: boolean;
-      public hasMutationDataChanged: boolean;
+      // data storage
+      private store: Store<any>;
+      private client: ApolloClient; // apollo client
+      private data: any; // apollo data
 
-      public renderedElement: any;
+      // request / action storage
+      private queryHandles: any;
+      private mutations: any;
+
+      // calculated switches to control rerenders
+      private haveOwnPropsChanged: boolean;
+      private hasQueryDataChanged: boolean;
+      private hasMutationDataChanged: boolean;
+
+      // the element to render
+      private renderedElement: any;
 
       constructor(props, context) {
         super(props, context);
@@ -152,7 +148,7 @@ export default function connect(opts?: ConnectOptions) {
         this.store = props.store || context.store;
         this.client = props.client || context.client;
 
-        invariant(this.client,
+        invariant(!!this.client,
           `Could not find "client" in either the context or ` +
           `props of "${apolloConnectDisplayName}". ` +
           `Either wrap the root component in a <Provider>, ` +
@@ -163,11 +159,13 @@ export default function connect(opts?: ConnectOptions) {
         this.state = assign({}, storeState);
 
         this.data = {};
+        this.mutations = {};
       }
 
       componentWillMount() {
         const { props, state } = this;
         this.subscribeToAllQueries(props, state);
+        this.createAllMutationHandles(props, state);
       }
 
       // // best practice says make external requests in `componentDidMount` as to
@@ -273,19 +271,92 @@ export default function connect(opts?: ConnectOptions) {
         });
       }
 
+      createAllMutationHandles(props: any, state: any): void {
+        const mutations = mapMutationsToProps({
+          state,
+          ownProps: props,
+        });
+
+        if (isObject && Object.keys(mutations).length) {
+          for (const key in mutations) {
+            if (!mutations.hasOwnProperty(key)) {
+              continue;
+            }
+
+            // setup thunk of mutation
+            const handle = this.createMutationHandle(key, mutations[key]);
+
+            // XXX should we validate we have what we need to prevent errors?
+
+            // bind key to state for updating
+            this.data[key] = defaultMutationData;
+            this.mutations[key] = handle;
+          }
+        }
+      }
+
+      createMutationHandle(key: string, method: () => { mutation: string, variables?: any }): () => Promise<GraphQLResult> {
+        const { mutate } = this.client;
+        const { store } = this;
+
+        // middleware to update the props to send data to wrapped component
+        // when the mutation is done
+        const forceRender = ({ errors, data }: GraphQLResult): GraphQLResult => {
+          this.data[key] = {
+            loading: false,
+            result: data,
+            error: errors,
+          };
+
+          this.hasMutationDataChanged = true;
+
+          // update state to latest of redux store
+          // this forces a render of children
+          this.setState(store.getState());
+
+          return {
+            errors,
+            data,
+          };
+        };
+
+        return (...args) => {
+          // XXX should we pass the client as `this` to the mutation method?
+          // it could be useful for looking up specific apollo info to shape a mutation?
+          const { mutation, variables } = method.apply(this.client, args);
+          return mutate({ mutation, variables })
+            .then(forceRender)
+            .catch(error => forceRender({ errors: error }));
+        };
+      }
+
+
       render() {
         const {
           haveOwnPropsChanged,
           hasQueryDataChanged,
           hasMutationDataChanged,
           renderedElement,
+          mutations,
+          props,
+          data,
         } = this;
 
         this.haveOwnPropsChanged = false;
         this.hasQueryDataChanged = false;
         this.hasMutationDataChanged = false;
 
-        const mergedPropsAndData = assign({}, this.props, this.data);
+        let clientProps = {
+          mutate: this.client.mutate,
+          query: this.client.query,
+        } as any;
+
+        // XXX add in props.mutations if they are needed
+        if (Object.keys(mutations).length) {
+          clientProps.mutations = mutations;
+        }
+
+        const mergedPropsAndData = assign({}, props, data, clientProps);
 
         if (
           !haveOwnPropsChanged &&
