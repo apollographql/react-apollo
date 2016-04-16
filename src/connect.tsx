@@ -29,7 +29,7 @@ import {
   Store,
 } from 'redux';
 
-import ApolloClient from 'apollo-client';
+import ApolloClient, { readQueryFromStore } from 'apollo-client';
 
 import {
   GraphQLResult,
@@ -194,7 +194,8 @@ export default function connect(opts?: ConnectOptions) {
       }
 
       subscribeToAllQueries(props: any, state: any) {
-        const { watchQuery } = this.client;
+        const { watchQuery, reduxRootKey } = this.client;
+        const { store } = this;
 
         const queryHandles = mapQueriesToProps({
           state,
@@ -209,11 +210,27 @@ export default function connect(opts?: ConnectOptions) {
               continue;
             }
 
-            const handle = watchQuery(queryHandles[key]);
+            const { query, variables } = queryHandles[key];
 
-            // XXX preload data from store
-            // bind key to state for updating
-            this.data[key] = defaultQueryData;
+            const handle = watchQuery({ query, variables });
+
+            // rudimentary way to manually check cache
+            let queryData = defaultQueryData as any;
+            try {
+              const result = readQueryFromStore({
+                store: store.getState()[reduxRootKey].data,
+                query,
+                variables,
+              });
+
+              queryData = {
+                error: null,
+                loading: false,
+                result,
+              };
+            } catch (e) {/* tslint */}
+
+            this.data[key] = queryData;
 
             this.handleQueryData(handle, key);
           }
@@ -321,8 +338,6 @@ export default function connect(opts?: ConnectOptions) {
         };
 
         return (...args) => {
-          // XXX should we pass the client as `this` to the mutation method?
-          // it could be useful for looking up specific apollo info to shape a mutation?
           const { mutation, variables } = method.apply(this.client, args);
           return mutate({ mutation, variables })
             .then(forceRender)
@@ -351,7 +366,6 @@ export default function connect(opts?: ConnectOptions) {
           query: this.client.query,
         } as any;
 
-        // XXX add in props.mutations if they are needed
         if (Object.keys(mutations).length) {
           clientProps.mutations = mutations;
         }

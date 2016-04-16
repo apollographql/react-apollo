@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
-import { createStore } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect as ReactReduxConnect } from 'react-redux';
 import assign = require('object-assign');
 // import { spy } from 'sinon';
@@ -751,6 +751,77 @@ describe('connect', () => {
             <Container />
           </ProviderMock>
         );
+      });
+
+      it('should prefill any data already in the store', (done) => {
+
+        const query = `
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        const reducer = client.reducer() as any;
+
+        const store = createStore(
+          combineReducers({
+            apollo: reducer,
+          }),
+          applyMiddleware(client.middleware())
+        );
+
+        // we prefill the store with a query
+        client.query({ query })
+          .then(() => {
+            function mapQueriesToProps() {
+              return {
+                people: { query },
+              };
+            };
+
+            @connect({ mapQueriesToProps })
+            class Container extends React.Component<any, any> {
+              render() {
+                return <Passthrough {...this.props} />;
+              }
+            };
+
+            const wrapper = mount(
+              <ProviderMock store={store} client={client}>
+                <Container pass='through' baz={50} />
+              </ProviderMock>
+            );
+
+            const props = wrapper.find('span').props() as any;
+
+            expect(props.people).to.exist;
+            expect(props.people.loading).to.be.false;
+            expect(props.people.result).to.deep.equal(data);
+            done();
+          });
       });
     });
 
