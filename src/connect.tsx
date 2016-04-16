@@ -252,30 +252,10 @@ export default function connect(opts?: ConnectOptions) {
         // bind each handle to updating and rerendering when data
         // has been recieved
 
-        // XXX use newer subscribe method
-        /*
-
-        handle.subscribe({
-          onResult(({ error, data }) => {
-            this.data[key] = assign(this.data[key], {
-              loading: false,
-              result: data,
-              error,
-            });
-          }),
-          onError((error) => {
-            this.data[key] = assign(this.data[key], {
-              loading: false,
-              error,
-            });
-          }),
-        })
-
-        */
-        handle.onResult(({ error, data }) => {
+        const forceRender = ({ error, data }: any) => {
           this.data[key] = {
             loading: false,
-            result: data,
+            result: data || null,
             error,
           };
 
@@ -283,6 +263,11 @@ export default function connect(opts?: ConnectOptions) {
 
           // update state to latest of redux store
           this.setState(this.store.getState());
+        };
+
+        handle.subscribe({
+          onResult: forceRender,
+          onError(error) { forceRender({ error }); },
         });
       }
 
