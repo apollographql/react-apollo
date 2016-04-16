@@ -2,10 +2,10 @@
 
 Use your GraphQL server data in your React components, with the Apollo Client.
 
-- [Provider](#Provider)
+- [Provider](#provider)
 - [connect](#connect)
-- [Additional Props](#Additional Props)
-- [Using in concert with Redux:](#Using in concert with Redux:)
+- [Additional Props](#additional-props)
+- [Using in concert with Redux](#using-in-concert-with-redux)
 
 ### Provider
 
