@@ -245,9 +245,9 @@ describe('connect', () => {
         networkInterface,
       });
 
-     function mapQueriesToProps({ watchQuery }) {
+     function mapQueriesToProps() {
         return {
-          people: watchQuery({ query }),
+          people: { query },
         };
       };
 
@@ -311,9 +311,9 @@ describe('connect', () => {
         networkInterface,
       });
 
-     function mapQueriesToProps({ watchQuery }) {
+     function mapQueriesToProps() {
         return {
-          people: watchQuery({ query, variables }),
+          people: { query, variables },
         };
       };
 
@@ -377,15 +377,15 @@ describe('connect', () => {
         networkInterface,
       });
 
-      function mapQueriesToProps({ watchQuery, ownProps }) {
+      function mapQueriesToProps({ ownProps }) {
         expect(ownProps.passedCountProp).to.equal(2);
         return {
-          people: watchQuery({
+          people: {
             query,
             variables: {
               count: ownProps.passedCountProp,
             },
-          }),
+          },
         };
       };
 
@@ -449,15 +449,15 @@ describe('connect', () => {
         networkInterface,
       });
 
-      function mapQueriesToProps({ watchQuery, state }) {
+      function mapQueriesToProps({ state }) {
         expect(state.hello).to.equal('world');
         return {
-          people: watchQuery({
+          people: {
             query,
             variables: {
               count: 1,
             },
-          }),
+          },
         };
       };
 
@@ -538,10 +538,10 @@ describe('connect', () => {
         networkInterface,
       });
 
-      function mapQueriesToProps({ watchQuery }) {
+      function mapQueriesToProps() {
         return {
-          people: watchQuery({ query: peopleQuery, variables }),
-          ships: watchQuery({ query: shipQuery, variables }),
+          people: { query: peopleQuery, variables },
+          ships: { query: shipQuery, variables },
         };
       };
 
@@ -600,11 +600,9 @@ describe('connect', () => {
         networkInterface,
       });
 
-      function mapQueriesToProps({ watchQuery }) {
+      function mapQueriesToProps() {
         return {
-          luke: watchQuery({
-            query,
-          }),
+          luke: { query },
         };
       };
 

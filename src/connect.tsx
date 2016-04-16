@@ -32,14 +32,11 @@ import {
 export declare interface MapQueriesToPropsOptions {
   ownProps: any;
   state: any;
-  watchQuery(opts: any): any; // WatchQueryHandle
 };
 
 export declare interface MapMutationsToPropsOptions {
   ownProps: any;
   state: any;
-  mutate(opts: any): any; // MutationHandle
-  onPostReply(raw: any): any; // MutationHandle
 };
 
 export declare interface ConnectOptions {
@@ -141,10 +138,12 @@ export default function connect(opts?: ConnectOptions) {
       public state: any; // redux state
       public props: any; // passed props
       public data: any; // apollo data
+
       public queryHandles: any;
       public haveOwnPropsChanged: boolean;
       public hasQueryDataChanged: boolean;
       public hasMutationDataChanged: boolean;
+
       public renderedElement: any;
 
       constructor(props, context) {
@@ -200,7 +199,6 @@ export default function connect(opts?: ConnectOptions) {
         const { watchQuery } = this.client;
 
         const queryHandles = mapQueriesToProps({
-          watchQuery,
           state,
           ownProps: props,
         });
@@ -213,8 +211,9 @@ export default function connect(opts?: ConnectOptions) {
               continue;
             }
 
-            const handle = queryHandles[key];
+            const handle = watchQuery(queryHandles[key]);
 
+            // XXX preload data from store
             // bind key to state for updating
             this.data[key] = defaultQueryData;
 
@@ -237,6 +236,29 @@ export default function connect(opts?: ConnectOptions) {
       handleQueryData(handle: any, key: string) {
         // bind each handle to updating and rerendering when data
         // has been recieved
+
+        // XXX use newer subscribe method
+        // XXX merge this.data instead of a full replace
+        /*
+
+        handle.subscribe({
+          onResult(({ error, data }) => {
+            this.data[key] = {
+              loading: false,
+              result: data,
+              error,
+            }
+          }),
+          onError((error) => {
+            this.data[key] = {
+              loading: false,
+              result: null, //
+              error,
+            }
+          }),
+        })
+
+        */
         handle.onResult(({ error, data }) => {
           this.data[key] = {
             loading: false,
