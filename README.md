@@ -144,7 +144,7 @@ Each key on the object returned by mapQueriesToProps should be made up of the sa
 }
 ```
 
-mapMutationsToProps returns an object made up of keys and values that are custom functions to call the mutation. These can be used in children components (for instance, on a event handler) to trigger the mutation. The resulting function must return the same possible arguents as [`ApolloClient#mutate`](http://docs.apollostack.com/apollo-client/index.html#mutate). In this case, the `Category` component will get a prop called `postReply`, which has the following keys:
+`mapMutationsToProps` returns an object made up of keys and values that are custom functions to call the mutation. These can be used in children components (for instance, on a event handler) to trigger the mutation. The resulting function must return the same possible arguents as [`ApolloClient#mutate`](http://docs.apollostack.com/apollo-client/index.html#mutate). In this case, the `Category` component will get a prop called `postReply`, which has the following keys:
 
 ```js
 {
@@ -154,7 +154,7 @@ mapMutationsToProps returns an object made up of keys and values that are custom
 }
 ```
 
-The `Category` component will also get a prop of `mutations` that will have a key of `postReply`. This key is the method that triggers the mutation and can take custom arguments (e.g. `this.props.mutations.postReply('Apollo and React are really great!')). These arguments are passed to the method that creates the mutation.
+The `Category` component will also get a prop of `mutations` that will have a key of `postReply`. This key is the method that triggers the mutation and can take custom arguments (e.g. `this.props.mutations.postReply('Apollo and React are really great!')`). These arguments are passed to the method that creates the mutation.
 
 ### Additional Props
 
