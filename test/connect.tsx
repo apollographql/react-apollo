@@ -1269,9 +1269,11 @@ describe('connect', () => {
           }
 
           componentDidUpdate(prevProps) {
-            expect(prevProps.makeListPrivate.loading).to.be.true;
-            expect(this.props.makeListPrivate.result).to.deep.equal(data);
-            done();
+            if (!this.props.makeListPrivate.loading) {
+              expect(prevProps.makeListPrivate.loading).to.be.true;
+              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              done();
+            }
           }
 
           render() {
@@ -1338,9 +1340,12 @@ describe('connect', () => {
           }
 
           componentDidUpdate(prevProps) {
-            expect(prevProps.makeListPrivate.loading).to.be.true;
-            expect(this.props.makeListPrivate.result).to.deep.equal(data);
-            done();
+            // wait until finished loading
+            if (!this.props.makeListPrivate.loading) {
+              expect(prevProps.makeListPrivate.loading).to.be.true;
+              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              done();
+            }
           }
 
           render() {
@@ -1407,9 +1412,11 @@ describe('connect', () => {
           }
 
           componentDidUpdate(prevProps) {
-            expect(prevProps.makeListPrivate.loading).to.be.true;
-            expect(this.props.makeListPrivate.result).to.deep.equal(data);
-            done();
+            if (!this.props.makeListPrivate.loading) {
+              expect(prevProps.makeListPrivate.loading).to.be.true;
+              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              done();
+            }
           }
 
           render() {
@@ -1472,9 +1479,11 @@ describe('connect', () => {
           }
 
           componentDidUpdate(prevProps) {
-            expect(prevProps.makeListPrivate.loading).to.be.true;
-            expect(this.props.makeListPrivate.result).to.deep.equal(data);
-            done();
+            if (!this.props.makeListPrivate.loading) {
+              expect(prevProps.makeListPrivate.loading).to.be.true;
+              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              done();
+            }
           }
 
           render() {
