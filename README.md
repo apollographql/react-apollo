@@ -182,3 +182,5 @@ export default CategoryWithData;
 ```
 
 In this case, `CategoryWithData` gets two props: `category` and `selectedCategory`.
+
+// XXX document decorator
