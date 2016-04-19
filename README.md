@@ -141,6 +141,7 @@ Each key on the object returned by mapQueriesToProps should be made up of the sa
   loading: boolean,
   error: Error,
   result: GraphQLResult,
+  refetch: Function
 }
 ```
 
