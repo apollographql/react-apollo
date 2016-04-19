@@ -58,7 +58,7 @@
     "typings": "^0.7.9"
   },
   "dependencies": {
-    "hoist-non-react-statics": "^1.0.5",
+    "invariant": "^2.2.1",
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
     "object-assign": "^4.0.1",
