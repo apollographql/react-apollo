@@ -1,4 +1,4 @@
-# apollo-react
+# react-apollo
 
 [![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/apollo-client)
 [![Get on Slack](http://slack.apollostack.com/badge.svg)](http://slack.apollostack.com/)
@@ -21,7 +21,7 @@ Documentation for this client can be found [here](http://docs.apollostack.com/ap
 ```js
 import React from 'react';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { Provider } from 'apollo-react';
+import { Provider } from 'react-apollo';
 
 const networkInterface = createNetworkInterface('http://graphql-swapi.parseapp.com/');
 const client = new ApolloClient({
