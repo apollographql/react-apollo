@@ -162,12 +162,6 @@ export default function connect(opts?: ConnectOptions) {
         this.createAllMutationHandles(props, state);
       }
 
-      // // best practice says make external requests in `componentDidMount` as to
-      // // not block rendering
-      // componentDidMount() {
-
-      // }
-
       componentWillReceiveProps(nextProps, nextState) {
         // we got new props, we need to unsubscribe and re-watch all handles
         // with the new data
@@ -245,13 +239,32 @@ export default function connect(opts?: ConnectOptions) {
       handleQueryData(handle: any, key: string) {
         // bind each handle to updating and rerendering when data
         // has been recieved
+        let refetch;
+
+        // since we don't have the query id, we can manually handle
+        // a lifecyle event for loading if this query is refetched
+        const createBoundRefetch = (dataKey, refetchMethod) => {
+          return () => {
+            this.data[dataKey] = assign(this.data[dataKey], {
+              loading: true,
+              refetch,
+            });
+
+            this.hasQueryDataChanged = true;
+
+            // update state to latest of redux store
+            this.setState(this.store.getState());
+
+            refetchMethod();
+          };
+        };
 
         const forceRender = ({ error, data }: any) => {
           this.data[key] = {
             loading: false,
             result: data || null,
             error,
-            refetch: this.data[key].refetch, // copy over refetch method
+            refetch: refetch, // copy over refetch method
           };
 
           this.hasQueryDataChanged = true;
@@ -265,8 +278,10 @@ export default function connect(opts?: ConnectOptions) {
           error(error) { forceRender({ error }); },
         });
 
+        refetch = createBoundRefetch(key, this.queryHandles[key].refetch);
+
         this.data[key] = assign(this.data[key], {
-          refetch: this.queryHandles[key].refetch,
+          refetch,
         });
       }
 
@@ -321,7 +336,22 @@ export default function connect(opts?: ConnectOptions) {
 
         return (...args) => {
           const { mutation, variables } = method.apply(this.client, args);
-          return mutate({ mutation, variables })
+          return new Promise((resolve, reject) => {
+            this.data[key] = assign(this.data[key], {
+              loading: true,
+            });
+
+            this.hasMutationDataChanged = true;
+
+            // update state to latest of redux store
+            // this forces a render of children
+            this.setState(store.getState());
+
+            resolve();
+          })
+            .then(() => {
+              return mutate({ mutation, variables });
+            })
             .then(forceRender)
             .catch(error => forceRender({ errors: error }));
         };
