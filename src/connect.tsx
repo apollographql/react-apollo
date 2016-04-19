@@ -251,6 +251,7 @@ export default function connect(opts?: ConnectOptions) {
             loading: false,
             result: data || null,
             error,
+            refetch: this.data[key].refetch, // copy over refetch method
           };
 
           this.hasQueryDataChanged = true;
