@@ -52,7 +52,7 @@ const defaultMapQueriesToProps = opts => ({ });
 const defaultMapMutationsToProps = opts => ({ });
 const defaultQueryData = {
   loading: true,
-  error: null,
+  errors: null,
   result: null,
 };
 const defaultMutationData = assign({}, defaultQueryData);
@@ -86,7 +86,7 @@ export default function connect(opts?: ConnectOptions) {
 
     {
       loading: boolean,
-      error: Error,
+      errors: Errors,
       result: GraphQLResult,
     }
 
@@ -213,7 +213,7 @@ export default function connect(opts?: ConnectOptions) {
               });
 
               queryData = {
-                error: null,
+                errors: null,
                 loading: false,
                 result,
               };
@@ -260,11 +260,11 @@ export default function connect(opts?: ConnectOptions) {
           };
         };
 
-        const forceRender = ({ error, data }: any) => {
+        const forceRender = ({ errors, data }: any) => {
           this.data[key] = {
             loading: false,
             result: data || null,
-            error,
+            errors,
             refetch: refetch, // copy over refetch method
           };
 
@@ -276,7 +276,7 @@ export default function connect(opts?: ConnectOptions) {
 
         this.queryHandles[key] = handle.subscribe({
           next: forceRender,
-          error(error) { forceRender({ error }); },
+          error(errors) { forceRender({ errors }); },
         });
 
         refetch = createBoundRefetch(key, this.queryHandles[key].refetch);
@@ -320,7 +320,7 @@ export default function connect(opts?: ConnectOptions) {
           this.data[key] = {
             loading: false,
             result: data,
-            error: errors,
+            errors,
           };
 
           this.hasMutationDataChanged = true;
@@ -354,7 +354,7 @@ export default function connect(opts?: ConnectOptions) {
               return mutate({ mutation, variables });
             })
             .then(forceRender)
-            .catch(error => forceRender({ errors: error }));
+            .catch(errors => forceRender({ errors }));
         };
       }
 
