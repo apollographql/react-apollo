@@ -30,7 +30,7 @@
   "author": "James Baxley <james.baxley@newspring.cc>",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0-0",
+    "react": "0.14.x || 15.* || ^15.0.0-rc",
     "redux": "^2.0.0 || ^3.0.0",
     "apollo-client": "^0.1.0"
   },
@@ -58,7 +58,7 @@
     "typings": "^0.7.9"
   },
   "dependencies": {
-    "hoist-non-react-statics": "^1.0.5",
+    "invariant": "^2.2.1",
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
     "object-assign": "^4.0.1",
