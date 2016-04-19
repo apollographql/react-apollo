@@ -1158,6 +1158,74 @@ describe('connect', () => {
         expect(props.mutations.makeListPrivate).to.be.instanceof(Function);
       });
 
+      it('should pass the mutation promise to the child component', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const mutation = `
+          mutation makeListPrivate($listId: ID!) {
+            makeListPrivate(id: $listId)
+          }
+        `;
+
+        const variables = {
+          listId: '1',
+        };
+
+        const data = {
+          makeListPrivate: true,
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query: mutation, variables },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapMutationsToProps() {
+          return {
+            makeListPrivate: () => ({
+              mutation,
+            }),
+          };
+        };
+
+        @connect({ mapMutationsToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.makeListPrivate).to.exist;
+        expect(props.makeListPrivate.loading).to.be.true;
+
+        expect(props.mutations).to.exist;
+        expect(props.mutations.makeListPrivate).to.exist;
+        expect(props.mutations.makeListPrivate).to.be.instanceof(Function);
+        props.mutations.makeListPrivate()
+          .then((err, result) => {
+            done();
+          })
+          .catch(() => {
+            done(new Error('should not error'));
+          });
+      });
+
       it('should update the props of the child component when data is returned', (done) => {
         const store = createStore(() => ({ }));
 
@@ -1433,7 +1501,6 @@ function mockNetworkInterface(
 ) {
   const requestToResultMap: any = {};
   const { request, result } = mockedRequest;
-
   // Populate set of mocked requests
   requestToResultMap[requestToKey(request)] = result as GraphQLResult;
 
