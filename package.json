@@ -35,7 +35,7 @@
     "apollo-client": "^0.1.0"
   },
   "devDependencies": {
-    "apollo-client": "0.0.5",
+    "apollo-client": "0.1.1",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "chai-enzyme": "^0.4.2",
