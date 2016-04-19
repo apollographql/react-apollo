@@ -195,6 +195,95 @@ describe('connect', () => {
 
     });
 
+    it('should rerun on prop change', (done) => {
+      const store = createStore(() => ({
+        foo: 'bar',
+        baz: 42,
+        hello: 'world',
+      }));
+
+      const query = `
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const data = {
+        allPeople: {
+          people: [
+            {
+              name: 'Luke Skywalker',
+            },
+          ],
+        },
+      };
+
+      const networkInterface = mockNetworkInterface({
+        request: { query },
+        result: { data },
+      });
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      let run = false;
+      function mapQueriesToProps({ ownProps }) {
+        if (run) {
+          expect(ownProps.test).to.equal(null);
+          done();
+        }
+
+        if (ownProps.test === 'foo') {
+          run = true;
+        }
+
+        return {
+          people: { query },
+        };
+      };
+
+      @connect({ mapQueriesToProps })
+      class Container extends React.Component<any, any> {
+        render() {
+          return <Passthrough {...this.props}  />;
+        }
+      };
+
+      class ReRender extends React.Component<any, any> {
+        state = {
+          test: 'foo',
+        };
+
+        componentDidMount() {
+          if (this.state.test === 'foo') {
+            this.setState({
+              test: null,
+            });
+          }
+        }
+        render() {
+          return <Container {...this.props} test={this.state.test} />;
+        }
+      };
+
+      mount(
+        <ProviderMock store={store} client={client}>
+          <ReRender />
+        </ProviderMock>
+      );
+
+      // const props = wrapper.find('span').props() as any;
+
+      // expect(props.people).to.exist;
+      // expect(props.people.loading).to.be.true;
+
+    });
+
   });
 
   describe('redux passthrough', () => {
