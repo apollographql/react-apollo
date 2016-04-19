@@ -189,7 +189,7 @@ export default function connect(opts?: ConnectOptions) {
         const { store } = this;
 
         const queryHandles = mapQueriesToProps({
-          state,
+          state: store.getState(),
           ownProps: props,
         });
 
