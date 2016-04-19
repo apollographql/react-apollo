@@ -15,7 +15,6 @@ Use your GraphQL server data in your React components, with the [Apollo Client](
 
 Documentation for this client can be found [here](http://docs.apollostack.com/apollo-client/react.html);
 
-
 ## Example use:
 
 ```js
