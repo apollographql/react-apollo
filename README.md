@@ -2,6 +2,8 @@
 
 Use your GraphQL server data in your React components, with the Apollo Client.
 
+[![Build Status](https://travis-ci.org/apollostack/react-apollo.svg?branch=master)](https://travis-ci.org/apollostack/react-apollo)
+
 - [Provider](#provider)
 - [connect](#connect)
 - [Additional Props](#additional-props)
@@ -182,5 +184,3 @@ export default CategoryWithData;
 ```
 
 In this case, `CategoryWithData` gets two props: `category` and `selectedCategory`.
-
-// XXX document decorator
