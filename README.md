@@ -246,13 +246,14 @@ One typical pattern is wanting to refetch a query after a mutation has happened.
 class Container extends React.Component{
   componentDidMount() {
     // call the muation
-    this.props.mutations.makeListPrivate((err, data) => {
-      // if we have the data we want
-      if (data.id) {
-        // refetch the categories query
-        this.props.categories.refetch();
-      };
-    });
+    this.props.mutations.makeListPrivate()
+      .then((err, data) => {
+        // if we have the data we want
+        if (data.id) {
+          // refetch the categories query
+          this.props.categories.refetch();
+        };
+      });
   }
 
   render() {
