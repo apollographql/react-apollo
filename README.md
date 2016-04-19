@@ -78,7 +78,7 @@ ReactDOM.render(
 ## Install
 
 ```bash
-npm install angular2-apollo --save
+npm install react-apollo --save
 ```
 
 Running tests locally:
