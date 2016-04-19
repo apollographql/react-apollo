@@ -30,7 +30,7 @@
   "author": "James Baxley <james.baxley@newspring.cc>",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0-0",
+    "react": "0.14.x || 15.* || ^15.0.0-rc",
     "redux": "^2.0.0 || ^3.0.0",
     "apollo-client": "^0.1.0"
   },
