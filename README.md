@@ -1,11 +1,74 @@
 # apollo-react
 
-Use your GraphQL server data in your React components, with the Apollo Client.
+Use your GraphQL server data in your React components, with the [Apollo Client](https://github.com/apollostack/apollo-client).
 
+- [Example](#example-use)
+- [Install](#install)
 - [Provider](#provider)
 - [connect](#connect)
 - [Additional Props](#additional-props)
 - [Using in concert with Redux](#using-in-concert-with-redux)
+
+## Example use:
+
+```js
+import React from 'react';
+import ApolloClient, { createNetworkInterface } from 'apollo-client';
+import { Provider } from 'apollo-react';
+
+const networkInterface = createNetworkInterface('http://graphql-swapi.parseapp.com/');
+const client = new ApolloClient({
+  networkInterface,
+});
+
+function mapQueriesToProps({ ownProps, state }) {
+  return {
+    people: {
+      query: `
+        query people {
+          allPeople(first: 10) {
+            people {
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        categoryId: 5,
+      },
+    },
+  };
+};
+
+@connect({ mapQueriesToProps })
+class StarWarsPeople extends React.Component {
+  render() {
+    const { allPeople } = this.props.people;
+    return (
+      <div>
+        {allPeople.people.map((person, key) => (
+          <div>
+            <h1 key={key}>{person}</h1>
+          </div>
+        ))}
+      </div>
+    )
+  }
+};
+
+ReactDOM.render(
+  <Provider client={client}>
+    <StarWarsPeople />
+  </Provider>
+  document.body
+)
+```
+
+## Install
+
+```bash
+npm install angular2-apollo --save
+```
 
 ### Provider
 
@@ -14,7 +77,7 @@ Injects an ApolloClient instance into a React view tree. You can use it instead 
 Basic Apollo version:
 
 ```js
-import { ApolloClient } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { Provider } from 'apollo-react';
 
 const client = new ApolloClient();
@@ -31,7 +94,7 @@ With an existing Redux store:
 
 ```js
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { ApolloClient } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { Provider } from 'apollo-react';
 
 import { todoReducer, userReducer } from './reducers';
