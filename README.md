@@ -9,16 +9,12 @@ Use your GraphQL server data in your React components, with the [Apollo Client](
 
 - [Example](#example-use)
 - [Install](#install)
-- [Provider](#provider)
-- [connect](#connect)
-- [Additional Props](#additional-props)
-- [Using in concert with Redux](#using-in-concert-with-redux)
+- [Docs](http://docs.apollostack.com/apollo-client/react.html)
 
 ### Documentation
 
 Documentation for this client can be found [here](http://docs.apollostack.com/apollo-client/react.html);
 
----
 
 ## Example use:
 
