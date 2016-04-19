@@ -7,68 +7,12 @@
 
 Use your GraphQL server data in your React components, with the [Apollo Client](https://github.com/apollostack/apollo-client).
 
-- [Example](#example-use)
 - [Install](#install)
 - [Docs](http://docs.apollostack.com/apollo-client/react.html)
 
 ### Documentation
 
 Documentation for this client can be found [here](http://docs.apollostack.com/apollo-client/react.html);
-
-## Example use:
-
-```js
-import React from 'react';
-import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { Provider } from 'react-apollo';
-
-const networkInterface = createNetworkInterface('http://graphql-swapi.parseapp.com/');
-const client = new ApolloClient({
-  networkInterface,
-});
-
-function mapQueriesToProps({ ownProps, state }) {
-  return {
-    people: {
-      query: `
-        query people {
-          allPeople(first: 10) {
-            people {
-              name
-            }
-          }
-        }
-      `,
-      variables: {
-        categoryId: 5,
-      },
-    },
-  };
-};
-
-@connect({ mapQueriesToProps })
-class StarWarsPeople extends React.Component {
-  render() {
-    const { allPeople } = this.props.people;
-    return (
-      <div>
-        {allPeople.people.map((person, key) => (
-          <div>
-            <h1 key={key}>{person}</h1>
-          </div>
-        ))}
-      </div>
-    )
-  }
-};
-
-ReactDOM.render(
-  <Provider client={client}>
-    <StarWarsPeople />
-  </Provider>
-  document.body
-)
-```
 
 ## Install
 
