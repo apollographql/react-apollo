@@ -34,20 +34,49 @@ describe('connect', () => {
 
   class ProviderMock extends React.Component<any, any> {
 
+    static propTypes = {
+      store: React.PropTypes.shape({
+        subscribe: React.PropTypes.func.isRequired,
+        dispatch: React.PropTypes.func.isRequired,
+        getState: React.PropTypes.func.isRequired,
+      }),
+      client: React.PropTypes.object.isRequired,
+      children: React.PropTypes.element.isRequired,
+    };
+
     static childContextTypes = {
       store: React.PropTypes.object.isRequired,
       client: React.PropTypes.object.isRequired,
     };
 
+    public store: any;
+    public client: any;
+
+    constructor(props, context) {
+      super(props, context);
+      this.client = props.client;
+
+      if (props.store) {
+        this.store = props.store;
+        return;
+      }
+
+      // intialize the built in store if none is passed in
+      props.client.initStore();
+      this.store = props.client.store;
+
+    }
+
     getChildContext() {
       return {
-        store: this.props.store,
-        client: this.props.client,
+        store: this.store,
+        client: this.client,
       };
     }
 
     render() {
-      return React.Children.only(this.props.children);
+      const { children } = this.props;
+      return React.Children.only(children);
     }
   };
 
@@ -396,6 +425,63 @@ describe('connect', () => {
 
         expect(props.people).to.exist;
         expect(props.people.loading).to.be.true;
+      });
+
+      it('stops the query after unmounting', () => {
+        const query = `
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+      function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        ) as any;
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.loading).to.be.true;
+
+        expect(wrapper.unmount()).to.not.throw;
       });
 
       it('allows variables as part of the request', () => {

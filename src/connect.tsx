@@ -237,7 +237,7 @@ export default function connect(opts?: ConnectOptions) {
             if (!this.queryHandles.hasOwnProperty(key)) {
               continue;
             }
-            this.queryHandles[key].stop();
+            this.queryHandles[key].unsubscribe();
           }
         }
       }
@@ -259,9 +259,9 @@ export default function connect(opts?: ConnectOptions) {
           this.setState(this.store.getState());
         };
 
-        handle.subscribe({
-          onResult: forceRender,
-          onError(error) { forceRender({ error }); },
+        this.queryHandles[key] = handle.subscribe({
+          next: forceRender,
+          error(error) { forceRender({ error }); },
         });
       }
 
@@ -376,5 +376,3 @@ export default function connect(opts?: ConnectOptions) {
   };
 
 };
-
-
