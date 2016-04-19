@@ -263,6 +263,10 @@ export default function connect(opts?: ConnectOptions) {
           next: forceRender,
           error(error) { forceRender({ error }); },
         });
+
+        this.data[key] = assign(this.data[key], {
+          refetch: this.queryHandles[key].refetch,
+        });
       }
 
       createAllMutationHandles(props: any, state: any): void {
