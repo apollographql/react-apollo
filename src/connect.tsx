@@ -162,20 +162,22 @@ export default function connect(opts?: ConnectOptions) {
         this.createAllMutationHandles(props, state);
       }
 
-      componentWillReceiveProps(nextProps, nextState) {
+      componentWillReceiveProps(nextProps) {
         // we got new props, we need to unsubscribe and re-watch all handles
         // with the new data
         // XXX determine if any of this data is actually used somehow
         // to avoid rebinding queries if nothing has changed
-        if (!isEqual(this.props, nextProps) || !isEqual(this.state, nextState)) {
+        if (!isEqual(this.props, nextProps)) {
           this.haveOwnPropsChanged = true;
           this.unsubcribeAllQueries();
-          this.subscribeToAllQueries(nextProps, nextState);
+          this.subscribeToAllQueries(nextProps, this.state);
         }
       }
 
-      shouldComponentUpdate() {
-        return this.haveOwnPropsChanged || this.hasQueryDataChanged || this.hasMutationDataChanged;
+      shouldComponentUpdate(nextProps, nextState) {
+        return this.haveOwnPropsChanged ||
+          this.hasQueryDataChanged ||
+          this.hasMutationDataChanged;
       }
 
       componentWillUnmount() {
