@@ -11,7 +11,7 @@
     "watch": "tsc -w",
     "prepublish": "npm run compile",
     "lint": "tslint src/*.ts* && tslint test/*.ts*",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot --full-trace lib/test/tests.js",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
     "postcoverage": "remap-istanbul --input coverage/coverage.json --type lcovonly --output coverage/lcov.info"
   },
   "repository": {
