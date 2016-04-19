@@ -168,6 +168,7 @@ export default function connect(opts?: ConnectOptions) {
         // XXX determine if any of this data is actually used somehow
         // to avoid rebinding queries if nothing has changed
         if (!isEqual(this.props, nextProps) || !isEqual(this.state, nextState)) {
+          this.haveOwnPropsChanged = true;
           this.unsubcribeAllQueries();
           this.subscribeToAllQueries(nextProps, nextState);
         }
@@ -383,7 +384,6 @@ export default function connect(opts?: ConnectOptions) {
         }
 
         const mergedPropsAndData = assign({}, props, data, clientProps);
-
         if (
           !haveOwnPropsChanged &&
           !hasQueryDataChanged &&
