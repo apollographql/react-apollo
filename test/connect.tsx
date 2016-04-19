@@ -547,6 +547,80 @@ describe('connect', () => {
         expect(props.people.refetch).to.not.throw;
       });
 
+      it('resets the loading state when refetching', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = `
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
+
+        let hasRefetched = false;
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          componentDidUpdate(prevProps) {
+            if (prevProps.people.loading && !this.props.people.loading) {
+              if (hasRefetched) {
+                return;
+              }
+              hasRefetched = true;
+              this.props.people.refetch();
+              return;
+            }
+
+            if (this.props.people.loading) {
+              expect(this.props.people.loading).to.be.true;
+              expect(this.props.people.result).to.exist;
+              done();
+            }
+
+          }
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+      });
+
       it('allows variables as part of the request', () => {
         const store = createStore(() => ({
           foo: 'bar',
@@ -1269,6 +1343,7 @@ describe('connect', () => {
           }
 
           componentDidUpdate(prevProps) {
+            // wait until finished loading
             if (!this.props.makeListPrivate.loading) {
               expect(prevProps.makeListPrivate.loading).to.be.true;
               expect(this.props.makeListPrivate.result).to.deep.equal(data);
@@ -1340,7 +1415,6 @@ describe('connect', () => {
           }
 
           componentDidUpdate(prevProps) {
-            // wait until finished loading
             if (!this.props.makeListPrivate.loading) {
               expect(prevProps.makeListPrivate.loading).to.be.true;
               expect(this.props.makeListPrivate.result).to.deep.equal(data);
