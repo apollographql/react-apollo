@@ -6,15 +6,9 @@ import {
   PropTypes,
 } from 'react';
 
-// XXX setup type definitions for individual lodash libs
-// import isObject from 'lodash.isobject';
-// import isEqual from 'lodash.isequal';
-import {
-  isEqual,
-  isObject,
-} from 'lodash';
-
 // modules don't export ES6 modules
+import isObject = require('lodash.isobject');
+import isEqual = require('lodash.isequal');
 import invariant = require('invariant');
 import assign = require('object-assign');
 
@@ -202,7 +196,7 @@ export default function connect(opts?: ConnectOptions) {
           ownProps: props,
         });
 
-        if (isObject && Object.keys(queryHandles).length) {
+        if (isObject(queryHandles) && Object.keys(queryHandles).length) {
           this.queryHandles = queryHandles;
 
           for (const key in queryHandles) {
@@ -277,7 +271,7 @@ export default function connect(opts?: ConnectOptions) {
           ownProps: props,
         });
 
-        if (isObject && Object.keys(mutations).length) {
+        if (isObject(mutations) && Object.keys(mutations).length) {
           for (const key in mutations) {
             if (!mutations.hasOwnProperty(key)) {
               continue;
