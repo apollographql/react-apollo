@@ -247,7 +247,7 @@ export default function connect(opts?: ConnectOptions) {
         // since we don't have the query id, we can manually handle
         // a lifecyle event for loading if this query is refetched
         const createBoundRefetch = (dataKey, refetchMethod) => {
-          return () => {
+          return (...args) => {
             this.data[dataKey] = assign(this.data[dataKey], {
               loading: true,
               refetch,
@@ -258,7 +258,7 @@ export default function connect(opts?: ConnectOptions) {
             // update state to latest of redux store
             this.setState(this.store.getState());
 
-            refetchMethod();
+            refetchMethod(...args);
           };
         };
 
