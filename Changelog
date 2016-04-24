@@ -2,9 +2,39 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+### v0.1.6
+
+Remove `result` key in favor of dynamic key from query or mutation. (https://github.com/apollostack/react-apollo/pull/31)
+
+```js
+{
+  loading: false,
+  result: {
+    posts: []
+  }
+}
+```
+
+becomes
+
+```js
+{
+  loading: false,
+  posts: []
+}
+```
+
+### v0.1.5
+
+Get state directly from redux store internally
+
+### v0.1.4
+
+Fix bug with willReceiveProps
+
 ### v0.1.2
 
-Adjust loading lifecycle marker to better match the behavoir of apollo-client (https://github.com/apollostack/react-apollo/pull/11)
+Adjust loading lifecycle marker to better match the behavior of apollo-client (https://github.com/apollostack/react-apollo/pull/11)
 
 ### v0.1.1
 
