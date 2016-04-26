@@ -636,6 +636,69 @@ describe('connect', () => {
         expect(props.people.refetch).to.not.throw;
       });
 
+      it('exposes unsubscribe as part of the props api', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = `
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+      function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.unsubscribe).to.be.exist;
+        expect(props.people.unsubscribe).to.be.instanceof(Function);
+        expect(props.people.unsubscribe).to.not.throw;
+      });
+
       it('resets the loading state when refetching', (done) => {
         const store = createStore(() => ({
           foo: 'bar',
