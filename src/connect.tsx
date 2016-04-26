@@ -53,7 +53,6 @@ const defaultMapMutationsToProps = opts => ({ });
 const defaultQueryData = {
   loading: true,
   errors: null,
-  result: null,
 };
 const defaultMutationData = assign({}, defaultQueryData);
 
@@ -87,7 +86,7 @@ export default function connect(opts?: ConnectOptions) {
     {
       loading: boolean,
       errors: Errors,
-      result: GraphQLResult,
+      [key: String]: result
     }
 
   */
@@ -214,11 +213,10 @@ export default function connect(opts?: ConnectOptions) {
                 variables,
               });
 
-              queryData = {
+              queryData = assign({
                 errors: null,
                 loading: false,
-                result,
-              };
+              }, result);
             } catch (e) {/* tslint */}
 
             this.data[key] = queryData;
@@ -262,13 +260,24 @@ export default function connect(opts?: ConnectOptions) {
           };
         };
 
-        const forceRender = ({ errors, data }: any) => {
-          this.data[key] = {
+        const forceRender = ({ errors, data = {} }: any) => {
+          const resultKeyConflict: boolean = (
+            'errors' in data ||
+            'loading' in data ||
+            'refetch' in data
+          );
+
+          invariant(!resultKeyConflict,
+            `the result of the '${key}' query contains keys that ` +
+            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
+            `returned keys`
+          );
+
+          this.data[key] = assign({
             loading: false,
-            result: data || null,
             errors,
             refetch: refetch, // copy over refetch method
-          };
+          }, data);
 
           this.hasQueryDataChanged = true;
 
@@ -318,12 +327,23 @@ export default function connect(opts?: ConnectOptions) {
 
         // middleware to update the props to send data to wrapped component
         // when the mutation is done
-        const forceRender = ({ errors, data }: GraphQLResult): GraphQLResult => {
-          this.data[key] = {
+        const forceRender = ({ errors, data = {} }: GraphQLResult): GraphQLResult => {
+          const resultKeyConflict: boolean = (
+            'errors' in data ||
+            'loading' in data ||
+            'refetch' in data
+          );
+
+          invariant(!resultKeyConflict,
+            `the result of the '${key}' mutation contains keys that ` +
+            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
+            `returned keys`
+          );
+
+          this.data[key] = assign({
             loading: false,
-            result: data,
             errors,
-          };
+          }, data);
 
           this.hasMutationDataChanged = true;
 

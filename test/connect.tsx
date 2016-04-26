@@ -693,7 +693,7 @@ describe('connect', () => {
 
             if (this.props.people.loading) {
               expect(this.props.people.loading).to.be.true;
-              expect(this.props.people.result).to.exist;
+              expect(this.props.people.allPeople).to.exist;
               done();
             }
 
@@ -1050,7 +1050,7 @@ describe('connect', () => {
         class Container extends React.Component<any, any> {
           componentDidUpdate(prevProps) {
             expect(prevProps.luke.loading).to.be.true;
-            expect(this.props.luke.result).to.deep.equal(data);
+            expect(this.props.luke.luke).to.deep.equal(data.luke);
             done();
           }
           render() {
@@ -1131,7 +1131,7 @@ describe('connect', () => {
 
             expect(props.people).to.exist;
             expect(props.people.loading).to.be.false;
-            expect(props.people.result).to.deep.equal(data);
+            expect(props.people.allPeople).to.deep.equal(data.allPeople);
             done();
           });
       });
@@ -1435,7 +1435,7 @@ describe('connect', () => {
             // wait until finished loading
             if (!this.props.makeListPrivate.loading) {
               expect(prevProps.makeListPrivate.loading).to.be.true;
-              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              expect(this.props.makeListPrivate.makeListPrivate).to.be.true;
               done();
             }
           }
@@ -1506,7 +1506,7 @@ describe('connect', () => {
           componentDidUpdate(prevProps) {
             if (!this.props.makeListPrivate.loading) {
               expect(prevProps.makeListPrivate.loading).to.be.true;
-              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              expect(this.props.makeListPrivate.makeListPrivate).to.be.true;
               done();
             }
           }
@@ -1577,7 +1577,7 @@ describe('connect', () => {
           componentDidUpdate(prevProps) {
             if (!this.props.makeListPrivate.loading) {
               expect(prevProps.makeListPrivate.loading).to.be.true;
-              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              expect(this.props.makeListPrivate.makeListPrivate).to.be.true;
               done();
             }
           }
@@ -1644,7 +1644,7 @@ describe('connect', () => {
           componentDidUpdate(prevProps) {
             if (!this.props.makeListPrivate.loading) {
               expect(prevProps.makeListPrivate.loading).to.be.true;
-              expect(this.props.makeListPrivate.result).to.deep.equal(data);
+              expect(this.props.makeListPrivate.makeListPrivate).to.be.true;
               done();
             }
           }
