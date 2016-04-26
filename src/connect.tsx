@@ -260,7 +260,19 @@ export default function connect(opts?: ConnectOptions) {
           };
         };
 
-        const forceRender = ({ errors, data }: any) => {
+        const forceRender = ({ errors, data = {} }: any) => {
+          const resultKeyConflict: boolean = (
+            'errors' in data ||
+            'loading' in data ||
+            'refetch' in data
+          );
+
+          invariant(!resultKeyConflict,
+            `the result of the '${key}' query contains keys that ` +
+            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
+            `returned keys`
+          );
+
           this.data[key] = assign({
             loading: false,
             errors,
@@ -315,7 +327,19 @@ export default function connect(opts?: ConnectOptions) {
 
         // middleware to update the props to send data to wrapped component
         // when the mutation is done
-        const forceRender = ({ errors, data }: GraphQLResult): GraphQLResult => {
+        const forceRender = ({ errors, data = {} }: GraphQLResult): GraphQLResult => {
+          const resultKeyConflict: boolean = (
+            'errors' in data ||
+            'loading' in data ||
+            'refetch' in data
+          );
+
+          invariant(!resultKeyConflict,
+            `the result of the '${key}' mutation contains keys that ` +
+            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
+            `returned keys`
+          );
+
           this.data[key] = assign({
             loading: false,
             errors,
