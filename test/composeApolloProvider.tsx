@@ -26,11 +26,13 @@ interface ChildContext {
 describe('composeApolloProvider, Function', () => {
 
     class Child extends React.Component<any, { store: any, client: any}> {
-        static contextTypes: React.ValidationMap<any> =  {
-            client:  React.PropTypes.object.isRequired,
+        static contextTypes: React.ValidationMap<any> = {
+            client: React.PropTypes.object.isRequired,
             store: React.PropTypes.object.isRequired,
         };
+
         context: ChildContext;
+
         render() {
             return <div />;
         }
@@ -40,27 +42,26 @@ describe('composeApolloProvider, Function', () => {
     const store = createStore(() => ({}));
     const ApolloProvider = composeApolloProvider(Provider);
 
-
     it('should render children components', () => {
         const wrapper = shallow(
             <ApolloProvider store={store} client={client}>
-                <div className='unique' />
+                <div className='unique'/>
             </ApolloProvider>
         );
 
-        expect(wrapper.contains(<div className='unique' />)).to.equal(true);
+        expect(wrapper.contains(<div className='unique'/>)).to.equal(true);
     });
 
-     it('should throw if rendered without a child component', () => {
-       try {
-         shallow(
-           <ApolloProvider store={store} client={client} />
-         );
-       } catch (e) {
-         expect(e).to.be.instanceof(Error);
-       }
+    it('should throw if rendered without a child component', () => {
+        try {
+            shallow(
+                <ApolloProvider store={store} client={client}/>
+            );
+        } catch (e) {
+            expect(e).to.be.instanceof(Error);
+        }
 
-     });
+    });
 
     it('should add the client to the child context', () => {
         const tree = TestUtils.renderIntoDocument(
@@ -73,6 +74,7 @@ describe('composeApolloProvider, Function', () => {
         expect(child.context.client).to.deep.equal(client);
 
     });
+
     it('should add the store to the child context', () => {
         const tree = TestUtils.renderIntoDocument(
             <ApolloProvider store={store} client={client}>
