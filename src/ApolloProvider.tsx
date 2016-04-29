@@ -35,7 +35,6 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     };
 
     static childContextTypes = {
-        store: PropTypes.object.isRequired,
         client: PropTypes.object.isRequired,
     };
 
