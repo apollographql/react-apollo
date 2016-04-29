@@ -1,9 +1,10 @@
 /// <reference path="../typings/main.d.ts" />
-
+/* tslint:disable:no-unused-variable */
+import * as React from 'react';
+/* tslint:enable:no-unused-variable */
 import {
     Component,
     PropTypes,
-    Children,
 } from 'react';
 
 import {
@@ -11,13 +12,14 @@ import {
 } from 'react-redux';
 
 import {
-    Store
+    Store,
 } from 'redux';
+
 
 import ApolloClient from 'apollo-client';
 
 export declare interface ProviderProps {
-    store?: Store<any>;
+    store: Store<any>;
     client: ApolloClient;
 }
 
@@ -43,18 +45,17 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     getChildContext() {
         const { client } = this.props;
         return {
-            client
-        }
+            client,
+        };
     }
+
     render() {
         const { store, children } = this.props;
         return (
-            <Provider
-                store={store}
-            >
+            <Provider store={store}>
                 {children}
             </Provider>
-        )
+        );
     }
 
 }
