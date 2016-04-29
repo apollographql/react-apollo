@@ -12,11 +12,11 @@ import chaiEnzyme = require('chai-enzyme');
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
 
-import Provider from '../src/Provider';
+import ApolloProvider from '../src/Provider';
 
 import ApolloClient from 'apollo-client';
 
-describe('<Provider /> Component', () => {
+describe('<ApolloProvider /> Component', () => {
 
   class Child extends React.Component<any, { store: any, client: any}> {
     render() {
@@ -36,9 +36,9 @@ describe('<Provider /> Component', () => {
     const store = createStore(() => ({}));
 
     const wrapper = shallow(
-      <Provider store={store} client={client}>
+      <ApolloProvider store={store} client={client}>
         <div className='unique' />
-      </Provider>
+      </ApolloProvider>
     );
 
     expect(wrapper.contains(<div className='unique' />)).to.equal(true);
@@ -46,9 +46,9 @@ describe('<Provider /> Component', () => {
 
   it('should not require a store', () => {
     const wrapper = shallow(
-      <Provider client={client}>
+      <ApolloProvider client={client}>
         <div className='unique' />
-      </Provider>
+      </ApolloProvider>
     );
 
     expect(wrapper.contains(<div className='unique' />)).to.equal(true);
