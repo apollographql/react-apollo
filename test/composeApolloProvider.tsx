@@ -12,16 +12,18 @@ import * as TestUtils from 'react-addons-test-utils';
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
 
-import ApolloProvider from '../src/ApolloProvider';
+import composeApolloProvider from '../src/composeApolloProvider';
 
 import ApolloClient from 'apollo-client';
+
+import { Provider } from 'react-redux';
 
 interface ChildContext {
     store: Object;
     client: Object;
 }
 
-describe('<ApolloProvider /> Component', () => {
+describe('composeApolloProvider, Function', () => {
 
     class Child extends React.Component<any, { store: any, client: any}> {
         static contextTypes: React.ValidationMap<any> =  {
@@ -36,6 +38,7 @@ describe('<ApolloProvider /> Component', () => {
 
     const client = new ApolloClient();
     const store = createStore(() => ({}));
+    const ApolloProvider = composeApolloProvider(Provider);
 
     it('should render children components', () => {
         const wrapper = shallow(
