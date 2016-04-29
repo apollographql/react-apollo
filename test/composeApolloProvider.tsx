@@ -40,6 +40,7 @@ describe('composeApolloProvider, Function', () => {
     const store = createStore(() => ({}));
     const ApolloProvider = composeApolloProvider(Provider);
 
+
     it('should render children components', () => {
         const wrapper = shallow(
             <ApolloProvider store={store} client={client}>
@@ -70,6 +71,17 @@ describe('composeApolloProvider, Function', () => {
 
         const child = TestUtils.findRenderedComponentWithType(tree, Child);
         expect(child.context.client).to.deep.equal(client);
+
+    });
+    it('should add the store to the child context', () => {
+        const tree = TestUtils.renderIntoDocument(
+            <ApolloProvider store={store} client={client}>
+                <Child />
+            </ApolloProvider>
+        ) as React.Component<any, any>;
+
+        const child = TestUtils.findRenderedComponentWithType(tree, Child);
+        expect(child.context.store).to.deep.equal(store);
 
     });
 });
