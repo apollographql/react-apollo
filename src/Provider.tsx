@@ -17,7 +17,7 @@ export declare interface ProviderProps {
   client: ApolloClient;
 }
 
-export default class Provider extends Component<ProviderProps, any> {
+export default class ApolloProvider extends Component<ProviderProps, any> {
   static propTypes = {
     store: PropTypes.shape({
       subscribe: PropTypes.func.isRequired,
