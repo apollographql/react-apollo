@@ -53,6 +53,27 @@ describe('composeApolloProvider, Function', () => {
     });
 
     it('should throw if rendered without a child component', () => {
+       try {
+         shallow(
+           <ApolloProvider store={store} client={client} />
+         );
+       } catch (e) {
+         expect(e).to.be.instanceof(Error);
+       }
+
+    });
+
+    it('should not require a store', () => {
+        const wrapper = shallow(
+            <ApolloProvider client={client}>
+                <div className='unique' />
+            </ApolloProvider>
+        );
+
+        expect(wrapper.contains(<div className='unique' />)).to.equal(true);
+    });
+
+    it('should throw if rendered without a child component', () => {
         try {
             shallow(
                 <ApolloProvider store={store} client={client}/>
