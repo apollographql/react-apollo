@@ -23,6 +23,7 @@ sudo: false
 #
 after_success:
   - cp -R ./lib/src/ ./
+  - ls ./
 
 deploy:
   provider: npm
