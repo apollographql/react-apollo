@@ -2,14 +2,13 @@
   "name": "react-apollo",
   "version": "0.2.0",
   "description": "React data container for Apollo Client",
-  "main": "./lib/src/index.js",
+  "main": "index.js",
   "scripts": {
     "pretest": "npm run compile",
     "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
     "posttest": "npm run lint",
     "compile": "tsc",
     "watch": "tsc -w",
-    "prepublish": "npm run compile",
     "lint": "tslint src/*.ts* && tslint test/*.ts*",
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
     "postcoverage": "remap-istanbul --input coverage/coverage.json --type lcovonly --output coverage/lcov.info"
