@@ -5,6 +5,7 @@ node_js:
 install:
   - npm install -g coveralls
   - npm install
+  - npm install -g npm-publish
 
 script:
   - npm test
@@ -13,3 +14,9 @@ script:
 
 # Allow Travis tests to run in containers.
 sudo: false
+
+deploy:
+  provider: script
+  script: ./scripts/deploy.sh
+  on:
+    branch: master
