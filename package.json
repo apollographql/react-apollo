@@ -8,7 +8,6 @@
     "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
     "posttest": "npm run lint",
     "compile": "tsc",
-    "compile:npm": "./node_modules/.bin/tsc && cp -R ./lib/src/ ./",
     "watch": "tsc -w",
     "prepublish": "npm run compile",
     "lint": "tslint src/*.ts* && tslint test/*.ts*",

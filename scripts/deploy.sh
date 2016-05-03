@@ -18,7 +18,9 @@ fi;
 #
 #    var language = require('graphql/language');
 #
-npm run compile:npm
+npm i -g typescript
+tsc
+cp -R ./lib/src/ ./
 
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
