@@ -34,4 +34,4 @@ deploy:
     tags: true
     node: '4'
     repo: apollostack/react-apollo
-    branch: master
+    branch: npm-debug
