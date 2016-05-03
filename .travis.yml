@@ -15,8 +15,12 @@ script:
 # Allow Travis tests to run in containers.
 sudo: false
 
-deploy:
-  provider: script
-  script: ./scripts/deploy.sh
-  on:
-    branch: auto-deploys
+after_success:
+  - cp -R ./lib/src ./
+  - ls
+
+# deploy:
+#   provider: npm
+#   email: "james.baxley@newspring.cc"
+#   on:
+#     branch: auto-deploys

@@ -1,1 +1,10 @@
 example
+lib
+src
+test
+.vscode
+appveyor.yml
+tsconfig.json
+tslint.json
+typings.json
+ambient.d.ts
