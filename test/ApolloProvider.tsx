@@ -5,7 +5,7 @@ import * as chai from 'chai';
 import { shallow } from 'enzyme';
 import { createStore } from 'redux';
 
-declare function require(name:string);
+declare function require(name: string);
 import chaiEnzyme = require('chai-enzyme');
 import * as TestUtils from 'react-addons-test-utils';
 
@@ -25,12 +25,12 @@ interface ChildContext {
 describe('<ApolloProvider /> Component', () => {
 
   class Child extends React.Component<any, { store: any, client: any}> {
-    static contextTypes:React.ValidationMap<any> = {
+    static contextTypes: React.ValidationMap<any> = {
       client: React.PropTypes.object.isRequired,
       store: React.PropTypes.object.isRequired,
     };
 
-    context:ChildContext;
+    context: ChildContext;
 
     render() {
       return <div />;

@@ -38,8 +38,8 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     client: PropTypes.object.isRequired,
   };
 
-  public store:Store<any>;
-  public client:ApolloClient;
+  public store: Store<any>;
+  public client: ApolloClient;
 
   constructor(props, context) {
     super(props, context);
