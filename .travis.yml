@@ -16,11 +16,15 @@ script:
 sudo: false
 
 after_success:
-  - cp -R ./lib/src ./
+  - cp -R ./lib/src/ .
   - ls
-
+  - cat index.js
+  
 # deploy:
 #   provider: npm
 #   email: "james.baxley@newspring.cc"
+#   api_key:
+#     secure:
 #   on:
+#     tags: true
 #     branch: auto-deploys
