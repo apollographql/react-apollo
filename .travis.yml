@@ -22,7 +22,7 @@ sudo: false
 #    var language = require('react-apollo/connect');
 #
 after_success:
-  - cp -vr ./lib/src/ ./
+  - cd ./lib/src/ && cp -vr ./ ../../
   - ls ./
 
 deploy:
