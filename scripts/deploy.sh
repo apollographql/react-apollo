@@ -18,7 +18,8 @@ fi;
 #
 #    var language = require('graphql/language');
 #
-cp -R ./lib/src/ ./
+# go back one level
+npm i && cp -R ./lib/src/ ./
 
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
