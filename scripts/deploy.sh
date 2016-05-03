@@ -34,4 +34,6 @@ node -e "var package = require('./package.json'); \
   require('fs').writeFileSync('package.json', JSON.stringify(package));"
 
 npm i ci-npm-publish -g
+
+ls ./
 npm-publish
