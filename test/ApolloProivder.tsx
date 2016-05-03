@@ -12,18 +12,17 @@ import * as TestUtils from 'react-addons-test-utils';
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
 
-import composeApolloProvider from '../src/composeApolloProvider';
-
 import ApolloClient from 'apollo-client';
 
-import { Provider } from 'react-redux';
+import ApolloProvider  from '../src/ApolloProvider';
 
 interface ChildContext {
     store: Object;
     client: Object;
 }
 
-describe('composeApolloProvider, Function', () => {
+
+describe('<ApolloProvider /> Component', () => {
 
     class Child extends React.Component<any, { store: any, client: any}> {
         static contextTypes: React.ValidationMap<any> = {
@@ -37,10 +36,9 @@ describe('composeApolloProvider, Function', () => {
             return <div />;
         }
     }
-
     const client = new ApolloClient();
     const store = createStore(() => ({}));
-    const ApolloProvider = composeApolloProvider(Provider);
+
 
     it('should render children components', () => {
         const wrapper = shallow(
@@ -52,25 +50,14 @@ describe('composeApolloProvider, Function', () => {
         expect(wrapper.contains(<div className='unique'/>)).to.equal(true);
     });
 
-    it('should throw if rendered without a child component', () => {
-       try {
-         shallow(
-           <ApolloProvider store={store} client={client} />
-         );
-       } catch (e) {
-         expect(e).to.be.instanceof(Error);
-       }
-
-    });
-
     it('should not require a store', () => {
         const wrapper = shallow(
             <ApolloProvider client={client}>
-                <div className='unique' />
+                <div className='unique'/>
             </ApolloProvider>
         );
 
-        expect(wrapper.contains(<div className='unique' />)).to.equal(true);
+        expect(wrapper.contains(<div className='unique'/>)).to.equal(true);
     });
 
     it('should throw if rendered without a child component', () => {
@@ -108,5 +95,3 @@ describe('composeApolloProvider, Function', () => {
 
     });
 });
-
-
