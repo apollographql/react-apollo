@@ -8,3 +8,5 @@ tsconfig.json
 tslint.json
 typings.json
 ambient.d.ts
+typings
+coverage
