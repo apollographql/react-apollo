@@ -1,14 +1,19 @@
 /// <reference path="../typings/main.d.ts" />
-
+/* tslint:disable:no-unused-variable */
+import * as React from 'react';
+/* tslint:enable:no-unused-variable */
 import {
   Component,
   PropTypes,
-  Children,
 } from 'react';
 
 import {
   Store,
 } from 'redux';
+
+import {
+  Provider,
+} from 'react-redux';
 
 import ApolloClient from 'apollo-client';
 
@@ -17,7 +22,7 @@ export declare interface ProviderProps {
   client: ApolloClient;
 }
 
-export default class Provider extends Component<ProviderProps, any> {
+export default class ApolloProvider extends Component<ProviderProps, any> {
   static propTypes = {
     store: PropTypes.shape({
       subscribe: PropTypes.func.isRequired,
@@ -60,6 +65,10 @@ export default class Provider extends Component<ProviderProps, any> {
 
   render() {
     const { children } = this.props;
-    return Children.only(children);
+    return (
+      <Provider store={this.store}>
+        {children}
+      </Provider>
+    );
   }
 };
