@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "React data container for Apollo Client",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,7 @@
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0-rc",
     "redux": "^2.0.0 || ^3.0.0",
-    "apollo-client": "^0.1.0 || ^0.2.0"
+    "apollo-client": "^0.1.0 || ^0.2.0 || ^0.3.0"
   },
   "devDependencies": {
     "apollo-client": "0.1.1",
