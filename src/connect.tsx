@@ -241,6 +241,7 @@ export default function connect(opts?: ConnectOptions) {
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch;
+        let unsubscribe;
 
         // since we don't have the query id, we can manually handle
         // a lifecyle event for loading if this query is refetched
@@ -277,6 +278,7 @@ export default function connect(opts?: ConnectOptions) {
             loading: false,
             errors,
             refetch: refetch, // copy over refetch method
+            unsubscribe: unsubscribe,
           }, data);
 
           this.hasQueryDataChanged = true;
@@ -291,9 +293,11 @@ export default function connect(opts?: ConnectOptions) {
         });
 
         refetch = createBoundRefetch(key, this.queryHandles[key].refetch);
+        unsubscribe = this.queryHandles[key].unsubscribe;
 
         this.data[key] = assign(this.data[key], {
           refetch,
+          unsubscribe,
         });
       }
 
