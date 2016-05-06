@@ -879,6 +879,10 @@ describe('connect', () => {
           {
             request: { query },
             result: { data: data2 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
           }
         );
 
@@ -890,7 +894,7 @@ describe('connect', () => {
           return {
             people: {
               query,
-              pollInterval: 250,
+              pollInterval: 75,
             },
           };
         };
@@ -913,10 +917,103 @@ describe('connect', () => {
         );
 
         setTimeout(() => {
-          expect(count).to.equal(3);
+          expect(count).to.equal(2);
           done();
-        }, 525);
+        }, 160);
       });
+
+      it('does not overly rerender if data doesn\'t change', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data1 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const data2 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Leia Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface(
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          }
+        );
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps() {
+          return {
+            people: {
+              query,
+              pollInterval: 75,
+            },
+          };
+        };
+
+        let count = 0;
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          componentDidUpdate(prevProps) {
+            count++;
+          }
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        setTimeout(() => {
+          expect(count).to.equal(2);
+          done();
+        }, 250);
+      });
+
 
       it('allows variables as part of the request', () => {
         const store = createStore(() => ({

@@ -262,6 +262,7 @@ export default function connect(opts?: ConnectOptions) {
           };
         };
 
+        let oldData = {};
         const forceRender = ({ errors, data = {} }: any) => {
           const resultKeyConflict: boolean = (
             'errors' in data ||
@@ -278,6 +279,15 @@ export default function connect(opts?: ConnectOptions) {
             `returned keys`
           );
 
+          // only rerender child component if data has changed
+          // XXX should we rerender while errors are present?
+          if (!isEqual(oldData, data) || errors) {
+            this.hasQueryDataChanged = true;
+          }
+
+          // cache the changed data for next check
+          oldData = assign({}, data);
+
           this.data[key] = assign({
             loading: false,
             errors,
@@ -285,8 +295,6 @@ export default function connect(opts?: ConnectOptions) {
             startPolling,
             stopPolling,
           }, data);
-
-          this.hasQueryDataChanged = true;
 
           // update state to latest of redux store
           this.setState(this.store.getState());
