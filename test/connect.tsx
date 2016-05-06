@@ -1682,10 +1682,15 @@ function mockNetworkInterface(
   requestToResultMap[requestToKey(request)] = result as GraphQLResult;
 
   // A mock for the query method
-  const queryMock = (req: Request) => {
+  const queryMock = (req: any) => {
     return new Promise((resolve, reject) => {
       // network latency
-      const resultData = requestToResultMap[requestToKey(req)];
+      const resultData = requestToResultMap[requestToKey({
+        query: parse(req.query),
+        variables: req.variables,
+        debugName: req.debugName,
+      })];
+
       if (!resultData) {
         throw new Error(`Passed request that wasn't mocked: ${requestToKey(req)}`);
       }
