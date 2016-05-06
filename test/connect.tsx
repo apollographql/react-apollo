@@ -5,14 +5,9 @@ import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect as ReactReduxConnect } from 'react-redux';
+import gql from 'apollo-client/gql';
 import assign = require('object-assign');
 // import { spy } from 'sinon';
-
-import {
-  GraphQLResult,
-  parse,
-  print,
-} from 'graphql';
 
 import ApolloClient from 'apollo-client';
 
@@ -21,6 +16,8 @@ import chaiEnzyme = require('chai-enzyme');
 
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
+
+import mockNetworkInterface from './mocks/mockNetworkInterface';
 
 import connect from '../src/connect';
 
@@ -83,7 +80,7 @@ describe('connect', () => {
   describe('prop api', () => {
     it('should pass `ApolloClient.query` as props.query', () => {
       const store = createStore(() => ({ }));
-      const query = `
+      const query = gql`
         query people {
           allPeople(first: 1) {
             people {
@@ -202,7 +199,7 @@ describe('connect', () => {
         hello: 'world',
       }));
 
-      const query = `
+      const query = gql`
         query people {
           allPeople(first: 1) {
             people {
@@ -462,7 +459,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const query = `
+        const query = gql`
           query people {
             allPeople(first: 1) {
               people {
@@ -517,7 +514,7 @@ describe('connect', () => {
       });
 
       it('stops the query after unmounting', () => {
-        const query = `
+        const query = gql`
           query people {
             allPeople(first: 1) {
               people {
@@ -580,7 +577,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const query = `
+        const query = gql`
           query people {
             allPeople(first: 1) {
               people {
@@ -636,6 +633,132 @@ describe('connect', () => {
         expect(props.people.refetch).to.not.throw;
       });
 
+      it('exposes startPolling as part of the props api', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+      function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.startPolling).to.be.exist;
+        expect(props.people.startPolling).to.be.instanceof(Function);
+        expect(props.people.startPolling).to.not.throw;
+      });
+
+      it('exposes stopPolling as part of the props api', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+      function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.stopPolling).to.be.exist;
+        expect(props.people.stopPolling).to.be.instanceof(Function);
+        expect(props.people.stopPolling).to.not.throw;
+      });
+
       it('resets the loading state when refetching', (done) => {
         const store = createStore(() => ({
           foo: 'bar',
@@ -643,7 +766,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const query = `
+        const query = gql`
           query people {
             allPeople(first: 1) {
               people {
@@ -682,6 +805,7 @@ describe('connect', () => {
         @connect({ mapQueriesToProps })
         class Container extends React.Component<any, any> {
           componentDidUpdate(prevProps) {
+
             if (prevProps.people.loading && !this.props.people.loading) {
               if (hasRefetched) {
                 return;
@@ -710,6 +834,187 @@ describe('connect', () => {
         );
       });
 
+      it('allows a polling query to be created', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data1 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const data2 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Leia Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface(
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          }
+        );
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps() {
+          return {
+            people: {
+              query,
+              pollInterval: 75,
+            },
+          };
+        };
+
+        let count = 0;
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          componentDidUpdate(prevProps) {
+            count++;
+          }
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        setTimeout(() => {
+          expect(count).to.equal(2);
+          done();
+        }, 160);
+      });
+
+      it('does not overly rerender if data doesn\'t change', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data1 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const data2 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Leia Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface(
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          }
+        );
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps() {
+          return {
+            people: {
+              query,
+              pollInterval: 75,
+            },
+          };
+        };
+
+        let count = 0;
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          componentDidUpdate(prevProps) {
+            count++;
+          }
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        setTimeout(() => {
+          expect(count).to.equal(2);
+          done();
+        }, 250);
+      });
+
+
       it('allows variables as part of the request', () => {
         const store = createStore(() => ({
           foo: 'bar',
@@ -717,7 +1022,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const query = `
+        const query = gql`
           query people($count: Int) {
             allPeople(first: $count) {
               people {
@@ -783,7 +1088,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const query = `
+        const query = gql`
           query people($count: Int) {
             allPeople(first: $count) {
               people {
@@ -855,7 +1160,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const query = `
+        const query = gql`
           query people($count: Int) {
             allPeople(first: $count) {
               people {
@@ -927,7 +1232,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const peopleQuery = `
+        const peopleQuery = gql`
           query people($count: Int) {
             allPeople(first: $count) {
               people {
@@ -957,7 +1262,7 @@ describe('connect', () => {
         //   },
         // };
 
-        const shipQuery = `
+        const shipQuery = gql`
           query starships($count: Int) {
             allStarships(first: $count) {
               starships {
@@ -1011,7 +1316,7 @@ describe('connect', () => {
       it('should update the props of the child component when data is returned', (done) => {
         const store = createStore(() => ({ }));
 
-        const query = `
+        const query = gql`
           query people {
             luke: allPeople(first: 1) {
               people {
@@ -1067,7 +1372,7 @@ describe('connect', () => {
 
       it('should prefill any data already in the store', (done) => {
 
-        const query = `
+        const query = gql`
           query people {
             allPeople(first: 1) {
               people {
@@ -1145,7 +1450,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const mutation = `
+        const mutation = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
@@ -1203,13 +1508,13 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const mutation1 = `
+        const mutation1 = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
         `;
 
-        const mutation2 = `
+        const mutation2 = gql`
           mutation makeListReallyPrivate($listId: ID!) {
             makeListReallyPrivate(id: $listId)
           }
@@ -1267,7 +1572,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const mutation = `
+        const mutation = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
@@ -1328,7 +1633,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const mutation = `
+        const mutation = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
@@ -1392,7 +1697,7 @@ describe('connect', () => {
       it('should update the props of the child component when data is returned', (done) => {
         const store = createStore(() => ({ }));
 
-        const mutation = `
+        const mutation = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
@@ -1459,7 +1764,7 @@ describe('connect', () => {
           hello: 'world',
         }));
 
-        const mutation = `
+        const mutation = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
@@ -1530,7 +1835,7 @@ describe('connect', () => {
           listId: '1',
         }));
 
-        const mutation = `
+        const mutation = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
@@ -1597,7 +1902,7 @@ describe('connect', () => {
       it('should allow passing custom arugments to mutation handle', (done) => {
         const store = createStore(() => ({ }));
 
-        const mutation = `
+        const mutation = gql`
           mutation makeListPrivate($listId: ID!) {
             makeListPrivate(id: $listId)
           }
@@ -1665,45 +1970,51 @@ describe('connect', () => {
   });
 });
 
-function mockNetworkInterface(
-  mockedRequest: {
-    request: any,
-    result: GraphQLResult,
-  }
-) {
-  const requestToResultMap: any = {};
-  const { request, result } = mockedRequest;
-  // Populate set of mocked requests
-  requestToResultMap[requestToKey(request)] = result as GraphQLResult;
 
-  // A mock for the query method
-  const queryMock = (req: Request) => {
-    return new Promise((resolve, reject) => {
-      // network latency
-      const resultData = requestToResultMap[requestToKey(req)];
-      if (!resultData) {
-        throw new Error(`Passed request that wasn't mocked: ${requestToKey(req)}`);
-      }
-      resolve(resultData);
-
-    });
-  };
-
-  return {
-    query: queryMock,
-    _uri: 'mock',
-    _opts: {},
-    _middlewares: [],
-    use() { return; },
-  };
-}
-
-
-function requestToKey(request: any): string {
-  const query = request.query && print(parse(request.query));
-
-  return JSON.stringify({
-    variables: request.variables,
-    query,
-  });
-}
+// function mockNetworkInterface(
+//   mockedRequest: {
+//     request: any,
+//     result: GraphQLResult,
+//   }
+// ) {
+//   const requestToResultMap: any = {};
+//   const { request, result } = mockedRequest;
+//   // Populate set of mocked requests
+//   requestToResultMap[requestToKey(request)] = result as GraphQLResult;
+//
+//   // A mock for the query method
+//   const queryMock = (req: any) => {
+//     return new Promise((resolve, reject) => {
+//       // network latency
+//       const resultData = requestToResultMap[requestToKey({
+//         query: parse(req.query),
+//         variables: req.variables,
+//         debugName: req.debugName,
+//       })];
+//
+//       if (!resultData) {
+//         throw new Error(`Passed request that wasn't mocked: ${requestToKey(req)}`);
+//       }
+//       resolve(resultData);
+//
+//     });
+//   };
+//
+//   return {
+//     query: queryMock,
+//     _uri: 'mock',
+//     _opts: {},
+//     _middlewares: [],
+//     use() { return; },
+//   };
+// }
+//
+//
+// function requestToKey(request: any): string {
+//   const query = request.query && print(request.query);
+//
+//   return JSON.stringify({
+//     variables: request.variables,
+//     query,
+//   });
+// }
