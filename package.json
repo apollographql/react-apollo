@@ -34,13 +34,12 @@
     "apollo-client": "^0.1.0 || ^0.2.0 || ^0.3.0"
   },
   "devDependencies": {
-    "apollo-client": "0.1.1",
+    "apollo-client": "^0.3.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "chai-enzyme": "^0.4.2",
     "cheerio": "^0.20.0",
     "enzyme": "^2.2.0",
-    "graphql": "^0.5.0",
     "istanbul": "^0.4.2",
     "jsdom": "^8.3.1",
     "mocha": "^2.3.3",

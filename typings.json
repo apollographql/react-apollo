@@ -17,7 +17,7 @@
     "sinon": "registry:npm/sinon#1.16.0+20160309002336"
   },
   "dependencies": {
-    "apollo-client": "file:node_modules/apollo-client/lib/src/index.d.ts",
+    "apollo-client": "file:node_modules/apollo-client/index.d.ts",
     "invariant": "registry:npm/invariant#2.0.0+20160211003958",
     "lodash": "registry:npm/lodash#4.0.0+20160412191219",
     "object-assign": "registry:npm/object-assign#4.0.1+20160301180549",
