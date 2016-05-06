@@ -202,7 +202,7 @@ export default function connect(opts?: ConnectOptions) {
 
             const { query, variables } = queryHandles[key];
 
-            const handle = watchQuery({ query, variables });
+            const handle = watchQuery(queryHandles[key]);
 
             // rudimentary way to manually check cache
             let queryData = defaultQueryData as any;
@@ -240,7 +240,9 @@ export default function connect(opts?: ConnectOptions) {
       handleQueryData(handle: any, key: string) {
         // bind each handle to updating and rerendering when data
         // has been recieved
-        let refetch;
+        let refetch,
+            startPolling,
+            stopPolling;
 
         // since we don't have the query id, we can manually handle
         // a lifecyle event for loading if this query is refetched
@@ -264,19 +266,24 @@ export default function connect(opts?: ConnectOptions) {
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
-            'refetch' in data
+            'refetch' in data ||
+            'startPolling' in data ||
+            'stopPolling' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${key}' query contains keys that ` +
-            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
+            `conflict with the return object. 'errors', 'loading', ` +
+            `'startPolling', 'stopPolling', and 'refetch' cannot be ` +
             `returned keys`
           );
 
           this.data[key] = assign({
             loading: false,
             errors,
-            refetch: refetch, // copy over refetch method
+            refetch, // copy over refetch method
+            startPolling,
+            stopPolling,
           }, data);
 
           this.hasQueryDataChanged = true;
@@ -291,9 +298,13 @@ export default function connect(opts?: ConnectOptions) {
         });
 
         refetch = createBoundRefetch(key, this.queryHandles[key].refetch);
+        startPolling = this.queryHandles[key].startPolling;
+        stopPolling = this.queryHandles[key].stopPolling;
 
         this.data[key] = assign(this.data[key], {
           refetch,
+          startPolling,
+          stopPolling,
         });
       }
 

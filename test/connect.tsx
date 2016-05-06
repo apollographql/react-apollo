@@ -9,12 +9,6 @@ import gql from 'apollo-client/gql';
 import assign = require('object-assign');
 // import { spy } from 'sinon';
 
-import {
-  GraphQLResult,
-  parse,
-  print,
-} from 'graphql';
-
 import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
@@ -22,6 +16,8 @@ import chaiEnzyme = require('chai-enzyme');
 
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
+
+import mockNetworkInterface from './mocks/mockNetworkInterface';
 
 import connect from '../src/connect';
 
@@ -637,6 +633,132 @@ describe('connect', () => {
         expect(props.people.refetch).to.not.throw;
       });
 
+      it('exposes startPolling as part of the props api', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+      function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.startPolling).to.be.exist;
+        expect(props.people.startPolling).to.be.instanceof(Function);
+        expect(props.people.startPolling).to.not.throw;
+      });
+
+      it('exposes stopPolling as part of the props api', () => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface({
+          request: { query },
+          result: { data },
+        });
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+      function mapQueriesToProps() {
+          return {
+            people: { query },
+          };
+        };
+
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        const wrapper = mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        const props = wrapper.find('span').props() as any;
+
+        expect(props.people).to.exist;
+        expect(props.people.stopPolling).to.be.exist;
+        expect(props.people.stopPolling).to.be.instanceof(Function);
+        expect(props.people.stopPolling).to.not.throw;
+      });
+
       it('resets the loading state when refetching', (done) => {
         const store = createStore(() => ({
           foo: 'bar',
@@ -683,7 +805,7 @@ describe('connect', () => {
         @connect({ mapQueriesToProps })
         class Container extends React.Component<any, any> {
           componentDidUpdate(prevProps) {
-            console.log(this.props.people)
+
             if (prevProps.people.loading && !this.props.people.loading) {
               if (hasRefetched) {
                 return;
@@ -695,8 +817,7 @@ describe('connect', () => {
 
             if (this.props.people.loading) {
               expect(this.props.people.loading).to.be.true;
-              // console.log(this.props.people)
-              // expect(this.props.people.allPeople).to.exist;
+              expect(this.props.people.allPeople).to.exist;
               done();
             }
 
@@ -711,6 +832,90 @@ describe('connect', () => {
             <Container pass='through' baz={50} />
           </ProviderMock>
         );
+      });
+
+      it('allows a polling query to be created', (done) => {
+        const store = createStore(() => ({
+          foo: 'bar',
+          baz: 42,
+          hello: 'world',
+        }));
+
+        const query = gql`
+          query people {
+            allPeople(first: 1) {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data1 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Luke Skywalker',
+              },
+            ],
+          },
+        };
+
+        const data2 = {
+          allPeople: {
+            people: [
+              {
+                name: 'Leia Skywalker',
+              },
+            ],
+          },
+        };
+
+        const networkInterface = mockNetworkInterface(
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data2 },
+          }
+        );
+
+        const client = new ApolloClient({
+          networkInterface,
+        });
+
+        function mapQueriesToProps() {
+          return {
+            people: {
+              query,
+              pollInterval: 250,
+            },
+          };
+        };
+
+        let count = 0;
+        @connect({ mapQueriesToProps })
+        class Container extends React.Component<any, any> {
+          componentDidUpdate(prevProps) {
+            count++;
+          }
+          render() {
+            return <Passthrough {...this.props} />;
+          }
+        };
+
+        mount(
+          <ProviderMock store={store} client={client}>
+            <Container pass='through' baz={50} />
+          </ProviderMock>
+        );
+
+        setTimeout(() => {
+          expect(count).to.equal(3);
+          done();
+        }, 525);
       });
 
       it('allows variables as part of the request', () => {
@@ -1053,8 +1258,7 @@ describe('connect', () => {
         class Container extends React.Component<any, any> {
           componentDidUpdate(prevProps) {
             expect(prevProps.luke.loading).to.be.true;
-            console.log(this.props.luke)
-            // expect(this.props.luke.luke).to.deep.equal(data.luke);
+            expect(this.props.luke.luke).to.deep.equal(data.luke);
             done();
           }
           render() {
@@ -1135,7 +1339,6 @@ describe('connect', () => {
 
             expect(props.people).to.exist;
             expect(props.people.loading).to.be.false;
-            console.log(props)
             expect(props.people.allPeople).to.deep.equal(data.allPeople);
             done();
           });
@@ -1670,50 +1873,51 @@ describe('connect', () => {
   });
 });
 
-function mockNetworkInterface(
-  mockedRequest: {
-    request: any,
-    result: GraphQLResult,
-  }
-) {
-  const requestToResultMap: any = {};
-  const { request, result } = mockedRequest;
-  // Populate set of mocked requests
-  requestToResultMap[requestToKey(request)] = result as GraphQLResult;
 
-  // A mock for the query method
-  const queryMock = (req: any) => {
-    return new Promise((resolve, reject) => {
-      // network latency
-      const resultData = requestToResultMap[requestToKey({
-        query: parse(req.query),
-        variables: req.variables,
-        debugName: req.debugName,
-      })];
-
-      if (!resultData) {
-        throw new Error(`Passed request that wasn't mocked: ${requestToKey(req)}`);
-      }
-      resolve(resultData);
-
-    });
-  };
-
-  return {
-    query: queryMock,
-    _uri: 'mock',
-    _opts: {},
-    _middlewares: [],
-    use() { return; },
-  };
-}
-
-
-function requestToKey(request: any): string {
-  const query = request.query && print(request.query);
-
-  return JSON.stringify({
-    variables: request.variables,
-    query,
-  });
-}
+// function mockNetworkInterface(
+//   mockedRequest: {
+//     request: any,
+//     result: GraphQLResult,
+//   }
+// ) {
+//   const requestToResultMap: any = {};
+//   const { request, result } = mockedRequest;
+//   // Populate set of mocked requests
+//   requestToResultMap[requestToKey(request)] = result as GraphQLResult;
+//
+//   // A mock for the query method
+//   const queryMock = (req: any) => {
+//     return new Promise((resolve, reject) => {
+//       // network latency
+//       const resultData = requestToResultMap[requestToKey({
+//         query: parse(req.query),
+//         variables: req.variables,
+//         debugName: req.debugName,
+//       })];
+//
+//       if (!resultData) {
+//         throw new Error(`Passed request that wasn't mocked: ${requestToKey(req)}`);
+//       }
+//       resolve(resultData);
+//
+//     });
+//   };
+//
+//   return {
+//     query: queryMock,
+//     _uri: 'mock',
+//     _opts: {},
+//     _middlewares: [],
+//     use() { return; },
+//   };
+// }
+//
+//
+// function requestToKey(request: any): string {
+//   const query = request.query && print(request.query);
+//
+//   return JSON.stringify({
+//     variables: request.variables,
+//     query,
+//   });
+// }
