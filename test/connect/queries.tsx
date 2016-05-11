@@ -87,6 +87,91 @@ describe('queries', () => {
     expect(props.people.loading).to.be.true;
   });
 
+  it('rebuilds the queries on state change', (done) => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    let firstRun = true;
+    function mapQueriesToProps({ state }) {
+      if (!firstRun) {
+        expect(state.counter).to.equal(2);
+        done();
+      } else {
+        firstRun = false;
+      }
+      return {
+        people: { query },
+      };
+    };
+
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    let hasDispatched = false;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(nextProps) {
+        if (nextProps.people.allPeople && !hasDispatched) {
+          hasDispatched = true;
+          console.log("dispatching")
+          this.props.dispatch({ type: 'INCREMENT' });
+        }
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    );
+  });
+
   it('stops the query after unmounting', () => {
     const query = gql`
       query people {
