@@ -175,8 +175,9 @@ export default function connect(opts?: ConnectOptions) {
         // to avoid rebinding queries if nothing has changed
         if (!isEqual(this.props, nextProps)) {
           this.haveOwnPropsChanged = true;
-          this.subscribeToAllQueries(nextProps);
           this.createAllMutationHandles(nextProps);
+          this.subscribeToAllQueries(nextProps);
+
         }
       }
 
@@ -367,7 +368,7 @@ export default function connect(opts?: ConnectOptions) {
       createAllMutationHandles(props: any): void {
 
         const mutations = mapMutationsToProps({
-          ownProps: this.props,
+          ownProps: props,
           state: this.store.getState(),
         });
 

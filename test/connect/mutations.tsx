@@ -550,7 +550,7 @@ describe('mutations', () => {
           return {
             mutation,
             variables: {
-              listId: state.listId,
+              listId: state.counter,
             },
           };
         },
@@ -574,6 +574,103 @@ describe('mutations', () => {
     mount(
       <ProviderMock store={store} client={client}>
         <Container listId={'1'} />
+      </ProviderMock>
+    );
+  });
+
+  it('gets the correct props at muation execution', (done) => {
+
+    const mutation = gql`
+      mutation makeListPrivate($listId: ID!) {
+        makeListPrivate(id: $listId)
+      }
+    `;
+
+    const variables1 = {
+      listId: '1',
+    };
+
+    const data1 = {
+      makeListPrivate: true,
+    };
+
+    const variables2 = {
+      listId: '2',
+    };
+
+    const data2 = {
+      makeListPrivate: false,
+    };
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query: mutation, variables: variables1 },
+        result: { data: data1 },
+      },
+      {
+        request: { query: mutation, variables: variables2 },
+        result: { data: data2 },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapMutationsToProps({ ownProps }) {
+      return {
+        makeListPrivate: () => {
+          expect(ownProps.listId).to.equal(2);
+          done();
+          return {
+            mutation,
+            variables: {
+              listId: ownProps.listId,
+            },
+          };
+        },
+      };
+    };
+
+    let hasFiredOnce = false;
+    @connect({ mapMutationsToProps })
+    class Container extends React.Component<any, any> {
+
+      componentDidUpdate() {
+        if (this.props.listId === 2 && !hasFiredOnce) {
+          hasFiredOnce = true;
+          this.props.mutations.makeListPrivate();
+        }
+      }
+
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    class ChangingProps extends React.Component<any, any> {
+
+      state = {
+        listId: 1
+      }
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            listId: 2,
+          });
+        }, 50);
+      }
+
+      render() {
+        return <Container listId={this.state.listId} />
+      }
+
+    }
+
+    mount(
+      <ProviderMock client={client}>
+        <ChangingProps />
       </ProviderMock>
     );
   });
