@@ -370,9 +370,9 @@ describe('mutations', () => {
       networkInterface,
     });
 
-    function mapMutationsToProps() {
+    function mapMutationsToProps({ ownProps }) {
       return {
-        makeListPrivate: ({ ownProps }) => {
+        makeListPrivate: () => {
           expect(ownProps.listId).to.equal('1');
           return {
             mutation,
@@ -441,10 +441,10 @@ describe('mutations', () => {
       networkInterface,
     });
 
-    function mapMutationsToProps() {
+    function mapMutationsToProps({ state }) {
 
       return {
-        makeListPrivate: ({ state }) => {
+        makeListPrivate: () => {
           expect(state.listId).to.equal('1');
           return {
             mutation,
@@ -483,7 +483,7 @@ describe('mutations', () => {
     );
   });
 
-  it('gets the state at muation execution', (done) => {
+  it('gets the correct state at muation execution', (done) => {
 
     const mutation = gql`
       mutation makeListPrivate($listId: ID!) {
@@ -542,9 +542,9 @@ describe('mutations', () => {
       applyMiddleware(client.middleware())
     );
 
-    function mapMutationsToProps() {
+    function mapMutationsToProps({ state }) {
       return {
-        makeListPrivate: ({ state }) => {
+        makeListPrivate: () => {
           expect(state.counter).to.equal(2);
           done();
           return {

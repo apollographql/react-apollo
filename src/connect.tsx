@@ -44,13 +44,13 @@ export declare interface ConnectOptions {
   mapStateToProps?: IMapStateToProps;
   mapDispatchToProps?: IMapDispatchToProps;
   options?: IConnectOptions;
-  mergeProps?(stateProps: any, dispatchProps: any, ownProps: any): any;
-  mapQueriesToProps?(opts: MapQueriesToPropsOptions): any; // WatchQueryHandle
-  mapMutationsToProps?(): any; // Mutation Handle
+  mergeProps?(stateProps: Object, dispatchProps: Object, ownProps: Object): Object;
+  mapQueriesToProps?(opts: MapQueriesToPropsOptions): Object; // WatchQueryHandle
+  mapMutationsToProps?(opts: MapQueriesToPropsOptions): Object; // Mutation Handle
 };
 
 const defaultMapQueriesToProps = opts => ({ });
-const defaultMapMutationsToProps = () => ({ });
+const defaultMapMutationsToProps = opts => ({ });
 const defaultQueryData = {
   loading: true,
   errors: null,
@@ -165,9 +165,38 @@ export default function connect(opts?: ConnectOptions) {
         const { props } = this;
         this.subscribeToAllQueries(props);
         this.createAllMutationHandles(props);
+        this.bindStoreUpdates();
       }
 
-      componentDidMount() {
+      componentWillReceiveProps(nextProps) {
+        // we got new props, we need to unsubscribe and re-watch all handles
+        // with the new data
+        // XXX determine if any of this data is actually used somehow
+        // to avoid rebinding queries if nothing has changed
+        if (!isEqual(this.props, nextProps)) {
+          this.haveOwnPropsChanged = true;
+          this.subscribeToAllQueries(nextProps);
+          this.createAllMutationHandles(nextProps);
+        }
+      }
+
+      shouldComponentUpdate(nextProps, nextState) {
+        return this.haveOwnPropsChanged ||
+          this.hasOwnStateChanged ||
+          this.hasQueryDataChanged ||
+          this.hasMutationDataChanged;
+      }
+
+      componentWillUnmount() {
+        this.unsubcribeAllQueries();
+
+        if (this.unsubscribeFromStore) {
+          this.unsubscribeFromStore();
+          this.unsubscribeFromStore = null;
+        }
+      }
+
+      bindStoreUpdates(): void {
         const { store, props } = this;
         const { reduxRootKey } = this.client;
 
@@ -186,35 +215,9 @@ export default function connect(opts?: ConnectOptions) {
             this.hasOwnStateChanged = true;
 
             this.subscribeToAllQueries(props);
+            this.createAllMutationHandles(props);
           }
         });
-      }
-
-      componentWillReceiveProps(nextProps) {
-        // we got new props, we need to unsubscribe and re-watch all handles
-        // with the new data
-        // XXX determine if any of this data is actually used somehow
-        // to avoid rebinding queries if nothing has changed
-        if (!isEqual(this.props, nextProps)) {
-          this.haveOwnPropsChanged = true;
-          this.subscribeToAllQueries(nextProps);
-        }
-      }
-
-      shouldComponentUpdate(nextProps, nextState) {
-        return this.haveOwnPropsChanged ||
-          this.hasOwnStateChanged ||
-          this.hasQueryDataChanged ||
-          this.hasMutationDataChanged;
-      }
-
-      componentWillUnmount() {
-        this.unsubcribeAllQueries();
-
-        if (this.unsubscribeFromStore) {
-          this.unsubscribeFromStore();
-          this.unsubscribeFromStore = null;
-        }
       }
 
       subscribeToAllQueries(props: any) {
@@ -363,7 +366,10 @@ export default function connect(opts?: ConnectOptions) {
 
       createAllMutationHandles(props: any): void {
 
-        const mutations = mapMutationsToProps();
+        const mutations = mapMutationsToProps({
+          ownProps: this.props,
+          state: this.store.getState(),
+        });
 
         if (isObject(mutations) && Object.keys(mutations).length) {
           for (const key in mutations) {

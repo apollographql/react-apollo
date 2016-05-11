@@ -2,7 +2,13 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
-### v0.3.2
+### v0.3.4
+
+Bug: Fix bug where state / props weren't accurate when executing mutations.
+Perf: Increase performance by limiting re-renders and re-execution of queries.
+Chore: Split tests to make them easier to maintain.
+
+### v0.3.2 || v0.3.3 (publish fix)
 
 Feature: add `startPolling` and `stopPolling` to the prop object for queries
 Bug: Fix bug where full options were not being passed to watchQuery
