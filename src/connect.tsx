@@ -125,6 +125,7 @@ export default function connect(opts?: ConnectOptions) {
       private client: ApolloClient; // apollo client
       private data: Object; // apollo data
       private previousState: Object;
+      private previousQueries: Object;
 
       // request / action storage
       private queryHandles: any;
@@ -184,7 +185,6 @@ export default function connect(opts?: ConnectOptions) {
             this.previousState = newState;
             this.hasOwnStateChanged = true;
 
-            this.unsubcribeAllQueries();
             this.subscribeToAllQueries(props);
           }
         });
@@ -197,8 +197,6 @@ export default function connect(opts?: ConnectOptions) {
         // to avoid rebinding queries if nothing has changed
         if (!isEqual(this.props, nextProps)) {
           this.haveOwnPropsChanged = true;
-
-          this.unsubcribeAllQueries();
           this.subscribeToAllQueries(nextProps);
         }
       }
@@ -223,11 +221,21 @@ export default function connect(opts?: ConnectOptions) {
         const { watchQuery, reduxRootKey } = this.client;
         const { store } = this;
 
-        // console.log(store.getState())
         const queryHandles = mapQueriesToProps({
           state: store.getState(),
           ownProps: props,
         });
+
+        const oldQueries = assign({}, this.previousQueries);
+        this.previousQueries = assign({}, queryHandles);
+
+        // don't re run queries if nothing has changed
+        if (isEqual(oldQueries, queryHandles)) {
+          return;
+        } else if (oldQueries) {
+          // unsubscribe from previous queries
+          this.unsubcribeAllQueries();
+        }
 
         if (isObject(queryHandles) && Object.keys(queryHandles).length) {
           this.queryHandles = queryHandles;
