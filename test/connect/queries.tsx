@@ -287,6 +287,86 @@ describe('queries', () => {
 
   });
 
+  it('rebuilds the queries on prop change', (done) => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    let firstRun = true;
+    function mapQueriesToProps({ ownProps }) {
+      if (!firstRun) {
+        expect(ownProps.listId).to.equal(2);
+        done();
+      } else {
+        firstRun = false;
+      }
+      return {
+        people: { query },
+      };
+    };
+
+
+    let hasDispatched = false;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    class ChangingProps extends React.Component<any, any> {
+
+      state = {
+        listId: 1
+      }
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            listId: 2,
+          });
+        }, 50);
+      }
+
+      render() {
+        return <Container listId={this.state.listId} />
+      }
+
+    }
+
+    mount(
+      <ProviderMock client={client}>
+        <ChangingProps />
+      </ProviderMock>
+    );
+
+  });
+
   it('does rerun the query if it changes', (done) => {
     const query = gql`
       query people($person: Int!) {
