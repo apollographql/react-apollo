@@ -12,7 +12,8 @@ script:
   - npm test
   - npm run coverage
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
-
+  - npm run filesize
+  
 # Allow Travis tests to run in containers.
 sudo: false
 
