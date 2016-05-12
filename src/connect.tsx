@@ -46,7 +46,7 @@ export declare interface ConnectOptions {
   options?: IConnectOptions;
   mergeProps?(stateProps: Object, dispatchProps: Object, ownProps: Object): Object;
   mapQueriesToProps?(opts: MapQueriesToPropsOptions): Object; // WatchQueryHandle
-  mapMutationsToProps?(opts: MapQueriesToPropsOptions): Object; // Mutation Handle
+  mapMutationsToProps?(opts: MapMutationsToPropsOptions): Object; // Mutation Handle
 };
 
 const defaultMapQueriesToProps = opts => ({ });
