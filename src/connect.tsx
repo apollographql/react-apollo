@@ -27,6 +27,7 @@ import ApolloClient, { readQueryFromStore } from 'apollo-client';
 
 import {
   GraphQLResult,
+  Document,
 } from 'graphql';
 
 export declare interface MapQueriesToPropsOptions {
@@ -43,9 +44,9 @@ export declare interface ConnectOptions {
   mapStateToProps?: IMapStateToProps;
   mapDispatchToProps?: IMapDispatchToProps;
   options?: IConnectOptions;
-  mergeProps?(stateProps: any, dispatchProps: any, ownProps: any): any;
-  mapQueriesToProps?(opts: MapQueriesToPropsOptions): any; // WatchQueryHandle
-  mapMutationsToProps?(opts: MapMutationsToPropsOptions): any; // Mutation Handle
+  mergeProps?(stateProps: Object, dispatchProps: Object, ownProps: Object): Object;
+  mapQueriesToProps?(opts: MapQueriesToPropsOptions): Object; // WatchQueryHandle
+  mapMutationsToProps?(opts: MapMutationsToPropsOptions): Object; // Mutation Handle
 };
 
 const defaultMapQueriesToProps = opts => ({ });
@@ -113,15 +114,18 @@ export default function connect(opts?: ConnectOptions) {
         client: PropTypes.object.isRequired,
       };
 
-      // react and react dev tools (HMR) needs
+      // react / redux and react dev tools (HMR) needs
       public state: any; // redux state
       public props: any; // passed props
       public version: number;
+      private unsubscribeFromStore: Function;
 
       // data storage
       private store: Store<any>;
       private client: ApolloClient; // apollo client
-      private data: any; // apollo data
+      private data: Object; // apollo data
+      private previousState: Object;
+      private previousQueries: Object;
 
       // request / action storage
       private queryHandles: any;
@@ -131,6 +135,7 @@ export default function connect(opts?: ConnectOptions) {
       private haveOwnPropsChanged: boolean;
       private hasQueryDataChanged: boolean;
       private hasMutationDataChanged: boolean;
+      private hasOwnStateChanged: boolean;
 
       // the element to render
       private renderedElement: any;
@@ -150,15 +155,17 @@ export default function connect(opts?: ConnectOptions) {
 
         const storeState = this.store.getState();
         this.state = assign({}, storeState);
+        this.previousState = storeState;
 
         this.data = {};
         this.mutations = {};
       }
 
       componentWillMount() {
-        const { props, state } = this;
-        this.subscribeToAllQueries(props, state);
-        this.createAllMutationHandles(props, state);
+        const { props } = this;
+        this.subscribeToAllQueries(props);
+        this.createAllMutationHandles(props);
+        this.bindStoreUpdates();
       }
 
       componentWillReceiveProps(nextProps) {
@@ -168,22 +175,53 @@ export default function connect(opts?: ConnectOptions) {
         // to avoid rebinding queries if nothing has changed
         if (!isEqual(this.props, nextProps)) {
           this.haveOwnPropsChanged = true;
-          this.unsubcribeAllQueries();
-          this.subscribeToAllQueries(nextProps, this.state);
+          this.createAllMutationHandles(nextProps);
+          this.subscribeToAllQueries(nextProps);
+
         }
       }
 
       shouldComponentUpdate(nextProps, nextState) {
         return this.haveOwnPropsChanged ||
+          this.hasOwnStateChanged ||
           this.hasQueryDataChanged ||
           this.hasMutationDataChanged;
       }
 
       componentWillUnmount() {
         this.unsubcribeAllQueries();
+
+        if (this.unsubscribeFromStore) {
+          this.unsubscribeFromStore();
+          this.unsubscribeFromStore = null;
+        }
       }
 
-      subscribeToAllQueries(props: any, state: any) {
+      bindStoreUpdates(): void {
+        const { store, props } = this;
+        const { reduxRootKey } = this.client;
+
+        this.unsubscribeFromStore = store.subscribe(() => {
+          let newState = assign({}, store.getState());
+          let oldState = assign({}, this.previousState);
+
+          // we remove the apollo key from the store
+          // because incomming data would trigger unneccesary
+          // queries and mutations rebuilds
+          delete newState[reduxRootKey];
+          delete oldState[reduxRootKey];
+
+          if (!isEqual(oldState, newState)) {
+            this.previousState = newState;
+            this.hasOwnStateChanged = true;
+
+            this.subscribeToAllQueries(props);
+            this.createAllMutationHandles(props);
+          }
+        });
+      }
+
+      subscribeToAllQueries(props: any) {
         const { watchQuery, reduxRootKey } = this.client;
         const { store } = this;
 
@@ -191,6 +229,17 @@ export default function connect(opts?: ConnectOptions) {
           state: store.getState(),
           ownProps: props,
         });
+
+        const oldQueries = assign({}, this.previousQueries);
+        this.previousQueries = assign({}, queryHandles);
+
+        // don't re run queries if nothing has changed
+        if (isEqual(oldQueries, queryHandles)) {
+          return;
+        } else if (oldQueries) {
+          // unsubscribe from previous queries
+          this.unsubcribeAllQueries();
+        }
 
         if (isObject(queryHandles) && Object.keys(queryHandles).length) {
           this.queryHandles = queryHandles;
@@ -316,10 +365,11 @@ export default function connect(opts?: ConnectOptions) {
         });
       }
 
-      createAllMutationHandles(props: any, state: any): void {
+      createAllMutationHandles(props: any): void {
+
         const mutations = mapMutationsToProps({
-          state,
           ownProps: props,
+          state: this.store.getState(),
         });
 
         if (isObject(mutations) && Object.keys(mutations).length) {
@@ -340,7 +390,10 @@ export default function connect(opts?: ConnectOptions) {
         }
       }
 
-      createMutationHandle(key: string, method: () => { mutation: string, variables?: any }): () => Promise<GraphQLResult> {
+      createMutationHandle(
+        key: string,
+        method: () => { mutation: Document, variables?: any }
+      ): () => Promise<GraphQLResult> {
         const { mutate } = this.client;
         const { store } = this;
 
@@ -377,6 +430,14 @@ export default function connect(opts?: ConnectOptions) {
         };
 
         return (...args) => {
+          const stateAndProps = {
+            state: store.getState(),
+            ownProps: this.props,
+          };
+
+          // add props and state as last argument of method
+          args.push(stateAndProps);
+
           const { mutation, variables } = method.apply(this.client, args);
           return new Promise((resolve, reject) => {
             this.data[key] = assign(this.data[key], {
@@ -403,6 +464,7 @@ export default function connect(opts?: ConnectOptions) {
       render() {
         const {
           haveOwnPropsChanged,
+          hasOwnStateChanged,
           hasQueryDataChanged,
           hasMutationDataChanged,
           renderedElement,
@@ -412,6 +474,7 @@ export default function connect(opts?: ConnectOptions) {
         } = this;
 
         this.haveOwnPropsChanged = false;
+        this.hasOwnStateChanged = false;
         this.hasQueryDataChanged = false;
         this.hasMutationDataChanged = false;
 
@@ -427,6 +490,7 @@ export default function connect(opts?: ConnectOptions) {
         const mergedPropsAndData = assign({}, props, data, clientProps);
         if (
           !haveOwnPropsChanged &&
+          !hasOwnStateChanged &&
           !hasQueryDataChanged &&
           !hasMutationDataChanged &&
           renderedElement

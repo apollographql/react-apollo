@@ -26,6 +26,120 @@ import {
 import connect from '../../src/connect';
 
 describe('queries', () => {
+  it('doesn\'t rerun the query if it doesn\'t change', (done) => {
+    const query = gql`
+      query people($person: Int!) {
+        allPeople(first: $person) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const data2 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Leia Skywalker',
+          },
+        ],
+      },
+    };
+
+    const variables1 = {
+      person: 1
+    }
+
+    const variables2 = {
+      person: 2
+    }
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query, variables: variables1 },
+        result: { data: data1 },
+      },
+      {
+        request: { query, variables: variables2 },
+        result: { data: data2 },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapQueriesToProps({ state }) {
+      return {
+        foobar: {
+          query,
+          variables: {
+            person: 1,
+          }
+        },
+      };
+    };
+
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    let hasDispatched = false;
+    let count = 0;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+
+      componentWillReceiveProps(nextProps) {
+        count++;
+        if (nextProps.foobar.allPeople && !hasDispatched) {
+          hasDispatched = true;
+          this.props.dispatch({ type: 'INCREMENT' });
+        }
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    const wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container />
+      </ProviderMock>
+    );
+
+    setTimeout(() => {
+      expect(count).to.equal(2);
+      done();
+    }, 250);
+  });
+
   it('binds a query to props', () => {
     const store = createStore(() => ({
       foo: 'bar',
@@ -85,6 +199,290 @@ describe('queries', () => {
 
     expect(props.people).to.exist;
     expect(props.people.loading).to.be.true;
+  });
+
+  it('rebuilds the queries on state change', (done) => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+    let wrapper;
+    let firstRun = true;
+    function mapQueriesToProps({ state }) {
+      if (!firstRun) {
+        expect(state.counter).to.equal(2);
+        wrapper.unmount();
+        done();
+      } else {
+        firstRun = false;
+      }
+      return {
+        people: { query },
+      };
+    };
+
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    let hasDispatched = false;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(nextProps) {
+        if (nextProps.people.allPeople && !hasDispatched) {
+          hasDispatched = true;
+          this.props.dispatch({ type: 'INCREMENT' });
+        }
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    ) as any;
+
+  });
+
+  it('rebuilds the queries on prop change', (done) => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    let firstRun = true;
+    function mapQueriesToProps({ ownProps }) {
+      if (!firstRun) {
+        expect(ownProps.listId).to.equal(2);
+        done();
+      } else {
+        firstRun = false;
+      }
+      return {
+        people: { query },
+      };
+    };
+
+
+    let hasDispatched = false;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    class ChangingProps extends React.Component<any, any> {
+
+      state = {
+        listId: 1
+      }
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            listId: 2,
+          });
+        }, 50);
+      }
+
+      render() {
+        return <Container listId={this.state.listId} />
+      }
+
+    }
+
+    mount(
+      <ProviderMock client={client}>
+        <ChangingProps />
+      </ProviderMock>
+    );
+
+  });
+
+  it('does rerun the query if it changes', (done) => {
+    const query = gql`
+      query people($person: Int!) {
+        allPeople(first: $person) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const data2 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Leia Skywalker',
+          },
+        ],
+      },
+    };
+
+    const variables1 = {
+      person: 1
+    }
+
+    const variables2 = {
+      person: 2
+    }
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query, variables: variables1 },
+        result: { data: data1 },
+      },
+      {
+        request: { query, variables: variables2 },
+        result: { data: data2 },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    let firstRun = true;
+    function mapQueriesToProps({ state }) {
+      return {
+        people: {
+          query,
+          variables: {
+            person: state.counter,
+          }
+        },
+      };
+    };
+
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    let hasDispatched = false;
+    let count = 0;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      componentDidMount(){
+        count++; // increase for the loading
+      }
+
+      componentWillReceiveProps(nextProps) {
+        count++;
+        if (nextProps.people.allPeople && !hasDispatched) {
+          hasDispatched = true;
+          this.props.dispatch({ type: 'INCREMENT' });
+        }
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    );
+
+    setTimeout(() => {
+      expect(count).to.equal(3);
+      done();
+    }, 250);
   });
 
   it('stops the query after unmounting', () => {

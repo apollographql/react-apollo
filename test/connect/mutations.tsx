@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
-import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { createStore, combineReducers, applyMiddleware, ReducersMapObject } from 'redux';
 import { connect as ReactReduxConnect } from 'react-redux';
 import gql from 'apollo-client/gql';
 import assign = require('object-assign');
@@ -371,9 +371,9 @@ describe('mutations', () => {
     });
 
     function mapMutationsToProps({ ownProps }) {
-      expect(ownProps.listId).to.equal('1');
       return {
         makeListPrivate: () => {
+          expect(ownProps.listId).to.equal('1');
           return {
             mutation,
             variables: {
@@ -442,9 +442,10 @@ describe('mutations', () => {
     });
 
     function mapMutationsToProps({ state }) {
-      expect(state.listId).to.equal('1');
+
       return {
         makeListPrivate: () => {
+          expect(state.listId).to.equal('1');
           return {
             mutation,
             variables: {
@@ -478,6 +479,198 @@ describe('mutations', () => {
     mount(
       <ProviderMock store={store} client={client}>
         <Container listId={'1'} />
+      </ProviderMock>
+    );
+  });
+
+  it('gets the correct state at muation execution', (done) => {
+
+    const mutation = gql`
+      mutation makeListPrivate($listId: ID!) {
+        makeListPrivate(id: $listId)
+      }
+    `;
+
+    const variables1 = {
+      listId: '1',
+    };
+
+    const data1 = {
+      makeListPrivate: true,
+    };
+
+    const variables2 = {
+      listId: '2',
+    };
+
+    const data2 = {
+      makeListPrivate: false,
+    };
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query: mutation, variables: variables1 },
+        result: { data: data1 },
+      },
+      {
+        request: { query: mutation, variables: variables2 },
+        result: { data: data2 },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    function mapMutationsToProps({ state }) {
+      return {
+        makeListPrivate: () => {
+          expect(state.counter).to.equal(2);
+          done();
+          return {
+            mutation,
+            variables: {
+              listId: state.counter,
+            },
+          };
+        },
+      };
+    };
+
+    let hasFiredOnce = false;
+    @connect({ mapMutationsToProps })
+    class Container extends React.Component<any, any> {
+      componentDidMount() {
+        // trigger a store change
+        this.props.dispatch({ type: 'INCREMENT' });
+        this.props.mutations.makeListPrivate();
+      }
+
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock store={store} client={client}>
+        <Container listId={'1'} />
+      </ProviderMock>
+    );
+  });
+
+  it('gets the correct props at muation execution', (done) => {
+
+    const mutation = gql`
+      mutation makeListPrivate($listId: ID!) {
+        makeListPrivate(id: $listId)
+      }
+    `;
+
+    const variables1 = {
+      listId: '1',
+    };
+
+    const data1 = {
+      makeListPrivate: true,
+    };
+
+    const variables2 = {
+      listId: '2',
+    };
+
+    const data2 = {
+      makeListPrivate: false,
+    };
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query: mutation, variables: variables1 },
+        result: { data: data1 },
+      },
+      {
+        request: { query: mutation, variables: variables2 },
+        result: { data: data2 },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapMutationsToProps({ ownProps }) {
+      return {
+        makeListPrivate: () => {
+          expect(ownProps.listId).to.equal(2);
+          done();
+          return {
+            mutation,
+            variables: {
+              listId: ownProps.listId,
+            },
+          };
+        },
+      };
+    };
+
+    let hasFiredOnce = false;
+    @connect({ mapMutationsToProps })
+    class Container extends React.Component<any, any> {
+
+      componentDidUpdate() {
+        if (this.props.listId === 2 && !hasFiredOnce) {
+          hasFiredOnce = true;
+          this.props.mutations.makeListPrivate();
+        }
+      }
+
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    class ChangingProps extends React.Component<any, any> {
+
+      state = {
+        listId: 1
+      }
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            listId: 2,
+          });
+        }, 50);
+      }
+
+      render() {
+        return <Container listId={this.state.listId} />
+      }
+
+    }
+
+    mount(
+      <ProviderMock client={client}>
+        <ChangingProps />
       </ProviderMock>
     );
   });
