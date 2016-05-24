@@ -731,6 +731,85 @@ describe('queries', () => {
     expect(props.people.stopPolling).to.not.throw;
   });
 
+  it('returns a promise when refetching', (done) => {
+    const store = createStore(() => ({
+      foo: 'bar',
+      baz: 42,
+      hello: 'world',
+    }));
+
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query },
+        result: { data },
+      },
+      {
+        request: { query },
+        result: { data },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapQueriesToProps() {
+      return {
+        people: { query },
+      };
+    };
+
+    let hasRefetched = false;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      componentDidUpdate(prevProps) {
+
+        if (prevProps.people.loading && !this.props.people.loading) {
+          if (hasRefetched) {
+            return;
+          }
+          hasRefetched = true;
+          this.props.people.refetch()
+            .then((refetchedResult) => {
+              expect(refetchedResult.data).to.deep.equal(data);
+              done();
+            });
+          return;
+        }
+
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    );
+  });
+
   it('resets the loading state when refetching', (done) => {
     const store = createStore(() => ({
       foo: 'bar',

@@ -307,7 +307,7 @@ export default function connect(opts?: ConnectOptions) {
             // update state to latest of redux store
             this.setState(this.store.getState());
 
-            refetchMethod(...args);
+            return refetchMethod(...args);
           };
         };
 
