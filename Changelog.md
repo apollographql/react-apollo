@@ -2,6 +2,10 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+### v0.3.5
+
+Return promise from the refetch method
+
 ### v0.3.4
 
 Bug: Fix bug where state / props weren't accurate when executing mutations.
