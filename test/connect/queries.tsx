@@ -287,6 +287,188 @@ describe('queries', () => {
 
   });
 
+  it('correctly passes through changed redux state', (done) => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    let wrapper;
+    let firstRun = true;
+    function mapQueriesToProps({ state }) {
+      return {
+        people: { query },
+      };
+    };
+
+    function counter(state = 0, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    function mapStateToProps(state) {
+      return {
+        ctnr: state.counter + 1
+      }
+    }
+
+    @connect({ mapStateToProps, mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+
+      componentWillMount() {
+        this.props.dispatch({ type: 'INCREMENT' });
+      }
+
+      componentWillReceiveProps(nextProps) {
+        if (!nextProps.people.loading) {
+          expect(nextProps.ctnr).to.equal(2);
+          done();
+        }
+      }
+
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    ) as any;
+
+  });
+
+    it('correctly passes through changed redux state after a query result', (done) => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    let wrapper;
+    let firstRun = true;
+    function mapQueriesToProps({ state }) {
+      return {
+        people: { query },
+      };
+    };
+
+    function counter(state = 0, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    function mapStateToProps(state) {
+      return {
+        ctnr: state.counter + 1
+      }
+    }
+
+    let hasDispatched = false;
+    @connect({ mapStateToProps, mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+
+      componentWillReceiveProps(nextProps) {
+        if (!nextProps.people.loading && !hasDispatched) {
+          hasDispatched = true;
+          this.props.dispatch({ type: 'INCREMENT' });
+        } else if (hasDispatched) {
+          expect(nextProps.ctnr).to.equal(2);
+          done();
+        }
+      }
+
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    ) as any;
+
+  });
+
   it('rebuilds the queries on prop change', (done) => {
     const query = gql`
       query people {
