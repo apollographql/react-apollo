@@ -71,6 +71,60 @@ describe('redux integration', () => {
 
   });
 
+  it('updates child props on state change', (done) => {
+
+    const client = new ApolloClient();
+    let wrapper;
+
+    function mapStateToProps(state) {
+      return {
+        cntr: state.counter + 1
+      }
+    }
+
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    let hasDispatched = false;
+    @connect({ mapStateToProps })
+    class Container extends React.Component<any, any> {
+      componentWillMount() {
+        this.props.dispatch({ type: 'INCREMENT' });
+      }
+      componentWillReceiveProps(nextProps) {
+        expect(nextProps.cntr).to.equal(3);
+        done();
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    ) as any;
+
+  });
+
   it('should allow mapDispatchToProps', () => {
     function doSomething(thing) {
       return {
