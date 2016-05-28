@@ -256,7 +256,7 @@ export default function connect(opts?: ConnectOptions) {
 
             // rudimentary way to manually check cache
             let queryData = defaultQueryData as any;
-            
+
             // force fetch shouldn't try to read from the store
             if (!forceFetch) {
               try {
@@ -271,7 +271,6 @@ export default function connect(opts?: ConnectOptions) {
                   loading: false,
                 }, result);
               } catch (e) {/* tslint */}
-
             }
 
             this.data[key] = queryData;
