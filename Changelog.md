@@ -5,6 +5,7 @@ Expect active development and potentially significant breaking changes in the `0
 ### vNext
 
 Bug: Loading state is no longer true on uncalled mutations.
+Improvement: don't set the loading state to false if forceFetch is true
 
 ### v0.3.5
 
