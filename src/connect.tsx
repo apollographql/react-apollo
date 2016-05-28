@@ -56,6 +56,7 @@ const defaultQueryData = {
   errors: null,
 };
 const defaultMutationData = assign({}, defaultQueryData);
+defaultMutationData.loading = false;
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';

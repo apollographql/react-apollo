@@ -81,7 +81,7 @@ describe('mutations', () => {
     const props = wrapper.find('span').props() as any;
 
     expect(props.makeListPrivate).to.exist;
-    expect(props.makeListPrivate.loading).to.be.true;
+    expect(props.makeListPrivate.loading).to.be.false;
   });
 
   it('should bind multiple mutation keys to props', () => {
@@ -143,9 +143,9 @@ describe('mutations', () => {
     const props = wrapper.find('span').props() as any;
 
     expect(props.makeListPrivate).to.exist;
-    expect(props.makeListPrivate.loading).to.be.true;
+    expect(props.makeListPrivate.loading).to.be.false;
     expect(props.makeListReallyPrivate).to.exist;
-    expect(props.makeListReallyPrivate.loading).to.be.true;
+    expect(props.makeListReallyPrivate.loading).to.be.false;
   });
 
   it('should bind mutation handler to `props.mutations[key]`', () => {
@@ -202,7 +202,7 @@ describe('mutations', () => {
     const props = wrapper.find('span').props() as any;
 
     expect(props.makeListPrivate).to.exist;
-    expect(props.makeListPrivate.loading).to.be.true;
+    expect(props.makeListPrivate.loading).to.be.false;
 
     expect(props.mutations).to.exist;
     expect(props.mutations.makeListPrivate).to.exist;
@@ -263,7 +263,7 @@ describe('mutations', () => {
     const props = wrapper.find('span').props() as any;
 
     expect(props.makeListPrivate).to.exist;
-    expect(props.makeListPrivate.loading).to.be.true;
+    expect(props.makeListPrivate.loading).to.be.false;
 
     expect(props.mutations).to.exist;
     expect(props.mutations.makeListPrivate).to.exist;
