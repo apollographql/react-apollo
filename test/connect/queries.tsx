@@ -992,6 +992,104 @@ describe('queries', () => {
     );
   });
 
+  it('resets the loading state after a refetched query', (done) => {
+
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const data2 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Han Solo',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query: query },
+        result: { data: data1 },
+      },
+      {
+        request: { query: query },
+        result: { data: data2 },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapQueriesToProps() {
+      return {
+        people: { query },
+      };
+    };
+
+    let hasRefetched = false;
+    let hasRefetchedAndReturned = false;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(nextProps) {
+
+        if (hasRefetchedAndReturned) {
+          expect(nextProps.people.loading).to.be.false;
+          done();
+          return;
+        }
+
+        if (hasRefetched) {
+          expect(nextProps.people.loading).to.be.true;
+          hasRefetchedAndReturned = true;
+          return;
+        }
+      }
+
+      componentDidUpdate(prevProps) {
+
+        if (prevProps.people.loading && !this.props.people.loading) {
+
+          if (hasRefetched) {
+            return;
+          }
+
+          hasRefetched = true;
+          this.props.people.refetch()
+          return;
+        }
+
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock client={client}>
+        <Container />
+      </ProviderMock>
+    );
+  });
+
   it('resets the loading state when refetching', (done) => {
     const store = createStore(() => ({
       foo: 'bar',
