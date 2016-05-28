@@ -250,24 +250,29 @@ export default function connect(opts?: ConnectOptions) {
               continue;
             }
 
-            const { query, variables } = queryHandles[key];
+            const { query, variables, forceFetch } = queryHandles[key];
 
             const handle = watchQuery(queryHandles[key]);
 
             // rudimentary way to manually check cache
             let queryData = defaultQueryData as any;
-            try {
-              const result = readQueryFromStore({
-                store: store.getState()[reduxRootKey].data,
-                query,
-                variables,
-              });
+            
+            // force fetch shouldn't try to read from the store
+            if (!forceFetch) {
+              try {
+                const result = readQueryFromStore({
+                  store: store.getState()[reduxRootKey].data,
+                  query,
+                  variables,
+                });
 
-              queryData = assign({
-                errors: null,
-                loading: false,
-              }, result);
-            } catch (e) {/* tslint */}
+                queryData = assign({
+                  errors: null,
+                  loading: false,
+                }, result);
+              } catch (e) {/* tslint */}
+
+            }
 
             this.data[key] = queryData;
 
