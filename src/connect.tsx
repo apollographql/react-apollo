@@ -335,7 +335,7 @@ export default function connect(opts?: ConnectOptions) {
 
           // only rerender child component if data has changed
           // XXX should we rerender while errors are present?
-          if (!isEqual(oldData, data) || errors) {
+          if (!isEqual(oldData, data) || errors || this.data[key].loading) {
             this.hasQueryDataChanged = true;
           }
 

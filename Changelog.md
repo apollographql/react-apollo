@@ -2,6 +2,10 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+### v.0.3.7
+
+Bug: Reset loading state when a refetched query has returned
+
 ### v0.3.6
 
 Bug: Loading state is no longer true on uncalled mutations.
