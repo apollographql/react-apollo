@@ -199,10 +199,11 @@ export default function connect(opts?: ConnectOptions) {
       }
 
       bindStoreUpdates(): void {
-        const { store, props } = this;
+        const { store } = this;
         const { reduxRootKey } = this.client;
 
         this.unsubscribeFromStore = store.subscribe(() => {
+          const { props } = this;
           let newState = assign({}, store.getState());
           let oldState = assign({}, this.previousState);
 

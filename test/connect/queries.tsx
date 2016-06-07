@@ -469,6 +469,76 @@ describe('queries', () => {
 
   });
 
+  // taken from https://gist.github.com/sgoll/8519d638feb9489242f517cf954e4681
+  it('doesn\'t rebuild the queries on dispatch if nothing has changed', () => {
+
+    const demoAction = () => ({
+      type: 'DEMO_ACTION',
+    });
+
+    const demoReducer = (state = 0, action) => (
+      action.type === 'DEMO_ACTION' ? state + 1 : state
+    );
+
+    const DemoComponent = () => null;
+
+    // whenever mapQueriesToProps is called, we extract ownProps for test
+    let gotProps;
+
+    const mapQueriesToProps = ({ ownProps }) => {
+      gotProps = ownProps;
+      // not necessary to actually set up any queries
+      return {};
+    };
+
+
+    // wrap dummy component into connect'd container
+    const DemoContainer = connect({ mapQueriesToProps })(
+      DemoComponent
+    );
+
+
+    // initialize Apollo client and integrate into Redux store
+    const client = new ApolloClient();
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        demo: demoReducer,
+        apollo: apolloReducer,
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+
+    // simple root container that forwards props (changed with setProps
+    // below) to demo component
+    const Root = (props) => (
+      <ProviderMock client={client} store={store}>
+        <DemoContainer {...props} />
+      </ProviderMock>
+    );
+
+
+    // on initial render, we expect mapQueriesToProps to be called with
+    // passed prop value "foo"
+    const wrapper = mount(<Root value='foo' />);
+    expect(gotProps.value).to.equal('foo');
+
+    // now we change prop value to "bar", expect mapQueriesToProps call
+    // with updated prop value "bar"
+    wrapper.setProps({ value: 'bar' });
+    expect(gotProps.value).to.equal('bar');
+
+    // running an arbitrary action that changes the store state should
+    // not update the prop value passed to mapQueriesToProps
+    client.store.dispatch(demoAction() as any);
+    expect(gotProps.value).to.equal('bar');
+
+  });
+
   it('rebuilds the queries on prop change', (done) => {
     const query = gql`
       query people {
