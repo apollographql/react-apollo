@@ -119,6 +119,7 @@ export default function connect(opts?: ConnectOptions) {
       public state: any; // redux state
       public props: any; // passed props
       public version: number;
+      public hasMounted: boolean;
       private unsubscribeFromStore: Function;
 
       // data storage
@@ -164,6 +165,7 @@ export default function connect(opts?: ConnectOptions) {
 
       componentWillMount() {
         const { props } = this;
+        this.hasMounted = true;
         this.subscribeToAllQueries(props);
         this.createAllMutationHandles(props);
         this.bindStoreUpdates();
@@ -196,6 +198,7 @@ export default function connect(opts?: ConnectOptions) {
           this.unsubscribeFromStore();
           this.unsubscribeFromStore = null;
         }
+        this.hasMounted = false;
       }
 
       bindStoreUpdates(): void {
@@ -310,8 +313,11 @@ export default function connect(opts?: ConnectOptions) {
 
             this.hasQueryDataChanged = true;
 
-            // update state to latest of redux store
-            this.setState(this.store.getState());
+            if (this.hasMounted) {
+              // update state to latest of redux store
+              this.setState(this.store.getState());
+            }
+
 
             return refetchMethod(...args);
           };
@@ -351,8 +357,10 @@ export default function connect(opts?: ConnectOptions) {
             stopPolling,
           }, data);
 
-          // update state to latest of redux store
-          this.setState(this.store.getState());
+          if (this.hasMounted) {
+            // update state to latest of redux store
+            this.setState(this.store.getState());
+          }
         };
 
         this.queryHandles[key] = handle.subscribe({
@@ -425,9 +433,11 @@ export default function connect(opts?: ConnectOptions) {
 
           this.hasMutationDataChanged = true;
 
-          // update state to latest of redux store
-          // this forces a render of children
-          this.setState(store.getState());
+          if (this.hasMounted) {
+            // update state to latest of redux store
+            // this forces a render of children
+            this.setState(store.getState());
+          }
 
           return {
             errors,
@@ -452,9 +462,11 @@ export default function connect(opts?: ConnectOptions) {
 
             this.hasMutationDataChanged = true;
 
-            // update state to latest of redux store
-            // this forces a render of children
-            this.setState(store.getState());
+            if (this.hasMounted) {
+              // update state to latest of redux store
+              // this forces a render of children
+              this.setState(store.getState());
+            }
 
             resolve();
           })
