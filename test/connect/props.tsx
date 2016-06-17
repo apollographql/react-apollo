@@ -107,6 +107,35 @@ describe('props', () => {
 
   });
 
+  it('should pass `ApolloClient.watchQuery` as props.watchQuery', () => {
+    const store = createStore(() => ({ }));
+    const client = new ApolloClient();
+
+    @connect()
+    class Container extends React.Component<any, any> {
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    const wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container pass='through' baz={50} />
+      </ProviderMock>
+    );
+
+
+    const props = wrapper.find('span').props() as any;
+
+    expect(props.watchQuery).to.exist;
+    try {
+      expect(props.watchQuery()).to.be.instanceof(Promise);
+    } catch (e) {
+      expect(e).to.be.instanceof(TypeError);
+    };
+
+  });
+
   it('should pass mutation methods as props.mutations dictionary', () => {
     const store = createStore(() => ({ }));
 

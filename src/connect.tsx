@@ -487,6 +487,7 @@ export default function connect(opts?: ConnectOptions) {
         let clientProps = {
           mutate: this.client.mutate,
           query: this.client.query,
+          watchQuery: this.client.watchQuery,
         } as any;
 
         if (Object.keys(mutations).length) {

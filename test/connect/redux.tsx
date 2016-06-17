@@ -64,6 +64,7 @@ describe('redux integration', () => {
     const reduxProps = assign({}, wrapper.find('span').props(), {
       query: undefined,
       mutate: undefined,
+      watchQuery: undefined,
     });
     const apolloProps = apolloWrapper.find('span').props();
 
