@@ -1,7 +1,7 @@
 # react-apollo
 
 [![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/apollo-client)
-[![Get on Slack](http://slack.apollostack.com/badge.svg)](http://slack.apollostack.com/)
+[![Get on Slack](https://img.shields.io/badge/slack-join-orange.svg)](http://www.apollostack.com/#slack)
 [![Build Status](https://travis-ci.org/apollostack/react-apollo.svg?branch=master)](https://travis-ci.org/apollostack/react-apollo)
 [![Coverage Status](https://coveralls.io/repos/github/apollostack/react-apollo/badge.svg?branch=master)](https://coveralls.io/github/apollostack/react-apollo?branch=master)
 
