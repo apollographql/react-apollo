@@ -1,0 +1,11 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/typed-typings/npm-sinon/661f2077a206b669bcb5d2a568cc2e3c85818aec/typings.json",
+    "raw": "registry:npm/sinon#1.16.0+20160309002336",
+    "main": "lib/sinon.d.ts",
+    "global": false,
+    "name": "sinon",
+    "type": "typings"
+  }
+}

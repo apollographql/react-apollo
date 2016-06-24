@@ -1,13 +1,10 @@
-/// <reference path="../../../typings/main.d.ts" />
 
 import * as React from 'react';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect as ReactReduxConnect } from 'react-redux';
-import gql from 'apollo-client/gql';
 import assign = require('object-assign');
-// import { spy } from 'sinon';
 
 import ApolloClient from 'apollo-client';
 
@@ -17,7 +14,6 @@ import chaiEnzyme = require('chai-enzyme');
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
 
-import mockNetworkInterface from '../../mocks/mockNetworkInterface';
 import {
   Passthrough,
   ProviderMock,

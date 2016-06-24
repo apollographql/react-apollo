@@ -1,0 +1,12 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/louy/typed-object-assign/91dd2548172cee5dc0aa531d1b452a76044dbff2/typings.json",
+    "raw": "registry:npm/object-assign#4.0.1+20160301180549",
+    "main": "index.d.ts",
+    "version": "4.0.1",
+    "global": false,
+    "name": "object-assign",
+    "type": "typings"
+  }
+}
