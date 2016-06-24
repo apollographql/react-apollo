@@ -165,10 +165,13 @@ export default function connect(opts?: ConnectOptions) {
 
       componentWillMount() {
         const { props } = this;
-        this.hasMounted = true;
         this.subscribeToAllQueries(props);
         this.createAllMutationHandles(props);
         this.bindStoreUpdates();
+      }
+
+      componentDidMount() {
+        this.hasMounted = true;
       }
 
       componentWillReceiveProps(nextProps) {
