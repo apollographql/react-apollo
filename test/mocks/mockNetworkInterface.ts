@@ -76,7 +76,7 @@ export class MockNetworkInterface implements NetworkInterface {
         } else {
           resolve(result);
         }
-      }, delay ? delay : 0);
+      }, delay ? delay : 1);
     });
   }
 }

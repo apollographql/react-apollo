@@ -43,7 +43,11 @@ describe('SSR', () => {
     try {
       const data = ReactDOM.renderToString(component);
       expect(data).to.match(/loading/);
-      done();
+      // We do a timeout to ensure the rest of the application does not fail
+      // after the render
+      setTimeout(() => {
+        done();
+      }, 1000);
     } catch (e) {
       done(e);
     }

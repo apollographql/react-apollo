@@ -1,4 +1,4 @@
-/// <reference path="../typings/main.d.ts" />
+/// <reference path="../../typings/main.d.ts" />
 
 import * as React from 'react';
 import * as chai from 'chai';
@@ -14,7 +14,7 @@ const { expect } = chai;
 
 import ApolloClient from 'apollo-client';
 
-import ApolloProvider  from '../src/ApolloProvider';
+import ApolloProvider  from '../../src/ApolloProvider';
 
 interface ChildContext {
   store: Object;

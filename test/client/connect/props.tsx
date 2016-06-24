@@ -1,4 +1,4 @@
-/// <reference path="../../typings/main.d.ts" />
+/// <reference path="../../../typings/main.d.ts" />
 
 import * as React from 'react';
 import * as chai from 'chai';
@@ -17,13 +17,13 @@ import chaiEnzyme = require('chai-enzyme');
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
 
-import mockNetworkInterface from '../mocks/mockNetworkInterface';
+import mockNetworkInterface from '../../mocks/mockNetworkInterface';
 import {
   Passthrough,
   ProviderMock,
-} from '../mocks/components';
+} from '../../mocks/components';
 
-import connect from '../../src/connect';
+import connect from '../../../src/connect';
 
 describe('props', () => {
   it('should pass `ApolloClient.query` as props.query', () => {
