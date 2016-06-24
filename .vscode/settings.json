@@ -10,7 +10,7 @@
     "**/.DS_Store": true,
     // "node_modules": true,
     "test-lib": true,
-    "lib": true,
+    "lib": false,
     "coverage": true
   }
 }

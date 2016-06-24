@@ -1,0 +1,21 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/andrew-w-ross/typings-react-redux/6be88a57427f8ec220cad13d68565fd5f5711146/typings.json",
+    "raw": "registry:npm/react-redux#4.4.0+20160207114942",
+    "main": "react-redux.d.ts",
+    "global": false,
+    "dependencies": {
+      "redux": {
+        "src": "https://raw.githubusercontent.com/andrew-w-ross/typings-redux/master/typings.json",
+        "raw": "github:andrew-w-ross/typings-redux",
+        "main": "redux.d.ts",
+        "global": false,
+        "name": "redux",
+        "type": "typings"
+      }
+    },
+    "name": "react-redux",
+    "type": "typings"
+  }
+}
