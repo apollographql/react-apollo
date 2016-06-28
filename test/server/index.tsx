@@ -109,5 +109,224 @@ describe('SSR', () => {
           done();
         });
     });
+
+    it('should run return the initial state for hydration', (done) => {
+      const Element = ({ data }) => {
+        return <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>;
+      };
+
+      const query = gql`
+        query App {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+
+      const data = {
+        currentUser: {
+          firstName: 'James',
+        },
+      };
+
+      const networkInterface = mockNetworkInterface(
+        {
+          request: { query },
+          result: { data },
+          delay: 50,
+        }
+      );
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      const WrappedElement = connect({
+        mapQueriesToProps: () => ({
+          data: {
+            query,
+            ssr: true, // block during SSR render
+          },
+        })
+      })(Element);
+
+      const app = (
+        <ApolloProvider client={client}>
+          <WrappedElement />
+        </ApolloProvider>
+      );
+
+      getData(app)
+        .then((initialState) => {
+          expect(initialState.apollo.data).to.exist;
+          expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.exist;
+          done();
+        });
+    });
+
+    // XXX break into smaller tests
+    // XXX mock all queries
+    it('should work on a non trivial example', function(done) {
+      this.timeout(10000);
+      const networkInterface = createNetworkInterface("http://graphql-swapi.parseapp.com/");
+      const client = new ApolloClient({
+        networkInterface,
+        // shouldBatch: true,
+      });
+
+      class Film extends React.Component<any, any>{
+        render(){
+          const { data } = this.props;
+          if (data.loading) return null
+          const { film } = data;
+          return <h6>{film.title}</h6>
+        }
+      };
+
+      const FilmWithData = connect({
+        mapQueriesToProps: ({ ownProps }) => ({
+          data: {
+            query: gql`
+              query GetFilm($id: ID!) {
+                film: node(id: $id) {
+                  ... on Film {
+                    title
+                  }
+                }
+              }
+            `,
+            variables: { id: ownProps.id },
+          },
+        }),
+      })(Film);
+
+      class Starship extends React.Component<any, any>{
+        render(){
+          const { data } = this.props;
+          if (data.loading) return null;
+          const { ship } = data;
+          return (
+            <div>
+              <h4>{ship.name} appeared in the following flims:</h4>
+              <br/>
+              <ul>
+                {ship.filmConnection.films.map((film, key) => (
+                  <li key={key}>
+                    <FilmWithData id={film.id} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      };
+
+      const StarshipWithData = connect({
+        mapQueriesToProps: ({ ownProps }) => ({
+          data: {
+            query: gql`
+              query GetShip($id: ID!) {
+                ship: node(id: $id) {
+                  ... on Starship {
+                    name
+                    filmConnection {
+                      films {
+                        id
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { id: ownProps.id },
+          },
+        }),
+      })(Starship);
+
+      class Element extends React.Component<any, any>{
+        render(){
+          const { data } = this.props;
+          return (
+            <ul>
+              {!data.loading && data.allStarships && data.allStarships.starships.map((ship, key) => (
+                <li key={key}>
+                  <StarshipWithData id={ship.id} />
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      }
+
+      const AllShipsWithData = connect({
+        mapQueriesToProps: () => ({
+          data: {
+            query: gql`
+              query GetShips {
+                allStarships(first: 2) {
+                  starships {
+                    id
+                  }
+                }
+              }
+            `,
+          },
+        })
+      })(Element);
+
+      class Planet extends React.Component<any, any> {
+        render() {
+          const { data } = this.props;
+          if (data.loading) return null;
+          const { planets } = data.allPlanets;
+          return (
+            <div>
+              <h1>Planets</h1>
+              {planets.map((planet, key) => (
+                <div key={key}>{planet.name}</div>
+              ))}
+            </div>
+          )
+        }
+      }
+      const AllPlanetsWithData = connect({
+        mapQueriesToProps: () => ({
+          data: {
+            query: gql`
+              query GetPlanets {
+                allPlanets(first: 1) {
+                  planets{
+                    name
+                  }
+                }
+              }
+            `,
+          },
+        }),
+      })(Planet)
+
+      const app = (
+        <ApolloProvider client={client}>
+          <div>
+            <AllShipsWithData />
+            <hr />
+            <AllPlanetsWithData />
+          </div>
+        </ApolloProvider>
+      );
+
+
+      getData(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).to.match(/CR90 corvette/);
+          expect(markup).to.match(/Return of the Jedi/);
+          expect(markup).to.match(/Return of the Jedi/);
+          expect(markup).to.match(/Planets/);
+          expect(markup).to.match(/Tatooine/);
+          done();
+        })
+        .catch(done)
+    });
   });
 });
