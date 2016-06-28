@@ -5,7 +5,6 @@ import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { connect, ApolloProvider, getData, renderToStringWithData } from '../../src';
 import 'isomorphic-fetch';
 
-// Globally register gql template literal tag
 import gql from 'graphql-tag';
 
 import mockNetworkInterface from '../mocks/mockNetworkInterface';
