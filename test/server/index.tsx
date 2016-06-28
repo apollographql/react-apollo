@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { connect, ApolloProvider } from '../../src';
-import { getData, renderToStringWithData } from '../../src/server';
+import { getDataFromTree, renderToStringWithData } from '../../src/server';
 import 'isomorphic-fetch';
 
 import gql from 'graphql-tag';
@@ -55,7 +55,7 @@ describe('SSR', () => {
     }
   });
 
-  describe('`getData`', () => {
+  describe('`getDataFromTree`', () => {
     it('should run through all of the queries that want SSR', (done) => {
       const Element = ({ data }) => {
         return <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>;
@@ -102,7 +102,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      getData(app)
+      getDataFromTree(app)
         .then(() => {
           const markup = ReactDOM.renderToString(app);
           expect(markup).to.match(/James/);
@@ -153,7 +153,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      getData(app)
+      getDataFromTree(app)
         .then(({ initialState }) => {
           expect(initialState.apollo.data).to.exist;
           expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.exist;
@@ -203,7 +203,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      getData(app)
+      getDataFromTree(app)
         .then(({ initialState }) => {
           expect(initialState.apollo.data).to.exist;
           expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.not.exist;
@@ -389,7 +389,7 @@ describe('SSR', () => {
           expect(markup).to.match(/Return of the Jedi/);
           expect(markup).to.match(/Planets/);
           expect(markup).to.match(/Tatooine/);
-          expect(markup).to.match(/__apollo_data__/);
+          expect(markup).to.match(/__APOLLO_STATE__/);
           done();
         })
         .catch(done);

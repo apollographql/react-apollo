@@ -171,7 +171,7 @@ function getQueriesFromTree({
 }
 
 // XXX component Cache
-export function getData(
+export function getDataFromTree(
   components,
   defaultProps: Object = {},
   defaultContext: Object = {}
@@ -204,7 +204,7 @@ export function getData(
           if (!child) return;
 
           // traverse children nodes
-          return getData(child, defaultProps, context);
+          return getDataFromTree(child, defaultProps, context);
         });
         return Promise.all(subTrees);
       })
@@ -213,7 +213,7 @@ export function getData(
 }
 
 export function renderToStringWithData(component) {
-  return getData(component)
+  return getDataFromTree(component)
     .then(({ context }) => {
       let markup = ReactDOM.renderToString(component);
       let initialState = context.store.getState();
@@ -225,7 +225,7 @@ export function renderToStringWithData(component) {
         for (let field of fieldsToNotShip)  delete initialState[key].queries[queryId][field];
       }
       initialState = encodeURI(JSON.stringify(initialState));
-      const payload = `<script>window.__apollo_data__ = ${initialState};</script>`;
+      const payload = `<script>window.__APOLLO_STATE__ = ${initialState};</script>`;
       markup += payload;
       return markup;
     });
