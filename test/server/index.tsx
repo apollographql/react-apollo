@@ -143,10 +143,7 @@ describe('SSR', () => {
 
       const WrappedElement = connect({
         mapQueriesToProps: () => ({
-          data: {
-            query,
-            ssr: true, // block during SSR render
-          },
+          data: { query },
         })
       })(Element);
 

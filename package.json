@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npm run compile",
-    "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test/server",
+    "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=13",
     "compile": "tsc",
