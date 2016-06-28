@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import gql from 'apollo-client/gql';
+import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 
@@ -22,120 +22,6 @@ import {
 import connect from '../../../src/connect';
 
 describe('queries', () => {
-  it('doesn\'t rerun the query if it doesn\'t change', (done) => {
-    const query = gql`
-      query people($person: Int!) {
-        allPeople(first: $person) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-
-    const data1 = {
-      allPeople: {
-        people: [
-          {
-            name: 'Luke Skywalker',
-          },
-        ],
-      },
-    };
-
-    const data2 = {
-      allPeople: {
-        people: [
-          {
-            name: 'Leia Skywalker',
-          },
-        ],
-      },
-    };
-
-    const variables1 = {
-      person: 1
-    }
-
-    const variables2 = {
-      person: 2
-    }
-
-    const networkInterface = mockNetworkInterface(
-      {
-        request: { query, variables: variables1 },
-        result: { data: data1 },
-      },
-      {
-        request: { query, variables: variables2 },
-        result: { data: data2 },
-      }
-    );
-
-    const client = new ApolloClient({
-      networkInterface,
-    });
-
-    function mapQueriesToProps({ state }) {
-      return {
-        foobar: {
-          query,
-          variables: {
-            person: 1,
-          }
-        },
-      };
-    };
-
-    function counter(state = 1, action) {
-      switch (action.type) {
-        case 'INCREMENT':
-          return state + 1
-        default:
-          return state
-        }
-    }
-
-    // Typscript workaround
-    const apolloReducer = client.reducer() as () => any;
-
-    const store = createStore(
-      combineReducers({
-        counter,
-        apollo: apolloReducer
-      }),
-      applyMiddleware(client.middleware())
-    );
-
-    let hasDispatched = false;
-    let count = 0;
-    @connect({ mapQueriesToProps })
-    class Container extends React.Component<any, any> {
-
-      componentWillReceiveProps(nextProps) {
-        count++;
-        if (nextProps.foobar.allPeople && !hasDispatched) {
-          hasDispatched = true;
-          this.props.dispatch({ type: 'INCREMENT' });
-        }
-      }
-      render() {
-        return <Passthrough {...this.props} />;
-      }
-    };
-
-    const wrapper = mount(
-      <ProviderMock store={store} client={client}>
-        <Container />
-      </ProviderMock>
-    );
-
-    setTimeout(() => {
-      expect(count).to.equal(2);
-      done();
-    }, 250);
-  });
-
   it('binds a query to props', () => {
     const store = createStore(() => ({
       foo: 'bar',
@@ -347,6 +233,7 @@ describe('queries', () => {
       }
     }
 
+    let hasFinished;
     @connect({ mapStateToProps, mapQueriesToProps })
     class Container extends React.Component<any, any> {
 
@@ -355,7 +242,8 @@ describe('queries', () => {
       }
 
       componentWillReceiveProps(nextProps) {
-        if (!nextProps.people.loading) {
+        if (!nextProps.people.loading && !hasFinished) {
+          hasFinished = true;
           expect(nextProps.ctnr).to.equal(2);
           done();
         }
@@ -1924,5 +1812,122 @@ describe('queries', () => {
         expect(props.people.allPeople).to.deep.equal(data.allPeople);
         done();
       });
+  });
+
+  it('doesn\'t rerun the query if it doesn\'t change', (done) => {
+    const query = gql`
+      query people($person: Int!) {
+        allPeople(first: $person) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const data2 = {
+      allPeople: {
+        people: [
+          {
+            name: 'Leia Skywalker',
+          },
+        ],
+      },
+    };
+
+    const variables1 = {
+      person: 1
+    }
+
+    const variables2 = {
+      person: 2
+    }
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query, variables: variables1 },
+        result: { data: data1 },
+      },
+      {
+        request: { query, variables: variables2 },
+        result: { data: data2 },
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapQueriesToProps() {
+      return {
+        foobar: {
+          query,
+          variables: {
+            person: 1,
+          }
+        },
+      };
+    };
+
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1
+        default:
+          return state
+        }
+    }
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    let hasDispatched = false;
+    let localcount = 0;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+
+      componentWillReceiveProps(nextProps) {
+        if (nextProps.foobar.allPeople && !hasDispatched) {
+          hasDispatched = true;
+          this.props.dispatch({ type: 'INCREMENT' });
+        }
+      }
+      componentDidUpdate() {
+        localcount++;
+      }
+
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    const wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container />
+      </ProviderMock>
+    );
+
+    setTimeout(() => {
+      expect(localcount).to.equal(2);
+      done();
+    }, 50);
   });
 });
