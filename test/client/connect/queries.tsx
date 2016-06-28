@@ -131,7 +131,7 @@ describe('queries', () => {
     );
 
     setTimeout(() => {
-      expect(count).to.equal(2);
+      expect(count).to.equal(1);
       done();
     }, 250);
   });

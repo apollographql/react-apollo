@@ -220,15 +220,14 @@ export default function connect(opts?: ConnectOptions) {
 
           if (!isEqual(oldState, newState)) {
             this.previousState = newState;
-            this.hasOwnStateChanged = true;
 
-            this.subscribeToAllQueries(props);
+            this.hasOwnStateChanged = this.subscribeToAllQueries(props);
             this.createAllMutationHandles(props);
           }
         });
       }
 
-      subscribeToAllQueries(props: any) {
+      subscribeToAllQueries(props: any): boolean {
         const { watchQuery, reduxRootKey } = this.client;
         const { store } = this;
 
@@ -242,7 +241,7 @@ export default function connect(opts?: ConnectOptions) {
 
         // don't re run queries if nothing has changed
         if (isEqual(oldQueries, queryHandles)) {
-          return;
+          return false;
         } else if (oldQueries) {
           // unsubscribe from previous queries
           this.unsubcribeAllQueries();
@@ -284,6 +283,7 @@ export default function connect(opts?: ConnectOptions) {
             this.handleQueryData(handle, key);
           }
         }
+        return true;
       }
 
       unsubcribeAllQueries() {
