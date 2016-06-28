@@ -347,6 +347,7 @@ describe('queries', () => {
       }
     }
 
+    let hasFinished;
     @connect({ mapStateToProps, mapQueriesToProps })
     class Container extends React.Component<any, any> {
 
@@ -355,7 +356,8 @@ describe('queries', () => {
       }
 
       componentWillReceiveProps(nextProps) {
-        if (!nextProps.people.loading) {
+        if (!nextProps.people.loading && !hasFinished) {
+          hasFinished = true;
           expect(nextProps.ctnr).to.equal(2);
           done();
         }
