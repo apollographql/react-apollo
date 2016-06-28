@@ -6,7 +6,7 @@ import { connect, ApolloProvider } from '../../src';
 import 'isomorphic-fetch';
 
 // Globally register gql template literal tag
-import gql from 'apollo-client/gql';
+import gql from 'graphql-tag';
 
 const { expect } = chai;
 

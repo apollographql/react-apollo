@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import gql from 'apollo-client/gql';
+import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 
@@ -1868,7 +1868,7 @@ describe('queries', () => {
       networkInterface,
     });
 
-    function mapQueriesToProps({ state }) {
+    function mapQueriesToProps() {
       return {
         foobar: {
           query,
@@ -1905,12 +1905,15 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
 
       componentWillReceiveProps(nextProps) {
-        localcount++;
         if (nextProps.foobar.allPeople && !hasDispatched) {
           hasDispatched = true;
           this.props.dispatch({ type: 'INCREMENT' });
         }
       }
+      componentDidUpdate() {
+        localcount++;
+      }
+
       render() {
         return <Passthrough {...this.props} />;
       }
@@ -1923,7 +1926,7 @@ describe('queries', () => {
     );
 
     setTimeout(() => {
-      expect(localcount).to.equal(1);
+      expect(localcount).to.equal(2);
       done();
     }, 50);
   });

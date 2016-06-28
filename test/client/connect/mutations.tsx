@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import gql from 'apollo-client/gql';
+import gql from 'graphql-tag';
 // import { spy } from 'sinon';
 
 import ApolloClient from 'apollo-client';
