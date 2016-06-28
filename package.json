@@ -7,7 +7,7 @@
     "pretest": "npm run compile",
     "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
     "posttest": "npm run lint",
-    "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=13",
+    "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=15",
     "compile": "tsc",
     "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/src/index.js --i react --i apollo-client -o=./dist/index.js && npm run minify:browser",
     "minify:browser": "uglifyjs --compress --mangle --screw-ie8 -o=./dist/index.min.js -- ./dist/index.js",
