@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { connect, ApolloProvider, getData } from '../../src';
+import { connect, ApolloProvider, getData, renderToStringWithData } from '../../src';
 import 'isomorphic-fetch';
 
 // Globally register gql template literal tag
@@ -154,12 +154,64 @@ describe('SSR', () => {
       );
 
       getData(app)
-        .then((initialState) => {
+        .then(({ initialState }) => {
           expect(initialState.apollo.data).to.exist;
           expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.exist;
           done();
         });
     });
+    it('shouldn\'t run queries if ssr is turned to off', (done) => {
+      const Element = ({ data }) => {
+        return <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>;
+      };
+
+      const query = gql`
+        query App {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+
+      const data = {
+        currentUser: {
+          firstName: 'James',
+        },
+      };
+
+      const networkInterface = mockNetworkInterface(
+        {
+          request: { query },
+          result: { data },
+          delay: 50,
+        }
+      );
+
+      const client = new ApolloClient({
+        networkInterface,
+      });
+
+      const WrappedElement = connect({
+        mapQueriesToProps: () => ({
+          data: { query, ssr: false },
+        })
+      })(Element);
+
+      const app = (
+        <ApolloProvider client={client}>
+          <WrappedElement />
+        </ApolloProvider>
+      );
+
+      getData(app)
+        .then(({ initialState }) => {
+          expect(initialState.apollo.data).to.exist;
+          expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.not.exist;
+          done();
+        });
+    });
+  });
+  describe('`renderToStringWithData`', () => {
 
     // XXX break into smaller tests
     // XXX mock all queries
@@ -302,25 +354,42 @@ describe('SSR', () => {
         }),
       })(Planet)
 
+      const Foo = () => (
+        <div>
+          <h1>Foo</h1>
+          <Bar />
+        </div>
+      )
+
+      class Bar extends React.Component<any, any> {
+        render() {
+          return (
+            <div>
+              <h2>Bar</h2>
+              <AllPlanetsWithData />
+            </div>
+          )
+        }
+      }
+
       const app = (
         <ApolloProvider client={client}>
           <div>
             <AllShipsWithData />
             <hr />
-            <AllPlanetsWithData />
+            <Foo />
           </div>
         </ApolloProvider>
       );
 
-
-      getData(app)
-        .then(() => {
-          const markup = ReactDOM.renderToString(app);
+      renderToStringWithData(app)
+        .then(markup => {
           expect(markup).to.match(/CR90 corvette/);
           expect(markup).to.match(/Return of the Jedi/);
           expect(markup).to.match(/Return of the Jedi/);
           expect(markup).to.match(/Planets/);
           expect(markup).to.match(/Tatooine/);
+          expect(markup).to.match(/__apollo_data__/);
           done();
         })
         .catch(done)

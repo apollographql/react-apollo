@@ -1,5 +1,5 @@
 import ApolloProvider from './ApolloProvider';
 import connect from './connect';
-import getData from './getData';
+import { getData, renderToStringWithData } from './server';
 
-export { ApolloProvider, connect, getData };
+export { ApolloProvider, connect, getData, renderToStringWithData };

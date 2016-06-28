@@ -1,5 +1,6 @@
 
 import { Children, createElement } from 'react';
+import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import flatten = require('lodash.flatten');
 import assign = require('object-assign');
@@ -103,6 +104,7 @@ function getQueriesFromTree({
       delete child.props.store;
     }
 
+    let Element;
     // find the client in the tree
     if (!client && child.props && child.props.client instanceof ApolloClient) {
       context.client = child.props.client as ApolloClient;
@@ -117,7 +119,7 @@ function getQueriesFromTree({
     let ownProps = getPropsFromChild(child, defaultProps);
     let state = store ? store.getState() : {};
 
-    // see if this is a connect file
+    // see if this is a connect type
     if (child.type && typeof child.type.mapQueriesToProps === 'function') {
       const dataRequirements = child.type.mapQueriesToProps({ ownProps, state });
       for (let query in dataRequirements) {
@@ -131,16 +133,27 @@ function getQueriesFromTree({
           ownProps,
         });
       }
-      const Element = createElement(child.type.WrappedComponent, ownProps) as any;
-      const RenderedComponent = Element && new Element.type(ownProps, context);
 
-      // See if this is a class, or stateless function
-      child = getChildFromComponent(RenderedComponent) || child;
-
+      Element = createElement(child.type.WrappedComponent, ownProps) as any;
     }
 
-    // if we know children, lets just render them
-    if (child.props && child.props.children) {
+    // try to see if this is a component, or a stateless component
+    if (!Element && typeof child.type === 'function') Element = { type: child.type };
+    const RenderedComponent = Element && Element.type && new Element.type(ownProps, context);
+
+    if (RenderedComponent && RenderedComponent.context) context = RenderedComponent.context;
+
+    // See if this is a class, or stateless function
+    const renderedChild = getChildFromComponent(RenderedComponent);
+    if (renderedChild) {
+      getQueriesFromTree({
+        queries,
+        context,
+        defaultProps,
+        components: renderedChild,
+      });
+   } else if (child && child.props && child.props.children) {
+     // all we have is the children to keep going with
       getQueriesFromTree({
         queries,
         context,
@@ -158,7 +171,7 @@ function getQueriesFromTree({
 }
 
 // XXX component Cache
-export default function getData(
+export function getData(
   components,
   defaultProps: Object = {},
   defaultContext: Object = {}
@@ -174,7 +187,7 @@ export default function getData(
   if (!context.client || !context.store) return Promise.resolve(null);
 
   // no queries found, nothing to do
-  if (!queries.length) return Promise.resolve(context.store.getState());
+  if (!queries.length) return Promise.resolve({ context, initialState: context.store.getState() });
 
   // run through all queries we can
   return processQueries(queries, context.client)
@@ -195,6 +208,25 @@ export default function getData(
         });
         return Promise.all(subTrees);
       })
-      .then(x => context.store.getState());
+      .then(x => ({ context, initialState: context.store.getState() }));
 
+}
+
+export function renderToStringWithData(component) {
+  return getData(component)
+    .then(({ context }) => {
+      let markup = ReactDOM.renderToString(component);
+      let initialState = context.store.getState();
+      const key = context.client.reduxRootKey;
+      // XXX apollo client requires a lot in the store
+      // can we make this samller?
+      for (let queryId in initialState[key].queries) {
+        let fieldsToNotShip = ['minimizedQuery', 'minimizedQuery'];
+        for (let field of fieldsToNotShip)  delete initialState[key].queries[queryId][field];
+      }
+      initialState = encodeURI(JSON.stringify(initialState));
+      const payload = `<script>window.__apollo_data__ = ${initialState};</script>`;
+      markup += payload;
+      return markup;
+    });
 }
