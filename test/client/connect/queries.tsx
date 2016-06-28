@@ -1925,6 +1925,6 @@ describe('queries', () => {
     setTimeout(() => {
       expect(localcount).to.equal(1);
       done();
-    }, 250);
+    }, 50);
   });
 });
