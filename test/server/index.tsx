@@ -2,7 +2,8 @@ import * as chai from 'chai';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { connect, ApolloProvider, getData, renderToStringWithData } from '../../src';
+import { connect, ApolloProvider } from '../../src';
+import { getData, renderToStringWithData } from '../../src/server';
 import 'isomorphic-fetch';
 
 import gql from 'graphql-tag';
@@ -12,17 +13,17 @@ import mockNetworkInterface from '../mocks/mockNetworkInterface';
 const { expect } = chai;
 
 const client = new ApolloClient({
-  networkInterface: createNetworkInterface('https://www.graphqlhub.com/playground')
+  networkInterface: createNetworkInterface('https://www.graphqlhub.com/playground'),
 });
 
 describe('SSR', () => {
   it('should render the expected markup', (done) => {
     const Element = ({ data }) => {
       return <div>{data.loading ? 'loading' : 'loaded'}</div>;
-    }
+    };
 
     const WrappedElement = connect({
-      mapQueriesToProps: ({ ownProps }) => ({
+      mapQueriesToProps: () => ({
         data: {
           query: gql`
             query Feed {
@@ -30,9 +31,9 @@ describe('SSR', () => {
                 login
               }
             }
-          `
-        }
-      })
+          `,
+        },
+      }),
     })(Element);
 
     const component = (
@@ -82,7 +83,7 @@ describe('SSR', () => {
         }
       );
 
-      const client = new ApolloClient({
+      const apolloClient = new ApolloClient({
         networkInterface,
       });
 
@@ -92,11 +93,11 @@ describe('SSR', () => {
             query,
             ssr: true, // block during SSR render
           },
-        })
+        }),
       })(Element);
 
       const app = (
-        <ApolloProvider client={client}>
+        <ApolloProvider client={apolloClient}>
           <WrappedElement />
         </ApolloProvider>
       );
@@ -136,18 +137,18 @@ describe('SSR', () => {
         }
       );
 
-      const client = new ApolloClient({
+      const apolloClient = new ApolloClient({
         networkInterface,
       });
 
       const WrappedElement = connect({
         mapQueriesToProps: () => ({
           data: { query },
-        })
+        }),
       })(Element);
 
       const app = (
-        <ApolloProvider client={client}>
+        <ApolloProvider client={apolloClient}>
           <WrappedElement />
         </ApolloProvider>
       );
@@ -186,18 +187,18 @@ describe('SSR', () => {
         }
       );
 
-      const client = new ApolloClient({
+      const apolloClient = new ApolloClient({
         networkInterface,
       });
 
       const WrappedElement = connect({
         mapQueriesToProps: () => ({
           data: { query, ssr: false },
-        })
+        }),
       })(Element);
 
       const app = (
-        <ApolloProvider client={client}>
+        <ApolloProvider client={apolloClient}>
           <WrappedElement />
         </ApolloProvider>
       );
@@ -216,18 +217,18 @@ describe('SSR', () => {
     // XXX mock all queries
     it('should work on a non trivial example', function(done) {
       this.timeout(10000);
-      const networkInterface = createNetworkInterface("http://graphql-swapi.parseapp.com/");
-      const client = new ApolloClient({
+      const networkInterface = createNetworkInterface('http://graphql-swapi.parseapp.com/');
+      const apolloClient = new ApolloClient({
         networkInterface,
         // shouldBatch: true,
       });
 
-      class Film extends React.Component<any, any>{
-        render(){
+      class Film extends React.Component<any, any> {
+        render() {
           const { data } = this.props;
-          if (data.loading) return null
+          if (data.loading) return null;
           const { film } = data;
-          return <h6>{film.title}</h6>
+          return <h6>{film.title}</h6>;
         }
       };
 
@@ -248,8 +249,8 @@ describe('SSR', () => {
         }),
       })(Film);
 
-      class Starship extends React.Component<any, any>{
-        render(){
+      class Starship extends React.Component<any, any> {
+        render() {
           const { data } = this.props;
           if (data.loading) return null;
           const { ship } = data;
@@ -265,7 +266,7 @@ describe('SSR', () => {
                 ))}
               </ul>
             </div>
-          )
+          );
         }
       };
 
@@ -291,8 +292,8 @@ describe('SSR', () => {
         }),
       })(Starship);
 
-      class Element extends React.Component<any, any>{
-        render(){
+      class Element extends React.Component<any, any> {
+        render() {
           const { data } = this.props;
           return (
             <ul>
@@ -302,7 +303,7 @@ describe('SSR', () => {
                 </li>
               ))}
             </ul>
-          )
+          );
         }
       }
 
@@ -319,7 +320,7 @@ describe('SSR', () => {
               }
             `,
           },
-        })
+        }),
       })(Element);
 
       class Planet extends React.Component<any, any> {
@@ -334,7 +335,7 @@ describe('SSR', () => {
                 <div key={key}>{planet.name}</div>
               ))}
             </div>
-          )
+          );
         }
       }
       const AllPlanetsWithData = connect({
@@ -351,14 +352,14 @@ describe('SSR', () => {
             `,
           },
         }),
-      })(Planet)
+      })(Planet);
 
       const Foo = () => (
         <div>
           <h1>Foo</h1>
           <Bar />
         </div>
-      )
+      );
 
       class Bar extends React.Component<any, any> {
         render() {
@@ -367,12 +368,12 @@ describe('SSR', () => {
               <h2>Bar</h2>
               <AllPlanetsWithData />
             </div>
-          )
+          );
         }
       }
 
       const app = (
-        <ApolloProvider client={client}>
+        <ApolloProvider client={apolloClient}>
           <div>
             <AllShipsWithData />
             <hr />
@@ -391,7 +392,7 @@ describe('SSR', () => {
           expect(markup).to.match(/__apollo_data__/);
           done();
         })
-        .catch(done)
+        .catch(done);
     });
   });
 });
