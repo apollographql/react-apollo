@@ -116,6 +116,7 @@ function getQueriesFromTree({
       }
     }
 
+    // XXX remove defaultProps?
     let ownProps = getPropsFromChild(child, defaultProps);
     let state = store ? store.getState() : {};
 
@@ -139,6 +140,7 @@ function getQueriesFromTree({
 
     // try to see if this is a component, or a stateless component
     if (!Element && typeof child.type === 'function') Element = { type: child.type };
+    // context = Element.getChildContext();
     const RenderedComponent = Element && Element.type && new Element.type(ownProps, context);
 
     if (RenderedComponent && RenderedComponent.context) context = RenderedComponent.context;
@@ -200,6 +202,7 @@ export function getDataFromTree(
           // NOTE: sub component queries may fire again,
           // but they will just return back existing data
           const Element = createElement(component, ownProps) as any;
+          // XXX get dynamic context here as well as above
           const child = getChildFromComponent(Element && new Element.type(ownProps, context));
           if (!child) return;
 
