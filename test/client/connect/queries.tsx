@@ -1930,4 +1930,62 @@ describe('queries', () => {
       done();
     }, 50);
   });
+  it('should not swallow errors', (done) => {
+    const query = gql`
+      query sample {
+        viewer {
+          name
+        }
+      }
+    `;
+
+    const data = {
+      viewer: { name: 'James' },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+      delay: 10,
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    let count = 0;
+    function BadComponent(props) {
+      count++;
+      if (props.data.loading) {
+        return null;
+      }
+
+      if (props.data.errors) {
+        done(props.data.errors);
+        return null;
+      } else if (count === 2) {
+        done();
+        return null;
+      }
+
+      const name = props.data.typo.name;
+      return <p>Hi {name}</p>;
+    }
+
+    function mapQueriesToProps() {
+      return {
+        data: { query },
+      };
+    }
+
+    const BadContainer = connect({
+      mapQueriesToProps,
+    })(BadComponent);
+
+    mount(
+      <ProviderMock client={client}>
+        <BadContainer />
+      </ProviderMock>
+    );
+  });
 });
