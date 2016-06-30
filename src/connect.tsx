@@ -138,6 +138,7 @@ export default function connect(opts?: ConnectOptions) {
       private hasMutationDataChanged: boolean;
       private hasOwnStateChanged: boolean;
       private childRenderError: any = null;
+      private isRenderingError: boolean = false;
 
       // the element to render
       private renderedElement: any;
@@ -205,6 +206,7 @@ export default function connect(opts?: ConnectOptions) {
       }
 
       forceRenderChildren() {
+        const { isRenderingError } = this;
         // ensure setState throws an error in the render
         // to prevent it from going to apollo-client as a
         // network error
@@ -214,6 +216,10 @@ export default function connect(opts?: ConnectOptions) {
         } catch (e) {
           // save for the next render
           this.childRenderError = e;
+          this.isRenderingError = true;
+          if (!isRenderingError) {
+            this.forceUpdate();
+          }
         }
 
       }
@@ -508,11 +514,11 @@ export default function connect(opts?: ConnectOptions) {
           data,
         } = this;
 
+        this.childRenderError = null;
         if (childRenderError) {
           throw childRenderError;
         }
 
-        this.childRenderError = null;
         this.haveOwnPropsChanged = false;
         this.hasOwnStateChanged = false;
         this.hasQueryDataChanged = false;
