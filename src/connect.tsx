@@ -137,6 +137,8 @@ export default function connect(opts?: ConnectOptions) {
       private hasQueryDataChanged: boolean;
       private hasMutationDataChanged: boolean;
       private hasOwnStateChanged: boolean;
+      private childRenderError: any = null;
+      private isRenderingError: boolean = false;
 
       // the element to render
       private renderedElement: any;
@@ -201,6 +203,25 @@ export default function connect(opts?: ConnectOptions) {
           this.unsubscribeFromStore = null;
         }
         this.hasMounted = false;
+      }
+
+      forceRenderChildren() {
+        const { isRenderingError } = this;
+        // ensure setState throws an error in the render
+        // to prevent it from going to apollo-client as a
+        // network error
+        try {
+          // update state to latest of redux store
+          this.setState(this.store.getState());
+        } catch (e) {
+          // save for the next render
+          this.childRenderError = e;
+          this.isRenderingError = true;
+          if (!isRenderingError) {
+            this.forceUpdate();
+          }
+        }
+
       }
 
       bindStoreUpdates(): void {
@@ -317,7 +338,7 @@ export default function connect(opts?: ConnectOptions) {
 
             if (this.hasMounted) {
               // update state to latest of redux store
-              this.setState(this.store.getState());
+              this.forceRenderChildren();
             }
 
 
@@ -360,8 +381,7 @@ export default function connect(opts?: ConnectOptions) {
           }, data);
 
           if (this.hasMounted) {
-            // update state to latest of redux store
-            this.setState(this.store.getState());
+            this.forceRenderChildren();
           }
         };
 
@@ -438,7 +458,7 @@ export default function connect(opts?: ConnectOptions) {
           if (this.hasMounted) {
             // update state to latest of redux store
             // this forces a render of children
-            this.setState(store.getState());
+            this.forceRenderChildren();
           }
 
           return {
@@ -467,7 +487,7 @@ export default function connect(opts?: ConnectOptions) {
             if (this.hasMounted) {
               // update state to latest of redux store
               // this forces a render of children
-              this.setState(store.getState());
+              this.forceRenderChildren();
             }
 
             resolve();
@@ -487,11 +507,17 @@ export default function connect(opts?: ConnectOptions) {
           hasOwnStateChanged,
           hasQueryDataChanged,
           hasMutationDataChanged,
+          childRenderError,
           renderedElement,
           mutations,
           props,
           data,
         } = this;
+
+        this.childRenderError = null;
+        if (childRenderError) {
+          throw childRenderError;
+        }
 
         this.haveOwnPropsChanged = false;
         this.hasOwnStateChanged = false;
