@@ -322,6 +322,7 @@ export default function connect(opts?: ConnectOptions) {
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch,
+            refetchMore,
             startPolling,
             stopPolling;
 
@@ -332,6 +333,7 @@ export default function connect(opts?: ConnectOptions) {
             this.data[dataKey] = assign(this.data[dataKey], {
               loading: true,
               refetch,
+              refetchMore,
             });
 
             this.hasQueryDataChanged = true;
@@ -352,6 +354,7 @@ export default function connect(opts?: ConnectOptions) {
             'errors' in data ||
             'loading' in data ||
             'refetch' in data ||
+            'refetchMore' in data ||
             'startPolling' in data ||
             'stopPolling' in data
           );
@@ -359,8 +362,8 @@ export default function connect(opts?: ConnectOptions) {
           invariant(!resultKeyConflict,
             `the result of the '${key}' query contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', and 'refetch' cannot be ` +
-            `returned keys`
+            `'startPolling', 'stopPolling', 'refetch' and 'refetchMore' ` +
+            `cannot be returned keys`
           );
 
           // only rerender child component if data has changed
@@ -376,6 +379,7 @@ export default function connect(opts?: ConnectOptions) {
             loading: false,
             errors,
             refetch, // copy over refetch method
+            refetchMore,
             startPolling,
             stopPolling,
           }, data);
@@ -391,11 +395,13 @@ export default function connect(opts?: ConnectOptions) {
         });
 
         refetch = createBoundRefetch(key, this.queryHandles[key].refetch);
+        refetchMore = createBoundRefetch(key, this.queryHandles[key].refetchMore);
         startPolling = this.queryHandles[key].startPolling;
         stopPolling = this.queryHandles[key].stopPolling;
 
         this.data[key] = assign(this.data[key], {
           refetch,
+          refetchMore,
           startPolling,
           stopPolling,
         });
@@ -439,13 +445,14 @@ export default function connect(opts?: ConnectOptions) {
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
-            'refetch' in data
+            'refetch' in data ||
+            'refetchMore' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${key}' mutation contains keys that ` +
-            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
-            `returned keys`
+            `conflict with the return object. 'errors', 'loading', 'refetch' ` +
+            `and 'refetchMore' cannot be returned keys`
           );
 
           this.data[key] = assign({
