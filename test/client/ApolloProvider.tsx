@@ -49,6 +49,19 @@ describe('<ApolloProvider /> Component', () => {
     expect(wrapper.contains(<div className='unique'/>)).to.equal(true);
   });
 
+  it('should require a client', () => {
+    expect(() => {
+      shallow(
+        <ApolloProvider client={undefined}>
+          <div className='unique'/>
+        </ApolloProvider>
+      )
+    }).to.throw(
+      'ApolloClient was not passed a client instance. Make ' +
+      'sure you pass in your client via the "client" prop.'
+    );
+  })
+
   it('should not require a store', () => {
     const wrapper = shallow(
       <ApolloProvider client={client}>
