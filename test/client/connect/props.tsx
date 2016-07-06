@@ -68,7 +68,6 @@ describe('props', () => {
 
 
     const props = wrapper.find('span').props() as any;
-
     expect(props.query).to.exist;
     expect(props.query({ query })).to.be.instanceof(Promise);
 

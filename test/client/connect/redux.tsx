@@ -57,11 +57,7 @@ describe('redux integration', () => {
       </ProviderMock>
     );
 
-    const reduxProps = assign({}, wrapper.find('span').props(), {
-      query: undefined,
-      mutate: undefined,
-      watchQuery: undefined,
-    });
+    const reduxProps = assign({}, wrapper.find('span').props());
     const apolloProps = apolloWrapper.find('span').props();
 
     expect(reduxProps).to.deep.equal(apolloProps);

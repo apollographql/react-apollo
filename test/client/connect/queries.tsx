@@ -535,11 +535,11 @@ describe('queries', () => {
     };
 
     const variables1 = {
-      person: 1
+      person: 1,
     }
 
     const variables2 = {
-      person: 2
+      person: 2,
     }
 
     const networkInterface = mockNetworkInterface(
@@ -557,7 +557,6 @@ describe('queries', () => {
       networkInterface,
     });
 
-    let firstRun = true;
     function mapQueriesToProps({ state }) {
       return {
         people: {
@@ -574,7 +573,7 @@ describe('queries', () => {
         case 'INCREMENT':
           return state + 1
         default:
-          return state
+          return state;
         }
     }
 
@@ -1926,9 +1925,9 @@ describe('queries', () => {
     );
 
     setTimeout(() => {
-      expect(localcount).to.equal(2);
+      expect(localcount).to.equal(1);
       done();
-    }, 50);
+    }, 100);
   });
   it('should not swallow errors', (done) => {
     const query = gql`

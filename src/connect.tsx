@@ -524,17 +524,13 @@ export default function connect(opts?: ConnectOptions) {
         this.hasQueryDataChanged = false;
         this.hasMutationDataChanged = false;
 
-        let clientProps = {
-          mutate: this.client.mutate,
-          query: this.client.query,
-          watchQuery: this.client.watchQuery,
-        } as any;
+        let clientProps = {} as any;
 
         if (Object.keys(mutations).length) {
           clientProps.mutations = mutations;
         }
 
-        const mergedPropsAndData = assign({}, props, data, clientProps);
+        const mergedPropsAndData = assign({}, props, clientProps, this.client, data);
         if (
           !haveOwnPropsChanged &&
           !hasOwnStateChanged &&
