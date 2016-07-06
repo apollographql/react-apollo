@@ -530,7 +530,19 @@ export default function connect(opts?: ConnectOptions) {
           clientProps.mutations = mutations;
         }
 
-        const mergedPropsAndData = assign({}, props, clientProps, this.client, data);
+        const mergedPropsAndData = assign({}, props, clientProps, data);
+
+        // dynmically get all of the methods from ApolloClient
+        for (let key in this.client) {
+          if (!this.client.hasOwnProperty(key)) {
+            continue;
+          }
+          // don't overwrite any spyed methods like refetch
+          if (typeof this.client[key] === 'function' && !mergedPropsAndData[key]) {
+            mergedPropsAndData[key] = this.client[key];
+          }
+        }
+
         if (
           !haveOwnPropsChanged &&
           !hasOwnStateChanged &&
