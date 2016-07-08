@@ -10,6 +10,7 @@ import isObject = require('lodash.isobject');
 import isEqual = require('lodash.isequal');
 import invariant = require('invariant');
 import assign = require('object-assign');
+import hoistNonReactStatics = require('hoist-non-react-statics');
 
 import {
   IMapStateToProps,
@@ -558,6 +559,9 @@ export default function connect(opts?: ConnectOptions) {
       }
 
     }
+
+    // Make sure we preserve any custom statics on the original component.
+    hoistNonReactStatics(ApolloConnect, WrappedComponent);
 
     // apply react-redux args from original args
     const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
