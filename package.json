@@ -68,6 +68,7 @@
     "uglify-js": "^2.6.2"
   },
   "dependencies": {
+    "hoist-non-react-statics": "^1.2.0",
     "invariant": "^2.2.1",
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
