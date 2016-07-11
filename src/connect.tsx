@@ -349,7 +349,7 @@ export default function connect(opts?: ConnectOptions) {
         };
 
         let oldData = {};
-        const forceRender = ({ errors, data = {} }: any) => {
+        const forceRender = ({ errors, data = oldData }: any) => {
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
