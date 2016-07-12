@@ -274,11 +274,12 @@ import { Observable, Observer, Subscription } from '~apollo-client/util/Observab
 export class ObservableQuery extends Observable<GraphQLResult> {
     subscribe(observer: Observer<GraphQLResult>): QuerySubscription;
     result(): Promise<GraphQLResult>;
-}
-export interface QuerySubscription extends Subscription {
     refetch(variables?: any): Promise<GraphQLResult>;
     stopPolling(): void;
     startPolling(pollInterval: number): void;
+}
+export interface QuerySubscription extends Subscription {
+
 }
 export interface WatchQueryOptions {
     query: Document;

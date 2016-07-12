@@ -138,7 +138,7 @@ export default function connect(opts?: ConnectOptions) {
       private previousQueries: Object;
 
       // request / action storage
-      private queryObservables: any;
+      private queryObservables: { [queryKey: string]: ObservableQuery };
       private querySubscriptions: { [queryKey: string]: QuerySubscription };
       private mutations: any;
 
@@ -172,6 +172,8 @@ export default function connect(opts?: ConnectOptions) {
 
         this.data = {};
         this.mutations = {};
+        this.queryObservables = {};
+        this.querySubscriptions = {};
       }
 
       componentWillMount() {
@@ -286,7 +288,7 @@ export default function connect(opts?: ConnectOptions) {
 
             const { query, variables, forceFetch } = queryOptions[key];
 
-            const handle = watchQuery(queryOptions[key]);
+            const observableQuery = watchQuery(queryOptions[key]);
 
             // rudimentary way to manually check cache
             let queryData = defaultQueryData as any;
@@ -309,7 +311,7 @@ export default function connect(opts?: ConnectOptions) {
 
             this.data[key] = queryData;
 
-            this.handleQueryData(handle, key);
+            this.handleQueryData(observableQuery, key);
           }
         }
         return true;
@@ -326,7 +328,7 @@ export default function connect(opts?: ConnectOptions) {
         }
       }
 
-      handleQueryData(handle: ObservableQuery, key: string) {
+      handleQueryData(observableQuery: ObservableQuery, key: string) {
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch,
@@ -393,14 +395,15 @@ export default function connect(opts?: ConnectOptions) {
           }
         };
 
-        this.querySubscriptions[key] = handle.subscribe({
+        this.queryObservables[key] = observableQuery;
+        this.querySubscriptions[key] = observableQuery.subscribe({
           next: forceRender,
           error(errors) { forceRender({ errors }); },
         });
 
-        refetch = createBoundRefetch(key, this.querySubscriptions[key].refetch);
-        startPolling = this.querySubscriptions[key].startPolling;
-        stopPolling = this.querySubscriptions[key].stopPolling;
+        refetch = createBoundRefetch(key, this.queryObservables[key].refetch);
+        startPolling = this.queryObservables[key].startPolling;
+        stopPolling = this.queryObservables[key].stopPolling;
 
         this.data[key] = assign(this.data[key], {
           refetch,
