@@ -11,6 +11,7 @@ declare module 'lodash.isequal' {
   export = main.isEqual;
 }
 
+
 declare module 'hoist-non-react-statics' {
   interface Component {
     new(...args:any[]);
@@ -25,4 +26,9 @@ declare module 'hoist-non-react-statics' {
   function hoistNonReactStatics(targetComponent:Component, sourceComponent:Component):Component;
   namespace hoistNonReactStatics {}
   export = hoistNonReactStatics;
+}
+
+declare module 'lodash.flatten' {
+  import main = require('~lodash/index');
+  export = main.flatten;
 }

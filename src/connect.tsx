@@ -73,6 +73,11 @@ export default function connect(opts?: ConnectOptions) {
 
   let { mapQueriesToProps, mapMutationsToProps } = opts;
 
+  let mapQueries;
+  if (mapQueriesToProps) {
+    mapQueries = true;
+  }
+
   // clean up the options for passing to redux
   delete opts.mapQueriesToProps;
   delete opts.mapMutationsToProps;
@@ -103,7 +108,6 @@ export default function connect(opts?: ConnectOptions) {
 
   // Helps track hot reloading.
   const version = nextVersion++;
-
   return function wrapWithApolloComponent(WrappedComponent) {
     // react-redux will wrap this further with Connect(...).
     const apolloConnectDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
@@ -115,6 +119,8 @@ export default function connect(opts?: ConnectOptions) {
         store: PropTypes.object.isRequired,
         client: PropTypes.object.isRequired,
       };
+      // for use with getData during SSR
+      static mapQueriesToProps = mapQueries ? mapQueriesToProps : false;
 
       // react / redux and react dev tools (HMR) needs
       public state: any; // redux state
