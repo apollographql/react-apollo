@@ -29,8 +29,11 @@ import ApolloClient, {
 
 import {
   ObservableQuery,
-  QuerySubscription,
 } from 'apollo-client/QueryManager';
+
+import {
+  Subscription,
+} from 'apollo-client/util/Observable';
 
 import {
   GraphQLResult,
@@ -139,7 +142,7 @@ export default function connect(opts?: ConnectOptions) {
 
       // request / action storage
       private queryObservables: { [queryKey: string]: ObservableQuery };
-      private querySubscriptions: { [queryKey: string]: QuerySubscription };
+      private querySubscriptions: { [queryKey: string]: Subscription };
       private mutations: any;
 
       // calculated switches to control rerenders
