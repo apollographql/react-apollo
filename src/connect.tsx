@@ -121,6 +121,7 @@ export default function connect(opts?: ConnectOptions) {
       };
       // for use with getData during SSR
       static mapQueriesToProps = mapQueries ? mapQueriesToProps : false;
+      static opts = opts;
 
       // react / redux and react dev tools (HMR) needs
       public state: any; // redux state
