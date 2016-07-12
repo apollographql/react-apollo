@@ -23,7 +23,17 @@ import {
   Store,
 } from 'redux';
 
-import ApolloClient, { readQueryFromStore } from 'apollo-client';
+import ApolloClient, {
+  readQueryFromStore,
+} from 'apollo-client';
+
+import {
+  ObservableQuery,
+} from 'apollo-client/QueryManager';
+
+import {
+  Subscription,
+} from 'apollo-client/util/Observable';
 
 import {
   GraphQLResult,
@@ -138,7 +148,8 @@ export default function connect(opts?: ConnectOptions) {
       private previousQueries: Object;
 
       // request / action storage
-      private queryHandles: any;
+      private queryObservables: { [queryKey: string]: ObservableQuery };
+      private querySubscriptions: { [queryKey: string]: Subscription };
       private mutations: any;
 
       // calculated switches to control rerenders
@@ -171,6 +182,8 @@ export default function connect(opts?: ConnectOptions) {
 
         this.data = {};
         this.mutations = {};
+        this.queryObservables = {};
+        this.querySubscriptions = {};
       }
 
       componentWillMount() {
@@ -261,33 +274,31 @@ export default function connect(opts?: ConnectOptions) {
         const { watchQuery, reduxRootKey } = this.client;
         const { store } = this;
 
-        const queryHandles = mapQueriesToProps({
+        const queryOptions = mapQueriesToProps({
           state: store.getState(),
           ownProps: props,
         });
 
         const oldQueries = assign({}, this.previousQueries);
-        this.previousQueries = assign({}, queryHandles);
+        this.previousQueries = assign({}, queryOptions);
 
         // don't re run queries if nothing has changed
-        if (isEqual(oldQueries, queryHandles)) {
+        if (isEqual(oldQueries, queryOptions)) {
           return false;
         } else if (oldQueries) {
           // unsubscribe from previous queries
           this.unsubcribeAllQueries();
         }
 
-        if (isObject(queryHandles) && Object.keys(queryHandles).length) {
-          this.queryHandles = queryHandles;
-
-          for (const key in queryHandles) {
-            if (!queryHandles.hasOwnProperty(key)) {
+        if (isObject(queryOptions) && Object.keys(queryOptions).length) {
+          for (const key in queryOptions) {
+            if (!queryOptions.hasOwnProperty(key)) {
               continue;
             }
 
-            const { query, variables, forceFetch } = queryHandles[key];
+            const { query, variables, forceFetch } = queryOptions[key];
 
-            const handle = watchQuery(queryHandles[key]);
+            const observableQuery = watchQuery(queryOptions[key]);
 
             // rudimentary way to manually check cache
             let queryData = defaultQueryData as any;
@@ -310,24 +321,24 @@ export default function connect(opts?: ConnectOptions) {
 
             this.data[key] = queryData;
 
-            this.handleQueryData(handle, key);
+            this.handleQueryData(observableQuery, key);
           }
         }
         return true;
       }
 
       unsubcribeAllQueries() {
-        if (this.queryHandles) {
-          for (const key in this.queryHandles) {
-            if (!this.queryHandles.hasOwnProperty(key)) {
+        if (this.querySubscriptions) {
+          for (const key in this.querySubscriptions) {
+            if (!this.querySubscriptions.hasOwnProperty(key)) {
               continue;
             }
-            this.queryHandles[key].unsubscribe();
+            this.querySubscriptions[key].unsubscribe();
           }
         }
       }
 
-      handleQueryData(handle: any, key: string) {
+      handleQueryData(observableQuery: ObservableQuery, key: string) {
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch,
@@ -394,14 +405,15 @@ export default function connect(opts?: ConnectOptions) {
           }
         };
 
-        this.queryHandles[key] = handle.subscribe({
+        this.queryObservables[key] = observableQuery;
+        this.querySubscriptions[key] = observableQuery.subscribe({
           next: forceRender,
           error(errors) { forceRender({ errors }); },
         });
 
-        refetch = createBoundRefetch(key, this.queryHandles[key].refetch);
-        startPolling = this.queryHandles[key].startPolling;
-        stopPolling = this.queryHandles[key].stopPolling;
+        refetch = createBoundRefetch(key, this.queryObservables[key].refetch);
+        startPolling = this.queryObservables[key].startPolling;
+        stopPolling = this.queryObservables[key].stopPolling;
 
         this.data[key] = assign(this.data[key], {
           refetch,

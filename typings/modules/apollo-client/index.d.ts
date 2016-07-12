@@ -145,6 +145,7 @@ export * from '~apollo-client/mutations/store';
 declare module '~apollo-client/actions' {
 import { GraphQLResult } from 'graphql';
 import { SelectionSetWithRoot } from '~apollo-client/queries/store';
+import { MutationBehavior } from '~apollo-client/data/mutationResults';
 import { FragmentMap } from '~apollo-client/queries/getFromAST';
 export interface QueryResultAction {
     type: 'APOLLO_QUERY_RESULT';
@@ -199,9 +200,22 @@ export interface MutationResultAction {
     type: 'APOLLO_MUTATION_RESULT';
     result: GraphQLResult;
     mutationId: string;
+    resultBehaviors?: MutationBehavior[];
 }
 export function isMutationResultAction(action: ApolloAction): action is MutationResultAction;
-export type ApolloAction = QueryResultAction | QueryErrorAction | QueryInitAction | QueryResultClientAction | QueryStopAction | MutationInitAction | MutationResultAction;
+export interface MutationErrorAction {
+    type: 'APOLLO_MUTATION_ERROR';
+    error: Error;
+    mutationId: string;
+    resultBehaviors?: MutationBehavior[];
+}
+export function isMutationErrorAction(action: ApolloAction): action is MutationErrorAction;
+export interface StoreResetAction {
+    type: 'APOLLO_STORE_RESET';
+    observableQueryIds: string[];
+}
+export function isStoreResetAction(action: ApolloAction): action is StoreResetAction;
+export type ApolloAction = QueryResultAction | QueryErrorAction | QueryInitAction | QueryResultClientAction | QueryStopAction | MutationInitAction | MutationResultAction | MutationErrorAction | StoreResetAction;
 }
 declare module 'apollo-client/actions' {
 export * from '~apollo-client/actions';
@@ -215,6 +229,7 @@ import { QueryStore } from '~apollo-client/queries/store';
 import { MutationStore } from '~apollo-client/mutations/store';
 import { ApolloAction } from '~apollo-client/actions';
 import { IdGetter } from '~apollo-client/data/extensions';
+import { MutationBehaviorReducerMap } from '~apollo-client/data/mutationResults';
 export interface Store {
     data: NormalizedCache;
     queries: QueryStore;
@@ -233,6 +248,7 @@ export function createApolloStore({reduxRootKey, initialState, config, reportCra
 }): ApolloStore;
 export interface ApolloReducerConfig {
     dataIdFromObject?: IdGetter;
+    mutationBehaviorReducers?: MutationBehaviorReducerMap;
 }
 }
 declare module 'apollo-client/store' {
@@ -269,16 +285,22 @@ import { NetworkInterface } from '~apollo-client/networkInterface';
 import { ApolloStore, Store } from '~apollo-client/store';
 import { QueryStoreValue } from '~apollo-client/queries/store';
 import { QueryTransformer } from '~apollo-client/queries/queryTransform';
-import { GraphQLResult, Document } from 'graphql';
-import { Observable, Observer, Subscription } from '~apollo-client/util/Observable';
-export class ObservableQuery extends Observable<GraphQLResult> {
-    subscribe(observer: Observer<GraphQLResult>): QuerySubscription;
-    result(): Promise<GraphQLResult>;
-}
-export interface QuerySubscription extends Subscription {
-    refetch(variables?: any): Promise<GraphQLResult>;
-    stopPolling(): void;
-    startPolling(pollInterval: number): void;
+import { Document, FragmentDefinition } from 'graphql';
+import { MutationBehavior } from '~apollo-client/data/mutationResults';
+import { ApolloQueryResult } from '~apollo-client/index';
+import { Observable, Observer, Subscription, SubscriberFunction } from '~apollo-client/util/Observable';
+export class ObservableQuery extends Observable<ApolloQueryResult> {
+    refetch: (variables?: any) => Promise<ApolloQueryResult>;
+    stopPolling: () => void;
+    startPolling: (p: number) => void;
+    constructor(options: {
+        subscriberFunction: SubscriberFunction<ApolloQueryResult>;
+        refetch: (variables?: any) => Promise<ApolloQueryResult>;
+        stopPolling: () => void;
+        startPolling: (p: number) => void;
+    });
+    subscribe(observer: Observer<ApolloQueryResult>): Subscription;
+    result(): Promise<ApolloQueryResult>;
 }
 export interface WatchQueryOptions {
     query: Document;
@@ -288,6 +310,7 @@ export interface WatchQueryOptions {
     forceFetch?: boolean;
     returnPartialData?: boolean;
     pollInterval?: number;
+    fragments?: FragmentDefinition[];
 }
 export type QueryListener = (queryStoreValue: QueryStoreValue) => void;
 export class QueryManager {
@@ -301,6 +324,8 @@ export class QueryManager {
     private scheduler;
     private batcher;
     private batcherPollInterval;
+    private fetchQueryPromises;
+    private observableQueries;
     constructor({networkInterface, store, reduxRootKey, queryTransformer, shouldBatch}: {
         networkInterface: NetworkInterface;
         store: ApolloStore;
@@ -309,21 +334,29 @@ export class QueryManager {
         shouldBatch?: Boolean;
     });
     broadcastNewStore(store: any): void;
-    mutate({mutation, variables}: {
+    mutate({mutation, variables, resultBehaviors, fragments}: {
         mutation: Document;
         variables?: Object;
-    }): Promise<GraphQLResult>;
-    queryListenerForObserver(options: WatchQueryOptions, observer: Observer<GraphQLResult>): QueryListener;
-    watchQuery(options: WatchQueryOptions): ObservableQuery;
-    query(options: WatchQueryOptions): Promise<GraphQLResult>;
-    fetchQuery(queryId: string, options: WatchQueryOptions): Promise<GraphQLResult>;
+        resultBehaviors?: MutationBehavior[];
+        fragments?: FragmentDefinition[];
+    }): Promise<ApolloQueryResult>;
+    queryListenerForObserver(options: WatchQueryOptions, observer: Observer<ApolloQueryResult>): QueryListener;
+    watchQuery(options: WatchQueryOptions, shouldSubscribe?: boolean): ObservableQuery;
+    query(options: WatchQueryOptions): Promise<ApolloQueryResult>;
+    fetchQuery(queryId: string, options: WatchQueryOptions): Promise<ApolloQueryResult>;
     generateQueryId(): string;
     stopQueryInStore(queryId: string): void;
     getApolloState(): Store;
     addQueryListener(queryId: string, listener: QueryListener): void;
     removeQueryListener(queryId: string): void;
+    addFetchQueryPromise(requestId: number, promise: Promise<ApolloQueryResult>, resolve: (result: ApolloQueryResult) => void, reject: (error: Error) => void): void;
+    removeFetchQueryPromise(requestId: number): void;
+    addObservableQuery(queryId: string, observableQuery: ObservableQuery): void;
+    addQuerySubscription(queryId: string, querySubscription: Subscription): void;
+    removeObservableQuery(queryId: string): void;
+    resetStore(): void;
     private fetchQueryOverInterface(queryId, options, network);
-    private startQuery(options, listener);
+    private startQuery(queryId, options, listener);
     private stopQuery(queryId);
     private broadcastQueries();
     private generateRequestId();
@@ -348,6 +381,7 @@ export interface FragmentMap {
     [fragmentName: string]: FragmentDefinition;
 }
 export function createFragmentMap(fragments: FragmentDefinition[]): FragmentMap;
+export function addFragmentsToDocument(queryDoc: Document, fragments: FragmentDefinition[]): Document;
 }
 declare module 'apollo-client/queries/getFromAST' {
 export * from '~apollo-client/queries/getFromAST';
@@ -359,16 +393,18 @@ declare module '~apollo-client/data/readFromStore' {
 import { SelectionSet, Document } from 'graphql';
 import { FragmentMap } from '~apollo-client/queries/getFromAST';
 import { NormalizedCache } from '~apollo-client/data/store';
-export function readQueryFromStore({store, query, variables}: {
+export function readQueryFromStore({store, query, variables, returnPartialData}: {
     store: NormalizedCache;
     query: Document;
     variables?: Object;
+    returnPartialData?: boolean;
 }): Object;
-export function readFragmentFromStore({store, fragment, rootId, variables}: {
+export function readFragmentFromStore({store, fragment, rootId, variables, returnPartialData}: {
     store: NormalizedCache;
     fragment: Document;
     rootId: string;
     variables?: Object;
+    returnPartialData?: boolean;
 }): Object;
 export function readSelectionSetFromStore({store, rootId, selectionSet, variables, returnPartialData, fragmentMap}: {
     store: NormalizedCache;
@@ -381,6 +417,41 @@ export function readSelectionSetFromStore({store, rootId, selectionSet, variable
 }
 declare module 'apollo-client/data/readFromStore' {
 export * from '~apollo-client/data/readFromStore';
+}
+
+// Generated by typings
+// Source: node_modules/apollo-client/data/writeToStore.d.ts
+declare module '~apollo-client/data/writeToStore' {
+import { FragmentMap } from '~apollo-client/queries/getFromAST';
+import { SelectionSet, Document } from 'graphql';
+import { NormalizedCache } from '~apollo-client/data/store';
+import { IdGetter } from '~apollo-client/data/extensions';
+export function writeFragmentToStore({result, fragment, store, variables, dataIdFromObject}: {
+    result: Object;
+    fragment: Document;
+    store?: NormalizedCache;
+    variables?: Object;
+    dataIdFromObject?: IdGetter;
+}): NormalizedCache;
+export function writeQueryToStore({result, query, store, variables, dataIdFromObject}: {
+    result: Object;
+    query: Document;
+    store?: NormalizedCache;
+    variables?: Object;
+    dataIdFromObject?: IdGetter;
+}): NormalizedCache;
+export function writeSelectionSetToStore({result, dataId, selectionSet, store, variables, dataIdFromObject, fragmentMap}: {
+    dataId: string;
+    result: any;
+    selectionSet: SelectionSet;
+    store?: NormalizedCache;
+    variables: Object;
+    dataIdFromObject: IdGetter;
+    fragmentMap?: FragmentMap;
+}): NormalizedCache;
+}
+declare module 'apollo-client/data/writeToStore' {
+export * from '~apollo-client/data/writeToStore';
 }
 
 // Generated by typings
@@ -399,9 +470,9 @@ export * from '~apollo-client/data/extensions';
 // Source: node_modules/apollo-client/queries/queryTransform.d.ts
 declare module '~apollo-client/queries/queryTransform' {
 import { SelectionSet, OperationDefinition } from 'graphql';
-export type QueryTransformer = (queryPiece: SelectionSet) => void;
-export function addFieldToSelectionSet(fieldName: string, queryPiece: SelectionSet): SelectionSet;
-export function addTypenameToSelectionSet(queryPiece: SelectionSet): SelectionSet;
+export type QueryTransformer = (selectionSet: SelectionSet) => void;
+export function addFieldToSelectionSet(fieldName: string, selectionSet: SelectionSet): SelectionSet;
+export function addTypenameToSelectionSet(selectionSet: SelectionSet): SelectionSet;
 export function addTypenameToQuery(queryDef: OperationDefinition): OperationDefinition;
 export function applyTransformerToOperation(queryDef: OperationDefinition, queryTransformer: QueryTransformer): OperationDefinition;
 }
@@ -410,16 +481,95 @@ export * from '~apollo-client/queries/queryTransform';
 }
 
 // Generated by typings
+// Source: node_modules/apollo-client/data/scopeQuery.d.ts
+declare module '~apollo-client/data/scopeQuery' {
+import { FragmentMap } from '~apollo-client/queries/getFromAST';
+import { SelectionSet } from 'graphql';
+export type StorePath = (string | number)[];
+export function scopeJSONToResultPath({json, path}: {
+    json: any;
+    path: StorePath;
+}): any;
+export function scopeSelectionSetToResultPath({selectionSet, fragmentMap, path}: {
+    selectionSet: SelectionSet;
+    fragmentMap?: FragmentMap;
+    path: StorePath;
+}): SelectionSet;
+}
+declare module 'apollo-client/data/scopeQuery' {
+export * from '~apollo-client/data/scopeQuery';
+}
+
+// Generated by typings
+// Source: node_modules/apollo-client/data/mutationResults.d.ts
+declare module '~apollo-client/data/mutationResults' {
+import { NormalizedCache } from '~apollo-client/data/store';
+import { GraphQLResult, SelectionSet } from 'graphql';
+import { FragmentMap } from '~apollo-client/queries/getFromAST';
+import { StorePath } from '~apollo-client/data/scopeQuery';
+import { ApolloReducerConfig } from '~apollo-client/store';
+export type MutationBehavior = MutationArrayInsertBehavior | MutationArrayDeleteBehavior | MutationDeleteBehavior;
+export type MutationArrayInsertBehavior = {
+    type: 'ARRAY_INSERT';
+    resultPath: StorePath;
+    storePath: StorePath;
+    where: ArrayInsertWhere;
+};
+export type MutationDeleteBehavior = {
+    type: 'DELETE';
+    dataId: string;
+};
+export type MutationArrayDeleteBehavior = {
+    type: 'ARRAY_DELETE';
+    storePath: StorePath;
+    dataId: string;
+};
+export type ArrayInsertWhere = 'PREPEND' | 'APPEND';
+export type MutationBehaviorReducerArgs = {
+    behavior: MutationBehavior;
+    result: GraphQLResult;
+    variables: any;
+    fragmentMap: FragmentMap;
+    selectionSet: SelectionSet;
+    config: ApolloReducerConfig;
+};
+export type MutationBehaviorReducerMap = {
+    [type: string]: MutationBehaviorReducer;
+};
+export type MutationBehaviorReducer = (state: NormalizedCache, args: MutationBehaviorReducerArgs) => NormalizedCache;
+export function cleanArray(originalArray: any, dataId: any): any;
+export const defaultMutationBehaviorReducers: {
+    [type: string]: MutationBehaviorReducer;
+};
+}
+declare module 'apollo-client/data/mutationResults' {
+export * from '~apollo-client/data/mutationResults';
+}
+
+// Generated by typings
 // Source: node_modules/apollo-client/index.d.ts
 declare module '~apollo-client/index' {
-import { NetworkInterface, createNetworkInterface } from '~apollo-client/networkInterface';
-import { GraphQLResult, Document } from 'graphql';
+import { NetworkInterface, createNetworkInterface, addQueryMerging } from '~apollo-client/networkInterface';
+import { Document, FragmentDefinition } from 'graphql';
+import { print } from 'graphql-tag/printer';
 import { createApolloStore, ApolloStore, createApolloReducer, ApolloReducerConfig } from '~apollo-client/store';
 import { QueryManager, WatchQueryOptions, ObservableQuery } from '~apollo-client/QueryManager';
 import { readQueryFromStore, readFragmentFromStore } from '~apollo-client/data/readFromStore';
+import { writeQueryToStore, writeFragmentToStore } from '~apollo-client/data/writeToStore';
 import { IdGetter } from '~apollo-client/data/extensions';
 import { QueryTransformer, addTypenameToSelectionSet } from '~apollo-client/queries/queryTransform';
-export { createNetworkInterface, createApolloStore, createApolloReducer, readQueryFromStore, readFragmentFromStore, addTypenameToSelectionSet as addTypename };
+import { MutationBehaviorReducerMap } from '~apollo-client/data/mutationResults';
+export { createNetworkInterface, addQueryMerging, createApolloStore, createApolloReducer, readQueryFromStore, readFragmentFromStore, addTypenameToSelectionSet as addTypename, writeQueryToStore, writeFragmentToStore, print as printAST };
+export type ApolloQueryResult = {
+    data: any;
+};
+export let fragmentDefinitionsMap: {
+    [fragmentName: string]: FragmentDefinition[];
+};
+export function createFragment(doc: Document, fragments?: FragmentDefinition[]): FragmentDefinition[];
+export function disableFragmentWarnings(): void;
+export function enableFragmentWarnings(): void;
+export function clearFragmentDefinitions(): void;
 export default class ApolloClient {
     networkInterface: NetworkInterface;
     store: ApolloStore;
@@ -429,20 +579,44 @@ export default class ApolloClient {
     reducerConfig: ApolloReducerConfig;
     queryTransformer: QueryTransformer;
     shouldBatch: boolean;
-    constructor({networkInterface, reduxRootKey, initialState, dataIdFromObject, queryTransformer, shouldBatch}?: {
+    shouldForceFetch: boolean;
+    dataId: IdGetter;
+    fieldWithArgs: (fieldName: string, args?: Object) => string;
+    constructor({networkInterface, reduxRootKey, initialState, dataIdFromObject, queryTransformer, shouldBatch, ssrMode, ssrForceFetchDelay, mutationBehaviorReducers}?: {
         networkInterface?: NetworkInterface;
         reduxRootKey?: string;
         initialState?: any;
         dataIdFromObject?: IdGetter;
         queryTransformer?: QueryTransformer;
         shouldBatch?: boolean;
+        ssrMode?: boolean;
+        ssrForceFetchDelay?: number;
+        mutationBehaviorReducers?: MutationBehaviorReducerMap;
     });
     watchQuery: (options: WatchQueryOptions) => ObservableQuery;
-    query: (options: WatchQueryOptions) => Promise<GraphQLResult>;
+    query: (options: WatchQueryOptions) => Promise<{
+        data: any;
+    }>;
     mutate: (options: {
         mutation: Document;
+        resultBehaviors?: ({
+            type: "ARRAY_INSERT";
+            resultPath: (string | number)[];
+            storePath: (string | number)[];
+            where: "PREPEND" | "APPEND";
+        } | {
+            type: "ARRAY_DELETE";
+            storePath: (string | number)[];
+            dataId: string;
+        } | {
+            type: "DELETE";
+            dataId: string;
+        })[];
         variables?: Object;
-    }) => Promise<GraphQLResult>;
+        fragments?: FragmentDefinition[];
+    }) => Promise<{
+        data: any;
+    }>;
     reducer(): Function;
     middleware: () => (store: ApolloStore) => (next: any) => (action: any) => any;
     initStore(): void;
