@@ -131,7 +131,7 @@ export default function connect(opts?: ConnectOptions) {
       private unsubscribeFromStore: Function;
 
       // data storage
-      private store;
+      private store: Store<any>;
       private client: ApolloClient; // apollo client
       private data: Object; // apollo data
       private previousState: Object;
