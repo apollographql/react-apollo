@@ -4,7 +4,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### v0.3.17
 
-- Bug: Fixed but where SSR wouldn't get calculated props from redux actions
+- Bug: Fixed but where SSR wouldn't get calculated props from redux actions [#103](https://github.com/apollostack/react-apollo/pull/103)
 
 ### v0.3.16
 
