@@ -26,7 +26,7 @@ We recursively do this until the tree is done.
 So! Given a component:
 
 1. See if it is falsy (end of line)
-2. Bulid the context and props (global props + defaultProps + parent props)
+2. Bulid the context and props (global props + parent props)
 3. See if the component is a `connect()`
 3a. Get the queries using props + state
 3b. as long as ssr != false, pass the query to the array to be called
@@ -43,22 +43,15 @@ declare interface Context {
 }
 
 declare interface QueryTreeArgument {
-  components: any;
+  component: any;
   queries?: any[];
-  defaultProps?: any;
   context?: Context;
 }
 
-const defaultReactProps = {
-  loading: true,
-  errors: null,
-};
-
-
-export function getPropsFromChild(child, defaultProps = {}) {
+export function getPropsFromChild(child) {
   const { props, type } = child;
-  let ownProps = assign(defaultProps, props);
-  if (type && type.defaultProps) ownProps = assign(defaultProps, type.defaultProps, props);
+  let ownProps = assign({}, props);
+  if (type && type.defaultProps) ownProps = assign(type.defaultProps, props);
   return ownProps;
 }
 
@@ -71,160 +64,127 @@ export function getChildFromComponent(component) {
 export function processQueries(queries, client): Promise<any> {
   queries = flatten(queries)
     .map((queryDetails: any) => {
-      const { query, component, ownProps, key } = queryDetails;
+      const { query, component, ownProps, key, context } = queryDetails;
       return client.query(query)
         .then(result => {
           const { data, errors } = result as any;
           ownProps[key] = assign({ loading: false, errors }, data);
-          return {
-            component,
-            ownProps: assign({}, ownProps),
-          };
+          return { component, ownProps: assign({}, ownProps), context: assign({}, context) };
         });
     });
 
   return Promise.all(queries);
 }
 
-function getQueriesFromTree({
-  components,
-  queries = [],
-  defaultProps = {},
-  context = {},
-}: QueryTreeArgument) {
-  Children.forEach(components, (child: any) => {
-    if (!child) return;
-    // XXX make the context dynamic
-    let { store, client } = context as Context;
+const defaultReactProps = { loading: true, errors: null };
+function getQueriesFromTree({ component, context = {}, queries = []}: QueryTreeArgument) {
 
-    // get the store
-    // XXX determine if this is actually a store
-    if (!store && child.props && child.props.store) {
-      context.store = store;
-      delete child.props.store;
-    }
+  if (!component) return;
+  let { client, store } = context;
 
-    let Element;
-    // find the client in the tree
-    if (!client && child.props && child.props.client instanceof ApolloClient) {
-      context.client = child.props.client as ApolloClient;
-      // delete child.props.client;
-      // for apps that don't provide their own store
-      if (!store) {
-        context.client.initStore();
-        context.store = context.client.store;
-      }
-    }
+  // stateless function
+  if (typeof component === 'function') component = { type: component };
+  const { type, props } = component;
 
-    // XXX remove defaultProps?
-    let ownProps = getPropsFromChild(child, defaultProps);
-    let state = store ? store.getState() : {};
+  if (typeof type === 'function') {
+    let ComponentClass = type;
+    let ownProps = getPropsFromChild(component);
+    const { state }  = context;
 
-    // see if this is a connect type
-    if (child.type && typeof child.type.mapQueriesToProps === 'function') {
-      const dataRequirements = child.type.mapQueriesToProps({ ownProps, state });
-      for (let query in dataRequirements) {
-        ownProps[query] = assign({}, defaultReactProps);
-        if (dataRequirements[query].ssr === false) continue; // don't run this on the server
+     // see if this is a connect type
+    if (typeof type.mapQueriesToProps === 'function') {
+      const data = type.mapQueriesToProps({ ownProps, state });
+      for (let key in data) {
+        if (!data.hasOwnProperty(key)) continue;
+
+        ownProps[key] = assign({}, defaultReactProps);
+        if (data[key].ssr === false) continue; // don't run this on the server
 
         queries.push({
-          key: query,
-          query: dataRequirements[query],
-          component: child.type.WrappedComponent,
+          query: data[key],
+          component: type.WrappedComponent,
+          key,
           ownProps,
+          context,
         });
       }
 
-      Element = createElement(child.type.WrappedComponent, ownProps) as any;
+      ComponentClass = type.WrappedComponent;
     }
 
-    // try to see if this is a component, or a stateless component
-    if (!Element && typeof child.type === 'function') Element = { type: child.type };
-    // context = Element.getChildContext();
-    const RenderedComponent = Element && Element.type && new Element.type(ownProps, context);
+    const Component = new ComponentClass(ownProps, context);
 
-    if (RenderedComponent && RenderedComponent.context) context = RenderedComponent.context;
+    let newContext = context;
+    if (Component.getChildContext) newContext = assign({}, context, Component.getChildContext());
 
-    // See if this is a class, or stateless function
-    const renderedChild = getChildFromComponent(RenderedComponent);
-    if (renderedChild) {
-      getQueriesFromTree({
-        queries,
-        context,
-        defaultProps,
-        components: renderedChild,
-      });
-   } else if (child && child.props && child.props.children) {
-     // all we have is the children to keep going with
-      getQueriesFromTree({
-        queries,
-        context,
-        defaultProps,
-        components: child.props.children,
-      });
+    if (!store && ownProps.store) store = ownProps.store;
+    if (!store && newContext.store) store = newContext.store;
+
+    if (!client && ownProps.client && ownProps.client instanceof ApolloClient) {
+      client = ownProps.client as ApolloClient;
+    }
+    if (!client && newContext.client && newContext.client instanceof ApolloClient) {
+      client = newContext.client as ApolloClient;
     }
 
-  });
+    getQueriesFromTree({
+      component: getChildFromComponent(Component),
+      context: newContext,
+      queries,
+    });
+  } else if (props && props.children) {
+    Children.forEach(props.children, (child: any) => getQueriesFromTree({
+      component: child,
+      context,
+      queries,
+    }));
+  }
 
-  return {
-    queries,
-    context,
-  };
+  return { queries, client, store };
 }
 
 // XXX component Cache
-export function getDataFromTree(
-  components,
-  defaultProps: Object = {},
-  defaultContext: Object = {}
-): Promise<any> {
+export function getDataFromTree(app, ctx: any = {}): Promise<any> {
 
-  let { queries, context } = getQueriesFromTree({
-    components,
-    defaultProps,
-    context: defaultContext,
-  });
+  let { client, store, queries } = getQueriesFromTree({ component: app, context: ctx });
 
+  if (!store && client && !client.store) client.initStore();
+  if (!store && client && client.store) store = client.store;
   // no client found, nothing to do
-  if (!context.client || !context.store) return Promise.resolve(null);
+  if (!client || !store) return Promise.resolve(null);
 
   // no queries found, nothing to do
-  if (!queries.length) return Promise.resolve({ context, initialState: context.store.getState() });
+  if (!queries.length) return Promise.resolve({ store, client, initialState: store.getState() });
 
   // run through all queries we can
-  return processQueries(queries, context.client)
-      .then(trees => {
-        const subTrees = trees.map(x => {
-          const { component, ownProps } = x;
+  return processQueries(queries, client)
+      .then(trees => Promise.all(trees.map(x => {
+          const { component, ownProps, context } = x;
           if (!component) return;
-
           // Traverse wrapped components of resulting queries
           // NOTE: sub component queries may fire again,
           // but they will just return back existing data
           const Element = createElement(component, ownProps) as any;
-          // XXX get dynamic context here as well as above
           const child = getChildFromComponent(Element && new Element.type(ownProps, context));
           if (!child) return;
 
           // traverse children nodes
-          return getDataFromTree(child, defaultProps, context);
-        });
-        return Promise.all(subTrees);
-      })
-      .then(x => ({ context, initialState: context.store.getState() }));
+          return getDataFromTree(child, context);
+      })))
+      .then(() => ({ store, client, initialState: store.getState() }));
 
 }
 
 export function renderToStringWithData(component) {
   return getDataFromTree(component)
-    .then(({ context }) => {
+    .then(({ store, client }) => {
       let markup = ReactDOM.renderToString(component);
-      let initialState = context.store.getState();
-      const key = context.client.reduxRootKey;
+      let initialState = store.getState();
+      const key = client.reduxRootKey;
       // XXX apollo client requires a lot in the store
       // can we make this samller?
       for (let queryId in initialState[key].queries) {
-        let fieldsToNotShip = ['minimizedQuery', 'minimizedQuery'];
+        let fieldsToNotShip = ['minimizedQuery', 'minimizedQueryString'];
         for (let field of fieldsToNotShip)  delete initialState[key].queries[queryId][field];
       }
       initialState = encodeURI(JSON.stringify(initialState));

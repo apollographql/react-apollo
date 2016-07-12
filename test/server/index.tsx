@@ -88,12 +88,7 @@ describe('SSR', () => {
       });
 
       const WrappedElement = connect({
-        mapQueriesToProps: () => ({
-          data: {
-            query,
-            ssr: true, // block during SSR render
-          },
-        }),
+        mapQueriesToProps: () => ({ data: { query } }),
       })(Element);
 
       const app = (
@@ -107,7 +102,9 @@ describe('SSR', () => {
           const markup = ReactDOM.renderToString(app);
           expect(markup).to.match(/James/);
           done();
-        });
+        })
+        .catch(console.error)
+        ;
     });
 
     it('should run return the initial state for hydration', (done) => {
