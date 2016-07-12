@@ -5,6 +5,7 @@ import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { connect, ApolloProvider } from '../../src';
 import { getDataFromTree, renderToStringWithData } from '../../src/server';
 import 'isomorphic-fetch';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 
 import gql from 'graphql-tag';
 
@@ -108,40 +109,21 @@ describe('SSR', () => {
     });
 
     it('should run return the initial state for hydration', (done) => {
-      const Element = ({ data }) => {
-        return <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>;
-      };
-
-      const query = gql`
-        query App {
-          currentUser {
-            firstName
-          }
-        }
-      `;
-
-      const data = {
-        currentUser: {
-          firstName: 'James',
-        },
-      };
-
-      const networkInterface = mockNetworkInterface(
-        {
-          request: { query },
-          result: { data },
-          delay: 50,
-        }
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
       );
 
-      const apolloClient = new ApolloClient({
-        networkInterface,
-      });
+      const query = gql`query App { currentUser { firstName } }`;
+      const data = { currentUser: {  firstName: 'James' } };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+
+      const apolloClient = new ApolloClient({ networkInterface });
 
       const WrappedElement = connect({
-        mapQueriesToProps: () => ({
-          data: { query },
-        }),
+        mapQueriesToProps: () => ({ data: { query } }),
       })(Element);
 
       const app = (
@@ -156,6 +138,105 @@ describe('SSR', () => {
           expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.exist;
           done();
         });
+    });
+    it('should allow using the calculated props in the mapQueriesToProps function', (done) => {
+      function counter(state = 0, action) {
+        return action.type === 'INCREMENT' ? state + 1 : state;
+      }
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
+
+      const query = gql`query App($ctnr: Int) { currentUser(ctrn: $ctnr) { firstName } }`;
+      const data = { currentUser: {  firstName: 'James' } };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query, variables: { ctnr: 1 }  }, result: { data }, delay: 50 }
+      );
+
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      function mapStateToProps(state) {
+        return { ctnr: state.counter + 1 }
+      }
+
+      const WrappedElement = connect({
+        mapQueriesToProps: ({ ownProps }) => ({
+          data: { query, variables: { ctnr: ownProps.ctnr } },
+        }),
+        mapStateToProps,
+      })(Element);
+
+      // Typscript workaround
+      const apolloReducer = apolloClient.reducer() as () => any;
+      const store = createStore(
+        combineReducers({ counter, apollo: apolloReducer }),
+        applyMiddleware(apolloClient.middleware())
+      );
+
+      const app = (
+        <ApolloProvider store={store} client={apolloClient}>
+          <WrappedElement />
+        </ApolloProvider>
+      );
+
+      getDataFromTree(app)
+        .then(({ initialState }) => {
+          expect(initialState.apollo.data).to.exist;
+          expect(initialState.apollo.data['ROOT_QUERY.currentUser({"ctrn":1})']).to.exist;
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should allow using the state in the mapQueriesToProps function', (done) => {
+      function counter(state = 0, action) {
+        return action.type === 'INCREMENT' ? state + 1 : state;
+      }
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
+
+      const query = gql`query App($ctnr: Int) { currentUser(ctrn: $ctnr) { firstName } }`;
+      const data = { currentUser: {  firstName: 'James' } };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query, variables: { ctnr: 0 }  }, result: { data }, delay: 50 }
+      );
+
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      function mapStateToProps(state) {
+        return { ctnr: state.counter + 1 }
+      }
+
+      const WrappedElement = connect({
+        mapQueriesToProps: ({ state }) => ({
+          data: { query, variables: { ctnr: state.counter } },
+        }),
+        mapStateToProps,
+      })(Element);
+
+      // Typscript workaround
+      const apolloReducer = apolloClient.reducer() as () => any;
+      const store = createStore(
+        combineReducers({ counter, apollo: apolloReducer }),
+        applyMiddleware(apolloClient.middleware())
+      );
+
+      const app = (
+        <ApolloProvider store={store} client={apolloClient}>
+          <WrappedElement />
+        </ApolloProvider>
+      );
+
+      getDataFromTree(app)
+        .then(({ initialState }) => {
+          expect(initialState.apollo.data).to.exist;
+          expect(initialState.apollo.data['ROOT_QUERY.currentUser({"ctrn":0})']).to.exist;
+          done();
+        })
+        .catch(done);
     });
     it('shouldn\'t run queries if ssr is turned to off', (done) => {
       const Element = ({ data }) => {

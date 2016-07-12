@@ -89,10 +89,15 @@ function getQueriesFromTree({ component, context = {}, queries = []}: QueryTreeA
   if (typeof type === 'function') {
     let ComponentClass = type;
     let ownProps = getPropsFromChild(component);
-    const { state }  = context;
 
      // see if this is a connect type
     if (typeof type.mapQueriesToProps === 'function') {
+      const state = store.getState();
+      const { mapStateToProps, mapDispatchToProps, mergeProps } = type.opts;
+      const mappedState = mapStateToProps && mapStateToProps(state, ownProps);
+      const mappedDisptach = mapDispatchToProps && mapDispatchToProps(store.dispatch, ownProps);
+      const mergedProps = mergeProps && mergeProps(mappedState, mappedDisptach, ownProps);
+      ownProps = assign(ownProps, mappedState, mappedDisptach, mergedProps);
       const data = type.mapQueriesToProps({ ownProps, state });
       for (let key in data) {
         if (!data.hasOwnProperty(key)) continue;
@@ -150,6 +155,7 @@ export function getDataFromTree(app, ctx: any = {}): Promise<any> {
 
   if (!store && client && !client.store) client.initStore();
   if (!store && client && client.store) store = client.store;
+
   // no client found, nothing to do
   if (!client || !store) return Promise.resolve(null);
 
