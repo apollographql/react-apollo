@@ -23,7 +23,14 @@ import {
   Store,
 } from 'redux';
 
-import ApolloClient, { readQueryFromStore } from 'apollo-client';
+import ApolloClient, {
+  readQueryFromStore,
+} from 'apollo-client';
+
+import {
+  ObservableQuery,
+  QuerySubscription,
+} from 'apollo-client/QueryManager';
 
 import {
   GraphQLResult,
@@ -124,14 +131,15 @@ export default function connect(opts?: ConnectOptions) {
       private unsubscribeFromStore: Function;
 
       // data storage
-      private store: Store<any>;
+      private store;
       private client: ApolloClient; // apollo client
       private data: Object; // apollo data
       private previousState: Object;
       private previousQueries: Object;
 
       // request / action storage
-      private queryHandles: any;
+      private queryObservables: any;
+      private querySubscriptions: { [queryKey: string]: QuerySubscription };
       private mutations: any;
 
       // calculated switches to control rerenders
@@ -254,33 +262,31 @@ export default function connect(opts?: ConnectOptions) {
         const { watchQuery, reduxRootKey } = this.client;
         const { store } = this;
 
-        const queryHandles = mapQueriesToProps({
+        const queryOptions = mapQueriesToProps({
           state: store.getState(),
           ownProps: props,
         });
 
         const oldQueries = assign({}, this.previousQueries);
-        this.previousQueries = assign({}, queryHandles);
+        this.previousQueries = assign({}, queryOptions);
 
         // don't re run queries if nothing has changed
-        if (isEqual(oldQueries, queryHandles)) {
+        if (isEqual(oldQueries, queryOptions)) {
           return false;
         } else if (oldQueries) {
           // unsubscribe from previous queries
           this.unsubcribeAllQueries();
         }
 
-        if (isObject(queryHandles) && Object.keys(queryHandles).length) {
-          this.queryHandles = queryHandles;
-
-          for (const key in queryHandles) {
-            if (!queryHandles.hasOwnProperty(key)) {
+        if (isObject(queryOptions) && Object.keys(queryOptions).length) {
+          for (const key in queryOptions) {
+            if (!queryOptions.hasOwnProperty(key)) {
               continue;
             }
 
-            const { query, variables, forceFetch } = queryHandles[key];
+            const { query, variables, forceFetch } = queryOptions[key];
 
-            const handle = watchQuery(queryHandles[key]);
+            const handle = watchQuery(queryOptions[key]);
 
             // rudimentary way to manually check cache
             let queryData = defaultQueryData as any;
@@ -310,17 +316,17 @@ export default function connect(opts?: ConnectOptions) {
       }
 
       unsubcribeAllQueries() {
-        if (this.queryHandles) {
-          for (const key in this.queryHandles) {
-            if (!this.queryHandles.hasOwnProperty(key)) {
+        if (this.querySubscriptions) {
+          for (const key in this.querySubscriptions) {
+            if (!this.querySubscriptions.hasOwnProperty(key)) {
               continue;
             }
-            this.queryHandles[key].unsubscribe();
+            this.querySubscriptions[key].unsubscribe();
           }
         }
       }
 
-      handleQueryData(handle: any, key: string) {
+      handleQueryData(handle: ObservableQuery, key: string) {
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch,
@@ -387,14 +393,14 @@ export default function connect(opts?: ConnectOptions) {
           }
         };
 
-        this.queryHandles[key] = handle.subscribe({
+        this.querySubscriptions[key] = handle.subscribe({
           next: forceRender,
           error(errors) { forceRender({ errors }); },
         });
 
-        refetch = createBoundRefetch(key, this.queryHandles[key].refetch);
-        startPolling = this.queryHandles[key].startPolling;
-        stopPolling = this.queryHandles[key].stopPolling;
+        refetch = createBoundRefetch(key, this.querySubscriptions[key].refetch);
+        startPolling = this.querySubscriptions[key].startPolling;
+        stopPolling = this.querySubscriptions[key].stopPolling;
 
         this.data[key] = assign(this.data[key], {
           refetch,
