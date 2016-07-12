@@ -411,9 +411,15 @@ export default function connect(opts?: ConnectOptions) {
           error(errors) { forceRender({ errors }); },
         });
 
-        refetch = createBoundRefetch(key, this.queryObservables[key].refetch);
-        startPolling = this.queryObservables[key].startPolling;
-        stopPolling = this.queryObservables[key].stopPolling;
+        // In versions before 0.4, the refetch etc. methods were on the subscription. Now they are
+        // on the observable. We should try to support both.
+        refetch = createBoundRefetch(key,
+          this.queryObservables[key].refetch ||
+          (this.querySubscriptions[key] as any).refetch);
+        startPolling = this.queryObservables[key].startPolling ||
+          (this.querySubscriptions[key] as any).startPolling;
+        stopPolling = this.queryObservables[key].stopPolling ||
+          (this.querySubscriptions[key] as any).stopPolling;
 
         this.data[key] = assign(this.data[key], {
           refetch,
