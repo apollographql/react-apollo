@@ -739,4 +739,48 @@ describe('mutations', () => {
     );
   });
 
+  it('passes through all mutate options', (done) => {
+    const mutation = 'mutation M {}';
+    const variables = {};
+    const optimisticResponse = {};
+    const fragments = [];
+    function mapMutationsToProps({ ownProps }) {
+      return {
+        runMutation: () => {
+          return {
+            mutation,
+            variables,
+            optimisticResponse,
+            fragments,
+          };
+        },
+      };
+    };
+
+    const client = new ApolloClient();
+    (client as any).mutate = (options) => {
+        expect(options.mutation).to.equal(mutation);
+        expect(options.variables).to.equal(variables);
+        expect(options.optimisticResponse).to.equal(optimisticResponse);
+        expect(options.fragments).to.equal(fragments);
+        done();
+    };
+
+    @connect({ mapMutationsToProps })
+    class Container extends React.Component<any, any> {
+      componentDidMount() {
+        this.props.mutations.runMutation();
+      }
+
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock client={client}>
+        <Container/>
+      </ProviderMock>
+    );
+  });
 });

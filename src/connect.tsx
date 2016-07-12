@@ -497,7 +497,7 @@ export default function connect(opts?: ConnectOptions) {
           // add props and state as last argument of method
           args.push(stateAndProps);
 
-          const { mutation, variables } = method.apply(this.client, args);
+          const mutationOptions = method.apply(this.client, args);
           return new Promise((resolve, reject) => {
             this.data[key] = assign(this.data[key], {
               loading: true,
@@ -514,7 +514,7 @@ export default function connect(opts?: ConnectOptions) {
             resolve();
           })
             .then(() => {
-              return mutate({ mutation, variables });
+              return mutate(mutationOptions);
             })
             .then(forceRender)
             .catch(errors => forceRender({ errors }));
