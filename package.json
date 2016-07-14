@@ -3,6 +3,7 @@
   "version": "0.3.19",
   "description": "React data container for Apollo Client",
   "main": "index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "pretest": "npm run compile",
     "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
