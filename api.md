@@ -1,7 +1,6 @@
 
 > This document serves as a guide line for the new react-apollo API design. The initial discussion can be found [here](https://github.com/apollostack/react-apollo/issues/29)
 
-
 # API overview
 
 `react-apollo` exposes three top level items for the client (and two for the server) which, when used in conjunction, make for easily binding graphql actions to react components. The intent of this library is to make co-location of graphql data simple, and mutations easy to use within components.
@@ -281,14 +280,14 @@ Using `graphql` with queries makes it easy to bind data to components. As seen a
   will return a result object that includes `{ user: { name: "James" }, likes: { count: 10 } }`.
 
 
-4 [`...QuerySubscription`](http://docs.apollostack.com/apollo-client/queries.html#QuerySubscription
+4. [`...QuerySubscription`](http://docs.apollostack.com/apollo-client/queries.html#QuerySubscription
 )
   The subscription created on this query will be merged into the passed props so you can dynamically refetch, change polling settings, or even unsubscribe to this query.
 
 5. [`query`](http://docs.apollostack.com/apollo-client/queries.html#query)
   Sometimes you may want to call a custom query within a component. To make this possible, `graphql` passes the query method from ApolloClient as a prop
 
-5. [`mutate`](http://docs.apollostack.com/apollo-client/mutations.html#mutate)
+6. [`mutate`](http://docs.apollostack.com/apollo-client/mutations.html#mutate)
   Sometimes you may want to call a custom mutation within a component. To make this possible, `graphql` passes the mutate method from ApolloClient as a prop
 
 
@@ -368,3 +367,46 @@ class MyDecoratedComponent extends Component {
 // can also be used as
 const MyComponentWithData = combineRequests([UserData, UserMutation])(MyComponent);
 ```
+
+
+# Server methods
+
+react-apollo supports integrated server side rendering for both store rehydration purposes, or fully rendered markup.
+
+## `getDataFromTree`
+
+The `getDataFromTree` method takes your react tree and returns an object with `initialState`, the apollo client (as `client`) and the redux store as `store`.
+`initialState` is the hydrated data of your redux store prior to app rendering. Either `initialState` or `store.getState()` can be used for server side rehydration.
+
+```js
+// no changes to client :tada:
+
+// server application code (custom usage)
+import { getDataFromTree } from "react-apollo/server"
+
+// during request
+getDataFromTree(app).then(({ initialState, store, client }) => {
+  // markup with data from requests
+  const markup = ReactDOM.renderToString(app);
+});
+```
+
+## `renderToStringWithData`
+The `renderToStringWithData` takes your react tree and returns the stringified tree with all data requirements. It also injects a script tag that includes `window. __APOLLO_STATE__ ` which equals the full redux store for hydration. This is a synchronous method to make it easy to drop in and replace `renderToString`
+
+```js
+// no changes to client :tada:
+
+// server application code (integrated usage)
+import { renderToStringWithData } from "react-apollo/server"
+
+// during request
+const markup = renderToStringWithData(app)
+
+```
+
+> Server notes:
+  When creating the client on the server, it is best to use `ssrMode: true`. This prevents unneeded force refetching in the tree walking.
+
+> Client notes:
+  When creating new client, you can pass `initialState: __APOLLO_STATE__ ` to rehydrate which will stop the client from trying to requery data.
