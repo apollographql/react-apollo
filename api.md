@@ -2,11 +2,11 @@
 > This document serves as a guide line for the new react-apollo API design. The initial discussion can be found [here](https://github.com/apollostack/react-apollo/issues/29)
 
 
-## API overview
+# API overview
 
-`react-apollo` exposes two top level items for the client (and two for the server) which, when used in conjunction, make for easily binding graphql actions to react components. The intention of this library is to make co-location of graphql data simple, and mutations easy to use within components.
+`react-apollo` exposes three top level items for the client (and two for the server) which, when used in conjunction, make for easily binding graphql actions to react components. The intent of this library is to make co-location of graphql data simple, and mutations easy to use within components.
 
-### `ApolloProvider`
+## `ApolloProvider`
 
 Modeled after [`react-redux`](https://github.com/reactjs/react-redux), this is a component which binds the created client from `ApolloClient` to the store. It can be used as a drop in replacement for the `Provider` from `react-redux`, or used in with it.
 
@@ -85,7 +85,7 @@ ReactDOM.render(
 )
 ```
 
-### `graphql`
+## `graphql`
 
 `graphql` is a HOC [higher order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) which allows you to declare a graphql action (mutation or query) and have the data or actions it represents bound to the wrapped component. For queries, this means `graphql` handles the fetching and updating of information from the query using apollo's `watchQuery` method. For mutations, `graphql` binds the intended mutation to be called using apollo.
 
@@ -258,7 +258,7 @@ class MyDecoratedComponent extends Component {
 ```
 
 
-## Queries
+### Queries
 
 Using `graphql` with queries makes it easy to bind data to components. As seen above, `graphql` will use the query name of the passed document to assign the result to the props passed to the wrapped component. If no query name is found, it will use the key `data` on props. The shape of the result will be the following:
 
@@ -292,7 +292,7 @@ Using `graphql` with queries makes it easy to bind data to components. As seen a
   Sometimes you may want to call a custom mutation within a component. To make this possible, `graphql` passes the mutate method from ApolloClient as a prop
 
 
-## Mutations
+### Mutations
 
 Using `graphql` with mutations makes it easy to bind actions to components. Unlike queries, mutations return only a single method (the mutation method) to the wrapped component.
 
@@ -304,7 +304,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
 @graphql(gql`
-  mutation ($text: String!, $list_id: ID!) {
+  mutation addTask($text: String!, $list_id: ID!) {
     addNewTask(text: $text, list_id: $list_id) {
       id
       text
@@ -316,7 +316,7 @@ import gql from 'graphql-tag';
 class MyDecoratedComponent extends Component {
 
   onClick = () => {
-    this.props.addNewTask({ text: "task", list_id: 1 })
+    this.props.addTask({ text: "task", list_id: 1 })
       .then(({ data }) => {
         console.log('got data', data);
       }).catch((error) => {
@@ -328,4 +328,43 @@ class MyDecoratedComponent extends Component {
     return <h1 onClick={this.onClick}>Add Task</h1>
   }
 }
+```
+
+## `combineRequests`
+
+Sometimes components need both queries and mutations, or they need multiple queries that should be requested separately. In order to make this easy when using the `graphql` HOC, `react-apollo` exports a `combineRequests` function. This function allows you to pass multiple `graphql` functions which will wrap a single component.
+
+Usage:
+
+```js
+import { Component } from 'react';
+import { graphql, combineRequests } from 'react-apollo';
+import gql from 'graphql-tag';
+
+const UserData = graphql(gql`
+  query getUser {
+    user { name }
+  }
+`)
+
+const UserMutation = graphq(gql`
+  mutation createUser($userId: String!) {
+     createUser(id: $userId) {
+       name
+     }
+  }
+`)
+
+@combineRequests([UserData, UserMutation])
+class MyDecoratedComponent extends Component {
+  render() {
+    const { loading, user } = this.props.getUser;
+
+    if (loading) return <h1>Loading...</h1>
+    return <h1>{user.name}</h1>
+  }
+}
+
+// can also be used as
+const MyComponentWithData = combineRequests([UserData, UserMutation])(MyComponent);
 ```
