@@ -367,6 +367,23 @@ export default function connect(opts?: ConnectOptions) {
           };
         };
 
+        const createBoundFetchMore = (dataKey, fetchMoreMethod) => {
+          return (...args) => {
+            this.data[dataKey] = assign(this.data[dataKey], {
+              loadingMore: true,
+              fetchMore,
+            });
+
+            this.hasQueryDataChanged = true;
+
+            if (this.hasMounted) {
+              this.forceRenderChildren();
+            }
+
+            return fetchMoreMethod(...args);
+          };
+        };
+
         let oldData = {};
         const forceRender = ({ errors, data = oldData }: any) => {
           const resultKeyConflict: boolean = (
@@ -423,8 +440,8 @@ export default function connect(opts?: ConnectOptions) {
           (this.querySubscriptions[key] as any).startPolling;
         stopPolling = this.queryObservables[key].stopPolling ||
           (this.querySubscriptions[key] as any).stopPolling;
-        fetchMore = this.queryObservables[key].fetchMore ||
-          (this.querySubscriptions[key] as any).fetchMore;
+        fetchMore = createBoundFetchMore(key,
+          this.queryObservables[key].fetchMore);
 
         this.data[key] = assign(this.data[key], {
           refetch,
@@ -472,12 +489,15 @@ export default function connect(opts?: ConnectOptions) {
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
+            'loadingMore' in data ||
+            'fetchMore' in data ||
             'refetch' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${key}' mutation contains keys that ` +
-            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
+            `conflict with the return object. 'errors', 'loading', ` +
+            `'loadingMore', 'fetchMore' and 'refetch' cannot be ` +
             `returned keys`
           );
 
