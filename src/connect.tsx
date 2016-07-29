@@ -343,7 +343,8 @@ export default function connect(opts?: ConnectOptions) {
         // has been recieved
         let refetch,
             startPolling,
-            stopPolling;
+            stopPolling,
+            fetchMore;
 
         // since we don't have the query id, we can manually handle
         // a lifecyle event for loading if this query is refetched
@@ -373,14 +374,15 @@ export default function connect(opts?: ConnectOptions) {
             'loading' in data ||
             'refetch' in data ||
             'startPolling' in data ||
-            'stopPolling' in data
+            'stopPolling' in data ||
+            'fetchMore' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${key}' query contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', and 'refetch' cannot be ` +
-            `returned keys`
+            `'startPolling', 'stopPolling', 'refetch', and 'fetchMore' ` +
+            `cannot be returned keys`
           );
 
           // only rerender child component if data has changed
@@ -398,6 +400,7 @@ export default function connect(opts?: ConnectOptions) {
             refetch, // copy over refetch method
             startPolling,
             stopPolling,
+            fetchMore,
           }, data);
 
           if (this.hasMounted) {
@@ -420,11 +423,14 @@ export default function connect(opts?: ConnectOptions) {
           (this.querySubscriptions[key] as any).startPolling;
         stopPolling = this.queryObservables[key].stopPolling ||
           (this.querySubscriptions[key] as any).stopPolling;
+        fetchMore = this.queryObservables[key].fetchMore ||
+          (this.querySubscriptions[key] as any).fetchMore;
 
         this.data[key] = assign(this.data[key], {
           refetch,
           startPolling,
           stopPolling,
+          fetchMore,
         });
       }
 
