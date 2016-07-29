@@ -20,7 +20,6 @@ interface ChildContext {
   client: Object;
 }
 
-
 describe('<ApolloProvider /> Component', () => {
 
   class Child extends React.Component<any, { store: any, client: any}> {

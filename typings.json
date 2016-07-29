@@ -19,7 +19,6 @@
     "apollo-client": "file:node_modules/apollo-client/index.d.ts",
     "invariant": "registry:npm/invariant#2.0.0+20160211003958",
     "lodash": "registry:npm/lodash#4.0.0+20160412191219",
-    "object-assign": "registry:npm/object-assign#4.0.1+20160301180549",
-    "react-redux": "registry:npm/react-redux#4.4.0+20160207114942"
+    "object-assign": "registry:npm/object-assign#4.0.1+20160301180549"
   }
 }

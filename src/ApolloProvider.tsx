@@ -10,10 +10,6 @@ import {
   Store,
 } from 'redux';
 
-import {
-  Provider,
-} from 'react-redux';
-
 import ApolloClient from 'apollo-client';
 
 import invariant = require('invariant');
@@ -72,11 +68,6 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   }
 
   render() {
-    const { children } = this.props;
-    return (
-      <Provider store={this.store}>
-        {children}
-      </Provider>
-    );
+    return React.Children.only(this.props.children);
   }
 };

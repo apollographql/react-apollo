@@ -1,4 +1,4 @@
 import ApolloProvider from './ApolloProvider';
-import connect from './connect';
+// import connect from './connect';
 
-export { ApolloProvider, connect };
+export { ApolloProvider };

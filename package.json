@@ -34,7 +34,7 @@
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0-rc",
     "redux": "^2.0.0 || ^3.0.0",
-    "apollo-client": "^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0"
+    "apollo-client": "^0.4.0"
   },
   "devDependencies": {
     "apollo-client": "^0.4.0",
@@ -73,7 +73,6 @@
     "lodash.flatten": "^4.2.0",
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
-    "object-assign": "^4.0.1",
-    "react-redux": "^4.4.4"
+    "object-assign": "^4.0.1"
   }
 }

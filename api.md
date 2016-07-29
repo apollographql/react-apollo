@@ -329,15 +329,15 @@ class MyDecoratedComponent extends Component {
 }
 ```
 
-## `combineRequests`
+## `combine`
 
-Sometimes components need both queries and mutations, or they need multiple queries that should be requested separately. In order to make this easy when using the `graphql` HOC, `react-apollo` exports a `combineRequests` function. This function allows you to pass multiple `graphql` functions which will wrap a single component.
+Sometimes components need both queries and mutations, or they need multiple queries that should be requested separately. In order to make this easy when using the `graphql` HOC, `react-apollo` exports a `combine` function. This function allows you to pass multiple `graphql` functions which will wrap a single component.
 
 Usage:
 
 ```js
 import { Component } from 'react';
-import { graphql, combineRequests } from 'react-apollo';
+import { graphql, combine } from 'react-apollo';
 import gql from 'graphql-tag';
 
 const UserData = graphql(gql`
@@ -354,7 +354,7 @@ const UserMutation = graphq(gql`
   }
 `)
 
-@combineRequests([UserData, UserMutation])
+@combine([UserData, UserMutation])
 class MyDecoratedComponent extends Component {
   render() {
     const { loading, user } = this.props.getUser;
@@ -365,7 +365,7 @@ class MyDecoratedComponent extends Component {
 }
 
 // can also be used as
-const MyComponentWithData = combineRequests([UserData, UserMutation])(MyComponent);
+const MyComponentWithData = combine([UserData, UserMutation])(MyComponent);
 ```
 
 
