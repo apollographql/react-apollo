@@ -63,7 +63,7 @@ export class MockNetworkInterface implements NetworkInterface {
         throw new Error('No more mocked responses for the query: ' + request.query);
       }
 
-      const { result, error, delay } = this.mockedResponsesByKey[key].shift();
+      const { result, error, delay } = this.mockedResponsesByKey[key].shift() || {} as any;
 
       if (!result && !error) {
         throw new Error(`Mocked response should contain either result or error: ${key}`);

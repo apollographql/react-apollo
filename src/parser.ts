@@ -70,7 +70,7 @@ export function parser(document: Document): IDocumentDefinition {
     );
   }
 
-  variables = definitions[0].variableDefinitions;
+  variables = definitions[0].variableDefinitions || [];
   let hasName = definitions[0].name && definitions[0].name.kind === 'Name';
   name = hasName ? definitions[0].name.value : 'data'; // fallback to using data if no name
 

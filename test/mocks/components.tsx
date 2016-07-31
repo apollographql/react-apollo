@@ -3,7 +3,7 @@ import * as React from 'react';
 
 export class Passthrough extends React.Component<any, any> {
   render() {
-    return <span {...this.props} />;
+    return <span />;
   }
 };
 

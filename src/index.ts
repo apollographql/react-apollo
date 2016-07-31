@@ -1,4 +1,4 @@
 import ApolloProvider from './ApolloProvider';
-// import connect from './connect';
+import graphql, { withApollo } from './graphql';
 
-export { ApolloProvider };
+export { ApolloProvider, graphql, withApollo };
