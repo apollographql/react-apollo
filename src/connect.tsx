@@ -29,7 +29,7 @@ import ApolloClient, {
 
 import {
   ObservableQuery,
-} from 'apollo-client/QueryManager';
+} from 'apollo-client/ObservableQuery';
 
 import {
   Subscription,

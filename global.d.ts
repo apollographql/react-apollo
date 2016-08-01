@@ -2,12 +2,12 @@
   LODASH
 */
 declare module 'lodash.isobject' {
-  import main = require('~lodash/index');
+  import main = require('lodash');
   export = main.isObject;
 }
 
 declare module 'lodash.isequal' {
-  import main = require('~lodash/index');
+  import main = require('lodash');
   export = main.isEqual;
 }
 
@@ -29,6 +29,6 @@ declare module 'hoist-non-react-statics' {
 }
 
 declare module 'lodash.flatten' {
-  import main = require('~lodash/index');
+  import main = require('lodash');
   export = main.flatten;
 }
