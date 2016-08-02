@@ -506,6 +506,58 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('exposes fetchMore as part of the props api', (done) => {
+    const query = gql`
+      query people($skip: Int) { allPeople(first: 1, skip: $skip) { people { name } } }
+    `;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data1 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const variables = { skip: 1 };
+    const variables2 = { skip: 2 };
+
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data } },
+      { request: { query, variables: variables2 }, result: { data: data1 } }
+    );
+    const client = new ApolloClient({ networkInterface });
+
+    let count = 0;
+    @graphql(query, () => ({ variables }))
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps({ people }) {
+        if (count === 0) {
+          expect(people.fetchMore).to.be.exist;
+          expect(people.fetchMore).to.be.instanceof(Function);
+          people.fetchMore({
+            variables: variables2,
+            updateQuery: (prev, { fetchMoreResult }) => ({
+              allPeople: {
+                people: prev.allPeople.people.concat(fetchMoreResult.data.allPeople.people),
+              },
+            }),
+          });
+        } else if (count === 1) {
+          expect(people.loading).to.be.true;
+          expect(people.allPeople).to.deep.equal(data.allPeople);
+        } else if (count === 2) {
+          expect(people.loading).to.be.false;
+          expect(people.allPeople.people).to.deep.equal(
+            data.allPeople.people.concat(data1.allPeople.people)
+          );
+          done();
+        } else {
+          done(new Error('should not reach this point'));
+        }
+        count++;
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
   it('exposes stopPolling as part of the props api', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
