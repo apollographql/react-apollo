@@ -1742,6 +1742,102 @@ describe('queries', () => {
     );
   });
 
+  it('should update props after fetching more with fetchMore', (done) => {
+    const store = createStore(() => ({ }));
+
+    const query = gql`
+      query people($skip: Int) {
+        allPeople(first: 1, skip: $skip) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const variables = { skip: 0 };
+    const variablesMore = { skip: 1 };
+
+    const data = {
+      allPeople: {
+        people: [
+          {
+            name: 'Luke Skywalker',
+          },
+        ],
+      },
+    };
+
+    const dataMore = {
+      allPeople: {
+        people: [
+          {
+            name: 'Anakin Skywalker',
+          },
+        ],
+      },
+    };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query, variables },
+      result: { data },
+    }, {
+      request: { query, variables: variablesMore },
+      result: { data: dataMore },
+    });
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapQueriesToProps() {
+      return {
+        luke: { query, variables },
+      };
+    };
+
+    let iter = 0;
+
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      componentDidUpdate(prevProps) {
+        if (iter === 0) {
+          expect(prevProps.luke.loading).to.be.true;
+          expect(this.props.luke.allPeople).to.deep.equal(data.allPeople);
+          this.props.luke.fetchMore({
+            variables: variablesMore,
+            updateQuery: (prev, { fetchMoreResult }) => {
+              return {
+                allPeople: {
+                  people: prev.allPeople.people.concat(fetchMoreResult.data.allPeople.people),
+                },
+              };
+            },
+          });
+        } else if (iter === 1) {
+          expect(prevProps.luke.loadingMore).to.be.true;
+          expect(this.props.luke.allPeople).to.deep.equal(data.allPeople);
+        } else if (iter === 2) {
+          expect(prevProps.luke.loadingMore).to.be.false;
+          expect(this.props.luke.allPeople.people).to.deep.equal(data.allPeople.people.concat(dataMore.allPeople.people));
+          done();
+        } else {
+          throw new Error('should not reach this statement');
+        }
+        iter++;
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock store={store} client={client}>
+        <Container />
+      </ProviderMock>
+    );
+  });
+
   it('should prefill any data already in the store', (done) => {
 
     const query = gql`

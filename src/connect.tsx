@@ -413,6 +413,7 @@ export default function connect(opts?: ConnectOptions) {
 
           this.data[key] = assign({
             loading: false,
+            loadingMore: false,
             errors,
             refetch, // copy over refetch method
             startPolling,
