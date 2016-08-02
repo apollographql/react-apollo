@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "0.3.19",
+  "version": "0.3.20",
   "description": "React data container for Apollo Client",
   "main": "index.js",
   "scripts": {
@@ -37,7 +37,7 @@
     "apollo-client": "^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0"
   },
   "devDependencies": {
-    "apollo-client": "^0.4.0",
+    "apollo-client": "^0.4.9",
     "browserify": "^13.0.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",

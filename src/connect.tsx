@@ -29,7 +29,7 @@ import ApolloClient, {
 
 import {
   ObservableQuery,
-} from 'apollo-client/QueryManager';
+} from 'apollo-client/ObservableQuery';
 
 import {
   Subscription,
@@ -343,7 +343,9 @@ export default function connect(opts?: ConnectOptions) {
         // has been recieved
         let refetch,
             startPolling,
-            stopPolling;
+            stopPolling,
+            fetchMore,
+            oldData = {};
 
         // since we don't have the query id, we can manually handle
         // a lifecyle event for loading if this query is refetched
@@ -361,26 +363,59 @@ export default function connect(opts?: ConnectOptions) {
               this.forceRenderChildren();
             }
 
+            let previousRequest = assign({}, oldData);
+            return refetchMethod(...args)
+              .then((result) => {
+                const { data } = result;
 
-            return refetchMethod(...args);
+                if (isEqual(data, previousRequest)) {
+                  this.data[dataKey] = assign(this.data[dataKey], {
+                    loading: false,
+                  });
+                  this.hasQueryDataChanged = true;
+
+                  if (this.hasMounted) {
+                    this.forceRenderChildren();
+                  }
+                }
+                previousRequest = assign({}, data);
+                return result;
+              });
           };
         };
 
-        let oldData = {};
+        const createBoundFetchMore = (dataKey, fetchMoreMethod) => {
+          return (...args) => {
+            this.data[dataKey] = assign(this.data[dataKey], {
+              loading: true,
+              fetchMore,
+            });
+
+            this.hasQueryDataChanged = true;
+
+            if (this.hasMounted) {
+              this.forceRenderChildren();
+            }
+
+            return fetchMoreMethod(...args);
+          };
+        };
+
         const forceRender = ({ errors, data = oldData }: any) => {
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
             'refetch' in data ||
             'startPolling' in data ||
-            'stopPolling' in data
+            'stopPolling' in data ||
+            'fetchMore' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${key}' query contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', and 'refetch' cannot be ` +
-            `returned keys`
+            `'startPolling', 'stopPolling', 'refetch', and 'fetchMore' ` +
+            `cannot be returned keys`
           );
 
           // only rerender child component if data has changed
@@ -394,10 +429,10 @@ export default function connect(opts?: ConnectOptions) {
 
           this.data[key] = assign({
             loading: false,
-            errors,
             refetch, // copy over refetch method
             startPolling,
             stopPolling,
+            fetchMore,
           }, data);
 
           if (this.hasMounted) {
@@ -420,11 +455,14 @@ export default function connect(opts?: ConnectOptions) {
           (this.querySubscriptions[key] as any).startPolling;
         stopPolling = this.queryObservables[key].stopPolling ||
           (this.querySubscriptions[key] as any).stopPolling;
+        fetchMore = createBoundFetchMore(key,
+          this.queryObservables[key].fetchMore);
 
         this.data[key] = assign(this.data[key], {
           refetch,
           startPolling,
           stopPolling,
+          fetchMore,
         });
       }
 
@@ -466,12 +504,14 @@ export default function connect(opts?: ConnectOptions) {
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
+            'fetchMore' in data ||
             'refetch' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${key}' mutation contains keys that ` +
-            `conflict with the return object. 'errors', 'loading', and 'refetch' cannot be ` +
+            `conflict with the return object. 'errors', 'loading', ` +
+            `fetchMore' and 'refetch' cannot be ` +
             `returned keys`
           );
 
