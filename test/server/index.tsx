@@ -23,16 +23,36 @@ describe('SSR', () => {
       return <div>{data.loading ? 'loading' : 'loaded'}</div>;
     };
 
+    const query = gql`
+      query App {
+        currentUser {
+          firstName
+        }
+      }
+    `;
+
+    const data1 = {
+      currentUser: {
+        firstName: 'James',
+      },
+    };
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query },
+        result: { data: data1 },
+        delay: 50,
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
     const WrappedElement = connect({
       mapQueriesToProps: () => ({
         data: {
-          query: gql`
-            query Feed {
-              currentUser {
-                login
-              }
-            }
-          `,
+          query,
         },
       }),
     })(Element);
@@ -135,7 +155,7 @@ describe('SSR', () => {
       getDataFromTree(app)
         .then(({ initialState }) => {
           expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.exist;
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser']).to.exist;
           done();
         });
     });
@@ -183,7 +203,7 @@ describe('SSR', () => {
       getDataFromTree(app)
         .then(({ initialState }) => {
           expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['ROOT_QUERY.currentUser({"ctrn":1})']).to.exist;
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"ctrn":1})']).to.exist;
           done();
         })
         .catch(done);
@@ -233,7 +253,7 @@ describe('SSR', () => {
       getDataFromTree(app)
         .then(({ initialState }) => {
           expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['ROOT_QUERY.currentUser({"ctrn":0})']).to.exist;
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"ctrn":0})']).to.exist;
           done();
         })
         .catch(done);
@@ -284,7 +304,7 @@ describe('SSR', () => {
       getDataFromTree(app)
         .then(({ initialState }) => {
           expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['ROOT_QUERY.currentUser']).to.not.exist;
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser']).to.not.exist;
           done();
         });
     });

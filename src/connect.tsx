@@ -344,7 +344,8 @@ export default function connect(opts?: ConnectOptions) {
         let refetch,
             startPolling,
             stopPolling,
-            fetchMore;
+            fetchMore,
+            oldData = {};
 
         // since we don't have the query id, we can manually handle
         // a lifecyle event for loading if this query is refetched
@@ -362,8 +363,24 @@ export default function connect(opts?: ConnectOptions) {
               this.forceRenderChildren();
             }
 
+            let previousRequest = assign({}, oldData);
+            return refetchMethod(...args)
+              .then((result) => {
+                const { data } = result;
 
-            return refetchMethod(...args);
+                if (isEqual(data, previousRequest)) {
+                  this.data[dataKey] = assign(this.data[dataKey], {
+                    loading: false,
+                  });
+                  this.hasQueryDataChanged = true;
+
+                  if (this.hasMounted) {
+                    this.forceRenderChildren();
+                  }
+                }
+                previousRequest = assign({}, data);
+                return result;
+              });
           };
         };
 
@@ -384,7 +401,6 @@ export default function connect(opts?: ConnectOptions) {
           };
         };
 
-        let oldData = {};
         const forceRender = ({ errors, data = oldData }: any) => {
           const resultKeyConflict: boolean = (
             'errors' in data ||
@@ -414,7 +430,6 @@ export default function connect(opts?: ConnectOptions) {
           this.data[key] = assign({
             loading: false,
             loadingMore: false,
-            errors,
             refetch, // copy over refetch method
             startPolling,
             stopPolling,

@@ -1818,7 +1818,7 @@ describe('queries', () => {
           expect(prevProps.luke.loadingMore).to.be.true;
           expect(this.props.luke.allPeople).to.deep.equal(data.allPeople);
         } else if (iter === 2) {
-          expect(prevProps.luke.loadingMore).to.be.false;
+          expect(this.props.luke.loadingMore).to.be.false;
           expect(this.props.luke.allPeople.people).to.deep.equal(data.allPeople.people.concat(dataMore.allPeople.people));
           done();
         } else {
