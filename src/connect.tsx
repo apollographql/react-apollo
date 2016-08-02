@@ -387,7 +387,7 @@ export default function connect(opts?: ConnectOptions) {
         const createBoundFetchMore = (dataKey, fetchMoreMethod) => {
           return (...args) => {
             this.data[dataKey] = assign(this.data[dataKey], {
-              loadingMore: true,
+              loading: true,
               fetchMore,
             });
 
@@ -429,7 +429,6 @@ export default function connect(opts?: ConnectOptions) {
 
           this.data[key] = assign({
             loading: false,
-            loadingMore: false,
             refetch, // copy over refetch method
             startPolling,
             stopPolling,
@@ -505,7 +504,6 @@ export default function connect(opts?: ConnectOptions) {
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
-            'loadingMore' in data ||
             'fetchMore' in data ||
             'refetch' in data
           );
@@ -513,7 +511,7 @@ export default function connect(opts?: ConnectOptions) {
           invariant(!resultKeyConflict,
             `the result of the '${key}' mutation contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
-            `'loadingMore', 'fetchMore' and 'refetch' cannot be ` +
+            `fetchMore' and 'refetch' cannot be ` +
             `returned keys`
           );
 

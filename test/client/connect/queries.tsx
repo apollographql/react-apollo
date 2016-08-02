@@ -1815,10 +1815,10 @@ describe('queries', () => {
             },
           });
         } else if (iter === 1) {
-          expect(prevProps.luke.loadingMore).to.be.true;
+          expect(prevProps.luke.loading).to.be.true;
           expect(this.props.luke.allPeople).to.deep.equal(data.allPeople);
         } else if (iter === 2) {
-          expect(this.props.luke.loadingMore).to.be.false;
+          expect(this.props.luke.loading).to.be.false;
           expect(this.props.luke.allPeople.people).to.deep.equal(data.allPeople.people.concat(dataMore.allPeople.people));
           done();
         } else {
