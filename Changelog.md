@@ -2,6 +2,11 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+### v0.3.20
+
+- Bug: Fixed loading state on refetch more when data doesn't change
+- Feature: added fetchMore [#123](https://github.com/apollostack/react-apollo/pull/123)
+
 ### v0.3.19
 
 - Bug: Retain compatibility with version 0.3.0 of Apollo Client via a backcompat shim. [#109](https://github.com/apollostack/react-apollo/pull/109)
