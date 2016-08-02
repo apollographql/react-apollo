@@ -307,6 +307,7 @@ export default function graphql(
         const { store } = this;
         const { reduxRootKey } = this.client;
 
+        let previousError;
         this.unsubscribeFromStore = store.subscribe(() => {
           const state = store.getState();
           const { queryId } = this.queryObservable as ObservableQuery;
@@ -321,6 +322,9 @@ export default function graphql(
             graphQLErrors,
             errorMessage: `There was a graphql error while running the operation passed to ${graphQLDisplayName}` // tslint:disable-line
           });
+
+          if (isEqual(error, previousError)) return;
+          previousError = error;
 
           this.hasOperationDataChanged = true;
           this.data = assign(this.data, { error, loading });
@@ -392,6 +396,7 @@ export default function graphql(
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch,
+            fetchMore,
             startPolling,
             stopPolling,
             oldData = {};
@@ -406,6 +411,7 @@ export default function graphql(
             'errors' in data ||
             'loading' in data ||
             'refetch' in data ||
+            'fetchMore' in data ||
             'startPolling' in data ||
             'stopPolling' in data
           );
@@ -413,7 +419,7 @@ export default function graphql(
           invariant(!resultKeyConflict,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', and 'refetch' cannot be ` +
+            `'startPolling', 'stopPolling', 'fetchMore', and 'refetch' cannot be ` +
             `returned keys`
           );
 
@@ -424,13 +430,13 @@ export default function graphql(
 
           // cache the changed data for next check
           oldData = assign({}, data);
-          this.data = assign({ loading, refetch, startPolling, stopPolling }, data);
+          this.data = assign({ loading, refetch, startPolling, stopPolling, fetchMore }, data);
 
           this.forceRenderChildren();
         };
 
         const createBoundRefetch = (refetchMethod) => (...args) => {
-          this.data = assign(this.data, { loading: true, refetch });
+          this.data = assign(this.data, { loading: true });
 
           this.hasOperationDataChanged = true;
           this.forceRenderChildren();
@@ -458,12 +464,13 @@ export default function graphql(
         this.querySubscription = observableQuery.subscribe({ next });
 
         refetch = createBoundRefetch((this.queryObservable as any).refetch);
+        fetchMore = createBoundRefetch((this.queryObservable as any).fetchMore);
         startPolling = (this.queryObservable as any).startPolling;
         stopPolling = (this.queryObservable as any).stopPolling;
 
         // XXX the tests seem to be keeping the error around?
         delete this.data.error;
-        this.data = assign(this.data, { refetch, startPolling, stopPolling });
+        this.data = assign(this.data, { refetch, startPolling, stopPolling, fetchMore});
       }
 
       forceRenderChildren() {
