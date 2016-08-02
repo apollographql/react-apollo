@@ -37,6 +37,24 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
   });
 
+  it('includes the variables in the props', () => {
+    const query = gql`query people ($first: Int) { allPeople(first: $first) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const variables = { first: 1 };
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data } }
+    );
+    const client = new ApolloClient({ networkInterface });
+
+    const ContainerWithData =  graphql(query)(({ people }) => {
+      expect(people).to.exist;
+      expect(people.variables).to.deep.equal(variables);
+      return null;
+    });
+
+    mount(<ProviderMock client={client}><ContainerWithData first={1} /></ProviderMock>);
+  });
+
   it('does not swallow children errors', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };

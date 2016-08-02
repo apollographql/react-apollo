@@ -8,6 +8,8 @@ import {
 // modules don't export ES6 modules
 // import isObject = require('lodash.isobject');
 import isEqual = require('lodash.isequal');
+import shallowEqual from './shallowEqual';
+
 import invariant = require('invariant');
 import assign = require('object-assign');
 
@@ -251,7 +253,7 @@ export default function graphql(
       }
 
       componentWillReceiveProps(nextProps) {
-        if (isEqual(this.props, nextProps)) return;
+        if (shallowEqual(this.props, nextProps)) return;
 
         if (this.type === DocumentType.Mutation) {
           this.createWrappedMutation(nextProps, true);
@@ -290,14 +292,16 @@ export default function graphql(
         }
 
         const { reduxRootKey } = this.client;
+        const variables = this.calculateVariables(this.props);
         let queryData = defaultQueryData as any;
+        queryData.variables = variables;
         try {
           const result = readQueryFromStore({
             store: this.store.getState()[reduxRootKey].data,
             query: document,
-            variables: this.calculateVariables(this.props),
+            variables,
           });
-          queryData = assign({ errors: null, loading: false }, result);
+          queryData = assign({ errors: null, loading: false, variables }, result);
         } catch (e) {/* tslint:disable-line */}
 
         this.data = queryData;
@@ -323,7 +327,9 @@ export default function graphql(
             errorMessage: `There was a graphql error while running the operation passed to ${graphQLDisplayName}` // tslint:disable-line
           });
 
-          if (isEqual(error, previousError)) return;
+          const newErrors = { networkError, graphQLErrors };
+
+          if (shallowEqual(newErrors, previousError)) return;
           previousError = error;
 
           this.hasOperationDataChanged = true;
@@ -352,11 +358,11 @@ export default function graphql(
 
         if (
           this.previousOpts &&
-          (!isEqual(opts.variables, (this.previousOpts as WatchQueryOptions).variables)) &&
-          (isEqual(old, neu))
+          (!shallowEqual(opts.variables, (this.previousOpts as WatchQueryOptions).variables)) &&
+          (shallowEqual(old, neu))
         ) {
           this.hasOperationDataChanged = true;
-          this.data = assign(this.data, { loading: true });
+          this.data = assign(this.data, { loading: true, variables: opts.variables });
           this.forceRenderChildren();
           (this.queryObservable as ObservableQuery).refetch(assign(
             {}, (this.previousOpts as WatchQueryOptions).variables, opts.variables
@@ -381,7 +387,7 @@ export default function graphql(
           this.forceRenderChildren();
         }
 
-        this.handleQueryData(observableQuery);
+        this.handleQueryData(observableQuery, queryOptions);
       }
 
       unsubscribeFromQuery() {
@@ -391,7 +397,7 @@ export default function graphql(
         }
       }
 
-      handleQueryData(observableQuery: ObservableQuery): void {
+      handleQueryData(observableQuery: ObservableQuery, { variables }: WatchQueryOptions): void {
         const { reduxRootKey } = this.client;
         // bind each handle to updating and rerendering when data
         // has been recieved
@@ -435,18 +441,22 @@ export default function graphql(
           this.forceRenderChildren();
         };
 
-        const createBoundRefetch = (refetchMethod) => (...args) => {
-          this.data = assign(this.data, { loading: true });
+        const createBoundRefetch = (refetchMethod) => (vars, ...args) => {
+          let newVariables = vars;
+          const newData = { loading: true } as any;
+          if (vars && (vars.variables || vars.query || vars.updateQuery)) {
+            newVariables = vars.variables;
+          }
+
+          if (newVariables) newData.variables = newVariables;
+          this.data = assign(this.data, newData);
 
           this.hasOperationDataChanged = true;
           this.forceRenderChildren();
           // XXX why doesn't apollo-client fire next on a refetch with the same data?
-          return refetchMethod(...args)
+          return refetchMethod(vars, ...args)
             .then((result) => {
-              if (isEqual(result.data, oldData)) {
-                next(result);
-              }
-
+              if (isEqual(result.data, oldData)) next(result);
               return result;
             });
         };
@@ -470,12 +480,16 @@ export default function graphql(
 
         // XXX the tests seem to be keeping the error around?
         delete this.data.error;
-        this.data = assign(this.data, { refetch, startPolling, stopPolling, fetchMore});
+        this.data = assign(this.data, { refetch, startPolling, stopPolling, fetchMore, variables });
       }
 
       forceRenderChildren() {
         // force a rerender that goes through shouldComponentUpdate
         if (this.hasMounted) this.setState({});
+      }
+
+      getWrappedInstance() {
+        return (this.refs as any).wrappedInstance;
       }
 
       createWrappedMutation(props: any, reRender = false) {
