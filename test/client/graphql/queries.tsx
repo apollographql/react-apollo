@@ -536,7 +536,8 @@ describe('queries', () => {
                 people: prev.allPeople.people.concat(fetchMoreResult.data.allPeople.people),
               },
             }),
-          });
+          })
+          // XXX add a test for the result here when #508 is merged and released
         } else if (count === 1) {
           expect(people.loading).to.be.true;
           expect(people.allPeople).to.deep.equal(data.allPeople);
