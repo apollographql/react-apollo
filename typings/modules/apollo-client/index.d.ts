@@ -405,6 +405,7 @@ export class QueryManager {
     private batchInterval;
     private fetchQueryPromises;
     private observableQueries;
+    private queryIdsByName;
     constructor({networkInterface, store, reduxRootKey, queryTransformer, shouldBatch, batchInterval}: {
         networkInterface: NetworkInterface;
         store: ApolloStore;
@@ -414,13 +415,14 @@ export class QueryManager {
         batchInterval?: number;
     });
     broadcastNewStore(store: any): void;
-    mutate({mutation, variables, resultBehaviors, fragments, optimisticResponse, updateQueries}: {
+    mutate({mutation, variables, resultBehaviors, fragments, optimisticResponse, updateQueries, refetchQueries}: {
         mutation: Document;
         variables?: Object;
         resultBehaviors?: MutationBehavior[];
         fragments?: FragmentDefinition[];
         optimisticResponse?: Object;
         updateQueries?: MutationQueryReducersMap;
+        refetchQueries?: string[];
     }): Promise<ApolloQueryResult>;
     queryListenerForObserver(queryId: string, options: WatchQueryOptions, observer: Observer<ApolloQueryResult>): QueryListener;
     watchQuery(options: WatchQueryOptions, shouldSubscribe?: boolean): ObservableQuery;
@@ -450,6 +452,7 @@ export class QueryManager {
     };
     private collectResultBehaviorsFromUpdateQueries(updateQueries, mutationResult, isOptimistic?);
     private fetchQueryOverInterface(queryId, options, network);
+    private refetchQueryByName(queryName);
     private isDifferentResult(queryId, result);
     private broadcastQueries();
     private generateRequestId();
@@ -478,7 +481,7 @@ export class ObservableQuery extends Observable<ApolloQueryResult> {
     stopPolling: () => void;
     startPolling: (p: number) => void;
     options: WatchQueryOptions;
-    private queryId;
+    queryId: string;
     private scheduler;
     private queryManager;
     constructor({scheduler, options, shouldSubscribe}: {
@@ -733,6 +736,7 @@ import { MutationBehaviorReducerMap } from '~apollo-client/data/mutationResults'
 export { createNetworkInterface, addQueryMerging, createApolloStore, createApolloReducer, readQueryFromStore, readFragmentFromStore, addTypenameToSelectionSet as addTypename, writeQueryToStore, writeFragmentToStore, print as printAST };
 export type ApolloQueryResult = {
     data: any;
+    loading: boolean;
 };
 export let fragmentDefinitionsMap: {
     [fragmentName: string]: FragmentDefinition[];
@@ -769,6 +773,7 @@ export default class ApolloClient {
     watchQuery: (options: WatchQueryOptions) => ObservableQuery;
     query: (options: WatchQueryOptions) => Promise<{
         data: any;
+        loading: boolean;
     }>;
     mutate: (options: {
         mutation: Document;
@@ -801,8 +806,10 @@ export default class ApolloClient {
                 queryVariables: Object;
             }) => Object;
         };
+        refetchQueries?: string[];
     }) => Promise<{
         data: any;
+        loading: boolean;
     }>;
     reducer(): Function;
     middleware: () => (store: ApolloStore) => (next: any) => (action: any) => any;

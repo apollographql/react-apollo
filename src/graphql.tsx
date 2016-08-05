@@ -125,7 +125,7 @@ export function withApollo(WrappedComponent) {
 export default function graphql(
   document: Document,
   mapPropsToOptions: (props: any) => QueryOptions | MutationOptions = defaultMapPropsToOptions,
-  mapResultToProps: (props: any) => any = defaultMapResultToProps
+  mapResultToProps?: (props: any) => any
 ) {
 
   // handle null case
@@ -282,7 +282,8 @@ export default function graphql(
       calculateVariables(props) { return calculateVariables(props); };
 
       calculateResultProps(result) {
-        return mapResultToProps(result);
+        if (mapResultToProps) return mapResultToProps(result);
+        return { [operation.name]: defaultMapResultToProps(result) };
       }
 
       setInitialProps() {
@@ -520,7 +521,7 @@ export default function graphql(
         this.haveOwnPropsChanged = false;
         this.hasOperationDataChanged = false;
 
-        const clientProps = { [operation.name]: this.calculateResultProps(data) };
+        const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
         // dynmically get all of the methods from ApolloClient

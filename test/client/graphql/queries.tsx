@@ -724,8 +724,8 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     const mapResultToProps = ({ loading }) => ({ showSpinner: loading });
-    const ContainerWithData = graphql(query, null, mapResultToProps)(({ thing }) => {
-      expect(thing.showSpinner).to.be.true;
+    const ContainerWithData = graphql(query, null, mapResultToProps)(({ showSpinner }) => {
+      expect(showSpinner).to.be.true;
       return null;
     });
 
@@ -743,7 +743,7 @@ describe('queries', () => {
     @graphql(query, null, mapResultToProps)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.thing.thingy).to.deep.equal(data.getThing);
+        expect(props.thingy).to.deep.equal(data.getThing);
         done();
       }
       render() {
