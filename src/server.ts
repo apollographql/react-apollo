@@ -31,7 +31,9 @@ export function getChildFromComponent(component) {
   return component;
 }
 
-function getQueriesFromTree({ component, context = {}, queries = []}: QueryTreeArgument) {
+function getQueriesFromTree(
+  { component, context = {}, queries = []}: QueryTreeArgument, fetch: boolean = true
+) {
 
   if (!component) return;
 
@@ -50,7 +52,7 @@ function getQueriesFromTree({ component, context = {}, queries = []}: QueryTreeA
     context = newContext;
 
     // see if there is a fetch data method
-    if (typeof type.fetchData === 'function') {
+    if (typeof type.fetchData === 'function' && fetch) {
       const query = type.fetchData(ownProps, newContext);
       if (query) queries.push({ query, component });
     }
@@ -72,9 +74,9 @@ function getQueriesFromTree({ component, context = {}, queries = []}: QueryTreeA
 }
 
 // XXX component Cache
-export function getDataFromTree(app, ctx: any = {}): Promise<any> {
+export function getDataFromTree(app, ctx: any = {}, fetch: boolean = true): Promise<any> {
 
-  let { context, queries } = getQueriesFromTree({ component: app, context: ctx });
+  let { context, queries } = getQueriesFromTree({ component: app, context: ctx }, fetch);
   // no queries found, nothing to do
   if (!queries.length) return Promise.resolve(context);
 
@@ -82,7 +84,7 @@ export function getDataFromTree(app, ctx: any = {}): Promise<any> {
   // run through all queries we can
   return Promise.all(mappedQueries)
     .then(trees => Promise.all(trees.filter(x => !!x).map(x => {
-      return getDataFromTree(x.component, context);
+      return getDataFromTree(x.component, context, false); // don't rerun `fetchData'
     })))
     .then(() => (context));
 

@@ -8,9 +8,20 @@
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
-    // "node_modules": true,
+    "node_modules": true,
+    "scripts": true,
     "test-lib": true,
-    "lib": false,
+    "lib": true,
+    "typings": true,
+    ".gitignore": true,
+    ".npmignore": true,
+    ".travis.*": true,
+    "appveyor.yml": true,
+    "LICENSE": true,
+    "global.d.ts": true,
+    "tsconfig.json": true,
+    "typings.json": true,
+    "tslint.json": true,
     "coverage": true
   }
 }
