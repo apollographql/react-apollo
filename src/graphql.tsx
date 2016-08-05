@@ -505,7 +505,7 @@ export default function graphql(
 
           opts.mutation = document;
           if (!opts.variables && !variables) opts.variables = this.calculateVariables(props);
-
+          if (typeof opts.variables === 'undefined') delete opts.variables;
           return this.client.mutate(opts);
         };
 
