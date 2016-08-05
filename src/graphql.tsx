@@ -200,7 +200,6 @@ export default function graphql(
       public props: any; // passed props
       public version: number;
       public hasMounted: boolean;
-      private unsubscribeFromStore: Function;
 
       // data storage
       private store: Store<any>;
@@ -248,7 +247,6 @@ export default function graphql(
         if (this.type === DocumentType.Mutation) return;
 
         this.subscribeToQuery(this.props);
-        this.bindStoreUpdatesForErrors();
 
       }
 
@@ -272,10 +270,6 @@ export default function graphql(
       componentWillUnmount() {
         if (this.type === DocumentType.Query) this.unsubscribeFromQuery();
 
-        if (this.unsubscribeFromStore) {
-          this.unsubscribeFromStore();
-          this.unsubscribeFromStore = null;
-        }
         this.hasMounted = false;
       }
 
@@ -306,38 +300,6 @@ export default function graphql(
         } catch (e) {/* tslint:disable-line */}
 
         this.data = queryData;
-      }
-
-      bindStoreUpdatesForErrors(): void {
-        const { store } = this;
-        const { reduxRootKey } = this.client;
-
-        let previousError;
-        this.unsubscribeFromStore = store.subscribe(() => {
-          const state = store.getState();
-          const { queryId } = this.queryObservable as ObservableQuery;
-
-          if (!state[reduxRootKey].queries[queryId]) return;
-
-          const { networkError, graphQLErrors, loading } = state[reduxRootKey].queries[queryId];
-          if (!networkError && (!graphQLErrors || !graphQLErrors.length)) return;
-
-          const error = new ApolloError({
-            networkError,
-            graphQLErrors,
-            errorMessage: `There was a graphql error while running the operation passed to ${graphQLDisplayName}` // tslint:disable-line
-          });
-
-          const newErrors = { networkError, graphQLErrors };
-
-          if (shallowEqual(newErrors, previousError)) return;
-          previousError = error;
-
-          this.hasOperationDataChanged = true;
-          this.data = assign(this.data, { error, loading });
-          this.forceRenderChildren();
-
-        });
       }
 
       subscribeToQuery(props): boolean {
@@ -408,11 +370,10 @@ export default function graphql(
             stopPolling,
             oldData = {};
 
-        const next = ({ data = oldData/*, loading */ }: any) => {
+        const next = ({ data = oldData, loading, error }: any) => {
 
           // XXX use passed loading after https://github.com/apollostack/apollo-client/pull/467
           const { queryId } = observableQuery;
-          const loading = this.store.getState()[reduxRootKey].queries[queryId].loading;
           const currentVariables = this.store.getState()[reduxRootKey].queries[queryId].variables;
           const resultKeyConflict: boolean = (
             'errors' in data ||
@@ -444,6 +405,7 @@ export default function graphql(
             startPolling,
             stopPolling,
             fetchMore,
+            error,
           }, data);
 
           this.forceRenderChildren();
@@ -471,6 +433,10 @@ export default function graphql(
 
         this.queryObservable = observableQuery;
 
+        const handleError = (error) => {
+          if (error instanceof ApolloError) return next({ error });
+          throw error;
+        };
         /*
 
           Since `setState()` can throw an error if the child had a render error,
@@ -479,7 +445,7 @@ export default function graphql(
 
           Instead, we subscribe to the store for network errors and re-render that way
         */
-        this.querySubscription = observableQuery.subscribe({ next });
+        this.querySubscription = observableQuery.subscribe({ next, error: handleError });
 
         refetch = createBoundRefetch((this.queryObservable as any).refetch);
         fetchMore = createBoundRefetch((this.queryObservable as any).fetchMore);

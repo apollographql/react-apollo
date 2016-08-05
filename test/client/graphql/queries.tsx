@@ -5,6 +5,7 @@ import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
+import { ApolloError } from 'apollo-client/errors';
 
 declare function require(name: string);
 import chaiEnzyme = require('chai-enzyme');
@@ -34,7 +35,8 @@ describe('queries', () => {
       return null;
     });
 
-    mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    (wrapper as any).unmount();
   });
 
   it('includes the variables in the props', () => {
@@ -143,24 +145,25 @@ describe('queries', () => {
     } catch (e) { done(e); }
   });
 
-  // it('passes any GraphQL errors in props', (done) => {
-  //   const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-  //   const networkInterface = mockNetworkInterface({ request: { query }, error: new Error('boo') });
-  //   const client = new ApolloClient({ networkInterface });
+  it('passes any GraphQL errors in props', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const networkInterface = mockNetworkInterface({ request: { query }, error: new Error('boo') });
+    const client = new ApolloClient({ networkInterface });
 
-  //   @graphql(query)
-  //   class ErrorContainer extends React.Component<any, any> {
-  //     componentWillReceiveProps({ people }) {
-  //       expect(people.error).to.exist;
-  //       done();
-  //     }
-  //     render() {
-  //       return null;
-  //     }
-  //   };
+    @graphql(query)
+    class ErrorContainer extends React.Component<any, any> {
+      componentWillReceiveProps({ people }) {
+        expect(people.error).to.exist;
+        expect(people.error).instanceof(ApolloError);
+        done();
+      }
+      render() {
+        return null;
+      }
+    };
 
-  //   mount(<ProviderMock client={client}><ErrorContainer /></ProviderMock>);
-  // });
+    mount(<ProviderMock client={client}><ErrorContainer /></ProviderMock>);
+  });
 
   it('maps props as variables if they match', (done) => {
     const query = gql`
@@ -536,7 +539,7 @@ describe('queries', () => {
                 people: prev.allPeople.people.concat(fetchMoreResult.data.allPeople.people),
               },
             }),
-          })
+          });
           // XXX add a test for the result here when #508 is merged and released
         } else if (count === 1) {
           expect(people.loading).to.be.true;
@@ -731,7 +734,8 @@ describe('queries', () => {
       return null;
     });
 
-    mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    (wrapper as any).unmount();
   });
 
   it('allows custom mapping of a result to props', (done) => {

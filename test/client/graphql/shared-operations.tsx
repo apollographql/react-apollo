@@ -70,7 +70,8 @@ describe('shared opertations', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = mount(<ProviderMock client={client} ><ContainerWithData /></ProviderMock>);
+    (wrapper as any).unmount();
   });
 
   it('binds two queries to props with different syntax', () => {
@@ -100,7 +101,8 @@ describe('shared opertations', () => {
       return null;
     }));
 
-    mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    (wrapper as any).unmount();
   });
 
   it('binds two operations to props', () => {
@@ -132,7 +134,8 @@ describe('shared opertations', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    (wrapper as any).unmount();
   });
 
 });
