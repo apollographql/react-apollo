@@ -143,24 +143,24 @@ describe('queries', () => {
     } catch (e) { done(e); }
   });
 
-  // // it('passes any GraphQL errors in props', (done) => {
-  // //   const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-  // //   const networkInterface = mockNetworkInterface({ request: { query }, error: new Error('boo') });
-  // //   const client = new ApolloClient({ networkInterface });
+  // it('passes any GraphQL errors in props', (done) => {
+  //   const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+  //   const networkInterface = mockNetworkInterface({ request: { query }, error: new Error('boo') });
+  //   const client = new ApolloClient({ networkInterface });
 
-  // //   @graphql(query)
-  // //   class ErrorContainer extends React.Component<any, any> {
-  // //     componentWillReceiveProps({ people }) {
-  // //       expect(people.error).to.exist;
-  // //       done();
-  // //     }
-  // //     render() {
-  // //       return null;
-  // //     }
-  // //   };
+  //   @graphql(query)
+  //   class ErrorContainer extends React.Component<any, any> {
+  //     componentWillReceiveProps({ people }) {
+  //       expect(people.error).to.exist;
+  //       done();
+  //     }
+  //     render() {
+  //       return null;
+  //     }
+  //   };
 
-  // //   mount(<ProviderMock client={client}><ErrorContainer /></ProviderMock>);
-  // // });
+  //   mount(<ProviderMock client={client}><ErrorContainer /></ProviderMock>);
+  // });
 
   it('maps props as variables if they match', (done) => {
     const query = gql`
@@ -181,6 +181,7 @@ describe('queries', () => {
       componentWillReceiveProps(props) {
         expect(props.people.loading).to.be.false;
         expect(props.people.allPeople).to.deep.equal(data.allPeople);
+        expect(props.people.variables).to.deep.equal(this.props.people.variables);
         done();
       }
       render() {
