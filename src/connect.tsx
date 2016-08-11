@@ -368,9 +368,12 @@ export default function connect(opts?: ConnectOptions) {
               .then((result) => {
                 const { data } = result;
 
-                if (isEqual(data, previousRequest)) {
+                // If there is new data, we can rely on the observer to trigger an update.  But if
+                // the data has not changed, we need to be careful to update state ourselves.
+                if (isEqual(data, previousRequest) || this.data[dataKey].errors) {
                   this.data[dataKey] = assign(this.data[dataKey], {
                     loading: false,
+                    errors: null,
                   });
                   this.hasQueryDataChanged = true;
 
@@ -378,6 +381,7 @@ export default function connect(opts?: ConnectOptions) {
                     this.forceRenderChildren();
                   }
                 }
+
                 previousRequest = assign({}, data);
                 return result;
               });
@@ -429,6 +433,7 @@ export default function connect(opts?: ConnectOptions) {
 
           this.data[key] = assign({
             loading: false,
+            errors,
             refetch, // copy over refetch method
             startPolling,
             stopPolling,
