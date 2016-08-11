@@ -265,7 +265,7 @@ describe('queries', () => {
       return {};
     };
 
-    const Container = graphql(query, mapPropsToOptions)((props) => null);
+    const Container = graphql(query, { mapPropsToOptions })((props) => null);
 
     class ChangingProps extends React.Component<any, any> {
       state = { listId: 1 };
@@ -292,7 +292,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     let queryExecuted;
-    @graphql(query, () => ({ skip: true }))
+    @graphql(query, { mapPropsToOptions: () => ({ skip: true }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         queryExecuted = true;
@@ -331,7 +331,9 @@ describe('queries', () => {
 
     const client = new ApolloClient({ networkInterface });
 
-    @graphql(query, (props) => ({ variables: props, returnPartialData: count === 0 }))
+    @graphql(query, {
+      mapPropsToOptions: (props) => ({ variables: props, returnPartialData: count === 0 }),
+    })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ people }) {
         // loading is true, but data still there
@@ -387,7 +389,7 @@ describe('queries', () => {
 
     const client = new ApolloClient({ networkInterface });
 
-    @graphql(query, (props) => ({ variables: props }))
+    @graphql(query, { mapPropsToOptions: (props) => ({ variables: props }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ people }) {
         // loading is true, but data still there
@@ -526,7 +528,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     let count = 0;
-    @graphql(query, () => ({ variables }))
+    @graphql(query, { mapPropsToOptions: () => ({ variables }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ people }) {
         if (count === 0) {
@@ -708,7 +710,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     let count = 0;
-    const Container = graphql(query, () => ({ pollInterval: 75 }))(() => {
+    const Container = graphql(query, { mapPropsToOptions: () => ({ pollInterval: 75 }) })(() => {
       count++;
       return null;
     });
@@ -729,7 +731,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     const mapResultToProps = ({ loading }) => ({ showSpinner: loading });
-    const ContainerWithData = graphql(query, null, mapResultToProps)(({ showSpinner }) => {
+    const ContainerWithData = graphql(query, { mapResultToProps })(({ showSpinner }) => {
       expect(showSpinner).to.be.true;
       return null;
     });
@@ -746,7 +748,7 @@ describe('queries', () => {
 
     const mapResultToProps = ({ getThing }) => ({ thingy: getThing });
 
-    @graphql(query, null, mapResultToProps)
+    @graphql(query, { mapResultToProps })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.thingy).to.deep.equal(data.getThing);

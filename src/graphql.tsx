@@ -122,14 +122,18 @@ export function withApollo(WrappedComponent) {
   return hoistNonReactStatics(WithApollo, WrappedComponent);
 };
 
+export interface OperationOption {
+  mapPropsToOptions?: (props: any) => QueryOptions | MutationOptions;
+  mapResultToProps?: (props: any) => any;
+}
+
 export default function graphql(
   document: Document,
-  mapPropsToOptions: (props: any) => QueryOptions | MutationOptions = defaultMapPropsToOptions,
-  mapResultToProps?: (props: any) => any
+  operationOptions: OperationOption = {}
 ) {
 
-  // handle null case
-  if (!mapPropsToOptions) mapPropsToOptions = defaultMapPropsToOptions;
+  // extract options
+  const { mapPropsToOptions = defaultMapPropsToOptions, mapResultToProps } = operationOptions;
 
   // safety check on the operation
   const operation = parser(document);
@@ -470,16 +474,22 @@ export default function graphql(
         if (this.type !== DocumentType.Mutation) return;
 
         // XXX do we want to do any loading state stuff here?
-        this.data = (variables) => {
-          const opts = mapPropsToOptions(props) as any;
+        this.data = (opts: MutationOptions) => {
+          const original = mapPropsToOptions(props);
 
           // merge variables
-          if (variables) opts.variables = assign({}, opts.variables, variables);
+          if (original.variables) {
+            original.variables = assign({}, original.variables, opts.variables);
+          }
 
-          opts.mutation = document;
-          if (!opts.variables && !variables) opts.variables = this.calculateVariables(props);
+          opts = assign({}, original, opts);
+          if (!original.variables && !opts.variables) {
+            opts.variables = this.calculateVariables(props);
+          }
           if (typeof opts.variables === 'undefined') delete opts.variables;
-          return this.client.mutate(opts);
+
+          (opts as any).mutation = document;
+          return this.client.mutate((opts as any));
         };
 
         if (!reRender) return;

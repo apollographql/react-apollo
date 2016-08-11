@@ -181,7 +181,7 @@ describe('mutations', () => {
       return {};
     };
 
-    @graphql(query, mapPropsToOptions)
+    @graphql(query, { mapPropsToOptions })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (props.listId !== 2) return;
@@ -223,7 +223,7 @@ describe('mutations', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
-        this.props.addPerson({ id: 1 })
+        this.props.addPerson({ variables: { id: 1 } })
           .then(result => {
             expect(result.data).to.deep.equal(data);
             done();
@@ -256,23 +256,22 @@ describe('mutations', () => {
       },
     };
 
-    const optimisticResponse = {
-      __typename: 'Mutation',
-      createTodo: {
-        __typename: 'Todo',
-        id: '99',
-        text: 'Optimistically generated',
-        completed: true,
-      },
-    };
-
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    @graphql(query, () => ({ optimisticResponse }))
+    @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
-        this.props.createTodo()
+        const optimisticResponse = {
+          __typename: 'Mutation',
+          createTodo: {
+            __typename: 'Todo',
+            id: '99',
+            text: 'Optimistically generated',
+            completed: true,
+          },
+        };
+        this.props.createTodo({ optimisticResponse })
           .then(result => {
             expect(result.data).to.deep.equal(data);
             done();
@@ -352,7 +351,7 @@ describe('mutations', () => {
 
     let count = 0;
     @graphql(query)
-    @graphql(mutation, () => ({ optimisticResponse, updateQueries }))
+    @graphql(mutation, { mapPropsToOptions: () => ({ optimisticResponse, updateQueries }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (!props.todos.todo_list) return;
