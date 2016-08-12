@@ -21,7 +21,7 @@ declare interface QueryTreeArgument {
 export function getPropsFromChild(child) {
   const { props, type } = child;
   let ownProps = assign({}, props);
-  if (type && type.defaultProps) ownProps = assign(type.defaultProps, props);
+  if (type && type.defaultProps) ownProps = assign({}, type.defaultProps, props);
   return ownProps;
 }
 
