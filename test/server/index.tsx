@@ -94,7 +94,7 @@ describe('SSR', () => {
       );
       const apolloClient = new ApolloClient({ networkInterface });
 
-      const Element = graphql(query)(({ user }) => (
+      const Element = graphql(query, { name: 'user' })(({ user }) => (
         <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
       ));
 
@@ -121,6 +121,7 @@ describe('SSR', () => {
       const apolloClient = new ApolloClient({ networkInterface });
 
       const Element = graphql(query, {
+        name: 'user',
         options: (props) => ({ variables: props, ssr: false })
       })(({ user }) => (
         <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>

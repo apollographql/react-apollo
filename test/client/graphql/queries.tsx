@@ -29,9 +29,9 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const ContainerWithData =  graphql(query)(({ people }) => {
-      expect(people).to.exist;
-      expect(people.loading).to.be.true;
+    const ContainerWithData =  graphql(query)(({ data }) => { // tslint:disable-line
+      expect(data).to.exist;
+      expect(data.loading).to.be.true;
       return null;
     });
 
@@ -48,9 +48,9 @@ describe('queries', () => {
     );
     const client = new ApolloClient({ networkInterface });
 
-    const ContainerWithData =  graphql(query)(({ people }) => {
-      expect(people).to.exist;
-      expect(people.variables).to.deep.equal(variables);
+    const ContainerWithData =  graphql(query)(({ data }) => { // tslint:disable-line
+      expect(data).to.exist;
+      expect(data.variables).to.deep.equal(variables);
       return null;
     });
 
@@ -87,8 +87,8 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.people.loading).to.be.false;
-        expect(props.people.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.loading).to.be.false;
+        expect(props.data.allPeople).to.deep.equal(data.allPeople);
         done();
       }
       render() {
@@ -114,9 +114,9 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.people.loading).to.be.false;
-        expect(props.people.allPeople).to.deep.equal(data.allPeople);
-        expect(props.people.otherPeople).to.deep.equal(data.otherPeople);
+        expect(props.data.loading).to.be.false;
+        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.otherPeople).to.deep.equal(data.otherPeople);
         done();
       }
       render() {
@@ -152,9 +152,9 @@ describe('queries', () => {
 
     @graphql(query)
     class ErrorContainer extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
-        expect(people.error).to.exist;
-        expect(people.error).instanceof(ApolloError);
+      componentWillReceiveProps({ data }) { // tslint:disable-line
+        expect(data.error).to.exist;
+        expect(data.error).instanceof(ApolloError);
         done();
       }
       render() {
@@ -182,9 +182,9 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.people.loading).to.be.false;
-        expect(props.people.allPeople).to.deep.equal(data.allPeople);
-        expect(props.people.variables).to.deep.equal(this.props.people.variables);
+        expect(props.data.loading).to.be.false;
+        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.variables).to.deep.equal(this.props.data.variables);
         done();
       }
       render() {
@@ -212,8 +212,8 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.people.loading).to.be.false;
-        expect(props.people.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.loading).to.be.false;
+        expect(props.data.allPeople).to.deep.equal(data.allPeople);
         done();
       }
       render() {
@@ -335,13 +335,13 @@ describe('queries', () => {
       options: (props) => ({ variables: props, returnPartialData: count === 0 }),
     })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
+      componentWillReceiveProps({ data }) {
         // loading is true, but data still there
-        if (count === 1 && people.loading) {
-          expect(people.allPeople).to.deep.equal(data1.allPeople);
+        if (count === 1 && data.loading) {
+          expect(data.allPeople).to.deep.equal(data1.allPeople);
         }
-        if (count === 1 && !people.loading && this.props.people.loading) {
-          expect(people.allPeople).to.deep.equal(data2.allPeople);
+        if (count === 1 && !data.loading && this.props.data.loading) {
+          expect(data.allPeople).to.deep.equal(data2.allPeople);
           done();
         }
       }
@@ -391,13 +391,13 @@ describe('queries', () => {
 
     @graphql(query, { options: (props) => ({ variables: props }) })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
+      componentWillReceiveProps({ data }) {
         // loading is true, but data still there
-        if (count === 1 && people.loading) {
-          expect(people.allPeople).to.deep.equal(data1.allPeople);
+        if (count === 1 && data.loading) {
+          expect(data.allPeople).to.deep.equal(data1.allPeople);
         }
-        if (count === 1 && !people.loading && this.props.people.loading) {
-          expect(people.allPeople).to.deep.equal(data2.allPeople);
+        if (count === 1 && !data.loading && this.props.data.loading) {
+          expect(data.allPeople).to.deep.equal(data2.allPeople);
           done();
         }
       }
@@ -447,13 +447,13 @@ describe('queries', () => {
 
     @graphql(query)
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
+      componentWillReceiveProps({ data }) {
         // loading is true, but data still there
-        if (count === 1 && people.loading) {
-          expect(people.allPeople).to.deep.equal(data1.allPeople);
+        if (count === 1 && data.loading) {
+          expect(data.allPeople).to.deep.equal(data1.allPeople);
         }
-        if (count === 1 && !people.loading && this.props.people.loading) {
-          expect(people.allPeople).to.deep.equal(data2.allPeople);
+        if (count === 1 && !data.loading && this.props.data.loading) {
+          expect(data.allPeople).to.deep.equal(data2.allPeople);
           done();
         }
       }
@@ -482,24 +482,24 @@ describe('queries', () => {
 
   it('exposes refetch as part of the props api', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface(
-      { request: { query }, result: { data } },
-      { request: { query }, result: { data } }
+      { request: { query }, result: { data: data1 } },
+      { request: { query }, result: { data: data1 } }
     );
     const client = new ApolloClient({ networkInterface });
 
     let hasRefetched;
     @graphql(query)
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
+      componentWillReceiveProps({ data }) { // tslint:disable-line
         if (hasRefetched) return;
         hasRefetched = true;
-        expect(people.refetch).to.be.exist;
-        expect(people.refetch).to.be.instanceof(Function);
-        people.refetch()
+        expect(data.refetch).to.be.exist;
+        expect(data.refetch).to.be.instanceof(Function);
+        data.refetch()
           .then(result => {
-            expect(result.data).to.deep.equal(data);
+            expect(result.data).to.deep.equal(data1);
             done();
           })
           .catch(done);
@@ -530,11 +530,11 @@ describe('queries', () => {
     let count = 0;
     @graphql(query, { options: () => ({ variables }) })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
+      componentWillReceiveProps(props) {
         if (count === 0) {
-          expect(people.fetchMore).to.be.exist;
-          expect(people.fetchMore).to.be.instanceof(Function);
-          people.fetchMore({
+          expect(props.data.fetchMore).to.be.exist;
+          expect(props.data.fetchMore).to.be.instanceof(Function);
+          props.data.fetchMore({
             variables: variables2,
             updateQuery: (prev, { fetchMoreResult }) => ({
               allPeople: {
@@ -544,11 +544,11 @@ describe('queries', () => {
           });
           // XXX add a test for the result here when #508 is merged and released
         } else if (count === 1) {
-          expect(people.loading).to.be.true;
-          expect(people.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).to.be.true;
+          expect(props.data.allPeople).to.deep.equal(data.allPeople);
         } else if (count === 2) {
-          expect(people.loading).to.be.false;
-          expect(people.allPeople.people).to.deep.equal(
+          expect(props.data.loading).to.be.false;
+          expect(props.data.allPeople.people).to.deep.equal(
             data.allPeople.people.concat(data1.allPeople.people)
           );
           done();
@@ -573,10 +573,10 @@ describe('queries', () => {
 
     @graphql(query)
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
-        expect(people.stopPolling).to.be.exist;
-        expect(people.stopPolling).to.be.instanceof(Function);
-        expect(people.stopPolling).to.not.throw;
+      componentWillReceiveProps({ data }) { // tslint:disable-line
+        expect(data.stopPolling).to.be.exist;
+        expect(data.stopPolling).to.be.instanceof(Function);
+        expect(data.stopPolling).to.not.throw;
         done();
       }
       render() {
@@ -595,10 +595,10 @@ describe('queries', () => {
 
     @graphql(query)
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
-        expect(people.startPolling).to.be.exist;
-        expect(people.startPolling).to.be.instanceof(Function);
-        expect(people.startPolling).to.not.throw;
+      componentWillReceiveProps({ data }) { // tslint:disable-line
+        expect(data.startPolling).to.be.exist;
+        expect(data.startPolling).to.be.instanceof(Function);
+        expect(data.startPolling).to.not.throw;
         done();
       }
       render() {
@@ -624,11 +624,11 @@ describe('queries', () => {
     let refetched;
     @graphql(query)
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
+      componentWillReceiveProps(props) {
         // get new data with no more loading state
         if (refetched) {
-          expect(people.loading).to.be.false;
-          expect(people.allPeople).to.deep.equal(data2.allPeople);
+          expect(props.data.loading).to.be.false;
+          expect(props.data.allPeople).to.deep.equal(data2.allPeople);
           done();
           return;
         }
@@ -637,14 +637,14 @@ describe('queries', () => {
         if (isRefectching) {
           isRefectching = false;
           refetched = true;
-          expect(people.loading).to.be.true;
-          expect(people.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).to.be.true;
+          expect(props.data.allPeople).to.deep.equal(data.allPeople);
           return;
         }
 
         if (!isRefectching) {
           isRefectching = true;
-          people.refetch();
+          props.data.refetch();
         }
       }
       render() {
@@ -667,11 +667,11 @@ describe('queries', () => {
     let refetched;
     @graphql(query)
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ people }) {
+      componentWillReceiveProps(props) {
         // get new data with no more loading state
         if (refetched) {
-          expect(people.loading).to.be.false;
-          expect(people.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).to.be.false;
+          expect(props.data.allPeople).to.deep.equal(data.allPeople);
           d();
           return;
         }
@@ -680,14 +680,14 @@ describe('queries', () => {
         if (isRefectching) {
           isRefectching = false;
           refetched = true;
-          expect(people.loading).to.be.true;
-          expect(people.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).to.be.true;
+          expect(props.data.allPeople).to.deep.equal(data.allPeople);
           return;
         }
 
         if (!isRefectching) {
           isRefectching = true;
-          people.refetch();
+          props.data.refetch();
         }
       }
       render() {
@@ -730,7 +730,7 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const props = ({ loading }) => ({ showSpinner: loading });
+    const props = ({ data }) => ({ showSpinner: data.loading });
     const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
       expect(showSpinner).to.be.true;
       return null;
@@ -746,9 +746,9 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const props = ({ loading, ownProps }) => {
+    const props = ({ data, ownProps }) => {
       expect(ownProps.sample).to.equal(1);
-      return { showSpinner: loading };
+      return { showSpinner: data.loading };
     };
     const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
       expect(showSpinner).to.be.true;
@@ -767,9 +767,7 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const props = ({ getThing }) => ({ thingy: getThing });
-
-    @graphql(query, { props })
+    @graphql(query, { props: ({ data }) => ({ thingy: data.getThing }) }) // tslint:disable-line
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.thingy).to.deep.equal(data.getThing);

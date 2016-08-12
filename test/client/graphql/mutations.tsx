@@ -29,9 +29,9 @@ describe('mutations', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const ContainerWithData =  graphql(query)(({ addPerson }) => {
-      expect(addPerson).to.exist;
-      expect(addPerson).to.be.instanceof(Function);
+    const ContainerWithData =  graphql(query)(({ mutate }) => {
+      expect(mutate).to.exist;
+      expect(mutate).to.be.instanceof(Function);
       return null;
     });
 
@@ -87,7 +87,7 @@ describe('mutations', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
-        this.props.addPerson()
+        this.props.mutate()
           .then(result => {
             expect(result.data).to.deep.equal(data);
             done();
@@ -119,7 +119,7 @@ describe('mutations', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
-        this.props.addPerson()
+        this.props.mutate()
           .then(result => {
             expect(result.data).to.deep.equal(data);
             done();
@@ -151,7 +151,7 @@ describe('mutations', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
-        this.props.addPerson()
+        this.props.mutate()
           .then(result => {
             expect(result.data).to.deep.equal(data);
             done();
@@ -204,7 +204,7 @@ describe('mutations', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (props.listId !== 2) return;
-        props.addPerson().then(x => done()).catch(done);
+        props.mutate().then(x => done()).catch(done);
       }
       render() {
         return null;
@@ -242,7 +242,7 @@ describe('mutations', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
-        this.props.addPerson({ variables: { id: 1 } })
+        this.props.mutate({ variables: { id: 1 } })
           .then(result => {
             expect(result.data).to.deep.equal(data);
             done();
@@ -290,7 +290,7 @@ describe('mutations', () => {
             completed: true,
           },
         };
-        this.props.createTodo({ optimisticResponse })
+        this.props.mutate({ optimisticResponse })
           .then(result => {
             expect(result.data).to.deep.equal(data);
             done();
@@ -373,9 +373,9 @@ describe('mutations', () => {
     @graphql(mutation, { options: () => ({ optimisticResponse, updateQueries }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        if (!props.todos.todo_list) return;
-        if (!props.todos.todo_list.tasks.length) {
-          props.createTodo()
+        if (!props.data.todo_list) return;
+        if (!props.data.todo_list.tasks.length) {
+          props.mutate()
             .then(result => {
               expect(result.data).to.deep.equal(mutationData);
             })
@@ -390,9 +390,9 @@ describe('mutations', () => {
 
         if (count === 0) {
           count ++;
-          expect(props.todos.todo_list.tasks).to.deep.equal([optimisticResponse.createTodo]);
+          expect(props.data.todo_list.tasks).to.deep.equal([optimisticResponse.createTodo]);
         } else if (count === 1) {
-          expect(props.todos.todo_list.tasks).to.deep.equal([mutationData.createTodo]);
+          expect(props.data.todo_list.tasks).to.deep.equal([mutationData.createTodo]);
           done();
         }
       }

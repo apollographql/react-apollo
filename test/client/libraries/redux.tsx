@@ -67,8 +67,8 @@ describe('redux integration', () => {
       componentWillReceiveProps(nextProps) {
         if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
         if (nextProps.first === 2) {
-          if (nextProps.people.loading) return;
-          expect(nextProps.people.allPeople).to.deep.equal(data2.allPeople);
+          if (nextProps.data.loading) return;
+          expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
           done();
         }
       }

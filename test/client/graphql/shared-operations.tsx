@@ -53,8 +53,8 @@ describe('shared opertations', () => {
     );
     const client = new ApolloClient({ networkInterface });
 
-    const withPeople = graphql(peopleQuery);
-    const withShips = graphql(shipsQuery);
+    const withPeople = graphql(peopleQuery, { name: 'people' });
+    const withShips = graphql(shipsQuery, { name: 'ships' });
 
     @withPeople
     @withShips
@@ -88,8 +88,8 @@ describe('shared opertations', () => {
     );
     const client = new ApolloClient({ networkInterface });
 
-    const withPeople = graphql(peopleQuery);
-    const withShips = graphql(shipsQuery);
+    const withPeople = graphql(peopleQuery, { name: 'people' });
+    const withShips = graphql(shipsQuery, { name: 'ships' });
 
     const ContainerWithData = withPeople(withShips((props) => {
       const { people, ships } = props;
@@ -118,8 +118,8 @@ describe('shared opertations', () => {
     );
     const client = new ApolloClient({ networkInterface });
 
-    const withPeople = graphql(peopleQuery);
-    const withPeopleMutation = graphql(peopleMutation);
+    const withPeople = graphql(peopleQuery, { name: 'people' });
+    const withPeopleMutation = graphql(peopleMutation, { name: 'addPerson' });
 
     @withPeople
     @withPeopleMutation
