@@ -12,13 +12,13 @@ import chaiEnzyme = require('chai-enzyme');
 chai.use(chaiEnzyme()); // Note the invocation at the end
 const { expect } = chai;
 
-import mockNetworkInterface from '../../mocks/mockNetworkInterface';
+import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 import {
   // Passthrough,
   ProviderMock,
-} from '../../mocks/components';
+} from '../../../mocks/components';
 
-import graphql, { withApollo } from '../../../src/graphql';
+import graphql, { withApollo } from '../../../../src/graphql';
 
 describe('shared opertations', () => {
 

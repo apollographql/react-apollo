@@ -16,11 +16,11 @@ const { expect } = chai;
 
 import {
   ProviderMock,
-} from '../../mocks/components';
-import mockNetworkInterface from '../../mocks/mockNetworkInterface';
+} from '../../../mocks/components';
+import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 
 
-import graphql from '../../../src/graphql';
+import graphql from '../../../../src/graphql';
 
 describe('mobx integration', () => {
 

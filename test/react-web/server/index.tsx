@@ -2,12 +2,12 @@ import * as chai from 'chai';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { graphql, ApolloProvider } from '../../src';
-import { getDataFromTree, renderToStringWithData } from '../../src/server';
+import { graphql, ApolloProvider } from '../../../src';
+import { getDataFromTree, renderToStringWithData } from '../../../src/server';
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 
-import mockNetworkInterface from '../mocks/mockNetworkInterface';
+import mockNetworkInterface from '../../mocks/mockNetworkInterface';
 
 const { expect } = chai;
 

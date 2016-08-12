@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 
 const { expect } = chai;
 
-import graphql from '../../../src/graphql';
+import graphql from '../../../../src/graphql';
 
 let sampleOperation = gql`{ user { name } }`;
 

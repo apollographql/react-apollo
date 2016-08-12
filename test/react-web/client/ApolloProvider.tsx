@@ -13,7 +13,7 @@ const { expect } = chai;
 
 import ApolloClient from 'apollo-client';
 
-import ApolloProvider  from '../../src/ApolloProvider';
+import ApolloProvider  from '../../../src/ApolloProvider';
 
 interface ChildContext {
   store: Object;
@@ -54,12 +54,12 @@ describe('<ApolloProvider /> Component', () => {
         <ApolloProvider client={undefined}>
           <div className='unique'/>
         </ApolloProvider>
-      )
+      );
     }).to.throw(
       'ApolloClient was not passed a client instance. Make ' +
       'sure you pass in your client via the "client" prop.'
     );
-  })
+  });
 
   it('should not require a store', () => {
     const wrapper = shallow(

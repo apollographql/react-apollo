@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npm run compile",
-    "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test",
+    "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test && jest",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=15",
     "compile": "tsc",
@@ -30,6 +30,20 @@
     "react"
   ],
   "author": "James Baxley <james.baxley@newspring.cc>",
+  "babel": {
+    "presets": [
+      "react-native"
+    ]
+  },
+  "jest": {
+    "preset": "jest-react-native",
+    "unmockedModulePathPatterns": [
+      "./node_modules/react/",
+      "./node_modules/react-dom/",
+      "./node_modules/react-test-renderer/",
+      "./node_modules/react-addons-test-utils/"
+    ]
+  },
   "license": "MIT",
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0-rc",
@@ -38,6 +52,8 @@
   },
   "devDependencies": {
     "apollo-client": "^0.4.0",
+    "babel-jest": "^14.1.0",
+    "babel-preset-react-native": "^1.9.0",
     "browserify": "^13.0.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
@@ -50,6 +66,8 @@
     "gzip-size": "^3.0.0",
     "isomorphic-fetch": "^2.2.1",
     "istanbul": "^0.4.2",
+    "jest": "^14.1.0",
+    "jest-react-native": "^14.1.2",
     "jsdom": "^8.3.1",
     "minimist": "^1.2.0",
     "mobx": "^2.4.2",
@@ -59,7 +77,9 @@
     "react": "^15.0.1",
     "react-addons-test-utils": "^15.0.1",
     "react-dom": "^15.1.0",
+    "react-native": "^0.30.0",
     "react-redux": "^4.4.5",
+    "react-test-renderer": "^15.3.0",
     "redux": "^3.5.2",
     "remap-istanbul": "^0.5.1",
     "source-map-support": "^0.4.0",
