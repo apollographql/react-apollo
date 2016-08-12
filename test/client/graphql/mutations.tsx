@@ -38,6 +38,25 @@ describe('mutations', () => {
     mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
   });
 
+  it('binds a mutation to custom props', () => {
+    const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    const props = ({ ownProps, addPerson }) => ({
+      [ownProps.methodName]: (name: string) => addPerson({ variables: { name }}),
+    });
+
+    const ContainerWithData =  graphql(query, { props })(({ test }) => {
+      expect(test).to.exist;
+      expect(test).to.be.instanceof(Function);
+      return null;
+    });
+
+    mount(<ProviderMock client={client}><ContainerWithData methodName="test" /></ProviderMock>);
+  });
+
   it('does not swallow children errors', (done) => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
@@ -170,18 +189,18 @@ describe('mutations', () => {
 
   });
 
-  it('rebuilds the mutation on prop change when using `mapPropsToOptions`', (done) => {
+  it('rebuilds the mutation on prop change when using `options`', (done) => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    function mapPropsToOptions(props) {
+    function options(props) {
       expect(props.listId).to.equal(2);
       return {};
     };
 
-    @graphql(query, { mapPropsToOptions })
+    @graphql(query, { options })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (props.listId !== 2) return;
@@ -351,7 +370,7 @@ describe('mutations', () => {
 
     let count = 0;
     @graphql(query)
-    @graphql(mutation, { mapPropsToOptions: () => ({ optimisticResponse, updateQueries }) })
+    @graphql(mutation, { options: () => ({ optimisticResponse, updateQueries }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (!props.todos.todo_list) return;

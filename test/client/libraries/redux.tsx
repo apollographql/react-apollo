@@ -1,240 +1,88 @@
 
-// import * as React from 'react';
-// import * as chai from 'chai';
-// import { mount } from 'enzyme';
-// import { createStore, combineReducers, applyMiddleware } from 'redux';
-// import { connect as ReactReduxConnect } from 'react-redux';
+import * as React from 'react';
+import * as chai from 'chai';
+import { mount } from 'enzyme';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { connect } from 'react-redux';
 // import assign = require('object-assign');
+import gql from 'graphql-tag';
 
-// import ApolloClient from 'apollo-client';
+import ApolloClient from 'apollo-client';
 
-// declare function require(name: string);
-// import chaiEnzyme = require('chai-enzyme');
+declare function require(name: string);
+import chaiEnzyme = require('chai-enzyme');
 
-// chai.use(chaiEnzyme()); // Note the invocation at the end
-// const { expect } = chai;
+chai.use(chaiEnzyme()); // Note the invocation at the end
+const { expect } = chai;
 
-// import {
-//   Passthrough,
-//   ProviderMock,
-// } from '../../mocks/components';
+import {
+  ProviderMock,
+} from '../../mocks/components';
+import mockNetworkInterface from '../../mocks/mockNetworkInterface';
 
-// import connect from '../../../src/connect';
 
-// describe('redux integration', () => {
-//   it('should allow mapStateToProps', () => {
-//     const store = createStore(() => ({
-//       foo: 'bar',
-//       baz: 42,
-//       hello: 'world',
-//     }));
+import graphql from '../../../src/graphql';
 
-//     const mapStateToProps = ({ foo, baz }) => ({ foo, baz });
+describe('redux integration', () => {
 
-//     @ReactReduxConnect(mapStateToProps)
-//     class Container extends React.Component<any, any> {
-//       render() {
-//         return <Passthrough {...this.props} />;
-//       }
-//     };
+  it('updates child props on state change', (done) => {
+    const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const variables = { first: 1 };
 
-//     @connect({mapStateToProps})
-//     class ApolloContainer extends React.Component<any, any> {
-//       render() {
-//         return <Passthrough {...this.props} />;
-//       }
-//     };
+    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const variables2 = { first: 2 };
 
-//     const wrapper = mount(
-//       <ProviderMock store={store} client={{}}>
-//         <Container pass='through' baz={50} />
-//       </ProviderMock>
-//     );
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data } },
+      { request: { query, variables: variables2 }, result: { data: data2 } }
+    );
 
-//     const apolloWrapper = mount(
-//       <ProviderMock store={store} client={{}}>
-//         <ApolloContainer pass='through' baz={50} />
-//       </ProviderMock>
-//     );
+    const client = new ApolloClient({ networkInterface });
+    let wrapper;
 
-//     const reduxProps = assign({}, wrapper.find('span').props());
-//     const apolloProps = apolloWrapper.find('span').props();
+    function counter(state = 1, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1;
+        default:
+          return state;
+        }
+    }
 
-//     expect(reduxProps).to.deep.equal(apolloProps);
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
 
-//   });
+    const store = createStore(
+      combineReducers({
+        counter,
+        apollo: apolloReducer,
+      }),
+      applyMiddleware(client.middleware())
+    );
 
-//   it('updates child props on state change', (done) => {
+    @connect((state) => ({ first: state.counter }))
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(nextProps) {
+        if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
+        if (nextProps.first === 2) {
+          if (nextProps.people.loading) return;
+          expect(nextProps.people.allPeople).to.deep.equal(data2.allPeople);
+          done();
+        }
+      }
+      render() {
+        return null;
+      }
+    };
 
-//     const client = new ApolloClient();
-//     let wrapper;
+    wrapper = mount(
+      <ProviderMock store={store} client={client}>
+        <Container />
+      </ProviderMock>
+    ) as any;
 
-//     function mapStateToProps(state) {
-//       return {
-//         cntr: state.counter + 1
-//       }
-//     }
+  });
 
-//     function counter(state = 1, action) {
-//       switch (action.type) {
-//         case 'INCREMENT':
-//           return state + 1
-//         default:
-//           return state
-//         }
-//     }
-
-//     // Typscript workaround
-//     const apolloReducer = client.reducer() as () => any;
-
-//     const store = createStore(
-//       combineReducers({
-//         counter,
-//         apollo: apolloReducer
-//       }),
-//       applyMiddleware(client.middleware())
-//     );
-
-//     let hasDispatched = false;
-//     @connect({ mapStateToProps })
-//     class Container extends React.Component<any, any> {
-//       componentWillMount() {
-//         this.props.dispatch({ type: 'INCREMENT' });
-//       }
-//       componentWillReceiveProps(nextProps) {
-//         expect(nextProps.cntr).to.equal(3);
-//         done();
-//       }
-//       render() {
-//         return <Passthrough {...this.props} />;
-//       }
-//     };
-
-//     wrapper = mount(
-//       <ProviderMock store={store} client={client}>
-//         <Container pass='through' baz={50} />
-//       </ProviderMock>
-//     ) as any;
-
-//   });
-
-//   it('should allow mapDispatchToProps', () => {
-//     function doSomething(thing) {
-//       return {
-//         type: 'APPEND',
-//         body: thing,
-//       };
-//     };
-
-//     const store = createStore(() => ({
-//       foo: 'bar',
-//       baz: 42,
-//       hello: 'world',
-//     }));
-
-//     const mapDispatchToProps = dispatch => ({
-//       doSomething: (whatever) => dispatch(doSomething(whatever)),
-//     });
-
-//     @ReactReduxConnect(null, mapDispatchToProps)
-//     class Container extends React.Component<any, any> {
-//       render() {
-//         return <Passthrough {...this.props} />;
-//       }
-//     };
-
-//     @connect({mapDispatchToProps})
-//     class ApolloContainer extends React.Component<any, any> {
-//       render() {
-//         return <Passthrough {...this.props} />;
-//       }
-//     };
-
-//     const wrapper = mount(
-//       <ProviderMock store={store} client={{}}>
-//         <Container pass='through' baz={50} />
-//       </ProviderMock>
-//     );
-
-//     const apolloWrapper = mount(
-//       <ProviderMock store={store} client={{}}>
-//         <ApolloContainer pass='through' baz={50} />
-//       </ProviderMock>
-//     );
-
-//     const reduxProps = assign({}, wrapper.find('span').props(), {
-//       query: () => {/* tslint  */},
-//       mutate: () => {/* tslint  */},
-//     }) as any;
-//     const apolloProps = apolloWrapper.find('span').props() as any;
-
-//     expect(reduxProps.doSomething()).to.deep.equal(apolloProps.doSomething());
-
-//   });
-
-//   it('should allow mergeProps', () => {
-//     function doSomething(thing) {
-//       return {
-//         type: 'APPEND',
-//         body: thing,
-//       };
-//     };
-
-//     const store = createStore(() => ({
-//       foo: 'bar',
-//       baz: 42,
-//       hello: 'world',
-//     }));
-
-//     const mapStateToProps = ({ foo, baz }) => ({ foo, baz });
-
-//     const mapDispatchToProps = dispatch => ({
-//       doSomething: (whatever) => dispatch(doSomething(whatever)),
-//     });
-
-//     const mergeProps = (stateProps, dispatchProps, ownProps) => {
-//       return {
-//         bar: stateProps.baz + 1,
-//         makeSomething: dispatchProps.doSomething,
-//         hallPass: ownProps.pass,
-//       };
-//     };
-
-//     @ReactReduxConnect(mapStateToProps, mapDispatchToProps, mergeProps)
-//     class Container extends React.Component<any, any> {
-//       render() {
-//         return <Passthrough {...this.props} />;
-//       }
-//     };
-
-//     @connect({mapStateToProps, mapDispatchToProps, mergeProps})
-//     class ApolloContainer extends React.Component<any, any> {
-//       render() {
-//         return <Passthrough {...this.props} />;
-//       }
-//     };
-
-//     const wrapper = mount(
-//       <ProviderMock store={store} client={{}}>
-//         <Container pass='through' baz={50} />
-//       </ProviderMock>
-//     );
-
-//     const apolloWrapper = mount(
-//       <ProviderMock store={store} client={{}}>
-//         <ApolloContainer pass='through' baz={50} />
-//       </ProviderMock>
-//     );
-
-//     const reduxProps = assign({}, wrapper.find('span').props(), {
-//       query: () => {/* tslint  */},
-//       mutate: () => {/* tslint  */},
-//     }) as any;
-//     const apolloProps = apolloWrapper.find('span').props() as any;
-
-//     expect(reduxProps.makeSomething()).to.deep.equal(apolloProps.makeSomething());
-//     expect(reduxProps.bar).to.equal(apolloProps.bar);
-//     expect(reduxProps.hallPass).to.equal(apolloProps.hallPass);
-
-//   });
-// });
+});

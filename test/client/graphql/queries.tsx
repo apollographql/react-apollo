@@ -247,7 +247,7 @@ describe('queries', () => {
 
   });
 
-  it('rebuilds the queries on prop change when using `mapPropsToOptions`', (done) => {
+  it('rebuilds the queries on prop change when using `options`', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -256,7 +256,7 @@ describe('queries', () => {
 
     let firstRun = true;
     let isDone = false;
-    function mapPropsToOptions(props) {
+    function options(props) {
       if (!firstRun) {
         expect(props.listId).to.equal(2);
         if (!isDone) done();
@@ -265,7 +265,7 @@ describe('queries', () => {
       return {};
     };
 
-    const Container = graphql(query, { mapPropsToOptions })((props) => null);
+    const Container = graphql(query, { options })((props) => null);
 
     class ChangingProps extends React.Component<any, any> {
       state = { listId: 1 };
@@ -292,7 +292,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     let queryExecuted;
-    @graphql(query, { mapPropsToOptions: () => ({ skip: true }) })
+    @graphql(query, { options: () => ({ skip: true }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         queryExecuted = true;
@@ -332,7 +332,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     @graphql(query, {
-      mapPropsToOptions: (props) => ({ variables: props, returnPartialData: count === 0 }),
+      options: (props) => ({ variables: props, returnPartialData: count === 0 }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ people }) {
@@ -389,7 +389,7 @@ describe('queries', () => {
 
     const client = new ApolloClient({ networkInterface });
 
-    @graphql(query, { mapPropsToOptions: (props) => ({ variables: props }) })
+    @graphql(query, { options: (props) => ({ variables: props }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ people }) {
         // loading is true, but data still there
@@ -528,7 +528,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     let count = 0;
-    @graphql(query, { mapPropsToOptions: () => ({ variables }) })
+    @graphql(query, { options: () => ({ variables }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ people }) {
         if (count === 0) {
@@ -710,7 +710,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     let count = 0;
-    const Container = graphql(query, { mapPropsToOptions: () => ({ pollInterval: 75 }) })(() => {
+    const Container = graphql(query, { options: () => ({ pollInterval: 75 }) })(() => {
       count++;
       return null;
     });
@@ -730,13 +730,34 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const mapResultToProps = ({ loading }) => ({ showSpinner: loading });
-    const ContainerWithData = graphql(query, { mapResultToProps })(({ showSpinner }) => {
+    const props = ({ loading }) => ({ showSpinner: loading });
+    const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
       expect(showSpinner).to.be.true;
       return null;
     });
 
     const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    (wrapper as any).unmount();
+  });
+
+  it('allows custom mapping of a result to props that includes the passed props', () => {
+    const query = gql`query thing { getThing { thing } }`;
+    const data = { getThing: { thing: true } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    const props = ({ loading, ownProps }) => {
+      expect(ownProps.sample).to.equal(1);
+      return { showSpinner: loading };
+    };
+    const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
+      expect(showSpinner).to.be.true;
+      return null;
+    });
+
+    const wrapper = mount(
+      <ProviderMock client={client}><ContainerWithData sample={1} /></ProviderMock>
+    );
     (wrapper as any).unmount();
   });
 
@@ -746,9 +767,9 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const mapResultToProps = ({ getThing }) => ({ thingy: getThing });
+    const props = ({ getThing }) => ({ thingy: getThing });
 
-    @graphql(query, { mapResultToProps })
+    @graphql(query, { props })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.thingy).to.deep.equal(data.getThing);

@@ -123,8 +123,8 @@ export function withApollo(WrappedComponent) {
 };
 
 export interface OperationOption {
-  mapPropsToOptions?: (props: any) => QueryOptions | MutationOptions;
-  mapResultToProps?: (props: any) => any;
+  options?: (props: any) => QueryOptions | MutationOptions;
+  props?: (props: any) => any;
 }
 
 export default function graphql(
@@ -133,7 +133,9 @@ export default function graphql(
 ) {
 
   // extract options
-  const { mapPropsToOptions = defaultMapPropsToOptions, mapResultToProps } = operationOptions;
+  const { options = defaultMapPropsToOptions } = operationOptions;
+  const mapPropsToOptions = options;
+  const mapResultToProps = operationOptions.props;
 
   // safety check on the operation
   const operation = parser(document);
@@ -280,7 +282,17 @@ export default function graphql(
       calculateVariables(props) { return calculateVariables(props); };
 
       calculateResultProps(result) {
-        if (mapResultToProps) return mapResultToProps(result);
+        if (mapResultToProps && this.type === DocumentType.Query) {
+          result.ownProps = this.props;
+          return mapResultToProps(result);
+        }
+
+        // mutations are originally a method on the operation name
+        if (mapResultToProps && this.type === DocumentType.Mutation) {
+          const newResult = { [operation.name]: result, ownProps: this.props };
+          return mapResultToProps(newResult);
+        }
+
         return { [operation.name]: defaultMapResultToProps(result) };
       }
 
