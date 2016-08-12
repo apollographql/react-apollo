@@ -1003,9 +1003,108 @@ describe('queries', () => {
     @connect({ mapQueriesToProps })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(nextProps) {
-
         if (hasRefetchedAndReturned) {
           expect(nextProps.people.loading).to.be.false;
+          done();
+          return;
+        }
+
+        if (hasRefetched) {
+          expect(nextProps.people.loading).to.be.true;
+          hasRefetchedAndReturned = true;
+          return;
+        }
+      }
+
+      componentDidUpdate(prevProps) {
+
+        if (prevProps.people.loading && !this.props.people.loading) {
+
+          if (hasRefetched) {
+            return;
+          }
+
+          hasRefetched = true;
+          this.props.people.refetch()
+          return;
+        }
+
+      }
+      render() {
+        return <Passthrough {...this.props} />;
+      }
+    };
+
+    mount(
+      <ProviderMock client={client}>
+        <Container />
+      </ProviderMock>
+    );
+  });
+
+  it('resets the loading state and reports errors after a failed refetch', (done) => {
+
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const result1 = {
+      data: {
+        people_one: {
+          name: 'Luke Skywalker',
+        },
+      },
+    };
+
+    const result2 = {
+      errors: [
+        {
+          name: 'PeopleError',
+          message: 'This is not the person you are looking for.',
+        },
+      ],
+    };
+
+    const networkInterface = mockNetworkInterface(
+      {
+        request: { query: query },
+        result: result1,
+      },
+      {
+        request: { query: query },
+        result: result2,
+      }
+    );
+
+    const client = new ApolloClient({
+      networkInterface,
+    });
+
+    function mapQueriesToProps() {
+      return {
+        people: { query },
+      };
+    };
+
+    let hasRefetched = false;
+    let hasRefetchedAndReturned = false;
+    @connect({ mapQueriesToProps })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(nextProps) {
+        if (hasRefetchedAndReturned) {
+          expect(nextProps.people.loading).to.be.false;
+          expect(nextProps.people.errors.graphQLErrors).to.deep.eq([
+            {
+              name: 'PeopleError',
+              message: 'This is not the person you are looking for.',
+            },
+          ]);
           done();
           return;
         }
