@@ -13,12 +13,18 @@ describe('parser', () => {
   //   expect(parser('{ user { name } }')).to.throw();
   // });
 
-  it('should error if fragments are included in the operation', () => {
-    const query = gql`fragment bookInfo on Book { name }`;
+  it('should dynamically create `FragmentDefinition` for included fragments', () => {
+    const query = gql`
+      fragment bookInfo on Book { name }
+      query getBook {
+        books {
+          ...bookInfo
+        }
+      }
+    `;
 
-    try { parser(query); } catch (e) {
-      expect(e).to.match(/Invariant Violation: Fragments/);
-    }
+    const parsed =  parser(query);
+    expect(parsed.fragments.length).to.equal(1);
   });
 
   it('should error if both a query and a mutation is present', () => {

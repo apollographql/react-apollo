@@ -60,7 +60,7 @@ export class MockNetworkInterface implements NetworkInterface {
       const key = requestToKey(parsedRequest);
 
       if (!this.mockedResponsesByKey[key]) {
-        throw new Error('No more mocked responses for the query: ' + request.query);
+        throw new Error('No more mocked responses for the query: ' + print(request.query));
       }
 
       const { result, error, delay } = this.mockedResponsesByKey[key].shift() || {} as any;
@@ -82,7 +82,6 @@ export class MockNetworkInterface implements NetworkInterface {
 
 function requestToKey(request: ParsedRequest): string {
   const queryString = request.query && print(request.query);
-
   return JSON.stringify({
     variables: request.variables,
     debugName: request.debugName,

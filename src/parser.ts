@@ -2,7 +2,10 @@ import {
   Document,
   VariableDefinition,
   OperationDefinition,
+  FragmentDefinition,
 } from 'graphql';
+
+import { createFragment } from 'apollo-client';
 
 import invariant = require('invariant');
 
@@ -15,6 +18,7 @@ export interface IDocumentDefinition {
   type: DocumentType;
   name: string;
   variables: VariableDefinition[];
+  fragments: FragmentDefinition[];
 }
 
 // the parser is mainly a safety check for the HOC
@@ -37,13 +41,10 @@ export function parser(document: Document): IDocumentDefinition {
     (x: OperationDefinition) => x.kind === 'FragmentDefinition'
   );
 
-  if (fragments.length) {
-    invariant(fragments.length === 0,
-      // tslint:disable-line
-      `Fragments should be passed to react-apollo as 'fragments' in the passed options. See http://docs.apollostack.com/apollo-client/fragments.html for more information about fragments when using apollo`
-    );
-  }
-
+  fragments = createFragment({
+    kind: 'Document',
+    definitions: [...fragments],
+  });
 
   queries = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'query'
@@ -52,6 +53,12 @@ export function parser(document: Document): IDocumentDefinition {
   mutations = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'mutation'
   );
+
+  if (fragments.length && (!queries.length || !mutations.length)) {
+    invariant(true,
+      `Passing only a fragment to 'graphql' is not yet supported. You must include a query or mutation as well`
+    );
+  }
 
   if (queries.length && mutations.length) {
     invariant((queries.length && mutations.length),
@@ -73,6 +80,6 @@ export function parser(document: Document): IDocumentDefinition {
   variables = definitions[0].variableDefinitions || [];
   let hasName = definitions[0].name && definitions[0].name.kind === 'Name';
   name = hasName ? definitions[0].name.value : 'data'; // fallback to using data if no name
-
-  return { name, type, variables };
+  fragments = fragments.length ? fragments : [];
+  return { name, type, variables, fragments };
 }

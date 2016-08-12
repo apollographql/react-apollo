@@ -6,8 +6,8 @@ import {
 } from 'react';
 
 // modules don't export ES6 modules
-// import isObject = require('lodash.isobject');
 import isEqual = require('lodash.isequal');
+import flatten = require('lodash.flatten');
 import shallowEqual from './shallowEqual';
 
 import invariant = require('invariant');
@@ -22,6 +22,10 @@ import {
 import ApolloClient, {
   readQueryFromStore,
 } from 'apollo-client';
+
+import {
+  createFragmentMap,
+} from 'apollo-client/queries/getFromAST';
 
 import {
   ApolloError,
@@ -55,7 +59,7 @@ import { parser, DocumentType } from './parser';
 export declare interface MutationOptions {
   variables?: Object;
   resultBehaviors?: MutationBehavior[];
-  fragments?: FragmentDefinition[];
+  fragments?: FragmentDefinition[] | FragmentDefinition[][];
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
 }
@@ -67,7 +71,7 @@ export declare interface QueryOptions {
   returnPartialData?: boolean;
   noFetch?: boolean;
   pollInterval?: number;
-  fragments?: FragmentDefinition[];
+  fragments?: FragmentDefinition[] | FragmentDefinition[][];
   skip?: boolean;
 }
 
@@ -148,6 +152,16 @@ export default function graphql(
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
+    function calculateFragments(opts) {
+      if (opts.fragments || operation.fragments.length) {
+        if (!opts.fragments) {
+          opts.fragments = flatten([...operation.fragments]);
+        } else {
+          opts.fragments = flatten([...opts.fragments, ...operation.fragments]);
+        }
+      }
+    }
+
     function calculateVariables(props) {
       const opts = mapPropsToOptions(props);
       if (opts.variables || !operation.variables.length) return opts.variables;
@@ -179,6 +193,7 @@ export default function graphql(
       if (opts.ssr === false) return false;
       if (!opts.variables) opts.variables = calculateVariables(props);
       if (!opts.variables) delete opts.variables;
+      calculateFragments(opts);
 
       // if this query is in the store, don't block execution
       try {
@@ -186,6 +201,7 @@ export default function graphql(
           store: client.store.getState()[client.reduxRootKey].data,
           query: opts.query,
           variables: opts.variables,
+          fragmentMap: createFragmentMap(opts.fragments),
         });
         return false;
       } catch (e) {/* tslint:disable-line */}
@@ -203,6 +219,9 @@ export default function graphql(
       };
       // for use with getData during SSR
       static fetchData = operation.type === DocumentType.Query ? fetchData : false;
+
+      // start of query composition
+      static fragments: FragmentDefinition[] = operation.fragments;
 
       // react / redux and react dev tools (HMR) needs
       public props: any; // passed props
@@ -353,6 +372,7 @@ export default function graphql(
         this.unsubscribeFromQuery();
 
         const queryOptions: WatchQueryOptions = assign({ query: document }, opts);
+        calculateFragments(queryOptions);
         const observableQuery = watchQuery(queryOptions);
         const { queryId } = observableQuery;
 
@@ -503,6 +523,7 @@ export default function graphql(
           if (typeof opts.variables === 'undefined') delete opts.variables;
 
           (opts as any).mutation = document;
+          calculateFragments(opts);
           return this.client.mutate((opts as any));
         };
 
