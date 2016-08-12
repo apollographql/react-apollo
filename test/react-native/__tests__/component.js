@@ -1,7 +1,11 @@
 // __tests__/Intro-test.js
 import 'react-native';
-import React from 'react';
-import Component from '../component';
+import React, { Component } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
 // import { mount, shallow } from 'enzyme';
 
 // Note: test renderer must be required after react-native.
@@ -20,22 +24,41 @@ describe('App', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const tree = renderer.create(
-      <ApolloProvider client={client}><Component /></ApolloProvider>
-    ).toJSON();
-    expect(tree).toMatchSnapshot();
+    const ContainerWithData = graphql(query)(({ data }) => {
+      if (data.loading) return <Text>Loading...</Text>
+      return <Text>{data.allPeople.people.name}</Text>;
+    });
+    const output = renderer.create(
+      <ApolloProvider client={client}><ContainerWithData /></ApolloProvider>
+    )
+    expect(output.toJSON()).toMatchSnapshot();
   });
 
-  // it('renders correctly with data', () => {
-  //   const ContainerWithData =  graphql(query)(({ data }) => { // tslint:disable-line
-  //     expect(data).to.exist;
-  //     expect(data.ownProps).to.not.exist;
-  //     expect(data.loading).to.be.true;
-  //     return null;
-  //   });
+  // XXX there appears to be a bug in testing apollo-client
+  // with jest and react-native. Need to debug more
+  // it('executes a query', (done) => {
+  //   const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+  //   const data = { allPeople: { people: { name: 'Luke Skywalker' } } };
+  //   const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+  //   const client = new ApolloClient({ networkInterface });
 
-  //   const wrapper = mount(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
-  //   wrapper.unmount();
+  //   class Container extends Component {
+  //     componentWillReceiveProps(props) {
+  //       expect(props.data.loading).toBeFalsy();
+  //       expect(props.data.allPeople.people.name).toEqual(data.allPeople.people.name);
+  //       done();
+  //     }
+  //     render() {
+  //       if (this.props.data.loading) return <Text>Loading...</Text>
+  //       return <Text>{this.props.data.allPeople.people.name}</Text>;
+  //     }
+  //   };
+
+  //   const ContainerWithData = graphql(query)(Container);
+
+  //   const output = renderer.create(
+  //     <ApolloProvider client={client}><ContainerWithData /></ApolloProvider>
+  //   )
   // });
 
 });
