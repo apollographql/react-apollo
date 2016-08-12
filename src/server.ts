@@ -103,7 +103,7 @@ export function renderToStringWithData(component) {
         for (let field of fieldsToNotShip)  delete initialState[key].queries[queryId][field];
       }
       initialState = encodeURI(JSON.stringify(initialState));
-      const payload = `<script>window.__APOLLO_STATE__ = ${initialState};</script>`;
+      const payload = `<script>window.__APOLLO_STATE__ = "${initialState}";</script>`;
       markup += payload;
       return markup;
     });

@@ -521,16 +521,6 @@ export default function graphql(
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        // dynmically get all of the methods from ApolloClient
-        for (let key in this.client) {
-          if (!this.client.hasOwnProperty(key)) continue;
-
-          // don't overwrite any spyed methods like refetch
-          if (typeof this.client[key] === 'function' && !mergedPropsAndData[key]) {
-            mergedPropsAndData[key] = this.client[key];
-          }
-        }
-
         if (!haveOwnPropsChanged && !hasOperationDataChanged && renderedElement) {
           return renderedElement;
         }
