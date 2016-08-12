@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
+import TestUtils = require('react-addons-test-utils');
 
 import ApolloClient from 'apollo-client';
 
@@ -136,6 +137,40 @@ describe('shared opertations', () => {
 
     const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
     (wrapper as any).unmount();
+  });
+
+  it('allows a way to access the wrapped component instance', () => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    const testData = { foo: 'bar' };
+
+    class Container extends React.Component<any, any> {
+      someMethod(){
+        return testData;
+      }
+
+      render() {
+        return <span></span>;
+      }
+    }
+
+    const Decorated = graphql(query, { withRef: true })(Container);
+
+    const tree = TestUtils.renderIntoDocument(
+      <ProviderMock client={client}>
+        <Decorated />
+      </ProviderMock>
+    ) as any;
+
+    const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
+
+      expect(() => (decorated as any).someMethod()).to.throw()
+      expect((decorated as any).getWrappedInstance().someMethod()).to.deep.equal(testData);
+      expect((decorated as any).refs.wrappedInstance.someMethod()).to.deep.equal(testData);
+
   });
 
 });

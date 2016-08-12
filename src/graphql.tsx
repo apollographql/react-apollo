@@ -126,6 +126,7 @@ export interface OperationOption {
   options?: (props: any) => QueryOptions | MutationOptions;
   props?: (props: any) => any;
   name?: string;
+  withRef?: boolean;
 }
 
 export default function graphql(
@@ -475,6 +476,11 @@ export default function graphql(
       }
 
       getWrappedInstance() {
+        invariant(operationOptions.withRef,
+          `To access the wrapped instance, you need to specify ` +
+          `{ withRef: true } in the options`
+        );
+
         return (this.refs as any).wrappedInstance;
       }
 
@@ -528,6 +534,8 @@ export default function graphql(
         if (!haveOwnPropsChanged && !hasOperationDataChanged && renderedElement) {
           return renderedElement;
         }
+
+        if (operationOptions.withRef) mergedPropsAndData.ref = 'wrappedInstance';
 
         this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);
         return this.renderedElement;
