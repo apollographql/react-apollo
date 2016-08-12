@@ -31,6 +31,7 @@ describe('queries', () => {
 
     const ContainerWithData =  graphql(query)(({ data }) => { // tslint:disable-line
       expect(data).to.exist;
+      expect(data.ownProps).to.not.exist;
       expect(data.loading).to.be.true;
       return null;
     });
