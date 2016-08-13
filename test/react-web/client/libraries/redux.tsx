@@ -86,7 +86,7 @@ describe('redux integration', () => {
 
   });
 
-  it('works with redux form', (done) => {
+  it('works with redux form to drive queries', (done) => {
     const query = gql`query people($name: String) { allPeople(name: $name) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const variables = { name: 'Luke' };
@@ -157,6 +157,71 @@ describe('redux integration', () => {
         target: { value: variables.name },
       });
     }, 100);
+
+  });
+
+  it('works with redux form to be prefilled by queries', (done) => {
+    const query = gql`query people($name: String) { allPeople(name: $name) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const variables = { name: 'Luke' };
+
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data } }
+    );
+
+    const client = new ApolloClient({ networkInterface });
+    let wrapper;
+
+    // Typscript workaround
+    const apolloReducer = client.reducer() as () => any;
+
+    const store = createStore(
+      combineReducers({
+        apollo: apolloReducer,
+        form: formReducer,
+      }),
+      applyMiddleware(client.middleware())
+    );
+
+    @graphql(query, { options: () => ({ variables }) })
+    @reduxForm({
+      form: 'contact',
+      fields: ['firstName'],
+    }, (state, ownProps) => ({
+      initialValues: {
+        firstName: ownProps.data.loading ? '' : ownProps.data.allPeople.people[0].name,
+      },
+    }))
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(nextProps) {
+        const { value, initialValue } = nextProps.fields.firstName;
+        if (!value) return;
+
+        expect(initialValue).to.equal(data.allPeople.people[0].name);
+        expect(value).to.equal(data.allPeople.people[0].name);
+
+        done();
+      }
+
+      render() {
+        const { fields: { firstName }, handleSubmit } = this.props;
+        return (
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label>First Name</label>
+              <input type='text' placeholder='First Name' {...firstName}/>
+            </div>
+            <button type='submit'>Submit</button>
+          </form>
+        );
+      }
+    };
+
+    mount(
+      <ProviderMock store={store} client={client}>
+        <Container />
+      </ProviderMock>
+    ) as any;
 
   });
 
