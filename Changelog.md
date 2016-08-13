@@ -2,6 +2,10 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+### v4.0.2
+
+- Bug: Fixed refetch methods when no result is returned
+
 ### v4.0.1
 
 - BREAKING Feature: [Brand new API! See the docs for more information](http://docs.apollostack.com/apollo-client/react.html);

@@ -459,7 +459,7 @@ export default function graphql(
           // XXX why doesn't apollo-client fire next on a refetch with the same data?
           return refetchMethod(vars, ...args)
             .then((result) => {
-              if (isEqual(result.data, oldData)) next(result);
+              if (result && isEqual(result.data, oldData)) next(result);
               return result;
             });
         };
