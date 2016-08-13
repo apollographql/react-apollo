@@ -1,0 +1,21 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/asvetliakov/typings-redux-form/ac1c12285fd089263801ad445c2a4f9c017b1088/typings.json",
+    "raw": "registry:npm/redux-form#4.0.3+20160310030142",
+    "main": "index.d.ts",
+    "global": false,
+    "dependencies": {
+      "redux": {
+        "src": "https://raw.githubusercontent.com/andrew-w-ross/typings-redux/2e0b57e18c6240d17fde045573d74e649762437b/typings.json",
+        "raw": "github:andrew-w-ross/typings-redux#2e0b57e18c6240d17fde045573d74e649762437b",
+        "main": "redux.d.ts",
+        "global": false,
+        "name": "redux",
+        "type": "typings"
+      }
+    },
+    "name": "redux-form",
+    "type": "typings"
+  }
+}
