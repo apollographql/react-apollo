@@ -28,3 +28,8 @@ declare module 'lodash.flatten' {
   import main = require('lodash');
   export = main.flatten;
 }
+
+declare module 'redux-loop' {
+  function combineReducers(reducers: any): any;
+  function install(): any;
+}
