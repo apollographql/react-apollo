@@ -14,4 +14,5 @@
 /// <reference path="modules/lodash/index.d.ts" />
 /// <reference path="modules/object-assign/index.d.ts" />
 /// <reference path="modules/react-redux/index.d.ts" />
+/// <reference path="modules/redux-form/index.d.ts" />
 /// <reference path="modules/sinon/index.d.ts" />

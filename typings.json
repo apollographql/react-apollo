@@ -20,6 +20,7 @@
     "invariant": "registry:npm/invariant#2.0.0+20160211003958",
     "lodash": "registry:npm/lodash#4.0.0+20160412191219",
     "object-assign": "registry:npm/object-assign#4.0.1+20160301180549",
-    "react-redux": "registry:npm/react-redux#4.4.0+20160614222153"
+    "react-redux": "registry:npm/react-redux#4.4.0+20160614222153",
+    "redux-form": "registry:npm/redux-form#4.0.3+20160310030142"
   }
 }
