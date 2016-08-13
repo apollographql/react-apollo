@@ -6,6 +6,8 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect } from 'react-redux';
 import { reducer as formReducer, reduxForm } from 'redux-form';
 import { combineReducers as loopCombine, install } from 'redux-loop';
+import { Map } from 'immutable';
+import { combineReducers as combineImmutable } from 'redux-immutable';
 // import assign = require('object-assign');
 import gql from 'graphql-tag';
 
@@ -23,7 +25,7 @@ import {
 import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 
 
-import graphql from '../../../../src/graphql';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('redux integration', () => {
 
@@ -229,7 +231,7 @@ describe('redux integration', () => {
   });
 
   describe('redux-loop', () => {
-    it('works with redux-loop', (done) => {
+    it('works with redux-loop with shared store', (done) => {
       const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
       const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
       const variables = { first: 1 };
@@ -288,5 +290,124 @@ describe('redux integration', () => {
         </ProviderMock>
       ) as any;
     });
+
+    it('works with redux-loop and an immutable store', (done) => {
+      const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
+      const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+      const variables = { first: 1 };
+
+      const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+      const variables2 = { first: 2 };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query, variables }, result: { data } },
+        { request: { query, variables: variables2 }, result: { data: data2 } }
+      );
+
+      const client = new ApolloClient({ networkInterface });
+      let wrapper;
+
+      function counter(state = 1, action) {
+        switch (action.type) {
+          case 'INCREMENT':
+            return state + 1;
+          default:
+            return state;
+          }
+      }
+
+      // initial state, accessor and mutator for supporting root-level
+      // immutable data with redux-loop reducer combinator
+      const immutableStateContainer = Map();
+      const getImmutable = (child, key) => child ? child.get(key) : void 0;
+      const setImmutable = (child, key, value) => child.set(key, value);
+
+      const store = createStore(
+        loopCombine({
+          counter,
+        }, immutableStateContainer as any, getImmutable, setImmutable),
+        install()
+      );
+
+      @connect((state) => ({ first: state.get('counter') }))
+      @graphql(query)
+      class Container extends React.Component<any, any> {
+        componentWillReceiveProps(nextProps) {
+          if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
+          if (nextProps.first === 2) {
+            if (nextProps.data.loading) return;
+            expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
+            done();
+          }
+        }
+        render() {
+          return null;
+        }
+      };
+
+      wrapper = mount(
+        <ApolloProvider store={store} client={client} immutable={true}>
+          <Container />
+        </ApolloProvider>
+      ) as any;
+    });
   });
+
+  describe('immutable store', () => {
+    it('works an immutable store', (done) => {
+      const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
+      const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+      const variables = { first: 1 };
+
+      const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+      const variables2 = { first: 2 };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query, variables }, result: { data } },
+        { request: { query, variables: variables2 }, result: { data: data2 } }
+      );
+
+      const client = new ApolloClient({ networkInterface });
+      let wrapper;
+
+      function counter(state = 1, action) {
+        switch (action.type) {
+          case 'INCREMENT':
+            return state + 1;
+          default:
+            return state;
+          }
+      }
+
+      // initial state, accessor and mutator for supporting root-level
+      // immutable data with redux-loop reducer combinator
+      const initialState = Map();
+
+      const store = createStore(combineImmutable({ counter }), initialState);
+
+      @connect((state) => ({ first: state.get('counter') }))
+      @graphql(query)
+      class Container extends React.Component<any, any> {
+        componentWillReceiveProps(nextProps) {
+          if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
+          if (nextProps.first === 2) {
+            if (nextProps.data.loading) return;
+            expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
+            done();
+          }
+        }
+        render() {
+          return null;
+        }
+      };
+
+      wrapper = mount(
+        <ApolloProvider store={store} client={client} immutable={true}>
+          <Container />
+        </ApolloProvider>
+      ) as any;
+    });
+  });
+
+
 });

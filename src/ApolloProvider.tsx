@@ -16,6 +16,7 @@ import invariant = require('invariant');
 
 export declare interface ProviderProps {
   store?: Store<any>;
+  immutable?: boolean;
   client: ApolloClient;
 }
 
@@ -27,6 +28,7 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
       getState: PropTypes.func.isRequired,
     }),
     client: PropTypes.object.isRequired,
+    immutable: PropTypes.bool,
     children: PropTypes.element.isRequired,
   };
 
@@ -51,6 +53,8 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
 
     if (props.store) {
       this.store = props.store;
+      // support an immutable store alongside apollo store
+      if (props.immutable) props.client.initStore();
       return;
     }
 

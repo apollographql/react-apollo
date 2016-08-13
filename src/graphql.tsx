@@ -15,10 +15,6 @@ import assign = require('object-assign');
 
 import hoistNonReactStatics = require('hoist-non-react-statics');
 
-import {
-  Store,
-} from 'redux';
-
 import ApolloClient, {
   readQueryFromStore,
 } from 'apollo-client';
@@ -47,6 +43,10 @@ import {
 import {
   Subscription,
 } from 'apollo-client/util/Observable';
+
+import {
+  ApolloStore,
+} from 'apollo-client/store';
 
 import {
   // GraphQLResult,
@@ -229,7 +229,7 @@ export default function graphql(
       public hasMounted: boolean;
 
       // data storage
-      private store: Store<any>;
+      private store: ApolloStore;
       private client: ApolloClient; // apollo client
       private data: any = {}; // apollo data
       private type: DocumentType;
@@ -251,8 +251,8 @@ export default function graphql(
       constructor(props, context) {
         super(props, context);
         this.version = version;
-        this.store = props.store || context.store;
         this.client = props.client || context.client;
+        this.store = this.client.store;
 
         invariant(!!this.client,
           `Could not find "client" in either the context or ` +
