@@ -407,7 +407,7 @@ export default function graphql(
 
           // XXX use passed loading after https://github.com/apollostack/apollo-client/pull/467
           const { queryId } = observableQuery;
-          const currentVariables = this.store.getState()[reduxRootKey].queries[queryId].variables;
+          let currentVariables = this.store.getState()[reduxRootKey].queries[queryId].variables;
           const resultKeyConflict: boolean = (
             'errors' in data ||
             'loading' in data ||
@@ -448,10 +448,10 @@ export default function graphql(
           let newVariables = vars;
           const newData = { loading: true } as any;
           if (vars && (vars.variables || vars.query || vars.updateQuery)) {
-            newVariables = vars.variables;
+            newVariables = assign({}, this.data.variables, vars.variables);
+            newData.variables = newVariables;
           }
 
-          if (newVariables) newData.variables = newVariables;
           this.data = assign(this.data, newData);
 
           this.hasOperationDataChanged = true;

@@ -515,12 +515,12 @@ describe('queries', () => {
 
   it('exposes fetchMore as part of the props api', (done) => {
     const query = gql`
-      query people($skip: Int) { allPeople(first: 1, skip: $skip) { people { name } } }
+      query people($skip: Int, $first: Int) { allPeople(first: 1, skip: $skip) { people { name } } }
     `;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const data1 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
-    const variables = { skip: 1 };
-    const variables2 = { skip: 2 };
+    const variables = { skip: 1, first: 1 };
+    const variables2 = { skip: 2, first: 1 };
 
     const networkInterface = mockNetworkInterface(
       { request: { query, variables }, result: { data } },
@@ -536,7 +536,7 @@ describe('queries', () => {
           expect(props.data.fetchMore).to.be.exist;
           expect(props.data.fetchMore).to.be.instanceof(Function);
           props.data.fetchMore({
-            variables: variables2,
+            variables: { skip: 2 },
             updateQuery: (prev, { fetchMoreResult }) => ({
               allPeople: {
                 people: prev.allPeople.people.concat(fetchMoreResult.data.allPeople.people),
@@ -545,6 +545,7 @@ describe('queries', () => {
           });
           // XXX add a test for the result here when #508 is merged and released
         } else if (count === 1) {
+          expect(props.data.variables).to.deep.equal(variables2);
           expect(props.data.loading).to.be.true;
           expect(props.data.allPeople).to.deep.equal(data.allPeople);
         } else if (count === 2) {
