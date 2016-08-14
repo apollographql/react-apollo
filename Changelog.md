@@ -2,6 +2,11 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+
+### v4.0.4
+
+- Bug: Fixed issue with variable merging [#139](https://github.com/apollostack/react-apollo/pull/139)
+
 ### v4.0.3
 
 - Feature: Support a different store in the tree that is immutable (support immutable redux) [#137](https://github.com/apollostack/react-apollo/pull/137)
