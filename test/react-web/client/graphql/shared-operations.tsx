@@ -148,7 +148,7 @@ describe('shared opertations', () => {
     const testData = { foo: 'bar' };
 
     class Container extends React.Component<any, any> {
-      someMethod(){
+      someMethod() {
         return testData;
       }
 
@@ -167,10 +167,35 @@ describe('shared opertations', () => {
 
     const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
 
-      expect(() => (decorated as any).someMethod()).to.throw()
-      expect((decorated as any).getWrappedInstance().someMethod()).to.deep.equal(testData);
-      expect((decorated as any).refs.wrappedInstance.someMethod()).to.deep.equal(testData);
+    expect(() => (decorated as any).someMethod()).to.throw();
+    expect((decorated as any).getWrappedInstance().someMethod()).to.deep.equal(testData);
+    expect((decorated as any).refs.wrappedInstance.someMethod()).to.deep.equal(testData);
 
+  });
+
+  it('allows options to take an object', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    let queryExecuted;
+    @graphql(query, { options: { skip: true } })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        queryExecuted = true;
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+
+    setTimeout(() => {
+      if (!queryExecuted) { done(); return; }
+      done(new Error('query ran even though skip present'));
+    }, 25);
   });
 
 });

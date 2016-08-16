@@ -127,7 +127,7 @@ export function withApollo(WrappedComponent) {
 };
 
 export interface OperationOption {
-  options?: (props: any) => QueryOptions | MutationOptions;
+  options?: Object | ((props: any) => QueryOptions | MutationOptions);
   props?: (props: any) => any;
   name?: string;
   withRef?: boolean;
@@ -140,7 +140,9 @@ export default function graphql(
 
   // extract options
   const { options = defaultMapPropsToOptions } = operationOptions;
-  const mapPropsToOptions = options;
+  let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
+  if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
+
   const mapResultToProps = operationOptions.props;
 
   // safety check on the operation
@@ -217,8 +219,6 @@ export default function graphql(
         store: PropTypes.object.isRequired,
         client: PropTypes.object.isRequired,
       };
-      // for use with getData during SSR
-      static fetchData = operation.type === DocumentType.Query ? fetchData : false;
 
       // start of query composition
       static fragments: FragmentDefinition[] = operation.fragments;
@@ -328,7 +328,22 @@ export default function graphql(
             query: document,
             variables,
           });
-          queryData = assign({ errors: null, loading: false, variables }, result);
+
+          const refetch = (vars) => {
+            return this.client.query({
+              query: document,
+              variables: vars,
+            });
+          };
+
+          const fetchMore = (opts) => {
+            opts.query = document;
+            return this.client.query(opts);
+          };
+
+          queryData = assign({
+            errors: null, loading: false, variables, refetch, fetchMore,
+          }, result);
         } catch (e) {/* tslint:disable-line */}
 
         this.data = queryData;
@@ -552,6 +567,8 @@ export default function graphql(
         return this.renderedElement;
       }
     }
+
+    if (operation.type === DocumentType.Query) (GraphQL as any).fetchData = fetchData;
 
     // Make sure we preserve any custom statics on the original component.
     return hoistNonReactStatics(GraphQL, WrappedComponent);

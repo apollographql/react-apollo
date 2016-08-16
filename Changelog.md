@@ -2,6 +2,11 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+### v0.4.5
+
+- Feature: Allow options value to be an object instead of a method. [#144](https://github.com/apollostack/react-apollo/issues/144)
+- Bug: Fixed issue with missing methods on initial props [#142](https://github.com/apollostack/react-apollo/issues/142)
+- Bug: Fixed oddity with multi nested enhancers on SSR [#141](https://github.com/apollostack/react-apollo/issues/141)
 
 ### v0.4.4
 

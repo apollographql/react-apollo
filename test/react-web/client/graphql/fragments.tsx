@@ -150,7 +150,7 @@ describe('fragments', () => {
     const client = new ApolloClient({ networkInterface });
 
     @graphql(query, {
-      options: () => ({ fragments: [shipFragment]})
+      options: () => ({ fragments: [shipFragment]}),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {

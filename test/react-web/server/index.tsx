@@ -140,6 +140,60 @@ describe('SSR', () => {
         ;
     });
 
+    it('should correctly handle SSR mutations', (done) => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data1 = { currentUser: { firstName: 'James' } };
+
+      const mutation = gql`mutation { logRoutes { id } }`;
+      const mutationData= { logRoutes: { id: 'foo' } };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data: data1 }, delay: 5 },
+        { request: { query: mutation }, result: { data: mutationData }, delay: 5 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const withQuery = graphql(query, {
+        options: (ownProps) => ({ ssr: true }),
+        props: ({ data }) => {
+          expect(data.refetch).to.exist;
+          return {
+            refetchQuery: data.refetch,
+            data,
+          };
+        },
+      });
+
+      const withMutation = graphql(mutation, {
+        props: ({ ownProps, mutate }) => {
+          expect(ownProps.refetchQuery).to.exist;
+          return {
+            action(variables) {
+              return mutate({ variables }).then(() => ownProps.refetchQuery());
+            },
+          };
+        },
+      });
+
+      const Element = (({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
+
+      const WrappedElement = withQuery(withMutation(Element));
+
+      const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
+
+      getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).to.match(/James/);
+          done();
+        })
+        .catch(console.error)
+        ;
+    });
+
   });
 
   describe('`renderToStringWithData`', () => {
