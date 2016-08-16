@@ -127,7 +127,7 @@ export function withApollo(WrappedComponent) {
 };
 
 export interface OperationOption {
-  options?: (props: any) => QueryOptions | MutationOptions;
+  options?: Object | ((props: any) => QueryOptions | MutationOptions);
   props?: (props: any) => any;
   name?: string;
   withRef?: boolean;
@@ -140,7 +140,9 @@ export default function graphql(
 
   // extract options
   const { options = defaultMapPropsToOptions } = operationOptions;
-  const mapPropsToOptions = options;
+  let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
+  if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
+
   const mapResultToProps = operationOptions.props;
 
   // safety check on the operation
