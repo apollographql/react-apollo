@@ -493,6 +493,10 @@ describe('queries', () => {
     let hasRefetched;
     @graphql(query)
     class Container extends React.Component<any, any> {
+      componentWillMount(){
+        expect(this.props.data.refetch).to.be.exist;
+        expect(this.props.data.refetch).to.be.instanceof(Function);
+      }
       componentWillReceiveProps({ data }) { // tslint:disable-line
         if (hasRefetched) return;
         hasRefetched = true;
@@ -531,6 +535,10 @@ describe('queries', () => {
     let count = 0;
     @graphql(query, { options: () => ({ variables }) })
     class Container extends React.Component<any, any> {
+      componentWillMount(){
+        expect(this.props.data.fetchMore).to.be.exist;
+        expect(this.props.data.fetchMore).to.be.instanceof(Function);
+      }
       componentWillReceiveProps(props) {
         if (count === 0) {
           expect(props.data.fetchMore).to.be.exist;
