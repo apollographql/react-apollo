@@ -557,6 +557,7 @@ describe('queries', () => {
           expect(props.data.loading).to.be.true;
           expect(props.data.allPeople).to.deep.equal(data.allPeople);
         } else if (count === 2) {
+          expect(props.data.variables).to.deep.equal(variables2);
           expect(props.data.loading).to.be.false;
           expect(props.data.allPeople.people).to.deep.equal(
             data.allPeople.people.concat(data1.allPeople.people)
