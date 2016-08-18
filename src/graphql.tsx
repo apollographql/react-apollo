@@ -430,13 +430,14 @@ export default function graphql(
             'refetch' in data ||
             'fetchMore' in data ||
             'startPolling' in data ||
-            'stopPolling' in data
+            'stopPolling' in data ||
+            'updateQuery' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', 'fetchMore', and 'refetch' cannot be ` +
+            `'startPolling', 'stopPolling', 'fetchMore', 'updateQuery', and 'refetch' cannot be ` +
             `returned keys`
           );
 
@@ -454,6 +455,7 @@ export default function graphql(
             startPolling,
             stopPolling,
             fetchMore,
+            updateQuery,
             error,
           }, data);
 
