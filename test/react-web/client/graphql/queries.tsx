@@ -100,6 +100,43 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('correctly rebuilds props on remount', (done) => {
+    const query = gql`query pollingPeople { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Darth Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, result: { data }, newData: () => ({
+        data: {
+          allPeople: { people: [ { name: `Darth Skywalker - ${Math.random()}` } ] },
+        }
+      }) }
+    );
+    const client = new ApolloClient({ networkInterface });
+    let wrapper, app, count = 0;
+
+    @graphql(query, { options: { pollInterval: 10 }})
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        if (count === 1) { // has data
+          wrapper.unmount();
+          wrapper = mount(app);
+        }
+
+        if (count === 10) {
+          wrapper.unmount();
+          done();
+        }
+        count++;
+      }
+      render() {
+        return null;
+      }
+    };
+
+    app = <ProviderMock client={client}><Container /></ProviderMock>;
+
+    wrapper = mount(app);
+  });
+
   it('executes a query with two root fields', (done) => {
     const query = gql`query people {
       allPeople(first: 1) { people { name } }
@@ -557,6 +594,7 @@ describe('queries', () => {
           expect(props.data.loading).to.be.true;
           expect(props.data.allPeople).to.deep.equal(data.allPeople);
         } else if (count === 2) {
+          expect(props.data.variables).to.deep.equal(variables2);
           expect(props.data.loading).to.be.false;
           expect(props.data.allPeople.people).to.deep.equal(
             data.allPeople.people.concat(data1.allPeople.people)
