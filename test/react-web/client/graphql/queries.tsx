@@ -862,18 +862,17 @@ describe('queries', () => {
     );
     const client = new ApolloClient({ networkInterface });
 
-    let isUpdating;
+    let isUpdated;
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        // get new data with no more loading state
-        if (isUpdating) {
+        if (isUpdated) {
           expect(props.data.allPeople).to.deep.equal(data2.allPeople);
           done();
           return;
         }
         else {
-          isUpdating = true;
+          isUpdated = true;
           props.data.updateQuery((prev) => {
             return data2;
           });
