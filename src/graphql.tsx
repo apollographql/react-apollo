@@ -420,7 +420,6 @@ export default function graphql(
 
         const next = ({ data = oldData, loading, error }: any) => {
 
-          // XXX use passed loading after https://github.com/apollostack/apollo-client/pull/467
           const { queryId } = observableQuery;
           let initialVariables = this.store.getState()[reduxRootKey].queries[queryId].variables;
 

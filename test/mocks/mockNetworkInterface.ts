@@ -28,6 +28,7 @@ export interface MockedResponse {
   result?: GraphQLResult;
   error?: Error;
   delay?: number;
+  newData?: () => any;
 }
 
 export class MockNetworkInterface implements NetworkInterface {
@@ -63,7 +64,13 @@ export class MockNetworkInterface implements NetworkInterface {
         throw new Error('No more mocked responses for the query: ' + print(request.query));
       }
 
-      const { result, error, delay } = this.mockedResponsesByKey[key].shift() || {} as any;
+      const original = [...this.mockedResponsesByKey[key]];
+      const { result, error, delay, newData } = this.mockedResponsesByKey[key].shift() || {} as any;
+
+      if (newData) {
+        original[0].result = newData();
+        this.mockedResponsesByKey[key].push(original[0]);
+      }
 
       if (!result && !error) {
         throw new Error(`Mocked response should contain either result or error: ${key}`);
