@@ -657,6 +657,28 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('exposes updateQuery as part of the props api', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps({ data }) { // tslint:disable-line
+        expect(data.updateQuery).to.be.exist;
+        expect(data.updateQuery).to.be.instanceof(Function);
+        expect(data.updateQuery).to.not.throw;
+        done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
 
   it('resets the loading state after a refetched query', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
@@ -820,6 +842,42 @@ describe('queries', () => {
       componentWillReceiveProps(props) {
         expect(props.thingy).to.deep.equal(data.getThing);
         done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
+
+  it('allows updating query results after query has finished', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, result: { data } },
+      { request: { query }, result: { data: data2 } }
+    );
+    const client = new ApolloClient({ networkInterface });
+
+    let isUpdating;
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        // get new data with no more loading state
+        if (isUpdating) {
+          expect(props.data.allPeople).to.deep.equal(data2.allPeople);
+          done();
+          return;
+        }
+        else {
+          isUpdating = true;
+          props.data.updateQuery((prev) => {
+            return data2;
+          });
+        }
       }
       render() {
         return null;
