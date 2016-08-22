@@ -556,7 +556,7 @@ describe('queries', () => {
 
   it('exposes fetchMore as part of the props api', (done) => {
     const query = gql`
-      query people($skip: Int, $first: Int) { allPeople(first: 1, skip: $skip) { people { name } } }
+      query people($skip: Int, $first: Int) { allPeople(first: $first, skip: $skip) { people { name } } }
     `;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const data1 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
