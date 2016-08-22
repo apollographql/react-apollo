@@ -137,6 +137,53 @@ describe('queries', () => {
     wrapper = mount(app);
   });
 
+  it('correctly sets loading state on remounted forcefetch', (done) => {
+    const query = gql`query pollingPeople { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Darth Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, result: { data }, delay: 10, newData: () => ({
+        data: {
+          allPeople: { people: [ { name: `Darth Skywalker - ${Math.random()}` } ] },
+        },
+      }) }
+    );
+    const client = new ApolloClient({ networkInterface });
+    let wrapper, app, count = 0;
+
+    @graphql(query, { options: { forceFetch: true }})
+    class Container extends React.Component<any, any> {
+      componentWillMount() {
+        if (count === 1) {
+          expect(this.props.data.loading).to.be.true; // on remount
+          count++;
+        }
+      }
+      componentWillReceiveProps(props) {
+        if (count === 0) { // has data
+          wrapper.unmount();
+          setTimeout(() => {
+            wrapper = mount(app);
+          }, 5);
+        }
+
+        if (count === 2) {
+          // remounted data after fetch
+          expect(props.data.loading).to.be.false;
+          expect(props.data.allPeople).to.exist;
+          done();
+        }
+        count++;
+      }
+      render() {
+        return null;
+      }
+    };
+
+    app = <ProviderMock client={client}><Container /></ProviderMock>;
+
+    wrapper = mount(app);
+  });
+
   it('executes a query with two root fields', (done) => {
     const query = gql`query people {
       allPeople(first: 1) { people { name } }

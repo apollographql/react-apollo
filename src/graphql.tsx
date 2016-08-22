@@ -62,6 +62,7 @@ export declare interface MutationOptions {
   fragments?: FragmentDefinition[] | FragmentDefinition[][];
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
+  forceFetch?: boolean;
 }
 
 export declare interface QueryOptions {
@@ -164,9 +165,14 @@ export default function graphql(
       }
     }
 
-    function calculateVariables(props) {
-      const opts = mapPropsToOptions(props);
-      if (opts.variables || !operation.variables.length) return opts.variables;
+    function calculateOptions(props, newOpts?) {
+      let opts = mapPropsToOptions(props);
+
+      if (newOpts && newOpts.variables) {
+        newOpts.variables = assign({}, opts.variables, newOpts.variables);
+      }
+      if (newOpts) opts = assign({}, opts, newOpts);
+      if (opts.variables || !operation.variables.length) return opts;
 
       let variables = {};
       for (let { variable } of operation.variables) {
@@ -183,17 +189,16 @@ export default function graphql(
           `passed to '${graphQLDisplayName}'`
         );
       }
-
-      return variables;
+      opts.variables = variables;
+      return opts;
     }
 
     function fetchData(props, { client }) {
       if (operation.type === DocumentType.Mutation) return false;
-      const opts = mapPropsToOptions(props) as any;
+      const opts = calculateOptions(props) as any;
       opts.query = document;
 
       if (opts.ssr === false) return false;
-      if (!opts.variables) opts.variables = calculateVariables(props);
       if (!opts.variables) delete opts.variables;
       calculateFragments(opts);
 
@@ -300,7 +305,7 @@ export default function graphql(
         this.hasMounted = false;
       }
 
-      calculateVariables(props) { return calculateVariables(props); };
+      calculateOptions(props, newProps?) { return calculateOptions(props, newProps); };
 
       calculateResultProps(result) {
         let name = this.type === DocumentType.Query ? 'data' : 'mutate';
@@ -319,43 +324,42 @@ export default function graphql(
         }
 
         const { reduxRootKey } = this.client;
-        const variables = this.calculateVariables(this.props);
+        const { variables, forceFetch } = this.calculateOptions(this.props);
         let queryData = defaultQueryData as any;
         queryData.variables = variables;
-        try {
-          const result = readQueryFromStore({
-            store: this.store.getState()[reduxRootKey].data,
-            query: document,
-            variables,
-          });
-
-          const refetch = (vars) => {
-            return this.client.query({
+        if (!forceFetch) {
+          try {
+            const result = readQueryFromStore({
+              store: this.store.getState()[reduxRootKey].data,
               query: document,
-              variables: vars,
+              variables,
             });
-          };
 
-          const fetchMore = (opts) => {
-            opts.query = document;
-            return this.client.query(opts);
-          };
+            const refetch = (vars) => {
+              return this.client.query({
+                query: document,
+                variables: vars,
+              });
+            };
 
-          queryData = assign({
-            errors: null, loading: false, variables, refetch, fetchMore,
-          }, result);
-        } catch (e) {/* tslint:disable-line */}
+            const fetchMore = (opts) => {
+              opts.query = document;
+              return this.client.query(opts);
+            };
+
+            queryData = assign({
+              errors: null, loading: false, variables, refetch, fetchMore,
+            }, result);
+          } catch (e) {/* tslint:disable-line */}
+        }
 
         this.data = queryData;
       }
 
       subscribeToQuery(props): boolean {
         const { watchQuery } = this.client;
-        const opts = mapPropsToOptions(props) as QueryOptions;
+        const opts = calculateOptions(props) as QueryOptions;
         if (opts.skip) return;
-
-        // handle auto merging of variables from props
-        opts.variables = this.calculateVariables(props);
 
         // don't rerun if nothing has changed
         if (isEqual(opts, this.previousOpts)) return false;
@@ -522,19 +526,9 @@ export default function graphql(
       createWrappedMutation(props: any, reRender = false) {
         if (this.type !== DocumentType.Mutation) return;
 
-        // XXX do we want to do any loading state stuff here?
         this.data = (opts: MutationOptions) => {
-          const original = mapPropsToOptions(props);
+          opts = this.calculateOptions(props, opts);
 
-          // merge variables
-          if (original.variables) {
-            original.variables = assign({}, original.variables, opts.variables);
-          }
-
-          opts = assign({}, original, opts);
-          if (!original.variables && !opts.variables) {
-            opts.variables = this.calculateVariables(props);
-          }
           if (typeof opts.variables === 'undefined') delete opts.variables;
 
           (opts as any).mutation = document;
