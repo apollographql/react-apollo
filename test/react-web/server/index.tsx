@@ -194,6 +194,57 @@ describe('SSR', () => {
         ;
     });
 
+    it('should not require `ApolloProvider` to be the root component', (done) => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
+
+      class MyRootContainer extends React.Component<any, any> {
+
+        constructor(props) {
+          super(props);
+          this.state = { color: 'purple' };
+        }
+
+        getChildContext() {
+          return { color: this.state.color };
+        }
+
+        render() {
+          return <div>{this.props.children}</div>;
+        }
+      }
+
+      (MyRootContainer as any).childContextTypes = {
+        color: React.PropTypes.string,
+      };
+
+      const app = (
+        <MyRootContainer>
+          <ApolloProvider client={apolloClient}>
+            <WrappedElement />
+          </ApolloProvider>
+        </MyRootContainer>
+      );
+
+      getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).to.match(/James/);
+          done();
+        })
+        .catch(done)
+        ;
+    });
+
   });
 
   describe('`renderToStringWithData`', () => {
