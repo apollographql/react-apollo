@@ -876,4 +876,76 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('allows context through updates', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        expect(props.data.loading).to.be.false;
+        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+      }
+      render() {
+        return <div>{this.props.children}</div>;
+      }
+    };
+
+    class ContextContainer extends React.Component<any, any> {
+
+      constructor(props) {
+        super(props);
+        this.state = { color: 'purple' };
+      }
+
+      getChildContext() {
+        return { color: this.state.color };
+      }
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({ color: 'green' });
+        }, 50);
+      }
+
+      render() {
+        return <div>{this.props.children}</div>;
+      }
+    }
+
+    (ContextContainer as any).childContextTypes = {
+      color: React.PropTypes.string,
+    };
+
+    let count = 0;
+    class ChildContextContainer extends React.Component<any, any> {
+      render() {
+        const { color } = (this.context as any);
+        if (count === 0) expect(color).to.eq('purple');
+        if (count === 1) {
+          expect(color).to.eq('green');
+          done();
+        }
+
+        count++;
+        return <div>{this.props.children}</div>;
+      }
+    }
+
+    (ChildContextContainer as any).contextTypes = {
+      color: React.PropTypes.string,
+    };
+
+    mount(
+      <ProviderMock client={client}>
+        <ContextContainer>
+          <Container>
+            <ChildContextContainer />
+          </Container>
+        </ContextContainer>
+      </ProviderMock>);
+  });
+
 });
