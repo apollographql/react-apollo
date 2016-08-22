@@ -295,8 +295,8 @@ export default function graphql(
         this.subscribeToQuery(nextProps);
       }
 
-      shouldComponentUpdate(nextProps, nextState) {
-        return this.haveOwnPropsChanged || this.hasOperationDataChanged;
+      shouldComponentUpdate(nextProps, nextState, nextContext) {
+        return !!nextContext || this.haveOwnPropsChanged || this.hasOperationDataChanged;
       }
 
       componentWillUnmount() {
