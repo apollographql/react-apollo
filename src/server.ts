@@ -31,10 +31,11 @@ export function getChildFromComponent(component) {
   return component;
 }
 
+let contextStore = {};
 function getQueriesFromTree(
   { component, context = {}, queries = []}: QueryTreeArgument, fetch: boolean = true
 ) {
-
+  contextStore = assign({}, contextStore, context);
   if (!component) return;
 
   // stateless function
@@ -50,8 +51,6 @@ function getQueriesFromTree(
 
     let newContext = context;
     if (Component.getChildContext) newContext = assign({}, context, Component.getChildContext());
-
-    context = newContext;
 
     // see if there is a fetch data method
     if (typeof type.fetchData === 'function' && fetch) {
@@ -72,13 +71,18 @@ function getQueriesFromTree(
     }));
   }
 
-  return { queries, context };
+  return { queries, context: contextStore };
 }
 
 // XXX component Cache
 export function getDataFromTree(app, ctx: any = {}, fetch: boolean = true): Promise<any> {
 
+  // reset for next loop
+  contextStore = {};
   let { context, queries } = getQueriesFromTree({ component: app, context: ctx }, fetch);
+  // reset for next loop
+  contextStore = {};
+
   // no queries found, nothing to do
   if (!queries.length) return Promise.resolve(context);
 
