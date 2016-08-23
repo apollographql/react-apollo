@@ -4,6 +4,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Bug: Fixed SSR issue with context [#165](https://github.com/apollostack/react-apollo/pull/165)
 - Bug: Fixed issue when context changes in parent container not going through to child; [#162](https://github.com/apollostack/react-apollo/pull/162)
 - Bug: Fixed loading state on remount of forceFetch operations; [#161](https://github.com/apollostack/react-apollo/pull/161)
 
