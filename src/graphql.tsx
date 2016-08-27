@@ -155,14 +155,16 @@ export default function graphql(
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
-    function calculateFragments(opts) {
-      if (opts.fragments || operation.fragments.length) {
-        if (!opts.fragments) {
-          opts.fragments = flatten([...operation.fragments]);
-        } else {
-          opts.fragments = flatten([...opts.fragments, ...operation.fragments]);
-        }
+    function calculateFragments(fragments): FragmentDefinition[] {
+      if (!fragments && !operation.fragments.length) {
+        return fragments;
       }
+
+      if (!fragments) {
+        return fragments = flatten([...operation.fragments]);
+      }
+
+      return flatten([...fragments, ...operation.fragments]);
     }
 
     function calculateOptions(props, newOpts?) {
@@ -200,7 +202,7 @@ export default function graphql(
 
       if (opts.ssr === false) return false;
       if (!opts.variables) delete opts.variables;
-      calculateFragments(opts);
+      opts.fragments = calculateFragments(opts.fragments);
 
       // if this query is in the store, don't block execution
       try {
@@ -324,9 +326,9 @@ export default function graphql(
         }
 
         const { reduxRootKey } = this.client;
-        const queryOpts = this.calculateOptions(this.props);
-        calculateFragments(queryOpts);
-        const { variables, forceFetch, fragments } = queryOpts;
+        const queryOptions = this.calculateOptions(this.props);
+        const fragments = calculateFragments(queryOptions.fragments);
+        const { variables, forceFetch } = queryOptions;
         let queryData = defaultQueryData as any;
         queryData.variables = variables;
         if (!forceFetch) {
@@ -335,7 +337,7 @@ export default function graphql(
               store: this.store.getState()[reduxRootKey].data,
               query: document,
               variables,
-              fragmentMap: createFragmentMap(fragments as FragmentDefinition[]),
+              fragmentMap: createFragmentMap(fragments),
             });
 
             const refetch = (vars) => {
@@ -394,7 +396,7 @@ export default function graphql(
         this.unsubscribeFromQuery();
 
         const queryOptions: WatchQueryOptions = assign({ query: document }, opts);
-        calculateFragments(queryOptions);
+        queryOptions.fragments = calculateFragments(queryOptions.fragments);
         const observableQuery = watchQuery(queryOptions);
         const { queryId } = observableQuery;
 
@@ -535,7 +537,7 @@ export default function graphql(
           if (typeof opts.variables === 'undefined') delete opts.variables;
 
           (opts as any).mutation = document;
-          calculateFragments(opts);
+          opts.fragments = calculateFragments(opts.fragments);
           return this.client.mutate((opts as any));
         };
 
