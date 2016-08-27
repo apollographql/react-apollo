@@ -324,7 +324,9 @@ export default function graphql(
         }
 
         const { reduxRootKey } = this.client;
-        const { variables, forceFetch } = this.calculateOptions(this.props);
+        const queryOpts = this.calculateOptions(this.props);
+        calculateFragments(queryOpts);
+        const { variables, forceFetch, fragments } = queryOpts;
         let queryData = defaultQueryData as any;
         queryData.variables = variables;
         if (!forceFetch) {
@@ -333,6 +335,7 @@ export default function graphql(
               store: this.store.getState()[reduxRootKey].data,
               query: document,
               variables,
+              fragmentMap: createFragmentMap(fragments as FragmentDefinition[]),
             });
 
             const refetch = (vars) => {
