@@ -184,6 +184,55 @@ describe('queries', () => {
     wrapper = mount(app);
   });
 
+  it('correctly sets loading state on remounted component with changed variables', (done) => {
+    const query = gql`
+      query remount($first: Int) { allPeople(first: $first) { people { name } } }
+    `;
+    const data = { allPeople: null };
+    const variables = { first: 1 };
+    const variables2 = { first: 2 };
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data }, delay: 10 },
+      { request: { query, variables: variables2 }, result: { data }, delay: 10 }
+    );
+    const client = new ApolloClient({ networkInterface });
+    let wrapper, render, count = 0;
+
+    @graphql(query, { options: ({ first }) => ({ variables: { first }})})
+    class Container extends React.Component<any, any> {
+      componentWillMount() {
+        if (count === 1) {
+          expect(this.props.data.loading).to.be.true; // on remount
+          count++;
+        }
+      }
+      componentWillReceiveProps(props) {
+        if (count === 0) { // has data
+          wrapper.unmount();
+          setTimeout(() => {
+            wrapper = mount(render(2));
+          }, 5);
+        }
+
+        if (count === 2) {
+          // remounted data after fetch
+          expect(props.data.loading).to.be.false;
+          done();
+        }
+        count++;
+      }
+      render() {
+        return null;
+      }
+    };
+
+    render = (first) => (
+      <ProviderMock client={client}><Container first={first} /></ProviderMock>
+    );
+
+    wrapper = mount(render(1));
+  });
+
   it('executes a query with two root fields', (done) => {
     const query = gql`query people {
       allPeople(first: 1) { people { name } }
@@ -566,15 +615,17 @@ describe('queries', () => {
   });
 
   it('exposes refetch as part of the props api', (done) => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
+    const variables = { first: 1 };
     const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface(
-      { request: { query }, result: { data: data1 } },
-      { request: { query }, result: { data: data1 } }
+      { request: { query, variables }, result: { data: data1 } },
+      { request: { query, variables }, result: { data: data1 } },
+      { request: { query, variables: { first: 2 } }, result: { data: data1 } }
     );
     const client = new ApolloClient({ networkInterface });
 
-    let hasRefetched;
+    let hasRefetched, count = 0;
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount(){
@@ -582,6 +633,12 @@ describe('queries', () => {
         expect(this.props.data.refetch).to.be.instanceof(Function);
       }
       componentWillReceiveProps({ data }) { // tslint:disable-line
+        if (count === 0) expect(data.loading).to.be.false; // first data
+        if (count === 1) expect(data.loading).to.be.true; // first refetch
+        if (count === 2) expect(data.loading).to.be.false; // second data
+        if (count === 3) expect(data.loading).to.be.true; // second refetch
+        if (count === 4) expect(data.loading).to.be.false; // third data
+        count ++;
         if (hasRefetched) return;
         hasRefetched = true;
         expect(data.refetch).to.be.exist;
@@ -589,7 +646,12 @@ describe('queries', () => {
         data.refetch()
           .then(result => {
             expect(result.data).to.deep.equal(data1);
-            done();
+            data.refetch({ first: 2 }) // new variables
+              .then(response => {
+                expect(response.data).to.deep.equal(data1);
+                expect(data.allPeople).to.deep.equal(data1.allPeople);
+                done();
+              });
           })
           .catch(done);
       }
@@ -598,7 +660,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    mount(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
   });
 
   it('exposes fetchMore as part of the props api', (done) => {
