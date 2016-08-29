@@ -633,17 +633,15 @@ describe('queries', () => {
   });
 
   it('exposes refetch as part of the props api', (done) => {
-    const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
-    const variables = { first: 1 };
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface(
-      { request: { query, variables }, result: { data: data1 } },
-      { request: { query, variables }, result: { data: data1 } },
-      { request: { query, variables: { first: 2 } }, result: { data: data1 } }
+      { request: { query }, result: { data: data1 } },
+      { request: { query }, result: { data: data1 } }
     );
     const client = new ApolloClient({ networkInterface });
 
-    let hasRefetched, count = 0;
+    let hasRefetched;
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount(){
@@ -651,12 +649,6 @@ describe('queries', () => {
         expect(this.props.data.refetch).to.be.instanceof(Function);
       }
       componentWillReceiveProps({ data }) { // tslint:disable-line
-        if (count === 0) expect(data.loading).to.be.false; // first data
-        if (count === 1) expect(data.loading).to.be.true; // first refetch
-        if (count === 2) expect(data.loading).to.be.false; // second data
-        if (count === 3) expect(data.loading).to.be.true; // second refetch
-        if (count === 4) expect(data.loading).to.be.false; // third data
-        count ++;
         if (hasRefetched) return;
         hasRefetched = true;
         expect(data.refetch).to.be.exist;
@@ -664,12 +656,7 @@ describe('queries', () => {
         data.refetch()
           .then(result => {
             expect(result.data).to.deep.equal(data1);
-            data.refetch({ first: 2 }) // new variables
-              .then(response => {
-                expect(response.data).to.deep.equal(data1);
-                expect(data.allPeople).to.deep.equal(data1.allPeople);
-                done();
-              });
+            done();
           })
           .catch(done);
       }
@@ -678,7 +665,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('exposes fetchMore as part of the props api', (done) => {
