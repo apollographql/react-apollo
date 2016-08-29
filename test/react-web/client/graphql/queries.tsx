@@ -184,7 +184,7 @@ describe('queries', () => {
     wrapper = mount(app);
   });
 
-  it('correctly sets loading state on remounted component with changed variables', (done) => {
+  it('correctly sets loading state on component with changed variables and unchanged result', (done) => {
     const query = gql`
       query remount($first: Int) { allPeople(first: $first) { people { name } } }
     `;
