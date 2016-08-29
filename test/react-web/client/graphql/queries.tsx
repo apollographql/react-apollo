@@ -198,24 +198,46 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
     let wrapper, render, count = 0;
 
-    @graphql(query, { options: ({ first }) => ({ variables: { first }})})
-    class Container extends React.Component<any, any> {
-      componentWillMount() {
-        if (count === 1) {
-          expect(this.props.data.loading).to.be.true; // on remount
-          count++;
+    const connect = (component) : any => {
+      return class Container extends React.Component<any, any> {
+        constructor(props) {
+          super(props);
+
+          this.state = {
+            first: 1,
+          };
+          this.setFirst = this.setFirst.bind(this);
+        }
+
+        setFirst(first) {
+          this.setState({first});
+        }
+
+        render() {
+          return React.createElement(component, {
+            first: this.state.first,
+            setFirst: this.setFirst
+          });
         }
       }
+    }
+
+    @connect
+    @graphql(query, { options: ({ first }) => ({ variables: { first }})})
+    class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (count === 0) { // has data
-          wrapper.unmount();
           setTimeout(() => {
-            wrapper = mount(render(2));
+            this.props.setFirst(2);
           }, 5);
         }
 
+        if (count === 1) {
+          expect(this.props.data.loading).to.be.true; // on variables change
+        }
+
         if (count === 2) {
-          // remounted data after fetch
+          // new data after fetch
           expect(props.data.loading).to.be.false;
           done();
         }
@@ -226,11 +248,7 @@ describe('queries', () => {
       }
     };
 
-    render = (first) => (
-      <ProviderMock client={client}><Container first={first} /></ProviderMock>
-    );
-
-    wrapper = mount(render(1));
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('executes a query with two root fields', (done) => {
