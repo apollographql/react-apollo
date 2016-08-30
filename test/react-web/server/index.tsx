@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
-import ApolloClient, { createNetworkInterface } from 'apollo-client';
+import ApolloClient, { createNetworkInterface, createFragment } from 'apollo-client';
 import { graphql, ApolloProvider } from '../../../src';
 import { getDataFromTree, renderToStringWithData } from '../../../src/server';
 import 'isomorphic-fetch';
@@ -352,6 +352,37 @@ describe('SSR', () => {
           done();
         })
         .catch(done);
+    });
+
+    it('should work with queries that use fragments', function(done) {
+      const query = gql`{ currentUser { ...userInfo } }`;
+      const userInfoFragment = createFragment(gql`fragment userInfo on User { firstName, lastName }`);
+      const data = { currentUser: { firstName: 'John', lastName: 'Smith' } };
+      const networkInterface = {
+        query: () => Promise.resolve({ data })
+      };
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const UserPage = graphql(query, {
+        options: {
+          fragments: userInfoFragment
+        }
+      })(({ data }) => (
+          <div>{data.loading ? 'Loading...' : `${data.currentUser.firstName} ${data.currentUser.lastName}`}</div>
+      ));
+
+      const app = (
+          <ApolloProvider client={apolloClient}>
+            <UserPage />
+          </ApolloProvider>
+      );
+
+      renderToStringWithData(app)
+          .then(markup => {
+            expect(markup).to.match(/John Smith/);
+            done();
+          })
+          .catch(done);
     });
   });
 });
