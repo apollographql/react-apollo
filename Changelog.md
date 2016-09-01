@@ -2,6 +2,12 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+
+### vNext
+
+#### Breaking
+- Bug: fixed renderToStringWithData causing react warning [#169](https://github.com/apollostack/react-apollo/issues/169)
+
 ### v0.4.7
 
 - Bug: Fixed SSR issue with context [#165](https://github.com/apollostack/react-apollo/pull/165)

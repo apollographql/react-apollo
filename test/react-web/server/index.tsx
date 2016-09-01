@@ -111,6 +111,46 @@ describe('SSR', () => {
         ;
     });
 
+    // XXX this will require a custom renderer
+    // it('should allow for setting state in a component', (done) => {
+    //   const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
+    //   const data = { currentUser: { firstName: 'James' } };
+    //   const variables = { id: 1 };
+    //   const networkInterface = mockNetworkInterface(
+    //     { request: { query, variables }, result: { data }, delay: 50 }
+    //   );
+    //   const apolloClient = new ApolloClient({ networkInterface });
+
+    //   @graphql(query, { name: 'user' })
+    //   class Element extends React.Component<any, any> {
+
+    //     state = { thing: 1 }
+
+    //     componentWillMount() {
+    //       console.log('here')
+    //       this.setState({ thing: 2 })
+    //     }
+
+    //     render(){
+    //       const { user } = this.props;
+    //       console.log(this.state);
+    //       return <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+    //     }
+    //   }
+
+    //   const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
+
+    //   getDataFromTree(app)
+    //     .then(({ store }) => {
+    //       const initialState = store.getState();
+    //       expect(initialState.apollo.data).to.exist;
+    //       expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).to.exist;
+    //       done();
+    //     })
+    //     .catch(console.error)
+    //     ;
+    // });
+
     it('shouldn\'t run queries if ssr is turned to off', (done) => {
       const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
@@ -342,13 +382,13 @@ describe('SSR', () => {
       );
 
       renderToStringWithData(app)
-        .then(markup => {
+        .then(({ markup, initialState }) => {
+          expect(initialState.apollo).to.exist;
           expect(markup).to.match(/CR90 corvette/);
           expect(markup).to.match(/Return of the Jedi/);
           expect(markup).to.match(/A New Hope/);
           expect(markup).to.match(/Planets/);
           expect(markup).to.match(/Tatooine/);
-          expect(markup).to.match(/__APOLLO_STATE__/);
           done();
         })
         .catch(done);

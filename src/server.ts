@@ -46,8 +46,7 @@ function getQueriesFromTree(
     let ComponentClass = type;
     let ownProps = getPropsFromChild(component);
     const Component = new ComponentClass(ownProps, context);
-    try { Component.props = ownProps; } catch(e) {} // tslint:disable-line
-    if (Component.componentWillMount) Component.componentWillMount();
+
 
     let newContext = context;
     if (Component.getChildContext) newContext = assign({}, context, Component.getChildContext());
@@ -108,9 +107,6 @@ export function renderToStringWithData(component) {
         let fieldsToNotShip = ['minimizedQuery', 'minimizedQueryString'];
         for (let field of fieldsToNotShip)  delete initialState[key].queries[queryId][field];
       }
-      initialState = encodeURI(JSON.stringify(initialState));
-      const payload = `<script>window.__APOLLO_STATE__ = "${initialState}";</script>`;
-      markup += payload;
-      return markup;
+      return { markup, initialState };
     });
 }
