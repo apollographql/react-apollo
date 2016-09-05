@@ -74,6 +74,7 @@ describe('redux integration', () => {
           if (nextProps.data.loading) return;
           expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
           done();
+          wrapper.unmount();
         }
       }
       render() {
@@ -134,6 +135,7 @@ describe('redux integration', () => {
           expect(nextProps.data.loading).to.be.false;
           expect(nextProps.data.allPeople).to.deep.equal(data.allPeople);
           done();
+          wrapper.unmount();
         }
 
         render() {
@@ -205,6 +207,7 @@ describe('redux integration', () => {
           expect(value).to.equal(data.allPeople.people[0].name);
 
           done();
+          // wrapper.unmount();
         }
 
         render() {
@@ -277,6 +280,7 @@ describe('redux integration', () => {
             if (nextProps.data.loading) return;
             expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
             done();
+            wrapper.unmount();
           }
         }
         render() {
@@ -338,6 +342,7 @@ describe('redux integration', () => {
             if (nextProps.data.loading) return;
             expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
             done();
+            wrapper.unmount();
           }
         }
         render() {
@@ -394,6 +399,7 @@ describe('redux integration', () => {
             if (nextProps.data.loading) return;
             expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
             done();
+            wrapper.unmount();
           }
         }
         render() {

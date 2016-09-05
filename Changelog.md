@@ -9,6 +9,7 @@ Expect active development and potentially significant breaking changes in the `0
 - Bug: Fixed ssr fragment issue [#178](https://github.com/apollostack/react-apollo/pull/178)
 - Feature: Removed client as a prop and fixed warnings when not using ApolloProvider [#189](https://github.com/apollostack/react-apollo/pull/189)
 - Bug: Fixed loading state for skipped queries [#190](https://github.com/apollostack/react-apollo/pull/190)
+- Bug: Fixed loading state on remounted component with different variables
 
 ### v0.4.7
 

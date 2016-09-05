@@ -384,7 +384,19 @@ export default function graphql(
           this.forceRenderChildren();
           (this.queryObservable as ObservableQuery).refetch(assign(
             {}, (this.previousOpts as WatchQueryOptions).variables, opts.variables
-          ));
+          ))
+            .then((result) => {
+              this.data = assign(this.data, result.data, { loading: false });
+              this.hasOperationDataChanged = true;
+              this.forceRenderChildren();
+              return result;
+            })
+            .catch(error => {
+              this.data = assign(this.data, { loading: false, error });
+              this.hasOperationDataChanged = true;
+              this.forceRenderChildren();
+              return error;
+            });
           this.previousOpts = opts;
           return;
         }
@@ -427,7 +439,6 @@ export default function graphql(
             oldData = {};
 
         const next = ({ data = oldData, loading, error }: any) => {
-
           const { queryId } = observableQuery;
           let initialVariables = this.store.getState()[reduxRootKey].queries[queryId].variables;
 
