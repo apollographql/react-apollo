@@ -418,7 +418,7 @@ describe('SSR', () => {
       );
 
       renderToStringWithData(app)
-          .then(markup => {
+          .then(({ markup }) => {
             expect(markup).to.match(/John Smith/);
             done();
           })
