@@ -432,6 +432,7 @@ describe('queries', () => {
         queryExecuted = true;
       }
       render() {
+        expect(this.props.data.loading).to.be.false;
         return null;
       }
     };
