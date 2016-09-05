@@ -129,7 +129,7 @@ describe('redux integration', () => {
           if (!value) return;
 
           expect(value).to.equal(variables.name);
-          if (nextProps.data.loading) return;
+          if (nextProps.data.loading || !nextProps.data.allPeople) return;
 
           expect(nextProps.data.loading).to.be.false;
           expect(nextProps.data.allPeople).to.deep.equal(data.allPeople);

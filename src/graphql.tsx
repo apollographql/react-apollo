@@ -328,9 +328,22 @@ export default function graphql(
         const { reduxRootKey } = this.client;
         const queryOptions = this.calculateOptions(this.props);
         const fragments = calculateFragments(queryOptions.fragments);
-        const { variables, forceFetch } = queryOptions;
-        let queryData = defaultQueryData as any;
+        const { variables, forceFetch, skip } = queryOptions as QueryOptions;
+
+        let queryData = assign({}, defaultQueryData) as any;
         queryData.variables = variables;
+        if (skip) queryData.loading = false;
+
+        queryData.refetch = (vars) => this.client.query({
+          query: document,
+          variables: vars,
+        });
+
+        queryData.fetchMore = (opts) => {
+          opts.query = document;
+          return this.client.query(opts);
+        };
+
         if (!forceFetch) {
           try {
             const result = readQueryFromStore({
@@ -340,21 +353,7 @@ export default function graphql(
               fragmentMap: createFragmentMap(fragments),
             });
 
-            const refetch = (vars) => {
-              return this.client.query({
-                query: document,
-                variables: vars,
-              });
-            };
-
-            const fetchMore = (opts) => {
-              opts.query = document;
-              return this.client.query(opts);
-            };
-
-            queryData = assign({
-              errors: null, loading: false, variables, refetch, fetchMore,
-            }, result);
+            queryData = assign(queryData, { errors: null, loading: false }, result);
           } catch (e) {/* tslint:disable-line */}
         }
 
