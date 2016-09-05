@@ -3,10 +3,12 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 
-### vNext
+### v0.5.0
 
-#### Breaking
-- Bug: fixed renderToStringWithData causing react warning [#169](https://github.com/apollostack/react-apollo/issues/169)
+- Bug: Fixed renderToStringWithData causing react warning [#169](https://github.com/apollostack/react-apollo/issues/169)
+- Bug: Fixed ssr fragment issue [#178](https://github.com/apollostack/react-apollo/pull/178)
+- Feature: Removed client as a prop and fixed warnings when not using ApolloProvider [#189](https://github.com/apollostack/react-apollo/pull/189)
+- Bug: Fixed loading state for skipped queries [#190](https://github.com/apollostack/react-apollo/pull/190)
 
 ### v0.4.7
 
