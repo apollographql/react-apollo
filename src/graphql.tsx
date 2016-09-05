@@ -105,14 +105,14 @@ export function withApollo(WrappedComponent) {
 
     constructor(props, context) {
       super(props, context);
-      this.client = props.client || context.client;
+      this.client = context.client;
 
       invariant(!!this.client,
-        `Could not find "client" in either the context or ` +
-        `props of "${withDisplayName}". ` +
-        `Either wrap the root component in an <ApolloProvider>, ` +
-        `or explicitly pass "client" as a prop to "${withDisplayName}".`
-      );
+          `Could not find "client" in the context of ` +
+          `"${withDisplayName}". ` +
+          `Wrap the root component in an <ApolloProvider>`
+        );
+
     }
 
 
@@ -258,15 +258,15 @@ export default function graphql(
       constructor(props, context) {
         super(props, context);
         this.version = version;
-        this.client = props.client || context.client;
-        this.store = this.client.store;
+        this.client = context.client;
 
         invariant(!!this.client,
-          `Could not find "client" in either the context or ` +
-          `props of "${graphQLDisplayName}". ` +
-          `Either wrap the root component in an <ApolloProvider>, ` +
-          `or explicitly pass "client" as a prop to "${graphQLDisplayName}".`
+          `Could not find "client" in the context of ` +
+          `"${graphQLDisplayName}". ` +
+          `Wrap the root component in an <ApolloProvider>`
         );
+
+        this.store = this.client.store;
 
         this.type = operation.type;
         this.queryObservable = {};
