@@ -399,7 +399,7 @@ describe('SSR', () => {
       const userInfoFragment = createFragment(gql`fragment userInfo on User { firstName, lastName }`);
       const data = { currentUser: { firstName: 'John', lastName: 'Smith' } };
       const networkInterface = {
-        query: () => Promise.resolve({ data })
+        query: () => Promise.resolve({ data }),
       };
       const apolloClient = new ApolloClient({ networkInterface });
 
