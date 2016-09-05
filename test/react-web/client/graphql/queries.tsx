@@ -1,5 +1,6 @@
 
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import * as chai from 'chai';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
@@ -231,6 +232,54 @@ describe('queries', () => {
     );
 
     wrapper = mount(render(1));
+  });
+
+  it('correctly sets loading state on remounted component with changed variables (alt)', (done) => {
+    const query = gql`
+      query remount($name: String) { allPeople(name: $name) { people { name } } }
+    `;
+    const data = { allPeople: null };
+    const variables = { name: 'does-not-exist' };
+    const variables2 = { name: 'nothing-either' };
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data }, delay: 10 },
+      { request: { query, variables: variables2 }, result: { data }, delay: 10 }
+    );
+    const client = new ApolloClient({ networkInterface });
+    let count = 0;
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      render() {
+        const { loading } = this.props.data;
+        if (count === 0) expect(loading).to.be.true;
+        if (count === 1) expect(loading).to.be.false;
+        if (count === 2) expect(loading).to.be.true;
+        if (count === 3) {
+          expect(loading).to.be.true;
+          done();
+        }
+        count ++;
+        return null;
+      }
+    };
+    const main = document.createElement('DIV');
+    main.id = 'main';
+    document.body.appendChild(main);
+
+    const render = (props) => {
+      ReactDOM.render((
+        <ProviderMock client={client}>
+          <Container {...props} />
+        </ProviderMock>
+      ), document.getElementById('main'));
+    };
+
+    // Initial render.
+    render(variables);
+
+    // Prop update: fetch.
+    setTimeout(() => render(variables2), 1000);
   });
 
   it('executes a query with two root fields', (done) => {
