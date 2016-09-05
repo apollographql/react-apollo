@@ -282,6 +282,73 @@ describe('queries', () => {
     setTimeout(() => render(variables2), 1000);
   });
 
+  it('correctly sets loading state on component with changed variables and unchanged result', (done) => {
+     const query = gql`
+       query remount($first: Int) { allPeople(first: $first) { people { name } } }
+     `;
+     const data = { allPeople: null };
+     const variables = { first: 1 };
+     const variables2 = { first: 2 };
+     const networkInterface = mockNetworkInterface(
+       { request: { query, variables }, result: { data }, delay: 10 },
+       { request: { query, variables: variables2 }, result: { data }, delay: 10 }
+     );
+     const client = new ApolloClient({ networkInterface });
+     let count = 0;
+
+     const connect = (component) : any => {
+       return class Container extends React.Component<any, any> {
+         constructor(props) {
+           super(props);
+
+           this.state = {
+             first: 1,
+           };
+           this.setFirst = this.setFirst.bind(this);
+         }
+
+         setFirst(first) {
+           this.setState({first});
+         }
+
+         render() {
+           return React.createElement(component, {
+             first: this.state.first,
+             setFirst: this.setFirst
+           });
+         }
+       }
+     }
+
+     @connect
+     @graphql(query, { options: ({ first }) => ({ variables: { first }})})
+     class Container extends React.Component<any, any> {
+       componentWillReceiveProps(props) {
+         if (count === 0) { // has data
+           setTimeout(() => {
+             this.props.setFirst(2);
+           }, 5);
+         }
+
+         if (count === 1) {
+           expect(this.props.data.loading).to.be.true; // on variables change
+         }
+
+         if (count === 2) {
+           // new data after fetch
+           expect(props.data.loading).to.be.false;
+           done();
+         }
+         count++;
+       }
+       render() {
+         return null;
+       }
+     };
+
+     mount(<ProviderMock client={client}><Container /></ProviderMock>);
+   });
+
   it('executes a query with two root fields', (done) => {
     const query = gql`query people {
       allPeople(first: 1) { people { name } }
