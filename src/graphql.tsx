@@ -378,12 +378,7 @@ export default function graphql(
           (!shallowEqual(opts.variables, (this.previousOpts as WatchQueryOptions).variables)) &&
           (shallowEqual(old, neu))
         ) {
-          this.hasOperationDataChanged = true;
-          this.data = assign(this.data, { loading: true, variables: opts.variables });
-          this.forceRenderChildren();
-          (this.queryObservable as ObservableQuery).refetch(assign(
-            {}, (this.previousOpts as WatchQueryOptions).variables, opts.variables
-          ));
+          this.data.refetch(opts.variables);
           this.previousOpts = opts;
           return;
         }
