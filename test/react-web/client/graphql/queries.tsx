@@ -256,7 +256,7 @@ describe('queries', () => {
         if (count === 1) expect(loading).to.be.false;
         if (count === 2) expect(loading).to.be.true;
         if (count === 3) {
-          expect(loading).to.be.true;
+          expect(loading).to.be.false;
           done();
         }
         count ++;
