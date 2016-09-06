@@ -436,6 +436,7 @@ export default function graphql(
             fetchMore,
             startPolling,
             stopPolling,
+            updateQuery,
             oldData = {};
 
         const next = ({ data = oldData, loading, error }: any) => {
@@ -448,13 +449,14 @@ export default function graphql(
             'refetch' in data ||
             'fetchMore' in data ||
             'startPolling' in data ||
-            'stopPolling' in data
+            'stopPolling' in data ||
+            'updateQuery' in data
           );
 
           invariant(!resultKeyConflict,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', 'fetchMore', and 'refetch' cannot be ` +
+            `'startPolling', 'stopPolling', 'fetchMore', 'updateQuery', and 'refetch' cannot be ` +
             `returned keys`
           );
 
@@ -473,6 +475,7 @@ export default function graphql(
             stopPolling,
             fetchMore,
             error,
+            updateQuery,
           }, data);
 
           this.forceRenderChildren();
@@ -518,10 +521,13 @@ export default function graphql(
         fetchMore = createBoundRefetch((this.queryObservable as any).fetchMore);
         startPolling = (this.queryObservable as any).startPolling;
         stopPolling = (this.queryObservable as any).stopPolling;
+        updateQuery = (this.queryObservable as any).updateQuery;
 
         // XXX the tests seem to be keeping the error around?
         delete this.data.error;
-        this.data = assign(this.data, { refetch, startPolling, stopPolling, fetchMore, variables });
+        this.data = assign(this.data, {
+          refetch, startPolling, stopPolling, fetchMore, updateQuery, variables,
+        });
       }
 
       forceRenderChildren() {
