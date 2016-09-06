@@ -11,6 +11,10 @@ declare module 'lodash.isequal' {
   export = main.isEqual;
 }
 
+declare module 'recompose/compose' {
+  function hoc(component: any): any;
+  export default (...hocs) => hoc;
+}
 
 declare module 'hoist-non-react-statics' {
   /**
