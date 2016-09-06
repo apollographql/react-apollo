@@ -5,6 +5,16 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### v0.5.0
 
+#### Breaking
+```js
+// old
+renderToStringWithData(component).then(markup) // markup had a script tag
+
+// new
+
+renderToStringWithData(component).then({ markup, initialState }) // markup has not tag, and state is passed
+```
+
 - Feature: Removed client as a prop and fixed warnings when not using ApolloProvider [#189](https://github.com/apollostack/react-apollo/pull/189)
 - Feature: Added updateQuery to data props
 
