@@ -20,6 +20,7 @@ import {
 } from '../../../mocks/components';
 
 import graphql, { withApollo } from '../../../../src/graphql';
+import { compose } from '../../../../src/';
 
 describe('shared opertations', () => {
 
@@ -197,6 +198,41 @@ describe('shared opertations', () => {
       if (!queryExecuted) { done(); return; }
       done(new Error('query ran even though skip present'));
     }, 25);
+  });
+
+  describe('compose', () => {
+    it('binds two queries to props with different syntax', () => {
+      const peopleQuery = gql`query people { allPeople(first: 1) { people { name } } }`;
+      const peopleData = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+
+      const shipsQuery = gql`query ships { allships(first: 1) { ships { name } } }`;
+      const shipsData = { allships: { ships: [ { name: 'Tie Fighter' } ] } };
+
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query: peopleQuery }, result: { data: peopleData } },
+        { request: { query: shipsQuery }, result: { data: shipsData } }
+      );
+      const client = new ApolloClient({ networkInterface });
+
+      const enhanced = compose(
+        graphql(peopleQuery, { name: 'people' }),
+        graphql(shipsQuery, { name: 'ships' })
+      );
+
+      const ContainerWithData = enhanced((props) => {
+        const { people, ships } = props;
+        expect(people).to.exist;
+        expect(people.loading).to.be.true;
+
+        expect(ships).to.exist;
+        expect(ships.loading).to.be.true;
+        return null;
+      });
+
+      const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      (wrapper as any).unmount();
+    });
   });
 
 });

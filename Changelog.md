@@ -2,6 +2,11 @@
 
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
+### vNext
+
+### v0.5.1
+
+- Feature: Added link to [recompose](https://github.com/acdlite/recompose) to use the `compose` function. This makes it easy to combine multiple queries on a single component. [#194](https://github.com/apollostack/react-apollo/pull/194)
 
 ### v0.5.0
 
