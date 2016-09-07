@@ -177,11 +177,17 @@ export default function graphql(
       if (opts.variables || !operation.variables.length) return opts;
 
       let variables = {};
-      for (let { variable } of operation.variables) {
+      for (let { variable, type } of operation.variables) {
         if (!variable.name || !variable.name.value) continue;
 
         if (typeof props[variable.name.value] !== 'undefined') {
           variables[variable.name.value] = props[variable.name.value];
+          continue;
+        }
+
+        // allow optional props
+        if (type.kind !== 'NonNullType') {
+          variables[variable.name.value] = null;
           continue;
         }
 

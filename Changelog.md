@@ -4,6 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.2
+
+- Feature: Allow optional variables by passing null value on behalf of the variable
+
 ### v0.5.1
 
 - Feature: Added link to [recompose](https://github.com/acdlite/recompose) to use the `compose` function. This makes it easy to combine multiple queries on a single component. [#194](https://github.com/apollostack/react-apollo/pull/194)
