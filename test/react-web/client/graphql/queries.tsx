@@ -1182,4 +1182,64 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('reruns props function after query results change via fetchMore', (done) => {
+    const query = gql`query people($cursor: Int) {
+      allPeople(cursor: $cursor) { cursor, people { name } }
+    }`;
+    const vars1 = { cursor: null };
+    const data1 = { allPeople: { cursor: 1, people: [ { name: 'Luke Skywalker' } ] } };
+    const vars2 = { cursor: 1 };
+    const data2 = { allPeople: { cursor: 2, people: [ { name: 'Leia Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables: vars1 }, result: { data: data1 } },
+      { request: { query, variables: vars2 }, result: { data: data2 } }
+    );
+    const client = new ApolloClient({ networkInterface });
+
+    let isUpdated = false;
+    @graphql(query, {
+      // XXX: I think we should be able to avoid this https://github.com/apollostack/react-apollo/issues/197
+      options: { variables: { cursor: null } },
+      props({ data: { loading, allPeople, fetchMore } }) {
+        if (loading) return { loading };
+
+        const { cursor, people } = allPeople;
+        return {
+          people,
+          getMorePeople: () => fetchMore({
+            variables: { cursor },
+            updateQuery(prev, { fetchMoreResult }) {
+              const { data: { allPeople: { cursor, people } } } = fetchMoreResult;
+              return {
+                allPeople: {
+                  cursor,
+                  people: [...people, ...prev.allPeople.people],
+                },
+              };
+            }
+          }),
+        }
+      }
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        if (props.loading) {
+          return;
+        } else if (isUpdated) {
+          expect(props.people.length).to.equal(2);
+          done();
+          return;
+        } else {
+          isUpdated = true;
+          expect(props.people).to.deep.equal(data1.allPeople.people);
+          props.getMorePeople();
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
 });
