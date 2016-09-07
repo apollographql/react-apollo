@@ -474,9 +474,33 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><Container first={null} /></ProviderMock>);
   });
 
-  it('errors if the passed props don\'t contain the needed variables', () => {
+  it('don\'t error on optional required props', () => {
     const query = gql`
       query people($first: Int) {
+        allPeople(first: $first) { people { name } }
+      }
+    `;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const variables = { first: 1 };
+    const networkInterface = mockNetworkInterface({
+      request: { query, variables },
+      result: { data },
+    });
+    const client = new ApolloClient({ networkInterface });
+    const Container =  graphql(query)(() => null);
+
+    let error = null;
+    try {
+      mount(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+    } catch (e) { error = e; }
+
+    expect(error).to.be.null;
+
+  });
+
+  it('errors if the passed props don\'t contain the needed variables', () => {
+    const query = gql`
+      query people($first: Int!) {
         allPeople(first: $first) { people { name } }
       }
     `;
