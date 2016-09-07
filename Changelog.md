@@ -6,7 +6,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### v0.5.2
 
-- Feature: Allow optional variables by passing null value on behalf of the variable
+- Feature: Allow optional variables by passing null value on behalf of the variable [#200](https://github.com/apollostack/react-apollo/pull/200)
 
 ### v0.5.1
 
