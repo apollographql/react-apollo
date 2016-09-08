@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npm run compile",
-    "test": "mocha --require ./test/fixtures/setup.js --reporter spec --full-trace --recursive ./lib/test && jest",
+    "test": "jest",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=15",
     "compile": "tsc",
@@ -37,12 +37,15 @@
   },
   "jest": {
     "preset": "jest-react-native",
-    "unmockedModulePathPatterns": [
-      "./node_modules/react/",
-      "./node_modules/react-dom/",
-      "./node_modules/react-test-renderer/",
-      "./node_modules/react-addons-test-utils/"
-    ]
+    "testEnvironment": "jsdom",
+    "scriptPreprocessor": "preprocessor.js",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
+    "testRegex": ".test.(ts|tsx|js)$"
   },
   "license": "MIT",
   "peerDependencies": {
@@ -67,8 +70,8 @@
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
     "istanbul": "^0.4.2",
-    "jest": "^14.1.0",
-    "jest-react-native": "^14.1.2",
+    "jest": "^15.1.1",
+    "jest-react-native": "^15.0.0",
     "jsdom": "^8.3.1",
     "minimist": "^1.2.0",
     "mobx": "^2.4.2",

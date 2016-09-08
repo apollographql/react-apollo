@@ -1,16 +1,11 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 
 import ApolloClient, { createFragment } from 'apollo-client';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 import {
@@ -35,8 +30,8 @@ describe('fragments', () => {
       @graphql(query)
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(props) {
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).toBe(false);
+          expect(props.data.allPeople).toEqual(data.allPeople);
           done();
         }
         render() {
@@ -64,8 +59,8 @@ describe('fragments', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
         done();
       }
       render() {
@@ -73,7 +68,7 @@ describe('fragments', () => {
       }
     };
 
-    expect((Container as any).fragments.length).to.equal(1);
+    expect((Container as any).fragments.length).toBe(1);
 
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
@@ -113,9 +108,9 @@ describe('fragments', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
-        expect(props.data.allShips).to.deep.equal(data.allShips);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.allShips).toEqual(data.allShips);
         done();
       }
       render() {
@@ -123,7 +118,7 @@ describe('fragments', () => {
       }
     };
 
-    expect((Container as any).fragments.length).to.equal(1);
+    expect((Container as any).fragments.length).toBe(1);
 
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
@@ -154,8 +149,8 @@ describe('fragments', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allShips).to.deep.equal(data.allShips);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allShips).toEqual(data.allShips);
         done();
       }
       render() {

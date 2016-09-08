@@ -1,6 +1,5 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import TestUtils = require('react-addons-test-utils');
@@ -8,10 +7,6 @@ import TestUtils = require('react-addons-test-utils');
 import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 import {
@@ -32,7 +27,7 @@ describe('shared opertations', () => {
       @withApollo
       class ContainerWithData extends React.Component<any, any> {
         render() {
-          expect(this.props.client).to.deep.equal(client);
+          expect(this.props.client).toEqual(client);
           return null;
         }
       }
@@ -63,11 +58,11 @@ describe('shared opertations', () => {
     class ContainerWithData extends React.Component<any, any> {
       render() {
         const { people, ships } = this.props;
-        expect(people).to.exist;
-        expect(people.loading).to.be.true;
+        expect(people).toBeTruthy();
+        expect(people.loading).toBe(true);
 
-        expect(ships).to.exist;
-        expect(ships.loading).to.be.true;
+        expect(ships).toBeTruthy();
+        expect(ships.loading).toBe(true);
         return null;
       }
     }
@@ -95,11 +90,11 @@ describe('shared opertations', () => {
 
     const ContainerWithData = withPeople(withShips((props) => {
       const { people, ships } = props;
-      expect(people).to.exist;
-      expect(people.loading).to.be.true;
+      expect(people).toBeTruthy();
+      expect(people.loading).toBe(true);
 
-      expect(ships).to.exist;
-      expect(ships.loading).to.be.true;
+      expect(ships).toBeTruthy();
+      expect(ships.loading).toBe(true);
       return null;
     }));
 
@@ -128,10 +123,10 @@ describe('shared opertations', () => {
     class ContainerWithData extends React.Component<any, any> {
       render() {
         const { people, addPerson } = this.props;
-        expect(people).to.exist;
-        expect(people.loading).to.be.true;
+        expect(people).toBeTruthy();
+        expect(people.loading).toBe(true);
 
-        expect(addPerson).to.exist;
+        expect(addPerson).toBeTruthy();
         return null;
       }
     }
@@ -168,9 +163,9 @@ describe('shared opertations', () => {
 
     const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
 
-    expect(() => (decorated as any).someMethod()).to.throw();
-    expect((decorated as any).getWrappedInstance().someMethod()).to.deep.equal(testData);
-    expect((decorated as any).refs.wrappedInstance.someMethod()).to.deep.equal(testData);
+    expect(() => (decorated as any).someMethod()).toThrow();
+    expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
+    expect((decorated as any).refs.wrappedInstance.someMethod()).toEqual(testData);
 
   });
 
@@ -187,7 +182,7 @@ describe('shared opertations', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data.loading).to.be.false;
+        expect(this.props.data.loading).toBe(false);
         return null;
       }
     };
@@ -222,11 +217,11 @@ describe('shared opertations', () => {
 
       const ContainerWithData = enhanced((props) => {
         const { people, ships } = props;
-        expect(people).to.exist;
-        expect(people.loading).to.be.true;
+        expect(people).toBeTruthy();
+        expect(people.loading).toBe(true);
 
-        expect(ships).to.exist;
-        expect(ships.loading).to.be.true;
+        expect(ships).toBeTruthy();
+        expect(ships.loading).toBe(true);
         return null;
       });
 

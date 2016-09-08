@@ -1,15 +1,10 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
 import { shallow } from 'enzyme';
 import { createStore } from 'redux';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
 import * as TestUtils from 'react-addons-test-utils';
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import ApolloClient from 'apollo-client';
 
@@ -45,7 +40,7 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>
     );
 
-    expect(wrapper.contains(<div className='unique'/>)).to.equal(true);
+    expect(wrapper.contains(<div className='unique'/>)).toBe(true);
   });
 
   it('should require a client', () => {
@@ -55,7 +50,7 @@ describe('<ApolloProvider /> Component', () => {
           <div className='unique'/>
         </ApolloProvider>
       );
-    }).to.throw(
+    }).toThrowError(
       'ApolloClient was not passed a client instance. Make ' +
       'sure you pass in your client via the "client" prop.'
     );
@@ -68,18 +63,15 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>
     );
 
-    expect(wrapper.contains(<div className='unique'/>)).to.equal(true);
+    expect(wrapper.contains(<div className='unique'/>)).toBe(true);
   });
 
   it('should throw if rendered without a child component', () => {
-    try {
+    expect(() => {
       shallow(
         <ApolloProvider store={store} client={client}/>
       );
-    } catch (e) {
-      expect(e).to.be.instanceof(Error);
-    }
-
+    }).toThrowError(Error);
   });
 
   it('should add the client to the child context', () => {
@@ -90,7 +82,7 @@ describe('<ApolloProvider /> Component', () => {
     ) as React.Component<any, any>;
 
     const child = TestUtils.findRenderedComponentWithType(tree, Child);
-    expect(child.context.client).to.deep.equal(client);
+    expect(child.context.client).toEqual(client);
 
   });
 
@@ -102,7 +94,7 @@ describe('<ApolloProvider /> Component', () => {
     ) as React.Component<any, any>;
 
     const child = TestUtils.findRenderedComponentWithType(tree, Child);
-    expect(child.context.store).to.deep.equal(store);
+    expect(child.context.store).toEqual(store);
 
   });
 });

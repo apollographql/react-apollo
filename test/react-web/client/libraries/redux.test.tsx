@@ -1,6 +1,5 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect } from 'react-redux';
@@ -14,10 +13,6 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import {
   ProviderMock,
@@ -72,7 +67,7 @@ describe('redux integration', () => {
         if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
         if (nextProps.first === 2) {
           if (nextProps.data.loading) return;
-          expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
+          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
           done();
           wrapper.unmount();
         }
@@ -129,11 +124,11 @@ describe('redux integration', () => {
           const { value } = nextProps.fields.firstName;
           if (!value) return;
 
-          expect(value).to.equal(variables.name);
+          expect(value).toBe(variables.name);
           if (nextProps.data.loading || !nextProps.data.allPeople) return;
 
-          expect(nextProps.data.loading).to.be.false;
-          expect(nextProps.data.allPeople).to.deep.equal(data.allPeople);
+          expect(nextProps.data.loading).toBe(false);
+          expect(nextProps.data.allPeople).toEqual(data.allPeople);
           done();
           wrapper.unmount();
         }
@@ -203,8 +198,8 @@ describe('redux integration', () => {
           const { value, initialValue } = nextProps.fields.firstName;
           if (!value) return;
 
-          expect(initialValue).to.equal(data.allPeople.people[0].name);
-          expect(value).to.equal(data.allPeople.people[0].name);
+          expect(initialValue).toBe(data.allPeople.people[0].name);
+          expect(value).toBe(data.allPeople.people[0].name);
 
           done();
           // wrapper.unmount();
@@ -278,7 +273,7 @@ describe('redux integration', () => {
           if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
           if (nextProps.first === 2) {
             if (nextProps.data.loading) return;
-            expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
+            expect(nextProps.data.allPeople).toEqual(data2.allPeople);
             done();
             wrapper.unmount();
           }
@@ -340,7 +335,7 @@ describe('redux integration', () => {
           if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
           if (nextProps.first === 2) {
             if (nextProps.data.loading) return;
-            expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
+            expect(nextProps.data.allPeople).toEqual(data2.allPeople);
             done();
             wrapper.unmount();
           }
@@ -397,7 +392,7 @@ describe('redux integration', () => {
           if (nextProps.first === 1) this.props.dispatch({ type: 'INCREMENT' });
           if (nextProps.first === 2) {
             if (nextProps.data.loading) return;
-            expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
+            expect(nextProps.data.allPeople).toEqual(data2.allPeople);
             done();
             wrapper.unmount();
           }
