@@ -13,7 +13,7 @@ import renderer from 'react-test-renderer';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 import { ApolloProvider, graphql } from '../../lib/src';
-import mockNetworkInterface from '../../lib/test/mocks/mockNetworkInterface';
+import mockNetworkInterface from '../mocks/mockNetworkInterface';
 
 describe('App', () => {
 
