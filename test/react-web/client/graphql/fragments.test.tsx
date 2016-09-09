@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { mount } from 'enzyme';
+import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
 import ApolloClient, { createFragment } from 'apollo-client';
@@ -18,7 +18,7 @@ import graphql from '../../../../src/graphql';
 describe('fragments', () => {
 
   // XXX in a later version, we should support this for composition
-  it('throws if you only pass a fragment', (done) => {
+  it('throws if you only pass a fragment', () => {
     const query = gql`
       fragment Failure on PeopleConnection { people { name } }
     `;
@@ -39,11 +39,10 @@ describe('fragments', () => {
         }
       };
 
-      mount(<ProviderMock client={client}><Container /></ProviderMock>)
-      done(new Error('This should throw'))
+      renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+      throw new Error();
     } catch (e) {
-      // expect(e).to.match(/Invariant Violation/);
-      done();
+      expect(e.name).toMatch(/TypeError/);
     }
   });
 
@@ -70,7 +69,7 @@ describe('fragments', () => {
 
     expect((Container as any).fragments.length).toBe(1);
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('correctly merges a query with inline fragments and passed fragments', (done) => {
@@ -120,7 +119,7 @@ describe('fragments', () => {
 
     expect((Container as any).fragments.length).toBe(1);
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('correctly allows for passed fragments', (done) => {
@@ -158,7 +157,7 @@ describe('fragments', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
 

@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { mount } from 'enzyme';
+import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import assign = require('object-assign');
 
@@ -30,7 +30,7 @@ describe('mutations', () => {
       return null;
     });
 
-    mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
   });
 
   it('binds a mutation to custom props', () => {
@@ -49,10 +49,10 @@ describe('mutations', () => {
       return null;
     });
 
-    mount(<ProviderMock client={client}><ContainerWithData methodName="test" /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ContainerWithData methodName="test" /></ProviderMock>);
   });
 
-  it('does not swallow children errors', (done) => {
+  it('does not swallow children errors', () => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -64,11 +64,10 @@ describe('mutations', () => {
     });
 
     try {
-      mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
-      done(new Error('component should have thrown'));
+      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      throw new Error();
     } catch (e) {
       expect(e.name).toMatch(/TypeError/);
-      done();
     }
 
   });
@@ -94,7 +93,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('can execute a mutation with variables from props', (done) => {
@@ -126,7 +125,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container id={1} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container id={1} /></ProviderMock>);
   });
 
   it('allows falsy values in the mapped variables from props', (done) => {
@@ -158,7 +157,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container id={null} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container id={null} /></ProviderMock>);
   });
 
   it('errors if the passed props don\'t contain the needed variables', () => {
@@ -177,7 +176,7 @@ describe('mutations', () => {
     const Container =  graphql(query)(() => null);
 
     try {
-      mount(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
     } catch (e) {
       expect(e).toMatch(/Invariant Violation: The operation 'addPerson'/);
     }
@@ -217,7 +216,7 @@ describe('mutations', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
   it('can execute a mutation with custom variables', (done) => {
@@ -249,7 +248,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows for passing optimisticResponse for a mutation', (done) => {
@@ -303,7 +302,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows for updating queries from a mutation', (done) => {
@@ -396,7 +395,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container id={'123'} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container id={'123'} /></ProviderMock>);
   });
 
 });
