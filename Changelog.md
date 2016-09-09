@@ -4,6 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.3
+
+- Bug: Fixed issue with updateQuery not being present during componentWillMount [#203](https://github.com/apollostack/react-apollo/pull/203)
+
 ### v0.5.2
 
 - Feature: Allow optional variables by passing null value on behalf of the variable [#200](https://github.com/apollostack/react-apollo/pull/200)

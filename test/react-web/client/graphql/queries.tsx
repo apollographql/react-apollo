@@ -1182,9 +1182,9 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() { // tslint:disable-line
-        expect(this.props.updateQuery).to.be.exist;
-        expect(this.props.updateQuery).to.be.instanceof(Function);
-        expect(this.props.updateQuery).to.not.throw;
+        expect(this.props.data.updateQuery).to.be.exist;
+        expect(this.props.data.updateQuery).to.be.instanceof(Function);
+        expect(this.props.data.updateQuery).to.not.throw;
         done();
       }
       render() {

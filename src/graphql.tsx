@@ -253,6 +253,7 @@ export default function graphql(
       // request / action storage
       private queryObservable: ObservableQuery | Object;
       private querySubscription: Subscription | Object;
+      private updateQueryMethod: any;
 
       // calculated switches to control rerenders
       private haveOwnPropsChanged: boolean;
@@ -350,6 +351,9 @@ export default function graphql(
           return this.client.query(opts);
         };
 
+        // XXX type this better
+        queryData.updateQuery = (mapFn: any) => this.updateQueryMethod = mapFn;
+
         if (!forceFetch) {
           try {
             const result = readQueryFromStore({
@@ -416,6 +420,9 @@ export default function graphql(
         queryOptions.fragments = calculateFragments(queryOptions.fragments);
         const observableQuery = watchQuery(queryOptions);
         const { queryId } = observableQuery;
+
+        // bind any eariler set updateQuery method
+        if (this.updateQueryMethod) observableQuery.updateQuery(this.updateQueryMethod);
 
         // the shape of the query has changed
         if (previousQuery.queryId && previousQuery.queryId !== queryId) {
