@@ -1173,6 +1173,28 @@ describe('queries', () => {
     mount(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('exposes updateQuery as part of the props api during componentWillMount', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillMount() { // tslint:disable-line
+        expect(this.props.data.updateQuery).to.be.exist;
+        expect(this.props.data.updateQuery).to.be.instanceof(Function);
+        expect(this.props.data.updateQuery).to.not.throw;
+        done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
   it('allows updating query results after query has finished', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
