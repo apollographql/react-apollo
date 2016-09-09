@@ -1184,8 +1184,71 @@ describe('queries', () => {
       componentWillMount() { // tslint:disable-line
         expect(this.props.data.updateQuery).to.be.exist;
         expect(this.props.data.updateQuery).to.be.instanceof(Function);
-        expect(this.props.data.updateQuery).to.not.throw;
         done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
+  it('updateQuery throws if called before data has returned', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillMount() { // tslint:disable-line
+        expect(this.props.data.updateQuery).to.be.exist;
+        expect(this.props.data.updateQuery).to.be.instanceof(Function);
+        try {
+          this.props.data.updateQuery();
+          done(new Error('should have thrown'))
+        } catch (e) {
+          expect(e).to.match(/Invariant Violation:/);
+          done();
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
+  it('allows updating query results after query has finished (early binding)', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, result: { data } },
+      { request: { query }, result: { data: data2 } }
+    );
+    const client = new ApolloClient({ networkInterface });
+
+    let isUpdated;
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      public updateQuery: any;
+      componentWillMount() {
+        this.updateQuery = this.props.data.updateQuery;
+      }
+      componentWillReceiveProps(props) {
+        if (isUpdated) {
+          expect(props.data.allPeople).to.deep.equal(data2.allPeople);
+          done();
+          return;
+        } else {
+          isUpdated = true;
+          this.updateQuery((prev) => {
+            return data2;
+          });
+        }
       }
       render() {
         return null;
