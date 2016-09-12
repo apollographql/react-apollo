@@ -111,45 +111,43 @@ describe('SSR', () => {
         ;
     });
 
-    // XXX this will require a custom renderer
-    // it('should allow for setting state in a component', (done) => {
-    //   const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
-    //   const data = { currentUser: { firstName: 'James' } };
-    //   const variables = { id: 1 };
-    //   const networkInterface = mockNetworkInterface(
-    //     { request: { query, variables }, result: { data }, delay: 50 }
-    //   );
-    //   const apolloClient = new ApolloClient({ networkInterface });
+    it('should allow for setting state in a component', (done) => {
+      const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const variables = { id: 1 };
+      const networkInterface = mockNetworkInterface(
+        { request: { query, variables }, result: { data }, delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
 
-    //   @graphql(query, { name: 'user' })
-    //   class Element extends React.Component<any, any> {
+      @graphql(query, { name: 'user' })
+      class Element extends React.Component<any, any> {
 
-    //     state = { thing: 1 }
+        state = { thing: 1 };
 
-    //     componentWillMount() {
-    //       console.log('here')
-    //       this.setState({ thing: 2 })
-    //     }
+        componentWillMount() {
+          this.setState({ thing: this.state.thing + 1 });
+        }
 
-    //     render(){
-    //       const { user } = this.props;
-    //       console.log(this.state);
-    //       return <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
-    //     }
-    //   }
+        render(){
+          const { user } = this.props;
+          expect(this.state.thing).to.equal(2);
+          return <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+        }
+      }
 
-    //   const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
+      const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
 
-    //   getDataFromTree(app)
-    //     .then(({ store }) => {
-    //       const initialState = store.getState();
-    //       expect(initialState.apollo.data).to.exist;
-    //       expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).to.exist;
-    //       done();
-    //     })
-    //     .catch(console.error)
-    //     ;
-    // });
+      getDataFromTree(app)
+        .then(({ store }) => {
+          const initialState = store.getState();
+          expect(initialState.apollo.data).to.exist;
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).to.exist;
+          done();
+        })
+        .catch(console.error)
+        ;
+    });
 
     it('shouldn\'t run queries if ssr is turned to off', (done) => {
       const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
