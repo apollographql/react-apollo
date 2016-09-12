@@ -46,7 +46,13 @@ function getQueriesFromTree(
     let ComponentClass = type;
     let ownProps = getPropsFromChild(component);
     const Component = new ComponentClass(ownProps, context);
-
+    try {
+      Component.props = ownProps;
+      Component.setState = (newState: any) => {
+        Component.state = assign({}, Component.state, newState);
+      };
+    } catch (e) {} // tslint:disable-line
+    if (Component.componentWillMount) Component.componentWillMount();
 
     let newContext = context;
     if (Component.getChildContext) newContext = assign({}, context, Component.getChildContext());
