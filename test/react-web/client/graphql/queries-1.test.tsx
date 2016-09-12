@@ -735,7 +735,7 @@ describe('queries', () => {
     );
     const client = new ApolloClient({ networkInterface });
 
-    let isRefectching;
+    let isRefetching;
     let refetched;
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -749,16 +749,16 @@ describe('queries', () => {
         }
 
         // don't remove old data
-        if (isRefectching) {
-          isRefectching = false;
+        if (isRefetching) {
+          isRefetching = false;
           refetched = true;
           expect(props.data.loading).toBe(true);
           expect(props.data.allPeople).toEqual(data.allPeople);
           return;
         }
 
-        if (!isRefectching) {
-          isRefectching = true;
+        if (!isRefetching) {
+          isRefetching = true;
           props.data.refetch();
         }
       }
