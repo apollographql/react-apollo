@@ -4,6 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.5
+
+- Bug: Fixed lifecycle events for componentWillMount() on the server [#205](https://github.com/apollostack/react-apollo/pull/205)
+
 ### v0.5.4
 
 - Bug: Created better reference to updateQuery when bound early. It will also throw if called before it should be.
