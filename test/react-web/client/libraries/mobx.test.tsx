@@ -49,35 +49,35 @@ describe('mobx integration', () => {
 
     const client = new ApolloClient({ networkInterface });
 
-    @graphql(query, {
-      options: (props) => ({ variables: { first: props.appState.first } }),
-    })
-    @observer
-    class Container extends React.Component<any, any> {
-      componentWillReact() {
-        if (this.props.appState.first === 1) {
-          this.props.data.refetch({ first: this.props.appState.first });
-        }
-      }
-      componentWillReceiveProps(nextProps) {
-        if (this.props.appState.first === 1) {
-          if (nextProps.data.loading) return;
-          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
-          done();
-        }
-      }
+    /* @graphql(query, { */
+    /*   options: (props) => ({ variables: { first: props.appState.first } }), */
+    /* }) */
+    /* @observer */
+    /* class Container extends React.Component<any, any> { */
+    /*   componentWillReact() { */
+    /*     if (this.props.appState.first === 1) { */
+    /*       this.props.data.refetch({ first: this.props.appState.first }); */
+    /*     } */
+    /*   } */
+    /*   componentWillReceiveProps(nextProps) { */
+    /*     if (this.props.appState.first === 1) { */
+    /*       if (nextProps.data.loading) return; */
+    /*       expect(nextProps.data.allPeople).toEqual(data2.allPeople); */
+    /*       done(); */
+    /*     } */
+    /*   } */
 
-      render() {
-        return <div>{this.props.appState.first}</div>;
-      }
-    };
+    /*   render() { */
+    /*     return <div>{this.props.appState.first}</div>; */
+    /*   } */
+    /* }; */
 
-    const appState = new AppState();
-    renderer.create(
-      <ProviderMock client={client}>
-        <Container appState={appState} />
-      </ProviderMock>
-    ) as any;
+    /* const appState = new AppState(); */
+    /* renderer.create( */
+    /*   <ProviderMock client={client}> */
+    /*     <Container appState={appState} /> */
+    /*   </ProviderMock> */
+    /* ) as any; */
 
   });
 

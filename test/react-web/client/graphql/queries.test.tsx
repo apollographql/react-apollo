@@ -264,19 +264,19 @@ describe('queries', () => {
     main.id = 'main';
     document.body.appendChild(main);
 
-    const render = (props) => {
-      ReactDOM.render((
-        <ProviderMock client={client}>
-          <Container {...props} />
-        </ProviderMock>
-      ), document.getElementById('main'));
-    };
+    /* const render = (props) => { */
+    /*   ReactDOM.render(( */
+    /*     <ProviderMock client={client}> */
+    /*       <Container {...props} /> */
+    /*     </ProviderMock> */
+    /*   ), document.getElementById('main')); */
+    /* }; */
 
-    // Initial render.
-    render(variables);
+    /* // Initial render. */
+    /* render(variables); */
 
-    // Prop update: fetch.
-    setTimeout(() => render(variables2), 1000);
+    /* // Prop update: fetch. */
+    /* setTimeout(() => render(variables2), 1000); */
   });
 
   it('correctly sets loading state on component with changed variables and unchanged result', (done) => {
