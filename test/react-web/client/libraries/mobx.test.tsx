@@ -1,7 +1,7 @@
 
 import * as React from 'react';
-import * as renderer from 'react-test-renderer';
-// import { observer } from 'mobx-react';
+import { mount } from 'enzyme';
+import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import gql from 'graphql-tag';
 
@@ -19,22 +19,21 @@ import graphql from '../../../../src/graphql';
 
 describe('mobx integration', () => {
 
-  // class AppState {
-  //   @observable first = 0;
+  class AppState {
+    @observable first = 0;
 
-  //   constructor() {
-  //     setInterval(() => {
-  //       if (this.first <= 2) this.first += 1;
-  //     }, 250);
-  //   }
+    constructor() {
+      setInterval(() => {
+        if (this.first <= 2) this.first += 1;
+      }, 250);
+    }
 
-  //   reset() {
-  //     this.first = 0;
-  //   }
-  // }
+    reset() {
+      this.first = 0;
+    }
+  }
 
-  // XXX fix test
-  xit('works with mobx', (done) => {
+  it('works with mobx', (done) => {
     const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const variables = { first: 0 };
@@ -49,35 +48,35 @@ describe('mobx integration', () => {
 
     const client = new ApolloClient({ networkInterface });
 
-    /* @graphql(query, { */
-    /*   options: (props) => ({ variables: { first: props.appState.first } }), */
-    /* }) */
-    /* @observer */
-    /* class Container extends React.Component<any, any> { */
-    /*   componentWillReact() { */
-    /*     if (this.props.appState.first === 1) { */
-    /*       this.props.data.refetch({ first: this.props.appState.first }); */
-    /*     } */
-    /*   } */
-    /*   componentWillReceiveProps(nextProps) { */
-    /*     if (this.props.appState.first === 1) { */
-    /*       if (nextProps.data.loading) return; */
-    /*       expect(nextProps.data.allPeople).toEqual(data2.allPeople); */
-    /*       done(); */
-    /*     } */
-    /*   } */
+    @graphql(query, {
+      options: (props) => ({ variables: { first: props.appState.first } }),
+    })
+    @observer
+    class Container extends React.Component<any, any> {
+      componentWillReact() {
+        if (this.props.appState.first === 1) {
+          this.props.data.refetch({ first: this.props.appState.first });
+        }
+      }
+      componentWillReceiveProps(nextProps) {
+        if (this.props.appState.first === 1) {
+          if (nextProps.data.loading) return;
+          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
+          done();
+        }
+      }
 
-    /*   render() { */
-    /*     return <div>{this.props.appState.first}</div>; */
-    /*   } */
-    /* }; */
+      render() {
+        return <div>{this.props.appState.first}</div>;
+      }
+    };
 
-    /* const appState = new AppState(); */
-    /* renderer.create( */
-    /*   <ProviderMock client={client}> */
-    /*     <Container appState={appState} /> */
-    /*   </ProviderMock> */
-    /* ) as any; */
+    const appState = new AppState();
+    mount(
+      <ProviderMock client={client}>
+        <Container appState={appState} />
+      </ProviderMock>
+    ) as any;
 
   });
 
