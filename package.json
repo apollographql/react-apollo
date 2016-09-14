@@ -4,7 +4,6 @@
   "description": "React data container for Apollo Client",
   "main": "index.js",
   "scripts": {
-    "pretest": "npm run compile",
     "test": "jest",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=15",
@@ -45,7 +44,7 @@
       "js",
       "json"
     ],
-    "testRegex": ".test.(ts|tsx|js)$"
+    "testRegex": "<rootDir>/test/.*.test.(ts|tsx|js)$"
   },
   "license": "MIT",
   "peerDependencies": {
