@@ -19,6 +19,11 @@ declare module 'lodash.flatten' {
   export = main;
 }
 
+declare module 'lodash.pick' {
+  import main = require('lodash');
+  export = main.pick;
+}
+
 declare module 'recompose/compose' {
   function hoc(component: any): any;
   export default (...hocs) => hoc;
