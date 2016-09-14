@@ -1,4 +1,3 @@
-
 import {
   Component,
   createElement,
@@ -8,6 +7,7 @@ import {
 // modules don't export ES6 modules
 import isEqual = require('lodash.isequal');
 import flatten = require('lodash.flatten');
+import pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
 import invariant = require('invariant');
@@ -62,6 +62,10 @@ const defaultQueryData = {
 
 const defaultMapPropsToOptions = props => ({});
 const defaultMapResultToProps = props => props;
+
+// the fields we want to copy over to our data prop
+const observableQueryFields = observable => pick(observable, 'variables',
+  'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -134,6 +138,7 @@ export default function graphql(
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
+    // XXX: what is up with this? We shouldn't have to do this.
     function calculateFragments(fragments): FragmentDefinition[] {
       if (!fragments && !operation.fragments.length) {
         return fragments;
@@ -153,6 +158,11 @@ export default function graphql(
         newOpts.variables = assign({}, opts.variables, newOpts.variables);
       }
       if (newOpts) opts = assign({}, opts, newOpts);
+
+      if (opts.fragments) {
+        opts.fragments = calculateFragments(opts.fragments);
+      }
+
       if (opts.variables || !operation.variables.length) return opts;
 
       let variables = {};
@@ -187,7 +197,6 @@ export default function graphql(
 
       if (opts.ssr === false) return false;
       if (!opts.variables) delete opts.variables;
-      opts.fragments = calculateFragments(opts.fragments);
 
       // if this query is in the store, don't block execution
       try {
@@ -230,8 +239,8 @@ export default function graphql(
       // private previousQueries: Object;
 
       // request / action storage
-      private queryObservable: ObservableQuery | Object;
-      private querySubscription: Subscription | Object;
+      private queryObservable: ObservableQuery;
+      private querySubscription: Subscription;
 
       // calculated switches to control rerenders
       private haveOwnPropsChanged: boolean;
@@ -254,11 +263,8 @@ export default function graphql(
         this.store = this.client.store;
 
         this.type = operation.type;
-        this.queryObservable = {};
-        this.querySubscription = {};
 
         this.setInitialProps();
-
       }
 
       componentDidMount() {
@@ -310,144 +316,66 @@ export default function graphql(
           return;
         }
 
-        const queryOptions = this.calculateOptions(this.props);
-        const fragments = calculateFragments(queryOptions.fragments);
-        const { variables, forceFetch, skip } = queryOptions as QueryOptions;
+        // Create the observable but don't subscribe yet. The query won't
+        // fire until we do.
+        const opts: QueryOptions = this.calculateOptions(this.props);
+        this.data = assign({}, defaultQueryData) as any;
 
-        let queryData = assign({}, defaultQueryData) as any;
-        queryData.variables = variables;
-        if (skip) queryData.loading = false;
-
-        queryData.refetch = (vars) => this.client.query({
-          query: document,
-          variables: vars,
-        });
-
-        queryData.fetchMore = (opts) => {
-          opts.query = document;
-          return this.client.query(opts);
-        };
-
-        // XXX type this better
-        // this is a stub for early binding of updateQuery before data
-        queryData.updateQuery = (mapFn: any) => {
-          invariant(!!(this.queryObservable as ObservableQuery).updateQuery, `
-            Update query has been called before query has been created
-          `);
-
-          (this.queryObservable as ObservableQuery).updateQuery(mapFn);
-        };
-
-        if (!forceFetch) {
-          try {
-            const result = readQueryFromStore({
-              store: this.client.queryManager.getApolloState().data,
-              query: document,
-              variables,
-              fragmentMap: createFragmentMap(fragments),
-            });
-
-            queryData = assign(queryData, { errors: null, loading: false }, result);
-          } catch (e) {/* tslint:disable-line */}
+        if (opts.skip) {
+          this.data.loading = false;
+        } else {
+          this.createQuery(opts);
         }
+      }
 
-        this.data = queryData;
+      createQuery(opts: QueryOptions) {
+        this.queryObservable = this.client.watchQuery(assign({
+          query: document,
+        }, opts));
+
+        assign(this.data, observableQueryFields(this.queryObservable));
+
+        if (!opts.forceFetch) {
+          // try and fetch initial data from the store
+          assign(this.data, this.queryObservable.currentResult());
+        }
       }
 
       subscribeToQuery(props): boolean {
-        const { watchQuery } = this.client;
         const opts = calculateOptions(props) as QueryOptions;
-        if (opts.skip) return;
 
         // don't rerun if nothing has changed
         if (isEqual(opts, this.previousOpts)) return false;
 
-        // if the only thing that changed was the variables, do a refetch instead of a new query
-        const old = assign({}, this.previousOpts) as any;
-        const neu = assign({}, opts) as any;
-        delete old.variables;
-        delete neu.variables;
+        // XXX: tear down old subscription if it exists
+        if (opts.skip) return;
 
-        if (
-          this.previousOpts &&
-          (!shallowEqual(opts.variables, (this.previousOpts as WatchQueryOptions).variables)) &&
-          (shallowEqual(old, neu))
-        ) {
-          this.hasOperationDataChanged = true;
-          this.data = assign(this.data, { loading: true, variables: opts.variables });
-          this.forceRenderChildren();
-          (this.queryObservable as ObservableQuery).refetch(assign(
-            {}, (this.previousOpts as WatchQueryOptions).variables, opts.variables
-          ))
-            .then((result) => {
-              this.data = assign(this.data, result.data, { loading: false });
-              this.hasOperationDataChanged = true;
-              this.forceRenderChildren();
-              return result;
-            })
-            .catch(error => {
-              this.data = assign(this.data, { loading: false, error });
-              this.hasOperationDataChanged = true;
-              this.forceRenderChildren();
-              return error;
-            });
-          this.previousOpts = opts;
+        // XXX: this seems like the wrong function to do this in, should it be in willReceiveProps?
+        // We've subscribed already, just change stuff.
+        if (this.querySubscription) {
+          this.queryObservable.setVariables(opts.variables);
+
+          // Ensure we are up-to-date with the latest state of the world
+          assign(this.data,
+            { loading: this.queryObservable.currentResult().loading },
+            observableQueryFields(this.queryObservable));
+
+          // XXX: if pollingInterval is set, it may have changed, we could called
+          // this.queryObservable.startPolling here
           return;
         }
 
-        this.previousOpts = opts;
-
-        let previousQuery = this.queryObservable as any;
-        this.unsubscribeFromQuery();
-
-        const queryOptions: WatchQueryOptions = assign({ query: document }, opts);
-        queryOptions.fragments = calculateFragments(queryOptions.fragments);
-        const observableQuery = watchQuery(queryOptions);
-        const { queryId } = observableQuery;
-
-        // the shape of the query has changed
-        if (previousQuery.queryId && previousQuery.queryId !== queryId) {
-          this.data = assign(this.data, { loading: true });
-          this.hasOperationDataChanged = true;
-          this.forceRenderChildren();
+        // if we skipped initially, we may not have yet created the observable
+        if (!this.queryObservable) {
+          this.createQuery(opts);
         }
 
-        this.handleQueryData(observableQuery, queryOptions);
-      }
-
-      unsubscribeFromQuery() {
-        if ((this.querySubscription as Subscription).unsubscribe) {
-          (this.querySubscription as Subscription).unsubscribe();
-          delete this.queryObservable;
-        }
-      }
-
-      handleQueryData(observableQuery: ObservableQuery, { variables }: WatchQueryOptions): void {
-        // bind each handle to updating and rerendering when data
-        // has been recieved
-        let refetch,
-            fetchMore,
-            startPolling,
-            stopPolling,
-            updateQuery,
-            oldData = {};
-
+        let oldData = {};
         const next = ({ data = oldData, loading, error }: any) => {
-          const { queryId } = observableQuery;
 
-          let initialVariables = this.client.queryManager.getApolloState().queries[queryId].variables;
+        const { queryId } = this.queryObservable;
 
-          const resultKeyConflict: boolean = (
-            'errors' in data ||
-            'loading' in data ||
-            'refetch' in data ||
-            'fetchMore' in data ||
-            'startPolling' in data ||
-            'stopPolling' in data ||
-            'updateQuery' in data
-          );
-
-          invariant(!resultKeyConflict,
+          invariant(Object.keys(observableQueryFields(data)).length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
             `conflict with the return object. 'errors', 'loading', ` +
             `'startPolling', 'stopPolling', 'fetchMore', 'updateQuery', and 'refetch' cannot be ` +
@@ -461,41 +389,14 @@ export default function graphql(
 
           // cache the changed data for next check
           oldData = assign({}, data);
+
           this.data = assign({
-            variables: this.data.variables || initialVariables,
             loading,
-            refetch,
-            startPolling,
-            stopPolling,
-            fetchMore,
             error,
-            updateQuery,
-          }, data);
+          }, data, observableQueryFields(this.queryObservable));
 
           this.forceRenderChildren();
         };
-
-        const createBoundRefetch = (refetchMethod) => (vars, ...args) => {
-          let newVariables = vars;
-          const newData = { loading: true } as any;
-          if (vars && (vars.variables || vars.query || vars.updateQuery)) {
-            newVariables = assign({}, this.data.variables, vars.variables);
-            newData.variables = newVariables;
-          }
-
-          this.data = assign(this.data, newData);
-
-          this.hasOperationDataChanged = true;
-          this.forceRenderChildren();
-          // XXX why doesn't apollo-client fire next on a refetch with the same data?
-          return refetchMethod(vars, ...args)
-            .then((result) => {
-              if (result && isEqual(result.data, oldData)) next(result);
-              return result;
-            });
-        };
-
-        this.queryObservable = observableQuery;
 
         const handleError = (error) => {
           if (error instanceof ApolloError) return next({ error });
@@ -509,19 +410,18 @@ export default function graphql(
 
           Instead, we subscribe to the store for network errors and re-render that way
         */
-        this.querySubscription = observableQuery.subscribe({ next, error: handleError });
+        this.querySubscription = this.queryObservable.subscribe({ next, error: handleError });
 
-        refetch = createBoundRefetch((this.queryObservable as any).refetch);
-        fetchMore = createBoundRefetch((this.queryObservable as any).fetchMore);
-        startPolling = (this.queryObservable as any).startPolling;
-        stopPolling = (this.queryObservable as any).stopPolling;
-        updateQuery = (this.queryObservable as any).updateQuery;
-
+        // XXX: can remove this?
         // XXX the tests seem to be keeping the error around?
         delete this.data.error;
-        this.data = assign(this.data, {
-          refetch, startPolling, stopPolling, fetchMore, updateQuery, variables,
-        });
+      }
+
+      unsubscribeFromQuery() {
+        if ((this.querySubscription as Subscription).unsubscribe) {
+          (this.querySubscription as Subscription).unsubscribe();
+          delete this.queryObservable;
+        }
       }
 
       forceRenderChildren() {
@@ -547,7 +447,6 @@ export default function graphql(
           if (typeof opts.variables === 'undefined') delete opts.variables;
 
           (opts as any).mutation = document;
-          opts.fragments = calculateFragments(opts.fragments);
           return this.client.mutate((opts as any));
         };
 
