@@ -51,8 +51,7 @@ describe('SSR', () => {
         .then(() => {
           const markup = ReactDOM.renderToString(app);
           expect(markup).toMatch(/James/);
-        })
-        ;
+        });
     });
 
     it('should run return the initial state for hydration', () => {
