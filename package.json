@@ -44,7 +44,8 @@
       "js",
       "json"
     ],
-    "testRegex": "<rootDir>/test/.*.test.(ts|tsx|js)$"
+    "testRegex": "<rootDir>/test/.*.test.(ts|tsx|js)$",
+    "collectCoverage": true
   },
   "license": "MIT",
   "peerDependencies": {
