@@ -14,11 +14,11 @@
     "lib": true,
     ".gitignore": true,
     ".npmignore": true,
-    ".travis.*": true,
+    ".travis.*": false,
     "appveyor.yml": true,
     "LICENSE": true,
-    "typings.d.ts": false,
-    "tsconfig.json": false,
+    "typings.d.ts": true,
+    "tsconfig.json": true,
     "tslint.json": true,
     "coverage": true
   }

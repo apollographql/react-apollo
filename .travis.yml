@@ -5,7 +5,6 @@ node_js:
 install:
   - npm install -g coveralls
   - npm install
-  - npm install -g npm-publish
 
 script:
   - npm test
@@ -13,7 +12,7 @@ script:
   - npm run compile
   - npm run filesize
   - python node_modules/travis-weigh-in/weigh_in.py ./dist/index.min.js
-  
+
 # Allow Travis tests to run in containers.
 sudo: false
 
