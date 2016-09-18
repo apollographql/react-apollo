@@ -94,7 +94,7 @@ export function getDataFromTree(app, ctx: any = {}, fetch: boolean = true): Prom
   const mappedQueries = flatten(queries).map(y => y.query.then(x => y));
   // run through all queries we can
   return Promise.all(mappedQueries)
-    .then(trees => Promise.all(trees.filter(x => !!x).map(x => {
+    .then(trees => Promise.all(trees.filter(x => !!x).map((x: any) => {
       return getDataFromTree(x.component, context, false); // don't rerun `fetchData'
     })))
     .then(() => (context));

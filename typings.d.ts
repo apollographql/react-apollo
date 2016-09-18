@@ -1,5 +1,6 @@
 /// <reference types="graphql-typings" />
 
+
 /*
   LODASH
 */
@@ -11,6 +12,11 @@ declare module 'lodash.isobject' {
 declare module 'lodash.isequal' {
   import main = require('lodash');
   export = main.isEqual;
+}
+
+declare module 'lodash.flatten' {
+  import main = require('lodash');
+  export = main.flatten;
 }
 
 declare module 'recompose/compose' {
@@ -28,11 +34,6 @@ declare module 'hoist-non-react-statics' {
   function hoistNonReactStatics(targetComponent: any, sourceComponent: any): any;
   namespace hoistNonReactStatics {}
   export = hoistNonReactStatics;
-}
-
-declare module 'lodash.flatten' {
-  import main = require('lodash');
-  export = main.flatten;
 }
 
 declare module 'redux-loop' {
