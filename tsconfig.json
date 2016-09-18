@@ -15,11 +15,9 @@
     "jsx": "react"
   },
   "include": [
-    "./global.d.ts"
+    "./typings.d.ts"
   ],
   "exclude": [
-    "typings/globals",
-    "typings/modules",
     "node_modules",
     "dist",
     "lib"

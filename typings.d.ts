@@ -1,3 +1,5 @@
+/// <reference types="graphql-typings" />
+
 /*
   LODASH
 */
