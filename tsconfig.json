@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
+    "lib": ["es6", "dom"],
     "moduleResolution": "node",
     "sourceMap": true,
     "declaration": true,
@@ -15,7 +16,9 @@
     "jsx": "react"
   },
   "include": [
-    "./typings.d.ts"
+    "./typings.d.ts",
+    "./src/index.ts",
+    "./src/server.ts"
   ],
   "exclude": [
     "node_modules",
