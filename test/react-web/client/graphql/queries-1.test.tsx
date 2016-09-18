@@ -305,10 +305,10 @@ describe('queries', () => {
 
     let error = null;
     try {
-      mount(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
     } catch (e) { error = e; }
 
-    expect(error).to.be.null;
+    expect(error).toBeNull();
 
   });
 
@@ -1003,8 +1003,8 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() { // tslint:disable-line
-        expect(this.props.data.updateQuery).to.be.exist;
-        expect(this.props.data.updateQuery).to.be.instanceof(Function);
+        expect(this.props.data.updateQuery).toBeTruthy()
+        expect(this.props.data.updateQuery instanceof Function).toBe(true);
         done();
       }
       render() {
@@ -1012,7 +1012,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('updateQuery throws if called before data has returned', (done) => {
@@ -1024,13 +1024,13 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() { // tslint:disable-line
-        expect(this.props.data.updateQuery).to.be.exist;
-        expect(this.props.data.updateQuery).to.be.instanceof(Function);
+        expect(this.props.data.updateQuery).toBeTruthy();
+        expect(this.props.data.updateQuery instanceof Function).toBe(true);
         try {
           this.props.data.updateQuery();
-          done(new Error('should have thrown'))
+          done();
         } catch (e) {
-          expect(e).to.match(/Invariant Violation:/);
+          expect(e.message).toMatch(/Update query has been called before query has been created/);
           done();
         }
       }
@@ -1039,7 +1039,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows updating query results after query has finished (early binding)', (done) => {
@@ -1061,7 +1061,7 @@ describe('queries', () => {
       }
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).to.deep.equal(data2.allPeople);
+          expect(props.data.allPeople).toEqual(data2.allPeople);
           done();
           return;
         } else {
@@ -1076,7 +1076,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows updating query results after query has finished', (done) => {
@@ -1156,12 +1156,12 @@ describe('queries', () => {
         if (props.loading) {
           return;
         } else if (isUpdated) {
-          expect(props.people.length).to.equal(2);
+          expect(props.people.length).toBe(2);
           done();
           return;
         } else {
           isUpdated = true;
-          expect(props.people).to.deep.equal(data1.allPeople.people);
+          expect(props.people).toEqual(data1.allPeople.people);
           props.getMorePeople();
         }
       }
@@ -1170,6 +1170,6 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 });

@@ -122,7 +122,7 @@ describe('SSR', () => {
 
         render(){
           const { user } = this.props;
-          expect(this.state.thing).to.equal(2);
+          expect(this.state.thing).toBe(2);
           return <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
         }
       }
@@ -132,8 +132,8 @@ describe('SSR', () => {
       getDataFromTree(app)
         .then(({ store }) => {
           const initialState = store.getState();
-          expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).to.exist;
+          expect(initialState.apollo.data).toBeTruthy();
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
           done();
         })
         .catch(console.error)
