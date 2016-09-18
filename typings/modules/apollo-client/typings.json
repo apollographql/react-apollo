@@ -1,8 +1,0 @@
-{
-  "resolution": "main",
-  "tree": {
-    "src": "/Users/james.baxley/Products/apollo/react-apollo/node_modules/apollo-client/index.d.ts",
-    "raw": "file:node_modules/apollo-client/index.d.ts",
-    "typings": "/Users/james.baxley/Products/apollo/react-apollo/node_modules/apollo-client/index.d.ts"
-  }
-}
