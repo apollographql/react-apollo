@@ -1,18 +1,12 @@
 
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import * as chai from 'chai';
-import { mount } from 'enzyme';
+import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 import { ApolloError } from 'apollo-client/errors';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 import {
@@ -30,15 +24,15 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    const ContainerWithData =  graphql(query)(({ data }) => { // tslint:disable-line
-      expect(data).to.exist;
-      expect(data.ownProps).to.not.exist;
-      expect(data.loading).to.be.true;
+    const ContainerWithData = graphql(query)(({ data }) => { // tslint:disable-line
+      expect(data).toBeTruthy();
+      expect(data.ownProps).toBeFalsy();
+      expect(data.loading).toBe(true);
       return null;
     });
 
-    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
-    (wrapper as any).unmount();
+    const output = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    output.unmount();
   });
 
   it('includes the variables in the props', () => {
@@ -51,15 +45,15 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     const ContainerWithData =  graphql(query)(({ data }) => { // tslint:disable-line
-      expect(data).to.exist;
-      expect(data.variables).to.deep.equal(variables);
+      expect(data).toBeTruthy();;
+      expect(data.variables).toEqual(variables);
       return null;
     });
 
-    mount(<ProviderMock client={client}><ContainerWithData first={1} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ContainerWithData first={1} /></ProviderMock>);
   });
 
-  it('does not swallow children errors', (done) => {
+  it('does not swallow children errors', () => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -71,11 +65,10 @@ describe('queries', () => {
     });
 
     try {
-      mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
-      done(new Error('component should have thrown'));
+      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      throw new Error();
     } catch (e) {
-      expect(e).to.match(/TypeError/);
-      done();
+      expect(e.name).toMatch(/TypeError/);
     }
 
   });
@@ -89,8 +82,8 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
         done();
       }
       render() {
@@ -98,189 +91,10 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
-  it('correctly rebuilds props on remount', (done) => {
-    const query = gql`query pollingPeople { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Darth Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface(
-      { request: { query }, result: { data }, newData: () => ({
-        data: {
-          allPeople: { people: [ { name: `Darth Skywalker - ${Math.random()}` } ] },
-        }
-      }) }
-    );
-    const client = new ApolloClient({ networkInterface });
-    let wrapper, app, count = 0;
-
-    @graphql(query, { options: { pollInterval: 10 }})
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        if (count === 1) { // has data
-          wrapper.unmount();
-          wrapper = mount(app);
-        }
-
-        if (count === 10) {
-          wrapper.unmount();
-          done();
-        }
-        count++;
-      }
-      render() {
-        return null;
-      }
-    };
-
-    app = <ProviderMock client={client}><Container /></ProviderMock>;
-
-    wrapper = mount(app);
-  });
-
-  it('correctly sets loading state on remounted forcefetch', (done) => {
-    const query = gql`query pollingPeople { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Darth Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface(
-      { request: { query }, result: { data }, delay: 10, newData: () => ({
-        data: {
-          allPeople: { people: [ { name: `Darth Skywalker - ${Math.random()}` } ] },
-        },
-      }) }
-    );
-    const client = new ApolloClient({ networkInterface });
-    let wrapper, app, count = 0;
-
-    @graphql(query, { options: { forceFetch: true }})
-    class Container extends React.Component<any, any> {
-      componentWillMount() {
-        if (count === 1) {
-          expect(this.props.data.loading).to.be.true; // on remount
-          count++;
-        }
-      }
-      componentWillReceiveProps(props) {
-        if (count === 0) { // has data
-          wrapper.unmount();
-          setTimeout(() => {
-            wrapper = mount(app);
-          }, 5);
-        }
-
-        if (count === 2) {
-          // remounted data after fetch
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople).to.exist;
-          done();
-        }
-        count++;
-      }
-      render() {
-        return null;
-      }
-    };
-
-    app = <ProviderMock client={client}><Container /></ProviderMock>;
-
-    wrapper = mount(app);
-  });
-
-  it('correctly sets loading state on remounted component with changed variables', (done) => {
-    const query = gql`
-      query remount($first: Int) { allPeople(first: $first) { people { name } } }
-    `;
-    const data = { allPeople: null };
-    const variables = { first: 1 };
-    const variables2 = { first: 2 };
-    const networkInterface = mockNetworkInterface(
-      { request: { query, variables }, result: { data }, delay: 10 },
-      { request: { query, variables: variables2 }, result: { data }, delay: 10 }
-    );
-    const client = new ApolloClient({ networkInterface });
-    let wrapper, render, count = 0;
-
-    @graphql(query, { options: ({ first }) => ({ variables: { first }})})
-    class Container extends React.Component<any, any> {
-      componentWillMount() {
-        if (count === 1) {
-          expect(this.props.data.loading).to.be.true; // on remount
-          count++;
-        }
-      }
-      componentWillReceiveProps(props) {
-        if (count === 0) { // has data
-          wrapper.unmount();
-          setTimeout(() => {
-            wrapper = mount(render(2));
-          }, 5);
-        }
-
-        if (count === 2) {
-          // remounted data after fetch
-          expect(props.data.loading).to.be.false;
-          done();
-        }
-        count++;
-      }
-      render() {
-        return null;
-      }
-    };
-
-    render = (first) => (
-      <ProviderMock client={client}><Container first={first} /></ProviderMock>
-    );
-
-    wrapper = mount(render(1));
-  });
-
-  it('correctly sets loading state on remounted component with changed variables (alt)', (done) => {
-    const query = gql`
-      query remount($name: String) { allPeople(name: $name) { people { name } } }
-    `;
-    const data = { allPeople: null };
-    const variables = { name: 'does-not-exist' };
-    const variables2 = { name: 'nothing-either' };
-    const networkInterface = mockNetworkInterface(
-      { request: { query, variables }, result: { data }, delay: 10 },
-      { request: { query, variables: variables2 }, result: { data }, delay: 10 }
-    );
-    const client = new ApolloClient({ networkInterface });
-    let count = 0;
-
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      render() {
-        const { loading } = this.props.data;
-        if (count === 0) expect(loading).to.be.true;
-        if (count === 1) expect(loading).to.be.false;
-        if (count === 2) expect(loading).to.be.true;
-        if (count === 3) {
-          expect(loading).to.be.false;
-          done();
-        }
-        count ++;
-        return null;
-      }
-    };
-    const main = document.createElement('DIV');
-    main.id = 'main';
-    document.body.appendChild(main);
-
-    const render = (props) => {
-      ReactDOM.render((
-        <ProviderMock client={client}>
-          <Container {...props} />
-        </ProviderMock>
-      ), document.getElementById('main'));
-    };
-
-    // Initial render.
-    render(variables);
-
-    // Prop update: fetch.
-    setTimeout(() => render(variables2), 1000);
-  });
+  // XXX reinsert `queries-2.test.tsx` after react 15.4
 
   it('correctly sets loading state on component with changed variables and unchanged result', (done) => {
      const query = gql`
@@ -331,12 +145,12 @@ describe('queries', () => {
          }
 
          if (count === 1) {
-           expect(this.props.data.loading).to.be.true; // on variables change
+           expect(this.props.data.loading).toBe(true); // on variables change
          }
 
          if (count === 2) {
            // new data after fetch
-           expect(props.data.loading).to.be.false;
+           expect(props.data.loading).toBe(false);
            done();
          }
          count++;
@@ -346,7 +160,7 @@ describe('queries', () => {
        }
      };
 
-     mount(<ProviderMock client={client}><Container /></ProviderMock>);
+     renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
    });
 
   it('executes a query with two root fields', (done) => {
@@ -364,9 +178,9 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
-        expect(props.data.otherPeople).to.deep.equal(data.otherPeople);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.otherPeople).toEqual(data.otherPeople);
         done();
       }
       render() {
@@ -374,7 +188,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('can unmount without error', (done) => {
@@ -385,14 +199,14 @@ describe('queries', () => {
 
     const ContainerWithData =  graphql(query)(() => null);
 
-    const wrapper = mount(
+    const wrapper = renderer.create(
       <ProviderMock client={client}><ContainerWithData /></ProviderMock>
     ) as any;
 
     try {
       wrapper.unmount();
       done();
-    } catch (e) { done(e); }
+    } catch (e) { throw new Error(e); }
   });
 
   it('passes any GraphQL errors in props', (done) => {
@@ -403,8 +217,8 @@ describe('queries', () => {
     @graphql(query)
     class ErrorContainer extends React.Component<any, any> {
       componentWillReceiveProps({ data }) { // tslint:disable-line
-        expect(data.error).to.exist;
-        expect(data.error).instanceof(ApolloError);
+        expect(data.error).toBeTruthy();;
+        expect(data.error instanceof ApolloError).toBe(true);
         done();
       }
       render() {
@@ -412,7 +226,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><ErrorContainer /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ErrorContainer /></ProviderMock>);
   });
 
   it('maps props as variables if they match', (done) => {
@@ -432,9 +246,9 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
-        expect(props.data.variables).to.deep.equal(this.props.data.variables);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.variables).toEqual(this.props.data.variables);
         done();
       }
       render() {
@@ -442,7 +256,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
   });
 
   it('allows falsy values in the mapped variables from props', (done) => {
@@ -462,8 +276,8 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
         done();
       }
       render() {
@@ -471,7 +285,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container first={null} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container first={null} /></ProviderMock>);
   });
 
   it('don\'t error on optional required props', () => {
@@ -491,10 +305,10 @@ describe('queries', () => {
 
     let error = null;
     try {
-      mount(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
     } catch (e) { error = e; }
 
-    expect(error).to.be.null;
+    expect(error).toBeNull();
 
   });
 
@@ -514,9 +328,10 @@ describe('queries', () => {
     const Container =  graphql(query)(() => null);
 
     try {
-      mount(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
     } catch (e) {
-      expect(e).to.match(/Invariant Violation: The operation 'people'/);
+      expect(e.name).toMatch(/Invariant Violation/);
+      expect(e.message).toMatch(/The operation 'people'/);
     }
 
   });
@@ -532,7 +347,7 @@ describe('queries', () => {
     let isDone = false;
     function options(props) {
       if (!firstRun) {
-        expect(props.listId).to.equal(2);
+        expect(props.listId).toBe(2);
         if (!isDone) done();
         isDone = true;
       }
@@ -556,7 +371,7 @@ describe('queries', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
   it('allows you to skip a query', (done) => {
@@ -572,12 +387,12 @@ describe('queries', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data.loading).to.be.false;
+        expect(this.props.data.loading).toBe(false);
         return null;
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
@@ -613,10 +428,10 @@ describe('queries', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).to.deep.equal(data1.allPeople);
+          expect(data.allPeople).toEqual(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).to.deep.equal(data2.allPeople);
+          expect(data.allPeople).toEqual(data2.allPeople);
           done();
         }
       }
@@ -640,7 +455,7 @@ describe('queries', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
   it('reruns the query if just the variables change', (done) => {
@@ -669,10 +484,10 @@ describe('queries', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).to.deep.equal(data1.allPeople);
+          expect(data.allPeople).toEqual(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).to.deep.equal(data2.allPeople);
+          expect(data.allPeople).toEqual(data2.allPeople);
           done();
         }
       }
@@ -696,7 +511,7 @@ describe('queries', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
   it('reruns the queries on prop change when using passed props', (done) => {
@@ -725,10 +540,10 @@ describe('queries', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).to.deep.equal(data1.allPeople);
+          expect(data.allPeople).toEqual(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).to.deep.equal(data2.allPeople);
+          expect(data.allPeople).toEqual(data2.allPeople);
           done();
         }
       }
@@ -752,7 +567,7 @@ describe('queries', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
   it('exposes refetch as part of the props api', (done) => {
@@ -770,27 +585,27 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount(){
-        expect(this.props.data.refetch).to.be.exist;
-        expect(this.props.data.refetch).to.be.instanceof(Function);
+        expect(this.props.data.refetch).toBeTruthy();
+        expect(this.props.data.refetch instanceof Function).toBe(true);
       }
       componentWillReceiveProps({ data }) { // tslint:disable-line
-        if (count === 0) expect(data.loading).to.be.false; // first data
-        if (count === 1) expect(data.loading).to.be.true; // first refetch
-        if (count === 2) expect(data.loading).to.be.false; // second data
-        if (count === 3) expect(data.loading).to.be.true; // second refetch
-        if (count === 4) expect(data.loading).to.be.false; // third data
+        if (count === 0) expect(data.loading).toBe(false); // first data
+        if (count === 1) expect(data.loading).toBe(true); // first refetch
+        if (count === 2) expect(data.loading).toBe(false); // second data
+        if (count === 3) expect(data.loading).toBe(true); // second refetch
+        if (count === 4) expect(data.loading).toBe(false); // third data
         count ++;
         if (hasRefetched) return;
         hasRefetched = true;
-        expect(data.refetch).to.be.exist;
-        expect(data.refetch).to.be.instanceof(Function);
+        expect(data.refetch).toBeTruthy();
+        expect(data.refetch instanceof Function).toBe(true);
         data.refetch()
           .then(result => {
-            expect(result.data).to.deep.equal(data1);
+            expect(result.data).toEqual(data1);
             data.refetch({ first: 2 }) // new variables
               .then(response => {
-                expect(response.data).to.deep.equal(data1);
-                expect(data.allPeople).to.deep.equal(data1.allPeople);
+                expect(response.data).toEqual(data1);
+                expect(data.allPeople).toEqual(data1.allPeople);
                 done();
               });
           })
@@ -801,7 +616,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
   });
 
   it('exposes fetchMore as part of the props api', (done) => {
@@ -823,13 +638,13 @@ describe('queries', () => {
     @graphql(query, { options: () => ({ variables }) })
     class Container extends React.Component<any, any> {
       componentWillMount(){
-        expect(this.props.data.fetchMore).to.be.exist;
-        expect(this.props.data.fetchMore).to.be.instanceof(Function);
+        expect(this.props.data.fetchMore).toBeTruthy();
+        expect(this.props.data.fetchMore instanceof Function).toBe(true);
       }
       componentWillReceiveProps(props) {
         if (count === 0) {
-          expect(props.data.fetchMore).to.be.exist;
-          expect(props.data.fetchMore).to.be.instanceof(Function);
+          expect(props.data.fetchMore).toBeTruthy();
+          expect(props.data.fetchMore instanceof Function).toBe(true);
           props.data.fetchMore({
             variables: { skip: 2 },
             updateQuery: (prev, { fetchMoreResult }) => ({
@@ -840,18 +655,18 @@ describe('queries', () => {
           });
           // XXX add a test for the result here when #508 is merged and released
         } else if (count === 1) {
-          expect(props.data.variables).to.deep.equal(variables2);
-          expect(props.data.loading).to.be.true;
-          expect(props.data.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.variables).toEqual(variables2);
+          expect(props.data.loading).toBe(true);
+          expect(props.data.allPeople).toEqual(data.allPeople);
         } else if (count === 2) {
-          expect(props.data.variables).to.deep.equal(variables2);
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople.people).to.deep.equal(
+          expect(props.data.variables).toEqual(variables2);
+          expect(props.data.loading).toBe(false);
+          expect(props.data.allPeople.people).toEqual(
             data.allPeople.people.concat(data1.allPeople.people)
           );
           done();
         } else {
-          done(new Error('should not reach this point'));
+          throw new Error('should not reach this point');
         }
         count++;
       }
@@ -860,7 +675,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('exposes stopPolling as part of the props api', (done) => {
@@ -872,9 +687,9 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) { // tslint:disable-line
-        expect(data.stopPolling).to.be.exist;
-        expect(data.stopPolling).to.be.instanceof(Function);
-        expect(data.stopPolling).to.not.throw;
+        expect(data.stopPolling).toBeTruthy();
+        expect(data.stopPolling instanceof Function).toBe(true);
+        expect(data.stopPolling).not.toThrow();
         done();
       }
       render() {
@@ -882,7 +697,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('exposes startPolling as part of the props api', (done) => {
@@ -891,12 +706,14 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface });
 
-    @graphql(query)
+    // @graphql(query)
+    @graphql(query, { options: { pollInterval: 10 }})
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) { // tslint:disable-line
-        expect(data.startPolling).to.be.exist;
-        expect(data.startPolling).to.be.instanceof(Function);
-        expect(data.startPolling).to.not.throw;
+        expect(data.startPolling).toBeTruthy();
+        expect(data.startPolling instanceof Function).toBe(true);
+        // XXX this does throw because of no pollInterval
+        // expect(data.startPolling).not.toThrow();
         done();
       }
       render() {
@@ -904,7 +721,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
 
@@ -925,8 +742,8 @@ describe('queries', () => {
       componentWillReceiveProps(props) {
         // get new data with no more loading state
         if (refetched) {
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople).to.deep.equal(data2.allPeople);
+          expect(props.data.loading).toBe(false);
+          expect(props.data.allPeople).toEqual(data2.allPeople);
           done();
           return;
         }
@@ -935,8 +752,8 @@ describe('queries', () => {
         if (isRefectching) {
           isRefectching = false;
           refetched = true;
-          expect(props.data.loading).to.be.true;
-          expect(props.data.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).toBe(true);
+          expect(props.data.allPeople).toEqual(data.allPeople);
           return;
         }
 
@@ -950,8 +767,9 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
+
   it('resets the loading state after a refetched query even if the data doesn\'t change', (d) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
@@ -968,8 +786,8 @@ describe('queries', () => {
       componentWillReceiveProps(props) {
         // get new data with no more loading state
         if (refetched) {
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).toBe(false);
+          expect(props.data.allPeople).toEqual(data.allPeople);
           d();
           return;
         }
@@ -978,8 +796,8 @@ describe('queries', () => {
         if (isRefectching) {
           isRefectching = false;
           refetched = true;
-          expect(props.data.loading).to.be.true;
-          expect(props.data.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).toBe(true);
+          expect(props.data.allPeople).toEqual(data.allPeople);
           return;
         }
 
@@ -993,7 +811,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows a polling query to be created', (done) => {
@@ -1013,10 +831,10 @@ describe('queries', () => {
       return null;
     });
 
-    const wrapper = mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    const wrapper = renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
 
     setTimeout(() => {
-      expect(count).to.equal(3);
+      expect(count).toBe(3);
       (wrapper as any).unmount();
       done();
     }, 160);
@@ -1030,11 +848,11 @@ describe('queries', () => {
 
     const props = ({ data }) => ({ showSpinner: data.loading });
     const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
-      expect(showSpinner).to.be.true;
+      expect(showSpinner).toBe(true);
       return null;
     });
 
-    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
     (wrapper as any).unmount();
   });
 
@@ -1045,15 +863,15 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     const props = ({ data, ownProps }) => {
-      expect(ownProps.sample).to.equal(1);
+      expect(ownProps.sample).toBe(1);
       return { showSpinner: data.loading };
     };
     const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
-      expect(showSpinner).to.be.true;
+      expect(showSpinner).toBe(true);
       return null;
     });
 
-    const wrapper = mount(
+    const wrapper = renderer.create(
       <ProviderMock client={client}><ContainerWithData sample={1} /></ProviderMock>
     );
     (wrapper as any).unmount();
@@ -1068,7 +886,7 @@ describe('queries', () => {
     @graphql(query, { props: ({ data }) => ({ thingy: data.getThing }) }) // tslint:disable-line
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.thingy).to.deep.equal(data.getThing);
+        expect(props.thingy).toEqual(data.getThing);
         done();
       }
       render() {
@@ -1076,7 +894,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows context through updates', (done) => {
@@ -1088,8 +906,8 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
       }
       render() {
         return <div>{this.props.children}</div>;
@@ -1126,9 +944,9 @@ describe('queries', () => {
     class ChildContextContainer extends React.Component<any, any> {
       render() {
         const { color } = (this.context as any);
-        if (count === 0) expect(color).to.eq('purple');
+        if (count === 0) expect(color).toBe('purple');
         if (count === 1) {
-          expect(color).to.eq('green');
+          expect(color).toBe('green');
           done();
         }
 
@@ -1141,7 +959,7 @@ describe('queries', () => {
       color: React.PropTypes.string,
     };
 
-    mount(
+    renderer.create(
       <ProviderMock client={client}>
         <ContextContainer>
           <Container>
@@ -1160,17 +978,20 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) { // tslint:disable-line
-        expect(data.updateQuery).to.be.exist;
-        expect(data.updateQuery).to.be.instanceof(Function);
-        expect(data.updateQuery).to.not.throw;
-        done();
+        expect(data.updateQuery).toBeTruthy();
+        expect(data.updateQuery instanceof Function).toBe(true);
+        try {
+          data.updateQuery(() => done());
+        } catch (error) {
+          // fail
+        }
       }
       render() {
         return null;
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('exposes updateQuery as part of the props api during componentWillMount', (done) => {
@@ -1182,8 +1003,8 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() { // tslint:disable-line
-        expect(this.props.data.updateQuery).to.be.exist;
-        expect(this.props.data.updateQuery).to.be.instanceof(Function);
+        expect(this.props.data.updateQuery).toBeTruthy()
+        expect(this.props.data.updateQuery instanceof Function).toBe(true);
         done();
       }
       render() {
@@ -1191,7 +1012,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('updateQuery throws if called before data has returned', (done) => {
@@ -1203,13 +1024,13 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() { // tslint:disable-line
-        expect(this.props.data.updateQuery).to.be.exist;
-        expect(this.props.data.updateQuery).to.be.instanceof(Function);
+        expect(this.props.data.updateQuery).toBeTruthy();
+        expect(this.props.data.updateQuery instanceof Function).toBe(true);
         try {
           this.props.data.updateQuery();
-          done(new Error('should have thrown'))
+          done();
         } catch (e) {
-          expect(e).to.match(/Invariant Violation:/);
+          expect(e.message).toMatch(/Update query has been called before query has been created/);
           done();
         }
       }
@@ -1218,7 +1039,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows updating query results after query has finished (early binding)', (done) => {
@@ -1240,7 +1061,7 @@ describe('queries', () => {
       }
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).to.deep.equal(data2.allPeople);
+          expect(props.data.allPeople).toEqual(data2.allPeople);
           done();
           return;
         } else {
@@ -1255,7 +1076,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows updating query results after query has finished', (done) => {
@@ -1273,7 +1094,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).to.deep.equal(data2.allPeople);
+          expect(props.data.allPeople).toEqual(data2.allPeople);
           done();
           return;
         } else {
@@ -1288,7 +1109,7 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('reruns props function after query results change via fetchMore', (done) => {
@@ -1335,12 +1156,12 @@ describe('queries', () => {
         if (props.loading) {
           return;
         } else if (isUpdated) {
-          expect(props.people.length).to.equal(2);
+          expect(props.people.length).toBe(2);
           done();
           return;
         } else {
           isUpdated = true;
-          expect(props.people).to.deep.equal(data1.allPeople.people);
+          expect(props.people).toEqual(data1.allPeople.people);
           props.getMorePeople();
         }
       }
@@ -1349,6 +1170,6 @@ describe('queries', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 });

@@ -22,7 +22,6 @@
     "typings/modules",
     "node_modules",
     "dist",
-    "lib",
-    "test/fixtures"
+    "lib"
    ]
 }

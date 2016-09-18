@@ -1,4 +1,3 @@
-import * as chai from 'chai';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { createNetworkInterface, createFragment } from 'apollo-client';
@@ -8,8 +7,6 @@ import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 
 import mockNetworkInterface from '../../mocks/mockNetworkInterface';
-
-const { expect } = chai;
 
 describe('SSR', () => {
   // it('should render the expected markup', (done) => {
@@ -35,7 +32,7 @@ describe('SSR', () => {
   // });
 
   describe('`getDataFromTree`', () => {
-    it('should run through all of the queries that want SSR', (done) => {
+    it('should run through all of the queries that want SSR', () => {
 
       const query = gql`{ currentUser { firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
@@ -50,17 +47,15 @@ describe('SSR', () => {
 
       const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
 
-      getDataFromTree(app)
+      return getDataFromTree(app)
         .then(() => {
           const markup = ReactDOM.renderToString(app);
-          expect(markup).to.match(/James/);
-          done();
+          expect(markup).toMatch(/James/);
         })
-        .catch(console.error)
         ;
     });
 
-    it('should run return the initial state for hydration', (done) => {
+    it('should run return the initial state for hydration', () => {
       const query = gql`{ currentUser { firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
       const networkInterface = mockNetworkInterface(
@@ -74,18 +69,16 @@ describe('SSR', () => {
 
       const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
 
-      getDataFromTree(app)
+      return getDataFromTree(app)
         .then(({ store }) => {
           const initialState = store.getState();
-          expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['$ROOT_QUERY.currentUser']).to.exist;
-          done();
+          expect(initialState.apollo.data).toBeTruthy();
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser']).toBeTruthy();
         })
-        .catch(console.error)
         ;
     });
 
-    it('should use the correct default props for a query', (done) => {
+    it('should use the correct default props for a query', () => {
       const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
       const variables = { id: 1 };
@@ -100,14 +93,12 @@ describe('SSR', () => {
 
       const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
 
-      getDataFromTree(app)
+      return getDataFromTree(app)
         .then(({ store }) => {
           const initialState = store.getState();
-          expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).to.exist;
-          done();
+          expect(initialState.apollo.data).toBeTruthy();
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
         })
-        .catch(console.error)
         ;
     });
 
@@ -131,7 +122,7 @@ describe('SSR', () => {
 
         render(){
           const { user } = this.props;
-          expect(this.state.thing).to.equal(2);
+          expect(this.state.thing).toBe(2);
           return <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
         }
       }
@@ -141,15 +132,15 @@ describe('SSR', () => {
       getDataFromTree(app)
         .then(({ store }) => {
           const initialState = store.getState();
-          expect(initialState.apollo.data).to.exist;
-          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).to.exist;
+          expect(initialState.apollo.data).toBeTruthy();
+          expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
           done();
         })
         .catch(console.error)
         ;
     });
 
-    it('shouldn\'t run queries if ssr is turned to off', (done) => {
+    it('shouldn\'t run queries if ssr is turned to off', () => {
       const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
       const variables = { id: 1 };
@@ -167,18 +158,16 @@ describe('SSR', () => {
 
       const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
 
-      getDataFromTree(app)
+      return getDataFromTree(app)
         .then(({ store }) => {
           const initialState = store.getState();
-          expect(initialState.apollo.queries).to.be.empty;
-          expect(initialState.apollo.data).to.be.empty;
-          done();
+          expect(initialState.apollo.queries).toEqual({});
+          expect(initialState.apollo.data).toEqual({});
         })
-        .catch(console.error)
         ;
     });
 
-    it('should correctly handle SSR mutations', (done) => {
+    it('should correctly handle SSR mutations', () => {
 
       const query = gql`{ currentUser { firstName } }`;
       const data1 = { currentUser: { firstName: 'James' } };
@@ -195,7 +184,7 @@ describe('SSR', () => {
       const withQuery = graphql(query, {
         options: (ownProps) => ({ ssr: true }),
         props: ({ data }) => {
-          expect(data.refetch).to.exist;
+          expect(data.refetch).toBeTruthy();
           return {
             refetchQuery: data.refetch,
             data,
@@ -205,7 +194,7 @@ describe('SSR', () => {
 
       const withMutation = graphql(mutation, {
         props: ({ ownProps, mutate }) => {
-          expect(ownProps.refetchQuery).to.exist;
+          expect(ownProps.refetchQuery).toBeTruthy();
           return {
             action(variables) {
               return mutate({ variables }).then(() => ownProps.refetchQuery());
@@ -222,17 +211,15 @@ describe('SSR', () => {
 
       const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
 
-      getDataFromTree(app)
+      return getDataFromTree(app)
         .then(() => {
           const markup = ReactDOM.renderToString(app);
-          expect(markup).to.match(/James/);
-          done();
+          expect(markup).toMatch(/James/);
         })
-        .catch(console.error)
         ;
     });
 
-    it('should not require `ApolloProvider` to be the root component', (done) => {
+    it('should not require `ApolloProvider` to be the root component', () => {
 
       const query = gql`{ currentUser { firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
@@ -273,13 +260,11 @@ describe('SSR', () => {
         </MyRootContainer>
       );
 
-      getDataFromTree(app)
+      return getDataFromTree(app)
         .then(() => {
           const markup = ReactDOM.renderToString(app);
-          expect(markup).to.match(/James/);
-          done();
+          expect(markup).toMatch(/James/);
         })
-        .catch(done)
         ;
     });
 
@@ -289,8 +274,8 @@ describe('SSR', () => {
 
     // XXX break into smaller tests
     // XXX mock all queries
-    it('should work on a non trivial example', function(done) {
-      this.timeout(10000);
+    it('should work on a non trivial example', function() {
+      // this.timeout(10000);
       const networkInterface = createNetworkInterface('http://graphql-swapi.parseapp.com/');
       const apolloClient = new ApolloClient({ networkInterface });
 
@@ -379,20 +364,18 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      renderToStringWithData(app)
+      return renderToStringWithData(app)
         .then(({ markup, initialState }) => {
-          expect(initialState.apollo).to.exist;
-          expect(markup).to.match(/CR90 corvette/);
-          expect(markup).to.match(/Return of the Jedi/);
-          expect(markup).to.match(/A New Hope/);
-          expect(markup).to.match(/Planets/);
-          expect(markup).to.match(/Tatooine/);
-          done();
-        })
-        .catch(done);
+          expect(initialState.apollo).toBeTruthy();
+          expect(markup).toMatch(/CR90 corvette/);
+          expect(markup).toMatch(/Return of the Jedi/);
+          expect(markup).toMatch(/A New Hope/);
+          expect(markup).toMatch(/Planets/);
+          expect(markup).toMatch(/Tatooine/);
+        });
     });
 
-    it('should work with queries that use fragments', function(done) {
+    it('should work with queries that use fragments', function() {
       const query = gql`{ currentUser { ...userInfo } }`;
       const userInfoFragment = createFragment(gql`fragment userInfo on User { firstName, lastName }`);
       const data = { currentUser: { firstName: 'John', lastName: 'Smith' } };
@@ -415,12 +398,10 @@ describe('SSR', () => {
           </ApolloProvider>
       );
 
-      renderToStringWithData(app)
+      return renderToStringWithData(app)
           .then(({ markup }) => {
-            expect(markup).to.match(/John Smith/);
-            done();
+            expect(markup).toMatch(/John Smith/);
           })
-          .catch(done);
     });
   });
 });

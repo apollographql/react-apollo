@@ -1,17 +1,11 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
-import { mount } from 'enzyme';
+import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import TestUtils = require('react-addons-test-utils');
 
 import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 import {
@@ -22,7 +16,7 @@ import {
 import graphql, { withApollo } from '../../../../src/graphql';
 import { compose } from '../../../../src/';
 
-describe('shared opertations', () => {
+describe('shared operations', () => {
 
   describe('withApollo', () => {
     it('passes apollo-client to props', () => {
@@ -32,12 +26,12 @@ describe('shared opertations', () => {
       @withApollo
       class ContainerWithData extends React.Component<any, any> {
         render() {
-          expect(this.props.client).to.deep.equal(client);
+          expect(this.props.client).toEqual(client);
           return null;
         }
       }
 
-      mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
     });
   });
 
@@ -63,16 +57,16 @@ describe('shared opertations', () => {
     class ContainerWithData extends React.Component<any, any> {
       render() {
         const { people, ships } = this.props;
-        expect(people).to.exist;
-        expect(people.loading).to.be.true;
+        expect(people).toBeTruthy();
+        expect(people.loading).toBe(true);
 
-        expect(ships).to.exist;
-        expect(ships.loading).to.be.true;
+        expect(ships).toBeTruthy();
+        expect(ships.loading).toBe(true);
         return null;
       }
     }
 
-    const wrapper = mount(<ProviderMock client={client} ><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ProviderMock client={client} ><ContainerWithData /></ProviderMock>);
     (wrapper as any).unmount();
   });
 
@@ -95,15 +89,15 @@ describe('shared opertations', () => {
 
     const ContainerWithData = withPeople(withShips((props) => {
       const { people, ships } = props;
-      expect(people).to.exist;
-      expect(people.loading).to.be.true;
+      expect(people).toBeTruthy();
+      expect(people.loading).toBe(true);
 
-      expect(ships).to.exist;
-      expect(ships.loading).to.be.true;
+      expect(ships).toBeTruthy();
+      expect(ships.loading).toBe(true);
       return null;
     }));
 
-    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
     (wrapper as any).unmount();
   });
 
@@ -128,51 +122,19 @@ describe('shared opertations', () => {
     class ContainerWithData extends React.Component<any, any> {
       render() {
         const { people, addPerson } = this.props;
-        expect(people).to.exist;
-        expect(people.loading).to.be.true;
+        expect(people).toBeTruthy();
+        expect(people.loading).toBe(true);
 
-        expect(addPerson).to.exist;
+        expect(addPerson).toBeTruthy();
         return null;
       }
     }
 
-    const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
     (wrapper as any).unmount();
   });
 
-  it('allows a way to access the wrapped component instance', () => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
-
-    const testData = { foo: 'bar' };
-
-    class Container extends React.Component<any, any> {
-      someMethod() {
-        return testData;
-      }
-
-      render() {
-        return <span></span>;
-      }
-    }
-
-    const Decorated = graphql(query, { withRef: true })(Container);
-
-    const tree = TestUtils.renderIntoDocument(
-      <ProviderMock client={client}>
-        <Decorated />
-      </ProviderMock>
-    ) as any;
-
-    const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
-
-    expect(() => (decorated as any).someMethod()).to.throw();
-    expect((decorated as any).getWrappedInstance().someMethod()).to.deep.equal(testData);
-    expect((decorated as any).refs.wrappedInstance.someMethod()).to.deep.equal(testData);
-
-  });
+  // XXX move shared-operations-2.tsx back here when React 15.4 is released
 
   it('allows options to take an object', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
@@ -187,12 +149,12 @@ describe('shared opertations', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data.loading).to.be.false;
+        expect(this.props.data.loading).toBe(false);
         return null;
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
@@ -222,15 +184,15 @@ describe('shared opertations', () => {
 
       const ContainerWithData = enhanced((props) => {
         const { people, ships } = props;
-        expect(people).to.exist;
-        expect(people.loading).to.be.true;
+        expect(people).toBeTruthy();
+        expect(people.loading).toBe(true);
 
-        expect(ships).to.exist;
-        expect(ships.loading).to.be.true;
+        expect(ships).toBeTruthy();
+        expect(ships.loading).toBe(true);
         return null;
       });
 
-      const wrapper = mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
       (wrapper as any).unmount();
     });
   });

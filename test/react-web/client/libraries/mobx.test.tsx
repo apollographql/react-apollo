@@ -1,6 +1,5 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
 import { mount } from 'enzyme';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
@@ -9,10 +8,6 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import {
   ProviderMock,
@@ -66,7 +61,7 @@ describe('mobx integration', () => {
       componentWillReceiveProps(nextProps) {
         if (this.props.appState.first === 1) {
           if (nextProps.data.loading) return;
-          expect(nextProps.data.allPeople).to.deep.equal(data2.allPeople);
+          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
           done();
         }
       }

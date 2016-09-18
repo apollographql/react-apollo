@@ -1,4 +1,3 @@
-// __tests__/Intro-test.js
 import 'react-native';
 import React, { Component } from 'react';
 import {
@@ -13,8 +12,8 @@ import renderer from 'react-test-renderer';
 
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
-import { ApolloProvider, graphql } from '../../../lib/src';
-import mockNetworkInterface from '../../../lib/test/mocks/mockNetworkInterface';
+import { ApolloProvider, graphql } from '../../src';
+import mockNetworkInterface from '../mocks/mockNetworkInterface';
 
 describe('App', () => {
 
@@ -25,7 +24,7 @@ describe('App', () => {
     const client = new ApolloClient({ networkInterface });
 
     const ContainerWithData = graphql(query)(({ data }) => {
-      if (data.loading) return <Text>Loading...</Text>
+      if (data.loading) return <Text>Loading...</Text>;
       return <Text>{data.allPeople.people.name}</Text>;
     });
     const output = renderer.create(
@@ -48,7 +47,7 @@ describe('App', () => {
         done();
       }
       render() {
-        if (this.props.data.loading) return <Text>Loading...</Text>
+        if (this.props.data.loading) return <Text>Loading...</Text>;
         return <Text>{this.props.data.allPeople.people.name}</Text>;
       }
     };

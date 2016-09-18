@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/a14e3e7bca87cead0c25b187f510de34089b9ed7/jest/jest.d.ts",
+    "raw": "registry:dt/jest#0.9.0+20160706021812",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/a14e3e7bca87cead0c25b187f510de34089b9ed7/jest/jest.d.ts"
+  }
+}

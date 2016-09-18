@@ -1,17 +1,12 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
-import { mount } from 'enzyme';
+import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 import {
@@ -30,12 +25,12 @@ describe('mutations', () => {
     const client = new ApolloClient({ networkInterface });
 
     const ContainerWithData =  graphql(query)(({ mutate }) => {
-      expect(mutate).to.exist;
-      expect(mutate).to.be.instanceof(Function);
+      expect(mutate).toBeTruthy();
+      expect(typeof mutate).toBe("function");
       return null;
     });
 
-    mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
   });
 
   it('binds a mutation to custom props', () => {
@@ -49,15 +44,15 @@ describe('mutations', () => {
     });
 
     const ContainerWithData =  graphql(query, { props })(({ test }) => {
-      expect(test).to.exist;
-      expect(test).to.be.instanceof(Function);
+      expect(test).toBeTruthy();
+      expect(typeof test).toBe("function");
       return null;
     });
 
-    mount(<ProviderMock client={client}><ContainerWithData methodName="test" /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ContainerWithData methodName="test" /></ProviderMock>);
   });
 
-  it('does not swallow children errors', (done) => {
+  it('does not swallow children errors', () => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -69,11 +64,10 @@ describe('mutations', () => {
     });
 
     try {
-      mount(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
-      done(new Error('component should have thrown'));
+      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      throw new Error();
     } catch (e) {
-      expect(e).to.match(/TypeError/);
-      done();
+      expect(e.name).toMatch(/TypeError/);
     }
 
   });
@@ -89,17 +83,17 @@ describe('mutations', () => {
       componentDidMount() {
         this.props.mutate()
           .then(result => {
-            expect(result.data).to.deep.equal(data);
+            expect(result.data).toEqual(data);
             done();
           })
-          .catch(done);
+          ;
       }
       render() {
         return null;
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('can execute a mutation with variables from props', (done) => {
@@ -121,17 +115,17 @@ describe('mutations', () => {
       componentDidMount() {
         this.props.mutate()
           .then(result => {
-            expect(result.data).to.deep.equal(data);
+            expect(result.data).toEqual(data);
             done();
           })
-          .catch(done);
+          ;
       }
       render() {
         return null;
       }
     };
 
-    mount(<ProviderMock client={client}><Container id={1} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container id={1} /></ProviderMock>);
   });
 
   it('allows falsy values in the mapped variables from props', (done) => {
@@ -153,17 +147,17 @@ describe('mutations', () => {
       componentDidMount() {
         this.props.mutate()
           .then(result => {
-            expect(result.data).to.deep.equal(data);
+            expect(result.data).toEqual(data);
             done();
           })
-          .catch(done);
+          ;
       }
       render() {
         return null;
       }
     };
 
-    mount(<ProviderMock client={client}><Container id={null} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container id={null} /></ProviderMock>);
   });
 
   it('errors if the passed props don\'t contain the needed variables', () => {
@@ -182,9 +176,9 @@ describe('mutations', () => {
     const Container =  graphql(query)(() => null);
 
     try {
-      mount(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
     } catch (e) {
-      expect(e).to.match(/Invariant Violation: The operation 'addPerson'/);
+      expect(e).toMatch(/Invariant Violation: The operation 'addPerson'/);
     }
 
   });
@@ -196,7 +190,7 @@ describe('mutations', () => {
     const client = new ApolloClient({ networkInterface });
 
     function options(props) {
-      expect(props.listId).to.equal(2);
+      expect(props.listId).toBe(2);
       return {};
     };
 
@@ -204,7 +198,7 @@ describe('mutations', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (props.listId !== 2) return;
-        props.mutate().then(x => done()).catch(done);
+        props.mutate().then(x => done());
       }
       render() {
         return null;
@@ -222,7 +216,7 @@ describe('mutations', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
   it('can execute a mutation with custom variables', (done) => {
@@ -244,17 +238,17 @@ describe('mutations', () => {
       componentDidMount() {
         this.props.mutate({ variables: { id: 1 } })
           .then(result => {
-            expect(result.data).to.deep.equal(data);
+            expect(result.data).toEqual(data);
             done();
           })
-          .catch(done);
+          ;
       }
       render() {
         return null;
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows for passing optimisticResponse for a mutation', (done) => {
@@ -292,13 +286,13 @@ describe('mutations', () => {
         };
         this.props.mutate({ optimisticResponse })
           .then(result => {
-            expect(result.data).to.deep.equal(data);
+            expect(result.data).toEqual(data);
             done();
           })
-          .catch(done);
+          ;
 
         const dataInStore = client.queryManager.getDataWithOptimisticResults();
-        expect(dataInStore['$ROOT_MUTATION.createTodo']).to.deep.equal(
+        expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
           optimisticResponse.createTodo
         );
 
@@ -308,7 +302,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('allows for updating queries from a mutation', (done) => {
@@ -377,12 +371,12 @@ describe('mutations', () => {
         if (!props.data.todo_list.tasks.length) {
           props.mutate()
             .then(result => {
-              expect(result.data).to.deep.equal(mutationData);
+              expect(result.data).toEqual(mutationData);
             })
-            .catch(done);
+            ;
 
           const dataInStore = client.queryManager.getDataWithOptimisticResults();
-          expect(dataInStore['$ROOT_MUTATION.createTodo']).to.deep.equal(
+          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
             optimisticResponse.createTodo
           );
           return;
@@ -390,9 +384,9 @@ describe('mutations', () => {
 
         if (count === 0) {
           count ++;
-          expect(props.data.todo_list.tasks).to.deep.equal([optimisticResponse.createTodo]);
+          expect(props.data.todo_list.tasks).toEqual([optimisticResponse.createTodo]);
         } else if (count === 1) {
-          expect(props.data.todo_list.tasks).to.deep.equal([mutationData.createTodo]);
+          expect(props.data.todo_list.tasks).toEqual([mutationData.createTodo]);
           done();
         }
       }
@@ -401,7 +395,7 @@ describe('mutations', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container id={'123'} /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container id={'123'} /></ProviderMock>);
   });
 
 });

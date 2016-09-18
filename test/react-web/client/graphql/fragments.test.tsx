@@ -1,16 +1,11 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
-import { mount } from 'enzyme';
+import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
 import ApolloClient, { createFragment } from 'apollo-client';
 
 declare function require(name: string);
-import chaiEnzyme = require('chai-enzyme');
-
-chai.use(chaiEnzyme()); // Note the invocation at the end
-const { expect } = chai;
 
 import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 import {
@@ -23,7 +18,7 @@ import graphql from '../../../../src/graphql';
 describe('fragments', () => {
 
   // XXX in a later version, we should support this for composition
-  it('throws if you only pass a fragment', (done) => {
+  it('throws if you only pass a fragment', () => {
     const query = gql`
       fragment Failure on PeopleConnection { people { name } }
     `;
@@ -35,8 +30,8 @@ describe('fragments', () => {
       @graphql(query)
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(props) {
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople).to.deep.equal(data.allPeople);
+          expect(props.data.loading).toBe(false);
+          expect(props.data.allPeople).toEqual(data.allPeople);
           done();
         }
         render() {
@@ -44,11 +39,10 @@ describe('fragments', () => {
         }
       };
 
-      mount(<ProviderMock client={client}><Container /></ProviderMock>)
-      done(new Error('This should throw'))
+      renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+      throw new Error();
     } catch (e) {
-      // expect(e).to.match(/Invariant Violation/);
-      done();
+      expect(e.name).toMatch(/TypeError/);
     }
   });
 
@@ -64,8 +58,8 @@ describe('fragments', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
         done();
       }
       render() {
@@ -73,9 +67,9 @@ describe('fragments', () => {
       }
     };
 
-    expect((Container as any).fragments.length).to.equal(1);
+    expect((Container as any).fragments.length).toBe(1);
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('correctly merges a query with inline fragments and passed fragments', (done) => {
@@ -113,9 +107,9 @@ describe('fragments', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allPeople).to.deep.equal(data.allPeople);
-        expect(props.data.allShips).to.deep.equal(data.allShips);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.allShips).toEqual(data.allShips);
         done();
       }
       render() {
@@ -123,9 +117,9 @@ describe('fragments', () => {
       }
     };
 
-    expect((Container as any).fragments.length).to.equal(1);
+    expect((Container as any).fragments.length).toBe(1);
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
   it('correctly allows for passed fragments', (done) => {
@@ -154,8 +148,8 @@ describe('fragments', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).to.be.false;
-        expect(props.data.allShips).to.deep.equal(data.allShips);
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allShips).toEqual(data.allShips);
         done();
       }
       render() {
@@ -163,7 +157,7 @@ describe('fragments', () => {
       }
     };
 
-    mount(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
 

@@ -1,9 +1,6 @@
 
 import * as React from 'react';
-import * as chai from 'chai';
 import gql from 'graphql-tag';
-
-const { expect } = chai;
 
 import graphql from '../../../../src/graphql';
 
@@ -16,14 +13,14 @@ describe('statics', () => {
       static veryStatic = 'such global';
     };
 
-    expect(ApolloContainer.veryStatic).to.eq('such global');
+    expect(ApolloContainer.veryStatic).toBe('such global');
   });
 
   it('exposes a debuggable displayName', () => {
     @graphql(sampleOperation)
     class ApolloContainer extends React.Component<any, any> {}
 
-    expect((ApolloContainer as any).displayName).to.eq('Apollo(ApolloContainer)');
+    expect((ApolloContainer as any).displayName).toBe('Apollo(ApolloContainer)');
   });
 
   it('honors custom display names', () => {
@@ -32,6 +29,6 @@ describe('statics', () => {
       static displayName = 'Foo';
     }
 
-    expect((ApolloContainer as any).displayName).to.eq('Apollo(Foo)');
+    expect((ApolloContainer as any).displayName).toBe('Apollo(Foo)');
   });
 });

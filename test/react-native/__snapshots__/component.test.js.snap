@@ -1,0 +1,8 @@
+exports[`App renders correctly 1`] = `
+<Text
+  accessible={true}
+  allowFontScaling={true}
+  lineBreakMode="tail">
+  Loading...
+</Text>
+`;
