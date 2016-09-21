@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Bug: Passing immutable to ApolloProvider breaks ssr. `renderToStringWithData` fails to reference to right store.
+ [#222](https://github.com/apollostack/react-apollo/pull/222)
+
 ### v0.5.5
 
 - Bug: Fixed lifecycle events for componentWillMount() on the server [#205](https://github.com/apollostack/react-apollo/pull/205)
