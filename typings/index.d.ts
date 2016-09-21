@@ -3,6 +3,7 @@
 /// <reference path="globals/graphql/index.d.ts" />
 /// <reference path="globals/isomorphic-fetch/index.d.ts" />
 /// <reference path="globals/jest/index.d.ts" />
+/// <reference path="globals/mocha/index.d.ts" />
 /// <reference path="globals/node/index.d.ts" />
 /// <reference path="globals/react-addons-test-utils/index.d.ts" />
 /// <reference path="globals/react-dom/index.d.ts" />

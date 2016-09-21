@@ -1,8 +1,8 @@
 {
   "resolution": "main",
   "tree": {
-    "src": "/Users/james.baxley/Products/apollo/react-apollo/node_modules/apollo-client/index.d.ts",
+    "src": "/Users/rewop/Development/rewop/react-apollo/node_modules/apollo-client/index.d.ts",
     "raw": "file:node_modules/apollo-client/index.d.ts",
-    "typings": "/Users/james.baxley/Products/apollo/react-apollo/node_modules/apollo-client/index.d.ts"
+    "typings": "/Users/rewop/Development/rewop/react-apollo/node_modules/apollo-client/index.d.ts"
   }
 }

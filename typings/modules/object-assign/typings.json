@@ -5,7 +5,6 @@
     "raw": "registry:npm/object-assign#4.0.1+20160301180549",
     "main": "index.d.ts",
     "version": "4.0.1",
-    "global": false,
     "name": "object-assign",
     "type": "typings"
   }

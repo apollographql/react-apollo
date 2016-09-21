@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import assign = require('object-assign');
 import flatten = require('lodash.flatten');
+import { reduxRootSelector } from './apolloClient';
 
 
 declare interface Context {
@@ -107,12 +108,12 @@ export function renderToStringWithData(component) {
     .then(({ client }) => {
       let markup = ReactDOM.renderToString(component);
       let initialState = client.store.getState();
-      const key = client.reduxRootKey;
+      let apolloState = reduxRootSelector(client);
       // XXX apollo client requires a lot in the store
       // can we make this samller?
-      for (let queryId in initialState[key].queries) {
+      for (let queryId in apolloState.queries) {
         let fieldsToNotShip = ['minimizedQuery', 'minimizedQueryString'];
-        for (let field of fieldsToNotShip)  delete initialState[key].queries[queryId][field];
+        for (let field of fieldsToNotShip)  delete apolloState.queries[queryId][field];
       }
       return { markup, initialState };
     });

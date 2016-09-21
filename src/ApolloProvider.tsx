@@ -49,6 +49,15 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
       'sure you pass in your client via the "client" prop.'
     );
 
+    // warn if client is using deprecated apollo client reduxRootKey prop
+    if (props.client.reduxRootKey) {
+      console.warn(`
+        Property 'reduxRootKey' from apollo client deprecated and its usage
+        will be removed from the next releases.
+        Use 'reduxRootSelector' instead when creating the apollo client.
+      `);
+    }
+
     this.client = props.client;
 
     if (props.store) {

@@ -4,13 +4,11 @@
     "src": "https://raw.githubusercontent.com/andrew-w-ross/typings-react-redux/21202533f75a73d4fa4c50e0357aaf23739fcabb/typings.json",
     "raw": "registry:npm/react-redux#4.4.0+20160614222153",
     "main": "react-redux.d.ts",
-    "global": false,
     "dependencies": {
       "redux": {
         "src": "https://raw.githubusercontent.com/andrew-w-ross/typings-redux/master/typings.json",
         "raw": "github:andrew-w-ross/typings-redux",
         "main": "redux.d.ts",
-        "global": false,
         "name": "redux",
         "type": "typings"
       }
