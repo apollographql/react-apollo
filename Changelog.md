@@ -4,8 +4,11 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.6
+
 - Bug: Passing immutable to ApolloProvider breaks ssr. `renderToStringWithData` fails to reference the right store.
  [#222](https://github.com/apollostack/react-apollo/pull/222)
+ - Bug: Fixed issue with context in SSR [#218](https://github.com/apollostack/react-apollo/issues/218)
 
 ### v0.5.5
 
