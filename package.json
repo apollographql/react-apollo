@@ -3,6 +3,7 @@
   "version": "0.5.5",
   "description": "React data container for Apollo Client",
   "main": "index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "test": "jest",
     "posttest": "npm run lint",
