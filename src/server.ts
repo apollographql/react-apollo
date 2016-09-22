@@ -104,9 +104,9 @@ export function getDataFromTree(app, ctx: any = {}, fetch: boolean = true): Prom
 
 export function renderToStringWithData(component) {
   return getDataFromTree(component)
-    .then(({ store, client }) => {
+    .then(({ client }) => {
       let markup = ReactDOM.renderToString(component);
-      let initialState = store.getState();
+      let initialState = client.store.getState();
       const key = client.reduxRootKey;
       // XXX apollo client requires a lot in the store
       // can we make this samller?
