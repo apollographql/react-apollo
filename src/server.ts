@@ -106,14 +106,14 @@ export function renderToStringWithData(component) {
   return getDataFromTree(component)
     .then(({ client }) => {
       let markup = ReactDOM.renderToString(component);
-      let initialState = client.store.getState();
-      const key = client.reduxRootKey;
-      // XXX apollo client requires a lot in the store
-      // can we make this samller?
-      for (let queryId in initialState[key].queries) {
+      let apolloState = client.queryManager.getApolloState();
+
+      for (let queryId in apolloState.queries) {
         let fieldsToNotShip = ['minimizedQuery', 'minimizedQueryString'];
-        for (let field of fieldsToNotShip)  delete initialState[key].queries[queryId][field];
+        for (let field of fieldsToNotShip) delete apolloState.queries[queryId][field];
       }
-      return { markup, initialState };
+
+      // it's OK, because apolloState is nested somewhere in globalState
+      return { markup, initialState: client.store.getState() };
     });
 }
