@@ -52,7 +52,7 @@
     "apollo-client": "^0.4.12"
   },
   "devDependencies": {
-    "apollo-client": "0.4.16",
+    "apollo-client": "^0.4.19",
     "babel-jest": "^14.1.0",
     "babel-preset-react-native": "^1.9.0",
     "browserify": "^13.0.0",
