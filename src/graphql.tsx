@@ -55,6 +55,7 @@ import {
 } from 'graphql';
 
 import { parser, DocumentType } from './parser';
+import { reduxRootSelector } from './apolloClient';
 
 export declare interface MutationOptions {
   variables?: Object;
@@ -213,7 +214,7 @@ export default function graphql(
       // if this query is in the store, don't block execution
       try {
         readQueryFromStore({
-          store: client.store.getState()[client.reduxRootKey].data,
+          store: reduxRootSelector(client).data,
           query: opts.query,
           variables: opts.variables,
           fragmentMap: createFragmentMap(opts.fragments),
@@ -331,7 +332,6 @@ export default function graphql(
           return;
         }
 
-        const { reduxRootKey } = this.client;
         const queryOptions = this.calculateOptions(this.props);
         const fragments = calculateFragments(queryOptions.fragments);
         const { variables, forceFetch, skip } = queryOptions as QueryOptions;
@@ -363,7 +363,7 @@ export default function graphql(
         if (!forceFetch) {
           try {
             const result = readQueryFromStore({
-              store: this.store.getState()[reduxRootKey].data,
+              store: reduxRootSelector(this.client).data,
               query: document,
               variables,
               fragmentMap: createFragmentMap(fragments),
@@ -445,7 +445,6 @@ export default function graphql(
       }
 
       handleQueryData(observableQuery: ObservableQuery, { variables }: WatchQueryOptions): void {
-        const { reduxRootKey } = this.client;
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch,
@@ -457,7 +456,7 @@ export default function graphql(
 
         const next = ({ data = oldData, loading, error }: any) => {
           const { queryId } = observableQuery;
-          let initialVariables = this.store.getState()[reduxRootKey].queries[queryId].variables;
+          let initialVariables = reduxRootSelector(this.client).queries[queryId].variables;
 
           const resultKeyConflict: boolean = (
             'errors' in data ||
