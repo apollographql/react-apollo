@@ -7,9 +7,12 @@ declare var it: jest.It;
 declare function pit(name: string, fn: jest.EmptyFunction): void;
 
 declare function xdescribe(name: string, fn: jest.EmptyFunction): void;
-declare function xit(name: string, fn: jest.EmptyFunction): void;
+declare function xit(name: string, fn: jest.EmptyFunction | jest.DoneFunction): void;
+
+declare function fit(name: string, fn: jest.EmptyFunction | jest.DoneFunction): void;
 
 declare function expect(actual: any): jest.Matchers;
+declare function done(): any;
 
 interface NodeRequire {
     requireActual(moduleName: string): any;
@@ -36,9 +39,14 @@ declare namespace jest {
         (): void;
     }
 
+    interface DoneFunction {
+        (done: jest.EmptyFunction): void;
+    }
+
     interface Matchers {
         not: Matchers;
         toThrow(expected?: any): boolean;
+        toThrowError(expected?: any): boolean;
         toBe(expected: any): boolean;
         toEqual(expected: any): boolean;
         toBeFalsy(): boolean;
@@ -57,8 +65,8 @@ declare namespace jest {
     }
 
     interface It {
-        (name: string, fn: EmptyFunction): void;
-        only(name: string, fn: EmptyFunction): void;
+        (name: string, fn: EmptyFunction | DoneFunction): void;
+        only(name: string, fn: EmptyFunction | DoneFunction): void;
     }
 
     interface Mock<T> {

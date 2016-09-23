@@ -5,6 +5,7 @@
     "raw": "registry:npm/immutable#3.7.6+20160411060006",
     "main": "immutable.d.ts",
     "version": "3.7.6",
+    "global": false,
     "name": "immutable",
     "type": "typings"
   }

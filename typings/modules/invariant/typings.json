@@ -4,6 +4,7 @@
     "src": "https://raw.githubusercontent.com/typed-typings/npm-invariant/58403cee078ebef52112c4227c4d23a97821ef5c/typings.json",
     "raw": "registry:npm/invariant#2.0.0+20160211003958",
     "main": "invariant.d.ts",
+    "global": false,
     "name": "invariant",
     "type": "typings"
   }
