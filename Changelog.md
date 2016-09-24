@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Feature: Upgrade the version of `typescript` [#229](https://github.com/apollostack/react-apollo/pull/229)
+
 ### v0.5.6
 
 - Bug: Passing immutable to ApolloProvider breaks ssr. `renderToStringWithData` fails to reference the right store.
