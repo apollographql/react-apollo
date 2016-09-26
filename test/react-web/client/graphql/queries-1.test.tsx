@@ -106,8 +106,6 @@ describe('queries', () => {
     renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
-  // XXX reinsert `queries-2.test.tsx` after react 15.4
-
   it('executes a query with two root fields', (done) => {
     const query = gql`query people {
       allPeople(first: 1) { people { name } }
@@ -345,8 +343,7 @@ describe('queries', () => {
     }, 25);
   });
 
-  // XXX: apollo client isn't firing when data is the same after a setVariable
-  it.skip('reruns the query if it changes', (done) => {
+  it('reruns the query if it changes', (done) => {
     let count = 0;
     const query = gql`
       query people($first: Int) {
@@ -567,7 +564,7 @@ describe('queries', () => {
 
   // Failing because fetchMore is not bound w/ createBoundRefetch either,
   //   so no loading state
-  it.skip('exposes fetchMore as part of the props api', (done) => {
+  it('exposes fetchMore as part of the props api', (done) => {
     const query = gql`
       query people($skip: Int, $first: Int) { allPeople(first: $first, skip: $skip) { people { name } } }
     `;
@@ -604,10 +601,6 @@ describe('queries', () => {
             expect(result.data.allPeople.people).to.deep.equal(data1.allPeople.people);
           }));
         } else if (count === 1) {
-          expect(props.data.variables).to.deep.equal(variables);
-          expect(props.data.loading).to.be.true;
-          expect(props.data.allPeople).to.deep.equal(data.allPeople);
-        } else if (count === 2) {
           expect(props.data.variables).to.deep.equal(variables);
           expect(props.data.loading).to.be.false;
           expect(props.data.allPeople.people).to.deep.equal(
@@ -674,9 +667,7 @@ describe('queries', () => {
   });
 
 
-  // XXX: no longer goes to loading state because we don't bind refetch and
-  // apollo-client doesn't do it for us (so goes straight to done)
-  it.skip('resets the loading state after a refetched query', (done) => {
+  it('resets the loading state after a refetched query', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
@@ -687,24 +678,14 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface });
 
     let isRefetching;
-    let refetched;
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps = wrap(done, (props) => {
         // get new data with no more loading state
-        if (refetched) {
+        if (isRefetching) {
           expect(props.data.loading).toBe(false);
           expect(props.data.allPeople).toEqual(data2.allPeople);
           done();
-          return;
-        }
-
-        // don't remove old data
-        if (isRefetching) {
-          isRefetching = false;
-          refetched = true;
-          expect(props.data.loading).toBe(true);
-          expect(props.data.allPeople).toEqual(data.allPeople);
           return;
         }
 
@@ -721,8 +702,8 @@ describe('queries', () => {
     renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
-  // XXX: as above, but also doesn't go to done, see
-  //   https://github.com/apollostack/apollo-client/pull/635#discussion_r78505278
+  // XXX: this does not occur at the moment. When we add networkStatus, we should
+  // see a few more states
   it.skip('resets the loading state after a refetched query even if the data doesn\'t change', (d) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };

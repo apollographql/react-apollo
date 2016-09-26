@@ -329,9 +329,7 @@ export default function graphql(
         assign(this.data, observableQueryFields(this.queryObservable));
 
         if (!opts.forceFetch) {
-          const currentResult = this.queryObservable.currentResult({
-            returnPartialData: true,
-          });
+          const currentResult = this.queryObservable.currentResult();
           // try and fetch initial data from the store
           assign(this.data, currentResult.data, { loading: currentResult.loading });
         }
@@ -340,16 +338,13 @@ export default function graphql(
       subscribeToQuery(props): boolean {
         const opts = calculateOptions(props) as QueryOptions;
 
-        // don't rerun if nothing has changed
-        if (isEqual(opts, this.previousOpts)) return false;
-
         // XXX: tear down old subscription if it exists
         if (opts.skip) return;
 
         // XXX: this seems like the wrong function to do this in, should it be in willReceiveProps?
         // We've subscribed already, just change stuff.
         if (this.querySubscription) {
-          this.queryObservable.setVariables(opts.variables);
+          this.queryObservable.setOptions(opts);
 
           // Ensure we are up-to-date with the latest state of the world
           assign(this.data,
@@ -366,26 +361,17 @@ export default function graphql(
           this.createQuery(opts);
         }
 
-        let oldData = {};
-        const next = ({ data = oldData, loading, error }: any) => {
+        const next = ({ data, loading, error }: any) => {
+          const { queryId } = this.queryObservable;
 
-        const { queryId } = this.queryObservable;
-
-          invariant(Object.keys(observableQueryFields(data)).length === 0,
+          const clashingKeys = Object.keys(observableQueryFields(data));
+          invariant(clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
-            `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', 'fetchMore', 'updateQuery', and 'refetch' cannot be ` +
-            `returned keys`
+            `conflict with the return object.` +
+            clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
           );
 
-          // only rerender child component if data has changed
-          if (!isEqual(oldData, data) || loading !== this.data.loading) {
-            this.hasOperationDataChanged = true;
-          }
-
-          // cache the changed data for next check
-          oldData = assign({}, data);
-
+          this.hasOperationDataChanged = true;
           this.data = assign({
             loading,
             error,
