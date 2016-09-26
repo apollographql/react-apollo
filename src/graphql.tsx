@@ -5,7 +5,6 @@ import {
 } from 'react';
 
 // modules don't export ES6 modules
-import isEqual = require('lodash.isequal');
 import flatten = require('lodash.flatten');
 import pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
@@ -16,10 +15,7 @@ import assign = require('object-assign');
 import hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
-  readQueryFromStore,
-  createFragmentMap,
   ApolloError,
-  WatchQueryOptions,
   ObservableQuery,
   MutationBehavior,
   MutationQueryReducersMap,
@@ -228,9 +224,6 @@ export default function graphql(
       private data: any = {}; // apollo data
       private type: DocumentType;
 
-      private previousOpts: Object;
-      // private previousQueries: Object;
-
       // request / action storage
       private queryObservable: ObservableQuery;
       private querySubscription: Subscription;
@@ -367,8 +360,6 @@ export default function graphql(
         }
 
         const next = ({ data, loading, error }: any) => {
-          const { queryId } = this.queryObservable;
-
           const clashingKeys = Object.keys(observableQueryFields(data));
           invariant(clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +

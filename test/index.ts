@@ -1,3 +1,3 @@
-require('source-map-support').install({
-  environment: 'node',
-});
+import { install } from 'source-map-support';
+
+install({ environment: 'node' });
