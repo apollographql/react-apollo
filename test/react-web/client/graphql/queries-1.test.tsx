@@ -343,6 +343,48 @@ describe('queries', () => {
     }, 25);
   });
 
+  it('stops the query if skip becomes true on prop change', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    let renderCount = 0;
+    @graphql(query, {
+      options: ({ skip }) => ({ skip }),
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        renderCount += 1;
+        if (renderCount === 1) {
+          // first reprop is with real data
+          expect(props.data.loading).to.be.false;
+          expect(props.data.allPeople).to.exist;
+          props.doSkip();
+        } else {
+          // second time we skip
+          expect(props.data.loading).to.be.false;
+          expect(props.data.allPeople).to.not.exist;
+          done();
+        }
+
+      }
+      render() {
+        return null;
+      }
+    };
+
+    class ChangingProps extends React.Component<any, any> {
+      state = { skip: false };
+
+      render() {
+        return <Container skip={this.state.skip} doSkip={() => this.setState({ skip: true })}/>;
+      }
+    }
+
+    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+  });
+
   it('reruns the query if it changes', (done) => {
     let count = 0;
     const query = gql`

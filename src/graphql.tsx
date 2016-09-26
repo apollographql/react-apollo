@@ -338,11 +338,18 @@ export default function graphql(
       subscribeToQuery(props): boolean {
         const opts = calculateOptions(props) as QueryOptions;
 
-        // XXX: tear down old subscription if it exists
-        if (opts.skip) return;
+        if (opts.skip) {
+          if (this.querySubscription) {
+            this.hasOperationDataChanged = true;
+            this.data = { loading: false };
+            this.querySubscription.unsubscribe();
+            this.forceRenderChildren();
+          }
+          return;
+        }
 
-        // XXX: this seems like the wrong function to do this in, should it be in willReceiveProps?
-        // We've subscribed already, just change stuff.
+        // We've subscribed already, just update with our new options and
+        // take the latest result
         if (this.querySubscription) {
           this.queryObservable.setOptions(opts);
 
@@ -351,8 +358,6 @@ export default function graphql(
             { loading: this.queryObservable.currentResult().loading },
             observableQueryFields(this.queryObservable));
 
-          // XXX: if pollingInterval is set, it may have changed, we could called
-          // this.queryObservable.startPolling here
           return;
         }
 
@@ -393,10 +398,6 @@ export default function graphql(
           Instead, we subscribe to the store for network errors and re-render that way
         */
         this.querySubscription = this.queryObservable.subscribe({ next, error: handleError });
-
-        // XXX: can remove this?
-        // XXX the tests seem to be keeping the error around?
-        delete this.data.error;
       }
 
       unsubscribeFromQuery() {
