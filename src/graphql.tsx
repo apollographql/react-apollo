@@ -17,36 +17,15 @@ import hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
   readQueryFromStore,
-} from 'apollo-client';
-
-import {
   createFragmentMap,
-} from 'apollo-client/queries/getFromAST';
-
-import {
   ApolloError,
-} from 'apollo-client/errors';
-
-import {
   WatchQueryOptions,
-} from 'apollo-client/watchQueryOptions';
-
-import {
   ObservableQuery,
-} from 'apollo-client/ObservableQuery';
-
-import {
   MutationBehavior,
   MutationQueryReducersMap,
-} from 'apollo-client/data/mutationResults';
-
-import {
   Subscription,
-} from 'apollo-client/util/Observable';
-
-import {
   ApolloStore,
-} from 'apollo-client/store';
+} from 'apollo-client';
 
 import {
   // GraphQLResult,
