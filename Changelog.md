@@ -4,6 +4,11 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.7
+
+ - Feature: Upgraded to typescript 2.0 [#217](https://github.com/apollostack/react-apollo/pull/217)
+ - Feature: Allow usage of redux key or selector [#226](https://github.com/apollostack/react-apollo/pull/226)
+
 ### v0.5.6
 
 - Bug: Passing immutable to ApolloProvider breaks ssr. `renderToStringWithData` fails to reference the right store.
