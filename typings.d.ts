@@ -1,4 +1,4 @@
-/// <reference types="graphql-typings" />
+/// <reference path="./node_modules/typed-graphql/graphql.d.ts" />
 
 
 /*
@@ -10,13 +10,13 @@ declare module 'lodash.isobject' {
 }
 
 declare module 'lodash.isequal' {
-  import main = require('lodash');
-  export = main.isEqual;
+  import main = require('lodash/isEqual');
+  export = main;
 }
 
 declare module 'lodash.flatten' {
-  import main = require('lodash');
-  export = main.flatten;
+  import main = require('lodash/flatten');
+  export = main;
 }
 
 declare module 'recompose/compose' {
