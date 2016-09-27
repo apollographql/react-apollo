@@ -10,6 +10,8 @@
 
 Describe how to reproduce this issue.
 
+> code samples are greatly appreciated!
+
 1. Do a thing
 2. Do another thing
 3. etc.
@@ -20,7 +22,7 @@ Describe the thing that happens that is the issue.
 
 ### Expected Behavior
 
-Describe what should actually happen.
+Describe what you think should actually happen.
 
 ### Version
 - apollo-client@<version number>
