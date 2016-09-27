@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Feature: Remove nested imports for apollo-client. Making local development eaiser. [#234](https://github.com/apollostack/react-apollo/pull/234)
+
 ### v0.5.7
 
  - Feature: Upgraded to typescript 2.0 [#217](https://github.com/apollostack/react-apollo/pull/217)
