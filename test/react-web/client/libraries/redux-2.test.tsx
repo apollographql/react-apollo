@@ -14,7 +14,12 @@ import * as React from 'react';
 import { mount } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect } from 'react-redux';
-import { reducer as formReducer, reduxForm } from 'redux-form';
+import {
+  reducer as formReducer,
+  reduxForm,
+  formValueSelector,
+  Field
+} from 'redux-form';
 import gql from 'graphql-tag';
 import { combineReducers as loopCombine, install } from 'redux-loop';
 import { Map } from 'immutable';
@@ -61,18 +66,21 @@ describe('redux integration', () => {
         form: 'contact',
         fields: ['firstName'],
       })
+      @connect((state) => ({
+        firstName: formValueSelector('contact')(state, 'firstName'),
+      }))
       @graphql(query, {
-        options: ({ fields }) => ({
-          variables: { name: fields.firstName.value },
-          skip: !fields.firstName.value,
+        options: ({ firstName }) => ({
+          variables: { name: firstName },
+          skip: !firstName,
         }),
       })
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(nextProps) {
-          const { value } = nextProps.fields.firstName;
-          if (!value) return;
+          const { firstName } = nextProps;
+          if (!firstName) return;
 
-          expect(value).toBe(variables.name);
+          expect(firstName).toBe(variables.name);
           if (nextProps.data.loading || !nextProps.data.allPeople) return;
 
           expect(nextProps.data.loading).toBe(false);
@@ -82,19 +90,13 @@ describe('redux integration', () => {
         }
 
         render() {
-          const { fields: { firstName }, handleSubmit } = this.props;
+          const { firstName, handleSubmit } = this.props;
           // changed from {...firstName} to prevent unknown prop warnings
           return (
             <form onSubmit={handleSubmit}>
               <div>
                 <label>First Name</label>
-                <input
-                  type='text'
-                  placeholder='First Name'
-                  name={firstName.name}
-                  value={firstName.value}
-                  onChange={firstName.onChange}
-                />
+                <Field name="firstName" component="input" type="text" placeholder="First Name" />
               </div>
               <button type='submit'>Submit</button>
             </form>

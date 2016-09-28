@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect } from 'react-redux';
-import { reducer as formReducer, reduxForm } from 'redux-form';
+import { reducer as formReducer, reduxForm, Field } from 'redux-form';
 import { combineReducers as loopCombine, install } from 'redux-loop';
 import gql from 'graphql-tag';
 
@@ -106,34 +106,37 @@ describe('redux integration', () => {
         applyMiddleware(client.middleware())
       );
 
-      @graphql(query, { options: () => ({ variables }) })
+      function MyField({ input: { value } }) {
+        if (!value) return null;
+
+        expect(value).toBe(data.allPeople.people[0].name);
+
+        done();
+        // wrapper.unmount();
+        return null;
+      }
+
+      @graphql(query, {
+        options: () => ({ variables }),
+        props: ({ data: { loading, allPeople } }) => ({
+          initialValues: {
+            firstName: loading ? '' : allPeople.people[0].name,
+          },
+        }),
+      })
       @reduxForm({
         form: 'contact',
         fields: ['firstName'],
-      }, (state, ownProps) => ({
-        initialValues: {
-          firstName: ownProps.data.loading ? '' : ownProps.data.allPeople.people[0].name,
-        },
-      }))
+        enableReinitialize: true,
+      })
       class Container extends React.Component<any, any> {
-        componentWillReceiveProps(nextProps) {
-          const { value, initialValue } = nextProps.fields.firstName;
-          if (!value) return;
-
-          expect(initialValue).toBe(data.allPeople.people[0].name);
-          expect(value).toBe(data.allPeople.people[0].name);
-
-          done();
-          // wrapper.unmount();
-        }
-
         render() {
           const { fields: { firstName }, handleSubmit } = this.props;
           return (
             <form onSubmit={handleSubmit}>
               <div>
                 <label>First Name</label>
-                <input type='text' placeholder='First Name' {...firstName}/>
+                <Field name="firstName" component={MyField} />
               </div>
               <button type='submit'>Submit</button>
             </form>
