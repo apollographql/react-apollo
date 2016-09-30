@@ -358,13 +358,13 @@ describe('queries', () => {
         renderCount += 1;
         if (renderCount === 1) {
           // first reprop is with real data
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople).to.exist;
+          expect(props.data.loading).toBe.false;
+          expect(props.data.allPeople).toBeDefined;
           props.doSkip();
         } else {
           // second time we skip
-          expect(props.data.loading).to.be.false;
-          expect(props.data.allPeople).to.not.exist;
+          expect(props.data.loading).toBe.false;
+          expect(props.data.allPeople).not.toBeDefined;
           done();
         }
 
@@ -382,7 +382,7 @@ describe('queries', () => {
       }
     }
 
-    mount(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
   it('reruns the query if it changes', (done) => {
@@ -644,7 +644,7 @@ describe('queries', () => {
           }));
         } else if (count === 1) {
           expect(props.data.variables).to.deep.equal(variables);
-          expect(props.data.loading).to.be.false;
+          expect(props.data.loading).toBe.false;
           expect(props.data.allPeople.people).to.deep.equal(
             data.allPeople.people.concat(data1.allPeople.people)
           );
@@ -746,49 +746,49 @@ describe('queries', () => {
 
   // XXX: this does not occur at the moment. When we add networkStatus, we should
   // see a few more states
-  it.skip('resets the loading state after a refetched query even if the data doesn\'t change', (d) => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface(
-      { request: { query }, result: { data } },
-      { request: { query }, result: { data } }
-    );
-    const client = new ApolloClient({ networkInterface });
-
-    let isRefectching;
-    let refetched;
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        // get new data with no more loading state
-        if (refetched) {
-          expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople).toEqual(data.allPeople);
-          d();
-          return;
-        }
-
-        // don't remove old data
-        if (isRefectching) {
-          isRefectching = false;
-          refetched = true;
-          expect(props.data.loading).toBe(true);
-          expect(props.data.allPeople).toEqual(data.allPeople);
-          return;
-        }
-
-        if (!isRefectching) {
-          isRefectching = true;
-          props.data.refetch();
-        }
-      }
-      render() {
-        return null;
-      }
-    };
-
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
-  });
+  // it('resets the loading state after a refetched query even if the data doesn\'t change', (d) => {
+  //   const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+  //   const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+  //   const networkInterface = mockNetworkInterface(
+  //     { request: { query }, result: { data } },
+  //     { request: { query }, result: { data } }
+  //   );
+  //   const client = new ApolloClient({ networkInterface });
+  //
+  //   let isRefectching;
+  //   let refetched;
+  //   @graphql(query)
+  //   class Container extends React.Component<any, any> {
+  //     componentWillReceiveProps(props) {
+  //       // get new data with no more loading state
+  //       if (refetched) {
+  //         expect(props.data.loading).toBe(false);
+  //         expect(props.data.allPeople).toEqual(data.allPeople);
+  //         d();
+  //         return;
+  //       }
+  //
+  //       // don't remove old data
+  //       if (isRefectching) {
+  //         isRefectching = false;
+  //         refetched = true;
+  //         expect(props.data.loading).toBe(true);
+  //         expect(props.data.allPeople).toEqual(data.allPeople);
+  //         return;
+  //       }
+  //
+  //       if (!isRefectching) {
+  //         isRefectching = true;
+  //         props.data.refetch();
+  //       }
+  //     }
+  //     render() {
+  //       return null;
+  //     }
+  //   };
+  //
+  //   renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+  // });
 
   it('allows a polling query to be created', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
@@ -1006,7 +1006,7 @@ describe('queries', () => {
           this.props.data.updateQuery();
           done();
         } catch (e) {
-          expect(e).to.match(/ObservableQuery with this id doesn't exist:/);
+          expect(e.toString()).toMatch(/ObservableQuery with this id doesn't exist:/);
           done();
         }
       }

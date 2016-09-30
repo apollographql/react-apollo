@@ -20,8 +20,8 @@ declare module 'lodash.flatten' {
 }
 
 declare module 'lodash.pick' {
-  import main = require('lodash');
-  export = main.pick;
+  import main = require('lodash/pick');
+  export = main;
 }
 
 declare module 'recompose/compose' {
