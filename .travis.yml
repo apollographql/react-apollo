@@ -20,9 +20,9 @@ install:
 
 script:
   - npm test
-  - cd examples/base && npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
+  - cd examples/base && npm test
   - npm run filesize
   - python node_modules/travis-weigh-in/weigh_in.py ./dist/index.min.js || true # ignore size errors
 
