@@ -1,0 +1,5 @@
+[ignore]
+<PROJECT_ROOT>/node_modules/fbjs/.*
+
+[options]
+suppress_type=$FlowIssue

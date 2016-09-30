@@ -1,0 +1,150 @@
+exports[`Article query should match expected shape 1`] = `
+"query GetArticles {
+  content(channel: \"articles\", limit: 3) {
+    title
+    meta {
+      summary
+    }
+  }
+}
+"
+`;
+
+exports[`Article query should match expected structure 1`] = `
+Object {
+  "definitions": Array [
+    Object {
+      "directives": Array [],
+      "kind": "OperationDefinition",
+      "name": Object {
+        "kind": "Name",
+        "value": "GetArticles"
+      },
+      "operation": "query",
+      "selectionSet": Object {
+        "kind": "SelectionSet",
+        "selections": Array [
+          Object {
+            "alias": null,
+            "arguments": Array [
+              Object {
+                "kind": "Argument",
+                "name": Object {
+                  "kind": "Name",
+                  "value": "channel"
+                },
+                "value": Object {
+                  "kind": "StringValue",
+                  "value": "articles"
+                }
+              },
+              Object {
+                "kind": "Argument",
+                "name": Object {
+                  "kind": "Name",
+                  "value": "limit"
+                },
+                "value": Object {
+                  "kind": "IntValue",
+                  "value": "3"
+                }
+              }
+            ],
+            "directives": Array [],
+            "kind": "Field",
+            "name": Object {
+              "kind": "Name",
+              "value": "content"
+            },
+            "selectionSet": Object {
+              "kind": "SelectionSet",
+              "selections": Array [
+                Object {
+                  "alias": null,
+                  "arguments": Array [],
+                  "directives": Array [],
+                  "kind": "Field",
+                  "name": Object {
+                    "kind": "Name",
+                    "value": "title"
+                  },
+                  "selectionSet": null
+                },
+                Object {
+                  "alias": null,
+                  "arguments": Array [],
+                  "directives": Array [],
+                  "kind": "Field",
+                  "name": Object {
+                    "kind": "Name",
+                    "value": "meta"
+                  },
+                  "selectionSet": Object {
+                    "kind": "SelectionSet",
+                    "selections": Array [
+                      Object {
+                        "alias": null,
+                        "arguments": Array [],
+                        "directives": Array [],
+                        "kind": "Field",
+                        "name": Object {
+                          "kind": "Name",
+                          "value": "summary"
+                        },
+                        "selectionSet": null
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "variableDefinitions": Array []
+    }
+  ],
+  "kind": "Document"
+}
+`;
+
+exports[`Articles Component should render a loading state without data 1`] = `
+<div>
+  Loading
+</div>
+`;
+
+exports[`Articles Component should render title and summary in order 1`] = `
+<div>
+  <div>
+    <h3>
+      Mollis Bibendum Vulputate Commodo
+    </h3>
+    <p>
+      Maecenas faucibus mollis interdum. Nulla vitae elit libero, a pharetra augue. Sed posuere consectetur est at lobortis.
+    </p>
+  </div>
+  <div>
+    <h3>
+      Ullamcorper Fusce Egestas
+    </h3>
+    <p>
+      Maecenas faucibus mollis interdum. Donec sed odio dui. Donec id elit non mi porta gravida at eget metus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Curabitur blandit tempus porttitor.
+    </p>
+  </div>
+  <div>
+    <h3>
+      Tristique Sollicitudin Tellus Bibendum Vehicula
+    </h3>
+    <p>
+      Sed posuere consectetur est at lobortis. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Nulla vitae elit libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Nulla vitae elit libero, a pharetra augue. Vestibulum id ligula porta felis euismod semper.
+    </p>
+  </div>
+</div>
+`;
+
+exports[`default export renders without crashing 1`] = `
+<div>
+  Loading
+</div>
+`;

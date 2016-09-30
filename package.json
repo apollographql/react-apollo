@@ -6,6 +6,7 @@
   "typings": "index.d.ts",
   "scripts": {
     "test": "jest",
+    "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=15",
     "compile": "tsc",
@@ -76,6 +77,7 @@
     "cheerio": "^0.20.0",
     "colors": "^1.1.2",
     "enzyme": "^2.2.0",
+    "flow-bin": "^0.32.0",
     "graphql": "^0.5.0",
     "graphql-tag": "^0.1.7",
     "gzip-size": "^3.0.0",

@@ -15,9 +15,12 @@ before_install:
 
 install:
   - yarn
+  - cd examples/base && yarn
+
 
 script:
   - npm test
+  - cd examples/base && npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
   - npm run filesize
