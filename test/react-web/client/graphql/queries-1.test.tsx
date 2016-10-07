@@ -374,7 +374,7 @@ describe('queries', () => {
     renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
-  it('allows you to skip a query', (done) => {
+  it('allows you to skip a query (deprecated)', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -388,6 +388,32 @@ describe('queries', () => {
       }
       render() {
         expect(this.props.data.loading).toBe(false);
+        return null;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+
+    setTimeout(() => {
+      if (!queryExecuted) { done(); return; }
+      done(new Error('query ran even though skip present'));
+    }, 25);
+  });
+
+  it('allows you to skip a query without running it', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    let queryExecuted;
+    @graphql(query, { skip: () => true })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        queryExecuted = true;
+      }
+      render() {
+        expect(this.props.data).toBeNull();
         return null;
       }
     };
