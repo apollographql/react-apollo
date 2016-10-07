@@ -50,7 +50,7 @@
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0",
     "redux": "^2.0.0 || ^3.0.0",
-    "apollo-client": "^0.4.15"
+    "apollo-client": "0.4.15 - 0.4.19"
   },
   "devDependencies": {
     "@types/chai": "^3.4.33",
