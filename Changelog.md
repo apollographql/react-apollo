@@ -5,6 +5,7 @@ Expect active development and potentially significant breaking changes in the `0
 ### vNext
 
 - Feature: Remove nested imports for apollo-client. Making local development eaiser. [#234](https://github.com/apollostack/react-apollo/pull/234)
+- Feature: Move types to dev deps [#251](https://github.com/apollostack/react-apollo/pull/251)
 
 ### v0.5.7
 
