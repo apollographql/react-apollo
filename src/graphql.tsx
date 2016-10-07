@@ -52,6 +52,7 @@ export declare interface QueryOptions {
   noFetch?: boolean;
   pollInterval?: number;
   fragments?: FragmentDefinition[] | FragmentDefinition[][];
+  // deprecated
   skip?: boolean;
 }
 
@@ -62,6 +63,7 @@ const defaultQueryData = {
 
 const defaultMapPropsToOptions = props => ({});
 const defaultMapResultToProps = props => props;
+const defaultMapPropsToSkip = props => false;
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -109,6 +111,7 @@ export function withApollo(WrappedComponent) {
 export interface OperationOption {
   options?: Object | ((props: any) => QueryOptions | MutationOptions);
   props?: (props: any) => any;
+  skip?: (props: any) => boolean;
   name?: string;
   withRef?: boolean;
 }
