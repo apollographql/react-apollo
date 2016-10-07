@@ -111,7 +111,7 @@ export function withApollo(WrappedComponent) {
 export interface OperationOption {
   options?: Object | ((props: any) => QueryOptions | MutationOptions);
   props?: (props: any) => any;
-  skip?: (props: any) => boolean;
+  skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
 }
@@ -122,9 +122,13 @@ export default function graphql(
 ) {
 
   // extract options
-  const { options = defaultMapPropsToOptions } = operationOptions;
+  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip } = operationOptions;
+
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
+
+  let mapPropsToSkip = skip as (props: any) => boolean;
+  if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = (() => skip as any);
 
   const mapResultToProps = operationOptions.props;
 
@@ -184,6 +188,7 @@ export default function graphql(
     }
 
     function fetchData(props, { client }) {
+      if (mapPropsToSkip(props)) return;
       if (operation.type === DocumentType.Mutation) return false;
       const opts = calculateOptions(props) as any;
       opts.query = document;
@@ -260,6 +265,7 @@ export default function graphql(
         this.queryObservable = {};
         this.querySubscription = {};
 
+        if (mapPropsToSkip(props)) return;
         this.setInitialProps();
 
       }
@@ -268,11 +274,16 @@ export default function graphql(
         this.hasMounted = true;
         if (this.type === DocumentType.Mutation) return;
 
+        if (mapPropsToSkip(this.props)) return;
         this.subscribeToQuery(this.props);
-
       }
 
       componentWillReceiveProps(nextProps) {
+        // if this has changed, remove data and unsubscribeFromQuery
+        if (!mapPropsToSkip(this.props) && mapPropsToSkip(nextProps)) {
+          delete this.data;
+          return this.unsubscribeFromQuery();
+        }
         if (shallowEqual(this.props, nextProps)) return;
 
         if (this.type === DocumentType.Mutation) {
@@ -315,7 +326,7 @@ export default function graphql(
 
         const queryOptions = this.calculateOptions(this.props);
         const fragments = calculateFragments(queryOptions.fragments);
-        const { variables, forceFetch, skip } = queryOptions as QueryOptions;
+        const { variables, forceFetch, skip } = queryOptions as QueryOptions; // tslint:disable-line
 
         let queryData = assign({}, defaultQueryData) as any;
         queryData.variables = variables;
@@ -561,6 +572,8 @@ export default function graphql(
       }
 
       render() {
+        if (mapPropsToSkip(this.props)) return createElement(WrappedComponent, this.props);
+
         const { haveOwnPropsChanged, hasOperationDataChanged, renderedElement, props, data } = this;
 
         this.haveOwnPropsChanged = false;
