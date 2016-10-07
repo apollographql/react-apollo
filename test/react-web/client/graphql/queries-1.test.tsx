@@ -426,6 +426,36 @@ describe('queries', () => {
     }, 25);
   });
 
+  it('doesn\'t run options or props when skipped', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    let queryExecuted;
+    @graphql(query, {
+      skip: ({ skip }) => skip,
+      options: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
+      props: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        queryExecuted = true;
+      }
+      render() {
+        expect(this.props.data).toBeFalsy();
+        return null;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Container skip={true} /></ProviderMock>);
+
+    setTimeout(() => {
+      if (!queryExecuted) { done(); return; }
+      done(new Error('query ran even though skip present'));
+    }, 25);
+  });
+
   it('allows you to skip a query without running it (alternate syntax)', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
