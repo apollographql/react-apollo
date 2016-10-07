@@ -90,7 +90,7 @@ export class MockNetworkInterface implements NetworkInterface {
 function requestToKey(request: ParsedRequest): string {
   const queryString = request.query && print(request.query);
   return JSON.stringify({
-    variables: request.variables,
+    variables: request.variables || {},
     debugName: request.debugName,
     query: queryString,
   });
