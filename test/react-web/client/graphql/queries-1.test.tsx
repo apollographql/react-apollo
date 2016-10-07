@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 import { ApolloError } from 'apollo-client/errors';
+import { connect } from 'react-redux';
 
 declare function require(name: string);
 
@@ -597,6 +598,64 @@ describe('queries', () => {
       }
 
       render() {
+        return <Container first={this.state.first} />;
+      }
+    }
+
+    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+  });
+
+  it('correctly unsubscribes', (done) => {
+    let count = 0;
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) { people { name } }
+      }
+    `;
+
+    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const variables1 = { first: 1 };
+
+    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const variables2 = { first: 2 };
+
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables: variables1 }, result: { data: data1 } },
+      { request: { query, variables: variables2 }, result: { data: data2 } }
+    );
+
+    const client = new ApolloClient({ networkInterface });
+    const Container = graphql(query)(() => null);
+
+    @connect(state => ({ apollo: state.apollo }))
+    class ChangingProps extends React.Component<any, any> {
+      state = { first: 1 };
+
+      componentDidMount() {
+        setTimeout(() => {
+          count++;
+          this.setState({ first: 0 });
+        }, 50);
+
+        setTimeout(() => {
+          count++;
+          this.setState({ first: 2 });
+        }, 50);
+      }
+
+      componentWillReceiveProps({ apollo: { queries } }) {
+        const queryNumber = Object.keys(queries).length;
+        console.log(queryNumber, count);
+        if (count === 0) expect(queryNumber).toEqual(1);
+        if (count === 1) expect(queryNumber).toEqual(0);
+        if (count === 2) {
+          expect(queryNumber).toEqual(1);
+          done();
+        }
+      }
+
+      render() {
+        if (this.state.first === 0) return null;
         return <Container first={this.state.first} />;
       }
     }
