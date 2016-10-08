@@ -48,6 +48,7 @@ export declare interface QueryOptions {
   noFetch?: boolean;
   pollInterval?: number;
   fragments?: FragmentDefinition[] | FragmentDefinition[][];
+  // deprecated
   skip?: boolean;
 }
 
@@ -58,6 +59,7 @@ const defaultQueryData = {
 
 const defaultMapPropsToOptions = props => ({});
 const defaultMapResultToProps = props => props;
+const defaultMapPropsToSkip = props => false;
 
 // the fields we want to copy over to our data prop
 const observableQueryFields = observable => pick(observable, 'variables',
@@ -109,6 +111,7 @@ export function withApollo(WrappedComponent) {
 export interface OperationOption {
   options?: Object | ((props: any) => QueryOptions | MutationOptions);
   props?: (props: any) => any;
+  skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
 }
@@ -119,9 +122,13 @@ export default function graphql(
 ) {
 
   // extract options
-  const { options = defaultMapPropsToOptions } = operationOptions;
+  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip } = operationOptions;
+
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
+
+  let mapPropsToSkip = skip as (props: any) => boolean;
+  if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = (() => skip as any);
 
   const mapResultToProps = operationOptions.props;
 
@@ -136,14 +143,8 @@ export default function graphql(
 
     // XXX: what is up with this? We shouldn't have to do this.
     function calculateFragments(fragments): FragmentDefinition[] {
-      if (!fragments && !operation.fragments.length) {
-        return fragments;
-      }
-
-      if (!fragments) {
-        return fragments = flatten([...operation.fragments]);
-      }
-
+      if (!fragments && !operation.fragments.length) return fragments;
+      if (!fragments) return fragments = flatten([...operation.fragments]);
       return flatten([...fragments, ...operation.fragments]);
     }
 
@@ -187,7 +188,10 @@ export default function graphql(
     }
 
     function fetchData(props, { client }) {
-      if (operation.type === DocumentType.Mutation) return false;
+      if (mapPropsToSkip(props)) return false;
+      if (
+        operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
+      ) return false;
 
       const opts = calculateOptions(props) as any;
       if (opts.ssr === false || opts.skip) return false;
@@ -225,7 +229,7 @@ export default function graphql(
       private type: DocumentType;
 
       // request / action storage
-      private queryObservable: ObservableQuery;
+      private queryObservable: ObservableQuery | any;
       private querySubscription: Subscription;
 
       // calculated switches to control rerenders
@@ -250,6 +254,7 @@ export default function graphql(
 
         this.type = operation.type;
 
+        if (mapPropsToSkip(props)) return;
         this.setInitialProps();
       }
 
@@ -257,11 +262,16 @@ export default function graphql(
         this.hasMounted = true;
         if (this.type === DocumentType.Mutation) return;
 
+        if (mapPropsToSkip(this.props)) return;
         this.subscribeToQuery(this.props);
-
       }
 
       componentWillReceiveProps(nextProps) {
+        // if this has changed, remove data and unsubscribeFromQuery
+        if (!mapPropsToSkip(this.props) && mapPropsToSkip(nextProps)) {
+          delete this.data;
+          return this.unsubscribeFromQuery();
+        }
         if (shallowEqual(this.props, nextProps)) return;
 
         if (this.type === DocumentType.Mutation) {
@@ -280,6 +290,7 @@ export default function graphql(
 
       componentWillUnmount() {
         if (this.type === DocumentType.Query) this.unsubscribeFromQuery();
+        if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
 
         this.hasMounted = false;
       }
@@ -287,7 +298,7 @@ export default function graphql(
       calculateOptions(props, newProps?) { return calculateOptions(props, newProps); };
 
       calculateResultProps(result) {
-        let name = this.type === DocumentType.Query ? 'data' : 'mutate';
+        let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
         const newResult = { [name]: result, ownProps: this.props };
@@ -297,10 +308,7 @@ export default function graphql(
       }
 
       setInitialProps() {
-        if (this.type === DocumentType.Mutation) {
-           this.createWrappedMutation(this.props);
-          return;
-        }
+        if (this.type === DocumentType.Mutation) return this.createWrappedMutation(this.props);
 
         // Create the observable but don't subscribe yet. The query won't
         // fire until we do.
@@ -315,16 +323,27 @@ export default function graphql(
       }
 
       createQuery(opts: QueryOptions) {
-        this.queryObservable = this.client.watchQuery(assign({
-          query: document,
-        }, opts));
+        if (this.type === DocumentType.Subscription) {
+          this.queryObservable = this.client.subscribe(assign({
+            query: document,
+          }, opts));
+        } else {
+          this.queryObservable = this.client.watchQuery(assign({
+            query: document,
+          }, opts));
+        }
 
         assign(this.data, observableQueryFields(this.queryObservable));
 
-        if (!opts.forceFetch) {
+        if (!opts.forceFetch && this.type !== DocumentType.Subscription) {
           const currentResult = this.queryObservable.currentResult();
           // try and fetch initial data from the store
           assign(this.data, currentResult.data, { loading: currentResult.loading });
+        }
+
+        if (this.type === DocumentType.Subscription) {
+          opts = this.calculateOptions(this.props, opts);
+          assign(this.data, { loading: true }, { variables: opts.variables });
         }
       }
 
@@ -349,7 +368,8 @@ export default function graphql(
           // Ensure we are up-to-date with the latest state of the world
           assign(this.data,
             { loading: this.queryObservable.currentResult().loading },
-            observableQueryFields(this.queryObservable));
+            observableQueryFields(this.queryObservable)
+          );
 
           return;
         }
@@ -359,7 +379,11 @@ export default function graphql(
           this.createQuery(opts);
         }
 
-        const next = ({ data, loading, error }: any) => {
+        const next = (results: any) => {
+          if (this.type === DocumentType.Subscription) {
+            results = { data: results, loading: false, error: null };
+          }
+          const { data, loading, error } = results;
           const clashingKeys = Object.keys(observableQueryFields(data));
           invariant(clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
@@ -431,6 +455,8 @@ export default function graphql(
       }
 
       render() {
+        if (mapPropsToSkip(this.props)) return createElement(WrappedComponent, this.props);
+
         const { haveOwnPropsChanged, hasOperationDataChanged, renderedElement, props, data } = this;
 
         this.haveOwnPropsChanged = false;

@@ -54,6 +54,52 @@ describe('SSR', () => {
         });
     });
 
+    it('should correctly skip queries (deprecated)', () => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const WrappedElement = graphql(query, { options: { skip: true }})(({ data }) => (
+        <div>{data.loading ? 'loading' : 'skipped'}</div>
+      ));
+
+      const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/skipped/);
+        })
+        ;
+    });
+
+    it('should correctly skip queries (deprecated)', () => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const WrappedElement = graphql(query, { skip: true })(({ data }) => (
+        <div>{!data ? 'skipped' : 'dang'}</div>
+      ));
+
+      const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/skipped/);
+        })
+        ;
+    });
+
     it('should run return the initial state for hydration', () => {
       const query = gql`{ currentUser { firstName } }`;
       const data = { currentUser: { firstName: 'James' } };

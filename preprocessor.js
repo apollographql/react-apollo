@@ -12,6 +12,7 @@ module.exports = {
         {
           module: tsc.ModuleKind.CommonJS,
           jsx: tsc.JsxEmit.React,
+          target: tsc.ScriptTarget.ES5
         },
         path,
         []

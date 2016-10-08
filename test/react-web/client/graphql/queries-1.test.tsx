@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 import { ApolloError } from 'apollo-client/errors';
+import { connect } from 'react-redux';
 
 declare function require(name: string);
 
@@ -317,7 +318,7 @@ describe('queries', () => {
     renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
-  it('allows you to skip a query', (done) => {
+  it('allows you to skip a query (deprecated)', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -343,47 +344,184 @@ describe('queries', () => {
     }, 25);
   });
 
-  it('stops the query if skip becomes true on prop change', (done) => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+// <<<<<<< HEAD
+//   it('stops the query if skip becomes true on prop change', (done) => {
+// =======
+//   it('allows you to skip a query without running it', (done) => {
+// >>>>>>> a23883fd226e0352813b4889cf647964c4c0e0fc
+//     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+//     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+//     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+//     const client = new ApolloClient({ networkInterface });
 
-    let renderCount = 0;
-    @graphql(query, {
-      options: ({ skip }) => ({ skip }),
-    })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        renderCount += 1;
-        if (renderCount === 1) {
-          // first reprop is with real data
-          expect(props.data.loading).toBe.false;
-          expect(props.data.allPeople).toBeDefined;
-          props.doSkip();
-        } else {
-          // second time we skip
-          expect(props.data.loading).toBe.false;
-          expect(props.data.allPeople).not.toBeDefined;
-          done();
-        }
+// <<<<<<< HEAD
+//     let renderCount = 0;
+//     @graphql(query, {
+//       options: ({ skip }) => ({ skip }),
+//     })
+//     class Container extends React.Component<any, any> {
+//       componentWillReceiveProps(props) {
+//         renderCount += 1;
+//         if (renderCount === 1) {
+//           // first reprop is with real data
+//           expect(props.data.loading).toBe.false;
+//           expect(props.data.allPeople).toBeDefined;
+//           props.doSkip();
+//         } else {
+//           // second time we skip
+//           expect(props.data.loading).toBe.false;
+//           expect(props.data.allPeople).not.toBeDefined;
+//           done();
+//         }
 
-      }
-      render() {
-        return null;
-      }
-    };
+// =======
+//     let queryExecuted;
+//     @graphql(query, { skip: ({ skip }) => skip })
+//     class Container extends React.Component<any, any> {
+//       componentWillReceiveProps(props) {
+//         queryExecuted = true;
+//       }
+//       render() {
+//         expect(this.props.data).toBeFalsy();
+//         return null;
+//       }
+//     };
 
-    class ChangingProps extends React.Component<any, any> {
-      state = { skip: false };
+//     renderer.create(<ProviderMock client={client}><Container skip={true} /></ProviderMock>);
 
-      render() {
-        return <Container skip={this.state.skip} doSkip={() => this.setState({ skip: true })}/>;
-      }
-    }
+//     setTimeout(() => {
+//       if (!queryExecuted) { done(); return; }
+//       done(new Error('query ran even though skip present'));
+//     }, 25);
+//   });
 
-    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
-  });
+//   it('doesn\'t run options or props when skipped', (done) => {
+//     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+//     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+//     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+//     const client = new ApolloClient({ networkInterface });
+
+//     let queryExecuted;
+//     @graphql(query, {
+//       skip: ({ skip }) => skip,
+//       options: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
+//       props: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
+//     })
+//     class Container extends React.Component<any, any> {
+//       componentWillReceiveProps(props) {
+//         queryExecuted = true;
+//       }
+//       render() {
+//         expect(this.props.data).toBeFalsy();
+//         return null;
+//       }
+//     };
+
+//     renderer.create(<ProviderMock client={client}><Container skip={true} /></ProviderMock>);
+
+//     setTimeout(() => {
+//       if (!queryExecuted) { done(); return; }
+//       done(new Error('query ran even though skip present'));
+//     }, 25);
+//   });
+
+//   it('allows you to skip a query without running it (alternate syntax)', (done) => {
+//     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+//     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+//     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+//     const client = new ApolloClient({ networkInterface });
+
+//     let queryExecuted;
+//     @graphql(query, { skip: true })
+//     class Container extends React.Component<any, any> {
+//       componentWillReceiveProps(props) {
+//         queryExecuted = true;
+//       }
+//       render() {
+//         expect(this.props.data).toBeFalsy();
+//         return null;
+//       }
+//     };
+
+//     renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+
+//     setTimeout(() => {
+//       if (!queryExecuted) { done(); return; }
+//       done(new Error('query ran even though skip present'));
+//     }, 25);
+//   });
+
+//   it('removes the injected props if skip becomes true', (done) => {
+//     let count = 0;
+//     const query = gql`
+//       query people($first: Int) {
+//         allPeople(first: $first) { people { name } }
+//       }
+//     `;
+
+//     const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+//     const variables1 = { first: 1 };
+
+//     const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+//     const variables2 = { first: 2 };
+
+//     const networkInterface = mockNetworkInterface(
+//       { request: { query, variables: variables1 }, result: { data: data1 } },
+//       { request: { query, variables: variables2 }, result: { data: data2 } }
+//     );
+
+//     const client = new ApolloClient({ networkInterface });
+
+//     @graphql(query, {
+//       skip: () => count === 1,
+//       options: (props) => ({ variables: props }),
+//     })
+//     class Container extends React.Component<any, any> {
+//       componentWillReceiveProps({ data }) {
+//         // loading is true, but data still there
+//         if (count === 0) expect(data.allPeople).toEqual(data1.allPeople);
+//         if (count === 1 ) expect(data).toBeFalsy();
+//         if (count === 2 && data.loading) expect(data.allPeople).toBeFalsy();
+//         if (count === 2 && !data.loading) {
+//           expect(data.allPeople).toEqual(data2.allPeople);
+//           done();
+//         }
+// >>>>>>> a23883fd226e0352813b4889cf647964c4c0e0fc
+//       }
+//       render() {
+//         return null;
+//       }
+//     };
+
+//     class ChangingProps extends React.Component<any, any> {
+// <<<<<<< HEAD
+//       state = { skip: false };
+
+//       render() {
+//         return <Container skip={this.state.skip} doSkip={() => this.setState({ skip: true })}/>;
+// =======
+//       state = { first: 1 };
+
+//       componentDidMount() {
+//         setTimeout(() => {
+//           count++;
+//           this.setState({ first: 2 });
+//         }, 50);
+
+//         setTimeout(() => {
+//           count++;
+//           this.setState({ first: 3 });
+//         }, 100);
+//       }
+
+//       render() {
+//         return <Container first={this.state.first} />;
+// >>>>>>> a23883fd226e0352813b4889cf647964c4c0e0fc
+//       }
+//     }
+
+//     renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+//   });
 
   it('reruns the query if it changes', (done) => {
     let count = 0;
@@ -442,6 +580,64 @@ describe('queries', () => {
 
     renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
+
+  // XXX broken in AC 0.4.20
+  // it('correctly unsubscribes', (done) => {
+  //   let count = 0;
+  //   const query = gql`
+  //     query people($first: Int) {
+  //       allPeople(first: $first) { people { name } }
+  //     }
+  //   `;
+
+  //   const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+  //   const variables1 = { first: 1 };
+
+  //   const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+  //   const variables2 = { first: 2 };
+
+  //   const networkInterface = mockNetworkInterface(
+  //     { request: { query, variables: variables1 }, result: { data: data1 } },
+  //     { request: { query, variables: variables2 }, result: { data: data2 } }
+  //   );
+
+  //   const client = new ApolloClient({ networkInterface });
+  //   const Container = graphql(query)(() => null);
+
+  //   @connect(state => ({ apollo: state.apollo }))
+  //   class ChangingProps extends React.Component<any, any> {
+  //     state = { first: 1 };
+
+  //     componentDidMount() {
+  //       setTimeout(() => {
+  //         count++;
+  //         this.setState({ first: 0 });
+  //       }, 50);
+
+  //       setTimeout(() => {
+  //         count++;
+  //         this.setState({ first: 2 });
+  //       }, 50);
+  //     }
+
+  //     componentWillReceiveProps({ apollo: { queries } }) {
+  //       const queryNumber = Object.keys(queries).length;
+  //       if (count === 0) expect(queryNumber).toEqual(1);
+  //       if (count === 1) expect(queryNumber).toEqual(0);
+  //       if (count === 2) {
+  //         expect(queryNumber).toEqual(1);
+  //         done();
+  //       }
+  //     }
+
+  //     render() {
+  //       if (this.state.first === 0) return null;
+  //       return <Container first={this.state.first} />;
+  //     }
+  //   }
+
+  //   renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+  // });
 
   it('reruns the query if just the variables change', (done) => {
     let count = 0;
