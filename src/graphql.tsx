@@ -142,14 +142,8 @@ export default function graphql(
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
     function calculateFragments(fragments): FragmentDefinition[] {
-      if (!fragments && !operation.fragments.length) {
-        return fragments;
-      }
-
-      if (!fragments) {
-        return fragments = flatten([...operation.fragments]);
-      }
-
+      if (!fragments && !operation.fragments.length) return fragments;
+      if (!fragments) return fragments = flatten([...operation.fragments]);
       return flatten([...fragments, ...operation.fragments]);
     }
 
@@ -189,7 +183,10 @@ export default function graphql(
 
     function fetchData(props, { client }) {
       if (mapPropsToSkip(props)) return;
-      if (operation.type === DocumentType.Mutation) return false;
+      if (
+        operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
+      ) return false;
+
       const opts = calculateOptions(props) as any;
       opts.query = document;
 
@@ -302,6 +299,7 @@ export default function graphql(
 
       componentWillUnmount() {
         if (this.type === DocumentType.Query) this.unsubscribeFromQuery();
+        if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
 
         this.hasMounted = false;
       }
@@ -309,7 +307,7 @@ export default function graphql(
       calculateOptions(props, newProps?) { return calculateOptions(props, newProps); };
 
       calculateResultProps(result) {
-        let name = this.type === DocumentType.Query ? 'data' : 'mutate';
+        let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
         const newResult = { [name]: result, ownProps: this.props };
@@ -369,7 +367,7 @@ export default function graphql(
       }
 
       subscribeToQuery(props): boolean {
-        const { watchQuery } = this.client;
+        const { watchQuery, subscribe } = this.client;
         const opts = calculateOptions(props) as QueryOptions;
         if (opts.skip) return;
 
@@ -416,8 +414,9 @@ export default function graphql(
 
         const queryOptions: WatchQueryOptions = assign({ query: document }, opts);
         queryOptions.fragments = calculateFragments(queryOptions.fragments);
-        const observableQuery = watchQuery(queryOptions);
-        const { queryId } = observableQuery;
+        // tslint:disable-next-line
+        const observableQuery = this.type === DocumentType.Subscription ? subscribe(queryOptions) : watchQuery(queryOptions);
+        const { queryId } = (observableQuery as any);
 
         // the shape of the query has changed
         if (previousQuery.queryId && previousQuery.queryId !== queryId) {
@@ -436,7 +435,7 @@ export default function graphql(
         }
       }
 
-      handleQueryData(observableQuery: ObservableQuery, { variables }: WatchQueryOptions): void {
+      handleQueryData(observableQuery: any, { variables }: WatchQueryOptions): void {
         // bind each handle to updating and rerendering when data
         // has been recieved
         let refetch,
@@ -446,10 +445,20 @@ export default function graphql(
             updateQuery,
             oldData = {};
 
-        const next = ({ data = oldData, loading, error }: any) => {
-          const { queryId } = observableQuery;
-
-          let initialVariables = this.client.queryManager.getApolloState().queries[queryId].variables;
+        const next = (result) => {
+          if (this.type === DocumentType.Subscription) {
+            result = {
+              data: result,
+              loading: false,
+              error: null,
+            };
+          }
+          const { data = oldData, loading, error }: any = result;
+          let initialVariables = {};
+          if (this.type !== DocumentType.Subscription) {
+            const { queryId } = observableQuery;
+            initialVariables = this.client.queryManager.getApolloState().queries[queryId].variables;
+          }
 
           const resultKeyConflict: boolean = (
             'errors' in data ||
