@@ -23,6 +23,72 @@ describe('subscriptions', () => {
     name => ({ result: { user: { name } }, delay: 10 })
   );
 
+  it('binds a subscription to props', () => {
+    const query = gql`subscription UserInfo { user { name } }`;
+    const networkInterface = mockSubscriptionNetworkInterface(
+      [{ request: { query }, results: [...results] }]
+    );
+    const client = new ApolloClient({ networkInterface });
+    // XXX fix in apollo-client
+    client.subscribe = client.subscribe.bind(client);
+
+    const ContainerWithData = graphql(query)(({ data }) => { // tslint:disable-line
+      expect(data).toBeTruthy();
+      expect(data.ownProps).toBeFalsy();
+      expect(data.loading).toBe(true);
+      return null;
+    });
+
+    const output = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    output.unmount();
+  });
+
+  it('includes the variables in the props', () => {
+    const query = gql`subscription UserInfo($name: String){ user(name: $name){ name } }`;
+    const variables = { name: 'James Baxley' };
+    const networkInterface = mockSubscriptionNetworkInterface(
+      [{ request: { query, variables }, results: [...results] }]
+    );
+    const client = new ApolloClient({ networkInterface });
+    // XXX fix in apollo-client
+    client.subscribe = client.subscribe.bind(client);
+
+    const ContainerWithData =  graphql(query)(({ data }) => { // tslint:disable-line
+      expect(data).toBeTruthy();
+      expect(data.variables).toEqual(variables);
+      return null;
+    });
+
+    const output = renderer.create(
+      <ProviderMock client={client}><ContainerWithData name={'James Baxley'} /></ProviderMock>
+    );
+    output.unmount();
+  });
+
+  it('does not swallow children errors', () => {
+    const query = gql`subscription UserInfo { user { name } }`;
+    const networkInterface = mockSubscriptionNetworkInterface(
+      [{ request: { query }, results: [...results] }]
+    );
+    const client = new ApolloClient({ networkInterface });
+    // XXX fix in apollo-client
+    client.subscribe = client.subscribe.bind(client);
+
+    let bar;
+    const ContainerWithData =  graphql(query)(() => {
+      bar(); // this will throw
+      return null;
+    });
+
+    try {
+      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      throw new Error();
+    } catch (e) {
+      expect(e.name).toMatch(/TypeError/);
+    }
+
+  });
+
   it('executes a subscription', (done) => {
     const query = gql`subscription UserInfo { user { name } }`;
     const networkInterface = mockSubscriptionNetworkInterface(
@@ -33,6 +99,7 @@ describe('subscriptions', () => {
     client.subscribe = client.subscribe.bind(client);
 
     let count = 0;
+    let output;
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount(){
@@ -45,6 +112,7 @@ describe('subscriptions', () => {
         if (count === 2) expect(user).toEqual(results[2].result.user);
         if (count === 3) {
           expect(user).toEqual(results[3].result.user);
+          output.unmount();
           done();
         }
         count++;
@@ -59,9 +127,10 @@ describe('subscriptions', () => {
       if (count > 3) clearInterval(interval);
     }, 50);
 
-    renderer.create(
+    output = renderer.create(
       <ProviderMock client={client}><Container /></ProviderMock>
     );
+
   });
 
 });
