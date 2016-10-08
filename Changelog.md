@@ -7,6 +7,7 @@ Expect active development and potentially significant breaking changes in the `0
 - Feature: Remove nested imports for apollo-client. Making local development eaiser. [#234](https://github.com/apollostack/react-apollo/pull/234)
 - Feature: Move types to dev deps [#251](https://github.com/apollostack/react-apollo/pull/251)
 - Feature: New method for skipping queries which bypasses HOC internals [#253](https://github.com/apollostack/react-apollo/pull/253)
+- Feature: Integrated subscriptions! [#256](https://github.com/apollostack/react-apollo/pull/256)
 
 ### v0.5.7
 
