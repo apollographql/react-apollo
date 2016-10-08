@@ -54,6 +54,9 @@ describe('parser', () => {
 
     const mutation = gql`mutation One { user { name } }`;
     expect(parser(mutation).name).toBe('One');
+
+    const subscription = gql`subscription One { user { name } }`;
+    expect(parser(subscription).name).toBe('One');
   });
 
   it('should return data as the name of the operation if not named', () => {
@@ -65,6 +68,9 @@ describe('parser', () => {
 
     const mutation = gql`mutation { user { name } }`;
     expect(parser(mutation).name).toBe('data');
+
+    const subscription = gql`subscription { user { name } }`;
+    expect(parser(subscription).name).toBe('data');
   });
 
   it('should return the type of operation', () => {
@@ -76,6 +82,9 @@ describe('parser', () => {
 
     const mutation = gql`mutation One { user { name } }`;
     expect(parser(mutation).type).toBe(DocumentType.Mutation);
+
+    const subscription = gql`subscription One { user { name } }`;
+    expect(parser(subscription).type).toBe(DocumentType.Subscription);
   });
 
   it('should return the variable definitions of the operation', () => {
@@ -87,6 +96,10 @@ describe('parser', () => {
     const mutation = gql`mutation One($t: String!) { user(t: $t) { name } }`;
     definition = mutation.definitions[0] as OperationDefinition;
     expect(parser(mutation).variables).toEqual(definition.variableDefinitions);
+
+    const subscription = gql`subscription One($t: String!) { user(t: $t) { name } }`;
+    definition = subscription.definitions[0] as OperationDefinition;
+    expect(parser(subscription).variables).toEqual(definition.variableDefinitions);
   });
 
   it('should not error if the operation has no variables', () => {
@@ -97,6 +110,10 @@ describe('parser', () => {
     const mutation = gql`mutation { user(t: $t) { name } }`;
     definition = mutation.definitions[0] as OperationDefinition;
     expect(parser(mutation).variables).toEqual(definition.variableDefinitions);
+
+    const subscription = gql`subscription { user(t: $t) { name } }`;
+    definition = subscription.definitions[0] as OperationDefinition;
+    expect(parser(subscription).variables).toEqual(definition.variableDefinitions);
   });
 
 

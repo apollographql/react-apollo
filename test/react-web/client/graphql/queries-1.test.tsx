@@ -645,7 +645,6 @@ describe('queries', () => {
 
       componentWillReceiveProps({ apollo: { queries } }) {
         const queryNumber = Object.keys(queries).length;
-        console.log(queryNumber, count);
         if (count === 0) expect(queryNumber).toEqual(1);
         if (count === 1) expect(queryNumber).toEqual(0);
         if (count === 2) {
