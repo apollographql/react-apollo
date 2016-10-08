@@ -484,16 +484,24 @@ export default function graphql(
 
           // cache the changed data for next check
           oldData = assign({}, data);
-          this.data = assign({
+          if (this.type === DocumentType.Subscription) {
+            this.data = assign({
+              variables: this.data.variables || initialVariables,
+              loading,
+              error,
+            }, data);
+          } else {
+            this.data = assign({
             variables: this.data.variables || initialVariables,
-            loading,
-            refetch,
-            startPolling,
-            stopPolling,
-            fetchMore,
-            error,
-            updateQuery,
-          }, data);
+              loading,
+              refetch,
+              startPolling,
+              stopPolling,
+              fetchMore,
+              error,
+              updateQuery,
+            }, data);
+          }
 
           this.forceRenderChildren();
         };
@@ -534,17 +542,26 @@ export default function graphql(
         */
         this.querySubscription = observableQuery.subscribe({ next, error: handleError });
 
-        refetch = createBoundRefetch((this.queryObservable as any).refetch);
-        fetchMore = createBoundRefetch((this.queryObservable as any).fetchMore);
-        startPolling = (this.queryObservable as any).startPolling;
-        stopPolling = (this.queryObservable as any).stopPolling;
-        updateQuery = (this.queryObservable as any).updateQuery;
+        if (this.type === DocumentType.Query) {
+          refetch = createBoundRefetch((this.queryObservable as any).refetch);
+          fetchMore = createBoundRefetch((this.queryObservable as any).fetchMore);
+          startPolling = (this.queryObservable as any).startPolling;
+          stopPolling = (this.queryObservable as any).stopPolling;
+          updateQuery = (this.queryObservable as any).updateQuery;
 
-        // XXX the tests seem to be keeping the error around?
-        delete this.data.error;
-        this.data = assign(this.data, {
-          refetch, startPolling, stopPolling, fetchMore, updateQuery, variables,
-        });
+          // XXX the tests seem to be keeping the error around?
+          delete this.data.error;
+          this.data = assign(this.data, {
+            refetch, startPolling, stopPolling, fetchMore, updateQuery, variables,
+          });
+        }
+
+        if (this.type === DocumentType.Subscription) {
+          // XXX the tests seem to be keeping the error around?
+          delete this.data.error;
+          this.data = assign(this.data, { variables });
+        }
+
       }
 
       forceRenderChildren() {
