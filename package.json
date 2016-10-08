@@ -50,7 +50,7 @@
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0",
     "redux": "^2.0.0 || ^3.0.0",
-    "apollo-client": "0.4.15 - 0.4.19"
+    "apollo-client": "^0.4.20"
   },
   "devDependencies": {
     "@types/chai": "^3.4.33",
@@ -69,7 +69,7 @@
     "@types/redux-form": "^4.0.29",
     "@types/redux-immutable": "^3.0.30",
     "@types/sinon": "^1.16.29",
-    "apollo-client": "0.4.15 - 0.4.19",
+    "apollo-client": "^0.4.20",
     "babel-jest": "^14.1.0",
     "babel-preset-react-native": "^1.9.0",
     "browserify": "^13.0.0",
@@ -114,6 +114,7 @@
     "lodash.flatten": "^4.2.0",
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
+    "lodash.pick": "^4.4.0",
     "object-assign": "^4.0.1",
     "recompose": "^0.20.2"
   }

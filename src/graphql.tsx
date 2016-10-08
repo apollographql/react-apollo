@@ -1,4 +1,3 @@
-
 import {
   Component,
   createElement,
@@ -6,8 +5,8 @@ import {
 } from 'react';
 
 // modules don't export ES6 modules
-import isEqual = require('lodash.isequal');
 import flatten = require('lodash.flatten');
+import pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
 import invariant = require('invariant');
@@ -16,10 +15,7 @@ import assign = require('object-assign');
 import hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
-  readQueryFromStore,
-  createFragmentMap,
   ApolloError,
-  WatchQueryOptions,
   ObservableQuery,
   MutationBehavior,
   MutationQueryReducersMap,
@@ -64,6 +60,10 @@ const defaultQueryData = {
 const defaultMapPropsToOptions = props => ({});
 const defaultMapResultToProps = props => props;
 const defaultMapPropsToSkip = props => false;
+
+// the fields we want to copy over to our data prop
+const observableQueryFields = observable => pick(observable, 'variables',
+  'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -141,6 +141,7 @@ export default function graphql(
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
+    // XXX: what is up with this? We shouldn't have to do this.
     function calculateFragments(fragments): FragmentDefinition[] {
       if (!fragments && !operation.fragments.length) return fragments;
       if (!fragments) return fragments = flatten([...operation.fragments]);
@@ -154,6 +155,11 @@ export default function graphql(
         newOpts.variables = assign({}, opts.variables, newOpts.variables);
       }
       if (newOpts) opts = assign({}, opts, newOpts);
+
+      if (opts.fragments) {
+        opts.fragments = calculateFragments(opts.fragments);
+      }
+
       if (opts.variables || !operation.variables.length) return opts;
 
       let variables = {};
@@ -182,32 +188,23 @@ export default function graphql(
     }
 
     function fetchData(props, { client }) {
-      if (mapPropsToSkip(props)) return;
+      if (mapPropsToSkip(props)) return false;
       if (
         operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
       ) return false;
 
       const opts = calculateOptions(props) as any;
-      opts.query = document;
+      if (opts.ssr === false || opts.skip) return false;
 
-      if (opts.ssr === false) return false;
-      if (!opts.variables) delete opts.variables;
-      opts.fragments = calculateFragments(opts.fragments);
+      const observable = client.watchQuery(assign({ query: document }, opts));
+      const result = observable.currentResult();
 
-      // if this query is in the store, don't block execution
-      try {
-        readQueryFromStore({
-          store: client.queryManager.getApolloState().data,
-          query: opts.query,
-          variables: opts.variables,
-          fragmentMap: createFragmentMap(opts.fragments),
-        });
+      if (result.loading) {
+        return observable.result();
+      } else {
         return false;
-      } catch (e) {/* tslint:disable-line */}
-
-      return client.query(opts);
+      }
     }
-
 
     class GraphQL extends Component<any, any> {
       static displayName = graphQLDisplayName;
@@ -231,12 +228,9 @@ export default function graphql(
       private data: any = {}; // apollo data
       private type: DocumentType;
 
-      private previousOpts: Object;
-      // private previousQueries: Object;
-
       // request / action storage
-      private queryObservable: ObservableQuery | Object;
-      private querySubscription: Subscription | Object;
+      private queryObservable: ObservableQuery | any;
+      private querySubscription: Subscription;
 
       // calculated switches to control rerenders
       private haveOwnPropsChanged: boolean;
@@ -259,12 +253,9 @@ export default function graphql(
         this.store = this.client.store;
 
         this.type = operation.type;
-        this.queryObservable = {};
-        this.querySubscription = {};
 
         if (mapPropsToSkip(props)) return;
         this.setInitialProps();
-
       }
 
       componentDidMount() {
@@ -317,216 +308,97 @@ export default function graphql(
       }
 
       setInitialProps() {
-        if (this.type === DocumentType.Mutation) {
-           this.createWrappedMutation(this.props);
-          return;
+        if (this.type === DocumentType.Mutation) return this.createWrappedMutation(this.props);
+
+        // Create the observable but don't subscribe yet. The query won't
+        // fire until we do.
+        const opts: QueryOptions = this.calculateOptions(this.props);
+        this.data = assign({}, defaultQueryData) as any;
+
+        if (opts.skip) {
+          this.data.loading = false;
+        } else {
+          this.createQuery(opts);
+        }
+      }
+
+      createQuery(opts: QueryOptions) {
+        if (this.type === DocumentType.Subscription) {
+          this.queryObservable = this.client.subscribe(assign({
+            query: document,
+          }, opts));
+        } else {
+          this.queryObservable = this.client.watchQuery(assign({
+            query: document,
+          }, opts));
         }
 
-        const queryOptions = this.calculateOptions(this.props);
-        const fragments = calculateFragments(queryOptions.fragments);
-        const { variables, forceFetch, skip } = queryOptions as QueryOptions; // tslint:disable-line
+        assign(this.data, observableQueryFields(this.queryObservable));
 
-        let queryData = assign({}, defaultQueryData) as any;
-        queryData.variables = variables;
-        if (skip) queryData.loading = false;
-
-        queryData.refetch = (vars) => this.client.query({
-          query: document,
-          variables: vars,
-        });
-
-        queryData.fetchMore = (opts) => {
-          opts.query = document;
-          return this.client.query(opts);
-        };
-
-        // XXX type this better
-        // this is a stub for early binding of updateQuery before data
-        queryData.updateQuery = (mapFn: any) => {
-          invariant(!!(this.queryObservable as ObservableQuery).updateQuery, `
-            Update query has been called before query has been created
-          `);
-
-          (this.queryObservable as ObservableQuery).updateQuery(mapFn);
-        };
-
-        if (!forceFetch) {
-          try {
-            const result = readQueryFromStore({
-              store: this.client.queryManager.getApolloState().data,
-              query: document,
-              variables,
-              fragmentMap: createFragmentMap(fragments),
-            });
-
-            queryData = assign(queryData, { errors: null, loading: false }, result);
-          } catch (e) {/* tslint:disable-line */}
+        if (!opts.forceFetch && this.type !== DocumentType.Subscription) {
+          const currentResult = this.queryObservable.currentResult();
+          // try and fetch initial data from the store
+          assign(this.data, currentResult.data, { loading: currentResult.loading });
         }
 
-        this.data = queryData;
+        if (this.type === DocumentType.Subscription) {
+          opts = this.calculateOptions(this.props, opts);
+          assign(this.data, { loading: true }, { variables: opts.variables });
+        }
       }
 
       subscribeToQuery(props): boolean {
-        const { watchQuery, subscribe } = this.client;
         const opts = calculateOptions(props) as QueryOptions;
-        if (opts.skip) return;
 
-        // don't rerun if nothing has changed
-        if (isEqual(opts, this.previousOpts)) return false;
-
-        // if the only thing that changed was the variables, do a refetch instead of a new query
-        const old = assign({}, this.previousOpts) as any;
-        const neu = assign({}, opts) as any;
-        delete old.variables;
-        delete neu.variables;
-
-        if (
-          this.previousOpts &&
-          (!shallowEqual(opts.variables, (this.previousOpts as WatchQueryOptions).variables)) &&
-          (shallowEqual(old, neu))
-        ) {
-          this.hasOperationDataChanged = true;
-          this.data = assign(this.data, { loading: true, variables: opts.variables });
-          this.forceRenderChildren();
-          (this.queryObservable as ObservableQuery).refetch(assign(
-            {}, (this.previousOpts as WatchQueryOptions).variables, opts.variables
-          ))
-            .then((result) => {
-              this.data = assign(this.data, result.data, { loading: false });
-              this.hasOperationDataChanged = true;
-              this.forceRenderChildren();
-              return result;
-            })
-            .catch(error => {
-              this.data = assign(this.data, { loading: false, error });
-              this.hasOperationDataChanged = true;
-              this.forceRenderChildren();
-              return error;
-            });
-          this.previousOpts = opts;
+        if (opts.skip) {
+          if (this.querySubscription) {
+            this.hasOperationDataChanged = true;
+            this.data = { loading: false };
+            this.querySubscription.unsubscribe();
+            this.forceRenderChildren();
+          }
           return;
         }
 
-        this.previousOpts = opts;
+        // We've subscribed already, just update with our new options and
+        // take the latest result
+        if (this.querySubscription) {
+          this.queryObservable.setOptions(opts);
 
-        let previousQuery = this.queryObservable as any;
-        this.unsubscribeFromQuery();
-
-        const queryOptions: WatchQueryOptions = assign({ query: document }, opts);
-        queryOptions.fragments = calculateFragments(queryOptions.fragments);
-        // tslint:disable-next-line
-        const observableQuery = this.type === DocumentType.Subscription ? subscribe(queryOptions) : watchQuery(queryOptions);
-        const { queryId } = (observableQuery as any);
-
-        // the shape of the query has changed
-        if (previousQuery.queryId && previousQuery.queryId !== queryId) {
-          this.data = assign(this.data, { loading: true });
-          this.hasOperationDataChanged = true;
-          this.forceRenderChildren();
-        }
-
-        this.handleQueryData(observableQuery, queryOptions);
-      }
-
-      unsubscribeFromQuery() {
-        if ((this.querySubscription as Subscription).unsubscribe) {
-          (this.querySubscription as Subscription).unsubscribe();
-          delete this.queryObservable;
-        }
-      }
-
-      handleQueryData(observableQuery: any, { variables }: WatchQueryOptions): void {
-        // bind each handle to updating and rerendering when data
-        // has been recieved
-        let refetch,
-            fetchMore,
-            startPolling,
-            stopPolling,
-            updateQuery,
-            oldData = {};
-
-        const next = (result) => {
-          if (this.type === DocumentType.Subscription) {
-            result = {
-              data: result,
-              loading: false,
-              error: null,
-            };
-          }
-          const { data = oldData, loading, error }: any = result;
-          let initialVariables = {};
-          if (this.type !== DocumentType.Subscription) {
-            const { queryId } = observableQuery;
-            initialVariables = this.client.queryManager.getApolloState().queries[queryId].variables;
-          }
-
-          const resultKeyConflict: boolean = (
-            'errors' in data ||
-            'loading' in data ||
-            'refetch' in data ||
-            'fetchMore' in data ||
-            'startPolling' in data ||
-            'stopPolling' in data ||
-            'updateQuery' in data
+          // Ensure we are up-to-date with the latest state of the world
+          assign(this.data,
+            { loading: this.queryObservable.currentResult().loading },
+            observableQueryFields(this.queryObservable)
           );
 
-          invariant(!resultKeyConflict,
+          return;
+        }
+
+        // if we skipped initially, we may not have yet created the observable
+        if (!this.queryObservable) {
+          this.createQuery(opts);
+        }
+
+        const next = (results: any) => {
+          if (this.type === DocumentType.Subscription) {
+            results = { data: results, loading: false, error: null };
+          }
+          const { data, loading, error } = results;
+          const clashingKeys = Object.keys(observableQueryFields(data));
+          invariant(clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
-            `conflict with the return object. 'errors', 'loading', ` +
-            `'startPolling', 'stopPolling', 'fetchMore', 'updateQuery', and 'refetch' cannot be ` +
-            `returned keys`
+            `conflict with the return object.` +
+            clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
           );
 
-          // only rerender child component if data has changed
-          if (!isEqual(oldData, data) || loading !== this.data.loading) {
-            this.hasOperationDataChanged = true;
-          }
-
-          // cache the changed data for next check
-          oldData = assign({}, data);
-          if (this.type === DocumentType.Subscription) {
-            this.data = assign({
-              variables: this.data.variables || initialVariables,
-              loading,
-              error,
-            }, data);
-          } else {
-            this.data = assign({
-            variables: this.data.variables || initialVariables,
-              loading,
-              refetch,
-              startPolling,
-              stopPolling,
-              fetchMore,
-              error,
-              updateQuery,
-            }, data);
-          }
-
-          this.forceRenderChildren();
-        };
-
-        const createBoundRefetch = (refetchMethod) => (vars, ...args) => {
-          let newVariables = vars;
-          const newData = { loading: true } as any;
-          if (vars && (vars.variables || vars.query || vars.updateQuery)) {
-            newVariables = assign({}, this.data.variables, vars.variables);
-            newData.variables = newVariables;
-          }
-
-          this.data = assign(this.data, newData);
-
           this.hasOperationDataChanged = true;
-          this.forceRenderChildren();
-          // XXX why doesn't apollo-client fire next on a refetch with the same data?
-          return refetchMethod(vars, ...args)
-            .then((result) => {
-              if (result && isEqual(result.data, oldData)) next(result);
-              return result;
-            });
-        };
+          this.data = assign({
+            loading,
+            error,
+          }, data, observableQueryFields(this.queryObservable));
 
-        this.queryObservable = observableQuery;
+          this.forceRenderChildren();
+        };
 
         const handleError = (error) => {
           if (error instanceof ApolloError) return next({ error });
@@ -540,28 +412,14 @@ export default function graphql(
 
           Instead, we subscribe to the store for network errors and re-render that way
         */
-        this.querySubscription = observableQuery.subscribe({ next, error: handleError });
+        this.querySubscription = this.queryObservable.subscribe({ next, error: handleError });
+      }
 
-        if (this.type === DocumentType.Query) {
-          refetch = createBoundRefetch((this.queryObservable as any).refetch);
-          fetchMore = createBoundRefetch((this.queryObservable as any).fetchMore);
-          startPolling = (this.queryObservable as any).startPolling;
-          stopPolling = (this.queryObservable as any).stopPolling;
-          updateQuery = (this.queryObservable as any).updateQuery;
-
-          // XXX the tests seem to be keeping the error around?
-          delete this.data.error;
-          this.data = assign(this.data, {
-            refetch, startPolling, stopPolling, fetchMore, updateQuery, variables,
-          });
+      unsubscribeFromQuery() {
+        if ((this.querySubscription as Subscription).unsubscribe) {
+          (this.querySubscription as Subscription).unsubscribe();
+          delete this.queryObservable;
         }
-
-        if (this.type === DocumentType.Subscription) {
-          // XXX the tests seem to be keeping the error around?
-          delete this.data.error;
-          this.data = assign(this.data, { variables });
-        }
-
       }
 
       forceRenderChildren() {
@@ -587,7 +445,6 @@ export default function graphql(
           if (typeof opts.variables === 'undefined') delete opts.variables;
 
           (opts as any).mutation = document;
-          opts.fragments = calculateFragments(opts.fragments);
           return this.client.mutate((opts as any));
         };
 
