@@ -47,8 +47,6 @@ function getQueriesFromTree(
     let ownProps = getPropsFromChild(component);
     const Component = new ComponentClass(ownProps, context);
     try {
-      Component.props = ownProps;
-      Component.context = context;
       Component.setState = (newState: any) => {
         Component.state = assign({}, Component.state, newState);
       };
