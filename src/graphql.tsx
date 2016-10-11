@@ -54,7 +54,11 @@ export declare interface QueryOptions {
 
 const defaultQueryData = {
   loading: true,
-  errors: null,
+  error: null,
+};
+const skippedQueryData = {
+  loading: false,
+  error: null,
 };
 
 const defaultMapPropsToOptions = props => ({});
@@ -228,7 +232,8 @@ export default function graphql(
       private data: any = {}; // apollo data
       private type: DocumentType;
 
-      // request / action storage
+      // request / action storage. Note that we delete querySubscription if we
+      // unsubscribe but never delete queryObservable once it is created.
       private queryObservable: ObservableQuery | any;
       private querySubscription: Subscription;
 
@@ -267,10 +272,13 @@ export default function graphql(
       }
 
       componentWillReceiveProps(nextProps) {
-        // if this has changed, remove data and unsubscribeFromQuery
-        if (!mapPropsToSkip(this.props) && mapPropsToSkip(nextProps)) {
-          delete this.data;
-          return this.unsubscribeFromQuery();
+        if (mapPropsToSkip(nextProps)) {
+          if (!mapPropsToSkip(this.props)) {
+            // if this has changed, remove data and unsubscribeFromQuery
+            this.data = assign({}, skippedQueryData) as any;
+            this.unsubscribeFromQuery();
+          }
+          return;
         }
         if (shallowEqual(this.props, nextProps)) return;
 
@@ -313,11 +321,11 @@ export default function graphql(
         // Create the observable but don't subscribe yet. The query won't
         // fire until we do.
         const opts: QueryOptions = this.calculateOptions(this.props);
-        this.data = assign({}, defaultQueryData) as any;
 
         if (opts.skip) {
-          this.data.loading = false;
+          this.data = assign({}, skippedQueryData) as any;
         } else {
+          this.data = assign({}, defaultQueryData) as any;
           this.createQuery(opts);
         }
       }
@@ -333,17 +341,21 @@ export default function graphql(
           }, opts));
         }
 
-        assign(this.data, observableQueryFields(this.queryObservable));
+        this.initializeData(opts);
+      }
 
-        if (!opts.forceFetch && this.type !== DocumentType.Subscription) {
-          const currentResult = this.queryObservable.currentResult();
-          // try and fetch initial data from the store
-          assign(this.data, currentResult.data, { loading: currentResult.loading });
-        }
+      initializeData(opts: QueryOptions) {
+        assign(this.data, observableQueryFields(this.queryObservable));
 
         if (this.type === DocumentType.Subscription) {
           opts = this.calculateOptions(this.props, opts);
           assign(this.data, { loading: true }, { variables: opts.variables });
+        } else if (!opts.forceFetch) {
+          const currentResult = this.queryObservable.currentResult();
+          // try and fetch initial data from the store
+          assign(this.data, currentResult.data, { loading: currentResult.loading });
+        } else {
+          assign(this.data, { loading: true });
         }
       }
 
@@ -353,8 +365,8 @@ export default function graphql(
         if (opts.skip) {
           if (this.querySubscription) {
             this.hasOperationDataChanged = true;
-            this.data = { loading: false };
-            this.querySubscription.unsubscribe();
+            this.data = assign({}, skippedQueryData) as any;
+            this.unsubscribeFromQuery();
             this.forceRenderChildren();
           }
           return;
@@ -377,13 +389,18 @@ export default function graphql(
         // if we skipped initially, we may not have yet created the observable
         if (!this.queryObservable) {
           this.createQuery(opts);
+        } else if (!this.data.refetch) {
+          // we've run this query before, but then we've skipped it (resetting
+          // data to skippedQueryData) and now we're unskipping it. Make sure
+          // the data fields are set as if we hadn't run it.
+          this.initializeData(opts);
         }
 
         const next = (results: any) => {
           if (this.type === DocumentType.Subscription) {
             results = { data: results, loading: false, error: null };
           }
-          const { data, loading, error } = results;
+          const { data, loading, error = null } = results;
           const clashingKeys = Object.keys(observableQueryFields(data));
           invariant(clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
@@ -416,9 +433,9 @@ export default function graphql(
       }
 
       unsubscribeFromQuery() {
-        if ((this.querySubscription as Subscription).unsubscribe) {
+        if (this.querySubscription) {
           (this.querySubscription as Subscription).unsubscribe();
-          delete this.queryObservable;
+          delete this.querySubscription;
         }
       }
 

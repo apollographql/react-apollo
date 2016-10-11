@@ -370,6 +370,43 @@ describe('queries', () => {
     }, 25);
   });
 
+  it('continues to not subscribe to a skipped query when props change', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const networkInterface = mockNetworkInterface();
+    const oldQuery = networkInterface.query;
+
+    networkInterface.query = function (request) {
+      fail(new Error('query ran even though skip present'));
+      return oldQuery.call(this, request);
+    };
+    const client = new ApolloClient({ networkInterface });
+
+    @graphql(query, { skip: true })
+    class Container extends React.Component<any, any> {8
+      componentWillReceiveProps(props) {
+        done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { foo: 42 };
+      }
+      componentDidMount() {
+        this.setState({ foo: 43 });
+      }
+      render() {
+        return <Container foo={this.state.foo} />;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+  });
+
   it('doesn\'t run options or props when skipped', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
@@ -425,6 +462,106 @@ describe('queries', () => {
       done(new Error('query ran even though skip present'));
     }, 25);
   });
+
+  // test the case of skip:false -> skip:true -> skip:false to make sure things
+  // are cleaned up properly
+  it('allows you to skip then unskip a query with top-level syntax', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface });
+
+    let hasSkipped = false;
+    @graphql(query, { skip: ({ skip }) => skip })
+    class Container extends React.Component<any, any> {8
+      componentWillReceiveProps(newProps) {
+        if (newProps.skip) {
+          hasSkipped = true;
+          this.props.setSkip(false);
+        } else {
+          if (hasSkipped) {
+            done();
+          } else {
+            this.props.setSkip(true);
+          }
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { skip: false };
+      }
+      render() {
+        return <Container skip={this.state.skip} setSkip={(skip) => this.setState({ skip })} />;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+  });
+
+  it('allows you to skip then unskip a query with opts syntax', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const nextData = { allPeople: { people: [ { name: 'Anakin Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({
+      request: { query }, result: { data }, newData: () => ({ data: nextData }) });
+    const oldQuery = networkInterface.query;
+
+    let ranQuery = 0;
+    networkInterface.query = function (request) {
+      ranQuery++;
+      return oldQuery.call(this, request);
+    };
+    const client = new ApolloClient({ networkInterface });
+
+    let hasSkipped = false;
+    let hasRequeried = false;
+    @graphql(query, { options: ({ skip }) => ({ skip, forceFetch: true }) })
+    class Container extends React.Component<any, any> {8
+      componentWillReceiveProps(newProps) {
+        if (newProps.skip) {
+          // Step 2. We shouldn't query again.
+          expect(ranQuery).toBe(1);
+          hasSkipped = true;
+          this.props.setSkip(false);
+        } else if (hasRequeried) {
+          // Step 4. We need to actually get the data from the query into the component!
+          expect(newProps.data.loading).toBe(false);
+          done();
+        } else if (hasSkipped) {
+          // Step 3. We need to query again!
+          expect(newProps.data.loading).toBe(true);
+          expect(ranQuery).toBe(2);
+          hasRequeried = true;
+        } else {
+          // Step 1.  We've queried once.
+          expect(ranQuery).toBe(1);
+          this.props.setSkip(true);
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { skip: false };
+      }
+      render() {
+        return <Container skip={this.state.skip} setSkip={(skip) => this.setState({ skip })} />;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+  });
+
 
   it('removes the injected props if skip becomes true', (done) => {
     let count = 0;
@@ -494,6 +631,44 @@ describe('queries', () => {
 
     renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
+
+
+  it('allows you to unmount a skipped query', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const networkInterface = mockNetworkInterface();
+    const client = new ApolloClient({ networkInterface });
+
+    @graphql(query, {
+      skip: true,
+    })
+    class Container extends React.Component<any, any> {
+      componentDidMount() {
+        this.props.hide();
+      }
+      componentWillUnmount() {
+        done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    class Hider extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { hide: false };
+      }
+      render() {
+        if (this.state.hide) {
+          return null;
+        }
+        return <Container hide={() => this.setState({ hide: true })} />;
+      }
+    }
+
+    renderer.create(<ProviderMock client={client}><Hider /></ProviderMock>);
+  });
+
 
   it('reruns the query if it changes', (done) => {
     let count = 0;
