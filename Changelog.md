@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Bug: Fix possible crash in unsubscribeFromQuery [#260](https://github.com/apollostack/react-apollo/pull/260)
+
 ### v0.5.8
 
 - Feature: Remove nested imports for apollo-client. Making local development eaiser. [#234](https://github.com/apollostack/react-apollo/pull/234)
