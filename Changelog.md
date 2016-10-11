@@ -4,7 +4,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
-- Bug: Fix possible crash in unsubscribeFromQuery [#260](https://github.com/apollostack/react-apollo/pull/260)
+- Bug: Fix bugs related to skipping and unmounting components [#260](https://github.com/apollostack/react-apollo/pull/260)
 
 ### v0.5.8
 
