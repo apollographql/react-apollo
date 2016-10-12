@@ -340,7 +340,7 @@ describe('queries', () => {
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
-      done(new Error('query ran even though skip present'));
+      fail(new Error('query ran even though skip present'));
     }, 25);
   });
 
@@ -366,7 +366,7 @@ describe('queries', () => {
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
-      done(new Error('query ran even though skip present'));
+      fail(new Error('query ran even though skip present'));
     }, 25);
   });
 
@@ -433,7 +433,7 @@ describe('queries', () => {
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
-      done(new Error('query ran even though skip present'));
+      fail(new Error('query ran even though skip present'));
     }, 25);
   });
 
@@ -459,7 +459,7 @@ describe('queries', () => {
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
-      done(new Error('query ran even though skip present'));
+      fail(new Error('query ran even though skip present'));
     }, 25);
   });
 
