@@ -4,6 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.10
+
+- Bug: Fix issue with changing outer props *and not changing variables*, ultimately caused by https://github.com/apollostack/apollo-client/pull/694
+
 ### v0.5.9
 
 - Bug: Fix and test some subtle bugs around skipping and subscriptions. [#260](https://github.com/apollostack/react-apollo/pull/260)

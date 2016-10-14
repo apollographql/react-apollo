@@ -898,6 +898,58 @@ describe('queries', () => {
     renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
   });
 
+  it('stays subscribed to updates after irrelevant prop changes', (done) => {
+    const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
+    const variables = { first: 1 };
+    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data: data1 } },
+      { request: { query, variables }, result: { data: data2 } },
+    );
+    const client = new ApolloClient({ networkInterface });
+
+    let count = 0;
+    @graphql(query, { options() { return { variables }; } })
+    class Container extends React.Component<any, any> {8
+      componentWillReceiveProps(props) {
+        count += 1;
+
+        if (count == 1) {
+          expect(props.foo).toEqual(42);
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.allPeople).toEqual(data1.allPeople);
+          props.changeState();
+        } else if (count == 2) {
+          expect(props.foo).toEqual(43);
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.allPeople).toEqual(data1.allPeople);
+          props.data.refetch();
+        } else if (count == 3) {
+          expect(props.foo).toEqual(43);
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.allPeople).toEqual(data2.allPeople);
+          done();
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { foo: 42 };
+      }
+      render() {
+        return <Container foo={this.state.foo} changeState={() => this.setState({ foo: 43 })}/>;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+  });
+
   it('exposes refetch as part of the props api', (done) => {
     const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
     const variables = { first: 1 };

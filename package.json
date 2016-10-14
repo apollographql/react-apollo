@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "description": "React data container for Apollo Client",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -50,7 +50,7 @@
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0",
     "redux": "^2.0.0 || ^3.0.0",
-    "apollo-client": "^0.4.20"
+    "apollo-client": "^0.4.21"
   },
   "devDependencies": {
     "@types/chai": "^3.4.33",
@@ -69,7 +69,7 @@
     "@types/redux-form": "^4.0.29",
     "@types/redux-immutable": "^3.0.30",
     "@types/sinon": "^1.16.29",
-    "apollo-client": "^0.4.20",
+    "apollo-client": "^0.4.21",
     "babel-jest": "^14.1.0",
     "babel-preset-react-native": "^1.9.0",
     "browserify": "^13.0.0",

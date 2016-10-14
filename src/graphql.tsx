@@ -375,7 +375,9 @@ export default function graphql(
         // We've subscribed already, just update with our new options and
         // take the latest result
         if (this.querySubscription) {
-          this.queryObservable.setOptions(opts);
+          // Since we don't care about the result, use a hacky version to
+          // work around https://github.com/apollostack/apollo-client/pull/694
+          this.queryObservable._setOptionsNoResult(opts);
 
           // Ensure we are up-to-date with the latest state of the world
           assign(this.data,
