@@ -54,6 +54,61 @@ describe('SSR', () => {
         });
     });
 
+    it('should pick up queries deep in the render tree', () => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
+
+      const Page = () => (<div><span>Hi</span><div><WrappedElement /></div></div>);
+
+      const app = (<ApolloProvider client={apolloClient}><Page/></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/James/);
+        });
+    });
+
+    it('should handle nested queries that depend on each other', () => {
+      const idQuery = gql`{ currentUser { id } }`;
+      const idData = { currentUser: { id: '1234' } };
+      const userQuery = gql`query getUser($id: String) { user(id: $id) { firstName } }`;
+      const variables = { id: '1234' };
+      const userData = { user: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query: idQuery }, result: { data: idData }, delay: 50 },
+        { request: { query: userQuery, variables }, result: { data: userData }, delay: 50 },
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const withId = graphql(idQuery);
+      const withUser = graphql(userQuery, {
+        skip: ({ data: { loading } }) => loading,
+        options: ({ data }) => ({ variables: { id: data.currentUser.id } }),
+      });
+      const Component = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.user.firstName}</div>
+      );
+      const WrappedComponent = withId(withUser(Component));
+
+      const app = (<ApolloProvider client={apolloClient}><WrappedComponent /></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/James/);
+        });
+    });
+
     it('should correctly skip queries (deprecated)', () => {
 
       const query = gql`{ currentUser { firstName } }`;
@@ -253,6 +308,46 @@ describe('SSR', () => {
       ));
 
       const WrappedElement = withQuery(withMutation(Element));
+
+      const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/James/);
+        })
+        ;
+    });
+
+    it('should correctly handle SSR mutations, reverse order', () => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data1 = { currentUser: { firstName: 'James' } };
+
+      const mutation = gql`mutation { logRoutes { id } }`;
+      const mutationData= { logRoutes: { id: 'foo' } };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data: data1 }, delay: 5 },
+        { request: { query: mutation }, result: { data: mutationData }, delay: 5 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const withQuery = graphql(query, {
+        props: ({ ownProps, data }) => {
+          expect(ownProps.mutate).toBeTruthy();
+          return {
+            data,
+          };
+        },
+      });
+
+      const withMutation = graphql(mutation);
+      const Element = (({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
+
+      const WrappedElement = withMutation(withQuery(Element));
 
       const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
 

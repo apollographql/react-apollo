@@ -109,7 +109,7 @@ export function withApollo(WrappedComponent) {
   }
 
   // Make sure we preserve any custom statics on the original component.
-  return hoistNonReactStatics(WithApollo, WrappedComponent);
+  return hoistNonReactStatics(WithApollo, WrappedComponent, { fetchData: true });
 };
 
 export interface OperationOption {
@@ -498,8 +498,7 @@ export default function graphql(
     if (operation.type === DocumentType.Query) (GraphQL as any).fetchData = fetchData;
 
     // Make sure we preserve any custom statics on the original component.
-    return hoistNonReactStatics(GraphQL, WrappedComponent);
-
+    return hoistNonReactStatics(GraphQL, WrappedComponent, { fetchData: true });
   };
 
 };
