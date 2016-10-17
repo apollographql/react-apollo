@@ -54,6 +54,30 @@ describe('SSR', () => {
         });
     });
 
+    it('should pick up queries deep in the render tree', () => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
+
+      const Page = () => (<div><span>Hi</span><div><WrappedElement /></div></div>);
+
+      const app = (<ApolloProvider client={apolloClient}><Page/></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/James/);
+        });
+    });
+
     it('should handle nested queries that depend on each other', () => {
       const idQuery = gql`{ currentUser { id } }`;
       const idData = { currentUser: { id: '1234' } };
