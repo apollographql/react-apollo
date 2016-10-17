@@ -4,8 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
-- Bug: Fix issue with SSR queries running twice when a mutation wraps a query [#274](https://github.com/apollostack/react-apollo/issue/274)
+### v0.5.11
 
+- Bug: Fix issue with SSR queries running twice when a mutation wraps a query [#274](https://github.com/apollostack/react-apollo/issue/274)
 
 ### v0.5.10
 
