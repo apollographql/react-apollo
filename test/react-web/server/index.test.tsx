@@ -264,6 +264,46 @@ describe('SSR', () => {
         ;
     });
 
+    it('should correctly handle SSR mutations, reverse order', () => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data1 = { currentUser: { firstName: 'James' } };
+
+      const mutation = gql`mutation { logRoutes { id } }`;
+      const mutationData= { logRoutes: { id: 'foo' } };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data: data1 }, delay: 5 },
+        { request: { query: mutation }, result: { data: mutationData }, delay: 5 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface });
+
+      const withQuery = graphql(query, {
+        props: ({ ownProps, data }) => {
+          expect(ownProps.mutate).toBeTruthy();
+          return {
+            data,
+          };
+        },
+      });
+
+      const withMutation = graphql(mutation);
+      const Element = (({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
+
+      const WrappedElement = withMutation(withQuery(Element));
+
+      const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/James/);
+        })
+        ;
+    });
+
     it('should not require `ApolloProvider` to be the root component', () => {
 
       const query = gql`{ currentUser { firstName } }`;

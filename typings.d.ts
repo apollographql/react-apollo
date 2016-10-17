@@ -36,7 +36,7 @@ declare module 'hoist-non-react-statics' {
    *
    * Returns the target component.
    */
-  function hoistNonReactStatics(targetComponent: any, sourceComponent: any): any;
+  function hoistNonReactStatics(targetComponent: any, sourceComponent: any, customStatics: {[name: string]: boolean}): any;
   namespace hoistNonReactStatics {}
   export = hoistNonReactStatics;
 }
