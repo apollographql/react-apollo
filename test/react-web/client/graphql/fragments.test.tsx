@@ -173,5 +173,43 @@ describe('fragments', () => {
     renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('correctly allows for passed fragments in an array', (done) => {
+    const query = gql`
+      query ships { allShips(first: 1) { __typename ...Ships } }
+    `;
+    const shipFragment = createFragment(gql`
+      fragment Ships on ShipsConnection { starships { name } }
+    `);
+
+    const mockedQuery = gql`
+      query ships { allShips(first: 1) { __typename ...Ships } }
+      fragment Ships on ShipsConnection { starships { name } }
+    `;
+
+    const data = {
+      allShips: { __typename: 'ShipsConnection', starships: [ { name: 'CR90 corvette' } ] },
+    };
+    const networkInterface = mockNetworkInterface(
+      { request: { query: mockedQuery }, result: { data } }
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query, {
+      options: () => ({ fragments: [shipFragment]}),
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allShips).toEqual(data.allShips);
+        done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
 
 });
