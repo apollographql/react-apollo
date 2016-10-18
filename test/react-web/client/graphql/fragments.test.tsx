@@ -24,7 +24,7 @@ describe('fragments', () => {
     `;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     try {
       @graphql(query)
@@ -48,12 +48,13 @@ describe('fragments', () => {
 
   it('correctly fetches a query with inline fragments', (done) => {
     const query = gql`
-      query people { allPeople(first: 1) { ...person } }
+      query people { allPeople(first: 1) { __typename ...person } }
       fragment person on PeopleConnection { people { name } }
     `;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data = { allPeople: {
+      __typename: 'PeopleConnection', people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -75,8 +76,14 @@ describe('fragments', () => {
   it('correctly merges a query with inline fragments and passed fragments', (done) => {
     const query = gql`
       query peopleAndShips {
-        allPeople(first: 1) { ...Person }
-        allShips(first: 1) { ...ships }
+        allPeople(first: 1) {
+          __typename
+          ...Person
+        }
+        allShips(first: 1) {
+          __typename
+          ...ships
+        }
       }
       fragment Person on PeopleConnection { people { name } }
     `;
@@ -124,24 +131,24 @@ describe('fragments', () => {
 
   it('correctly allows for passed fragments', (done) => {
     const query = gql`
-      query ships { allShips(first: 1) { ...Ships } }
+      query ships { allShips(first: 1) { __typename ...Ships } }
     `;
     const shipFragment = createFragment(gql`
       fragment Ships on ShipsConnection { starships { name } }
     `);
 
     const mockedQuery = gql`
-      query ships { allShips(first: 1) { ...Ships } }
+      query ships { allShips(first: 1) { __typename ...Ships } }
       fragment Ships on ShipsConnection { starships { name } }
     `;
 
     const data = {
-      allShips: { starships: [ { name: 'CR90 corvette' } ] },
+      allShips: { __typename: 'ShipsConnection', starships: [ { name: 'CR90 corvette' } ] },
     };
     const networkInterface = mockNetworkInterface(
       { request: { query: mockedQuery }, result: { data } }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query, {
       options: () => ({ fragments: [shipFragment]}),
