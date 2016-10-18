@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.12
+
 - Full support for both Apollo Client 0.4.21 and 0.5.0. [PR #277](https://github.com/apollostack/react-apollo/pull/277)
 
 ### v0.5.11
