@@ -67,7 +67,7 @@ const defaultMapPropsToSkip = props => false;
 // the fields we want to copy over to our data prop
 function observableQueryFields(observable) {
   const fields = pick(observable, 'variables',
-    'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
+    'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling', 'subscribeToMore');
 
   Object.keys(fields).forEach((key) => {
     if (typeof fields[key] === 'function') {

@@ -1079,6 +1079,27 @@ describe('queries', () => {
     renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
   });
 
+  it('exposes subscribeToMore as part of the props api', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps({ data }) { // tslint:disable-line
+        expect(data.subscribeToMore).toBeTruthy();
+        expect(data.subscribeToMore instanceof Function).toBe(true);
+        done();
+      }
+      render() {
+        return null;
+      }
+    };
+
+    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+  });
+
   it('exposes startPolling as part of the props api', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
