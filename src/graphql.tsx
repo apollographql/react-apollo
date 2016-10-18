@@ -155,13 +155,6 @@ export default function graphql(
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
-    // XXX: what is up with this? We shouldn't have to do this.
-    function calculateFragments(fragments): FragmentDefinition[] {
-      if (!fragments && !operation.fragments.length) return fragments;
-      if (!fragments) return fragments = flatten([...operation.fragments]);
-      return flatten([...fragments, ...operation.fragments]);
-    }
-
     function calculateOptions(props, newOpts?) {
       let opts = mapPropsToOptions(props);
 
@@ -169,10 +162,6 @@ export default function graphql(
         newOpts.variables = assign({}, opts.variables, newOpts.variables);
       }
       if (newOpts) opts = assign({}, opts, newOpts);
-
-      if (opts.fragments) {
-        opts.fragments = calculateFragments(opts.fragments);
-      }
 
       if (opts.variables || !operation.variables.length) return opts;
 

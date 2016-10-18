@@ -93,24 +93,30 @@ describe('fragments', () => {
 
     const mockedQuery = gql`
       query peopleAndShips {
-        allPeople(first: 1) { ...Person }
-        allShips(first: 1) { ...ships }
+        allPeople(first: 1) {
+          __typename
+          ...Person
+        }
+        allShips(first: 1) {
+          __typename
+          ...ships
+        }
       }
       fragment Person on PeopleConnection { people { name } }
       fragment ships on ShipsConnection { starships { name } }
     `;
 
     const data = {
-      allPeople: { people: [ { name: 'Luke Skywalker' } ] },
-      allShips: { starships: [ { name: 'CR90 corvette' } ] },
+      allPeople: { __typename: 'PeopleConnection', people: [ { name: 'Luke Skywalker' } ] },
+      allShips: { __typename: 'ShipsConnection', starships: [ { name: 'CR90 corvette' } ] },
     };
     const networkInterface = mockNetworkInterface(
       { request: { query: mockedQuery }, result: { data } }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query, {
-      options: () => ({ fragments: [shipFragment]})
+      options: () => ({ fragments: shipFragment }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
@@ -151,7 +157,7 @@ describe('fragments', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query, {
-      options: () => ({ fragments: [shipFragment]}),
+      options: () => ({ fragments: shipFragment}),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
