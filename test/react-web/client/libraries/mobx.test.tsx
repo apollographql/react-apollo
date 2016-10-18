@@ -46,7 +46,7 @@ describe('mobx integration', () => {
       { request: { query, variables: variables2 }, result: { data: data2 } }
     );
 
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query, {
       options: (props) => ({ variables: { first: props.appState.first } }),
@@ -55,7 +55,9 @@ describe('mobx integration', () => {
     class Container extends React.Component<any, any> {
       componentWillReact() {
         if (this.props.appState.first === 1) {
-          this.props.data.refetch({ first: this.props.appState.first });
+          this.props.data.refetch({ first: this.props.appState.first }).catch((e) => {
+            console.error(e);
+          });
         }
       }
       componentWillReceiveProps(nextProps) {

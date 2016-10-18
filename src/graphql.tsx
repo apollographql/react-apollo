@@ -66,8 +66,18 @@ const defaultMapResultToProps = props => props;
 const defaultMapPropsToSkip = props => false;
 
 // the fields we want to copy over to our data prop
-const observableQueryFields = observable => pick(observable, 'variables',
-  'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
+const observableQueryFields = (observable) => {
+  const fields = pick(observable, 'variables',
+    'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
+
+  Object.keys(fields).forEach((key) => {
+    if (typeof fields[key] === 'function') {
+      fields[key] = fields[key].bind(observable);
+    }
+  });
+
+  return fields;
+}
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -375,9 +385,14 @@ export default function graphql(
         // We've subscribed already, just update with our new options and
         // take the latest result
         if (this.querySubscription) {
-          // Since we don't care about the result, use a hacky version to
-          // work around https://github.com/apollostack/apollo-client/pull/694
-          this.queryObservable._setOptionsNoResult(opts);
+          if (this.queryObservable._setOptionsNoResult) {
+            // Since we don't care about the result, use a hacky version to
+            // work around https://github.com/apollostack/apollo-client/pull/694
+            // This workaround is only present in Apollo Client 0.4.21
+            this.queryObservable._setOptionsNoResult(opts);
+          } else {
+            this.queryObservable.setOptions(opts);
+          }
 
           // Ensure we are up-to-date with the latest state of the world
           assign(this.data,

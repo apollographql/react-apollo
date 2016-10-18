@@ -48,7 +48,7 @@ describe('redux integration', () => {
         { request: { query, variables }, result: { data } }
       );
 
-      const client = new ApolloClient({ networkInterface });
+      const client = new ApolloClient({ networkInterface, addTypename: false });
       let wrapper;
 
       // Typscript workaround
@@ -133,7 +133,7 @@ describe('redux integration', () => {
         { request: { query, variables: variables2 }, result: { data: data2 } }
       );
 
-      const client = new ApolloClient({ networkInterface });
+      const client = new ApolloClient({ networkInterface, addTypename: false });
       let wrapper;
 
       function counter(state = 1, action) {
@@ -197,7 +197,7 @@ describe('redux integration', () => {
         { request: { query, variables: variables2 }, result: { data: data2 } }
       );
 
-      const client = new ApolloClient({ networkInterface });
+      const client = new ApolloClient({ networkInterface, addTypename: false });
       let wrapper;
 
       function counter(state = 1, action) {
