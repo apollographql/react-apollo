@@ -5,7 +5,6 @@ import {
 } from 'react';
 
 // modules don't export ES6 modules
-import flatten = require('lodash.flatten');
 import pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
@@ -66,7 +65,7 @@ const defaultMapResultToProps = props => props;
 const defaultMapPropsToSkip = props => false;
 
 // the fields we want to copy over to our data prop
-const observableQueryFields = (observable) => {
+function observableQueryFields(observable) {
   const fields = pick(observable, 'variables',
     'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
 
