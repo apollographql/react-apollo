@@ -35,7 +35,7 @@ describe('queries', () => {
         },
       }) }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper, app, count = 0;
 
     @graphql(query, { options: { pollInterval: 10 }})
@@ -72,7 +72,7 @@ describe('queries', () => {
         },
       }) }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper, app, count = 0;
 
     @graphql(query, { options: { forceFetch: true }})
@@ -120,7 +120,7 @@ describe('queries', () => {
       { request: { query, variables }, result: { data }, delay: 10 },
       { request: { query, variables: variables2 }, result: { data }, delay: 10 }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper, render, count = 0;
 
     @graphql(query, { options: ({ first }) => ({ variables: { first }})})
@@ -169,7 +169,7 @@ describe('queries', () => {
       { request: { query, variables }, result: { data }, delay: 10 },
       { request: { query, variables: variables2 }, result: { data }, delay: 10 }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     let count = 0;
 
     @graphql(query)
@@ -217,7 +217,7 @@ describe('queries', () => {
        { request: { query, variables }, result: { data }, delay: 10 },
        { request: { query, variables: variables2 }, result: { data }, delay: 10 }
      );
-     const client = new ApolloClient({ networkInterface });
+     const client = new ApolloClient({ networkInterface, addTypename: false });
      let count = 0;
 
      const connect = (component) : any => {
