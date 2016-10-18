@@ -28,7 +28,7 @@ describe('subscriptions', () => {
     const networkInterface = mockSubscriptionNetworkInterface(
       [{ request: { query }, results: [...results] }]
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     // XXX fix in apollo-client
     client.subscribe = client.subscribe.bind(client);
 
@@ -49,7 +49,7 @@ describe('subscriptions', () => {
     const networkInterface = mockSubscriptionNetworkInterface(
       [{ request: { query, variables }, results: [...results] }]
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     // XXX fix in apollo-client
     client.subscribe = client.subscribe.bind(client);
 
@@ -70,7 +70,7 @@ describe('subscriptions', () => {
     const networkInterface = mockSubscriptionNetworkInterface(
       [{ request: { query }, results: [...results] }]
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     // XXX fix in apollo-client
     client.subscribe = client.subscribe.bind(client);
 
@@ -94,7 +94,7 @@ describe('subscriptions', () => {
     const networkInterface = mockSubscriptionNetworkInterface(
       [{ request: { query }, results: [...results] }]
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     // XXX fix in apollo-client
     client.subscribe = client.subscribe.bind(client);
 

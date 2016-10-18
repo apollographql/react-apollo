@@ -22,7 +22,7 @@ describe('mutations', () => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     const ContainerWithData =  graphql(query)(({ mutate }) => {
       expect(mutate).toBeTruthy();
@@ -37,7 +37,7 @@ describe('mutations', () => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     const props = ({ ownProps, addPerson }) => ({
       [ownProps.methodName]: (name: string) => addPerson({ variables: { name }}),
@@ -56,7 +56,7 @@ describe('mutations', () => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     let bar;
     const ContainerWithData =  graphql(query)(() => {
       bar(); // this will throw
@@ -76,7 +76,7 @@ describe('mutations', () => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -108,7 +108,7 @@ describe('mutations', () => {
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -140,7 +140,7 @@ describe('mutations', () => {
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -172,7 +172,7 @@ describe('mutations', () => {
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
     const Container =  graphql(query)(() => null);
 
     try {
@@ -187,7 +187,7 @@ describe('mutations', () => {
     const query = gql`mutation addPerson { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     function options(props) {
       expect(props.listId).toBe(2);
@@ -231,7 +231,7 @@ describe('mutations', () => {
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -270,7 +270,7 @@ describe('mutations', () => {
     };
 
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -360,7 +360,7 @@ describe('mutations', () => {
       { request: { query, variables: { id: '123' } }, result: { data } },
       { request: { query: mutation }, result: { data: mutationData } }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
     @graphql(query)

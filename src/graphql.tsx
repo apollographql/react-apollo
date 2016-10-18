@@ -5,7 +5,6 @@ import {
 } from 'react';
 
 // modules don't export ES6 modules
-import flatten = require('lodash.flatten');
 import pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
@@ -66,8 +65,18 @@ const defaultMapResultToProps = props => props;
 const defaultMapPropsToSkip = props => false;
 
 // the fields we want to copy over to our data prop
-const observableQueryFields = observable => pick(observable, 'variables',
-  'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
+function observableQueryFields(observable) {
+  const fields = pick(observable, 'variables',
+    'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling');
+
+  Object.keys(fields).forEach((key) => {
+    if (typeof fields[key] === 'function') {
+      fields[key] = fields[key].bind(observable);
+    }
+  });
+
+  return fields;
+}
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -145,13 +154,6 @@ export default function graphql(
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
-    // XXX: what is up with this? We shouldn't have to do this.
-    function calculateFragments(fragments): FragmentDefinition[] {
-      if (!fragments && !operation.fragments.length) return fragments;
-      if (!fragments) return fragments = flatten([...operation.fragments]);
-      return flatten([...fragments, ...operation.fragments]);
-    }
-
     function calculateOptions(props, newOpts?) {
       let opts = mapPropsToOptions(props);
 
@@ -159,10 +161,6 @@ export default function graphql(
         newOpts.variables = assign({}, opts.variables, newOpts.variables);
       }
       if (newOpts) opts = assign({}, opts, newOpts);
-
-      if (opts.fragments) {
-        opts.fragments = calculateFragments(opts.fragments);
-      }
 
       if (opts.variables || !operation.variables.length) return opts;
 
@@ -375,9 +373,14 @@ export default function graphql(
         // We've subscribed already, just update with our new options and
         // take the latest result
         if (this.querySubscription) {
-          // Since we don't care about the result, use a hacky version to
-          // work around https://github.com/apollostack/apollo-client/pull/694
-          this.queryObservable._setOptionsNoResult(opts);
+          if (this.queryObservable._setOptionsNoResult) {
+            // Since we don't care about the result, use a hacky version to
+            // work around https://github.com/apollostack/apollo-client/pull/694
+            // This workaround is only present in Apollo Client 0.4.21
+            this.queryObservable._setOptionsNoResult(opts);
+          } else {
+            this.queryObservable.setOptions(opts);
+          }
 
           // Ensure we are up-to-date with the latest state of the world
           assign(this.data,

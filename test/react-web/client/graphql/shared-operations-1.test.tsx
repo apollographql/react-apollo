@@ -47,7 +47,7 @@ describe('shared operations', () => {
       { request: { query: peopleQuery }, result: { data: peopleData } },
       { request: { query: shipsQuery }, result: { data: shipsData } }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withShips = graphql(shipsQuery, { name: 'ships' });
@@ -82,7 +82,7 @@ describe('shared operations', () => {
       { request: { query: peopleQuery }, result: { data: peopleData } },
       { request: { query: shipsQuery }, result: { data: shipsData } }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withShips = graphql(shipsQuery, { name: 'ships' });
@@ -112,7 +112,7 @@ describe('shared operations', () => {
       { request: { query: peopleQuery }, result: { data: peopleData } },
       { request: { query: peopleMutation }, result: { data: peopleMutationData } }
     );
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withPeopleMutation = graphql(peopleMutation, { name: 'addPerson' });
@@ -140,7 +140,7 @@ describe('shared operations', () => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-    const client = new ApolloClient({ networkInterface });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let queryExecuted;
     @graphql(query, { options: { skip: true } })
@@ -175,7 +175,7 @@ describe('shared operations', () => {
         { request: { query: peopleQuery }, result: { data: peopleData } },
         { request: { query: shipsQuery }, result: { data: shipsData } }
       );
-      const client = new ApolloClient({ networkInterface });
+      const client = new ApolloClient({ networkInterface, addTypename: false });
 
       const enhanced = compose(
         graphql(peopleQuery, { name: 'people' }),

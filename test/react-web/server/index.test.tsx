@@ -39,7 +39,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const WrappedElement = graphql(query)(({ data }) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
@@ -61,7 +61,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const WrappedElement = graphql(query)(({ data }) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
@@ -88,7 +88,7 @@ describe('SSR', () => {
         { request: { query: idQuery }, result: { data: idData }, delay: 50 },
         { request: { query: userQuery, variables }, result: { data: userData }, delay: 50 },
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const withId = graphql(idQuery);
       const withUser = graphql(userQuery, {
@@ -116,7 +116,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const WrappedElement = graphql(query, { options: { skip: true }})(({ data }) => (
         <div>{data.loading ? 'loading' : 'skipped'}</div>
@@ -139,7 +139,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const WrappedElement = graphql(query, { skip: true })(({ data }) => (
         <div>{!data ? 'skipped' : 'dang'}</div>
@@ -161,7 +161,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const WrappedElement = graphql(query)(({ data }) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
@@ -185,7 +185,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query, variables }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const Element = graphql(query, { name: 'user' })(({ user }) => (
         <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
@@ -209,7 +209,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query, variables }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       @graphql(query, { name: 'user' })
       class Element extends React.Component<any, any> {
@@ -247,7 +247,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query, variables }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const Element = graphql(query, {
         name: 'user',
@@ -279,7 +279,7 @@ describe('SSR', () => {
         { request: { query }, result: { data: data1 }, delay: 5 },
         { request: { query: mutation }, result: { data: mutationData }, delay: 5 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const withQuery = graphql(query, {
         options: (ownProps) => ({ ssr: true }),
@@ -331,7 +331,7 @@ describe('SSR', () => {
         { request: { query }, result: { data: data1 }, delay: 5 },
         { request: { query: mutation }, result: { data: mutationData }, delay: 5 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const withQuery = graphql(query, {
         props: ({ ownProps, data }) => {
@@ -366,7 +366,7 @@ describe('SSR', () => {
       const networkInterface = mockNetworkInterface(
         { request: { query }, result: { data }, delay: 50 }
       );
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const WrappedElement = graphql(query)(({ data }) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
@@ -416,7 +416,9 @@ describe('SSR', () => {
     // XXX mock all queries
     it('should work on a non trivial example', function() {
       // this.timeout(10000);
-      const networkInterface = createNetworkInterface('http://graphql-swapi.parseapp.com/');
+      const networkInterface = createNetworkInterface({
+        uri: 'http://graphql-swapi.parseapp.com/',
+      });
       const apolloClient = new ApolloClient({ networkInterface });
 
       @graphql(gql`
@@ -516,13 +518,13 @@ describe('SSR', () => {
     });
 
     it('should work with queries that use fragments', function() {
-      const query = gql`{ currentUser { ...userInfo } }`;
+      const query = gql`{ currentUser { __typename, ...userInfo } }`;
       const userInfoFragment = createFragment(gql`fragment userInfo on User { firstName, lastName }`);
-      const data = { currentUser: { firstName: 'John', lastName: 'Smith' } };
+      const data = { currentUser: { __typename: 'User', firstName: 'John', lastName: 'Smith' } };
       const networkInterface = {
         query: () => Promise.resolve({ data }),
       };
-      const apolloClient = new ApolloClient({ networkInterface });
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const UserPage = graphql(query, {
         options: {
