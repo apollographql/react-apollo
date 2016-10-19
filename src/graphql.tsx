@@ -6,6 +6,7 @@ import {
 
 // modules don't export ES6 modules
 import pick = require('lodash.pick');
+import flatten = require('lodash.flatten');
 import shallowEqual from './shallowEqual';
 
 import invariant = require('invariant');
@@ -161,6 +162,10 @@ export default function graphql(
         newOpts.variables = assign({}, opts.variables, newOpts.variables);
       }
       if (newOpts) opts = assign({}, opts, newOpts);
+
+      if (opts.fragments) {
+        opts.fragments = flatten(opts.fragments);
+      }
 
       if (opts.variables || !operation.variables.length) return opts;
 
