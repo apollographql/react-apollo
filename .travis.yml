@@ -2,11 +2,19 @@ language: node_js
 node_js:
   - "4"
   - "6"
+cache:
+  directories:
+    - $HOME/.npm
+    - $HOME/.yarn-cache
+    - node_modules
+
+before_install:
+  - time npm i -g yarn --cache-min 999999999
+  - time npm install -g coveralls --cache-min 999999999
 
 install:
-  - npm install -g npm@^3
   - npm install -g coveralls
-  - npm install
+  - time yarn
 
 script:
   - npm test
