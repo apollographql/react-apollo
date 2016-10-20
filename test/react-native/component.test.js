@@ -1,10 +1,10 @@
-import 'react-native';
-import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
   View
 } from 'react-native';
+import React, { Component } from 'react';
+
 // import { mount, shallow } from 'enzyme';
 
 // Note: test renderer must be required after react-native.
