@@ -26,17 +26,15 @@
   version "0.0.30"
   resolved "https://registry.yarnpkg.com/@types/isomorphic-fetch/-/isomorphic-fetch-0.0.30.tgz#a21717624cde9a48c2db53a4e500fc5c32a99bbc"
 
-"@types/jest@^0.9.31":
-  version "0.9.31"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-0.9.31.tgz#a62794c5ee04bef668c16a173778624ef69acd2b"
-  dependencies:
-    "@types/node" "*"
+"@types/jest":
+  version "15.1.32"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-15.1.32.tgz#199632df1bfdb0a9a4f0f44d6aacf7c3018ae153"
 
 "@types/lodash@^4.14.34", "@types/lodash@^4.14.36":
   version "4.14.37"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.37.tgz#9a2169db336c87dc289c8d0aec2e5aa707feba2b"
 
-"@types/node@*", "@types/node@^6.0.38":
+"@types/node@^6.0.38":
   version "6.0.45"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.45.tgz#c4842a9d653d767831e4ff495b6008cc0d579966"
 

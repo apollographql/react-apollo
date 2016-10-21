@@ -48,9 +48,9 @@
   },
   "license": "MIT",
   "peerDependencies": {
+    "apollo-client": "^0.4.21 || ^0.5.0",
     "react": "0.14.x || 15.* || ^15.0.0",
-    "redux": "^2.0.0 || ^3.0.0",
-    "apollo-client": "^0.4.21 || ^0.5.0"
+    "redux": "^2.0.0 || ^3.0.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.33",
@@ -58,7 +58,7 @@
     "@types/immutable": "^3.8.3",
     "@types/invariant": "^2.2.27",
     "@types/isomorphic-fetch": "0.0.30",
-    "@types/jest": "^0.9.31",
+    "@types/jest": "^15.1.32",
     "@types/lodash": "^4.14.36",
     "@types/node": "^6.0.38",
     "@types/object-assign": "^4.0.28",

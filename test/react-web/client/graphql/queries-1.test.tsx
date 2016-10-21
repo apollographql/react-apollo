@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
@@ -1035,12 +1036,12 @@ describe('queries', () => {
               },
             }),
           }).then(wrap(done, result => {
-            expect(result.data.allPeople.people).to.deep.equal(data1.allPeople.people);
+            expect(result.data.allPeople.people).toEqual(data1.allPeople.people);
           }));
         } else if (count === 1) {
-          expect(props.data.variables).to.deep.equal(variables);
-          expect(props.data.loading).toBe.false;
-          expect(props.data.allPeople.people).to.deep.equal(
+          expect(props.data.variables).toEqual(variables);
+          expect(props.data.loading).toBe(false);
+          expect(props.data.allPeople.people).toEqual(
             data.allPeople.people.concat(data1.allPeople.people)
           );
           done();
