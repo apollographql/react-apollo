@@ -1,21 +1,16 @@
-// @flow
 import React, { Component } from 'react';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { ApolloProvider } from "../../../lib/src";
 
 import Articles from "./Articles";
 
+export const networkInterface = createNetworkInterface({ uri: '/graphql' });
+export const client = new ApolloClient({ networkInterface });
+
 class App extends Component {
-  constructor(...args) {
-    super(...args);
-
-    const networkInterface = createNetworkInterface({ uri: '/graphql' });
-    this.client = new ApolloClient({ networkInterface });
-  }
-
   render() {
     return (
-      <ApolloProvider client={this.client}>
+      <ApolloProvider client={client}>
         <Articles />
       </ApolloProvider>
     );
