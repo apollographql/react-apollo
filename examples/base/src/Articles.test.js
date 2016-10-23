@@ -2,26 +2,33 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import { MockedProvider } from "../../../lib/src/test-utils";
 import { print } from 'graphql-tag/printer';
+import { addTypenameToDocument } from 'apollo-client/queries/queryTransform';
 
 import ArticlesWithData, { ARTICLE_QUERY, Articles, withArticles } from "./Articles";
 
 const mockedData = {
   content: [
     {
+      __typename: "Content",
       title: "Mollis Bibendum Vulputate Commodo",
       meta: {
+        __typename: "Meta",
         summary: "Maecenas faucibus mollis interdum. Nulla vitae elit libero, a pharetra augue. Sed posuere consectetur est at lobortis."
       },
     },
     {
+      __typename: "Content",
       title: "Ullamcorper Fusce Egestas",
       meta: {
+        __typename: "Meta",
         summary: "Maecenas faucibus mollis interdum. Donec sed odio dui. Donec id elit non mi porta gravida at eget metus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Curabitur blandit tempus porttitor."
       },
     },
     {
+      __typename: "Content",
       title: "Tristique Sollicitudin Tellus Bibendum Vehicula",
       meta: {
+        __typename: "Meta",
         summary: "Sed posuere consectetur est at lobortis. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Nulla vitae elit libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Nulla vitae elit libero, a pharetra augue. Vestibulum id ligula porta felis euismod semper."
       },
     },
@@ -31,7 +38,9 @@ const mockedData = {
 describe('default export', () => {
   it('renders without crashing', () => {
     const output = renderer.create(
-      <MockedProvider mocks={[{ request: { query: ARTICLE_QUERY }, result: { data: mockedData } }]}>
+      <MockedProvider mocks={[
+        { request: { query: addTypenameToDocument(ARTICLE_QUERY) }, result: { data: mockedData } }
+      ]}>
         <ArticlesWithData />
       </MockedProvider>
     )
@@ -53,16 +62,18 @@ describe('Article enhancer', () => {
     };
     const ContainerWithData = withArticles(Container);
     const output = renderer.create(
-      <MockedProvider mocks={[{ request: { query: ARTICLE_QUERY }, result: { data: mockedData } }]}>
+      <MockedProvider mocks={[
+        { request: { query: addTypenameToDocument(ARTICLE_QUERY) }, result: { data: mockedData } }]
+      }>
         <ContainerWithData />
       </MockedProvider>
     );
   });
 
-   xit('renders data without crashing', (done) => {
+   it('renders data without crashing', (done) => {
     class Container extends React.Component {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBeFalsy();
+        expect(props.data.loading).toBe(false);
         expect(props.data.content).toEqual(mockedData.content);
         done();
       }
@@ -72,7 +83,9 @@ describe('Article enhancer', () => {
     };
     const ContainerWithData = withArticles(Container);
     const output = renderer.create(
-      <MockedProvider mocks={[{ request: { query: ARTICLE_QUERY }, result: { data: mockedData } }]}>
+      <MockedProvider mocks={[
+        { request: { query: addTypenameToDocument(ARTICLE_QUERY) }, result: { data: mockedData } }
+      ]}>
         <ContainerWithData />
       </MockedProvider>
     );

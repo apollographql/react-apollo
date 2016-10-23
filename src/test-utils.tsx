@@ -5,7 +5,7 @@ import {
   NetworkInterface,
   Request,
   SubscriptionNetworkInterface,
-} from 'apollo-client/networkInterface';
+} from 'apollo-client/transport/networkInterface';
 
 import {
   GraphQLResult,
