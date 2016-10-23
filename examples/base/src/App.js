@@ -9,7 +9,7 @@ class App extends Component {
   constructor(...args) {
     super(...args);
 
-    const networkInterface = createNetworkInterface('/graphql');
+    const networkInterface = createNetworkInterface({ uri: '/graphql' });
     this.client = new ApolloClient({ networkInterface });
   }
 

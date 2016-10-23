@@ -18,7 +18,7 @@ Object {
       "kind": "OperationDefinition",
       "name": Object {
         "kind": "Name",
-        "value": "GetArticles"
+        "value": "GetArticles",
       },
       "operation": "query",
       "selectionSet": Object {
@@ -31,30 +31,30 @@ Object {
                 "kind": "Argument",
                 "name": Object {
                   "kind": "Name",
-                  "value": "channel"
+                  "value": "channel",
                 },
                 "value": Object {
                   "kind": "StringValue",
-                  "value": "articles"
-                }
+                  "value": "articles",
+                },
               },
               Object {
                 "kind": "Argument",
                 "name": Object {
                   "kind": "Name",
-                  "value": "limit"
+                  "value": "limit",
                 },
                 "value": Object {
                   "kind": "IntValue",
-                  "value": "3"
-                }
-              }
+                  "value": "3",
+                },
+              },
             ],
             "directives": Array [],
             "kind": "Field",
             "name": Object {
               "kind": "Name",
-              "value": "content"
+              "value": "content",
             },
             "selectionSet": Object {
               "kind": "SelectionSet",
@@ -66,9 +66,9 @@ Object {
                   "kind": "Field",
                   "name": Object {
                     "kind": "Name",
-                    "value": "title"
+                    "value": "title",
                   },
-                  "selectionSet": null
+                  "selectionSet": null,
                 },
                 Object {
                   "alias": null,
@@ -77,7 +77,7 @@ Object {
                   "kind": "Field",
                   "name": Object {
                     "kind": "Name",
-                    "value": "meta"
+                    "value": "meta",
                   },
                   "selectionSet": Object {
                     "kind": "SelectionSet",
@@ -89,22 +89,22 @@ Object {
                         "kind": "Field",
                         "name": Object {
                           "kind": "Name",
-                          "value": "summary"
+                          "value": "summary",
                         },
-                        "selectionSet": null
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ]
+                        "selectionSet": null,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
-      "variableDefinitions": Array []
-    }
+      "variableDefinitions": Array [],
+    },
   ],
-  "kind": "Document"
+  "kind": "Document",
 }
 `;
 
