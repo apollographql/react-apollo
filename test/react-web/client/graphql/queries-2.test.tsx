@@ -19,10 +19,8 @@ import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
 
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
-import { ProviderMock } from '../../../mocks/components';
-
-import graphql from '../../../../src/graphql';
+import { mockNetworkInterface } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('queries', () => {
   it('correctly rebuilds props on remount', (done) => {
@@ -57,7 +55,7 @@ describe('queries', () => {
       }
     };
 
-    app = <ProviderMock client={client}><Container /></ProviderMock>;
+    app = <ApolloProvider client={client}><Container /></ApolloProvider>;
 
     wrapper = mount(app);
   });
@@ -104,7 +102,7 @@ describe('queries', () => {
       }
     };
 
-    app = <ProviderMock client={client}><Container /></ProviderMock>;
+    app = <ApolloProvider client={client}><Container /></ApolloProvider>;
 
     wrapper = mount(app);
   });
@@ -152,7 +150,7 @@ describe('queries', () => {
     };
 
     render = (first) => (
-      <ProviderMock client={client}><Container first={first} /></ProviderMock>
+      <ApolloProvider client={client}><Container first={first} /></ApolloProvider>
     );
 
     wrapper = mount(render(1));
@@ -193,9 +191,9 @@ describe('queries', () => {
 
     const render = (props) => {
       ReactDOM.render((
-        <ProviderMock client={client}>
+        <ApolloProvider client={client}>
           <Container {...props} />
-        </ProviderMock>
+        </ApolloProvider>
       ), document.getElementById('main'));
     };
 
@@ -271,6 +269,6 @@ describe('queries', () => {
        }
      };
 
-     mount(<ProviderMock client={client}><Container /></ProviderMock>);
+     mount(<ApolloProvider client={client}><Container /></ApolloProvider>);
    });
 });

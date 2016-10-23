@@ -7,16 +7,8 @@ import { ApolloError } from 'apollo-client/errors';
 
 declare function require(name: string);
 
-import mockNetworkInterface, {
-  mockSubscriptionNetworkInterface,
-} from '../../../mocks/mockNetworkInterface';
-
-import {
-  // Passthrough,
-  ProviderMock,
-} from '../../../mocks/components';
-
-import graphql from '../../../../src/graphql';
+import { mockSubscriptionNetworkInterface } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('subscriptions', () => {
   const results = ['James Baxley', 'John Pinkerton', 'Sam Clairidge', 'Ben Coleman'].map(
@@ -39,7 +31,7 @@ describe('subscriptions', () => {
       return null;
     });
 
-    const output = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const output = renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     output.unmount();
   });
 
@@ -60,7 +52,7 @@ describe('subscriptions', () => {
     });
 
     const output = renderer.create(
-      <ProviderMock client={client}><ContainerWithData name={'James Baxley'} /></ProviderMock>
+      <ApolloProvider client={client}><ContainerWithData name={'James Baxley'} /></ApolloProvider>
     );
     output.unmount();
   });
@@ -81,7 +73,7 @@ describe('subscriptions', () => {
     });
 
     try {
-      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
       throw new Error();
     } catch (e) {
       expect(e.name).toMatch(/TypeError/);
@@ -128,7 +120,7 @@ describe('subscriptions', () => {
     }, 50);
 
     output = renderer.create(
-      <ProviderMock client={client}><Container /></ProviderMock>
+      <ApolloProvider client={client}><Container /></ApolloProvider>
     );
 
   });

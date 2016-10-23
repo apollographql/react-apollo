@@ -7,13 +7,8 @@ import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
 
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
-import {
-  // Passthrough,
-  ProviderMock,
-} from '../../../mocks/components';
-
-import graphql, { withApollo } from '../../../../src/graphql';
+import { mockNetworkInterface } from '../../../../src/test-utils';
+import { ApolloProvider, graphql, withApollo } from '../../../../src';
 import { compose } from '../../../../src/';
 
 describe('shared operations', () => {
@@ -31,7 +26,7 @@ describe('shared operations', () => {
         }
       }
 
-      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     });
   });
 
@@ -66,7 +61,7 @@ describe('shared operations', () => {
       }
     }
 
-    const wrapper = renderer.create(<ProviderMock client={client} ><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ApolloProvider client={client} ><ContainerWithData /></ApolloProvider>);
     (wrapper as any).unmount();
   });
 
@@ -97,7 +92,7 @@ describe('shared operations', () => {
       return null;
     }));
 
-    const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     (wrapper as any).unmount();
   });
 
@@ -130,7 +125,7 @@ describe('shared operations', () => {
       }
     }
 
-    const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     (wrapper as any).unmount();
   });
 
@@ -154,7 +149,7 @@ describe('shared operations', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
@@ -192,7 +187,7 @@ describe('shared operations', () => {
         return null;
       });
 
-      const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      const wrapper = renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
       (wrapper as any).unmount();
     });
   });

@@ -6,7 +6,7 @@ import { getDataFromTree, renderToStringWithData } from '../../../src/server';
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 
-import mockNetworkInterface from '../../mocks/mockNetworkInterface';
+import { mockNetworkInterface } from '../../../src/test-utils';
 
 describe('SSR', () => {
   // it('should render the expected markup', (done) => {

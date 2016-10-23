@@ -8,13 +8,10 @@ import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
 
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
-import {
-  // Passthrough,
-  ProviderMock,
-} from '../../../mocks/components';
+import { mockNetworkInterface } from '../../../../src/test-utils';
 
-import graphql from '../../../../src/graphql';
+
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('mutations', () => {
 
@@ -26,11 +23,11 @@ describe('mutations', () => {
 
     const ContainerWithData =  graphql(query)(({ mutate }) => {
       expect(mutate).toBeTruthy();
-      expect(typeof mutate).toBe("function");
+      expect(typeof mutate).toBe('function');
       return null;
     });
 
-    renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
   });
 
   it('binds a mutation to custom props', () => {
@@ -45,11 +42,11 @@ describe('mutations', () => {
 
     const ContainerWithData =  graphql(query, { props })(({ test }) => {
       expect(test).toBeTruthy();
-      expect(typeof test).toBe("function");
+      expect(typeof test).toBe('function');
       return null;
     });
 
-    renderer.create(<ProviderMock client={client}><ContainerWithData methodName="test" /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ContainerWithData methodName='test' /></ApolloProvider>);
   });
 
   it('does not swallow children errors', () => {
@@ -64,7 +61,7 @@ describe('mutations', () => {
     });
 
     try {
-      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
       throw new Error();
     } catch (e) {
       expect(e.name).toMatch(/TypeError/);
@@ -93,7 +90,7 @@ describe('mutations', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('can execute a mutation with variables from props', (done) => {
@@ -125,7 +122,7 @@ describe('mutations', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container id={1} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container id={1} /></ApolloProvider>);
   });
 
   it('allows falsy values in the mapped variables from props', (done) => {
@@ -157,7 +154,7 @@ describe('mutations', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container id={null} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container id={null} /></ApolloProvider>);
   });
 
   it('errors if the passed props don\'t contain the needed variables', () => {
@@ -176,7 +173,7 @@ describe('mutations', () => {
     const Container =  graphql(query)(() => null);
 
     try {
-      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><Container frst={1} /></ApolloProvider>);
     } catch (e) {
       expect(e).toMatch(/Invariant Violation: The operation 'addPerson'/);
     }
@@ -216,7 +213,7 @@ describe('mutations', () => {
       }
     }
 
-    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
   });
 
   it('can execute a mutation with custom variables', (done) => {
@@ -248,7 +245,7 @@ describe('mutations', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('allows for passing optimisticResponse for a mutation', (done) => {
@@ -302,7 +299,7 @@ describe('mutations', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('allows for updating queries from a mutation', (done) => {
@@ -395,7 +392,7 @@ describe('mutations', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container id={'123'} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container id={'123'} /></ApolloProvider>);
   });
 
 });
