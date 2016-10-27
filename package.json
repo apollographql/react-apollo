@@ -115,7 +115,6 @@
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
     "lodash.pick": "^4.4.0",
-    "object-assign": "^4.0.1",
-    "recompose": "^0.20.2"
+    "object-assign": "^4.0.1"
   }
 }
