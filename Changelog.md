@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Bug: Fix issue with usage in TypeScript projects caused by 'compose' re-export. [PR #291](https://github.com/apollostack/react-apollo/pull/291)
+
 ### v0.5.12
 
 - Full support for both Apollo Client 0.4.21 and 0.5.0. [PR #277](https://github.com/apollostack/react-apollo/pull/277)

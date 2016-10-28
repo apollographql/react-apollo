@@ -24,11 +24,6 @@ declare module 'lodash.pick' {
   export = main;
 }
 
-declare module 'recompose/compose' {
-  function hoc(component: any): any;
-  export default (...hocs) => hoc;
-}
-
 declare module 'hoist-non-react-statics' {
   /**
    * Copies any static properties present on `source` to `target`, excluding those that are specific
