@@ -202,6 +202,7 @@ export default function graphql(
 
       const opts = calculateOptions(props) as any;
       if (opts.ssr === false || opts.skip) return false;
+      if (opts.forceFetch) delete opts.forceFetch; // ignore force fetch in SSR;
 
       const observable = client.watchQuery(assign({ query: document }, opts));
       const result = observable.currentResult();
