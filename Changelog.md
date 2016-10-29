@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.13
+
 - Bug: Fix issue with usage in TypeScript projects caused by 'compose' re-export. [PR #291](https://github.com/apollostack/react-apollo/pull/291)
 - Bug: Fix issue with forceFetch during SSR [PR #293](https://github.com/apollostack/react-apollo/pull/293)
 
