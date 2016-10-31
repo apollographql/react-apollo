@@ -15,13 +15,13 @@ before_install:
 
 install:
   - yarn
-  - cd examples/base && yarn && cd ../../
+  - cd examples/create-react-app && yarn && cd ../../
 
 script:
   - npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
-  - cd examples/base && npm test && cd ../../
+  - cd examples/create-react-app && npm test && cd ../../
   - npm run filesize
   - python node_modules/travis-weigh-in/weigh_in.py ./dist/index.min.js || true # ignore size errors
 
