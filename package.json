@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "0.5.15",
+  "version": "0.5.16",
   "description": "React data container for Apollo Client",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -114,8 +114,6 @@
   "dependencies": {
     "hoist-non-react-statics": "^1.2.0",
     "invariant": "^2.2.1",
-    "jest": "^16.1.0-alpha.691b0e22",
-    "jest-react-native": "^16.1.0-alpha.691b0e22",
     "lodash.flatten": "^4.2.0",
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
