@@ -19,10 +19,8 @@ import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
 
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
-import { ProviderMock } from '../../../mocks/components';
-
-import graphql from '../../../../src/graphql';
+import { mockNetworkInterface } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('shared operations', () => {
   it('allows a way to access the wrapped component instance', () => {
@@ -46,9 +44,9 @@ describe('shared operations', () => {
     const Decorated = graphql(query, { withRef: true })(Container);
 
     const tree = TestUtils.renderIntoDocument(
-      <ProviderMock client={client}>
+      <ApolloProvider client={client}>
         <Decorated />
-      </ProviderMock>
+      </ApolloProvider>
     ) as any;
 
     const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);

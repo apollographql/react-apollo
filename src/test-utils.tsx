@@ -1,18 +1,66 @@
+import * as React from 'react';
+import ApolloClient from 'apollo-client';
+
 import {
   NetworkInterface,
   Request,
   SubscriptionNetworkInterface,
-} from 'apollo-client/networkInterface';
+} from 'apollo-client/transport/networkInterface';
 
 import {
   GraphQLResult,
   Document,
-  print,
 } from 'graphql';
+
+import { print } from 'graphql-tag/printer';
+
+
+import ApolloProvider from './ApolloProvider';
+
+export class MockedProvider extends React.Component<any, any> {
+  private client: any;
+
+  constructor(props, context) {
+    super(props, context);
+
+    const networkInterface = mockNetworkInterface.apply(null, this.props.mocks);
+    this.client = new ApolloClient({ networkInterface });
+  }
+
+  render() {
+    return (
+      <ApolloProvider client={this.client}>
+        {this.props.children}
+      </ApolloProvider>
+    );
+  }
+}
+
+export class MockedSubscriptionProvider extends React.Component<any, any> {
+  private client: any;
+
+  constructor(props, context) {
+    super(props, context);
+
+    const networkInterface = mockSubscriptionNetworkInterface(
+      this.props.subscriptions, ...this.props.responses
+    );
+
+    this.client = new ApolloClient({ networkInterface });
+  }
+
+  render() {
+    return (
+      <ApolloProvider client={this.client}>
+        {this.props.children}
+      </ApolloProvider>
+    );
+  }
+}
 
 // Pass in multiple mocked responses, so that you can test flows that end up
 // making multiple queries to the server
-export default function mockNetworkInterface(
+export function mockNetworkInterface(
   ...mockedResponses: MockedResponse[]
 ): NetworkInterface {
   return new MockNetworkInterface(...mockedResponses);
@@ -96,11 +144,8 @@ export class MockNetworkInterface implements NetworkInterface {
       }
 
       setTimeout(() => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
+        if (error) return reject(error);
+        return resolve(result);
       }, delay ? delay : 1);
     });
   }
@@ -112,7 +157,7 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface imple
   public handlersById: {[id: number]: (error: any, result: any) => void} = {};
   public subId: number;
 
-  constructor(mockedSubscriptions: MockedSubscription[], mockedResponses: MockedResponse[]) {
+  constructor(mockedSubscriptions: MockedSubscription[], ...mockedResponses: MockedResponse[]) {
     super(...mockedResponses);
     this.subId = 0;
     mockedSubscriptions.forEach((sub) => {
@@ -182,7 +227,7 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface imple
 function requestToKey(request: ParsedRequest): string {
   const queryString = request.query && print(request.query);
   return JSON.stringify({
-    variables: request.variables || {},
+    variables: request.variables,
     debugName: request.debugName,
     query: queryString,
   });

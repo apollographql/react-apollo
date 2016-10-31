@@ -7,13 +7,9 @@ import ApolloClient, { createFragment } from 'apollo-client';
 
 declare function require(name: string);
 
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
-import {
-  // Passthrough,
-  ProviderMock,
-} from '../../../mocks/components';
+import { mockNetworkInterface } from '../../../../src/test-utils';
 
-import graphql from '../../../../src/graphql';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('fragments', () => {
 
@@ -39,7 +35,7 @@ describe('fragments', () => {
         }
       };
 
-      renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
       throw new Error();
     } catch (e) {
       expect(e.name).toMatch(/TypeError/);
@@ -70,7 +66,7 @@ describe('fragments', () => {
 
     expect((Container as any).fragments.length).toBe(1);
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('correctly merges a query with inline fragments and passed fragments', (done) => {
@@ -132,7 +128,7 @@ describe('fragments', () => {
 
     expect((Container as any).fragments.length).toBe(1);
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('correctly allows for passed fragments', (done) => {
@@ -170,7 +166,7 @@ describe('fragments', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('correctly allows for passed fragments in an array', (done) => {
@@ -208,7 +204,7 @@ describe('fragments', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
 

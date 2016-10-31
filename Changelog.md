@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.5.15
+- Feature: Added test utilities and examples to library.
+
 ### v0.5.14
 
 - Bug: Fix issue with usage in TypeScript projects caused by 'compose' re-export. [PR #291](https://github.com/apollostack/react-apollo/pull/291)

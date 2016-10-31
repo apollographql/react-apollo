@@ -11,13 +11,9 @@ import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
 
-import {
-  ProviderMock,
-} from '../../../mocks/components';
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
 
-
-import { graphql } from '../../../../src';
+import { mockNetworkInterface } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('redux integration', () => {
 
@@ -75,9 +71,9 @@ describe('redux integration', () => {
     };
 
     wrapper = renderer.create(
-      <ProviderMock store={store} client={client}>
+      <ApolloProvider store={store} client={client}>
         <Container />
-      </ProviderMock>
+      </ApolloProvider>
     ) as any;
 
   });
@@ -145,9 +141,9 @@ describe('redux integration', () => {
       };
 
       renderer.create(
-        <ProviderMock store={store} client={client}>
+        <ApolloProvider store={store} client={client}>
           <Container />
-        </ProviderMock>
+        </ApolloProvider>
       ) as any;
 
     });
@@ -209,9 +205,9 @@ describe('redux integration', () => {
       };
 
       wrapper = renderer.create(
-        <ProviderMock store={store} client={client}>
+        <ApolloProvider store={store} client={client}>
           <Container />
-        </ProviderMock>
+        </ApolloProvider>
       ) as any;
     });
   });

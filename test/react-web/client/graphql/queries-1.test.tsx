@@ -10,13 +10,8 @@ import { connect } from 'react-redux';
 
 declare function require(name: string);
 
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
-import {
-  // Passthrough,
-  ProviderMock,
-} from '../../../mocks/components';
-
-import graphql from '../../../../src/graphql';
+import { mockNetworkInterface } from '../../../../src/test-utils';
+import { ApolloProvider, graphql} from '../../../../src';
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
@@ -45,7 +40,7 @@ describe('queries', () => {
       return null;
     });
 
-    const output = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const output = renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     output.unmount();
   });
 
@@ -64,7 +59,7 @@ describe('queries', () => {
       return null;
     });
 
-    renderer.create(<ProviderMock client={client}><ContainerWithData first={1} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ContainerWithData first={1} /></ApolloProvider>);
   });
 
   it('does not swallow children errors', () => {
@@ -79,7 +74,7 @@ describe('queries', () => {
     });
 
     try {
-      renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
       throw new Error();
     } catch (e) {
       expect(e.name).toMatch(/TypeError/);
@@ -105,7 +100,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('executes a query with two root fields', (done) => {
@@ -133,7 +128,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('can unmount without error', (done) => {
@@ -145,7 +140,7 @@ describe('queries', () => {
     const ContainerWithData =  graphql(query)(() => null);
 
     const wrapper = renderer.create(
-      <ProviderMock client={client}><ContainerWithData /></ProviderMock>
+      <ApolloProvider client={client}><ContainerWithData /></ApolloProvider>
     ) as any;
 
     try {
@@ -171,7 +166,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><ErrorContainer /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ErrorContainer /></ApolloProvider>);
   });
 
   it('maps props as variables if they match', (done) => {
@@ -201,7 +196,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container first={1} /></ApolloProvider>);
   });
 
   it('allows falsy values in the mapped variables from props', (done) => {
@@ -230,7 +225,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container first={null} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container first={null} /></ApolloProvider>);
   });
 
   it('don\'t error on optional required props', () => {
@@ -250,7 +245,7 @@ describe('queries', () => {
 
     let error = null;
     try {
-      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><Container frst={1} /></ApolloProvider>);
     } catch (e) { error = e; }
 
     expect(error).toBeNull();
@@ -273,7 +268,7 @@ describe('queries', () => {
     const Container =  graphql(query)(() => null);
 
     try {
-      renderer.create(<ProviderMock client={client}><Container frst={1} /></ProviderMock>);
+      renderer.create(<ApolloProvider client={client}><Container frst={1} /></ApolloProvider>);
     } catch (e) {
       expect(e.name).toMatch(/Invariant Violation/);
       expect(e.message).toMatch(/The operation 'people'/);
@@ -316,7 +311,7 @@ describe('queries', () => {
       }
     }
 
-    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
   });
 
   it('allows you to skip a query (deprecated)', (done) => {
@@ -337,7 +332,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
@@ -363,7 +358,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container skip={true} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container skip={true} /></ApolloProvider>);
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
@@ -405,7 +400,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
   });
 
   it('doesn\'t run options or props when skipped', (done) => {
@@ -430,7 +425,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container skip={true} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container skip={true} /></ApolloProvider>);
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
@@ -456,7 +451,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
 
     setTimeout(() => {
       if (!queryExecuted) { done(); return; }
@@ -502,7 +497,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
   });
 
   it('allows you to skip then unskip a query with opts syntax', (done) => {
@@ -560,7 +555,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
   });
 
 
@@ -630,7 +625,7 @@ describe('queries', () => {
       }
     }
 
-    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
   });
 
 
@@ -667,7 +662,7 @@ describe('queries', () => {
       }
     }
 
-    renderer.create(<ProviderMock client={client}><Hider /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Hider /></ApolloProvider>);
   });
 
 
@@ -726,7 +721,7 @@ describe('queries', () => {
       }
     }
 
-    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
   });
 
   // XXX broken in AC 0.4.20
@@ -784,7 +779,7 @@ describe('queries', () => {
   //     }
   //   }
 
-  //   renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+  //   renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
   // });
 
   it('reruns the query if just the variables change', (done) => {
@@ -840,7 +835,7 @@ describe('queries', () => {
       }
     }
 
-    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
   });
 
   it('reruns the queries on prop change when using passed props', (done) => {
@@ -896,7 +891,7 @@ describe('queries', () => {
       }
     }
 
-    renderer.create(<ProviderMock client={client}><ChangingProps /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
   });
 
   it('stays subscribed to updates after irrelevant prop changes', (done) => {
@@ -948,7 +943,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Parent /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
   });
 
   it('exposes refetch as part of the props api', (done) => {
@@ -997,7 +992,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container first={1} /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container first={1} /></ApolloProvider>);
   });
 
   // Failing because fetchMore is not bound w/ createBoundRefetch either,
@@ -1055,7 +1050,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('exposes stopPolling as part of the props api', (done) => {
@@ -1077,7 +1072,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('exposes subscribeToMore as part of the props api', (done) => {
@@ -1098,7 +1093,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('exposes startPolling as part of the props api', (done) => {
@@ -1122,7 +1117,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
 
@@ -1158,7 +1153,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   // XXX: this does not occur at the moment. When we add networkStatus, we should
@@ -1204,7 +1199,7 @@ describe('queries', () => {
   //     }
   //   };
   //
-  //   renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+  //   renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   // });
 
   it('allows a polling query to be created', (done) => {
@@ -1224,7 +1219,7 @@ describe('queries', () => {
       return null;
     });
 
-    const wrapper = renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    const wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
 
     setTimeout(() => {
       expect(count).toBe(3);
@@ -1245,7 +1240,7 @@ describe('queries', () => {
       return null;
     });
 
-    const wrapper = renderer.create(<ProviderMock client={client}><ContainerWithData /></ProviderMock>);
+    const wrapper = renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     (wrapper as any).unmount();
   });
 
@@ -1265,7 +1260,7 @@ describe('queries', () => {
     });
 
     const wrapper = renderer.create(
-      <ProviderMock client={client}><ContainerWithData sample={1} /></ProviderMock>
+      <ApolloProvider client={client}><ContainerWithData sample={1} /></ApolloProvider>
     );
     (wrapper as any).unmount();
   });
@@ -1287,7 +1282,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('allows context through updates', (done) => {
@@ -1353,13 +1348,13 @@ describe('queries', () => {
     };
 
     renderer.create(
-      <ProviderMock client={client}>
+      <ApolloProvider client={client}>
         <ContextContainer>
           <Container>
             <ChildContextContainer />
           </Container>
         </ContextContainer>
-      </ProviderMock>);
+      </ApolloProvider>);
   });
 
   it('exposes updateQuery as part of the props api', (done) => {
@@ -1384,7 +1379,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('exposes updateQuery as part of the props api during componentWillMount', (done) => {
@@ -1405,7 +1400,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('updateQuery throws if called before data has returned', (done) => {
@@ -1432,7 +1427,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('allows updating query results after query has finished (early binding)', (done) => {
@@ -1469,7 +1464,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('allows updating query results after query has finished', (done) => {
@@ -1502,7 +1497,7 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('reruns props function after query results change via fetchMore', (done) => {
@@ -1563,6 +1558,6 @@ describe('queries', () => {
       }
     };
 
-    renderer.create(<ProviderMock client={client}><Container /></ProviderMock>);
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 });

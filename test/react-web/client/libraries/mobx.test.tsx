@@ -9,13 +9,8 @@ import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
 
-import {
-  ProviderMock,
-} from '../../../mocks/components';
-import mockNetworkInterface from '../../../mocks/mockNetworkInterface';
-
-
-import graphql from '../../../../src/graphql';
+import { mockNetworkInterface } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('mobx integration', () => {
 
@@ -75,9 +70,9 @@ describe('mobx integration', () => {
 
     const appState = new AppState();
     mount(
-      <ProviderMock client={client}>
+      <ApolloProvider client={client}>
         <Container appState={appState} />
-      </ProviderMock>
+      </ApolloProvider>
     ) as any;
 
   });
