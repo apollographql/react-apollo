@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { MockedProvider } from '../../../lib/src/test-utils';
+import { MockedProvider } from '../../../lib/test-utils';
 import { print } from 'graphql-tag/printer';
 import { addTypenameToDocument } from 'apollo-client/queries/queryTransform';
 

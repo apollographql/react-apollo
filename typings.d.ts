@@ -1,5 +1,10 @@
 /// <reference path="./node_modules/typed-graphql/graphql.d.ts" />
 
+declare namespace NodeJS {
+  interface Process {
+    browser: boolean;
+  }
+}
 
 /*
   LODASH

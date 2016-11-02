@@ -2,15 +2,15 @@
   "name": "react-apollo",
   "version": "0.5.16",
   "description": "React data container for Apollo Client",
-  "main": "index.js",
-  "typings": "index.d.ts",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
     "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=15",
     "compile": "tsc",
-    "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/src/index.js --i react --i apollo-client -o=./dist/index.js && npm run minify:browser",
+    "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/index.js -t bpb -t unreachable-branch-transform --i react --i apollo-client -o=./dist/index.js && npm run minify:browser",
     "minify:browser": "uglifyjs --compress --mangle --screw-ie8 -o=./dist/index.min.js -- ./dist/index.js",
     "watch": "tsc -w",
     "lint": "tslint 'src/*.ts*' && tslint 'test/*.ts*'"
@@ -48,6 +48,15 @@
     "collectCoverage": true
   },
   "license": "MIT",
+  "files": [
+    "dist",
+    "lib",
+    "src",
+    "exports.d.ts",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
   "peerDependencies": {
     "apollo-client": "^0.4.21 || ^0.5.0",
     "react": "0.14.x || 15.* || ^15.0.0",
@@ -73,6 +82,7 @@
     "apollo-client": "0.5.0-1",
     "babel-jest": "^14.1.0",
     "babel-preset-react-native": "^1.9.0",
+    "bpb": "^0.2.2",
     "browserify": "^13.0.0",
     "cheerio": "^0.20.0",
     "colors": "^1.1.2",
@@ -109,7 +119,8 @@
     "typescript": "^2.0.3",
     "typescript-require": "^0.2.9-1",
     "typings": "^0.7.9",
-    "uglify-js": "^2.6.2"
+    "uglify-js": "^2.6.2",
+    "unreachable-branch-transform": "^0.5.1"
   },
   "dependencies": {
     "hoist-non-react-statics": "^1.2.0",
