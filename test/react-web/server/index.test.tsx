@@ -2,9 +2,10 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { createNetworkInterface, createFragment } from 'apollo-client';
 import { graphql, ApolloProvider } from '../../../src';
-import { getDataFromTree, renderToStringWithData } from '../../../src/server';
+import { walkTree, getDataFromTree, renderToStringWithData } from '../../../src/server';
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
+import * as _ from 'lodash';
 
 import { mockNetworkInterface } from '../../../src/test-utils';
 
@@ -30,6 +31,62 @@ describe('SSR', () => {
   //     done(e);
   //   }
   // });
+
+  describe('`walkTree`', () => {
+    describe('traversal', () => {
+      it('basic element trees', () => {
+        let elementCount = 0;
+        const rootElement = <div><span>Foo</span><span>Bar</span></div>;
+        walkTree(rootElement, {}, (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(5);
+      });
+
+      it('functional stateless components', () => {
+        let elementCount = 0;
+        const MyComponent = ({ n }) => <div>{_.times(n, (i) => <span key={i} />)}</div>;
+        walkTree(<MyComponent n={5}/>, {}, (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(7);
+      });
+
+      it('functional stateless components with children', () => {
+        let elementCount = 0;
+        const MyComponent = ({ n, children=null }) =>
+          <div>{_.times(n, (i) => <span key={i} />)}{children}</div>;
+        walkTree(<MyComponent n={5}><span>Foo</span></MyComponent>, {},
+          (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(9);
+      });
+
+      it('basic classes', () => {
+        let elementCount = 0;
+        class MyComponent extends React.Component<any, any> {
+          render() {
+            return <div>{_.times(this.props.n, (i) => <span key={i} />)}</div>;
+          }
+        }
+        walkTree(<MyComponent n={5}/>, {}, (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(7);
+      });
+
+      it('basic classes with children', () => {
+        let elementCount = 0;
+        class MyComponent extends React.Component<any, any> {
+          render() {
+            return (
+              <div>
+                {_.times(this.props.n, (i) => <span key={i} />)}
+                {this.props.children}
+              </div>
+            );
+          }
+        }
+        walkTree(<MyComponent n={5}><span>Foo</span></MyComponent>, {},
+          (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(9);
+      });
+    });
+
+  });
 
   describe('`getDataFromTree`', () => {
     it('should run through all of the queries that want SSR', () => {
@@ -177,29 +234,6 @@ describe('SSR', () => {
         ;
     });
 
-    it('should run return the initial state for hydration', () => {
-      const query = gql`{ currentUser { firstName } }`;
-      const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface(
-        { request: { query }, result: { data }, delay: 50 }
-      );
-      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
-
-      const WrappedElement = graphql(query)(({ data }) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
-      ));
-
-      const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
-
-      return getDataFromTree(app)
-        .then(({ store }) => {
-          const initialState = store.getState();
-          expect(initialState.apollo.data).toBeTruthy();
-          expect(initialState.apollo.data['$ROOT_QUERY.currentUser']).toBeTruthy();
-        })
-        ;
-    });
-
     it('should use the correct default props for a query', () => {
       const query = gql`query user($id: ID) { currentUser(id: $id){ firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
@@ -216,8 +250,8 @@ describe('SSR', () => {
       const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
 
       return getDataFromTree(app)
-        .then(({ store }) => {
-          const initialState = store.getState();
+        .then(() => {
+          const initialState = apolloClient.store.getState();
           expect(initialState.apollo.data).toBeTruthy();
           expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
         })
@@ -252,8 +286,8 @@ describe('SSR', () => {
       const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
 
       getDataFromTree(app)
-        .then(({ store }) => {
-          const initialState = store.getState();
+        .then(() => {
+          const initialState = apolloClient.store.getState();
           expect(initialState.apollo.data).toBeTruthy();
           expect(initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
           done();
@@ -281,8 +315,8 @@ describe('SSR', () => {
       const app = (<ApolloProvider client={apolloClient}><Element id={1} /></ApolloProvider>);
 
       return getDataFromTree(app)
-        .then(({ store }) => {
-          const initialState = store.getState();
+        .then(() => {
+          const initialState = apolloClient.store.getState();
           expect(initialState.apollo.queries).toEqual({});
           expect(initialState.apollo.data).toEqual({});
         })
@@ -529,8 +563,7 @@ describe('SSR', () => {
       );
 
       return renderToStringWithData(app)
-        .then(({ markup, initialState }) => {
-          expect(initialState.apollo).toBeTruthy();
+        .then((markup) => {
           expect(markup).toMatch(/CR90 corvette/);
           expect(markup).toMatch(/Return of the Jedi/);
           expect(markup).toMatch(/A New Hope/);
@@ -563,9 +596,9 @@ describe('SSR', () => {
       );
 
       return renderToStringWithData(app)
-          .then(({ markup }) => {
+          .then((markup) => {
             expect(markup).toMatch(/John Smith/);
-          })
+          });
     });
   });
 });
