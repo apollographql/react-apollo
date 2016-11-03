@@ -2453,7 +2453,7 @@ fbjs-scripts@^0.7.0:
     semver "^5.1.0"
     through2 "^2.0.0"
 
-fbjs@^0.8.1, fbjs@^0.8.3, fbjs@^0.8.4:
+fbjs@^0.8.3, fbjs@^0.8.4:
   version "0.8.5"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.5.tgz#f69ba8a876096cb1b9bffe4d7c1e71c19d39d008"
   dependencies:
@@ -5143,9 +5143,9 @@ rc@^1.0.1, rc@^1.1.2, rc@^1.1.5, rc@^1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~1.0.4"
 
-react-addons-test-utils@15.4.0-rc.4:
-  version "15.4.0-rc.4"
-  resolved "https://registry.yarnpkg.com/react-addons-test-utils/-/react-addons-test-utils-15.4.0-rc.4.tgz#90a29630bacb6964ca907a0f7c6a447a0e5625e1"
+react-addons-test-utils@15.3.2:
+  version "15.3.2"
+  resolved "https://registry.yarnpkg.com/react-addons-test-utils/-/react-addons-test-utils-15.3.2.tgz#c09a44f583425a4a9c1b38444d7a6c3e6f0f41f6"
 
 react-clone-referenced-element@^1.0.1:
   version "1.0.1"
@@ -5155,13 +5155,9 @@ react-deep-force-update@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-1.0.1.tgz#f911b5be1d2a6fe387507dd6e9a767aa2924b4c7"
 
-react-dom@15.4.0-rc.4:
-  version "15.4.0-rc.4"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.4.0-rc.4.tgz#e95bbe99d47aeefd60bad9a0502ca926283d960a"
-  dependencies:
-    fbjs "^0.8.1"
-    loose-envify "^1.1.0"
-    object-assign "^4.1.0"
+react-dom@15.3.2:
+  version "15.3.2"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.3.2.tgz#c46b0aa5380d7b838e7a59c4a7beff2ed315531f"
 
 react-native@^0.36.0:
   version "0.36.0"
@@ -5255,9 +5251,9 @@ react-redux@^4.4.5:
     lodash "^4.2.0"
     loose-envify "^1.1.0"
 
-react-test-renderer@15.4.0-rc.4:
-  version "15.4.0-rc.4"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-15.4.0-rc.4.tgz#49ee184c0bb50195f8f588f452dc6f0dbc735f40"
+react-test-renderer@15.3.2:
+  version "15.3.2"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-15.3.2.tgz#d8f083d37d2d41e97bbdc26a1dd9282f0baf7857"
 
 react-timer-mixin@^0.13.2:
   version "0.13.3"
@@ -5270,9 +5266,9 @@ react-transform-hmr@^1.0.4:
     global "^4.3.0"
     react-proxy "^1.1.7"
 
-react@15.4.0-rc.4:
-  version "15.4.0-rc.4"
-  resolved "https://registry.yarnpkg.com/react/-/react-15.4.0-rc.4.tgz#09d08dd266a9088db963399dfdf814377e9a74dc"
+react@15.3.2:
+  version "15.3.2"
+  resolved "https://registry.yarnpkg.com/react/-/react-15.3.2.tgz#a7bccd2fee8af126b0317e222c28d1d54528d09e"
   dependencies:
     fbjs "^0.8.4"
     loose-envify "^1.1.0"
