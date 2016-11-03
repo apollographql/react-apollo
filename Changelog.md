@@ -4,6 +4,17 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+#### Breaking
+```js
+// old
+import { getDataFromTree, renderToStringWithData } from 'react-apollo/server'
+
+// new
+import { getDataFromTree, renderToStringWithData } from 'react-apollo'
+```
+
+- Feature: Better packaging [PR #306](https://github.com/apollostack/react-apollo/pull/306)
+
 ### v0.5.15
 - Feature: Added test utilities and examples to library.
 

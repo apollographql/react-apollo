@@ -7,7 +7,7 @@
     "sourceMap": true,
     "declaration": true,
     "noImplicitAny": false,
-    "rootDir": ".",
+    "rootDir": "src",
     "outDir": "lib",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
