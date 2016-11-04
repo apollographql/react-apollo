@@ -105,6 +105,7 @@ export function getDataFromTree(app, ctx: any = {}, fetch: boolean = true): Prom
 export function renderToStringWithData(component) {
   return getDataFromTree(component)
     .then(({ client }) => {
+      client.initStore();
       let markup = ReactDOM.renderToString(component);
       let apolloState = client.queryManager.getApolloState();
 
