@@ -246,7 +246,7 @@ describe('SSR', () => {
       const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
       const WrappedElement = graphql(query, { options: { skip: true }})(({ data }) => (
-        <div>{data.loading ? 'loading' : 'skipped'}</div>
+        <div>{data ? 'loading' : 'skipped'}</div>
       ));
 
       const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);

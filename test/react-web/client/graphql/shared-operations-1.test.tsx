@@ -144,7 +144,7 @@ describe('shared operations', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data.loading).toBe(false);
+        expect(this.props.data).toBeUndefined;
         return null;
       }
     };
