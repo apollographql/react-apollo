@@ -52,15 +52,6 @@ export declare interface QueryOptions {
   skip?: boolean;
 }
 
-const defaultQueryData = {
-  loading: true,
-  error: null,
-};
-const skippedQueryData = {
-  loading: false,
-  error: null,
-};
-
 const defaultMapPropsToOptions = props => ({});
 const defaultMapResultToProps = props => props;
 const defaultMapPropsToSkip = props => false;
@@ -412,7 +403,7 @@ export default function graphql(
       }
 
       shouldSkip(props) {
-        return shouldSkip(props)
+        return shouldSkip(props);
       }
 
       forceRenderChildren() {
@@ -449,7 +440,7 @@ export default function graphql(
         if (this.type === DocumentType.Subscription) {
           assign(data, {
             loading: !this.lastSubscriptionData,
-            variables: opts.variables
+            variables: opts.variables,
           }, this.lastSubscriptionData);
 
         } else {
