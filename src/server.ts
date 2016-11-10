@@ -48,6 +48,9 @@ export function walkTree(
     //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
     if (Component.prototype && Component.prototype.isReactComponent) {
       const instance = new Component(props, context);
+      // In case the user doesn't pass these to super in the constructor
+      instance.props = instance.props || props;
+      instance.context = instance.context || context;
 
       // Override setState to just change the state, not queue up an update.
       //   (we can't do the default React thing as we aren't mounted "properly"
@@ -63,7 +66,6 @@ export function walkTree(
         instance.componentWillMount();
       }
 
-
       if (instance.getChildContext) {
         childContext = assign({}, context, instance.getChildContext());
       }
@@ -73,12 +75,15 @@ export function walkTree(
       child = Component(props, context);
     }
 
-    walkTree(child, childContext, visitor);
-
+    if (child) {
+      walkTree(child, childContext, visitor);
+    }
   } else { // a basic string or dom element, just get children
     if (element.props && element.props.children) {
       Children.forEach(element.props.children, (child: any) => {
-        walkTree(child, context, visitor);
+        if (child) {
+          walkTree(child, context, visitor);
+        }
       });
     }
   }

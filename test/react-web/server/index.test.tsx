@@ -41,6 +41,13 @@ describe('SSR', () => {
         expect(elementCount).toEqual(5);
       });
 
+      it('basic element trees with nulls', () => {
+        let elementCount = 0;
+        const rootElement = <div>{null}</div>;
+        walkTree(rootElement, {}, (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(1);
+      });
+
       it('functional stateless components', () => {
         let elementCount = 0;
         const MyComponent = ({ n }) => <div>{_.times(n, (i) => <span key={i} />)}</div>;
@@ -57,9 +64,50 @@ describe('SSR', () => {
         expect(elementCount).toEqual(9);
       });
 
+      it('functional stateless components with null children', () => {
+        let elementCount = 0;
+        const MyComponent = ({ n, children=null }) =>
+          <div>{_.times(n, (i) => <span key={i} />)}{children}</div>;
+        walkTree(<MyComponent n={5}>{null}</MyComponent>, {},
+          (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(7);
+      });
+
+      it('functional stateless components that render null', () => {
+        let elementCount = 0;
+        const MyComponent = () => null;
+        walkTree(<MyComponent/>, {}, (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(1);
+      });
+
       it('basic classes', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
+          render() {
+            return <div>{_.times(this.props.n, (i) => <span key={i} />)}</div>;
+          }
+        }
+        walkTree(<MyComponent n={5}/>, {}, (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(7);
+      });
+
+      it('basic classes components that render null', () => {
+        let elementCount = 0;
+        class MyComponent extends React.Component<any, any> {
+          render() {
+            return null;
+          }
+        }
+        walkTree(<MyComponent/>, {}, (element) => { elementCount += 1 });
+        expect(elementCount).toEqual(1);
+      });
+
+      it('basic classes with incomplete constructors', () => {
+        let elementCount = 0;
+        class MyComponent extends React.Component<any, any> {
+          constructor() {
+            super(); // note doesn't pass props or context
+          }
           render() {
             return <div>{_.times(this.props.n, (i) => <span key={i} />)}</div>;
           }
