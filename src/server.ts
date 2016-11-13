@@ -3,7 +3,6 @@ import { Children } from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import assign = require('object-assign');
-import flatten = require('lodash.flatten');
 
 
 declare interface Context {
@@ -13,107 +12,132 @@ declare interface Context {
 }
 
 declare interface QueryTreeArgument {
-  component: any;
-  queries?: any[];
-  context?: Context;
+  rootElement: any;
+  rootContext?: Context;
 }
 
-export function getPropsFromChild(child) {
-  const { props, type } = child;
-  let ownProps = assign({}, props);
-  if (type && type.defaultProps) ownProps = assign({}, type.defaultProps, props);
-  return ownProps;
+declare interface QueryResult {
+  query: Promise<any>;
+  element: any;
+  context: any;
 }
 
-export function getChildFromComponent(component) {
-  // See if this is a class, or stateless function
-  if (component && component.render) return component.render();
-  return component;
-}
-
-let contextStore = {};
-function getQueriesFromTree(
-  { component, context = {}, queries = []}: QueryTreeArgument, fetch: boolean = true
+// Recurse an React Element tree, running visitor on each element.
+// If visitor returns `false`, don't call the element's render function
+//   or recurse into it's child elements
+export function walkTree(
+  element: any,
+  context: any,
+  visitor: (element: any, context: any) => boolean | void
 ) {
-  contextStore = assign({}, contextStore, context);
-  if (!component) return;
+  // console.log(element)
+  const shouldContinue = visitor(element, context);
 
-  // stateless function
-  if (typeof component === 'function') component = { type: component };
-  const { type, props } = component;
-
-  if (typeof type === 'function') {
-    let ComponentClass = type;
-    let ownProps = getPropsFromChild(component);
-    const Component = new ComponentClass(ownProps, context);
-    try {
-      Component.props = ownProps;
-      Component.context = context;
-      Component.setState = (newState: any) => {
-        Component.state = assign({}, Component.state, newState);
-      };
-    } catch (e) {} // tslint:disable-line
-    if (Component.componentWillMount) Component.componentWillMount();
-
-    let newContext = context;
-    if (Component.getChildContext) newContext = assign({}, context, Component.getChildContext());
-
-    // see if there is a fetch data method
-    if (typeof type.fetchData === 'function' && fetch) {
-      const query = type.fetchData(ownProps, newContext);
-      if (query) queries.push({ query, component });
-    }
-
-    getQueriesFromTree({
-      component: getChildFromComponent(Component),
-      context: newContext,
-      queries,
-    });
-  } else if (props && props.children) {
-    Children.forEach(props.children, (child: any) => getQueriesFromTree({
-      component: child,
-      context,
-      queries,
-    }));
+  if (shouldContinue === false) {
+    return;
   }
 
-  return { queries, context: contextStore };
+  const Component = element.type;
+  // a stateless functional component or a class
+  if (typeof Component === 'function') {
+    const props = assign({}, Component.defaultProps, element.props);
+    let childContext = context;
+    let child;
+
+    // Are we are a react class?
+    //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
+    if (Component.prototype && Component.prototype.isReactComponent) {
+      const instance = new Component(props, context);
+      // In case the user doesn't pass these to super in the constructor
+      instance.props = instance.props || props;
+      instance.context = instance.context || context;
+
+      // Override setState to just change the state, not queue up an update.
+      //   (we can't do the default React thing as we aren't mounted "properly"
+      //   however, we don't need to re-render as well only support setState in
+      //   componentWillMount, which happens *before* render).
+      instance.setState = (newState) => {
+        instance.state = assign({}, instance.state, newState);
+      };
+
+      // this is a poor man's version of
+      //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
+      if (instance.componentWillMount) {
+        instance.componentWillMount();
+      }
+
+      if (instance.getChildContext) {
+        childContext = assign({}, context, instance.getChildContext());
+      }
+
+      child = instance.render();
+    } else { // just a stateless functional
+      child = Component(props, context);
+    }
+
+    if (child) {
+      walkTree(child, childContext, visitor);
+    }
+  } else { // a basic string or dom element, just get children
+    if (element.props && element.props.children) {
+      Children.forEach(element.props.children, (child: any) => {
+        if (child) {
+          walkTree(child, context, visitor);
+        }
+      });
+    }
+  }
+}
+
+function getQueriesFromTree(
+  { rootElement, rootContext = {} }: QueryTreeArgument, fetchRoot: boolean = true
+): QueryResult[] {
+  const queries = [];
+
+  walkTree(rootElement, rootContext, (element, context) => {
+    const Component = element.type || element;
+
+    const skipRoot = !fetchRoot && (element === rootElement);
+    if (typeof Component.fetchData === 'function' && !skipRoot) {
+      const props = assign({}, Component.defaultProps, element.props);
+      const query = Component.fetchData(props, context);
+      if (query) {
+        queries.push({ query, element, context });
+
+        // Tell walkTree to not recurse inside this component;  we will
+        // wait for the query to execute before attempting it.
+        return false;
+      }
+    }
+  });
+
+  return queries;
 }
 
 // XXX component Cache
-export function getDataFromTree(app, ctx: any = {}, fetch: boolean = true): Promise<any> {
+export function getDataFromTree(rootElement, rootContext: any = {}, fetchRoot: boolean = true): Promise<void> {
 
-  // reset for next loop
-  contextStore = {};
-  let { context, queries } = getQueriesFromTree({ component: app, context: ctx }, fetch);
-  // reset for next loop
-  contextStore = {};
+  let queries = getQueriesFromTree({ rootElement, rootContext }, fetchRoot);
 
   // no queries found, nothing to do
-  if (!queries.length) return Promise.resolve(context);
+  if (!queries.length) return Promise.resolve();
 
-  const mappedQueries = flatten(queries).map(y => y.query.then(x => y));
-  // run through all queries we can
-  return Promise.all(mappedQueries)
-    .then(trees => Promise.all(trees.filter(x => !!x).map((x: any) => {
-      return getDataFromTree(x.component, context, false); // don't rerun `fetchData'
-    })))
-    .then(() => (context));
-
+  // wait on each query that we found, re-rendering the subtree when it's done
+  const mappedQueries = queries.map(({ query, element, context }) =>  {
+    // we've just grabbed the query for element, so don't try and get it again
+    return query.then(_ => getDataFromTree(element, context, false));
+  });
+  return Promise.all(mappedQueries).then(_ => null);
 }
 
 export function renderToStringWithData(component) {
   return getDataFromTree(component)
-    .then(({ client }) => {
-      let markup = ReactDOM.renderToString(component);
-      let apolloState = client.queryManager.getApolloState();
+    .then(() => ReactDOM.renderToString(component));
+}
 
-      for (let queryId in apolloState.queries) {
-        let fieldsToNotShip = ['minimizedQuery', 'minimizedQueryString'];
-        for (let field of fieldsToNotShip) delete apolloState.queries[queryId][field];
-      }
-
-      // it's OK, because apolloState is nested somewhere in globalState
-      return { markup, initialState: client.store.getState() };
-    });
+export function cleanupApolloState(apolloState) {
+  for (let queryId in apolloState.queries) {
+    let fieldsToNotShip = ['minimizedQuery', 'minimizedQueryString'];
+    for (let field of fieldsToNotShip) delete apolloState.queries[queryId][field];
+  }
 }
