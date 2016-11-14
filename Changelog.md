@@ -4,6 +4,29 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.6.0
+
+#### Breaking
+```js
+// old -- we attempted to get the state out of your apollo provider for your
+renderToStringWithData(component).then({ markup, initialState })
+
+// new -- you must get it yourself
+renderToStringWithData(component).then(markup => {
+  const initialState = client.store.getState()[client.reduxRootKey];
+
+  // ...
+});
+
+```
+
+This release refactors the server side rendering and data access code, hopefully making it easier to contribute to in the future and fixing a few bugs along the way:
+
+- Bug: Fix bug in SSR in React Production mode [Issue #237](https://github.com/apollostack/react-apollo/issues/237)
+- Bug: Fix issue fetching multiple levels of queries [Issue #250](https://github.com/apollostack/react-apollo/issues/250)
+- Bug: Fix issue with Stateless components in SSR [Issue #297](https://github.com/apollostack/react-apollo/issues/297)
+- Feature: Refactored to collect data in one place [Issue 264](https://github.com/apollostack/react-apollo/issues/264)
+
 ### v0.5.15
 - Feature: Added test utilities and examples to library.
 
