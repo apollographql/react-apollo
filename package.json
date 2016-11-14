@@ -46,6 +46,9 @@
       "js",
       "json"
     ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/examples"
+    ],
     "testRegex": "<rootDir>/test/.*.test.(ts|tsx|js)$",
     "collectCoverage": true
   },
