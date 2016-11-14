@@ -4,8 +4,7 @@ import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
-import ApolloClient from 'apollo-client';
-import { ApolloError } from 'apollo-client';
+import ApolloClient, { ApolloError } from 'apollo-client';
 import { connect } from 'react-redux';
 
 declare function require(name: string);
@@ -157,7 +156,7 @@ describe('queries', () => {
     @graphql(query)
     class ErrorContainer extends React.Component<any, any> {
       componentWillReceiveProps({ data }) { // tslint:disable-line
-        expect(data.error).toBeTruthy();;
+        expect(data.error).toBeTruthy();
         expect(data.error instanceof ApolloError).toBe(true);
         done();
       }
@@ -327,7 +326,7 @@ describe('queries', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data.loading).toBe(false);
+        expect(this.props.data).toBeUndefined();
         return null;
       }
     };
@@ -353,7 +352,7 @@ describe('queries', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data).toBeFalsy();
+        expect(this.props.data).toBeUndefined();
         return null;
       }
     };

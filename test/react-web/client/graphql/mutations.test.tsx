@@ -187,7 +187,7 @@ describe('mutations', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     function options(props) {
-      expect(props.listId).toBe(2);
+      // expect(props.listId).toBe(2);
       return {};
     };
 
@@ -369,8 +369,7 @@ describe('mutations', () => {
           props.mutate()
             .then(result => {
               expect(result.data).toEqual(mutationData);
-            })
-            ;
+            });
 
           const dataInStore = client.queryManager.getDataWithOptimisticResults();
           expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(

@@ -52,15 +52,6 @@ export declare interface QueryOptions {
   skip?: boolean;
 }
 
-const defaultQueryData = {
-  loading: true,
-  error: null,
-};
-const skippedQueryData = {
-  loading: false,
-  error: null,
-};
-
 const defaultMapPropsToOptions = props => ({});
 const defaultMapResultToProps = props => props;
 const defaultMapPropsToSkip = props => false;
@@ -194,8 +185,12 @@ export default function graphql(
       return opts;
     }
 
+    function shouldSkip(props) {
+      return mapPropsToSkip(props) || (mapPropsToOptions(props) as QueryOptions).skip;
+    }
+
     function fetchData(props, { client }) {
-      if (mapPropsToSkip(props)) return false;
+      if (shouldSkip(props)) return false;
       if (
         operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
       ) return false;
@@ -233,17 +228,17 @@ export default function graphql(
       // data storage
       private store: ApolloStore;
       private client: ApolloClient; // apollo client
-      private data: any = {}; // apollo data
       private type: DocumentType;
 
       // request / action storage. Note that we delete querySubscription if we
       // unsubscribe but never delete queryObservable once it is created.
       private queryObservable: ObservableQuery | any;
       private querySubscription: Subscription;
+      private previousData: any = {};
+      private lastSubscriptionData: any;
 
       // calculated switches to control rerenders
-      private haveOwnPropsChanged: boolean;
-      private hasOperationDataChanged: boolean;
+      private shouldRerender: boolean;
 
       // the element to render
       private renderedElement: any;
@@ -263,7 +258,7 @@ export default function graphql(
 
         this.type = operation.type;
 
-        if (mapPropsToSkip(props)) return;
+        if (this.shouldSkip(props)) return;
         this.setInitialProps();
       }
 
@@ -271,33 +266,34 @@ export default function graphql(
         this.hasMounted = true;
         if (this.type === DocumentType.Mutation) return;
 
-        if (mapPropsToSkip(this.props)) return;
-        this.subscribeToQuery(this.props);
+        if (!this.shouldSkip(this.props)) {
+          this.subscribeToQuery(this.props);
+        }
       }
 
       componentWillReceiveProps(nextProps) {
-        if (mapPropsToSkip(nextProps)) {
-          if (!mapPropsToSkip(this.props)) {
-            // if this has changed, remove data and unsubscribeFromQuery
-            this.data = assign({}, skippedQueryData) as any;
+        if (shallowEqual(this.props, nextProps)) return;
+
+        this.shouldRerender = true;
+
+        if (this.type === DocumentType.Mutation) {
+          return;
+        };
+
+        if (this.shouldSkip(nextProps)) {
+          if (!this.shouldSkip(this.props)) {
+            // if this has changed, we better unsubscribe
             this.unsubscribeFromQuery();
           }
           return;
         }
-        if (shallowEqual(this.props, nextProps)) return;
-
-        if (this.type === DocumentType.Mutation) {
-          this.createWrappedMutation(nextProps, true);
-          return;
-        };
 
         // we got new props, we need to unsubscribe and re-subscribe with the new data
-        this.haveOwnPropsChanged = true;
         this.subscribeToQuery(nextProps);
       }
 
       shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return !!nextContext || this.haveOwnPropsChanged || this.hasOperationDataChanged;
+        return !!nextContext || this.shouldRerender;
       }
 
       componentWillUnmount() {
@@ -320,18 +316,15 @@ export default function graphql(
       }
 
       setInitialProps() {
-        if (this.type === DocumentType.Mutation) return this.createWrappedMutation(this.props);
+        if (this.type === DocumentType.Mutation) {
+          return;
+        }
 
         // Create the observable but don't subscribe yet. The query won't
         // fire until we do.
         const opts: QueryOptions = this.calculateOptions(this.props);
 
-        if (opts.skip) {
-          this.data = assign({}, skippedQueryData) as any;
-        } else {
-          this.data = assign({}, defaultQueryData) as any;
-          this.createQuery(opts);
-        }
+        this.createQuery(opts);
       }
 
       createQuery(opts: QueryOptions) {
@@ -344,37 +337,10 @@ export default function graphql(
             query: document,
           }, opts));
         }
-
-        this.initializeData(opts);
-      }
-
-      initializeData(opts: QueryOptions) {
-        assign(this.data, observableQueryFields(this.queryObservable));
-
-        if (this.type === DocumentType.Subscription) {
-          opts = this.calculateOptions(this.props, opts);
-          assign(this.data, { loading: true }, { variables: opts.variables });
-        } else if (!opts.forceFetch) {
-          const currentResult = this.queryObservable.currentResult();
-          // try and fetch initial data from the store
-          assign(this.data, currentResult.data, { loading: currentResult.loading });
-        } else {
-          assign(this.data, { loading: true });
-        }
       }
 
       subscribeToQuery(props): boolean {
         const opts = calculateOptions(props) as QueryOptions;
-
-        if (opts.skip) {
-          if (this.querySubscription) {
-            this.hasOperationDataChanged = true;
-            this.data = assign({}, skippedQueryData) as any;
-            this.unsubscribeFromQuery();
-            this.forceRenderChildren();
-          }
-          return;
-        }
 
         // We've subscribed already, just update with our new options and
         // take the latest result
@@ -388,42 +354,28 @@ export default function graphql(
             this.queryObservable.setOptions(opts);
           }
 
-          // Ensure we are up-to-date with the latest state of the world
-          assign(this.data,
-            { loading: this.queryObservable.currentResult().loading },
-            observableQueryFields(this.queryObservable)
-          );
-
           return;
         }
 
         // if we skipped initially, we may not have yet created the observable
         if (!this.queryObservable) {
           this.createQuery(opts);
-        } else if (!this.data.refetch) {
-          // we've run this query before, but then we've skipped it (resetting
-          // data to skippedQueryData) and now we're unskipping it. Make sure
-          // the data fields are set as if we hadn't run it.
-          this.initializeData(opts);
         }
 
         const next = (results: any) => {
           if (this.type === DocumentType.Subscription) {
-            results = { data: results, loading: false, error: null };
+            // Subscriptions don't currently support `currentResult`, so we
+            // need to do this ourselves
+            this.lastSubscriptionData = results;
+
+            results = { data: results };
           }
-          const { data, loading, error = null } = results;
-          const clashingKeys = Object.keys(observableQueryFields(data));
+          const clashingKeys = Object.keys(observableQueryFields(results.data));
           invariant(clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
             `conflict with the return object.` +
             clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
           );
-
-          this.hasOperationDataChanged = true;
-          this.data = assign({
-            loading,
-            error,
-          }, data, observableQueryFields(this.queryObservable));
 
           this.forceRenderChildren();
         };
@@ -450,8 +402,13 @@ export default function graphql(
         }
       }
 
+      shouldSkip(props) {
+        return shouldSkip(props);
+      }
+
       forceRenderChildren() {
         // force a rerender that goes through shouldComponentUpdate
+        this.shouldRerender = true;
         if (this.hasMounted) this.setState({});
       }
 
@@ -464,36 +421,58 @@ export default function graphql(
         return (this.refs as any).wrappedInstance;
       }
 
-      createWrappedMutation(props: any, reRender = false) {
-        if (this.type !== DocumentType.Mutation) return;
+      dataForChild() {
+        if (this.type === DocumentType.Mutation) {
+          return (mutationOpts: MutationOptions) => {
+            const opts = this.calculateOptions(this.props, mutationOpts);
 
-        this.data = (opts: MutationOptions) => {
-          opts = this.calculateOptions(props, opts);
+            if (typeof opts.variables === 'undefined') delete opts.variables;
 
-          if (typeof opts.variables === 'undefined') delete opts.variables;
+            (opts as any).mutation = document;
+            return this.client.mutate((opts as any));
+          };
+        }
 
-          (opts as any).mutation = document;
-          return this.client.mutate((opts as any));
-        };
+        const opts = this.calculateOptions(this.props);
+        const data = {};
+        assign(data, observableQueryFields(this.queryObservable));
 
-        if (!reRender) return;
+        if (this.type === DocumentType.Subscription) {
+          assign(data, {
+            loading: !this.lastSubscriptionData,
+            variables: opts.variables,
+          }, this.lastSubscriptionData);
 
-        this.hasOperationDataChanged = true;
-        this.forceRenderChildren();
+        } else {
+          // fetch the current result (if any) from the store
+          const currentResult = this.queryObservable.currentResult();
+          const { loading, error } = currentResult;
+          assign(data, { loading, error });
+
+          if (loading) {
+            // while loading, we should use any previous data we have
+            assign(data, this.previousData, currentResult.data);
+          } else {
+            assign(data, currentResult.data);
+            this.previousData = currentResult.data;
+          }
+        }
+        return data;
       }
 
       render() {
-        if (mapPropsToSkip(this.props)) return createElement(WrappedComponent, this.props);
+        if (this.shouldSkip(this.props)) {
+          return createElement(WrappedComponent, this.props);
+        }
 
-        const { haveOwnPropsChanged, hasOperationDataChanged, renderedElement, props, data } = this;
+        const { shouldRerender, renderedElement, props } = this;
+        this.shouldRerender = false;
 
-        this.haveOwnPropsChanged = false;
-        this.hasOperationDataChanged = false;
-
+        const data = this.dataForChild();
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        if (!haveOwnPropsChanged && !hasOperationDataChanged && renderedElement) {
+        if (!shouldRerender && renderedElement) {
           return renderedElement;
         }
 
