@@ -1119,6 +1119,143 @@ describe('queries', () => {
     renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
+  it('exposes networkStatus as a part of the props api', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true }})
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps({ data }) {
+        expect(data.networkStatus).toBeTruthy();
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>
+    );
+  });
+
+  it('should set the initial networkStatus to 1 (loading)', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true }})
+    class Container extends React.Component<any, any> {
+      constructor({ data: { networkStatus } }) {
+        super();
+        expect(networkStatus).toBe(1);
+        done();
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+        <ApolloProvider client={client}>
+          <Container />
+        </ApolloProvider>
+    );
+  });
+
+  it('should set the networkStatus to 7 (ready) when the query is loaded', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true }})
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps({ data: { networkStatus } }) {
+        expect(networkStatus).toBe(7);
+        done();
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+        <ApolloProvider client={client}>
+          <Container />
+        </ApolloProvider>
+    );
+  });
+
+  it('should set the networkStatus to 2 (setVariables) when the query variables are changed', (done) => {
+    let count = 0;
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) { people { name } }
+      }
+    `;
+
+    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const variables1 = { first: 1 };
+
+    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const variables2 = { first: 2 };
+
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables: variables1 }, result: { data: data1 } },
+      { request: { query, variables: variables2 }, result: { data: data2 } }
+    );
+
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query, { options: (props) => ({ variables: props, notifyOnNetworkStatusChange: true }) })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(nextProps) {
+        // variables changed, new query is loading, but old data is still there
+        if (count === 1 && nextProps.data.loading) {
+          expect(nextProps.data.networkStatus).toBe(2);
+          expect(nextProps.data.allPeople).toEqual(data1.allPeople);
+        }
+        // query with new variables is loaded
+        if (count === 1 && !nextProps.data.loading && this.props.data.loading) {
+          expect(nextProps.data.networkStatus).toBe(7);
+          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
+          done();
+        }
+      }
+      render() {
+        return null;
+      }
+    }
+
+    class ChangingProps extends React.Component<any, any> {
+      state = { first: 1 };
+
+      componentDidMount() {
+        setTimeout(() => {
+          count++;
+          this.setState({ first: 2 });
+        }, 50);
+      }
+
+      render() {
+        return <Container first={this.state.first} />;
+      }
+    }
+
+    renderer.create(
+        <ApolloProvider client={client}>
+          <ChangingProps />
+        </ApolloProvider>
+    );
+  });
 
   it('resets the loading state after a refetched query', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
@@ -1130,21 +1267,30 @@ describe('queries', () => {
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
+    let refetched;
     let isRefetching;
-    @graphql(query)
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps = wrap(done, (props) => {
-        // get new data with no more loading state
-        if (isRefetching) {
-          expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople).toEqual(data2.allPeople);
-          done();
+        if (!isRefetching) {
+          isRefetching = true;
+          expect(props.data.networkStatus).toBe(7);
+          props.data.refetch();
           return;
         }
 
-        if (!isRefetching) {
-          isRefetching = true;
-          props.data.refetch();
+        // get new data with no more loading state
+        if (isRefetching) {
+          expect(props.data.loading).toBe(false);
+          expect(props.data.networkStatus).toBe(4);
+          expect(props.data.allPeople).toEqual(data2.allPeople);
+          refetched = true;
+          return;
+        }
+
+        if (refetched) {
+          expect(props.data.networkStatus).toBe(7);
+          done();
         }
       })
       render() {

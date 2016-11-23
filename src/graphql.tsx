@@ -446,8 +446,8 @@ export default function graphql(
         } else {
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
-          const { loading, error } = currentResult;
-          assign(data, { loading, error });
+          const { loading, error, networkStatus } = currentResult;
+          assign(data, { loading, error, networkStatus });
 
           if (loading) {
             // while loading, we should use any previous data we have
