@@ -112,7 +112,7 @@
     "react-dom": "15.3.2",
     "react-native": "^0.36.0",
     "react-redux": "^4.4.5",
-    "react-test-renderer": "15.3.2",
+    "react-test-renderer": "15.4.0-rc.4",
     "redux": "^3.5.2",
     "redux-form": "^6.0.5",
     "redux-immutable": "^3.0.7",

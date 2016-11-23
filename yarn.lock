@@ -5250,9 +5250,9 @@ react-redux@^4.4.5:
     lodash "^4.2.0"
     loose-envify "^1.1.0"
 
-react-test-renderer@15.3.2:
-  version "15.3.2"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-15.3.2.tgz#d8f083d37d2d41e97bbdc26a1dd9282f0baf7857"
+react-test-renderer@15.4.0-rc.4:
+  version "15.4.0-rc.4"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-15.4.0-rc.4.tgz#49ee184c0bb50195f8f588f452dc6f0dbc735f40"
 
 react-timer-mixin@^0.13.2:
   version "0.13.3"
