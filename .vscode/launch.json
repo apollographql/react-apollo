@@ -4,11 +4,12 @@
     {
       "name": "Test",
       "type": "node",
-      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
       "stopOnEntry": false,
-      "args": ["lib/test/tests.js"],
+      "args": ["--runInBand"],
       "cwd": "${workspaceRoot}",
-      "runtimeExecutable": null
+      "runtimeExecutable": null,
+      "request": "launch"
     }
   ]
 }
