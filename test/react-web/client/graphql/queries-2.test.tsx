@@ -12,6 +12,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 
@@ -271,4 +272,76 @@ describe('queries', () => {
 
      mount(<ApolloProvider client={client}><Container /></ApolloProvider>);
    });
+
+  it('recover after failed query', (done) => {
+    const query = gql`query people { allPeople { people { name } } }`;
+    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, result: { data: data1 } },
+      { request: { query }, result: { errors: [new Error("Permission Denied")] } },
+      { request: { query }, result: { data: data1 } }
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let count = 0;
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        count += 1;
+        if (count == 1) {
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.allPeople).toEqual(data1.allPeople);
+          done();
+        } else if (count == 2) {
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.error).toBeTruthy();
+          expect(props.data.allPeople).toEqual(data1.allPeople);
+          props.data.refetch();
+        } else if (count == 3) {
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.allPeople).toEqual(data1.allPeople);
+          done();
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+  });
+
+  it('recover after first query failed', (done) => {
+    const query = gql`query people { allPeople { people { name } } }`;
+    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, result: { errors: [new Error("Permission Denied")] } },
+      { request: { query }, result: { data: data1 } }
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let count = 0;
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        count += 1;
+        if (count == 1) {
+          const notDefined;
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.error).toBeTruthy();
+          expect(props.data.allPeople).toEqual(notDefined);
+          props.data.refetch();
+        } else if (count == 2) {
+          expect(props.data.loading).toEqual(false);
+          expect(props.data.allPeople).toEqual(data1.allPeople);
+          done();
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+  });
 });
