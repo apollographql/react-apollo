@@ -158,6 +158,8 @@ export default function graphql(
         opts.fragments = flatten(opts.fragments);
       }
 
+      opts = assign({}, opts, {noFetch: opts.noFetch || !!shouldSkip(props)});
+
       if (opts.variables || !operation.variables.length) return opts;
 
       let variables = {};
@@ -190,7 +192,6 @@ export default function graphql(
     }
 
     function fetchData(props, { client }) {
-      if (shouldSkip(props)) return false;
       if (
         operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
       ) return false;
@@ -258,7 +259,6 @@ export default function graphql(
 
         this.type = operation.type;
 
-        if (this.shouldSkip(props)) return;
         this.setInitialProps();
       }
 
@@ -266,9 +266,7 @@ export default function graphql(
         this.hasMounted = true;
         if (this.type === DocumentType.Mutation) return;
 
-        if (!this.shouldSkip(this.props)) {
-          this.subscribeToQuery(this.props);
-        }
+        this.subscribeToQuery(this.props);
       }
 
       componentWillReceiveProps(nextProps) {
@@ -280,16 +278,12 @@ export default function graphql(
           return;
         };
 
-        if (this.shouldSkip(nextProps)) {
-          if (!this.shouldSkip(this.props)) {
-            // if this has changed, we better unsubscribe
-            this.unsubscribeFromQuery();
-          }
-          return;
-        }
-
         // we got new props, we need to unsubscribe and re-subscribe with the new data
         this.subscribeToQuery(nextProps);
+
+        if (this.shouldSkip(this.props) && !this.shouldSkip(nextProps)) {
+            this.queryObservable.refetch();
+        }
       }
 
       shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -461,10 +455,6 @@ export default function graphql(
       }
 
       render() {
-        if (this.shouldSkip(this.props)) {
-          return createElement(WrappedComponent, this.props);
-        }
-
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
