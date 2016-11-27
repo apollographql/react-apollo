@@ -282,7 +282,10 @@ export default function graphql(
         this.subscribeToQuery(nextProps);
 
         if (this.shouldSkip(this.props) && !this.shouldSkip(nextProps)) {
-            this.queryObservable.refetch();
+            this.queryObservable.refetch().then(
+              (r) => this.next(r),
+              (e) => this.handleError(e)
+            );
         }
       }
 
@@ -333,6 +336,29 @@ export default function graphql(
         }
       }
 
+      next(results: any) {
+        if (this.type === DocumentType.Subscription) {
+          // Subscriptions don't currently support `currentResult`, so we
+          // need to do this ourselves
+          this.lastSubscriptionData = results;
+
+          results = { data: results };
+        }
+        const clashingKeys = Object.keys(observableQueryFields(results.data));
+        invariant(clashingKeys.length === 0,
+          `the result of the '${graphQLDisplayName}' operation contains keys that ` +
+          `conflict with the return object.` +
+          clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
+        );
+
+        this.forceRenderChildren();
+      };
+
+      handleError(error) {
+        if (error instanceof ApolloError) return this.next({ error });
+        throw error;
+      };
+
       subscribeToQuery(props): boolean {
         const opts = calculateOptions(props) as QueryOptions;
 
@@ -356,28 +382,6 @@ export default function graphql(
           this.createQuery(opts);
         }
 
-        const next = (results: any) => {
-          if (this.type === DocumentType.Subscription) {
-            // Subscriptions don't currently support `currentResult`, so we
-            // need to do this ourselves
-            this.lastSubscriptionData = results;
-
-            results = { data: results };
-          }
-          const clashingKeys = Object.keys(observableQueryFields(results.data));
-          invariant(clashingKeys.length === 0,
-            `the result of the '${graphQLDisplayName}' operation contains keys that ` +
-            `conflict with the return object.` +
-            clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
-          );
-
-          this.forceRenderChildren();
-        };
-
-        const handleError = (error) => {
-          if (error instanceof ApolloError) return next({ error });
-          throw error;
-        };
         /*
 
           Since `setState()` can throw an error if the child had a render error,
@@ -386,7 +390,10 @@ export default function graphql(
 
           Instead, we subscribe to the store for network errors and re-render that way
         */
-        this.querySubscription = this.queryObservable.subscribe({ next, error: handleError });
+        this.querySubscription = this.queryObservable.subscribe({
+          next: (r) => this.next(r),
+          error: (e) => this.handleError(e)
+        });
       }
 
       unsubscribeFromQuery() {
