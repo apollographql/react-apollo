@@ -5,6 +5,8 @@ import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 
+const TestUtils = require('react-addons-test-utils');
+
 declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../src/test-utils';
@@ -129,7 +131,39 @@ describe('shared operations', () => {
     (wrapper as any).unmount();
   });
 
-  // XXX move shared-operations-2.tsx back here when React 15.4 is released
+  it('allows a way to access the wrapped component instance', () => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    const testData = { foo: 'bar' };
+
+    class Container extends React.Component<any, any> {
+      someMethod() {
+        return testData;
+      }
+
+      render() {
+        return <span></span>;
+      }
+    }
+
+    const Decorated = graphql(query, { withRef: true })(Container);
+
+    const tree = TestUtils.renderIntoDocument(
+      <ApolloProvider client={client}>
+        <Decorated />
+      </ApolloProvider>
+    ) as any;
+
+    const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
+
+    expect(() => (decorated as any).someMethod()).toThrow();
+    expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
+    expect((decorated as any).refs.wrappedInstance.someMethod()).toEqual(testData);
+
+  });
 
   it('allows options to take an object', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
