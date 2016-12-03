@@ -158,6 +158,8 @@ export default function graphql(
         opts.fragments = flatten(opts.fragments);
       }
 
+      opts = assign({}, opts, {noFetch: opts.noFetch || !!shouldSkip(props)});
+
       if (opts.variables || !operation.variables.length) return opts;
 
       let variables = {};
@@ -190,7 +192,6 @@ export default function graphql(
     }
 
     function fetchData(props, { client }) {
-      if (shouldSkip(props)) return false;
       if (
         operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
       ) return false;
@@ -258,7 +259,6 @@ export default function graphql(
 
         this.type = operation.type;
 
-        if (this.shouldSkip(props)) return;
         this.setInitialProps();
       }
 
@@ -266,9 +266,7 @@ export default function graphql(
         this.hasMounted = true;
         if (this.type === DocumentType.Mutation) return;
 
-        if (!this.shouldSkip(this.props)) {
-          this.subscribeToQuery(this.props);
-        }
+        this.subscribeToQuery(this.props);
       }
 
       componentWillReceiveProps(nextProps) {
@@ -280,16 +278,15 @@ export default function graphql(
           return;
         };
 
-        if (this.shouldSkip(nextProps)) {
-          if (!this.shouldSkip(this.props)) {
-            // if this has changed, we better unsubscribe
-            this.unsubscribeFromQuery();
-          }
-          return;
-        }
-
         // we got new props, we need to unsubscribe and re-subscribe with the new data
         this.subscribeToQuery(nextProps);
+
+        if (this.shouldSkip(this.props) && !this.shouldSkip(nextProps)) {
+            this.queryObservable.refetch().then(
+              (r) => this.next(r),
+              (e) => this.handleError(e)
+            );
+        }
       }
 
       shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -339,6 +336,29 @@ export default function graphql(
         }
       }
 
+      next(results: any) {
+        if (this.type === DocumentType.Subscription) {
+          // Subscriptions don't currently support `currentResult`, so we
+          // need to do this ourselves
+          this.lastSubscriptionData = results;
+
+          results = { data: results };
+        }
+        const clashingKeys = Object.keys(observableQueryFields(results.data));
+        invariant(clashingKeys.length === 0,
+          `the result of the '${graphQLDisplayName}' operation contains keys that ` +
+          `conflict with the return object.` +
+          clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
+        );
+
+        this.forceRenderChildren();
+      };
+
+      handleError(error) {
+        if (error instanceof ApolloError) return this.next({ error });
+        throw error;
+      };
+
       subscribeToQuery(props): boolean {
         const opts = calculateOptions(props) as QueryOptions;
 
@@ -362,28 +382,6 @@ export default function graphql(
           this.createQuery(opts);
         }
 
-        const next = (results: any) => {
-          if (this.type === DocumentType.Subscription) {
-            // Subscriptions don't currently support `currentResult`, so we
-            // need to do this ourselves
-            this.lastSubscriptionData = results;
-
-            results = { data: results };
-          }
-          const clashingKeys = Object.keys(observableQueryFields(results.data));
-          invariant(clashingKeys.length === 0,
-            `the result of the '${graphQLDisplayName}' operation contains keys that ` +
-            `conflict with the return object.` +
-            clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
-          );
-
-          this.forceRenderChildren();
-        };
-
-        const handleError = (error) => {
-          if (error instanceof ApolloError) return next({ error });
-          throw error;
-        };
         /*
 
           Since `setState()` can throw an error if the child had a render error,
@@ -392,7 +390,10 @@ export default function graphql(
 
           Instead, we subscribe to the store for network errors and re-render that way
         */
-        this.querySubscription = this.queryObservable.subscribe({ next, error: handleError });
+        this.querySubscription = this.queryObservable.subscribe({
+          next: (r) => this.next(r),
+          error: (e) => this.handleError(e)
+        });
       }
 
       unsubscribeFromQuery() {
@@ -461,10 +462,6 @@ export default function graphql(
       }
 
       render() {
-        if (this.shouldSkip(this.props)) {
-          return createElement(WrappedComponent, this.props);
-        }
-
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
