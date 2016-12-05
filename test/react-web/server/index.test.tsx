@@ -7,6 +7,9 @@ import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { connect } from 'react-redux';
+
 import { mockNetworkInterface } from '../../../src/test-utils';
 
 describe('SSR', () => {
@@ -369,6 +372,52 @@ describe('SSR', () => {
           expect(initialState.apollo.data).toEqual({});
         })
         ;
+    });
+
+    it('should work with redux connect', () => {
+      const query = gql`query user { currentUser{ firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+      const client = new ApolloClient({ networkInterface, addTypename: false });
+
+      function counter(state = 1, action) {
+        switch (action.type) {
+          case 'INCREMENT':
+            return state + 1;
+          default:
+            return state;
+          }
+      }
+
+      // Typscript workaround
+      const apolloReducer = client.reducer() as () => any;
+
+      const store = createStore(
+        combineReducers({
+          counter,
+          apollo: apolloReducer,
+        }),
+        applyMiddleware(client.middleware())
+      );
+
+      store.dispatch({ type: 'INCREMENT' });
+
+      const WrappedElement =
+        connect(({ counter }) => ({ counter }))(
+          graphql(query, { name: 'user', skip: ({ counter }) => !(counter > 1) })(
+            ({ user }) => (
+              <div>{(!user || user.loading) ? 'loading' : user.currentUser.firstName}</div>
+            )));
+
+      const app = (<ApolloProvider store={store} client={client}><WrappedElement/></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/James/);
+        });
     });
 
     it('should correctly handle SSR mutations', () => {

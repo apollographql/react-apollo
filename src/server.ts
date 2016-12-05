@@ -24,19 +24,12 @@ declare interface QueryResult {
 
 // Recurse an React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
-//   or recurse into it's child elements
+//   or recurse into its child elements
 export function walkTree(
   element: any,
   context: any,
-  visitor: (element: any, context: any) => boolean | void
+  visitor: (element: any, instance: any, context: any) => boolean | void
 ) {
-  // console.log(element)
-  const shouldContinue = visitor(element, context);
-
-  if (shouldContinue === false) {
-    return;
-  }
-
   const Component = element.type;
   // a stateless functional component or a class
   if (typeof Component === 'function') {
@@ -70,8 +63,16 @@ export function walkTree(
         childContext = assign({}, context, instance.getChildContext());
       }
 
+      if (visitor(element, instance, context) === false) {
+        return;
+      }
+
       child = instance.render();
     } else { // just a stateless functional
+      if (visitor(element, null, context) === false) {
+        return;
+      }
+
       child = Component(props, context);
     }
 
@@ -79,6 +80,10 @@ export function walkTree(
       walkTree(child, childContext, visitor);
     }
   } else { // a basic string or dom element, just get children
+    if (visitor(element, null, context) === false) {
+      return;
+    }
+
     if (element.props && element.props.children) {
       Children.forEach(element.props.children, (child: any) => {
         if (child) {
@@ -94,13 +99,11 @@ function getQueriesFromTree(
 ): QueryResult[] {
   const queries = [];
 
-  walkTree(rootElement, rootContext, (element, context) => {
-    const Component = element.type || element;
+  walkTree(rootElement, rootContext, (element, instance, context) => {
 
     const skipRoot = !fetchRoot && (element === rootElement);
-    if (typeof Component.fetchData === 'function' && !skipRoot) {
-      const props = assign({}, Component.defaultProps, element.props);
-      const query = Component.fetchData(props, context);
+    if (instance && typeof instance.fetchData === 'function' && !skipRoot) {
+      const query = instance.fetchData();
       if (query) {
         queries.push({ query, element, context });
 
