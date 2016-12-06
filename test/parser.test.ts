@@ -12,20 +12,6 @@ describe('parser', () => {
   //   expect(parser('{ user { name } }')).to.throw();
   // });
 
-  it('should dynamically create `FragmentDefinition` for included fragments', () => {
-    const query = gql`
-      fragment bookInfo on Book { name }
-      query getBook {
-        books {
-          ...bookInfo
-        }
-      }
-    `;
-
-    const parsed =  parser(query);
-    expect(parsed.fragments.length).toBe(1);
-  });
-
   it('should error if both a query and a mutation is present', () => {
     const query = gql`
       query { user { name } }
