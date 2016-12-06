@@ -21,6 +21,7 @@ import ApolloClient, {
   MutationQueryReducersMap,
   Subscription,
   ApolloStore,
+  ApolloQueryResult,
 } from 'apollo-client';
 
 import {
@@ -110,7 +111,7 @@ export function withApollo(WrappedComponent) {
   }
 
   // Make sure we preserve any custom statics on the original component.
-  return hoistNonReactStatics(WithApollo, WrappedComponent, { fetchData: true });
+  return hoistNonReactStatics(WithApollo, WrappedComponent, {});
 };
 
 export interface OperationOption {
@@ -145,69 +146,6 @@ export default function graphql(
   return function wrapWithApolloComponent(WrappedComponent) {
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
-
-    function calculateOptions(props, newOpts?) {
-      let opts = mapPropsToOptions(props);
-
-      if (newOpts && newOpts.variables) {
-        newOpts.variables = assign({}, opts.variables, newOpts.variables);
-      }
-      if (newOpts) opts = assign({}, opts, newOpts);
-
-      if (opts.fragments) {
-        opts.fragments = flatten(opts.fragments);
-      }
-
-      if (opts.variables || !operation.variables.length) return opts;
-
-      let variables = {};
-      for (let { variable, type } of operation.variables) {
-        if (!variable.name || !variable.name.value) continue;
-
-        if (typeof props[variable.name.value] !== 'undefined') {
-          variables[variable.name.value] = props[variable.name.value];
-          continue;
-        }
-
-        // allow optional props
-        if (type.kind !== 'NonNullType') {
-          variables[variable.name.value] = null;
-          continue;
-        }
-
-        invariant(typeof props[variable.name.value] !== 'undefined',
-          `The operation '${operation.name}' wrapping '${getDisplayName(WrappedComponent)}' ` +
-          `is expecting a variable: '${variable.name.value}' but it was not found in the props ` +
-          `passed to '${graphQLDisplayName}'`
-        );
-      }
-      opts.variables = variables;
-      return opts;
-    }
-
-    function shouldSkip(props) {
-      return mapPropsToSkip(props) || (mapPropsToOptions(props) as QueryOptions).skip;
-    }
-
-    function fetchData(props, { client }) {
-      if (shouldSkip(props)) return false;
-      if (
-        operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
-      ) return false;
-
-      const opts = calculateOptions(props) as any;
-      if (opts.ssr === false || opts.skip) return false;
-      if (opts.forceFetch) delete opts.forceFetch; // ignore force fetch in SSR;
-
-      const observable = client.watchQuery(assign({ query: document }, opts));
-      const result = observable.currentResult();
-
-      if (result.loading) {
-        return observable.result();
-      } else {
-        return false;
-      }
-    }
 
     class GraphQL extends Component<any, any> {
       static displayName = graphQLDisplayName;
@@ -303,7 +241,44 @@ export default function graphql(
         this.hasMounted = false;
       }
 
-      calculateOptions(props, newProps?) { return calculateOptions(props, newProps); };
+      calculateOptions(props = this.props, newOpts?) {
+        let opts = mapPropsToOptions(props);
+
+        if (newOpts && newOpts.variables) {
+          newOpts.variables = assign({}, opts.variables, newOpts.variables);
+        }
+        if (newOpts) opts = assign({}, opts, newOpts);
+
+        if (opts.fragments) {
+          opts.fragments = flatten(opts.fragments);
+        }
+
+        if (opts.variables || !operation.variables.length) return opts;
+
+        let variables = {};
+        for (let { variable, type } of operation.variables) {
+          if (!variable.name || !variable.name.value) continue;
+
+          if (typeof props[variable.name.value] !== 'undefined') {
+            variables[variable.name.value] = props[variable.name.value];
+            continue;
+          }
+
+          // allow optional props
+          if (type.kind !== 'NonNullType') {
+            variables[variable.name.value] = null;
+            continue;
+          }
+
+          invariant(typeof props[variable.name.value] !== 'undefined',
+            `The operation '${operation.name}' wrapping '${getDisplayName(WrappedComponent)}' ` +
+            `is expecting a variable: '${variable.name.value}' but it was not found in the props ` +
+            `passed to '${graphQLDisplayName}'`
+          );
+        }
+        opts.variables = variables;
+        return opts;
+      };
 
       calculateResultProps(result) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
@@ -339,8 +314,29 @@ export default function graphql(
         }
       }
 
+      // For server-side rendering (see server.ts)
+      fetchData(): Promise<ApolloQueryResult> | boolean {
+        if (this.shouldSkip()) return false;
+        if (
+          operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
+        ) return false;
+
+        const opts = this.calculateOptions() as any;
+        if (opts.ssr === false) return false;
+        if (opts.forceFetch) delete opts.forceFetch; // ignore force fetch in SSR;
+
+        const observable = this.client.watchQuery(assign({ query: document }, opts));
+        const result = observable.currentResult();
+
+        if (result.loading) {
+          return observable.result();
+        } else {
+          return false;
+        }
+      }
+
       subscribeToQuery(props): boolean {
-        const opts = calculateOptions(props) as QueryOptions;
+        const opts = this.calculateOptions(props) as QueryOptions;
 
         // We've subscribed already, just update with our new options and
         // take the latest result
@@ -402,8 +398,9 @@ export default function graphql(
         }
       }
 
-      shouldSkip(props) {
-        return shouldSkip(props);
+      shouldSkip(props = this.props) {
+        return mapPropsToSkip(props) ||
+          (mapPropsToOptions(props) as QueryOptions).skip;
       }
 
       forceRenderChildren() {
@@ -461,7 +458,7 @@ export default function graphql(
       }
 
       render() {
-        if (this.shouldSkip(this.props)) {
+        if (this.shouldSkip()) {
           return createElement(WrappedComponent, this.props);
         }
 
@@ -483,10 +480,8 @@ export default function graphql(
       }
     }
 
-    if (operation.type === DocumentType.Query) (GraphQL as any).fetchData = fetchData;
-
     // Make sure we preserve any custom statics on the original component.
-    return hoistNonReactStatics(GraphQL, WrappedComponent, { fetchData: true });
+    return hoistNonReactStatics(GraphQL, WrappedComponent, {});
   };
 
 };
