@@ -15,8 +15,9 @@ import { getDataFromTree, renderToStringWithData } from 'react-apollo'
 
 - Feature: Better packaging [PR #306](https://github.com/apollostack/react-apollo/pull/306)
 
-
 - Feature: Add networkStatus prop to connected components[Issue #322](https://github.com/apollostack/react-apollo/issues/322)
+
+- Bug: fix issue with Redux's `connect` and SSR - [Issue #350](https://github.com/apollostack/react-apollo/issues/350)
 
 ### v0.6.0
 
