@@ -17,14 +17,12 @@ export interface IDocumentDefinition {
   type: DocumentType;
   name: string;
   variables: VariableDefinition[];
-  fragments: FragmentDefinition[];
 }
 
 // the parser is mainly a safety check for the HOC
 export function parser(document: Document): IDocumentDefinition {
   // variables
-  let fragments, queries, mutations, subscriptions, variables, definitions, type, name;
-
+  let variables, type, name;
 
   /*
 
@@ -36,19 +34,19 @@ export function parser(document: Document): IDocumentDefinition {
     `Argument of ${document} passed to parser was not a valid GraphQL Document. You may need to use 'graphql-tag' or another method to convert your operation into a document`
   );
 
-  fragments = document.definitions.filter(
+  const fragments = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'FragmentDefinition'
   );
 
-  queries = document.definitions.filter(
+  const queries = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'query'
   );
 
-  mutations = document.definitions.filter(
+  const mutations = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'mutation'
   );
 
-  subscriptions = document.definitions.filter(
+  const subscriptions = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'subscription'
   );
 
@@ -68,8 +66,7 @@ export function parser(document: Document): IDocumentDefinition {
   type = queries.length ? DocumentType.Query : DocumentType.Mutation;
   if (!queries.length && !mutations.length) type = DocumentType.Subscription;
 
-  definitions = queries.length ? queries : mutations;
-  if (!queries.length && !mutations.length) definitions = subscriptions;
+  const definitions = queries.length ? queries : (mutations.length ? mutations: subscriptions);
 
   if (definitions.length !== 1) {
     invariant((definitions.length !== 1),
@@ -78,9 +75,9 @@ export function parser(document: Document): IDocumentDefinition {
     );
   }
 
-  variables = definitions[0].variableDefinitions || [];
-  let hasName = definitions[0].name && definitions[0].name.kind === 'Name';
-  name = hasName ? definitions[0].name.value : 'data'; // fallback to using data if no name
-  fragments = fragments.length ? fragments : [];
-  return { name, type, variables, fragments };
+  const definition = definitions[0] as OperationDefinition;
+  variables = definition.variableDefinitions || [];
+  let hasName = definition.name && definition.name.kind === 'Name';
+  name = hasName ? definition.name.value : 'data'; // fallback to using data if no name
+  return { name, type, variables };
 }
