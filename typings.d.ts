@@ -5,8 +5,8 @@
   LODASH
 */
 declare module 'lodash.isobject' {
-  import main = require('lodash');
-  export = main.isObject;
+  import main = require('lodash/isObject');
+  export = main;
 }
 
 declare module 'lodash.isequal' {
