@@ -2,7 +2,6 @@ import {
   Document,
   VariableDefinition,
   OperationDefinition,
-  FragmentDefinition,
 } from 'graphql';
 
 import invariant = require('invariant');
@@ -66,7 +65,8 @@ export function parser(document: Document): IDocumentDefinition {
   type = queries.length ? DocumentType.Query : DocumentType.Mutation;
   if (!queries.length && !mutations.length) type = DocumentType.Subscription;
 
-  const definitions = queries.length ? queries : (mutations.length ? mutations: subscriptions);
+  const definitions = queries.length ? queries :
+    (mutations.length ? mutations : subscriptions);
 
   if (definitions.length !== 1) {
     invariant((definitions.length !== 1),
