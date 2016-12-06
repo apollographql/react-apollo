@@ -45,6 +45,19 @@ describe('queries', () => {
     output.unmount();
   });
 
+  it("shouldn't warn about fragments", () => {
+    const oldWarn = console.warn;
+    const warnings = [];
+    console.warn = (str) => warnings.push(str);
+
+    try {
+      graphql(gql`query foo { bar }`);
+      expect(warnings.length).toEqual(0);
+    } finally {
+      console.warn = oldWarn;
+    }
+  });
+
   it('includes the variables in the props', () => {
     const query = gql`query people ($first: Int) { allPeople(first: $first) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };

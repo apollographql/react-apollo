@@ -155,9 +155,6 @@ export default function graphql(
         client: PropTypes.object.isRequired,
       };
 
-      // start of query composition
-      static fragments: FragmentDefinition[] = operation.fragments;
-
       // react / redux and react dev tools (HMR) needs
       public props: any; // passed props
       public version: number;

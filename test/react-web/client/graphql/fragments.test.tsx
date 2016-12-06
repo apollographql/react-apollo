@@ -64,8 +64,6 @@ describe('fragments', () => {
       }
     };
 
-    expect((Container as any).fragments.length).toBe(1);
-
     renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
@@ -125,8 +123,6 @@ describe('fragments', () => {
         return null;
       }
     };
-
-    expect((Container as any).fragments.length).toBe(1);
 
     renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });

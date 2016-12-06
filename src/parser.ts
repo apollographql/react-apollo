@@ -5,8 +5,6 @@ import {
   FragmentDefinition,
 } from 'graphql';
 
-import { createFragment } from 'apollo-client';
-
 import invariant = require('invariant');
 
 export enum DocumentType {
@@ -41,11 +39,6 @@ export function parser(document: Document): IDocumentDefinition {
   fragments = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'FragmentDefinition'
   );
-
-  fragments = createFragment({
-    kind: 'Document',
-    definitions: [...fragments],
-  });
 
   queries = document.definitions.filter(
     (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'query'
