@@ -1968,5 +1968,38 @@ describe('queries', () => {
      };
 
      mount(<ApolloProvider client={client}><Container /></ApolloProvider>);
-   });
+  });
+
+  it('stores the component name in the query metadata', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        const queries = client.queryManager.getApolloState().queries;
+        const queryIds = Object.keys(queries);
+        expect(queryIds.length).toEqual(1);
+        const query = queries[queryIds[0]];
+        expect(query.metadata).toEqual({
+          reactComponent: {
+            displayName: 'Apollo(Container)',
+          },
+        });
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>
+    );
+  });
+
 });
