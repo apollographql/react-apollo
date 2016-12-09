@@ -4,7 +4,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
-### v0.7.0
+### v0.7.1
 
 #### Breaking
 ```js
