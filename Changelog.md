@@ -17,6 +17,8 @@ import { getDataFromTree, renderToStringWithData } from 'react-apollo'
 
 - Feature: Add networkStatus prop to connected components[Issue #322](https://github.com/apollostack/react-apollo/issues/322)
 
+- Feature: Pass component display name as watchQuery metadata for experimental devtools [PR #363](https://github.com/apollostack/react-apollo/pull/363)
+
 - Bug: fix issue with Redux's `connect` and SSR - [Issue #350](https://github.com/apollostack/react-apollo/issues/350)
 
 ### v0.6.0

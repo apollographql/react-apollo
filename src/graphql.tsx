@@ -307,6 +307,11 @@ export default function graphql(
         } else {
           this.queryObservable = this.client.watchQuery(assign({
             query: document,
+            metadata: {
+              reactComponent: {
+                displayName: graphQLDisplayName,
+              },
+            },
           }, opts));
         }
       }
