@@ -14,11 +14,9 @@ import { getDataFromTree, renderToStringWithData } from 'react-apollo'
 ```
 
 - Feature: Better packaging [PR #306](https://github.com/apollostack/react-apollo/pull/306)
-
 - Feature: Add networkStatus prop to connected components[Issue #322](https://github.com/apollostack/react-apollo/issues/322)
-
 - Feature: Pass component display name as watchQuery metadata for experimental devtools [PR #363](https://github.com/apollostack/react-apollo/pull/363)
-
+- Feature: Removed use of `createFragment` and bumped AC version [PR #357](https://github.com/apollostack/react-apollo/pull/357)
 - Bug: fix issue with Redux's `connect` and SSR - [Issue #350](https://github.com/apollostack/react-apollo/issues/350)
 
 ### v0.6.0
