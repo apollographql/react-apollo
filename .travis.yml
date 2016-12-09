@@ -28,14 +28,6 @@ script:
 # Allow Travis tests to run in containers.
 sudo: false
 
-# When Travis CI publishes to NPM, the published files are available in the root
-# directory, which allows for a clean include or require of sub-modules.
-#
-#    var language = require('react-apollo/connect');
-#
-after_success:
-  - cd ./lib/src/ && cp -vr ./ ../../ && cd ../../ && ls
-
 deploy:
   provider: npm
   email: james.baxley@newspring.cc
