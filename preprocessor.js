@@ -3,21 +3,14 @@
 const tsc = require('typescript');
 const babelJest = require('babel-jest');
 const babelTransform = babelJest.createTransformer();
+const tsconfig = require('./tsconfig.json');
 
 module.exports = {
   process(src, path) {
     if (path.endsWith('.ts') || path.endsWith('.tsx')) {
       return tsc.transpile(
         src,
-        {
-          module: tsc.ModuleKind.CommonJS,
-          jsx: tsc.JsxEmit.React,
-          target: tsc.ScriptTarget.ES5,
-          sourceMap: true,
-          inlineSourceMap: true,
-          inlineSources: true,
-          sourceRoot: __dirname,
-        },
+        tsconfig.compilerOptions,
         path,
         []
       );
