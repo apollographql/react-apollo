@@ -12,7 +12,11 @@ module.exports = {
         {
           module: tsc.ModuleKind.CommonJS,
           jsx: tsc.JsxEmit.React,
-          target: tsc.ScriptTarget.ES5
+          target: tsc.ScriptTarget.ES5,
+          sourceMap: true,
+          inlineSourceMap: true,
+          inlineSources: true,
+          sourceRoot: __dirname,
         },
         path,
         []
