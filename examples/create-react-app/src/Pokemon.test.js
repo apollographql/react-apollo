@@ -86,7 +86,7 @@ describe('Pokemon enhancer', () => {
     const ContainerWithData = withPokemon(Container);
     const output = renderer.create(
       <MockedProvider mocks={[
-        { request: { query, variables }, result: { data: mockedData } }
+        { request: { query, variables }, error: new Error('fail') }
       ]}>
         <ContainerWithData />
       </MockedProvider>
