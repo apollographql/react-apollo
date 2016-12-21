@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Add `react-dom` to `peerDependencies` because since React 15.4 it is no longer "secretly" included.  
+  _(ref: https://github.com/facebook/react/releases/tag/v15.4.0)_
+
 ### v0.7.1
 
 #### Breaking
