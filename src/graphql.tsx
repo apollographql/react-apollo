@@ -15,7 +15,6 @@ import assign = require('object-assign');
 import hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
-  ApolloError,
   ObservableQuery,
   MutationBehavior,
   MutationQueryReducersMap,
@@ -379,7 +378,8 @@ export default function graphql(
         };
 
         const handleError = (error) => {
-          if (error instanceof ApolloError) return next({ error });
+          // Quick fix for https://github.com/apollostack/react-apollo/issues/378
+          if (error.hasOwnProperty('graphQLErrors')) return next({ error });
           throw error;
         };
         /*
