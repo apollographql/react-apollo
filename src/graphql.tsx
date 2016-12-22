@@ -23,7 +23,18 @@ import ApolloClient, {
   Subscription,
   ApolloStore,
   ApolloQueryResult,
+  ApolloError,
 } from 'apollo-client';
+
+import {
+  FetchMoreOptions,
+  UpdateQueryOptions,
+} from 'apollo-client/core/ObservableQuery';
+
+import {
+  FetchMoreQueryOptions,
+  SubscribeToMoreOptions,
+} from 'apollo-client/core/watchQueryOptions';
 
 import {
   // GraphQLResult,
@@ -54,9 +65,23 @@ export declare interface QueryOptions {
   skip?: boolean;
 }
 
+export interface GraphQLDataProps {
+  error?: ApolloError;
+  networkStatus: number;
+  loading: boolean;
+  variables: {
+    [variable: string]: any;
+  };
+  fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult>;
+  refetch: (variables?: any) => Promise<ApolloQueryResult>;
+  startPolling: (pollInterval: number) => void;
+  stopPolling: () => void;
+  subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
+  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
+}
+
 export interface InjectedGraphQLProps<T> {
-  data?: T;
-  loading?: boolean;
+  data?: T & GraphQLDataProps;
 }
 
 const defaultMapPropsToOptions = props => ({});
@@ -502,5 +527,4 @@ export default function graphql(
   };
 
   return wrapWithApolloComponent;
-
 };
