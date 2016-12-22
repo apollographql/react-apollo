@@ -201,7 +201,7 @@ export default function graphql(
         if (this.type === DocumentType.Mutation) return;
 
         if (!this.shouldSkip(this.props)) {
-          this.subscribeToQuery(this.props);
+          this.subscribeToQuery();
         }
       }
 
@@ -222,8 +222,8 @@ export default function graphql(
           return;
         }
 
-        // we got new props, we need to unsubscribe and re-subscribe with the new data
-        this.subscribeToQuery(nextProps);
+        this.updateQuery(nextProps);
+        this.subscribeToQuery();
       }
 
       shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -315,6 +315,24 @@ export default function graphql(
         }
       }
 
+      updateQuery(props) {
+        const opts = this.calculateOptions(props) as QueryOptions;
+
+        // if we skipped initially, we may not have yet created the observable
+        if (!this.queryObservable) {
+          this.createQuery(opts);
+        }
+
+        if (this.queryObservable._setOptionsNoResult) {
+          // Since we don't care about the result, use a hacky version to
+          // work around https://github.com/apollostack/apollo-client/pull/694
+          // This workaround is only present in Apollo Client 0.4.21
+          this.queryObservable._setOptionsNoResult(opts);
+        } else {
+          this.queryObservable.setOptions(opts);
+        }
+      }
+
       // For server-side rendering (see server.ts)
       fetchData(): Promise<ApolloQueryResult> | boolean {
         if (this.shouldSkip()) return false;
@@ -336,27 +354,9 @@ export default function graphql(
         }
       }
 
-      subscribeToQuery(props): boolean {
-        const opts = this.calculateOptions(props) as QueryOptions;
-
-        // We've subscribed already, just update with our new options and
-        // take the latest result
+      subscribeToQuery() {
         if (this.querySubscription) {
-          if (this.queryObservable._setOptionsNoResult) {
-            // Since we don't care about the result, use a hacky version to
-            // work around https://github.com/apollostack/apollo-client/pull/694
-            // This workaround is only present in Apollo Client 0.4.21
-            this.queryObservable._setOptionsNoResult(opts);
-          } else {
-            this.queryObservable.setOptions(opts);
-          }
-
           return;
-        }
-
-        // if we skipped initially, we may not have yet created the observable
-        if (!this.queryObservable) {
-          this.createQuery(opts);
         }
 
         const next = (results: any) => {

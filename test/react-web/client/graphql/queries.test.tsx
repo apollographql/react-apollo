@@ -514,6 +514,61 @@ describe('queries', () => {
     renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
   });
 
+  it('allows you to skip then unskip a query with new options (top-level syntax)', (done) => {
+    const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
+    const dataOne = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const dataTwo = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables: { first: 1 } }, result: { data: dataOne } },
+      { request: { query, variables: { first: 2 } }, result: { data: dataTwo } },
+      { request: { query, variables: { first: 2 } }, result: { data: dataTwo } },
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let hasSkipped = false;
+    @graphql(query, { skip: ({ skip }) => skip })
+    class Container extends React.Component<any, any> {8
+      componentWillReceiveProps(newProps) {
+        if (newProps.skip) {
+          hasSkipped = true;
+          // change back to skip: false, with a different variable
+          this.props.setState({ skip: false, first: 2 });
+        } else {
+          if (hasSkipped) {
+            if (!newProps.data.loading) {
+              expect(newProps.data.allPeople).toEqual(dataTwo.allPeople);
+              done();
+            }
+          } else {
+            expect(newProps.data.allPeople).toEqual(dataOne.allPeople);
+            this.props.setState({ skip: true });
+          }
+        }
+      }
+      render() {
+        return null;
+      }
+    };
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { skip: false, first: 1 };
+      }
+      render() {
+        return (
+          <Container
+            skip={this.state.skip}
+            first={this.state.first}
+            setState={(state) => this.setState(state)}
+          />
+        );
+      }
+    };
+
+    renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
+  });
+
   it('allows you to skip then unskip a query with opts syntax', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
