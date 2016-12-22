@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   Component,
   createElement,
@@ -50,6 +52,11 @@ export declare interface QueryOptions {
   fragments?: FragmentDefinition[] | FragmentDefinition[][];
   // deprecated
   skip?: boolean;
+}
+
+export interface InjectedGraphQLProps<T> {
+  data?: T;
+  loading?: boolean;
 }
 
 const defaultMapPropsToOptions = props => ({});
@@ -121,6 +128,13 @@ export interface OperationOption {
   withRef?: boolean;
 }
 
+export type ComponentClass<P> = React.ComponentClass<P>;
+export type StatelessComponent<P> = React.StatelessComponent<P>;
+
+export interface WrapWithApollo {
+  <P, TComponentConstruct extends (ComponentClass<P> | StatelessComponent<P>)>(component: TComponentConstruct): TComponentConstruct;
+}
+
 export default function graphql(
   document: Document,
   operationOptions: OperationOption = {}
@@ -142,7 +156,8 @@ export default function graphql(
 
   // Helps track hot reloading.
   const version = nextVersion++;
-  return function wrapWithApolloComponent(WrappedComponent) {
+
+  const wrapWithApolloComponent: WrapWithApollo = WrappedComponent => {
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
@@ -485,5 +500,7 @@ export default function graphql(
     // Make sure we preserve any custom statics on the original component.
     return hoistNonReactStatics(GraphQL, WrappedComponent, {});
   };
+
+  return wrapWithApolloComponent;
 
 };
