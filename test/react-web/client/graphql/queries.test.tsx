@@ -2021,8 +2021,7 @@ describe('queries', () => {
          return null;
        }
      };
-
-     mount(<ApolloProvider client={client}><Container /></ApolloProvider>);
+     const output = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('stores the component name in the query metadata', (done) => {
