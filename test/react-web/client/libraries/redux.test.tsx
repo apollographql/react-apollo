@@ -70,7 +70,7 @@ describe('redux integration', () => {
           if (nextProps.data.loading) return;
           expect(nextProps.data.allPeople).toEqual(data2.allPeople);
           done();
-          wrapper.unmount();
+          //wrapper.unmount();
         }
       }
       render() {
@@ -148,7 +148,7 @@ describe('redux integration', () => {
         }
       };
 
-      renderer.create(
+      mount(
         <ApolloProvider store={store} client={client}>
           <Container />
         </ApolloProvider>
@@ -205,7 +205,7 @@ describe('redux integration', () => {
             if (nextProps.data.loading) return;
             expect(nextProps.data.allPeople).toEqual(data2.allPeople);
             done();
-            wrapper.unmount();
+            //wrapper.unmount();
           }
         }
         render() {
@@ -213,7 +213,7 @@ describe('redux integration', () => {
         }
       };
 
-      wrapper = mount(
+      wrapper = renderer.create(
         <ApolloProvider store={store} client={client} immutable={true}>
           <Container />
         </ApolloProvider>
@@ -266,7 +266,7 @@ describe('redux integration', () => {
             if (nextProps.data.loading) return;
             expect(nextProps.data.allPeople).toEqual(data2.allPeople);
             done();
-            wrapper.unmount();
+            //wrapper.unmount();
           }
         }
         render() {
