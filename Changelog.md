@@ -15,6 +15,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 - Bug: fix issue with no longer passing errors to components w/ `apollo-client@0.5.23` - [Issue #378](https://github.com/apollostack/react-apollo/issues/378)
 
+- Add `react-dom` to `peerDependencies` because since React 15.4 it is no longer "secretly" included.  
+  _(ref: https://github.com/facebook/react/releases/tag/v15.4.0)_
+
 ### v0.7.1
 
 #### Breaking
