@@ -116,6 +116,21 @@ Object {
     },
   ],
   "kind": "Document",
+  "loc": Object {
+    "end": 98,
+    "source": Source {
+      "body": "
+  query GetPokemon($name: String!) {
+    pokemon(name: $name) {
+      name
+      image
+    }
+  }
+",
+      "name": "GraphQL",
+    },
+    "start": 3,
+  },
 }
 `;
 

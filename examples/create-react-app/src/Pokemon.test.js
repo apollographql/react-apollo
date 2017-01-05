@@ -74,23 +74,28 @@ describe('Pokemon enhancer', () => {
   });
 
   it('renders with an error correclty', (done) => {
-    class Container extends React.Component {
-      componentWillReceiveProps(props) {
-        expect(props.data.error).toBeTruthy();
-        done();
-      }
-      render() {
-        return null;
-      }
-    };
-    const ContainerWithData = withPokemon(Container);
-    const output = renderer.create(
-      <MockedProvider mocks={[
-        { request: { query, variables }, error: new Error('fail') }
-      ]}>
-        <ContainerWithData />
-      </MockedProvider>
-    );
+    try {
+      class Container extends React.Component {
+        componentWillReceiveProps(props) {
+          expect(props.data.error).toBeTruthy();
+          done();
+        }
+        render() {
+          return null;
+        }
+      };
+      const ContainerWithData = withPokemon(Container);
+      const output = renderer.create(
+        <MockedProvider mocks={[
+          { request: { query, variables }, error: new Error('fail') }
+        ]}>
+          <ContainerWithData />
+        </MockedProvider>
+      );
+    } catch (e) {
+      console.log(e);
+    }
+
   });
 
 });
