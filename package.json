@@ -71,6 +71,7 @@
   "devDependencies": {
     "@types/chai": "^3.4.33",
     "@types/enzyme": "^2.4.32",
+    "@types/graphql": "^0.8.5",
     "@types/immutable": "^3.8.3",
     "@types/invariant": "^2.2.27",
     "@types/isomorphic-fetch": "0.0.30",
@@ -121,7 +122,6 @@
     "swapi-graphql": "0.0.4",
     "travis-weigh-in": "^1.0.2",
     "tslint": "^3.6.0",
-    "typed-graphql": "^1.0.2",
     "typescript": "^2.0.3",
     "typescript-require": "^0.2.9-1",
     "typings": "^0.7.9",
