@@ -1,7 +1,8 @@
 import {
-  Document,
-  VariableDefinition,
-  OperationDefinition,
+  DocumentNode,
+  DefinitionNode,
+  VariableDefinitionNode,
+  OperationDefinitionNode,
 } from 'graphql';
 
 import invariant = require('invariant');
@@ -15,11 +16,11 @@ export enum DocumentType {
 export interface IDocumentDefinition {
   type: DocumentType;
   name: string;
-  variables: VariableDefinition[];
+  variables: VariableDefinitionNode[];
 }
 
 // the parser is mainly a safety check for the HOC
-export function parser(document: Document): IDocumentDefinition {
+export function parser(document: DocumentNode): IDocumentDefinition {
   // variables
   let variables, type, name;
 
@@ -30,23 +31,23 @@ export function parser(document: Document): IDocumentDefinition {
   */
   invariant((!!document || !!document.kind),
     // tslint:disable-line
-    `Argument of ${document} passed to parser was not a valid GraphQL Document. You may need to use 'graphql-tag' or another method to convert your operation into a document`
+    `Argument of ${document} passed to parser was not a valid GraphQL DocumentNode. You may need to use 'graphql-tag' or another method to convert your operation into a document`
   );
 
   const fragments = document.definitions.filter(
-    (x: OperationDefinition) => x.kind === 'FragmentDefinition'
+    (x: DefinitionNode) => x.kind === 'FragmentDefinition'
   );
 
   const queries = document.definitions.filter(
-    (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'query'
+    (x: DefinitionNode) => x.kind === 'OperationDefinition' && x.operation === 'query'
   );
 
   const mutations = document.definitions.filter(
-    (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'mutation'
+    (x: DefinitionNode) => x.kind === 'OperationDefinition' && x.operation === 'mutation'
   );
 
   const subscriptions = document.definitions.filter(
-    (x: OperationDefinition) => x.kind === 'OperationDefinition' && x.operation === 'subscription'
+    (x: DefinitionNode) => x.kind === 'OperationDefinition' && x.operation === 'subscription'
   );
 
   if (fragments.length && (!queries.length || !mutations.length || !subscriptions.length)) {
@@ -75,7 +76,7 @@ export function parser(document: Document): IDocumentDefinition {
     );
   }
 
-  const definition = definitions[0] as OperationDefinition;
+  const definition = definitions[0] as OperationDefinitionNode;
   variables = definition.variableDefinitions || [];
   let hasName = definition.name && definition.name.kind === 'Name';
   name = hasName ? definition.name.value : 'data'; // fallback to using data if no name

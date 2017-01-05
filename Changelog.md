@@ -6,11 +6,35 @@ Expect active development and potentially significant breaking changes in the `0
 
 - Feature: [typescript] Add better typings to graphql HOC [Issue #379](https://github.com/apollostack/react-apollo/issues/379)
 
+### 0.8.1
+- Same as 0.8.0, but properly built
+
+### 0.8.0 (deprecated - build was missing files)
+- Update typings dependency from typed-grapqhl to @types/graphql [PR #393](https://github.com/apollostack/react-apollo/pull/393)
+- Chore: [PR #390](https://github.com/apollostack/react-apollo/pull/390) gets rid of warning during queries test.
+
+- Chore: [PR #391](https://github.com/apollostack/react-apollo/pull/391) gets rid of warnings during redux test.
+
+- Feature: [PR #389](https://github.com/apollostack/react-apollo/pull/389) added a shouldResubscribe option to allow subscriptions to automatically resubscribe when props change.
+
+### v0.7.4
+- Identical to 0.7.2 because 0.7.3 contained breaking change (updated typings)
+
+### v0.7.3 (deprecated - contained breaking changes)
+- Chore: [PR #390](https://github.com/apollostack/react-apollo/pull/390) gets rid of warning during queries test.
+
+- Chore: [PR #391](https://github.com/apollostack/react-apollo/pull/391) gets rid of warnings during redux test.
+
+- Feature: [PR #389](https://github.com/apollostack/react-apollo/pull/389) added a shouldResubscribe option to allow subscriptions to automatically resubscribe when props change.
+
 ### v0.7.2
 
 - Bug: fix issue where changing variables while unskipping didn't result in the variables actually changing - [Issue #374](https://github.com/apollostack/react-apollo/issues/374)
 
 - Bug: fix issue with no longer passing errors to components w/ `apollo-client@0.5.23` - [Issue #378](https://github.com/apollostack/react-apollo/issues/378)
+
+- Add `react-dom` to `peerDependencies` because since React 15.4 it is no longer "secretly" included.
+  _(ref: https://github.com/facebook/react/releases/tag/v15.4.0)_
 
 ### v0.7.1
 
