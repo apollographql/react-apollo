@@ -6,6 +6,7 @@
   "browser": "lib/browser.js",
   "typings": "lib/index.d.ts",
   "scripts": {
+    "deploy": "npm run compile && npm run compile:browser && npm test && npm publish",
     "test": "jest",
     "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "posttest": "npm run lint",
