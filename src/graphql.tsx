@@ -63,7 +63,7 @@ function defaultMapPropsToOptions<T>(props: T) {
   return {};
 }
 
-function defaultMapResultToProps<T>(props: T): T {
+function defaultMapResultToProps<T>(props: T) {
   return props;
 }
 
@@ -139,7 +139,7 @@ export function withApollo<T extends { client: ApolloClient }>(WrappedComponent:
 
 export interface OperationOption {
   options?: Object | ((props: any) => QueryOptions | MutationOptions);
-  props?: (props: any) => any;
+  props?: <TOwnProps, TMappedProps>(props: TOwnProps) => TMappedProps;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
@@ -300,14 +300,27 @@ export default function graphql(
         return opts;
       };
 
-      calculateResultProps(result: any) {
-        let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
-        if (operationOptions.name) name = operationOptions.name;
+      calculateResultProps<T>(result: T) {
+        // Ugly, but the hope is to allow typescript to do control-flow analysis
+        // to determine if `data` or `mutate` are the keys
+        if (operationOptions.name != null) {
+          let name = operationOptions.name;
+          const newResult = { [name]: result, ownProps: this.props };
+          // Prevents us inferring useful type information :/
+          if (mapResultToProps) return mapResultToProps<typeof newResult, { [i: string]: any }>(newResult);
 
-        const newResult = { [name]: result, ownProps: this.props };
-        if (mapResultToProps) return mapResultToProps(newResult);
+          return { [name]: defaultMapResultToProps(result) };
+        } else if (this.type === DocumentType.Mutation) {
+          const newResult = { mutate: result, ownProps: this.props };
+          if (mapResultToProps) return mapResultToProps<typeof newResult, { [i: string]: any }>(newResult);
 
-        return { [name]: defaultMapResultToProps(result) };
+          return { mutate: defaultMapResultToProps(result) };
+        } else {
+          const newResult = { data: result, ownProps: this.props };
+          if (mapResultToProps) return mapResultToProps<typeof newResult, { [i: string]: any }>(newResult);
+
+          return { data: defaultMapResultToProps(result) };
+        }
       }
 
       setInitialProps() {
@@ -500,7 +513,7 @@ export default function graphql(
           return renderedElement;
         }
 
-        if (operationOptions.withRef) mergedPropsAndData.ref = 'wrappedInstance';
+        if (operationOptions.withRef) mergedPropsAndData['ref'] = 'wrappedInstance';
 
         this.renderedElement = createElement(WrappedComponent as React.ComponentClass<T>, mergedPropsAndData);
         return this.renderedElement;
@@ -508,7 +521,8 @@ export default function graphql(
     }
 
     // Make sure we preserve any custom statics on the original component.
-    return hoistNonReactStatics(GraphQL, WrappedComponent, {});
-  };
+    hoistNonReactStatics(GraphQL, WrappedComponent, {});
 
+    return GraphQL as React.ComponentClass<T>;
+  };
 };
