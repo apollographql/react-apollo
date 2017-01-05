@@ -1,5 +1,7 @@
 import {
   Component,
+  ComponentClass,
+  StatelessComponent,
   createElement,
   PropTypes,
 } from 'react';
@@ -52,36 +54,46 @@ export declare interface QueryOptions {
   skip?: boolean;
 }
 
-const defaultMapPropsToOptions = props => ({});
-const defaultMapResultToProps = props => props;
-const defaultMapPropsToSkip = props => false;
+export type WrappedComponent<T> = ComponentClass<T> | StatelessComponent<T>;
+
+function defaultMapPropsToOptions<T>(props: T) {
+  return {};
+}
+
+function defaultMapResultToProps<T>(props: T): T {
+  return props;
+}
+
+function defaultMapPropsToSkip<T>(props: T)  {
+  return false;
+}
 
 // the fields we want to copy over to our data prop
-function observableQueryFields(observable) {
+function observableQueryFields(observable: any) {
   const fields = pick(observable, 'variables',
     'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling', 'subscribeToMore');
 
   Object.keys(fields).forEach((key) => {
-    if (typeof fields[key] === 'function') {
-      fields[key] = fields[key].bind(observable);
+    if (typeof (fields as any)[key] === 'function') {
+      (fields as any)[key] = (fields as any)[key].bind(observable);
     }
   });
 
   return fields;
 }
 
-function getDisplayName(WrappedComponent) {
+function getDisplayName<T>(WrappedComponent: WrappedComponent<T>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
 // Helps track hot reloading.
 let nextVersion = 0;
 
-export function withApollo(WrappedComponent) {
+export function withApollo<T extends { client: ApolloClient }>(WrappedComponent: WrappedComponent<T>) {
 
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
-  class WithApollo extends Component<any, any> {
+  class WithApollo extends Component<T, void> {
     static displayName = withDisplayName;
     static WrappedComponent = WrappedComponent;
     static contextTypes = { client: PropTypes.object.isRequired };
@@ -89,7 +101,7 @@ export function withApollo(WrappedComponent) {
     // data storage
     private client: ApolloClient; // apollo client
 
-    constructor(props, context) {
+    constructor(props: T, context: { client: ApolloClient }) {
       super(props, context);
       this.client = context.client;
 
@@ -105,7 +117,7 @@ export function withApollo(WrappedComponent) {
     render() {
       const props = assign({}, this.props);
       props.client = this.client;
-      return createElement(WrappedComponent, props);
+      return createElement(WrappedComponent as React.ComponentClass<T>, props);
     }
   }
 
@@ -142,11 +154,11 @@ export default function graphql(
 
   // Helps track hot reloading.
   const version = nextVersion++;
-  return function wrapWithApolloComponent(WrappedComponent) {
+  return function wrapWithApolloComponent<T>(WrappedComponent: WrappedComponent<T>) {
 
     const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
 
-    class GraphQL extends Component<any, any> {
+    class GraphQL extends Component<T, any> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
@@ -155,7 +167,7 @@ export default function graphql(
       };
 
       // react / redux and react dev tools (HMR) needs
-      public props: any; // passed props
+      public props: T; // passed props
       public version: number;
       public hasMounted: boolean;
 
@@ -177,7 +189,7 @@ export default function graphql(
       // the element to render
       private renderedElement: any;
 
-      constructor(props, context) {
+      constructor(props: T, context: any) {
         super(props, context);
         this.version = version;
         this.client = context.client;
@@ -205,7 +217,7 @@ export default function graphql(
         }
       }
 
-      componentWillReceiveProps(nextProps) {
+      componentWillReceiveProps(nextProps: T) {
         if (shallowEqual(this.props, nextProps)) return;
 
         this.shouldRerender = true;
@@ -226,7 +238,7 @@ export default function graphql(
         this.subscribeToQuery();
       }
 
-      shouldComponentUpdate(nextProps, nextState, nextContext) {
+      shouldComponentUpdate(nextProps: T, nextState: any, nextContext: any) {
         return !!nextContext || this.shouldRerender;
       }
 
@@ -237,7 +249,7 @@ export default function graphql(
         this.hasMounted = false;
       }
 
-      calculateOptions(props = this.props, newOpts?) {
+      calculateOptions(props = this.props, newOpts?: any) {
         let opts = mapPropsToOptions(props);
 
         if (newOpts && newOpts.variables) {
@@ -255,18 +267,18 @@ export default function graphql(
         for (let { variable, type } of operation.variables) {
           if (!variable.name || !variable.name.value) continue;
 
-          if (typeof props[variable.name.value] !== 'undefined') {
-            variables[variable.name.value] = props[variable.name.value];
+          if (typeof (props as any)[variable.name.value] !== 'undefined') {
+            (variables as any)[variable.name.value] = (props as any)[variable.name.value];
             continue;
           }
 
           // allow optional props
           if (type.kind !== 'NonNullType') {
-            variables[variable.name.value] = null;
+            (variables as any)[variable.name.value] = null;
             continue;
           }
 
-          invariant(typeof props[variable.name.value] !== 'undefined',
+          invariant(typeof (props as any)[variable.name.value] !== 'undefined',
             `The operation '${operation.name}' wrapping '${getDisplayName(WrappedComponent)}' ` +
             `is expecting a variable: '${variable.name.value}' but it was not found in the props ` +
             `passed to '${graphQLDisplayName}'`
@@ -276,7 +288,7 @@ export default function graphql(
         return opts;
       };
 
-      calculateResultProps(result) {
+      calculateResultProps(result: any) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
@@ -315,7 +327,7 @@ export default function graphql(
         }
       }
 
-      updateQuery(props) {
+      updateQuery(props: T) {
         const opts = this.calculateOptions(props) as QueryOptions;
 
         // if we skipped initially, we may not have yet created the observable
@@ -377,7 +389,7 @@ export default function graphql(
           this.forceRenderChildren();
         };
 
-        const handleError = (error) => {
+        const handleError = (error: any) => {
           // Quick fix for https://github.com/apollostack/react-apollo/issues/378
           if (error.hasOwnProperty('graphQLErrors')) return next({ error });
           throw error;
@@ -461,7 +473,7 @@ export default function graphql(
 
       render() {
         if (this.shouldSkip()) {
-          return createElement(WrappedComponent, this.props);
+          return createElement(WrappedComponent as React.ComponentClass<T>, this.props);
         }
 
         const { shouldRerender, renderedElement, props } = this;
@@ -477,7 +489,7 @@ export default function graphql(
 
         if (operationOptions.withRef) mergedPropsAndData.ref = 'wrappedInstance';
 
-        this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);
+        this.renderedElement = createElement(WrappedComponent as React.ComponentClass<T>, mergedPropsAndData);
         return this.renderedElement;
       }
     }
