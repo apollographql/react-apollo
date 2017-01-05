@@ -64,13 +64,14 @@
     "README.md"
   ],
   "peerDependencies": {
-    "apollo-client": "^0.4.21 || ^0.5.1",
+    "apollo-client": "^0.4.21 || ^0.5.1 || ^0.6.0",
     "react": "0.14.x || 15.* || ^15.0.0",
     "redux": "^2.0.0 || ^3.0.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.33",
     "@types/enzyme": "^2.4.32",
+    "@types/graphql": "^0.8.5",
     "@types/immutable": "^3.8.3",
     "@types/invariant": "^2.2.27",
     "@types/isomorphic-fetch": "0.0.30",
@@ -85,7 +86,7 @@
     "@types/redux-form": "^4.0.29",
     "@types/redux-immutable": "^3.0.30",
     "@types/sinon": "^1.16.29",
-    "apollo-client": "0.5.13",
+    "apollo-client": "0.6.0",
     "babel-jest": "^14.1.0",
     "babel-preset-react-native": "^1.9.0",
     "browserify": "^13.0.0",
@@ -121,13 +122,13 @@
     "swapi-graphql": "0.0.4",
     "travis-weigh-in": "^1.0.2",
     "tslint": "^3.6.0",
-    "typed-graphql": "^1.0.2",
     "typescript": "^2.0.3",
     "typescript-require": "^0.2.9-1",
     "typings": "^0.7.9",
     "uglify-js": "^2.6.2"
   },
   "dependencies": {
+    "graphql-anywhere": "^2.0.0",
     "hoist-non-react-statics": "^1.2.0",
     "invariant": "^2.2.1",
     "lodash.flatten": "^4.2.0",

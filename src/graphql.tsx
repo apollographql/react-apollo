@@ -24,9 +24,8 @@ import ApolloClient, {
 } from 'apollo-client';
 
 import {
-  // GraphQLResult,
-  Document,
-  FragmentDefinition,
+  DocumentNode,
+  FragmentDefinitionNode,
 } from 'graphql';
 
 import { parser, DocumentType } from './parser';
@@ -34,7 +33,7 @@ import { parser, DocumentType } from './parser';
 export declare interface MutationOptions {
   variables?: Object;
   resultBehaviors?: MutationBehavior[];
-  fragments?: FragmentDefinition[] | FragmentDefinition[][];
+  fragments?: FragmentDefinitionNode[] | FragmentDefinitionNode[][];
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
   forceFetch?: boolean;
@@ -47,7 +46,7 @@ export declare interface QueryOptions {
   returnPartialData?: boolean;
   noFetch?: boolean;
   pollInterval?: number;
-  fragments?: FragmentDefinition[] | FragmentDefinition[][];
+  fragments?: FragmentDefinitionNode[] | FragmentDefinitionNode[][];
   // deprecated
   skip?: boolean;
 }
@@ -122,7 +121,7 @@ export interface OperationOption {
 }
 
 export default function graphql(
-  document: Document,
+  document: DocumentNode,
   operationOptions: OperationOption = {}
 ) {
 

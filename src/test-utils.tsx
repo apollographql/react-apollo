@@ -8,8 +8,8 @@ import {
 } from 'apollo-client/transport/networkInterface';
 
 import {
-  GraphQLResult,
-  Document,
+  ExecutionResult,
+  DocumentNode,
 } from 'graphql';
 
 import { print } from 'graphql-tag/printer';
@@ -74,20 +74,20 @@ export function mockSubscriptionNetworkInterface(
 
 export interface ParsedRequest {
   variables?: Object;
-  query?: Document;
+  query?: DocumentNode;
   debugName?: string;
 }
 
 export interface MockedResponse {
   request: ParsedRequest;
-  result?: GraphQLResult;
+  result?: ExecutionResult;
   error?: Error;
   delay?: number;
   newData?: () => any;
 }
 
 export interface MockedSubscriptionResult {
-  result?: GraphQLResult;
+  result?: ExecutionResult;
   error?: Error;
   delay?: number;
 }
