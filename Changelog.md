@@ -3,11 +3,13 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 ### vNext
-+ [PR #390](https://github.com/apollostack/react-apollo/pull/390) gets rid of warning during queries test.
 
-[PR #391](https://github.com/apollostack/react-apollo/pull/391) gets rid of warnings during redux test.
+### v0.7.3
+- Chore: [PR #390](https://github.com/apollostack/react-apollo/pull/390) gets rid of warning during queries test.
 
- [PR #389](https://github.com/apollostack/react-apollo/pull/389) added a shouldResubscribe option to allow subscriptions to automatically resubscribe when props change.
+- Chore: [PR #391](https://github.com/apollostack/react-apollo/pull/391) gets rid of warnings during redux test.
+
+- Feature: [PR #389](https://github.com/apollostack/react-apollo/pull/389) added a shouldResubscribe option to allow subscriptions to automatically resubscribe when props change.
 
 ### v0.7.2
 
