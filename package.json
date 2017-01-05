@@ -73,7 +73,6 @@
     "@types/chai": "^3.4.33",
     "@types/enzyme": "^2.4.32",
     "@types/graphql": "^0.8.5",
-    "@types/immutable": "^3.8.3",
     "@types/invariant": "^2.2.27",
     "@types/isomorphic-fetch": "0.0.30",
     "@types/jest": "^15.1.32",
