@@ -4,6 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### v0.7.4
+
+- Re-release of 0.7.2 as 0.7.4 after accidentally releasing breaking changes in 0.7.3
+
 ### v0.7.2
 
 - Bug: fix issue where changing variables while unskipping didn't result in the variables actually changing - [Issue #374](https://github.com/apollostack/react-apollo/issues/374)
