@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+[PR #391](https://github.com/apollostack/react-apollo/pull/391) gets rid of warnings during redux test.
+
 ### v0.7.2
 
 - Bug: fix issue where changing variables while unskipping didn't result in the variables actually changing - [Issue #374](https://github.com/apollostack/react-apollo/issues/374)
