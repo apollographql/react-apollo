@@ -6,6 +6,9 @@ import {
   PropTypes,
 } from 'react';
 
+import { FetchMoreOptions, UpdateQueryOptions } from './../node_modules/apollo-client/core/ObservableQuery';
+import { FetchMoreQueryOptions, SubscribeToMoreOptions } from './../node_modules/apollo-client/core/watchQueryOptions';
+
 // modules don't export ES6 modules
 import pick = require('lodash.pick');
 import flatten = require('lodash.flatten');
@@ -68,9 +71,18 @@ function defaultMapPropsToSkip<T>(props: T)  {
   return false;
 }
 
+interface ObservableQueryFields {
+  variables: any;
+  refetch(variables?: any): Promise<ApolloQueryResult>;
+  fetchMore(fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions): Promise<ApolloQueryResult>;
+  updateQuery(mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any): void;
+  startPolling(pollInterval: number): void;
+  stopPolling(): void;
+  subscribeToMore(options: SubscribeToMoreOptions): () => void;
+}
 // the fields we want to copy over to our data prop
-function observableQueryFields(observable: any) {
-  const fields = pick(observable, 'variables',
+function observableQueryFields(observable: ObservableQuery): ObservableQueryFields {
+  const fields = pick<ObservableQueryFields, ObservableQuery>(observable, 'variables',
     'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling', 'subscribeToMore');
 
   Object.keys(fields).forEach((key) => {
@@ -180,8 +192,8 @@ export default function graphql(
       // unsubscribe but never delete queryObservable once it is created.
       private queryObservable: ObservableQuery | any;
       private querySubscription: Subscription;
-      private previousData: any = {};
-      private lastSubscriptionData: any;
+      private previousData: { [i: string]: any } = {};
+      private lastSubscriptionData: { [i: string]: any };
 
       // calculated switches to control rerenders
       private shouldRerender: boolean;
@@ -445,30 +457,31 @@ export default function graphql(
         }
 
         const opts = this.calculateOptions(this.props);
-        const data = {};
-        assign(data, observableQueryFields(this.queryObservable));
+        const data = assign({}, observableQueryFields(this.queryObservable));
+
+        type ResultData = { [i: string]: any };
 
         if (this.type === DocumentType.Subscription) {
-          assign(data, {
+          return assign(data, {
             loading: !this.lastSubscriptionData,
             variables: opts.variables,
-          }, this.lastSubscriptionData);
+          }, this.lastSubscriptionData as ResultData);
 
         } else {
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
           const { loading, error, networkStatus } = currentResult;
-          assign(data, { loading, error, networkStatus });
+          const dataWithCurrentResult = assign(data, { loading, error, networkStatus });
 
           if (loading) {
             // while loading, we should use any previous data we have
-            assign(data, this.previousData, currentResult.data);
+            return assign(dataWithCurrentResult, this.previousData, currentResult.data as ResultData);
           } else {
-            assign(data, currentResult.data);
+            const result = assign(dataWithCurrentResult, currentResult.data as ResultData);
             this.previousData = currentResult.data;
+            return result;
           }
         }
-        return data;
       }
 
       render() {
