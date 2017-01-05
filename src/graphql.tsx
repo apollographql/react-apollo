@@ -523,6 +523,6 @@ export default function graphql(
     // Make sure we preserve any custom statics on the original component.
     hoistNonReactStatics(GraphQL, WrappedComponent, {});
 
-    return GraphQL as React.ComponentClass<T>;
+    return GraphQL as typeof WrappedComponent;
   };
 };
