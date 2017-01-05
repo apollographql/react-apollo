@@ -4,7 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
-### 0.8.0
+### 0.8.1
+- Same as 0.8.0, but properly built
+
+### 0.8.0 (deprecated - build was missing files)
 - Update typings dependency from typed-grapqhl to @types/graphql [PR #393](https://github.com/apollostack/react-apollo/pull/393)
 - Chore: [PR #390](https://github.com/apollostack/react-apollo/pull/390) gets rid of warning during queries test.
 
@@ -15,7 +18,7 @@ Expect active development and potentially significant breaking changes in the `0
 ### v0.7.4
 - Identical to 0.7.2 because 0.7.3 contained breaking change (updated typings)
 
-### v0.7.3 (deprecated)
+### v0.7.3 (deprecated - contained breaking changes)
 - Chore: [PR #390](https://github.com/apollostack/react-apollo/pull/390) gets rid of warning during queries test.
 
 - Chore: [PR #391](https://github.com/apollostack/react-apollo/pull/391) gets rid of warnings during redux test.
