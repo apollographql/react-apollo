@@ -1,6 +1,3 @@
-/// <reference path="./node_modules/typed-graphql/graphql.d.ts" />
-
-
 /*
   LODASH
 */

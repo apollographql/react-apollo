@@ -8,7 +8,7 @@
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
-    "node_modules": true,
+    "node_modules": false,
     "scripts": true,
     "test-lib": true,
     "lib": false,
@@ -22,4 +22,6 @@
     "tslint.json": true,
     "coverage": true
   }
+,
+"typescript.tsdk": "./node_modules/typescript/lib"
 }
