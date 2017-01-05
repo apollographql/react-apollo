@@ -118,6 +118,7 @@ export interface OperationOption {
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
+  shouldResubscribe?: (props: any, nextProps: any) => boolean;
 }
 
 export default function graphql(
@@ -212,7 +213,15 @@ export default function graphql(
         if (this.type === DocumentType.Mutation) {
           return;
         };
-
+        if (this.type === DocumentType.Subscription
+          && operationOptions.shouldResubscribe
+          && operationOptions.shouldResubscribe(this.props, nextProps)) {
+          this.unsubscribeFromQuery();
+          delete this.queryObservable;
+          this.updateQuery(nextProps);
+          this.subscribeToQuery();
+          return;
+        }
         if (this.shouldSkip(nextProps)) {
           if (!this.shouldSkip(this.props)) {
             // if this has changed, we better unsubscribe
@@ -328,7 +337,9 @@ export default function graphql(
           // This workaround is only present in Apollo Client 0.4.21
           this.queryObservable._setOptionsNoResult(opts);
         } else {
-          this.queryObservable.setOptions(opts);
+          if (this.queryObservable.setOptions) {
+            this.queryObservable.setOptions(opts);
+          }
         }
       }
 
@@ -475,7 +486,6 @@ export default function graphql(
         }
 
         if (operationOptions.withRef) mergedPropsAndData.ref = 'wrappedInstance';
-
         this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);
         return this.renderedElement;
       }

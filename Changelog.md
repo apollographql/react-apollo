@@ -7,6 +7,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 [PR #391](https://github.com/apollostack/react-apollo/pull/391) gets rid of warnings during redux test.
 
+ [PR #389](https://github.com/apollostack/react-apollo/pull/389) added a shouldResubscribe option to allow subscriptions to automatically resubscribe when props change.
+
 ### v0.7.2
 
 - Bug: fix issue where changing variables while unskipping didn't result in the variables actually changing - [Issue #374](https://github.com/apollostack/react-apollo/issues/374)
