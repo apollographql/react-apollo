@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 0.8.2
+- Chomre: [PR #403](https://github.com/apollostack/react-apollo/pull/403) move react-dom to be an optional dependency for better react-native builds.
+
 ### 0.8.1
 - Same as 0.8.0, but properly built
 
