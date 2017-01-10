@@ -1,9 +1,9 @@
-import * as React from 'react';
-
 import {
   Component,
   createElement,
   PropTypes,
+  ComponentClass,
+  StatelessComponent,
 } from 'react';
 
 // modules don't export ES6 modules
@@ -153,9 +153,6 @@ export interface OperationOption {
   withRef?: boolean;
   shouldResubscribe?: (props: any, nextProps: any) => boolean;
 }
-
-export type ComponentClass<P> = React.ComponentClass<P>;
-export type StatelessComponent<P> = React.StatelessComponent<P>;
 
 export interface WrapWithApollo {
   <P, TComponentConstruct extends (ComponentClass<P> | StatelessComponent<P>)>(component: TComponentConstruct): TComponentConstruct;
