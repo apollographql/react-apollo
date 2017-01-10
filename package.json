@@ -117,6 +117,7 @@
     "react-native": "^0.38.0",
     "react-redux": "^4.4.5",
     "react-test-renderer": "15.4.0-rc.4",
+    "recompose": "^0.21.2",
     "redux": "^3.5.2",
     "redux-form": "^6.0.5",
     "redux-immutable": "^3.0.7",
