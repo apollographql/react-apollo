@@ -338,7 +338,12 @@ export default function graphql(
           this.queryObservable._setOptionsNoResult(opts);
         } else {
           if (this.queryObservable.setOptions) {
-            this.queryObservable.setOptions(opts);
+            this.queryObservable.setOptions(opts)
+              // The error will be passed to the child container, so we don't
+              // need to log it here. We could concievably log something if
+              // an option was set. OTOH we don't log errors w/ the original
+              // query. See https://github.com/apollostack/react-apollo/issues/404
+              .catch((error) => null);
           }
         }
       }
