@@ -8,6 +8,7 @@ import gql from 'graphql-tag';
 
 import ApolloClient, { ApolloError } from 'apollo-client';
 import { connect } from 'react-redux';
+import { withState } from 'recompose';
 
 declare function require(name: string);
 
@@ -182,6 +183,61 @@ describe('queries', () => {
     };
 
     renderer.create(<ApolloProvider client={client}><ErrorContainer /></ApolloProvider>);
+  });
+
+  describe('uncaught exceptions', () => {
+    let unhandled = [];
+    function handle(reason) {
+      unhandled.push(reason);
+    }
+    beforeEach(() => {
+      unhandled = [];
+      process.on('unhandledRejection', handle);
+    });
+    afterEach(() => {
+      process.removeListener('unhandledRejection', handle);
+    });
+
+    it('does not log when you change variables resulting in an error', (done) => {
+      const query = gql`query people($var: Int) { allPeople(first: $var) { people { name } } }`;
+      const var1 = { var: 1 };
+      const data = { allPeople : { people: { name: 'Luke Skywalker' } } };
+      const var2 = { var: 2 };
+      const networkInterface = mockNetworkInterface({
+        request: { query, variables: var1 }, result: { data },
+      }, {
+        request: { query, variables: var2 }, error: new Error('boo'),
+      });
+      const client = new ApolloClient({ networkInterface, addTypename: false });
+
+      let iteration = 0;
+      @withState('var', 'setVar', 1)
+      @graphql(query)
+      class ErrorContainer extends React.Component<any, any> {
+        componentWillReceiveProps(props) { // tslint:disable-line
+          iteration += 1;
+          if (iteration === 1) {
+            expect(props.data.allPeople).toEqual(data.allPeople)
+            props.setVar(2);
+          } else if (iteration === 2) {
+            expect(props.data.loading).toBeTruthy();
+          } else if (iteration === 3) {
+            expect(props.data.error).toBeTruthy();
+            expect(props.data.error.networkError).toBeTruthy();
+            // We need to set a timeout to ensure the unhandled rejection is swept up
+            setTimeout(() => {
+              expect(unhandled.length).toEqual(0);
+              done()
+            }, 0);
+          }
+        }
+        render() {
+          return null;
+        }
+      };
+
+      renderer.create(<ApolloProvider client={client}><ErrorContainer /></ApolloProvider>);
+    });
   });
 
   it('maps props as variables if they match', (done) => {
