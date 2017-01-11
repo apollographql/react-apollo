@@ -30,6 +30,38 @@ describe('shared operations', () => {
 
       renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     });
+    
+    it('allows a way to access the wrapped component instance', () => {
+      
+      const client = new ApolloClient();
+      
+      const testData = { foo: 'bar' };
+      
+      class Container extends React.Component<any, any> {
+        someMethod() {
+          return testData;
+        }
+
+        render() {
+          return <span></span>;
+        }
+      }
+
+      const Decorated = withApollo(Container, { withRef: true });
+
+      const tree = TestUtils.renderIntoDocument(
+        <ApolloProvider client={client}>
+          <Decorated />
+        </ApolloProvider>
+      ) as any;
+
+      const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
+
+      expect(() => (decorated as any).someMethod()).toThrow();
+      expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
+      expect((decorated as any).refs.wrappedInstance.someMethod()).toEqual(testData);
+
+    });
   });
 
   it('binds two queries to props', () => {
