@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "React data container for Apollo Client",
   "main": "lib/index.js",
   "browser": "lib/browser.js",
@@ -65,7 +65,7 @@
     "README.md"
   ],
   "peerDependencies": {
-    "apollo-client": "^0.6.0",
+    "apollo-client": "^0.6.0 || ^0.7.0",
     "react": "0.14.x || 15.* || ^15.0.0",
     "redux": "^2.0.0 || ^3.0.0"
   },
@@ -89,7 +89,7 @@
     "@types/redux-form": "^4.0.29",
     "@types/redux-immutable": "^3.0.30",
     "@types/sinon": "^1.16.29",
-    "apollo-client": "^0.6.0",
+    "apollo-client": "^0.7.0",
     "babel-jest": "^14.1.0",
     "babel-preset-react-native": "^1.9.0",
     "browserify": "^13.0.0",
