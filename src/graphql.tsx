@@ -37,6 +37,7 @@ export declare interface MutationOptions {
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
   forceFetch?: boolean;
+  alias?: string;
 }
 
 export declare interface QueryOptions {
@@ -47,6 +48,7 @@ export declare interface QueryOptions {
   noFetch?: boolean;
   pollInterval?: number;
   fragments?: FragmentDefinitionNode[] | FragmentDefinitionNode[][];
+  alias?: string;
   // deprecated
   skip?: boolean;
 }
@@ -156,7 +158,7 @@ export default function graphql(
   const version = nextVersion++;
   return function wrapWithApolloComponent(WrappedComponent) {
 
-    const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
+    const graphQLDisplayName = `${mapPropsToOptions({}).alias || `Apollo`}(${getDisplayName(WrappedComponent)})`;
 
     class GraphQL extends Component<any, any> {
       static displayName = graphQLDisplayName;
