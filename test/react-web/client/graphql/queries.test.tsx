@@ -2113,4 +2113,39 @@ describe('queries', () => {
     );
   });
 
+  it('uses a custom wrapped component name when \'alias\' is specified', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let queryExecuted;
+    @graphql(query, {
+      alias: 'withFoo',
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        const queries = client.queryManager.getApolloState().queries;
+        const queryIds = Object.keys(queries);
+        expect(queryIds.length).toEqual(1);
+        const query = queries[queryIds[0]];
+        expect(query.metadata).toEqual({
+          reactComponent: {
+            displayName: 'withFoo(Container)',
+          },
+        });
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>
+    );
+  });
+
 });
