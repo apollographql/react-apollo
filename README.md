@@ -14,6 +14,14 @@ Use your GraphQL server data in your React components, with the [Apollo Client](
 
 Documentation for this client can be found [here](http://docs.apollostack.com/apollo-client/react.html);
 
+### Local Development
+
+If you'd like to run a local copy of this package, you can follow these steps:
+
+- Clone this repo locally.
+- In your local `react-apollo` directory: `npm link` then `npm run compile`.
+- In your app's directory: `npm link react-apollo`.
+
 ## Install
 
 ```bash

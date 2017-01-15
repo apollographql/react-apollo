@@ -131,6 +131,7 @@ export interface OperationOption {
   name?: string;
   withRef?: boolean;
   shouldResubscribe?: (props: any, nextProps: any) => boolean;
+  alias?: string;
 }
 
 export default function graphql(
@@ -139,7 +140,7 @@ export default function graphql(
 ) {
 
   // extract options
-  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip } = operationOptions;
+  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo' } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
@@ -156,7 +157,7 @@ export default function graphql(
   const version = nextVersion++;
   return function wrapWithApolloComponent(WrappedComponent) {
 
-    const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
+    const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
     class GraphQL extends Component<any, any> {
       static displayName = graphQLDisplayName;
