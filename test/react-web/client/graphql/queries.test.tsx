@@ -2113,4 +2113,19 @@ describe('queries', () => {
     );
   });
 
+  it('uses a custom wrapped component name when \'alias\' is specified', () => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    @graphql(query, {
+      alias: 'withFoo',
+    })
+    class Container extends React.Component<any, any> {
+      render() {
+        return null;
+      }
+    }
+
+    // Not sure why I have to cast Container to any
+    expect((Container as any).displayName).toEqual('withFoo(Container)');
+  });
+
 });

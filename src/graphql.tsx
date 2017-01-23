@@ -109,7 +109,10 @@ function getDisplayName(WrappedComponent) {
 // Helps track hot reloading.
 let nextVersion = 0;
 
-export function withApollo(WrappedComponent) {
+export function withApollo(
+  WrappedComponent,
+  operationOptions: OperationOption = {}
+) {
 
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
@@ -133,10 +136,19 @@ export function withApollo(WrappedComponent) {
 
     }
 
+    getWrappedInstance() {
+      invariant(operationOptions.withRef,
+        `To access the wrapped instance, you need to specify ` +
+        `{ withRef: true } in the options`
+      );
+
+      return (this.refs as any).wrappedInstance;
+    }
 
     render() {
       const props = assign({}, this.props);
       props.client = this.client;
+      if (operationOptions.withRef) props.ref = 'wrappedInstance';
       return createElement(WrappedComponent, props);
     }
   }
@@ -152,6 +164,7 @@ export interface OperationOption {
   name?: string;
   withRef?: boolean;
   shouldResubscribe?: (props: any, nextProps: any) => boolean;
+  alias?: string;
 }
 
 export interface WrapWithApollo {
@@ -164,7 +177,7 @@ export default function graphql(
 ) {
 
   // extract options
-  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip } = operationOptions;
+  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo' } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
@@ -182,7 +195,7 @@ export default function graphql(
 
   const wrapWithApolloComponent: WrapWithApollo = WrappedComponent => {
 
-    const graphQLDisplayName = `Apollo(${getDisplayName(WrappedComponent)})`;
+    const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
     class GraphQL extends Component<any, any> {
       static displayName = graphQLDisplayName;
