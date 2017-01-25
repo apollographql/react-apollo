@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
-import ApolloClient, { createFragment } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 
 declare function require(name: string);
 
@@ -28,7 +28,6 @@ describe('fragments', () => {
         componentWillReceiveProps(props) {
           expect(props.data.loading).toBe(false);
           expect(props.data.allPeople).toEqual(data.allPeople);
-          done();
         }
         render() {
           return null;
@@ -79,25 +78,8 @@ describe('fragments', () => {
           ...ships
         }
       }
-      fragment Person on PeopleConnection { people { name } }
-    `;
-    const shipFragment = createFragment(gql`
       fragment ships on ShipsConnection { starships { name } }
-    `);
-
-    const mockedQuery = gql`
-      query peopleAndShips {
-        allPeople(first: 1) {
-          __typename
-          ...Person
-        }
-        allShips(first: 1) {
-          __typename
-          ...ships
-        }
-      }
       fragment Person on PeopleConnection { people { name } }
-      fragment ships on ShipsConnection { starships { name } }
     `;
 
     const data = {
@@ -105,13 +87,11 @@ describe('fragments', () => {
       allShips: { __typename: 'ShipsConnection', starships: [ { name: 'CR90 corvette' } ] },
     };
     const networkInterface = mockNetworkInterface(
-      { request: { query: mockedQuery }, result: { data } }
+      { request: { query: query }, result: { data } }
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query, {
-      options: () => ({ fragments: shipFragment }),
-    })
+    @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
@@ -130,10 +110,8 @@ describe('fragments', () => {
   it('correctly allows for passed fragments', (done) => {
     const query = gql`
       query ships { allShips(first: 1) { __typename ...Ships } }
-    `;
-    const shipFragment = createFragment(gql`
       fragment Ships on ShipsConnection { starships { name } }
-    `);
+    `;
 
     const mockedQuery = gql`
       query ships { allShips(first: 1) { __typename ...Ships } }
@@ -148,9 +126,7 @@ describe('fragments', () => {
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query, {
-      options: () => ({ fragments: shipFragment}),
-    })
+    @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
@@ -168,10 +144,8 @@ describe('fragments', () => {
   it('correctly allows for passed fragments in an array', (done) => {
     const query = gql`
       query ships { allShips(first: 1) { __typename ...Ships } }
-    `;
-    const shipFragment = createFragment(gql`
       fragment Ships on ShipsConnection { starships { name } }
-    `);
+    `;
 
     const mockedQuery = gql`
       query ships { allShips(first: 1) { __typename ...Ships } }
@@ -186,9 +160,7 @@ describe('fragments', () => {
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query, {
-      options: () => ({ fragments: [shipFragment]}),
-    })
+    @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
