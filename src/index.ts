@@ -1,4 +1,3 @@
-import ApolloProvider from './ApolloProvider';
-import connect from './connect';
+export * from './browser';
 
-export { ApolloProvider, connect };
+export { getDataFromTree, renderToStringWithData } from './server';

@@ -8,9 +8,20 @@
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
-    // "node_modules": true,
+    "node_modules": false,
+    "scripts": true,
     "test-lib": true,
-    "lib": true,
+    "lib": false,
+    ".gitignore": true,
+    ".npmignore": true,
+    ".travis.*": false,
+    "appveyor.yml": true,
+    "LICENSE": true,
+    "typings.d.ts": false,
+    "tsconfig.json": false,
+    "tslint.json": true,
     "coverage": true
   }
+,
+"typescript.tsdk": "./node_modules/typescript/lib"
 }

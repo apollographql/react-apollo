@@ -8,14 +8,13 @@
     ],
     "ban": false,
     "class-name": true,
-    "curly": true,
+    "curly": false,
     "eofline": true,
-    "forin": true,
+    "forin": false,
     "indent": [
       true,
       "spaces"
     ],
-    "interface-name": false,
     "jsdoc-format": true,
     "label-position": true,
     "label-undefined": true,
