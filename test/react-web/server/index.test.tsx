@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
-import ApolloClient, { createNetworkInterface, createFragment } from 'apollo-client';
+import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { graphql, ApolloProvider } from '../../../src';
 import { walkTree, getDataFromTree, renderToStringWithData } from '../../../src/server';
 import 'isomorphic-fetch';
@@ -670,19 +670,15 @@ describe('SSR', () => {
     });
 
     it('should work with queries that use fragments', function() {
-      const query = gql`{ currentUser { __typename, ...userInfo } }`;
-      const userInfoFragment = createFragment(gql`fragment userInfo on User { firstName, lastName }`);
+      const userInfoFragment = gql`fragment userInfo on User { firstName, lastName }`;
+      const query = gql`{ currentUser { __typename, ...userInfo } } ${userInfoFragment}`;
       const data = { currentUser: { __typename: 'User', firstName: 'John', lastName: 'Smith' } };
       const networkInterface = {
         query: () => Promise.resolve({ data }),
       };
       const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
-      const UserPage = graphql(query, {
-        options: {
-          fragments: userInfoFragment
-        }
-      })(({ data }) => (
+      const UserPage = graphql(query)(({ data }) => (
           <div>{data.loading ? 'Loading...' : `${data.currentUser.firstName} ${data.currentUser.lastName}`}</div>
       ));
 
