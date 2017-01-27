@@ -6,7 +6,6 @@ import {
 
 // modules don't export ES6 modules
 import pick = require('lodash.pick');
-import flatten = require('lodash.flatten');
 import shallowEqual from './shallowEqual';
 
 import invariant = require('invariant');
@@ -16,7 +15,6 @@ import hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
   ObservableQuery,
-  MutationBehavior,
   MutationQueryReducersMap,
   Subscription,
   ApolloStore,
@@ -25,15 +23,12 @@ import ApolloClient, {
 
 import {
   DocumentNode,
-  FragmentDefinitionNode,
 } from 'graphql';
 
 import { parser, DocumentType } from './parser';
 
 export declare interface MutationOptions {
   variables?: Object;
-  resultBehaviors?: MutationBehavior[];
-  fragments?: FragmentDefinitionNode[] | FragmentDefinitionNode[][];
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
   forceFetch?: boolean;
@@ -46,7 +41,6 @@ export declare interface QueryOptions {
   returnPartialData?: boolean;
   noFetch?: boolean;
   pollInterval?: number;
-  fragments?: FragmentDefinitionNode[] | FragmentDefinitionNode[][];
   // deprecated
   skip?: boolean;
 }
@@ -179,7 +173,7 @@ export default function graphql(
 
       // request / action storage. Note that we delete querySubscription if we
       // unsubscribe but never delete queryObservable once it is created.
-      private queryObservable: ObservableQuery | any;
+      private queryObservable: ObservableQuery<any> | any;
       private querySubscription: Subscription;
       private previousData: any = {};
       private lastSubscriptionData: any;
@@ -265,10 +259,6 @@ export default function graphql(
           newOpts.variables = assign({}, opts.variables, newOpts.variables);
         }
         if (newOpts) opts = assign({}, opts, newOpts);
-
-        if (opts.fragments) {
-          opts.fragments = flatten(opts.fragments);
-        }
 
         if (opts.variables || !operation.variables.length) return opts;
 
@@ -362,7 +352,7 @@ export default function graphql(
       }
 
       // For server-side rendering (see server.ts)
-      fetchData(): Promise<ApolloQueryResult> | boolean {
+      fetchData(): Promise<ApolloQueryResult<any>> | boolean {
         if (this.shouldSkip()) return false;
         if (
           operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
