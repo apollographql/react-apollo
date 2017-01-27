@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 0.9.0
+- Update apollo-client peerDependency to 0.8.0 [PR #438](https://github.com/apollostack/react-apollo/pull/438)
+
 ### 0.8.3
 - Bug: [Issue #404](https://github.com/apollostack/react-apollo/issues/404) fix issue with network errors thrown when changing variables.
 
