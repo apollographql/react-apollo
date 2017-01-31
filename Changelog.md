@@ -3,15 +3,14 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 ### vNext
+- Feature: [typescript] Add better typings to graphql HOC [Issue #379](https://github.com/apollostack/react-apollo/issues/379)
 
 ### 0.9.0
 - Update apollo-client peerDependency to 0.8.0 [PR #438](https://github.com/apollostack/react-apollo/pull/438)
 
 ### 0.8.3
 - Bug: [Issue #404](https://github.com/apollostack/react-apollo/issues/404) fix issue with network errors thrown when changing variables.
-
 - Feature: Allow access to `withApollo`'s wrapped instance thanks to `{withRef: true}` option [Issue #331](https://github.com/apollostack/react-apollo/issues/331).
-
 - Feature: Add an `alias` option to the `graphql` function to allow customizing the display name of the wrapped component ([Issue #354](https://github.com/apollostack/react-apollo/issues/354)).
 
 ### 0.8.2
@@ -44,7 +43,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 - Bug: fix issue with no longer passing errors to components w/ `apollo-client@0.5.23` - [Issue #378](https://github.com/apollostack/react-apollo/issues/378)
 
-- Add `react-dom` to `peerDependencies` because since React 15.4 it is no longer "secretly" included.  
+- Add `react-dom` to `peerDependencies` because since React 15.4 it is no longer "secretly" included.
   _(ref: https://github.com/facebook/react/releases/tag/v15.4.0)_
 
 ### v0.7.1

@@ -2,6 +2,8 @@ import {
   Component,
   createElement,
   PropTypes,
+  ComponentClass,
+  StatelessComponent,
 } from 'react';
 
 // modules don't export ES6 modules
@@ -19,9 +21,21 @@ import ApolloClient, {
   Subscription,
   ApolloStore,
   ApolloQueryResult,
+  ApolloError,
 } from 'apollo-client';
 
 import {
+  FetchMoreOptions,
+  UpdateQueryOptions,
+} from 'apollo-client/core/ObservableQuery';
+
+import {
+  FetchMoreQueryOptions,
+  SubscribeToMoreOptions,
+} from 'apollo-client/core/watchQueryOptions';
+
+import {
+  // GraphQLResult,
   DocumentNode,
 } from 'graphql';
 
@@ -43,6 +57,25 @@ export declare interface QueryOptions {
   pollInterval?: number;
   // deprecated
   skip?: boolean;
+}
+
+export interface GraphQLDataProps {
+  error?: ApolloError;
+  networkStatus: number;
+  loading: boolean;
+  variables: {
+    [variable: string]: any;
+  };
+  fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult>;
+  refetch: (variables?: any) => Promise<ApolloQueryResult>;
+  startPolling: (pollInterval: number) => void;
+  stopPolling: () => void;
+  subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
+  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
+}
+
+export interface InjectedGraphQLProps<T> {
+  data?: T & GraphQLDataProps;
 }
 
 const defaultMapPropsToOptions = props => ({});
@@ -128,6 +161,10 @@ export interface OperationOption {
   alias?: string;
 }
 
+export interface WrapWithApollo {
+  <P, TComponentConstruct extends (ComponentClass<P> | StatelessComponent<P>)>(component: TComponentConstruct): TComponentConstruct;
+}
+
 export default function graphql(
   document: DocumentNode,
   operationOptions: OperationOption = {}
@@ -149,7 +186,8 @@ export default function graphql(
 
   // Helps track hot reloading.
   const version = nextVersion++;
-  return function wrapWithApolloComponent(WrappedComponent) {
+
+  const wrapWithApolloComponent: WrapWithApollo = WrappedComponent => {
 
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
@@ -503,4 +541,5 @@ export default function graphql(
     return hoistNonReactStatics(GraphQL, WrappedComponent, {});
   };
 
+  return wrapWithApolloComponent;
 };
