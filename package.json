@@ -8,7 +8,7 @@
   "scripts": {
     "deploy": "npm run compile && npm test && npm publish",
     "test": "jest",
-    "flow": "flow; test $? -eq 0 -o $? -eq 2",
+    "test-watch": "jest --watch",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=15",
     "compile": "tsc",
@@ -40,7 +40,7 @@
     "preset": "jest-react-native",
     "testEnvironment": "jsdom",
     "transform": {
-      ".*": "preprocessor.js"
+      ".*": "<rootDir>/preprocessor.js"
     },
     "moduleFileExtensions": [
       "ts",
@@ -98,13 +98,13 @@
     "enzyme": "^2.2.0",
     "enzyme-to-json": "^1.1.5",
     "flow-bin": "^0.32.0",
-    "graphql": "^0.5.0",
+    "graphql": "^0.9.1",
     "graphql-tag": "^0.1.7",
     "gzip-size": "^3.0.0",
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
-    "jest": "^16.1.0-alpha.691b0e22",
-    "jest-react-native": "^16.1.0-alpha.691b0e22",
+    "jest": "^18.1.0",
+    "jest-react-native": "^18.0.0",
     "jsdom": "^8.3.1",
     "lodash": "^4.16.6",
     "minimist": "^1.2.0",
