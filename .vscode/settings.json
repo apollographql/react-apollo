@@ -4,7 +4,7 @@
   "editor.rulers": [100],
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
-  "editor.wrappingColumn": 100,
+  "editor.wrappingColumn": -1,
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,

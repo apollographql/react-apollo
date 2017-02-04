@@ -66,8 +66,8 @@ export interface GraphQLDataProps {
   variables: {
     [variable: string]: any;
   };
-  fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult>;
-  refetch: (variables?: any) => Promise<ApolloQueryResult>;
+  fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: any) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;

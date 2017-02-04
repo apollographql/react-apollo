@@ -44,6 +44,8 @@ describe('<ApolloProvider /> Component', () => {
   });
 
   it('should require a client', () => {
+    const originalConsoleError = console.error;
+    console.error = () => { /* noop */ };
     expect(() => {
       shallow(
         <ApolloProvider client={undefined}>
@@ -54,6 +56,7 @@ describe('<ApolloProvider /> Component', () => {
       'ApolloClient was not passed a client instance. Make ' +
       'sure you pass in your client via the "client" prop.'
     );
+    console.error = originalConsoleError;
   });
 
   it('should not require a store', () => {
@@ -67,11 +70,14 @@ describe('<ApolloProvider /> Component', () => {
   });
 
   it('should throw if rendered without a child component', () => {
+    const originalConsoleError = console.error;
+    console.error = () => { /* noop */ };
     expect(() => {
       shallow(
         <ApolloProvider store={store} client={client}/>
       );
     }).toThrowError(Error);
+    console.error = originalConsoleError;
   });
 
   it('should add the client to the child context', () => {
