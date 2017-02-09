@@ -38,7 +38,7 @@ describe('fragments', () => {
       renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
       throw new Error();
     } catch (e) {
-      expect(e.name).toMatch(/TypeError/);
+      expect(e.name).toMatch(/Invariant Violation/);
     }
   });
 
