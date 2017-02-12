@@ -18,9 +18,7 @@ describe('parser', () => {
       mutation ($t: String) { addT(t: $t) { user { name } } }
     `;
 
-    try { parser(query); } catch (e) {
-      expect(e).toMatch(/Invariant Violation/);
-    }
+    expect(parser.bind(null, query)).toThrowError(/react-apollo only supports/);
   });
 
   it('should error if multiple operations are present', () => {
@@ -29,9 +27,15 @@ describe('parser', () => {
       query Two { user { name } }
     `;
 
-    try { parser(query); } catch (e) {
-      expect(e).toMatch(/Invariant Violation/);
-    }
+    expect(parser.bind(null, query)).toThrowError(/react-apollo only supports/);
+  });
+
+  it('should error if not a DocumentNode', () => {
+    const query = `
+      query One { user { name } }
+    `;
+
+    expect(parser.bind(null, query)).toThrowError(/not a valid GraphQL DocumentNode/);
   });
 
   it('should return the name of the operation', () => {
