@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 0.10.1
+- Fix wrong invariant sanity checks for GraphQL document [PR #457](https://github.com/apollostack/react-apollo/issues/457)
 
 ### 0.10.0
 - Feature: [typescript] Add better typings to graphql HOC [Issue #379](https://github.com/apollostack/react-apollo/issues/379)
