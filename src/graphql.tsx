@@ -477,6 +477,9 @@ export default function graphql(
       }
 
       dataForChild() {
+        if (this.shouldSkip()) {
+          return {skipped: true};
+        }
         if (this.type === DocumentType.Mutation) {
           return (mutationOpts: MutationOptions) => {
             const opts = this.calculateOptions(this.props, mutationOpts);
@@ -516,10 +519,6 @@ export default function graphql(
       }
 
       render() {
-        if (this.shouldSkip()) {
-          return createElement(WrappedComponent, this.props);
-        }
-
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 

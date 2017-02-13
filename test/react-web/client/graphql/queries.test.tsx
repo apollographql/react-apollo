@@ -398,7 +398,7 @@ describe('queries', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data).toBeUndefined();
+        expect(this.props.data).toEqual({skipped: true});
         return null;
       }
     };
@@ -424,7 +424,7 @@ describe('queries', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data).toBeUndefined();
+        expect(this.props.data).toEqual({skipped: true});
         return null;
       }
     };
@@ -474,7 +474,7 @@ describe('queries', () => {
     renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
   });
 
-  it('doesn\'t run options or props when skipped', (done) => {
+  it('doesn\'t run options when skipped', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -484,14 +484,45 @@ describe('queries', () => {
     @graphql(query, {
       skip: ({ skip }) => skip,
       options: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
-      props: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data).toBeFalsy();
+        expect(this.props.data).toEqual({skipped: true});
+        return null;
+      }
+    };
+
+    renderer.create(<ApolloProvider client={client}><Container skip={true} /></ApolloProvider>);
+
+    setTimeout(() => {
+      if (!queryExecuted) { done(); return; }
+      fail(new Error('query ran even though skip present'));
+    }, 25);
+  });
+
+  it('runs props even when skipped', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let queryExecuted;
+    @graphql(query, {
+      skip: ({ skip }) => skip,
+      props: ({ data }) => {
+        expect(data).toEqual({skipped: true});
+        return {skippery: data.skipped};
+      }
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        queryExecuted = true;
+      }
+      render() {
+        expect(this.props.skippery).toBeTruthy;
         return null;
       }
     };
@@ -517,7 +548,7 @@ describe('queries', () => {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data).toBeFalsy();
+        expect(this.props.data).toEqual({skipped: true});
         return null;
       }
     };

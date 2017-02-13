@@ -249,8 +249,8 @@ describe('SSR', () => {
       );
       const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
-      const WrappedElement = graphql(query, { options: { skip: true }})(({ data }) => (
-        <div>{data ? 'loading' : 'skipped'}</div>
+      const WrappedElement = graphql(query, { options: { skip: true }})(({ data: {skipped} }) => (
+        <div>{skipped ? 'skipped': 'dang'}</div>
       ));
 
       const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
@@ -272,8 +272,8 @@ describe('SSR', () => {
       );
       const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
-      const WrappedElement = graphql(query, { skip: true })(({ data }) => (
-        <div>{!data ? 'skipped' : 'dang'}</div>
+      const WrappedElement = graphql(query, { skip: true })(({ data: {skipped} }) => (
+        <div>{skipped ? 'skipped' : 'dang'}</div>
       ));
 
       const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
