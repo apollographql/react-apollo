@@ -19,7 +19,9 @@
     "./typings.d.ts",
     "./src/index.ts",
     "./src/server.ts",
-    "./src/test-utils.tsx"
+    "./src/test-utils.tsx",
+    "./test/**/*.ts",
+    "./test/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
