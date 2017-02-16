@@ -4,7 +4,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
-### 0.11.0
+### 0.11.1
 - Fix `updateQueries` not running for queries attached to unmounted components. [PR #462](https://github.com/apollographql/react-apollo/pull/462)
 
 ### 0.10.1
