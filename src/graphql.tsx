@@ -576,12 +576,17 @@ export default function graphql(
  * An observable query recycler stores some observable queries that are no
  * longer in use, but that we may someday use again.
  *
- * Recycling observable queries avoids a few nasty bugs that may be hit when
- * using the `react-apollo` API. Namely not updating queries when a component
- * unmounts, and calling reducers/`updateQueries` more times then is necessary
- * for old observable queries.
+ * Recycling observable queries avoids a few unexpected functionalities that
+ * may be hit when using the `react-apollo` API. Namely not updating queries
+ * when a component unmounts, and calling reducers/`updateQueries` more times
+ * then is necessary for old observable queries.
  *
  * We assume that the GraphQL document for every `ObservableQuery` is the same.
+ *
+ * For more context on why this was added and links to the issues recycling
+ * `ObservableQuery`s fixes see issue [#462][1].
+ *
+ * [1]: https://github.com/apollographql/react-apollo/pull/462
  */
 class ObservableQueryRecycler {
   /**
