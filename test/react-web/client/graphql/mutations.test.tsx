@@ -394,6 +394,25 @@ describe('mutations', () => {
     renderer.create(<ApolloProvider client={client}><Container id={'123'} /></ApolloProvider>);
   });
 
+  // This is a long test that keeps track of a lot of stuff. It is testing
+  // whether or not the `updateQueries` reducers will run even when a given
+  // container component is unmounted.
+  //
+  // It does this with the following procedure:
+  //
+  // 1. Mount a mutation component.
+  // 2. Mount a query component.
+  // 3. Run the mutation in the mutation component.
+  // 4. Check the props in the query component.
+  // 5. Unmount the query component.
+  // 6. Run the mutation in the mutation component again.
+  // 7. Remount the query component.
+  // 8. Check the props in the query component to confirm that the mutation
+  //    that was run while we were unmounted changed the query component’s
+  //    props.
+  //
+  // There are also a lot more assertions on the way to make sure everything is
+  // going as smoothly as planned.
   it('will run `updateQueries` for a previously mounted component', () => new Promise((resolve, reject) => {
     const mutation = gql`
       mutation createTodo {

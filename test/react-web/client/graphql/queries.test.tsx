@@ -2300,6 +2300,13 @@ describe('queries', () => {
       expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1', '2']);
       const queryObservable3 = (client as any).queryManager.observableQueries['1'].observableQuery;
       const queryObservable4 = (client as any).queryManager.observableQueries['2'].observableQuery;
+
+      // What we really want to test here is if the `queryObservable` on
+      // `Container`s are referentially equal. But because there is no way to
+      // get the component instances we compare against the query manager
+      // observable queries map isntead which shouldn’t change.
+      expect(queryObservable3).not.toBeFalsy();
+      expect(queryObservable4).not.toBeFalsy();
       expect(queryObservable3).toBe(queryObservable1);
       expect(queryObservable4).toBe(queryObservable2);
 
