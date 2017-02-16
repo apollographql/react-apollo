@@ -191,6 +191,14 @@ export default function graphql(
 
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
+    // A recycler that we can use to recycle old observable queries to keep
+    // them hot between component unmounts and remounts.
+    //
+    // Note that the existence of this recycler could potentially cause memory
+    // leaks if many components are being created and unmounted in parallel.
+    // However, this is an unlikely scenario.
+    const recycler = new ObservableQueryRecycler();
+
     class GraphQL extends Component<any, any> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
@@ -210,7 +218,8 @@ export default function graphql(
       private type: DocumentType;
 
       // request / action storage. Note that we delete querySubscription if we
-      // unsubscribe but never delete queryObservable once it is created.
+      // unsubscribe but never delete queryObservable once it is created. We
+      // only delete queryObservable when we unmount the component.
       private queryObservable: ObservableQuery<any> | any;
       private querySubscription: Subscription;
       private previousData: any = {};
@@ -284,7 +293,17 @@ export default function graphql(
       }
 
       componentWillUnmount() {
-        if (this.type === DocumentType.Query) this.unsubscribeFromQuery();
+        if (this.type === DocumentType.Query) {
+          // Recycle the query observable if there ever was one.
+          if (this.queryObservable) {
+            recycler.recycle(this.queryObservable);
+            delete this.queryObservable;
+          }
+
+          // Unsubscribe from our query subscription.
+          this.unsubscribeFromQuery();
+        }
+
         if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
 
         this.hasMounted = false;
@@ -353,14 +372,23 @@ export default function graphql(
             query: document,
           }, opts));
         } else {
-          this.queryObservable = this.client.watchQuery(assign({
-            query: document,
-            metadata: {
-              reactComponent: {
-                displayName: graphQLDisplayName,
+          // Try to reuse an `ObservableQuery` instance from our recycler. If
+          // we get null then there is no instance to reuse and we should
+          // create a new `ObservableQuery`. Otherwise we will use our old one.
+          const queryObservable = recycler.reuse(opts);
+
+          if (queryObservable === null) {
+            this.queryObservable = this.client.watchQuery(assign({
+              query: document,
+              metadata: {
+                reactComponent: {
+                  displayName: graphQLDisplayName,
+                },
               },
-            },
-          }, opts));
+            }, opts));
+          } else {
+            this.queryObservable = queryObservable;
+          }
         }
       }
 
@@ -543,3 +571,79 @@ export default function graphql(
 
   return wrapWithApolloComponent;
 };
+
+/**
+ * An observable query recycler stores some observable queries that are no
+ * longer in use, but that we may someday use again.
+ *
+ * Recycling observable queries avoids a few unexpected functionalities that
+ * may be hit when using the `react-apollo` API. Namely not updating queries
+ * when a component unmounts, and calling reducers/`updateQueries` more times
+ * then is necessary for old observable queries.
+ *
+ * We assume that the GraphQL document for every `ObservableQuery` is the same.
+ *
+ * For more context on why this was added and links to the issues recycling
+ * `ObservableQuery`s fixes see issue [#462][1].
+ *
+ * [1]: https://github.com/apollographql/react-apollo/pull/462
+ */
+class ObservableQueryRecycler {
+  /**
+   * The internal store for our observable queries and temporary subscriptions.
+   */
+  private observableQueries: Array<{
+    observableQuery: ObservableQuery<any>,
+    subscription: Subscription,
+  }> = [];
+
+  /**
+   * Recycles an observable query that the recycler is finished with. It is
+   * stored in this class so that it may be used later on.
+   *
+   * A subscription is made to the observable query so that it continues to
+   * live even though the updates are noops.
+   *
+   * By recycling an observable query we keep the results fresh so that when it
+   * gets reused all of the mutations that have happened since recycle and
+   * reuse have been applied.
+   */
+  public recycle (observableQuery: ObservableQuery<any>): void {
+    // Stop the query from polling when we recycle. Polling may resume when we
+    // reuse it and call `setOptions`.
+    observableQuery.stopPolling();
+
+    this.observableQueries.push({
+      observableQuery,
+      subscription: observableQuery.subscribe({}),
+    });
+  }
+
+  /**
+   * Reuses an observable query that was recycled earlier on in this class’s
+   * lifecycle. This observable was kept fresh by our recycler with a
+   * subscription that will be unsubscribed from before returning the
+   * observable query.
+   *
+   * All mutations that occured between the time of recycling and the time of
+   * reusing have been applied.
+   */
+  public reuse (options: QueryOptions): ObservableQuery<any> {
+    if (this.observableQueries.length <= 0) {
+      return null;
+    }
+    const { observableQuery, subscription } = this.observableQueries.pop();
+    subscription.unsubscribe();
+
+    // When we reuse an `ObservableQuery` then the document and component
+    // GraphQL display name should be the same. Only the options may be
+    // different.
+    //
+    // Therefore we need to set the new options.
+    //
+    // If this observable query used to poll then polling will be restarted.
+    observableQuery.setOptions(options);
+
+    return observableQuery;
+  }
+}
