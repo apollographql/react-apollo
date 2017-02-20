@@ -73,7 +73,6 @@
     "react-dom": "0.14.x || 15.* || ^15.0.0"
   },
   "devDependencies": {
-    "@types/chai": "^3.4.33",
     "@types/enzyme": "^2.4.32",
     "@types/graphql": "^0.8.5",
     "@types/invariant": "^2.2.27",
