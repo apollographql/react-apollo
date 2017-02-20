@@ -3,6 +3,8 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 ### vNext
+
+### 0.11.2
 - Remove `@types/chai` dev dependency which called a reference to the `chai` types in the production build. [PR #471](https://github.com/apollographql/react-apollo/pull/471)
 
 ### 0.11.1
