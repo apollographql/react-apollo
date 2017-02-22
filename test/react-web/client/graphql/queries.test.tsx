@@ -1384,7 +1384,7 @@ describe('queries', () => {
     );
   });
 
-  it('resets the loading state after a refetched query', (done) => {
+  it('resets the loading state after a refetched query', () => new Promise((resolve, reject) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
@@ -1394,39 +1394,38 @@ describe('queries', () => {
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    let refetched;
-    let isRefetching;
+    let count = 0;
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps = wrap(done, (props) => {
-        if (!isRefetching) {
-          isRefetching = true;
-          expect(props.data.networkStatus).toBe(7);
-          props.data.refetch();
-          return;
+      componentWillReceiveProps = wrap(reject, (props) => {
+        switch (count++) {
+          case 0:
+            expect(props.data.networkStatus).toBe(7);
+            props.data.refetch();
+            break;
+          case 1:
+            expect(props.data.loading).toBe(true);
+            expect(props.data.networkStatus).toBe(4);
+            expect(props.data.allPeople).toEqual(data.allPeople);
+            break;
+          case 2:
+            expect(props.data.loading).toBe(false);
+            expect(props.data.networkStatus).toBe(7);
+            expect(props.data.allPeople).toEqual(data2.allPeople);
+            resolve();
+            break;
+          default:
+            reject(new Error('Too many props updates'));
         }
+      });
 
-        // get new data with no more loading state
-        if (isRefetching) {
-          expect(props.data.loading).toBe(false);
-          expect(props.data.networkStatus).toBe(4);
-          expect(props.data.allPeople).toEqual(data2.allPeople);
-          refetched = true;
-          return;
-        }
-
-        if (refetched) {
-          expect(props.data.networkStatus).toBe(7);
-          done();
-        }
-      })
       render() {
         return null;
       }
     };
 
-    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
-  });
+    const wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+  }));
 
   // XXX: this does not occur at the moment. When we add networkStatus, we should
   // see a few more states
