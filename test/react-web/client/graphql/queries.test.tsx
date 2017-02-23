@@ -2318,4 +2318,68 @@ describe('queries', () => {
     }, 10);
   });
 
+  it('will log a warning when there is an error that is not caught in the render method', () => new Promise((resolve, reject) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, error: new Error('oops 1') },
+      { request: { query }, error: new Error('oops 2') },
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    const origError = console.error;
+    const errorMock = jest.fn();
+    console.error = errorMock;
+
+    @graphql(query)
+    class UnhandledErrorComponent extends React.Component<any, any> {
+      render() {
+        return null;
+      }
+    }
+
+    let count = 0;
+    @graphql(query)
+    class HandledErrorComponent extends React.Component<any, any> {
+      render() {
+        try {
+          switch (count++) {
+            case 0:
+              expect(this.props.data.loading).toEqual(true);
+              break;
+            case 1:
+              expect(this.props.data.error.message).toEqual('Network error: oops 2');
+              break;
+            default:
+              throw new Error('Too many renders.');
+          }
+        } catch (error) {
+          reject(error);
+        }
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <div>
+          <UnhandledErrorComponent/>
+          <HandledErrorComponent/>
+        </div>
+      </ApolloProvider>
+    );
+
+    setTimeout(() => {
+      try {
+        expect(errorMock.mock.calls.length).toBe(2);
+        expect(errorMock.mock.calls[0][0]).toEqual('Uncaught (in react-apollo)');
+        expect(errorMock.mock.calls[1][0]).toEqual('Uncaught (in react-apollo)');
+        resolve();
+      } catch (error) {
+        reject(error);
+      } finally {
+        console.error = origError;
+      }
+    }, 20);
+  }));
+
 });
