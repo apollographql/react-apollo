@@ -316,7 +316,7 @@ describe('queries', () => {
 
     let error = null;
     try {
-      renderer.create(<ApolloProvider client={client}><Container frst={1} /></ApolloProvider>);
+      renderer.create(<ApolloProvider client={client}><Container first={1} /></ApolloProvider>);
     } catch (e) { error = e; }
 
     expect(error).toBeNull();
