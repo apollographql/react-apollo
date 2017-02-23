@@ -1227,6 +1227,7 @@ describe('queries', () => {
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface, addTypename: false });
+    let wrapper;
 
     // @graphql(query)
     @graphql(query, { options: { pollInterval: 10 }})
@@ -1236,14 +1237,17 @@ describe('queries', () => {
         expect(data.startPolling instanceof Function).toBe(true);
         // XXX this does throw because of no pollInterval
         // expect(data.startPolling).not.toThrow();
-        done();
+        setTimeout(() => {
+          wrapper.unmount();
+          done();
+        }, 0);
       }
       render() {
         return null;
       }
     };
 
-    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+    wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('exposes networkStatus as a part of the props api', (done) => {
