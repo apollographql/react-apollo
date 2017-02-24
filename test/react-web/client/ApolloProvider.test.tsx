@@ -29,9 +29,38 @@ describe('<ApolloProvider /> Component', () => {
       return <div />;
     }
   }
+  class Container extends React.Component<any, any> {
+    constructor(props) {
+      super(props)
+      this.state = {}
+    }
+
+    componentDidMount() {
+      this.setState({
+        store: this.props.store,
+        client: this.props.client
+      })
+    }
+
+    render() {
+      if (this.state.store || this.props.store) {
+        return (
+          <ApolloProvider client={this.state.client || this.props.client}
+            store={this.state.store || this.props.store}>
+            <Child />
+          </ApolloProvider>
+        )
+      } else {
+        return (
+          <ApolloProvider client={this.state.client || this.props.client}>
+            <Child />
+          </ApolloProvider>
+        )
+      }
+    }
+  };
   const client = new ApolloClient();
   const store = createStore(() => ({}));
-
 
   it('should render children components', () => {
     const wrapper = shallow(
@@ -103,4 +132,68 @@ describe('<ApolloProvider /> Component', () => {
     expect(child.context.store).toEqual(store);
 
   });
+
+  it('should update props when the client changes', () => {
+    const container = shallow(<Container client={client} />);
+    expect(container.find(ApolloProvider).props().client).toEqual(client);
+
+    const newClient = new ApolloClient();
+    container.setState({ client: newClient });
+    expect(container.find(ApolloProvider).props().client).toEqual(newClient);
+    expect(container.find(ApolloProvider).props().client).not.toEqual(client);
+  });
+
+  it('should update props when the store changes', () => {
+    const container = shallow(<Container client={client} store={store} />);
+    expect(container.find(ApolloProvider).props().store).toEqual(store);
+
+    const newStore = createStore(() => ({}));
+    container.setState({ store: newStore });
+    expect(container.find(ApolloProvider).props().store).toEqual(newStore);
+    expect(container.find(ApolloProvider).props().store).not.toEqual(store);
+  });
+
+  it('should call clients init store when a store is not passed', () => {
+    const testClient = new ApolloClient();
+    testClient.store = store;
+
+    const initStoreMock = jest.fn();
+    testClient.initStore = initStoreMock;
+
+    const container = TestUtils.renderIntoDocument(
+      <Container client={testClient} />
+    ) as React.Component<any, any>;
+    expect(initStoreMock).toHaveBeenCalled();
+
+    initStoreMock.mockClear();
+    const newClient = new ApolloClient();
+    newClient.store = store;
+    newClient.initStore = initStoreMock;
+    container.setState({ client: newClient });
+
+    expect(initStoreMock).toHaveBeenCalled();
+  })
+
+  it('should not call clients init store when a store is passed', () => {
+    const testClient = new ApolloClient();
+
+    const initStoreMock = jest.fn();
+    testClient.initStore = initStoreMock;
+
+    const container = TestUtils.renderIntoDocument(
+      <Container client={testClient} store={store} />
+    ) as React.Component<any, any>;
+
+    expect(initStoreMock).not.toHaveBeenCalled();
+
+    initStoreMock.mockClear();
+    const newClient = new ApolloClient();
+    container.setState({ client: newClient });
+
+    expect(initStoreMock).not.toHaveBeenCalled();
+
+    const newStore = createStore(() => ({}));
+    container.setState({ store: store });
+    expect(initStoreMock).not.toHaveBeenCalled();
+  })
 });
