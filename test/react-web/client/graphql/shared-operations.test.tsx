@@ -258,4 +258,46 @@ describe('shared operations', () => {
     });
   });
 
+  describe('multiple clients', () => {
+    it('uses specified client to execute query', () => {
+      const peopleQuery = gql`query people { allPeople(first: 1) { people { name } } }`;
+      const peopleData = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+      const darksideData = { allPeople: { people: [ { name: 'Darth Vader' } ] } };
+
+      const networkInterface = mockNetworkInterface(
+        { request: { query: peopleQuery }, result: { data: peopleData } },
+      );
+      const client = new ApolloClient({ networkInterface, addTypename: false });
+
+      const darksideInterface = mockNetworkInterface(
+        { request: { query: peopleQuery }, result: { data: darksideData } },
+      );
+      const darksideClient = new ApolloClient({ networkInterface: darksideInterface, addTypename: false });
+
+      const enhanced = compose(
+        graphql(peopleQuery, { name: 'people' }),
+        graphql(peopleQuery, { name: 'darkside', use: 'darksideClient' })
+      );
+
+      const ContainerWithData = enhanced((props) => {
+        const { people, darkside } = props;
+        expect(people).toBeTruthy();
+        expect(people.loading).toBe(true);
+
+        expect(darkside).toBeTruthy();
+        expect(darkside.loading).toBe(true);
+        return null;
+      });
+
+      const wrapper = renderer.create(
+        <ApolloProvider client={client}>
+          <ApolloProvider client={darksideClient} as="darksideClient">
+            <ContainerWithData />
+          </ApolloProvider>
+        </ApolloProvider>
+      );
+      (wrapper as any).unmount();
+    });
+  });
+
 });

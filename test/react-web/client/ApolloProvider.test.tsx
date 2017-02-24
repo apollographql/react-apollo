@@ -11,15 +11,15 @@ import ApolloClient from 'apollo-client';
 import ApolloProvider  from '../../../src/ApolloProvider';
 
 interface ChildContext {
+  apolloClients: Object;
   store: Object;
-  client: Object;
 }
 
 describe('<ApolloProvider /> Component', () => {
 
   class Child extends React.Component<any, { store: any, client: any}> {
     static contextTypes: React.ValidationMap<any> = {
-      client: React.PropTypes.object.isRequired,
+      apolloClients: React.PropTypes.object.isRequired,
       store: React.PropTypes.object.isRequired,
     };
 
@@ -80,7 +80,7 @@ describe('<ApolloProvider /> Component', () => {
     console.error = originalConsoleError;
   });
 
-  it('should add the client to the child context', () => {
+  it('should add the default client to the child context', () => {
     const tree = TestUtils.renderIntoDocument(
       <ApolloProvider store={store} client={client}>
         <Child />
@@ -88,7 +88,19 @@ describe('<ApolloProvider /> Component', () => {
     ) as React.Component<any, any>;
 
     const child = TestUtils.findRenderedComponentWithType(tree, Child);
-    expect(child.context.client).toEqual(client);
+    expect(child.context.apolloClients.default).toEqual(client);
+
+  });
+
+  it('should add extra clients to the child context', () => {
+    const tree = TestUtils.renderIntoDocument(
+      <ApolloProvider client={client} as="extraClient">
+        <Child />
+      </ApolloProvider>
+    ) as React.Component<any, any>;
+
+    const child = TestUtils.findRenderedComponentWithType(tree, Child);
+    expect(child.context.apolloClients.extraClient).toEqual(client);
 
   });
 

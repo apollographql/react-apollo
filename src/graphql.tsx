@@ -109,25 +109,26 @@ export function withApollo(
 ) {
 
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
+  const use = operationOptions.use || 'default';
 
   class WithApollo extends Component<any, any> {
     static displayName = withDisplayName;
     static WrappedComponent = WrappedComponent;
-    static contextTypes = { client: PropTypes.object.isRequired };
+    static contextTypes = { apolloClients: PropTypes.object.isRequired };
 
     // data storage
     private client: ApolloClient; // apollo client
 
     constructor(props, context) {
       super(props, context);
-      this.client = context.client;
+      this.client = context.apolloClients[use];
 
       invariant(!!this.client,
-          `Could not find "client" in the context of ` +
-          `"${withDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`
-        );
-
+        `Could not find "client" named "${use}" ` +
+        `in the context of "${withDisplayName}". ` +
+        `Wrap the root component in an <ApolloProvider>` +
+        `Available clients: ${Object.keys(context.apolloClients).join(' ')}`
+      );
     }
 
     getWrappedInstance() {
@@ -159,6 +160,7 @@ export interface OperationOption {
   withRef?: boolean;
   shouldResubscribe?: (props: any, nextProps: any) => boolean;
   alias?: string;
+  use?: string;
 }
 
 export interface WrapWithApollo {
@@ -171,7 +173,7 @@ export default function graphql(
 ) {
 
   // extract options
-  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo' } = operationOptions;
+  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo', use = 'default' } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
@@ -203,8 +205,7 @@ export default function graphql(
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
-        store: PropTypes.object.isRequired,
-        client: PropTypes.object.isRequired,
+        apolloClients: PropTypes.object.isRequired,
       };
 
       // react / redux and react dev tools (HMR) needs
@@ -234,12 +235,13 @@ export default function graphql(
       constructor(props, context) {
         super(props, context);
         this.version = version;
-        this.client = context.client;
+        this.client = context.apolloClients[use];
 
         invariant(!!this.client,
-          `Could not find "client" in the context of ` +
-          `"${graphQLDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`
+          `Could not find "client" named "${use}" ` +
+          `in the context of "${graphQLDisplayName}". ` +
+          `Wrap the root component in an <ApolloProvider>` +
+          `Available clients: ${Object.keys(context.apolloClients).join(' ')}`
         );
 
         this.store = this.client.store;
