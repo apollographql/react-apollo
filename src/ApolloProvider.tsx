@@ -43,6 +43,15 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   constructor(props, context) {
     super(props, context);
 
+    this._init(props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this._init(nextProps);
+  }
+
+  _init(props) {
+
     invariant(
       props.client,
       'ApolloClient was not passed a client instance. Make ' +
@@ -61,7 +70,6 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     // intialize the built in store if none is passed in
     props.client.initStore();
     this.store = props.client.store;
-
   }
 
   getChildContext() {
