@@ -51,7 +51,6 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   }
 
   _init(props) {
-
     invariant(
       props.client,
       'ApolloClient was not passed a client instance. Make ' +
