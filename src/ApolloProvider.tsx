@@ -46,7 +46,7 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     invariant(
       props.client,
       'ApolloClient was not passed a client instance. Make ' +
-      'sure you pass in your client via the "client" prop.'
+      'sure you pass in your client via the "client" prop.',
     );
 
     this.client = props.client;
