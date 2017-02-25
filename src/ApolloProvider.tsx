@@ -18,7 +18,8 @@ export declare interface ProviderProps {
   store?: Store<any>;
   immutable?: boolean;
   client: ApolloClient;
-}
+  as?: string;
+};
 
 export default class ApolloProvider extends Component<ProviderProps, any> {
   static propTypes = {
@@ -30,15 +31,22 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     client: PropTypes.object.isRequired,
     immutable: PropTypes.bool,
     children: PropTypes.element.isRequired,
+    as: PropTypes.string,
+  };
+  static defaultProps = {
+    as: 'default',
   };
 
+  static contextTypes = { apolloClients: PropTypes.object };
   static childContextTypes = {
+    apolloClients: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,
-    client: PropTypes.object.isRequired,
   };
 
   public store: Store<any>;
   public client: ApolloClient;
+  public previousClients: Object;
+  public as: string;
 
   constructor(props, context) {
     super(props, context);
@@ -49,6 +57,7 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
       'sure you pass in your client via the "client" prop.'
     );
 
+    this.previousClients = context.apolloClients || {};
     this.client = props.client;
 
     if (props.store) {
@@ -65,9 +74,12 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   }
 
   getChildContext() {
+    // can be replaced with object spread from typescript 2.1
     return {
+      apolloClients: Object.assign(
+        {}, this.previousClients, { [this.props.as]: this.client }
+      ),
       store: this.store,
-      client: this.client,
     };
   }
 
