@@ -105,7 +105,7 @@ let nextVersion = 0;
 
 export function withApollo(
   WrappedComponent,
-  operationOptions: OperationOption = {}
+  operationOptions: OperationOption = {},
 ) {
 
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
@@ -125,7 +125,7 @@ export function withApollo(
       invariant(!!this.client,
           `Could not find "client" in the context of ` +
           `"${withDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`
+          `Wrap the root component in an <ApolloProvider>`,
         );
 
     }
@@ -133,7 +133,7 @@ export function withApollo(
     getWrappedInstance() {
       invariant(operationOptions.withRef,
         `To access the wrapped instance, you need to specify ` +
-        `{ withRef: true } in the options`
+        `{ withRef: true } in the options`,
       );
 
       return (this.refs as any).wrappedInstance;
@@ -167,7 +167,7 @@ export interface WrapWithApollo {
 
 export default function graphql(
   document: DocumentNode,
-  operationOptions: OperationOption = {}
+  operationOptions: OperationOption = {},
 ) {
 
   // extract options
@@ -239,7 +239,7 @@ export default function graphql(
         invariant(!!this.client,
           `Could not find "client" in the context of ` +
           `"${graphQLDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`
+          `Wrap the root component in an <ApolloProvider>`,
         );
 
         this.store = this.client.store;
@@ -337,7 +337,7 @@ export default function graphql(
           invariant(typeof props[variable.name.value] !== 'undefined',
             `The operation '${operation.name}' wrapping '${getDisplayName(WrappedComponent)}' ` +
             `is expecting a variable: '${variable.name.value}' but it was not found in the props ` +
-            `passed to '${graphQLDisplayName}'`
+            `passed to '${graphQLDisplayName}'`,
           );
         }
         opts.variables = variables;
@@ -455,7 +455,7 @@ export default function graphql(
           invariant(clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
             `conflict with the return object.` +
-            clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`
+            clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`,
           );
 
           this.forceRenderChildren();
@@ -498,7 +498,7 @@ export default function graphql(
       getWrappedInstance() {
         invariant(operationOptions.withRef,
           `To access the wrapped instance, you need to specify ` +
-          `{ withRef: true } in the options`
+          `{ withRef: true } in the options`,
         );
 
         return (this.refs as any).wrappedInstance;

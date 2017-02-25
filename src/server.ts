@@ -28,7 +28,7 @@ declare interface QueryResult {
 export function walkTree(
   element: any,
   context: any,
-  visitor: (element: any, instance: any, context: any) => boolean | void
+  visitor: (element: any, instance: any, context: any) => boolean | void,
 ) {
   const Component = element.type;
   // a stateless functional component or a class
@@ -95,7 +95,7 @@ export function walkTree(
 }
 
 function getQueriesFromTree(
-  { rootElement, rootContext = {} }: QueryTreeArgument, fetchRoot: boolean = true
+  { rootElement, rootContext = {} }: QueryTreeArgument, fetchRoot: boolean = true,
 ): QueryResult[] {
   const queries = [];
 
