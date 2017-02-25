@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 0.12.0
+- Update Apollo Client to 0.9.0 and bump a lot of other dependencies [PR #484](https://github.com/apollographql/react-apollo/pull/484)
+
 ### 0.11.2
 - Remove `@types/chai` dev dependency which called a reference to the `chai` types in the production build. [PR #471](https://github.com/apollographql/react-apollo/pull/471)
 
