@@ -13,7 +13,8 @@
     "experimentalDecorators": true,
     "pretty": true,
     "removeComments": true,
-    "jsx": "react"
+    "jsx": "react",
+    "skipLibCheck": true
   },
   "include": [
     "./typings.d.ts",

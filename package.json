@@ -125,7 +125,7 @@
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "^1.0.2",
     "tslint": "^3.6.0",
-    "typescript": "^2.0.3",
+    "typescript": "^2.2.0",
     "typescript-require": "^0.2.9-1",
     "typings": "^2.1.0",
     "uglify-js": "^2.6.2"
