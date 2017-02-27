@@ -246,17 +246,12 @@ export default function graphql(
 
         this.type = operation.type;
 
-        if (this.shouldSkip(props)) return;
         this.setInitialProps();
       }
 
       componentDidMount() {
         this.hasMounted = true;
         if (this.type === DocumentType.Mutation) return;
-
-        if (!this.shouldSkip(this.props)) {
-          this.subscribeToQuery();
-        }
       }
 
       componentWillReceiveProps(nextProps) {
@@ -267,6 +262,7 @@ export default function graphql(
         if (this.type === DocumentType.Mutation) {
           return;
         };
+
         if (this.type === DocumentType.Subscription
           && operationOptions.shouldResubscribe
           && operationOptions.shouldResubscribe(this.props, nextProps)) {
@@ -274,13 +270,6 @@ export default function graphql(
           delete this.queryObservable;
           this.updateQuery(nextProps);
           this.subscribeToQuery();
-          return;
-        }
-        if (this.shouldSkip(nextProps)) {
-          if (!this.shouldSkip(this.props)) {
-            // if this has changed, we better unsubscribe
-            this.unsubscribeFromQuery();
-          }
           return;
         }
 
@@ -316,6 +305,10 @@ export default function graphql(
           newOpts.variables = assign({}, opts.variables, newOpts.variables);
         }
         if (newOpts) opts = assign({}, opts, newOpts);
+
+        if (operation.type !== DocumentType.Mutation) {
+          opts = assign({}, opts, { noFetch: (opts as QueryOptions).noFetch || !!this.shouldSkip(props) });
+        }
 
         if (opts.variables || !operation.variables.length) return opts;
 
@@ -419,7 +412,6 @@ export default function graphql(
 
       // For server-side rendering (see server.ts)
       fetchData(): Promise<ApolloQueryResult<any>> | boolean {
-        if (this.shouldSkip()) return false;
         if (
           operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
         ) return false;
@@ -529,8 +521,8 @@ export default function graphql(
         } else {
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
-          const { loading, error, networkStatus } = currentResult;
-          assign(data, { loading, error, networkStatus });
+          const { loading, error, networkStatus, partial } = currentResult;
+          assign(data, { loading, error, networkStatus, partial });
 
           if (loading) {
             // while loading, we should use any previous data we have
@@ -544,10 +536,6 @@ export default function graphql(
       }
 
       render() {
-        if (this.shouldSkip()) {
-          return createElement(WrappedComponent, this.props);
-        }
-
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
