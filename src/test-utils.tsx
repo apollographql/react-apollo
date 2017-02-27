@@ -43,7 +43,7 @@ export class MockedSubscriptionProvider extends React.Component<any, any> {
     super(props, context);
 
     const networkInterface = mockSubscriptionNetworkInterface(
-      this.props.subscriptions, ...this.props.responses
+      this.props.subscriptions, ...this.props.responses,
     );
 
     this.client = new ApolloClient({ networkInterface });
@@ -61,13 +61,13 @@ export class MockedSubscriptionProvider extends React.Component<any, any> {
 // Pass in multiple mocked responses, so that you can test flows that end up
 // making multiple queries to the server
 export function mockNetworkInterface(
-  ...mockedResponses: MockedResponse[]
+  ...mockedResponses: MockedResponse[],
 ): NetworkInterface {
   return new MockNetworkInterface(...mockedResponses);
 }
 
 export function mockSubscriptionNetworkInterface(
-  mockedSubscriptions: MockedSubscription[], ...mockedResponses: MockedResponse[]
+  mockedSubscriptions: MockedSubscription[], ...mockedResponses: MockedResponse[],
 ): MockSubscriptionNetworkInterface {
   return new MockSubscriptionNetworkInterface(mockedSubscriptions, ...mockedResponses);
 }
