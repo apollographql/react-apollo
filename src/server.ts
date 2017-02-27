@@ -128,7 +128,13 @@ export function getDataFromTree(rootElement, rootContext: any = {}, fetchRoot: b
   // wait on each query that we found, re-rendering the subtree when it's done
   const mappedQueries = queries.map(({ query, element, context }) =>  {
     // we've just grabbed the query for element, so don't try and get it again
-    return query.then(_ => getDataFromTree(element, context, false));
+    return query.then(_ => getDataFromTree(element, context, false))
+      // If there's an error in the query, we may as well stop, as currently
+      // we will "forget" this when the "rendering" SSR runs (i.e. we will
+      // re-run the query, and rendering in a loading state).
+      // If we change that in future, it may be worth running `getDataFromTree`
+      // on the subtree, just in case the user runs subqueries in the error state
+      .catch(e => null);
   });
   return Promise.all(mappedQueries).then(_ => null);
 }
