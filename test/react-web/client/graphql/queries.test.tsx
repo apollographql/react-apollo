@@ -2328,7 +2328,7 @@ describe('queries', () => {
 
     const origError = console.error;
     const errorMock = jest.fn();
-    console.error = errorMock;
+    // console.error = errorMock;
 
     @graphql(query)
     class UnhandledErrorComponent extends React.Component<any, any> {
@@ -2353,6 +2353,7 @@ describe('queries', () => {
               throw new Error('Too many renders.');
           }
         } catch (error) {
+          console.error = origError;
           reject(error);
         }
         return null;
@@ -2377,7 +2378,7 @@ describe('queries', () => {
       } catch (error) {
         reject(error);
       } finally {
-        console.error = origError;
+        // console.error = origError;
       }
     }, 20);
   }));
