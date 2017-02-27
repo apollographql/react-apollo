@@ -1,4 +1,4 @@
-import { ApolloClient, createNetworkInterface, NetworkInterface } from '../src';
+import { ApolloClient, createNetworkInterface } from '../src';
 import { gql } from '../src';
 
 describe('react-apollo pacakge', () => {
@@ -7,7 +7,7 @@ describe('react-apollo pacakge', () => {
   });
 
   it('exports createNetworkInterface', () => {
-    expect(createNetworkInterface({ uri: 'localhost' })).toBeInstanceOf(NetworkInterface);
+    expect(typeof createNetworkInterface).toBe('function');
   });
 
   it('exports gql from graphql-tag', () => {
