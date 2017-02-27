@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount, ReactWrapper } from 'enzyme';
 import { createStore } from 'redux';
 
 declare function require(name: string);
@@ -31,15 +31,15 @@ describe('<ApolloProvider /> Component', () => {
   }
   class Container extends React.Component<any, any> {
     constructor(props) {
-      super(props)
-      this.state = {}
+      super(props);
+      this.state = {};
     }
 
     componentDidMount() {
       this.setState({
         store: this.props.store,
-        client: this.props.client
-      })
+        client: this.props.client,
+      });
     }
 
     render() {
@@ -49,13 +49,13 @@ describe('<ApolloProvider /> Component', () => {
             store={this.state.store || this.props.store}>
             <Child />
           </ApolloProvider>
-        )
+        );
       } else {
         return (
           <ApolloProvider client={this.state.client || this.props.client}>
             <Child />
           </ApolloProvider>
-        )
+        );
       }
     }
   };
@@ -172,7 +172,7 @@ describe('<ApolloProvider /> Component', () => {
     container.setState({ client: newClient });
 
     expect(initStoreMock).toHaveBeenCalled();
-  })
+  });
 
   it('should not call clients init store when a store is passed', () => {
     const testClient = new ApolloClient();
@@ -195,5 +195,28 @@ describe('<ApolloProvider /> Component', () => {
     const newStore = createStore(() => ({}));
     container.setState({ store: store });
     expect(initStoreMock).not.toHaveBeenCalled();
-  })
+  });
+
+  it('child component should be able to query new client and store when props change', () => {
+    const container = TestUtils.renderIntoDocument(
+      <Container client={client} store={store} />
+    ) as React.Component<any, any>;
+
+    const child = TestUtils.findRenderedComponentWithType(container, Child);
+    expect(child.context.client).toEqual(client);
+    expect(child.context.store).toEqual(store);
+
+    const newClient = new ApolloClient({});
+    const newStore = createStore(() => ({}));
+
+    container.setState({
+      client: newClient,
+      store: newStore,
+    });
+
+    expect(child.context.client).toEqual(newClient);
+    expect(child.context.store).toEqual(newStore);
+    expect(child.context.client).not.toEqual(client);
+    expect(child.context.store).not.toEqual(store);
+  });
 });
