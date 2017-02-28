@@ -3,7 +3,11 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 ### vNext
+
+
+### 0.13.0
 - Make apollo-client and graphql-tag dependencies and re-export them from this package [PR #490](https://github.com/apollographql/react-apollo/pull/490)
+- Print errors to console if they are not handled by component [PR #476](https://github.com/apollographql/react-apollo/pull/476)
 
 ### 0.12.0
 - Update Apollo Client to 0.9.0 and bump a lot of other dependencies [PR #484](https://github.com/apollographql/react-apollo/pull/484)
