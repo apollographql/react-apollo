@@ -103,6 +103,9 @@ export class MockNetworkInterface implements NetworkInterface {
 
   constructor(...mockedResponses: MockedResponse[]) {
     mockedResponses.forEach((mockedResponse) => {
+      if (!mockedResponse.result && !mockedResponse.error) {
+        throw new Error('Mocked response should contain either result or error.');
+      }
       this.addMockedReponse(mockedResponse);
     });
   }
@@ -127,7 +130,7 @@ export class MockNetworkInterface implements NetworkInterface {
 
       const key = requestToKey(parsedRequest);
 
-      if (!this.mockedResponsesByKey[key]) {
+      if (!this.mockedResponsesByKey[key] || this.mockedResponsesByKey[key].length === 0) {
         throw new Error('No more mocked responses for the query: ' + print(request.query));
       }
 
@@ -227,7 +230,7 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface imple
 function requestToKey(request: ParsedRequest): string {
   const queryString = request.query && print(request.query);
   return JSON.stringify({
-    variables: request.variables,
+    variables: request.variables || {},
     debugName: request.debugName,
     query: queryString,
   });

@@ -530,7 +530,29 @@ export default function graphql(
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
           const { loading, error, networkStatus } = currentResult;
-          assign(data, { loading, error, networkStatus });
+          assign(data, { loading, networkStatus });
+
+          // Define the error property on the data object. If the user does
+          // not get the error object from `data` within 10 milliseconds
+          // then we will log the error to the console.
+          //
+          // 10 milliseconds is an arbitrary number picked to work around any
+          // potential asynchrony in React rendering. It is not super important
+          // that the error be logged ASAP, but 10 ms is enough to make it
+          // _feel_ like it was logged ASAP while still tolerating asynchrony.
+          let logErrorTimeoutId = setTimeout(() => {
+            if (error) {
+              console.error('Uncaught (in react-apollo)', error.stack || error);
+            }
+          }, 10);
+          Object.defineProperty(data, 'error', {
+            configurable: true,
+            enumerable: true,
+            get: () => {
+              clearTimeout(logErrorTimeoutId);
+              return error;
+            },
+          });
 
           if (loading) {
             // while loading, we should use any previous data we have
