@@ -432,7 +432,9 @@ export default function graphql(
         const result = observable.currentResult();
 
         if (result.loading) {
-          return observable.result();
+          const result = observable.result();
+          observable.stopPolling();
+          return result;
         } else {
           return false;
         }
