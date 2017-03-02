@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 0.13.1
+- Add apollo-client ^0.10.0 to dependency range
 
 ### 0.13.0
 - Make apollo-client and graphql-tag dependencies and re-export them from this package [PR #490](https://github.com/apollographql/react-apollo/pull/490)
