@@ -557,6 +557,9 @@ export default function graphql(
           if (loading) {
             // while loading, we should use any previous data we have
             assign(data, this.previousData, currentResult.data);
+          } else if (error) {
+            // if there is an error, also provide previous data so it can be displayed along with the error
+            assign(data, this.previousData)
           } else {
             assign(data, currentResult.data);
             this.previousData = currentResult.data;
