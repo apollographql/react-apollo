@@ -542,7 +542,7 @@ export default function graphql(
           // _feel_ like it was logged ASAP while still tolerating asynchrony.
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
-              console.error('Uncaught (in react-apollo)', error.stack || error);
+              console.error('Unhandled (in react-apollo)', error.stack || error);
             }
           }, 10);
           Object.defineProperty(data, 'error', {
