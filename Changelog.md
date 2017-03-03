@@ -6,6 +6,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### 0.13.2
 - Address deprecation warnings coming from `graphql-tag` [graphql-tag#54](https://github.com/apollographql/graphql-tag/issues/54)
+- Make sure ApolloClient and gql are exported from browser bundle [PR #501](https://github.com/apollographql/react-apollo/pull/501)
 
 ### 0.13.1
 - Add apollo-client ^0.10.0 to dependency range
