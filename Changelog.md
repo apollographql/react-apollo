@@ -3,6 +3,7 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 ### vNext
+- Make sure that the cached rendered element has the correct type before returning it. [PR #505](https://github.com/apollographql/react-apollo/pull/505)
 
 ### 0.13.2
 - Address deprecation warnings coming from `graphql-tag` [graphql-tag#54](https://github.com/apollographql/graphql-tag/issues/54)
