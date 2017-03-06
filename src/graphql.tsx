@@ -577,7 +577,7 @@ export default function graphql(
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        if (!shouldRerender && renderedElement) {
+        if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
           return renderedElement;
         }
 
