@@ -241,13 +241,6 @@ export default function graphql(
           `"${graphQLDisplayName}". ` +
           `Wrap the root component in an <ApolloProvider>`,
         );
-
-        this.store = this.client.store;
-
-        this.type = operation.type;
-
-        if (this.shouldSkip(props)) return;
-        this.setInitialProps();
       }
 
       componentDidMount() {
@@ -257,6 +250,15 @@ export default function graphql(
         if (!this.shouldSkip(this.props)) {
           this.subscribeToQuery();
         }
+      }
+
+      componentWillMount() {
+        this.store = this.client.store;
+
+        this.type = operation.type;
+
+        if (this.shouldSkip(this.props)) return;
+        this.setInitialProps();
       }
 
       componentWillReceiveProps(nextProps) {
