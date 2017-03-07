@@ -2411,7 +2411,7 @@ describe('queries', () => {
       try {
         expect(renderCount).toBe(2);
         expect(errorMock.mock.calls.length).toBe(1);
-        expect(errorMock.mock.calls[0][0]).toEqual('Uncaught (in react-apollo)');
+        expect(errorMock.mock.calls[0][0]).toEqual('Unhandled (in react-apollo)');
         resolve();
       } catch (error) {
         reject(error);
