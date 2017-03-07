@@ -243,11 +243,13 @@ export default function graphql(
         );
 
         this.store = this.client.store;
-
         this.type = operation.type;
+      }
 
-        if (this.shouldSkip(props)) return;
-        this.setInitialProps();
+      componentWillMount() {
+        if (!this.shouldSkip(this.props)) {
+          this.setInitialProps();
+        }
       }
 
       componentDidMount() {
