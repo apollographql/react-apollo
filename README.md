@@ -110,7 +110,7 @@ With that your `<TodoApp/>` component is now connected to your GraphQL API. When
 
 To learn more about querying with React Apollo be sure to start reading the [documentation article on Queries][]. If you would like to see all of the features React Apollo supports be sure to check out the [complete API reference][].
 
-There is also an excellent [**Full-stack React + GraphQL Tutorial**][] on the Apollo developer blog. [Graphcool][] also provides a [Learn Apollo][] tutorial track that you may follow.
+There is also an excellent [**Full-stack React + GraphQL Tutorial**][] on the Apollo developer blog.
 
 [`ApolloClient`]: http://dev.apollodata.com/core/apollo-client-api.html#apollo-client
 [`<ApolloProvider/>`]: http://dev.apollodata.com/react/api.html#ApolloProvider
@@ -120,7 +120,6 @@ There is also an excellent [**Full-stack React + GraphQL Tutorial**][] on the Ap
 [documentation article on Queries]: http://dev.apollodata.com/react/queries.html
 [complete API reference]: http://dev.apollodata.com/react/api.html
 [**Full-stack React + GraphQL Tutorial**]: https://dev-blog.apollodata.com/full-stack-react-graphql-tutorial-582ac8d24e3b#.w8e9j7jmp
-[Graphcool]: https://www.graph.cool/
 [Learn Apollo]: https://www.learnapollo.com/
 
 ## Documentation
