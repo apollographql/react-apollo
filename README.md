@@ -7,7 +7,7 @@ React Apollo unlike many other tools in the React ecosystem requires _no_ comple
 [`create-react-app`]: https://github.com/facebookincubator/create-react-app
 [React Native]: http://facebook.github.io/react-native
 
-The Apollo frontend toolchain is built to be:
+React Apollo is:
 
 1. **Incrementally adoptable**, so that you can drop it into an existing JavaScript app and start using GraphQL for just part of your UI.
 2. **Universally compatible**, so that Apollo works with any build setup, any GraphQL server, and any GraphQL schema.
