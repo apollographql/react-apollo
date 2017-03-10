@@ -52,7 +52,7 @@ export declare interface QueryOptions {
   ssr?: boolean;
   variables?: { [key: string]: any };
   returnPartialData?: boolean;
-  fetchPolicy: string; // update this to FetchPolicy
+  fetchPolicy?: 'network-only' | 'cache-first' | 'cache-only' | 'cache-and-network'; // update this to FetchPolicy
   pollInterval?: number;
   // deprecated
   skip?: boolean;
