@@ -243,11 +243,13 @@ export default function graphql(
         );
 
         this.store = this.client.store;
-
         this.type = operation.type;
+      }
 
-        if (this.shouldSkip(props)) return;
-        this.setInitialProps();
+      componentWillMount() {
+        if (!this.shouldSkip(this.props)) {
+          this.setInitialProps();
+        }
       }
 
       componentDidMount() {
@@ -542,7 +544,7 @@ export default function graphql(
           // _feel_ like it was logged ASAP while still tolerating asynchrony.
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
-              console.error('Uncaught (in react-apollo)', error.stack || error);
+              console.error('Unhandled (in react-apollo)', error.stack || error);
             }
           }, 10);
           Object.defineProperty(data, 'error', {
@@ -577,7 +579,7 @@ export default function graphql(
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        if (!shouldRerender && renderedElement) {
+        if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
           return renderedElement;
         }
 
