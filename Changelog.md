@@ -5,7 +5,7 @@ Expect active development and potentially significant breaking changes in the `0
 ### vNext
 
 ### 1.0.0-rc.1
-- Update dependency to Apollo Client 1.0.0-rc.1 []()
+- Update dependency to Apollo Client 1.0.0-rc.1 [PR #520](https://github.com/apollographql/react-apollo/pull/520)
 
 ### 0.13.3 
 - Make sure that the cached rendered element has the correct type before returning it. [PR #505](https://github.com/apollographql/react-apollo/pull/505)
