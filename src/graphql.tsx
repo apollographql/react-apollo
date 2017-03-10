@@ -51,7 +51,6 @@ export declare interface MutationOptions {
 export declare interface QueryOptions {
   ssr?: boolean;
   variables?: { [key: string]: any };
-  returnPartialData?: boolean;
   fetchPolicy?: 'network-only' | 'cache-first' | 'cache-only' | 'cache-and-network'; // update this to FetchPolicy
   pollInterval?: number;
   // deprecated
