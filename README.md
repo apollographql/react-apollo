@@ -1,7 +1,4 @@
 # react-apollo
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/apollographql/react-apollo.svg)](https://greenkeeper.io/)
-
 [![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/react-apollo)
 [![Get on Slack](https://img.shields.io/badge/slack-join-orange.svg)](http://www.apollostack.com/#slack)
 [![Build Status](https://travis-ci.org/apollographql/react-apollo.svg?branch=master)](https://travis-ci.org/apollographql/react-apollo)
