@@ -22,6 +22,7 @@ import ApolloClient, {
   ApolloStore,
   ApolloQueryResult,
   ApolloError,
+  FetchPolicy,
 } from 'apollo-client';
 
 import {
@@ -45,15 +46,12 @@ export declare interface MutationOptions {
   variables?: Object;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
-  forceFetch?: boolean;
 }
 
 export declare interface QueryOptions {
   ssr?: boolean;
   variables?: { [key: string]: any };
-  forceFetch?: boolean;
-  returnPartialData?: boolean;
-  noFetch?: boolean;
+  fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   // deprecated
   skip?: boolean;
@@ -428,7 +426,9 @@ export default function graphql(
 
         const opts = this.calculateOptions() as any;
         if (opts.ssr === false) return false;
-        if (opts.forceFetch) delete opts.forceFetch; // ignore force fetch in SSR;
+        if (opts.fetchPolicy === 'network-only') {
+          opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
+        }
 
         const observable = this.client.watchQuery(assign({ query: document }, opts));
         const result = observable.currentResult();

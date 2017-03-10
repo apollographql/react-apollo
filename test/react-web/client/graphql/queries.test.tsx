@@ -643,7 +643,7 @@ describe('queries', () => {
 
     let hasSkipped = false;
     let hasRequeried = false;
-    @graphql(query, { options: ({ skip }) => ({ skip, forceFetch: true }) })
+    @graphql(query, { options: ({ skip }) => ({ skip, fetchPolicy: 'network-only' }) })
     class Container extends React.Component<any, any> {8
       componentWillReceiveProps(newProps) {
         if (newProps.skip) {
@@ -814,7 +814,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query, {
-      options: (props) => ({ variables: props, returnPartialData: count === 0 }),
+      options: (props) => ({ variables: props, fetchPolicy: count === 0 ? 'cache-and-network' : 'cache-first' }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
@@ -1032,7 +1032,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
-    @graphql(query, { options() { return { variables }; } })
+    @graphql(query, { options() { return { variables, notifyOnNetworkStatusChange: false }; } })
     class Container extends React.Component<any, any> {8
       componentWillReceiveProps(props) {
         count += 1;
@@ -1489,7 +1489,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
-    const Container = graphql(query, { options: () => ({ pollInterval: 75 }) })(() => {
+    const Container = graphql(query, { options: () => ({ pollInterval: 75, notifyOnNetworkStatusChange: false }) })(() => {
       count++;
       return null;
     });
@@ -1849,7 +1849,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper, app, count = 0;
 
-    @graphql(query, { options: { pollInterval: 10 }})
+    @graphql(query, { options: { pollInterval: 10, notifyOnNetworkStatusChange: false }})
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (count === 1) { // has data
@@ -1873,7 +1873,7 @@ describe('queries', () => {
     wrapper = mount(app);
   });
 
-  it('correctly sets loading state on remounted forcefetch', (done) => {
+  it('correctly sets loading state on remounted network-only query', (done) => {
     const query = gql`query pollingPeople { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Darth Skywalker' } ] } };
     const networkInterface = mockNetworkInterface(
@@ -1886,7 +1886,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper, app, count = 0;
 
-    @graphql(query, { options: { forceFetch: true }})
+    @graphql(query, { options: { fetchPolicy: 'network-only' }})
     class Container extends React.Component<any, any> {
       componentWillMount() {
         if (count === 1) {
