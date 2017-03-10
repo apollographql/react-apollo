@@ -22,7 +22,7 @@ import ApolloClient, {
   ApolloStore,
   ApolloQueryResult,
   ApolloError,
-  // FetchPolicy,
+  FetchPolicy,
 } from 'apollo-client';
 
 import {
@@ -51,7 +51,7 @@ export declare interface MutationOptions {
 export declare interface QueryOptions {
   ssr?: boolean;
   variables?: { [key: string]: any };
-  fetchPolicy?: 'network-only' | 'cache-first' | 'cache-only' | 'cache-and-network'; // update this to FetchPolicy
+  fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   // deprecated
   skip?: boolean;
