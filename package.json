@@ -77,7 +77,7 @@
     "@types/graphql": "^0.8.5",
     "@types/invariant": "^2.2.27",
     "@types/isomorphic-fetch": "0.0.33",
-    "@types/jest": "^18.1.1",
+    "@types/jest": "^19.2.0",
     "@types/lodash": "^4.14.36",
     "@types/node": "^7.0.5",
     "@types/object-assign": "^4.0.28",
