@@ -7,7 +7,8 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "deploy": "npm run compile && npm test && npm publish",
-    "test": "jest",
+    "test": "npm run compile && jest",
+    "testonly": "jest",
     "test-watch": "jest --watch",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=20",
