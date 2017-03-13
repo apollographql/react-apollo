@@ -2176,7 +2176,6 @@ describe('queries', () => {
     expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
   });
 
-
   it('will not try to refetch recycled `ObservableQuery`s when resetting the client store', () => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
@@ -2201,11 +2200,50 @@ describe('queries', () => {
     expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
     const queryObservable1 = (client as any).queryManager.observableQueries['1'].observableQuery;
 
-    wrapper1.unmount();
-    client.resetStore();
-
     // The query should only have been invoked when first mounting and not when resetting store
     expect(networkInterface.query).toHaveBeenCalledTimes(1);
+
+    wrapper1.unmount();
+
+    expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
+    const queryObservable2 = (client as any).queryManager.observableQueries['1'].observableQuery;
+
+    expect(queryObservable1).toBe(queryObservable2);
+
+    client.resetStore();
+
+    // The query should not have been fetch again
+    expect(networkInterface.query).toHaveBeenCalledTimes(1);
+  });
+
+  it('will refetch active `ObservableQuery`s when resetting the client store', () => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = {
+      query: jest.fn(),
+    } as NetworkInterface;
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      render () {
+        return null;
+      }
+    }
+
+    const wrapper1 = renderer.create(
+      <ApolloProvider client={client}>
+        <Container/>
+      </ApolloProvider>
+    );
+
+    expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
+
+    expect(networkInterface.query).toHaveBeenCalledTimes(1);
+
+    client.resetStore();
+
+    expect(networkInterface.query).toHaveBeenCalledTimes(2);
   });
 
   it('will recycle `ObservableQuery`s when re-rendering a portion of the tree', done => {
