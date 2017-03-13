@@ -5,10 +5,8 @@ import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-
 import ApolloClient, { ApolloError } from 'apollo-client';
 import { NetworkInterface } from 'apollo-client/transport/networkInterface';
-
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
