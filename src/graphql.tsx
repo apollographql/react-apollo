@@ -636,6 +636,9 @@ class ObservableQueryRecycler {
     // Stop the query from polling when we recycle. Polling may resume when we
     // reuse it and call `setOptions`.
     observableQuery.stopPolling();
+    observableQuery.setOptions({
+      fetchPolicy: 'cache-only',
+    });
 
     this.observableQueries.push({
       observableQuery,
