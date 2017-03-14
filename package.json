@@ -117,7 +117,7 @@
     "recompose": "^0.22.0",
     "redux": "^3.5.2",
     "redux-form": "^6.0.5",
-    "redux-immutable": "^3.0.7",
+    "redux-immutable": "^4.0.0",
     "redux-loop": "^2.2.2",
     "source-map-support": "^0.4.0",
     "swapi-graphql": "0.0.6",
