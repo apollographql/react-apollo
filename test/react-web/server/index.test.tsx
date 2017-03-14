@@ -280,7 +280,7 @@ describe('SSR', () => {
 
       return getDataFromTree(app)
         .catch((e) => {
-          expect(e).toBeTruthy;
+          expect(e).toBeTruthy();
           expect(e.queryErrors.length).toEqual(1);
 
           // But we can still render the app if we want to
