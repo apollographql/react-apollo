@@ -163,7 +163,7 @@ describe('SSR', () => {
         });
     });
 
-    it('should allow forceFetch as an option and still render prefetched data', () => {
+    it('should allow network-only fetchPolicy as an option and still render prefetched data', () => {
 
       const query = gql`{ currentUser { firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
@@ -172,7 +172,7 @@ describe('SSR', () => {
       );
       const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
-      const WrappedElement = graphql(query, { options: { forceFetch: true }})(({ data }) => (
+      const WrappedElement = graphql(query, { options: { fetchPolicy: 'network-only' }})(({ data }) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
       ));
 

@@ -22,6 +22,7 @@ import ApolloClient, {
   ApolloStore,
   ApolloQueryResult,
   ApolloError,
+  FetchPolicy,
 } from 'apollo-client';
 
 import {
@@ -45,15 +46,12 @@ export declare interface MutationOptions {
   variables?: Object;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
-  forceFetch?: boolean;
 }
 
 export declare interface QueryOptions {
   ssr?: boolean;
   variables?: { [key: string]: any };
-  forceFetch?: boolean;
-  returnPartialData?: boolean;
-  noFetch?: boolean;
+  fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   // deprecated
   skip?: boolean;
@@ -243,11 +241,13 @@ export default function graphql(
         );
 
         this.store = this.client.store;
-
         this.type = operation.type;
+      }
 
-        if (this.shouldSkip(props)) return;
-        this.setInitialProps();
+      componentWillMount() {
+        if (!this.shouldSkip(this.props)) {
+          this.setInitialProps();
+        }
       }
 
       componentDidMount() {
@@ -426,7 +426,9 @@ export default function graphql(
 
         const opts = this.calculateOptions() as any;
         if (opts.ssr === false) return false;
-        if (opts.forceFetch) delete opts.forceFetch; // ignore force fetch in SSR;
+        if (opts.fetchPolicy === 'network-only') {
+          opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
+        }
 
         const observable = this.client.watchQuery(assign({ query: document }, opts));
         const result = observable.currentResult();
@@ -530,7 +532,29 @@ export default function graphql(
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
           const { loading, error, networkStatus } = currentResult;
-          assign(data, { loading, error, networkStatus });
+          assign(data, { loading, networkStatus });
+
+          // Define the error property on the data object. If the user does
+          // not get the error object from `data` within 10 milliseconds
+          // then we will log the error to the console.
+          //
+          // 10 milliseconds is an arbitrary number picked to work around any
+          // potential asynchrony in React rendering. It is not super important
+          // that the error be logged ASAP, but 10 ms is enough to make it
+          // _feel_ like it was logged ASAP while still tolerating asynchrony.
+          let logErrorTimeoutId = setTimeout(() => {
+            if (error) {
+              console.error('Unhandled (in react-apollo)', error.stack || error);
+            }
+          }, 10);
+          Object.defineProperty(data, 'error', {
+            configurable: true,
+            enumerable: true,
+            get: () => {
+              clearTimeout(logErrorTimeoutId);
+              return error;
+            },
+          });
 
           if (loading) {
             // while loading, we should use any previous data we have
@@ -555,7 +579,7 @@ export default function graphql(
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        if (!shouldRerender && renderedElement) {
+        if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
           return renderedElement;
         }
 

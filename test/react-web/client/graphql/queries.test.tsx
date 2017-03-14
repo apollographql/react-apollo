@@ -316,7 +316,7 @@ describe('queries', () => {
 
     let error = null;
     try {
-      renderer.create(<ApolloProvider client={client}><Container frst={1} /></ApolloProvider>);
+      renderer.create(<ApolloProvider client={client}><Container first={1} /></ApolloProvider>);
     } catch (e) { error = e; }
 
     expect(error).toBeNull();
@@ -643,7 +643,7 @@ describe('queries', () => {
 
     let hasSkipped = false;
     let hasRequeried = false;
-    @graphql(query, { options: ({ skip }) => ({ skip, forceFetch: true }) })
+    @graphql(query, { options: ({ skip }) => ({ skip, fetchPolicy: 'network-only' }) })
     class Container extends React.Component<any, any> {8
       componentWillReceiveProps(newProps) {
         if (newProps.skip) {
@@ -814,7 +814,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query, {
-      options: (props) => ({ variables: props, returnPartialData: count === 0 }),
+      options: (props) => ({ variables: props, fetchPolicy: count === 0 ? 'cache-and-network' : 'cache-first' }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
@@ -1032,7 +1032,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
-    @graphql(query, { options() { return { variables }; } })
+    @graphql(query, { options() { return { variables, notifyOnNetworkStatusChange: false }; } })
     class Container extends React.Component<any, any> {8
       componentWillReceiveProps(props) {
         count += 1;
@@ -1227,6 +1227,7 @@ describe('queries', () => {
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface, addTypename: false });
+    let wrapper;
 
     // @graphql(query)
     @graphql(query, { options: { pollInterval: 10 }})
@@ -1236,14 +1237,17 @@ describe('queries', () => {
         expect(data.startPolling instanceof Function).toBe(true);
         // XXX this does throw because of no pollInterval
         // expect(data.startPolling).not.toThrow();
-        done();
+        setTimeout(() => {
+          wrapper.unmount();
+          done();
+        }, 0);
       }
       render() {
         return null;
       }
     };
 
-    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+    wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
   });
 
   it('exposes networkStatus as a part of the props api', (done) => {
@@ -1384,7 +1388,7 @@ describe('queries', () => {
     );
   });
 
-  it('resets the loading state after a refetched query', (done) => {
+  it('resets the loading state after a refetched query', () => new Promise((resolve, reject) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
@@ -1394,39 +1398,38 @@ describe('queries', () => {
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    let refetched;
-    let isRefetching;
+    let count = 0;
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps = wrap(done, (props) => {
-        if (!isRefetching) {
-          isRefetching = true;
-          expect(props.data.networkStatus).toBe(7);
-          props.data.refetch();
-          return;
+      componentWillReceiveProps = wrap(reject, (props) => {
+        switch (count++) {
+          case 0:
+            expect(props.data.networkStatus).toBe(7);
+            props.data.refetch();
+            break;
+          case 1:
+            expect(props.data.loading).toBe(true);
+            expect(props.data.networkStatus).toBe(4);
+            expect(props.data.allPeople).toEqual(data.allPeople);
+            break;
+          case 2:
+            expect(props.data.loading).toBe(false);
+            expect(props.data.networkStatus).toBe(7);
+            expect(props.data.allPeople).toEqual(data2.allPeople);
+            resolve();
+            break;
+          default:
+            reject(new Error('Too many props updates'));
         }
+      });
 
-        // get new data with no more loading state
-        if (isRefetching) {
-          expect(props.data.loading).toBe(false);
-          expect(props.data.networkStatus).toBe(4);
-          expect(props.data.allPeople).toEqual(data2.allPeople);
-          refetched = true;
-          return;
-        }
-
-        if (refetched) {
-          expect(props.data.networkStatus).toBe(7);
-          done();
-        }
-      })
       render() {
         return null;
       }
     };
 
-    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
-  });
+    const wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+  }));
 
   // XXX: this does not occur at the moment. When we add networkStatus, we should
   // see a few more states
@@ -1486,7 +1489,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
-    const Container = graphql(query, { options: () => ({ pollInterval: 75 }) })(() => {
+    const Container = graphql(query, { options: () => ({ pollInterval: 75, notifyOnNetworkStatusChange: false }) })(() => {
       count++;
       return null;
     });
@@ -1846,7 +1849,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper, app, count = 0;
 
-    @graphql(query, { options: { pollInterval: 10 }})
+    @graphql(query, { options: { pollInterval: 10, notifyOnNetworkStatusChange: false }})
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (count === 1) { // has data
@@ -1870,7 +1873,7 @@ describe('queries', () => {
     wrapper = mount(app);
   });
 
-  it('correctly sets loading state on remounted forcefetch', (done) => {
+  it('correctly sets loading state on remounted network-only query', (done) => {
     const query = gql`query pollingPeople { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Darth Skywalker' } ] } };
     const networkInterface = mockNetworkInterface(
@@ -1883,7 +1886,7 @@ describe('queries', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper, app, count = 0;
 
-    @graphql(query, { options: { forceFetch: true }})
+    @graphql(query, { options: { fetchPolicy: 'network-only' }})
     class Container extends React.Component<any, any> {
       componentWillMount() {
         if (count === 1) {
@@ -2314,5 +2317,108 @@ describe('queries', () => {
       done();
     }, 10);
   });
+
+  it('will not log a warning when there is an error that is caught in the render method', () => new Promise((resolve, reject) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const networkInterface = mockNetworkInterface({ request: { query }, error: new Error('oops') });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    const origError = console.error;
+    const errorMock = jest.fn();
+    console.error = errorMock;
+
+    let renderCount = 0;
+    @graphql(query)
+    class HandledErrorComponent extends React.Component<any, any> {
+      render() {
+        try {
+          switch (renderCount++) {
+            case 0:
+              expect(this.props.data.loading).toEqual(true);
+              break;
+            case 1:
+              expect(this.props.data.error.message).toEqual('Network error: oops');
+              break;
+            default:
+              throw new Error('Too many renders.');
+          }
+        } catch (error) {
+          console.error = origError;
+          reject(error);
+        }
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <HandledErrorComponent/>
+      </ApolloProvider>
+    );
+
+    setTimeout(() => {
+      try {
+        expect(renderCount).toBe(2);
+        expect(errorMock.mock.calls.length).toBe(0);
+        resolve();
+      } catch (error) {
+        reject(error);
+      } finally {
+        console.error = origError;
+      }
+    }, 20);
+  }));
+
+  it('will log a warning when there is an error that is not caught in the render method', () => new Promise((resolve, reject) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const networkInterface = mockNetworkInterface({ request: { query }, error: new Error('oops') });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    const origError = console.error;
+    const errorMock = jest.fn();
+    console.error = errorMock;
+
+    let renderCount = 0;
+    @graphql(query)
+    class UnhandledErrorComponent extends React.Component<any, any> {
+      render() {
+        try {
+          switch (renderCount++) {
+            case 0:
+              expect(this.props.data.loading).toEqual(true);
+              break;
+            case 1:
+              // Noop. Don’t handle the error so a warning will be logged to the console.
+              break;
+            default:
+              throw new Error('Too many renders.');
+          }
+        } catch (error) {
+          console.error = origError;
+          reject(error);
+        }
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <UnhandledErrorComponent/>
+      </ApolloProvider>
+    );
+
+    setTimeout(() => {
+      try {
+        expect(renderCount).toBe(2);
+        expect(errorMock.mock.calls.length).toBe(1);
+        expect(errorMock.mock.calls[0][0]).toEqual('Unhandled (in react-apollo)');
+        resolve();
+      } catch (error) {
+        reject(error);
+      } finally {
+        console.error = origError;
+      }
+    }, 20);
+  }));
 
 });

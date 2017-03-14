@@ -17,18 +17,12 @@ describe('mobx integration', () => {
   class AppState {
     @observable first = 0;
 
-    constructor() {
-      setInterval(() => {
-        if (this.first <= 2) this.first += 1;
-      }, 250);
-    }
-
     reset() {
       this.first = 0;
     }
   }
 
-  it('works with mobx', (done) => {
+  it('works with mobx', () => new Promise((resolve, reject) => {
     const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const variables = { first: 0 };
@@ -43,23 +37,43 @@ describe('mobx integration', () => {
 
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
+    let count = 0;
+
     @graphql(query, {
       options: (props) => ({ variables: { first: props.appState.first } }),
     })
     @observer
     class Container extends React.Component<any, any> {
-      componentWillReact() {
-        if (this.props.appState.first === 1) {
-          this.props.data.refetch({ first: this.props.appState.first }).catch((e) => {
-            console.error(e);
-          });
-        }
-      }
-      componentWillReceiveProps(nextProps) {
-        if (this.props.appState.first === 1) {
-          if (nextProps.data.loading) return;
-          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
-          done();
+      componentDidUpdate() {
+        try {
+          switch (count++) {
+            case 0:
+              expect(this.props.appState.first).toEqual(0);
+              expect(this.props.data.loading).toEqual(false);
+              expect(this.props.data.allPeople).toEqual(data.allPeople);
+              break;
+            case 1:
+              expect(this.props.appState.first).toEqual(1);
+              expect(this.props.data.loading).toEqual(false);
+              expect(this.props.data.allPeople).toEqual(data.allPeople);
+              this.props.data.refetch({ first: this.props.appState.first }).catch(reject);
+              break;
+            case 2:
+              expect(this.props.appState.first).toEqual(1);
+              expect(this.props.data.loading).toEqual(true);
+              expect(this.props.data.allPeople).toEqual(data.allPeople);
+              break;
+            case 3:
+              expect(this.props.appState.first).toEqual(1);
+              expect(this.props.data.loading).toEqual(false);
+              expect(this.props.data.allPeople).toEqual(data2.allPeople);
+              resolve();
+              break;
+            default:
+              throw new Error('Component updated to many times.');
+          }
+        } catch (error) {
+          reject(error);
         }
       }
 
@@ -69,12 +83,16 @@ describe('mobx integration', () => {
     };
 
     const appState = new AppState();
+
     mount(
       <ApolloProvider client={client}>
         <Container appState={appState} />
       </ApolloProvider>
     ) as any;
 
-  });
+    setTimeout(() => {
+      appState.first += 1;
+    }, 10);
+  }));
 
 });

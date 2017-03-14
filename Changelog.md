@@ -4,6 +4,24 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 1.0.0-rc.1
+- Update dependency to Apollo Client 1.0.0-rc.1 [PR #520](https://github.com/apollographql/react-apollo/pull/520)
+
+### 0.13.3 
+- Make sure that the cached rendered element has the correct type before returning it. [PR #505](https://github.com/apollographql/react-apollo/pull/505)
+- Move constructor initializing of props to componentWillMount. [PR #506](https://github.com/apollographql/react-apollo/pull/506) ([Issue #509](https://github.com/apollographql/react-apollo/issues/509)).
+
+### 0.13.2
+- Address deprecation warnings coming from `graphql-tag` [graphql-tag#54](https://github.com/apollographql/graphql-tag/issues/54)
+- Make sure ApolloClient and gql are exported from browser bundle [PR #501](https://github.com/apollographql/react-apollo/pull/501)
+
+### 0.13.1
+- Add apollo-client ^0.10.0 to dependency range
+
+### 0.13.0
+- Make apollo-client and graphql-tag dependencies and re-export them from this package [PR #490](https://github.com/apollographql/react-apollo/pull/490)
+- Print errors to console if they are not handled by component [PR #476](https://github.com/apollographql/react-apollo/pull/476)
+
 ### 0.12.0
 - Update Apollo Client to 0.9.0 and bump a lot of other dependencies [PR #484](https://github.com/apollographql/react-apollo/pull/484)
 
