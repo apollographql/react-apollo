@@ -129,8 +129,11 @@ export function getDataFromTree(rootElement, rootContext: any = {}, fetchRoot: b
   // wait on each query that we found, re-rendering the subtree when it's done
   const mappedQueries = queries.map(({ query, element, context }) =>  {
     // we've just grabbed the query for element, so don't try and get it again
-    return query.then(_ => getDataFromTree(element, context, false))
-      .catch(e => errors.push(e));
+    return (
+      query
+        .then(_ => getDataFromTree(element, context, false))
+        .catch(e => errors.push(e))
+    );
   });
 
   // Run all queries. If there are errors, still wait for all queries to execute
