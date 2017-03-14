@@ -279,7 +279,11 @@ describe('SSR', () => {
       const app = (<ApolloProvider client={apolloClient}><Page/></ApolloProvider>);
 
       return getDataFromTree(app)
-        .then(() => {
+        .catch((e) => {
+          expect(e).toBeTruthy;
+          expect(e.queryErrors.length).toEqual(1);
+
+          // But we can still render the app if we want to
           const markup = ReactDOM.renderToString(app);
           // It renders in a loading state as errored query isn't shared between
           // the query fetching run and the rendering run.
