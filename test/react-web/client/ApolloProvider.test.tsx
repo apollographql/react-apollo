@@ -8,14 +8,20 @@ import * as TestUtils from 'react-addons-test-utils';
 
 import ApolloClient from 'apollo-client';
 
-import ApolloProvider  from '../../../src/ApolloProvider';
+import gql from 'graphql-tag';
 
-interface ChildContext {
-  store: Object;
-  client: Object;
-}
+import ApolloProvider  from '../../../src/ApolloProvider';
+import graphql from '../../../src/graphql';
+import { MockedProvider, mockNetworkInterface } from '../../../src/test-utils';
 
 describe('<ApolloProvider /> Component', () => {
+  const client = new ApolloClient();
+  const store = createStore(() => ({}));
+
+  interface ChildContext {
+    store: Object;
+    client: Object;
+  }
 
   class Child extends React.Component<any, { store: any, client: any}> {
     static contextTypes: React.ValidationMap<any> = {
@@ -25,10 +31,16 @@ describe('<ApolloProvider /> Component', () => {
 
     context: ChildContext;
 
-    render() {
-      return <div />;
+    render() { return <div />; }
+
+    componentDidUpdate() {
+      if (this.props.data) this.props.data.refetch()
     }
   }
+
+  const query = gql`query { authors { id } } `;
+  const GQLChild = graphql(query)(Child);
+
   class Container extends React.Component<any, any> {
     constructor(props) {
       super(props);
@@ -43,24 +55,36 @@ describe('<ApolloProvider /> Component', () => {
     }
 
     render() {
-      if (this.state.store || this.props.store) {
-        return (
-          <ApolloProvider client={this.state.client || this.props.client}
-            store={this.state.store || this.props.store}>
-            <Child />
-          </ApolloProvider>
-        );
-      } else {
-        return (
-          <ApolloProvider client={this.state.client || this.props.client}>
-            <Child />
-          </ApolloProvider>
-        );
-      }
+      return (
+        <ApolloProvider client={this.state.client || this.props.client}
+          store={this.state.store || this.props.store}>
+          <Child />
+        </ApolloProvider>
+      );
     }
   };
-  const client = new ApolloClient();
-  const store = createStore(() => ({}));
+
+  class ConnectedContainer extends React.Component<any, any> {
+    constructor(props) {
+      super(props);
+      this.state = {};
+    }
+
+    componentDidMount() {
+      this.setState({
+        store: this.props.store,
+        client: this.props.client,
+      });
+    }
+
+    render() {
+      return (
+        <ApolloProvider client={this.state.client || this.props.client} store={store}>
+          <GQLChild/>
+        </ApolloProvider>
+      );
+    }
+  }
 
   it('should render children components', () => {
     const wrapper = shallow(
@@ -218,5 +242,32 @@ describe('<ApolloProvider /> Component', () => {
     expect(child.context.store).toEqual(newStore);
     expect(child.context.client).not.toEqual(client);
     expect(child.context.store).not.toEqual(store);
+  });
+
+  it('should refetch against the new client when the client prop changes', () => {
+    const initialInterface = { query: jest.fn() };
+    const initialClient = new ApolloClient({
+      networkInterface: initialInterface,
+    });
+
+    const container = TestUtils.renderIntoDocument(
+      <ConnectedContainer client={initialClient} />
+    ) as React.Component<any, any>;
+
+    expect(initialInterface.query).toHaveBeenCalled();
+    initialInterface.query.mockClear();
+
+    const nextInterface = { query: jest.fn() };
+    const nextClient = new ApolloClient({
+      networkInterface: nextInterface,
+    });
+
+    container.setState({
+      client: nextClient,
+    });
+
+    // Both cases fail
+    expect(initialInterface.query).not.toHaveBeenCalled();
+    expect(nextInterface.query).toHaveBeenCalled();
   });
 });
