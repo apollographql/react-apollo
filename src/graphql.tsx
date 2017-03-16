@@ -340,7 +340,7 @@ export default function graphql(
             `passed to '${graphQLDisplayName}'`,
           );
         }
-        opts.variables = variables;
+        opts = { ...opts, variables };
         return opts;
       };
 
