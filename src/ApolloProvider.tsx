@@ -48,7 +48,9 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
       'sure you pass in your client via the "client" prop.',
     );
 
-    if (!props.store) { props.client.initStore(); }
+    if (!props.store) {
+      props.client.initStore();
+    }
   }
 
   shouldComponentUpdate(nextProps) {
@@ -57,8 +59,10 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
       this.props.children !== nextProps.children;
   }
 
-  componentDidUpdate() {
-    if (!this.props.store) { this.props.client.initStore(); }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.client !== this.props.client && !nextProps.store) {
+      nextProps.client.initStore();
+    }
   }
 
   getChildContext() {
