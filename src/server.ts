@@ -125,12 +125,28 @@ export function getDataFromTree(rootElement, rootContext: any = {}, fetchRoot: b
   // no queries found, nothing to do
   if (!queries.length) return Promise.resolve();
 
+  const errors = [];
   // wait on each query that we found, re-rendering the subtree when it's done
   const mappedQueries = queries.map(({ query, element, context }) =>  {
     // we've just grabbed the query for element, so don't try and get it again
-    return query.then(_ => getDataFromTree(element, context, false));
+    return (
+      query
+        .then(_ => getDataFromTree(element, context, false))
+        .catch(e => errors.push(e))
+    );
   });
-  return Promise.all(mappedQueries).then(_ => null);
+
+  // Run all queries. If there are errors, still wait for all queries to execute
+  // so the caller can ignore them if they wish. See https://github.com/apollographql/react-apollo/pull/488#issuecomment-284415525
+  return Promise.all(mappedQueries).then(_ => {
+    if (errors.length > 0) {
+      const error = errors.length === 1
+        ? errors[0]
+        : new Error(`${errors.length} errors were thrown when executing your GraphQL queries.`);
+      error.queryErrors = errors;
+      throw error;
+    }
+  });
 }
 
 export function renderToStringWithData(component) {
