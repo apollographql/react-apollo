@@ -259,11 +259,24 @@ export default function graphql(
         }
       }
 
-      componentWillReceiveProps(nextProps) {
-        if (shallowEqual(this.props, nextProps)) return;
+      componentWillReceiveProps(nextProps, nextContext) {
+        if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+          return;
+        }
 
         this.shouldRerender = true;
 
+        if (this.client !== nextContext.client) {
+          this.client = nextContext.client;
+          this.unsubscribeFromQuery();
+          this.queryObservable = null;
+          this.previousData = {};
+          this.updateQuery(nextProps);
+          if (!this.shouldSkip(nextProps)) {
+            this.subscribeToQuery();
+          }
+          return;
+        }
         if (this.type === DocumentType.Mutation) {
           return;
         };

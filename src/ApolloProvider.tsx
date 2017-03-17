@@ -10,7 +10,9 @@ import {
   Store,
 } from 'redux';
 
-import ApolloClient from 'apollo-client';
+/* tslint:disable:no-unused-variable */
+import ApolloClient, { ApolloStore } from 'apollo-client';
+/* tslint:enable:no-unused-variable */
 
 import invariant = require('invariant');
 
@@ -37,9 +39,6 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     client: PropTypes.object.isRequired,
   };
 
-  public store: Store<any>;
-  public client: ApolloClient;
-
   constructor(props, context) {
     super(props, context);
 
@@ -49,25 +48,27 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
       'sure you pass in your client via the "client" prop.',
     );
 
-    this.client = props.client;
-
-    if (props.store) {
-      this.store = props.store;
-      // support an immutable store alongside apollo store
-      if (props.immutable) props.client.initStore();
-      return;
+    if (!props.store) {
+      props.client.initStore();
     }
+  }
 
-    // intialize the built in store if none is passed in
-    props.client.initStore();
-    this.store = props.client.store;
+  shouldComponentUpdate(nextProps) {
+    return this.props.client !== nextProps.client ||
+      this.props.store !== nextProps.store ||
+      this.props.children !== nextProps.children;
+  }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.client !== this.props.client && !nextProps.store) {
+      nextProps.client.initStore();
+    }
   }
 
   getChildContext() {
     return {
-      store: this.store,
-      client: this.client,
+      store: this.props.store || this.props.client.store,
+      client: this.props.client,
     };
   }
 
