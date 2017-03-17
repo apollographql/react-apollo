@@ -662,13 +662,6 @@ class ObservableQueryRecycler {
     const { observableQuery, subscription } = this.observableQueries.pop();
     subscription.unsubscribe();
 
-    // Strip away options set when `ObservableQuery` was recycled.
-    const { fetchPolicy, pollInterval, ...rest } = observableQuery.options;
-
-    // Override `ObservableQuery`s options before invoking `setOptions`
-    // since it doesn't allow removal of previously set options.
-    observableQuery.options = rest;
-
     // When we reuse an `ObservableQuery` then the document and component
     // GraphQL display name should be the same. Only the options may be
     // different.
@@ -676,7 +669,13 @@ class ObservableQueryRecycler {
     // Therefore we need to set the new options.
     //
     // If this observable query used to poll then polling will be restarted.
-    observableQuery.setOptions(options);
+    observableQuery.setOptions({
+      ...options,
+      // Excpliticly set options changed when recycling to make sure they
+      // are set to `undefined` if not provided in options.
+      pollInterval: options.pollInterval,
+      fetchPolicy: options.fetchPolicy,
+    });
 
     return observableQuery;
   }
