@@ -671,7 +671,7 @@ class ObservableQueryRecycler {
     // If this observable query used to poll then polling will be restarted.
     observableQuery.setOptions({
       ...options,
-      // Excpliticly set options changed when recycling to make sure they
+      // Explicitly set options changed when recycling to make sure they
       // are set to `undefined` if not provided in options.
       pollInterval: options.pollInterval,
       fetchPolicy: options.fetchPolicy,
