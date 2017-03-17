@@ -2174,7 +2174,7 @@ describe('queries', () => {
     const recycledOptions = queryObservable2.options;
 
     expect(queryObservable1).toBe(queryObservable2);
-    expect(originalOptions).toEqual(recycledOptions);
+    expect(recycledOptions).toEqual(originalOptions);
 
     wrapper2.unmount();
 
