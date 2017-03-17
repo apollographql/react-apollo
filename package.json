@@ -95,7 +95,7 @@
     "colors": "^1.1.2",
     "enzyme": "^2.2.0",
     "enzyme-to-json": "^1.1.5",
-    "flow-bin": "^0.41.0",
+    "flow-bin": "^0.42.0",
     "graphql": "^0.9.1",
     "graphql-tools": "^0.10.1",
     "gzip-size": "^3.0.0",
