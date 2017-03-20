@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 0.13.2
+- Included cached data to the child component along with the error
+
 ### 0.13.1
 - Add apollo-client ^0.10.0 to dependency range
 
