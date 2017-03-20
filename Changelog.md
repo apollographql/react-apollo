@@ -5,7 +5,7 @@ Expect active development and potentially significant breaking changes in the `0
 ### vNext
 
 ### 1.0.0-rc.4
-- Included cached data to the child component along with the error. [PR #548]
+- Included cached data to the child component along with the error. [PR #548](https://github.com/apollographql/react-apollo/pull/548)
 
 ### 1.0.0-rc.3
 - Fix bug where `options` was mutated causing variables to not update appropriately. [PR #537](https://github.com/apollographql/react-apollo/pull/537)
