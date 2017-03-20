@@ -1156,7 +1156,7 @@ describe('queries', () => {
             variables: { skip: 2 },
             updateQuery: (prev, { fetchMoreResult }) => ({
               allPeople: {
-                people: prev.allPeople.people.concat(fetchMoreResult.data.allPeople.people),
+                people: prev.allPeople.people.concat(fetchMoreResult.allPeople.people),
               },
             }),
           }).then(wrap(done, result => {
@@ -1805,7 +1805,7 @@ describe('queries', () => {
           getMorePeople: () => fetchMore({
             variables: { cursor },
             updateQuery(prev, { fetchMoreResult }) {
-              const { data: { allPeople: { cursor, people } } } = fetchMoreResult;
+              const { allPeople: { cursor, people } } = fetchMoreResult;
               return {
                 allPeople: {
                   cursor,
