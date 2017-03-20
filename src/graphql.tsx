@@ -558,8 +558,16 @@ export default function graphql(
             // while loading, we should use any previous data we have
             assign(data, this.previousData, currentResult.data);
           } else {
-            assign(data, currentResult.data);
-            this.previousData = currentResult.data;
+            let dataToMerge = currentResult.data;
+            // if we have an error, include any previously cached data
+            if (error) {
+              let previousResult = this.queryObservable.getLastResult()
+              if (previousResult && !previousResult.error) {
+                dataToMerge = assign({}, previousResult.data, currentResult.data)
+              }
+            }
+            assign(data, dataToMerge);
+            this.previousData = dataToMerge;
           }
         }
         return data;
