@@ -12,7 +12,7 @@ import {
   DocumentNode,
 } from 'graphql';
 
-import { print } from 'graphql-tag/printer';
+import { print } from 'graphql-tag/bundledPrinter';
 
 
 import ApolloProvider from './ApolloProvider';
@@ -22,6 +22,7 @@ export class MockedProvider extends React.Component<any, any> {
 
   constructor(props, context) {
     super(props, context);
+    if (this.props.client) return;
 
     const networkInterface = mockNetworkInterface.apply(null, this.props.mocks);
     this.client = new ApolloClient({ networkInterface });
@@ -29,7 +30,7 @@ export class MockedProvider extends React.Component<any, any> {
 
   render() {
     return (
-      <ApolloProvider client={this.client}>
+      <ApolloProvider client={this.client || this.props.client}>
         {this.props.children}
       </ApolloProvider>
     );

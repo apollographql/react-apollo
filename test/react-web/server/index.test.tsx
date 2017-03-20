@@ -163,7 +163,7 @@ describe('SSR', () => {
         });
     });
 
-    it('should allow forceFetch as an option and still render prefetched data', () => {
+    it('should allow network-only fetchPolicy as an option and still render prefetched data', () => {
 
       const query = gql`{ currentUser { firstName } }`;
       const data = { currentUser: { firstName: 'James' } };
@@ -172,7 +172,7 @@ describe('SSR', () => {
       );
       const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
 
-      const WrappedElement = graphql(query, { options: { forceFetch: true }})(({ data }) => (
+      const WrappedElement = graphql(query, { options: { fetchPolicy: 'network-only' }})(({ data }) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
       ));
 
@@ -261,6 +261,34 @@ describe('SSR', () => {
           expect(markup).toMatch(/skipped/);
         })
         ;
+    });
+
+    it('should handle errors thrown by queries', () => {
+      const query = gql`{ currentUser { firstName } }`;
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, error: new Error('Failed to fetch'), delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
+
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.error}</div>
+      ));
+
+      const Page = () => (<div><span>Hi</span><div><WrappedElement /></div></div>);
+
+      const app = (<ApolloProvider client={apolloClient}><Page/></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .catch((e) => {
+          expect(e).toBeTruthy();
+          expect(e.queryErrors.length).toEqual(1);
+
+          // But we can still render the app if we want to
+          const markup = ReactDOM.renderToString(app);
+          // It renders in a loading state as errored query isn't shared between
+          // the query fetching run and the rendering run.
+          expect(markup).toMatch(/loading/);
+        });
     });
 
     it('should correctly skip queries (deprecated)', () => {

@@ -22,6 +22,7 @@ import ApolloClient, {
   ApolloStore,
   ApolloQueryResult,
   ApolloError,
+  FetchPolicy,
 } from 'apollo-client';
 
 import {
@@ -45,15 +46,12 @@ export declare interface MutationOptions {
   variables?: Object;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
-  forceFetch?: boolean;
 }
 
 export declare interface QueryOptions {
   ssr?: boolean;
   variables?: { [key: string]: any };
-  forceFetch?: boolean;
-  returnPartialData?: boolean;
-  noFetch?: boolean;
+  fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   // deprecated
   skip?: boolean;
@@ -243,11 +241,13 @@ export default function graphql(
         );
 
         this.store = this.client.store;
-
         this.type = operation.type;
+      }
 
-        if (this.shouldSkip(props)) return;
-        this.setInitialProps();
+      componentWillMount() {
+        if (!this.shouldSkip(this.props)) {
+          this.setInitialProps();
+        }
       }
 
       componentDidMount() {
@@ -259,11 +259,24 @@ export default function graphql(
         }
       }
 
-      componentWillReceiveProps(nextProps) {
-        if (shallowEqual(this.props, nextProps)) return;
+      componentWillReceiveProps(nextProps, nextContext) {
+        if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+          return;
+        }
 
         this.shouldRerender = true;
 
+        if (this.client !== nextContext.client) {
+          this.client = nextContext.client;
+          this.unsubscribeFromQuery();
+          this.queryObservable = null;
+          this.previousData = {};
+          this.updateQuery(nextProps);
+          if (!this.shouldSkip(nextProps)) {
+            this.subscribeToQuery();
+          }
+          return;
+        }
         if (this.type === DocumentType.Mutation) {
           return;
         };
@@ -340,7 +353,7 @@ export default function graphql(
             `passed to '${graphQLDisplayName}'`,
           );
         }
-        opts.variables = variables;
+        opts = { ...opts, variables };
         return opts;
       };
 
@@ -426,7 +439,9 @@ export default function graphql(
 
         const opts = this.calculateOptions() as any;
         if (opts.ssr === false) return false;
-        if (opts.forceFetch) delete opts.forceFetch; // ignore force fetch in SSR;
+        if (opts.fetchPolicy === 'network-only') {
+          opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
+        }
 
         const observable = this.client.watchQuery(assign({ query: document }, opts));
         const result = observable.currentResult();
@@ -542,7 +557,7 @@ export default function graphql(
           // _feel_ like it was logged ASAP while still tolerating asynchrony.
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
-              console.error('Uncaught (in react-apollo)', error.stack || error);
+              console.error('Unhandled (in react-apollo)', error.stack || error);
             }
           }, 10);
           Object.defineProperty(data, 'error', {
@@ -585,7 +600,7 @@ export default function graphql(
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        if (!shouldRerender && renderedElement) {
+        if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
           return renderedElement;
         }
 
