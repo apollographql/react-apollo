@@ -4,6 +4,7 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 - ApolloProvider now won't put its `store` on `context` unless it was given. [PR #550](https://github.com/apollographql/react-apollo/pull/550)
+- MockedProvider now accepts a `store` prop to be passed to ApolloProvider so that react-redux store is not overwritten
 
 ### 1.0.0-rc.3
 - Fix bug where `options` was mutated causing variables to not update appropriately. [PR #537](https://github.com/apollographql/react-apollo/pull/537)
