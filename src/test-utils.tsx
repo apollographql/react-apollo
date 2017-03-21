@@ -30,7 +30,7 @@ export class MockedProvider extends React.Component<any, any> {
 
   render() {
     return (
-      <ApolloProvider client={this.client || this.props.client}>
+      <ApolloProvider client={this.client || this.props.client} store={this.props.store || null}>
         {this.props.children}
       </ApolloProvider>
     );
@@ -107,11 +107,11 @@ export class MockNetworkInterface implements NetworkInterface {
       if (!mockedResponse.result && !mockedResponse.error) {
         throw new Error('Mocked response should contain either result or error.');
       }
-      this.addMockedReponse(mockedResponse);
+      this.addMockedResponse(mockedResponse);
     });
   }
 
-  public addMockedReponse(mockedResponse: MockedResponse) {
+  public addMockedResponse(mockedResponse: MockedResponse) {
     const key = requestToKey(mockedResponse.request);
     let mockedResponses = this.mockedResponsesByKey[key];
     if (!mockedResponses) {
