@@ -3,6 +3,7 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 ### vNext
+- ApolloProvider now won't put its `store` on `context` unless it was given. [PR #550](https://github.com/apollographql/react-apollo/pull/550)
 
 ### 1.0.0-rc.3
 - Fix bug where `options` was mutated causing variables to not update appropriately. [PR #537](https://github.com/apollographql/react-apollo/pull/537)

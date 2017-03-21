@@ -201,7 +201,6 @@ export default function graphql(
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
-        store: PropTypes.object.isRequired,
         client: PropTypes.object.isRequired,
       };
 
