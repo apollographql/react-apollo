@@ -8,6 +8,7 @@ import {
 
 // modules don't export ES6 modules
 import pick = require('lodash.pick');
+import lodashDebounce = require('lodash.debounce');
 import shallowEqual from './shallowEqual';
 
 import invariant = require('invariant');
@@ -157,6 +158,7 @@ export interface OperationOption {
   withRef?: boolean;
   shouldResubscribe?: (props: any, nextProps: any) => boolean;
   alias?: string;
+  debounce?: number;
 }
 
 export interface WrapWithApollo {
@@ -169,7 +171,12 @@ export default function graphql(
 ) {
 
   // extract options
-  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo' } = operationOptions;
+  const {
+    options = defaultMapPropsToOptions,
+    skip = defaultMapPropsToSkip,
+    alias = 'Apollo',
+    debounce = 0,
+  } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
@@ -228,6 +235,10 @@ export default function graphql(
       // the element to render
       private renderedElement: any;
 
+      // whether `updateQuery` is about to be called after `debounce` delay
+      // while the debounce is in progress `data.loading === true`
+      private isDebouncingUpdateQuery: boolean;
+
       constructor(props, context) {
         super(props, context);
         this.version = version;
@@ -238,6 +249,14 @@ export default function graphql(
           `"${graphQLDisplayName}". ` +
           `Wrap the root component in an <ApolloProvider>`,
         );
+
+        if (debounce > 0) {
+          const debouncedUpdateQuery = lodashDebounce(this.updateQuery.bind(this), debounce);
+          this.updateQuery = (...args) => {
+            this.isDebouncingUpdateQuery = true;
+            debouncedUpdateQuery(...args);
+          };
+        }
 
         this.store = this.client.store;
         this.type = operation.type;
@@ -405,6 +424,8 @@ export default function graphql(
       }
 
       updateQuery(props) {
+        // debouncing is no longer in progress, so the flag has to be cleared
+        this.isDebouncingUpdateQuery = false;
         const opts = this.calculateOptions(props) as QueryOptions;
 
         // if we skipped initially, we may not have yet created the observable
@@ -536,7 +557,7 @@ export default function graphql(
 
         if (this.type === DocumentType.Subscription) {
           assign(data, {
-            loading: !this.lastSubscriptionData,
+            loading: this.isDebouncingUpdateQuery || !this.lastSubscriptionData,
             variables: opts.variables,
           }, this.lastSubscriptionData);
 
@@ -544,7 +565,7 @@ export default function graphql(
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
           const { loading, error, networkStatus } = currentResult;
-          assign(data, { loading, networkStatus });
+          assign(data, { loading: this.isDebouncingUpdateQuery || loading, networkStatus });
 
           // Define the error property on the data object. If the user does
           // not get the error object from `data` within 10 milliseconds
