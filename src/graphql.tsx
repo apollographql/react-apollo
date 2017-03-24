@@ -252,9 +252,9 @@ export default function graphql(
 
         if (debounce > 0) {
           const debouncedUpdateQuery = lodashDebounce(this.updateQuery.bind(this), debounce);
-          this.updateQuery = (props) => {
+          this.updateQuery = (...args) => {
             this.isDebouncingUpdateQuery = true;
-            debouncedUpdateQuery(props);
+            debouncedUpdateQuery(...args);
           };
         }
 
