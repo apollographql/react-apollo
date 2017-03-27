@@ -587,13 +587,13 @@ export default function graphql(
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
-        const data = this.dataForChild();
-        const clientProps = this.calculateResultProps(data);
-        const mergedPropsAndData = assign({}, props, clientProps);
-
         if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
           return renderedElement;
         }
+
+        const data = this.dataForChild();
+        const clientProps = this.calculateResultProps(data);
+        const mergedPropsAndData = assign({}, props, clientProps);
 
         if (operationOptions.withRef) mergedPropsAndData.ref = 'wrappedInstance';
         this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);
