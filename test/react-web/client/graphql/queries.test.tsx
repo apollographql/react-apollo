@@ -2456,7 +2456,7 @@ describe('queries', () => {
       }
     }
 
-    @graphql(query)
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Query extends React.Component<any, any> {
       componentDidMount() {
         refetchQuery = () => this.props.data.refetch();
