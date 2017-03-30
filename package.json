@@ -6,7 +6,7 @@
   "browser": "lib/browser.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "deploy": "npm run compile && npm test && npm publish",
+    "deploy": "npm run compile && npm test && npm publish --tag next",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
