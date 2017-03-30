@@ -14,7 +14,7 @@ before_install:
   - time npm i -g yarn --cache-min 999999999
 
 install:
-  - yarn
+  - npm install
   - cd examples/create-react-app && yarn && cd ../../
 
 script:

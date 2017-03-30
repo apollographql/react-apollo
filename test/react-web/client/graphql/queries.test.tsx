@@ -26,6 +26,9 @@ const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) =
   }
 };
 
+function wait(ms) {
+  return new Promise(resolve => setTimeout(() => resolve(), ms));
+}
 
 describe('queries', () => {
 
@@ -1153,7 +1156,7 @@ describe('queries', () => {
             variables: { skip: 2 },
             updateQuery: (prev, { fetchMoreResult }) => ({
               allPeople: {
-                people: prev.allPeople.people.concat(fetchMoreResult.data.allPeople.people),
+                people: prev.allPeople.people.concat(fetchMoreResult.allPeople.people),
               },
             }),
           }).then(wrap(done, result => {
@@ -1802,7 +1805,7 @@ describe('queries', () => {
           getMorePeople: () => fetchMore({
             variables: { cursor },
             updateQuery(prev, { fetchMoreResult }) {
-              const { data: { allPeople: { cursor, people } } } = fetchMoreResult;
+              const { allPeople: { cursor, people } } = fetchMoreResult;
               return {
                 allPeople: {
                   cursor,
@@ -2495,5 +2498,85 @@ describe('queries', () => {
       }
     }, 20);
   }));
+
+  it('will re-execute a query when the client changes', async () => {
+    const query = gql`{ a b c }`;
+    const networkInterface1 = { query: jest.fn(() => Promise.resolve({ data: { a: 1, b: 2, c: 3 } })) };
+    const networkInterface2 = { query: jest.fn(() => Promise.resolve({ data: { a: 4, b: 5, c: 6 } })) };
+    const networkInterface3 = { query: jest.fn(() => Promise.resolve({ data: { a: 7, b: 8, c: 9 } })) };
+    const client1 = new ApolloClient({ networkInterface: networkInterface1 });
+    const client2 = new ApolloClient({ networkInterface: networkInterface2 });
+    const client3 = new ApolloClient({ networkInterface: networkInterface3 });
+    const renders = [];
+    let switchClient;
+    let refetchQuery;
+
+    class ClientSwitcher extends React.Component<any, any> {
+      state = {
+        client: client1,
+      };
+
+      componentDidMount() {
+        switchClient = newClient => {
+          this.setState({ client: newClient });
+        };
+      }
+
+      render() {
+        return (
+          <ApolloProvider client={this.state.client}>
+            <Query/>
+          </ApolloProvider>
+        );
+      }
+    }
+
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
+    class Query extends React.Component<any, any> {
+      componentDidMount() {
+        refetchQuery = () => this.props.data.refetch();
+      }
+
+      render() {
+        const { data: { loading, a, b, c } } = this.props;
+        renders.push({ loading, a, b, c });
+        return null;
+      }
+    }
+
+    renderer.create(<ClientSwitcher/>);
+
+    await wait(1);
+    refetchQuery();
+    await wait(1);
+    switchClient(client2);
+    await wait(1);
+    refetchQuery();
+    await wait(1);
+    switchClient(client3);
+    await wait(1);
+    switchClient(client1);
+    await wait(1);
+    switchClient(client2);
+    await wait(1);
+    switchClient(client3);
+    await wait(1);
+
+    expect(renders).toEqual([
+      { loading: true },
+      { loading: false, a: 1, b: 2, c: 3 },
+      { loading: true, a: 1, b: 2, c: 3 },
+      { loading: false, a: 1, b: 2, c: 3 },
+      { loading: true },
+      { loading: false, a: 4, b: 5, c: 6 },
+      { loading: true, a: 4, b: 5, c: 6 },
+      { loading: false, a: 4, b: 5, c: 6 },
+      { loading: true },
+      { loading: false, a: 7, b: 8, c: 9 },
+      { loading: false, a: 1, b: 2, c: 3 },
+      { loading: false, a: 4, b: 5, c: 6 },
+      { loading: false, a: 7, b: 8, c: 9 },
+    ]);
+  });
 
 });

@@ -201,7 +201,6 @@ export default function graphql(
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
-        store: PropTypes.object.isRequired,
         client: PropTypes.object.isRequired,
       };
 
@@ -259,11 +258,24 @@ export default function graphql(
         }
       }
 
-      componentWillReceiveProps(nextProps) {
-        if (shallowEqual(this.props, nextProps)) return;
+      componentWillReceiveProps(nextProps, nextContext) {
+        if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+          return;
+        }
 
         this.shouldRerender = true;
 
+        if (this.client !== nextContext.client) {
+          this.client = nextContext.client;
+          this.unsubscribeFromQuery();
+          this.queryObservable = null;
+          this.previousData = {};
+          this.updateQuery(nextProps);
+          if (!this.shouldSkip(nextProps)) {
+            this.subscribeToQuery();
+          }
+          return;
+        }
         if (this.type === DocumentType.Mutation) {
           return;
         };
@@ -340,7 +352,7 @@ export default function graphql(
             `passed to '${graphQLDisplayName}'`,
           );
         }
-        opts.variables = variables;
+        opts = { ...opts, variables };
         return opts;
       };
 
@@ -575,13 +587,13 @@ export default function graphql(
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
-        const data = this.dataForChild();
-        const clientProps = this.calculateResultProps(data);
-        const mergedPropsAndData = assign({}, props, clientProps);
-
         if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
           return renderedElement;
         }
+
+        const data = this.dataForChild();
+        const clientProps = this.calculateResultProps(data);
+        const mergedPropsAndData = assign({}, props, clientProps);
 
         if (operationOptions.withRef) mergedPropsAndData.ref = 'wrappedInstance';
         this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);

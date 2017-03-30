@@ -4,11 +4,18 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 - Make sure recycled queries are in cache only mode so they do not trigger network requests. [PR #531](https://github.com/apollographql/react-apollo/pull/531)
+- ApolloProvider now won't put its `store` on `context` unless it was given. [PR #550](https://github.com/apollographql/react-apollo/pull/550)
+- MockedProvider now accepts a `store` prop to be passed to ApolloProvider so that react-redux store is not overwritten
+
+### 1.0.0-rc.3
+- Fix bug where `options` was mutated causing variables to not update appropriately. [PR #537](https://github.com/apollographql/react-apollo/pull/537)
+- Make sure that all queries resolve or reject if an error was thrown when server side rendering. [PR #488](https://github.com/apollographql/react-apollo/pull/488)
+- ApolloProvider now changes its client and store when those props change. [PR #479](https://github.com/apollographql/react-apollo/pull/479)
 
 ### 1.0.0-rc.1
 - Update dependency to Apollo Client 1.0.0-rc.1 [PR #520](https://github.com/apollographql/react-apollo/pull/520)
 
-### 0.13.3 
+### 0.13.3
 - Make sure that the cached rendered element has the correct type before returning it. [PR #505](https://github.com/apollographql/react-apollo/pull/505)
 - Move constructor initializing of props to componentWillMount. [PR #506](https://github.com/apollographql/react-apollo/pull/506) ([Issue #509](https://github.com/apollographql/react-apollo/issues/509)).
 
