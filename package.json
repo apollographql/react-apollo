@@ -1,12 +1,12 @@
 {
   "name": "react-apollo",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0",
   "description": "React data container for Apollo Client",
   "main": "lib/index.js",
   "browser": "lib/browser.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "deploy": "npm run compile && npm test && npm publish",
+    "deploy": "npm run compile && npm test && npm publish --tag next",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
@@ -129,7 +129,7 @@
     "uglify-js": "^2.6.2"
   },
   "dependencies": {
-    "apollo-client": "^1.0.0-rc.8",
+    "apollo-client": "^1.0.0-rc.9",
     "graphql-anywhere": "^3.0.0",
     "graphql-tag": "^1.3.1",
     "hoist-non-react-statics": "^1.2.0",
