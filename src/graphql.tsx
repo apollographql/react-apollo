@@ -647,7 +647,10 @@ class ObservableQueryRecycler {
   public recycle (observableQuery: ObservableQuery<any>): void {
     // Stop the query from polling when we recycle. Polling may resume when we
     // reuse it and call `setOptions`.
-    observableQuery.stopPolling();
+    observableQuery.setOptions({
+      fetchPolicy: 'cache-only',
+      pollInterval: 0,
+    });
 
     this.observableQueries.push({
       observableQuery,
@@ -678,7 +681,13 @@ class ObservableQueryRecycler {
     // Therefore we need to set the new options.
     //
     // If this observable query used to poll then polling will be restarted.
-    observableQuery.setOptions(options);
+    observableQuery.setOptions({
+      ...options,
+      // Explicitly set options changed when recycling to make sure they
+      // are set to `undefined` if not provided in options.
+      pollInterval: options.pollInterval,
+      fetchPolicy: options.fetchPolicy,
+    });
 
     return observableQuery;
   }
