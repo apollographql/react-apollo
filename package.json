@@ -1,6 +1,10 @@
 {
   "name": "react-apollo",
+<<<<<<< HEAD
   "version": "1.0.1",
+=======
+  "version": "0.13.1",
+>>>>>>> parent of 60b796c... update changelog and bump version
   "description": "React data container for Apollo Client",
   "main": "lib/index.js",
   "browser": "lib/browser.js",
