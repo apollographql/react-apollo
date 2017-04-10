@@ -5,6 +5,7 @@ Expect active development and potentially significant breaking changes in the `0
 ### 1.0.1
 - Fix: Make sure recycled queries are in cache only mode so they do not trigger network requests. [PR #531](https://github.com/apollographql/react-apollo/pull/531)
 
+<<<<<<< HEAD
 ### 1.0.0
 - ApolloProvider now won't put its `store` on `context` unless it was given. [PR #550](https://github.com/apollographql/react-apollo/pull/550)
 - MockedProvider now accepts a `store` prop to be passed to ApolloProvider so that react-redux store is not overwritten
@@ -26,6 +27,8 @@ Expect active development and potentially significant breaking changes in the `0
 - Address deprecation warnings coming from `graphql-tag` [graphql-tag#54](https://github.com/apollographql/graphql-tag/issues/54)
 - Make sure ApolloClient and gql are exported from browser bundle [PR #501](https://github.com/apollographql/react-apollo/pull/501)
 
+=======
+>>>>>>> parent of 60b796c... update changelog and bump version
 =======
 >>>>>>> parent of 60b796c... update changelog and bump version
 ### 0.13.1
