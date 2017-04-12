@@ -13,6 +13,7 @@ Expect active development and potentially significant breaking changes in the `0
 - Fix bug where `options` was mutated causing variables to not update appropriately. [PR #537](https://github.com/apollographql/react-apollo/pull/537)
 - Make sure that all queries resolve or reject if an error was thrown when server side rendering. [PR #488](https://github.com/apollographql/react-apollo/pull/488)
 - ApolloProvider now changes its client and store when those props change. [PR #479](https://github.com/apollographql/react-apollo/pull/479)
+- Exposed `createBatchingNetworkInterface` from `apollo-client` so that it can be imported from `react-apollo` just like `createNetworkInterface`. [PR #618](https://github.com/apollographql/react-apollo/pull/618)
 
 ### 1.0.0-rc.1
 - Update dependency to Apollo Client 1.0.0-rc.1 [PR #520](https://github.com/apollographql/react-apollo/pull/520)
