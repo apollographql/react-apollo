@@ -79,4 +79,4 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   render() {
     return React.Children.only(this.props.children);
   }
-};
+}
