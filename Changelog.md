@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 1.0.3
+- Fix: convert deprecated `React.PropTypes` to `PropTypes` provided by the `prop-types` package. [PR #628]
+
 ### 1.0.2
 - Exposed `createBatchingNetworkInterface` from apollo-client so that it can be imported from react-apollo just like `createNetworkInterface`. [PR #618](https://github.com/apollographql/react-apollo/pull/618)
 
