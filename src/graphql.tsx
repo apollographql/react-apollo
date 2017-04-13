@@ -147,7 +147,7 @@ export function withApollo(
 
   // Make sure we preserve any custom statics on the original component.
   return hoistNonReactStatics(WithApollo, WrappedComponent, {});
-};
+}
 
 export interface OperationOption {
   options?: Object | ((props: any) => QueryOptions | MutationOptions);
@@ -278,7 +278,7 @@ export default function graphql(
         }
         if (this.type === DocumentType.Mutation) {
           return;
-        };
+        }
         if (this.type === DocumentType.Subscription
           && operationOptions.shouldResubscribe
           && operationOptions.shouldResubscribe(this.props, nextProps)) {
@@ -354,7 +354,7 @@ export default function graphql(
         }
         opts = { ...opts, variables };
         return opts;
-      };
+      }
 
       calculateResultProps(result) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
@@ -606,7 +606,7 @@ export default function graphql(
   };
 
   return wrapWithApolloComponent;
-};
+}
 
 /**
  * An observable query recycler stores some observable queries that are no
