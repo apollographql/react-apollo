@@ -204,7 +204,7 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface imple
       throw new Error('Network interface does not have subscription associated with this request.');
     }
 
-  };
+  }
 
   public fireResult(id: number) {
     const handler = this.handlersById[id];
