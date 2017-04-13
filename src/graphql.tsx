@@ -1,10 +1,10 @@
 import {
   Component,
   createElement,
-  PropTypes,
   ComponentClass,
   StatelessComponent,
 } from 'react';
+import * as PropTypes from 'prop-types';
 
 // modules don't export ES6 modules
 import pick = require('lodash.pick');
