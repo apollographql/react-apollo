@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "description": "React data container for Apollo Client",
   "main": "lib/index.js",
   "browser": "lib/browser.js",
