@@ -12,7 +12,7 @@ import {
   DocumentNode,
 } from 'graphql';
 
-import { print } from 'graphql-tag/bundledPrinter';
+import { print } from 'graphql';
 
 
 import ApolloProvider from './ApolloProvider';

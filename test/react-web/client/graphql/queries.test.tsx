@@ -1,6 +1,7 @@
 /// <reference types="jest" />
 
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
@@ -1603,7 +1604,7 @@ describe('queries', () => {
     }
 
     (ContextContainer as any).childContextTypes = {
-      color: React.PropTypes.string,
+      color: PropTypes.string,
     };
 
     let count = 0;
@@ -1622,7 +1623,7 @@ describe('queries', () => {
     }
 
     (ChildContextContainer as any).contextTypes = {
-      color: React.PropTypes.string,
+      color: PropTypes.string,
     };
 
     renderer.create(
