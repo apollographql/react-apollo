@@ -1,18 +1,14 @@
-/* tslint:disable:no-unused-variable */
 import * as React from 'react';
-/* tslint:enable:no-unused-variable */
+import * as PropTypes from 'prop-types';
 import {
   Component,
-  PropTypes,
 } from 'react';
 
 import {
   Store,
 } from 'redux';
 
-/* tslint:disable:no-unused-variable */
 import ApolloClient, { ApolloStore } from 'apollo-client';
-/* tslint:enable:no-unused-variable */
 
 import invariant = require('invariant');
 
@@ -79,4 +75,4 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   render() {
     return React.Children.only(this.props.children);
   }
-};
+}

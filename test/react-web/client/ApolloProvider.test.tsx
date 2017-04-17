@@ -1,5 +1,6 @@
 
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { shallow, mount, ReactWrapper } from 'enzyme';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
@@ -26,8 +27,8 @@ describe('<ApolloProvider /> Component', () => {
 
   class Child extends React.Component<any, { store: any, client: any}> {
     static contextTypes: React.ValidationMap<any> = {
-      client: React.PropTypes.object.isRequired,
-      store: React.PropTypes.object.isRequired,
+      client: PropTypes.object.isRequired,
+      store: PropTypes.object.isRequired,
     };
 
     context: ChildContext;
@@ -45,8 +46,8 @@ describe('<ApolloProvider /> Component', () => {
   }
   class ChildWithOptionalStore extends React.Component<any, { store: any, client: any}> {
     static contextTypes: React.ValidationMap<any> = {
-      client: React.PropTypes.object.isRequired,
-      store: React.PropTypes.object,
+      client: PropTypes.object.isRequired,
+      store: PropTypes.object,
     };
 
     context: ChildContext;
@@ -82,7 +83,7 @@ describe('<ApolloProvider /> Component', () => {
         </ApolloProvider>
       );
     }
-  };
+  }
 
   class ConnectedContainer extends React.Component<any, any> {
     constructor(props) {
