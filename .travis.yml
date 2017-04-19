@@ -23,7 +23,7 @@ script:
   - npm run compile
   - cd examples/create-react-app && npm test && cd ../../
   - npm run filesize
-  - python node_modules/travis-weigh-in/weigh_in.py ./dist/index.min.js || true # ignore size errors
+  - python node_modules/travis-weigh-in/weigh_in.py ./dist/index.min.js.gz || true # ignore size errors
 
 # Allow Travis tests to run in containers.
 sudo: false
