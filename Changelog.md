@@ -3,6 +3,8 @@
 Expect active development and potentially significant breaking changes in the `0.x` track. We'll try to be diligent about releasing a `1.0` version in a timely fashion (ideally within 1 or 2 months), so that we can take advantage of SemVer to signify breaking changes from that point on.
 
 ### vNext
+
+### 1.1.0
 - Pass cached data to the child component along with the error. [PR #548](https://github.com/apollographql/react-apollo/pull/548)
 - Fix version lock down for peer dependency version of React. [PR #626](https://github.com/apollographql/react-apollo/pull/626)
 - Switch `graphql-tag` dependency to `2.0.0`. This isn't really a breaking change because we only export `gql` from `react-apollo`.
