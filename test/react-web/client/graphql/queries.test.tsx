@@ -2580,4 +2580,44 @@ describe('queries', () => {
     ]);
   });
 
+  it('passes any cached data when there is a GraphQL error', (done) => {
+    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
+    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query }, result: { data } },
+      { request: { query }, error: new Error('No Network Connection') }
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let count = 0;
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps = (props) => {
+        switch (count++) {
+          case 0:
+            expect(props.data.allPeople).toEqual(data.allPeople);
+            props.data.refetch();
+            break;
+          case 1:
+            expect(props.data.loading).toBe(true);
+            expect(props.data.allPeople).toEqual(data.allPeople);
+            break;
+          case 2:
+            expect(props.data.loading).toBe(false);
+            expect(props.data.error).toBeTruthy();
+            expect(props.data.allPeople).toEqual(data.allPeople);
+            done();
+            break;
+        }
+      }
+
+      render() {
+        return null;
+      }
+    };
+
+    const wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+  }));
+
+
 });
