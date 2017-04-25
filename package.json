@@ -1,12 +1,12 @@
 {
   "name": "react-apollo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "React data container for Apollo Client",
   "main": "lib/index.js",
   "browser": "lib/browser.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "deploy": "npm run compile && npm test && npm publish --tag next",
+    "deploy": "npm run compile && npm test && npm publish --tag next && git push --tags",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
