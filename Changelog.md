@@ -4,7 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
-### 1.1.0
+### 1.1.1
+- Fix: move prop-types from devDependencies to dependencies [PR #656](https://github.com/apollographql/react-apollo/pull/656)
+
+### 1.1.0 (deprecated)
 - Pass cached data to the child component along with the error. [PR #548](https://github.com/apollographql/react-apollo/pull/548)
 - Fix version lock down for peer dependency version of React. [PR #626](https://github.com/apollographql/react-apollo/pull/626)
 - Switch `graphql-tag` dependency to `2.0.0`. This isn't really a breaking change because we only export `gql` from `react-apollo`.
