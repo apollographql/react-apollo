@@ -289,7 +289,7 @@ describe('mutations', () => {
           ;
 
         const dataInStore = client.queryManager.getDataWithOptimisticResults();
-        expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
+        expect(dataInStore['Todo:99']).toEqual(
           optimisticResponse.createTodo
         );
 

@@ -1,18 +1,14 @@
-/* tslint:disable:no-unused-variable */
 import * as React from 'react';
-/* tslint:enable:no-unused-variable */
+import * as PropTypes from 'prop-types';
 import {
   Component,
-  PropTypes,
 } from 'react';
 
 import {
   Store,
 } from 'redux';
 
-/* tslint:disable:no-unused-variable */
 import ApolloClient, { ApolloStore } from 'apollo-client';
-/* tslint:enable:no-unused-variable */
 
 import invariant = require('invariant');
 
@@ -33,8 +29,12 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   };
 
   static childContextTypes = {
-    store: PropTypes.object.isRequired,
+    store: PropTypes.object,
     client: PropTypes.object.isRequired,
+  };
+
+  static contextTypes = {
+    store: PropTypes.object,
   };
 
   constructor(props, context) {
@@ -65,7 +65,7 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
 
   getChildContext() {
     return {
-      store: this.props.store || this.props.client.store,
+      store: this.props.store || this.context.store,
       client: this.props.client,
     };
   }
@@ -73,4 +73,4 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   render() {
     return React.Children.only(this.props.children);
   }
-};
+}
