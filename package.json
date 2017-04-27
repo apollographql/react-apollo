@@ -1,12 +1,12 @@
 {
   "name": "react-apollo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "React data container for Apollo Client",
   "main": "lib/index.js",
   "browser": "lib/browser.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "deploy": "npm run compile && npm test && npm publish --tag next",
+    "deploy": "npm run compile && npm test && npm publish --tag next && git push --tags",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
@@ -108,7 +108,6 @@
     "mobx": "^3.1.0",
     "mobx-react": "^4.1.0",
     "pretty-bytes": "^4.0.2",
-    "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-addons-test-utils": "^15.5.1",
     "react-dom": "^15.5.4",
@@ -139,6 +138,7 @@
     "lodash.isequal": "^4.1.1",
     "lodash.isobject": "^3.0.2",
     "lodash.pick": "^4.4.0",
-    "object-assign": "^4.0.1"
+    "object-assign": "^4.0.1",
+    "prop-types": "^15.5.8"
   }
 }
