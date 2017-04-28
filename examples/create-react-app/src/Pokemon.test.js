@@ -73,7 +73,7 @@ describe('Pokemon enhancer', () => {
     );
   });
 
-  it('renders with an error correclty', (done) => {
+  it('renders with an error correctly', (done) => {
     try {
       class Container extends React.Component {
         componentWillReceiveProps(props) {
@@ -95,9 +95,7 @@ describe('Pokemon enhancer', () => {
     } catch (e) {
       console.log(e);
     }
-
   });
-
 });
 
 describe('Pokemon query', () => {
