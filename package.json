@@ -67,11 +67,11 @@
     "README.md"
   ],
   "peerDependencies": {
-    "react": "0.14.x || 15.* || ^15.0.0",
+    "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha",
     "redux": "^2.0.0 || ^3.0.0"
   },
   "optionalDependencies": {
-    "react-dom": "0.14.x || 15.* || ^15.0.0"
+    "react-dom": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha"
   },
   "devDependencies": {
     "@types/enzyme": "^2.4.32",
