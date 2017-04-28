@@ -4,7 +4,6 @@
 var Flags = require('minimist')(process.argv.slice(2)),
       Fs = require('fs'),
       Path = require('path'),
-      GzipSize = require('gzip-size'),
       PrettyBytes = require('pretty-bytes'),
       Colors = require('colors');
 
@@ -18,7 +17,7 @@ let totalSize = 0,
 
 var rawSize = Fs.statSync(filePath).size;
 totalSize = PrettyBytes(rawSize);
-var rawGzippedSize = GzipSize.sync(Fs.readFileSync(filePath, 'utf8'));
+var rawGzippedSize = Fs.statSync(`${filePath}.gz`).size;
 totalGzippedSize = PrettyBytes(rawGzippedSize);
 
 console.log('\n');

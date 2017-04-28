@@ -1,10 +1,10 @@
 import {
   Component,
   createElement,
-  PropTypes,
   ComponentClass,
   StatelessComponent,
 } from 'react';
+import * as PropTypes from 'prop-types';
 
 // modules don't export ES6 modules
 import pick = require('lodash.pick');
@@ -147,7 +147,7 @@ export function withApollo(
 
   // Make sure we preserve any custom statics on the original component.
   return hoistNonReactStatics(WithApollo, WrappedComponent, {});
-};
+}
 
 export interface OperationOption {
   options?: Object | ((props: any) => QueryOptions | MutationOptions);
@@ -278,7 +278,7 @@ export default function graphql(
         }
         if (this.type === DocumentType.Mutation) {
           return;
-        };
+        }
         if (this.type === DocumentType.Subscription
           && operationOptions.shouldResubscribe
           && operationOptions.shouldResubscribe(this.props, nextProps)) {
@@ -354,7 +354,7 @@ export default function graphql(
         }
         opts = { ...opts, variables };
         return opts;
-      };
+      }
 
       calculateResultProps(result) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
@@ -571,6 +571,9 @@ export default function graphql(
           if (loading) {
             // while loading, we should use any previous data we have
             assign(data, this.previousData, currentResult.data);
+          } else if (error) {
+            // if there is error, use any previously cached data
+            assign(data, (this.queryObservable.getLastResult() || {}).data);
           } else {
             assign(data, currentResult.data);
             this.previousData = currentResult.data;
@@ -606,7 +609,7 @@ export default function graphql(
   };
 
   return wrapWithApolloComponent;
-};
+}
 
 /**
  * An observable query recycler stores some observable queries that are no
@@ -647,7 +650,10 @@ class ObservableQueryRecycler {
   public recycle (observableQuery: ObservableQuery<any>): void {
     // Stop the query from polling when we recycle. Polling may resume when we
     // reuse it and call `setOptions`.
-    observableQuery.stopPolling();
+    observableQuery.setOptions({
+      fetchPolicy: 'cache-only',
+      pollInterval: 0,
+    });
 
     this.observableQueries.push({
       observableQuery,
@@ -678,7 +684,13 @@ class ObservableQueryRecycler {
     // Therefore we need to set the new options.
     //
     // If this observable query used to poll then polling will be restarted.
-    observableQuery.setOptions(options);
+    observableQuery.setOptions({
+      ...options,
+      // Explicitly set options changed when recycling to make sure they
+      // are set to `undefined` if not provided in options.
+      pollInterval: options.pollInterval,
+      fetchPolicy: options.fetchPolicy,
+    });
 
     return observableQuery;
   }

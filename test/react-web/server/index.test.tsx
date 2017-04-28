@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import { execute, GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLID } from 'graphql';
@@ -571,7 +572,7 @@ describe('SSR', () => {
       }
 
       (MyRootContainer as any).childContextTypes = {
-        color: React.PropTypes.string,
+        color: PropTypes.string,
       };
 
       const app = (

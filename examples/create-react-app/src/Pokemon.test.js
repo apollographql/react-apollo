@@ -1,7 +1,7 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { MockedProvider } from '../../../lib/test-utils';
-import { print } from 'graphql-tag/bundledPrinter';
+import { print } from 'graphql';
 import { addTypenameToDocument } from 'apollo-client/queries/queryTransform';
 
 import PokemonWithData, { POKEMON_QUERY, Pokemon, withPokemon } from './Pokemon';
