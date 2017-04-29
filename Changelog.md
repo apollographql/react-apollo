@@ -4,6 +4,10 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 1.1.2
+- Fix: Re-export all Apollo Client exports from react-apollo [PR #650](https://github.com/apollographql/react-apollo/pull/650)
+- Chore: Include React 16 alpha in dependency version range [PR #647](https://github.com/apollographql/react-apollo/pull/647)
+
 ### 1.1.1
 - Fix: move prop-types from devDependencies to dependencies [PR #656](https://github.com/apollographql/react-apollo/pull/656)
 

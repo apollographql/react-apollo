@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "React data container for Apollo Client",
   "main": "lib/index.js",
   "browser": "lib/browser.js",
@@ -67,17 +67,17 @@
     "README.md"
   ],
   "peerDependencies": {
-    "react": "0.14.x || 15.* || ^15.0.0",
+    "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha",
     "redux": "^2.0.0 || ^3.0.0"
   },
   "optionalDependencies": {
-    "react-dom": "0.14.x || 15.* || ^15.0.0"
+    "react-dom": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha"
   },
   "devDependencies": {
     "@types/enzyme": "^2.4.32",
     "@types/graphql": "^0.9.0",
     "@types/invariant": "^2.2.27",
-    "@types/isomorphic-fetch": "0.0.33",
+    "@types/isomorphic-fetch": "0.0.34",
     "@types/jest": "^19.2.0",
     "@types/lodash": "^4.14.36",
     "@types/node": "^7.0.5",
@@ -96,13 +96,13 @@
     "colors": "^1.1.2",
     "enzyme": "^2.2.0",
     "enzyme-to-json": "^1.1.5",
-    "flow-bin": "^0.44.0",
+    "flow-bin": "^0.45.0",
     "graphql": "^0.9.1",
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
     "jest": "^19.0.2",
     "jest-react-native": "^18.0.0",
-    "jsdom": "^9.11.0",
+    "jsdom": "^10.0.0",
     "lodash": "^4.16.6",
     "minimist": "^1.2.0",
     "mobx": "^3.1.0",
