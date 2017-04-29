@@ -300,10 +300,6 @@ export default function graphql(
         this.subscribeToQuery();
       }
 
-      shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return !!nextContext || this.shouldRerender;
-      }
-
       componentWillUnmount() {
         if (this.type === DocumentType.Query) {
           // Recycle the query observable if there ever was one.

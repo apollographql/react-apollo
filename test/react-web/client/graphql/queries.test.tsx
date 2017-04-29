@@ -2185,13 +2185,27 @@ describe('queries', () => {
     expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
   });
 
-  it('will not try to refetch recycled `ObservableQuery`s when resetting the client store', () => {
+  it('will not try to refetch recycled `ObservableQuery`s when resetting the client store', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    let finish = () => {};
     const networkInterface = {
-      query: jest.fn(),
+      query: jest.fn(() => {
+        setTimeout(finish, 5);
+        return Promise.resolve({ data: {} })
+      }),
     } as NetworkInterface;
     const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    // make sure that the in flight query is done before resetting store
+    finish = () => {
+      client.resetStore();
+
+      // The query should not have been fetch again
+      expect(networkInterface.query).toHaveBeenCalledTimes(1);
+
+      done();
+    }
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -2219,17 +2233,13 @@ describe('queries', () => {
 
     expect(queryObservable1).toBe(queryObservable2);
 
-    client.resetStore();
-
-    // The query should not have been fetch again
-    expect(networkInterface.query).toHaveBeenCalledTimes(1);
   });
 
   it('will refetch active `ObservableQuery`s when resetting the client store', () => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = {
-      query: jest.fn(),
+      query: jest.fn(() => Promise.resolve({ data: {}})),
     } as NetworkInterface;
     const client = new ApolloClient({ networkInterface, addTypename: false });
 

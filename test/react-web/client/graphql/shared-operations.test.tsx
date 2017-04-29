@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 
-const TestUtils = require('react-addons-test-utils');
+const TestUtils = require('react-dom/test-utils');
 
 declare function require(name: string);
 
@@ -30,13 +30,13 @@ describe('shared operations', () => {
 
       renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
     });
-    
+
     it('allows a way to access the wrapped component instance', () => {
-      
+
       const client = new ApolloClient();
-      
+
       const testData = { foo: 'bar' };
-      
+
       class Container extends React.Component<any, any> {
         someMethod() {
           return testData;
