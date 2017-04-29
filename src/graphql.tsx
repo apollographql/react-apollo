@@ -301,7 +301,7 @@ export default function graphql(
       }
 
       shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return !!nextContext || this.shouldRerender;
+        return this.shouldRerender;
       }
 
       componentWillUnmount() {
