@@ -4,6 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+- Perf: Removed unneeded usage of shouldComponentUpdate [PR #661](https://github.com/apollographql/react-apollo/pull/661) inspired by [PR #653](https://github.com/apollographql/react-apollo/pull/653)
+- Chore: remove unused immutable prop [PR #539](https://github.com/apollographql/react-apollo/pull/539)
+
 ### 1.1.2
 - Fix: Re-export all Apollo Client exports from react-apollo [PR #650](https://github.com/apollographql/react-apollo/pull/650)
 - Chore: Include React 16 alpha in dependency version range [PR #647](https://github.com/apollographql/react-apollo/pull/647)
