@@ -655,7 +655,7 @@ describe('mutations', () => {
     };
 
     const updatedData = {
-      todo_list: { ...data.todo_list, tasks: [ mutationData.createTodo ]},
+      todo_list: { id: '123', title: 'how to apollo', tasks: [mutationData.createTodo] },
     };
 
     const networkInterface = mockNetworkInterface(
@@ -688,7 +688,6 @@ describe('mutations', () => {
     @graphql(query)
     class Query extends React.Component<any, any> {
       componentWillMount () {
-        console.log('MOUNTING');
         queryMountCount++;
       }
 
@@ -705,7 +704,6 @@ describe('mutations', () => {
               break;
             case 1:
               expect(this.props.data.loading).toBe(false);
-              console.log(JSON.stringify(this.props, null, 2));
               expect(this.props.data.todo_list).toEqual({
                 id: '123',
                 title: 'how to apollo',
@@ -713,28 +711,12 @@ describe('mutations', () => {
               });
               break;
             case 2:
-              // TODO: Proper assertions
-              console.log(JSON.stringify(this.props, null, 2));
-              // expect(queryMountCount).toBe(2);
-              // expect(queryUnmountCount).toBe(1);
-              // expect(this.props.data.todo_list).toEqual({
-              //   id: '123',
-              //   title: 'how to apollo',
-              //   tasks: [
-              //     {
-              //       id: '99',
-              //       text: 'This one was created with a mutation.',
-              //       completed: true,
-              //     },
-              //   ],
-              // });
-              break;
+              // // TODO: Proper assertions
+              //
+              // Is it rendered twice after recycle?
+              //
             case 3:
-            case 4:
-            case 5:
-              // TODO: remove unused case branches
-              console.log(queryRenderCount);
-              console.log(JSON.stringify(this.props, null, 2));
+              expect(this.props.data.todo_list).toEqual(updatedData.todo_list);
               break;
             default:
               throw new Error('Rendered too many times');
@@ -759,23 +741,21 @@ describe('mutations', () => {
     );
 
     setTimeout(() => {
-      // debug: verify that fetchPolicy is cache-only
-      const queryObservable1 = (client as any).queryManager.observableQueries['1'].observableQuery;
-      console.log(queryObservable1.options);
+      wrapperQuery1.unmount();
 
       // This mutate call _SHOULD_ trigger the error but rejected promise is swallowed in
       // apollo-client see https://github.com/apollographql/apollo-client/blob/master/src/core/QueryManager.ts#L331
       mutate({ refetchQueries: ['todos'] })
         .then((...args) => {
-
-          // This re-renders the recycled query that should have been refetched while recycled.
-          const wrapperQuery2 = renderer.create(
-            <ApolloProvider client={client}>
-              <Query id="123"/>
-            </ApolloProvider>
-          );
-
-          resolve();
+          setTimeout(() => {
+            // This re-renders the recycled query that should have been refetched while recycled.
+            const wrapperQuery2 = renderer.create(
+              <ApolloProvider client={client}>
+                <Query id="123"/>
+              </ApolloProvider>
+            );
+            resolve();
+          }, 5);
         })
         .catch((error) => {
           // This should happen until recycle `standby` options is added and used
