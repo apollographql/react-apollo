@@ -711,11 +711,13 @@ describe('mutations', () => {
               });
               break;
             case 2:
-              // // TODO: Proper assertions
-              //
-              // Is it rendered twice after recycle?
-              //
+              expect(queryMountCount).toBe(2);
+              expect(queryUnmountCount).toBe(1);
+              expect(this.props.data.todo_list).toEqual(updatedData.todo_list);
+              break;
             case 3:
+              expect(queryMountCount).toBe(2);
+              expect(queryUnmountCount).toBe(1);
               expect(this.props.data.todo_list).toEqual(updatedData.todo_list);
               break;
             default:
