@@ -36,5 +36,5 @@ deploy:
   on:
     tags: true
     node: '6'
-    repo: apollostack/react-apollo
+    repo: apollographql/react-apollo
     branch: master
