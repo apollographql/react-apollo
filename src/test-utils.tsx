@@ -5,7 +5,7 @@ import {
   NetworkInterface,
   Request,
   SubscriptionNetworkInterface,
-} from 'apollo-client/transport/networkInterface';
+} from 'apollo-client';
 
 import {
   ExecutionResult,
