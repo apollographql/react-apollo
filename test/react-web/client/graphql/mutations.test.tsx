@@ -627,4 +627,141 @@ describe('mutations', () => {
     }, 5);
   }));
 
+  it('will run `refetchQueries` for a recycled queries', () => new Promise((resolve, reject) => {
+    const mutation = gql`
+      mutation createTodo {
+        createTodo { id, text, completed }
+      }
+    `;
+
+    const mutationData = {
+      createTodo: {
+        id: '99',
+        text: 'This one was created with a mutation.',
+        completed: true,
+      },
+    };
+
+    const query = gql`
+      query todos($id: ID!) {
+        todo_list(id: $id) {
+          id, title, tasks { id, text, completed }
+        }
+      }
+    `;
+
+    const data = {
+      todo_list: { id: '123', title: 'how to apollo', tasks: [] },
+    };
+
+    const updatedData = {
+      todo_list: { id: '123', title: 'how to apollo', tasks: [mutationData.createTodo] },
+    };
+
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables: { id: '123' } }, result: { data } },
+      { request: { query: mutation }, result: { data: mutationData } },
+      {
+        request: { query, variables: { id: '123' } },
+        result: { data: updatedData }
+      },
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let mutate;
+
+    @graphql(mutation, {})
+    class Mutation extends React.Component<any, any> {
+      componentDidMount () {
+        mutate = this.props.mutate;
+      }
+
+      render () {
+        return null;
+      }
+    }
+
+    let queryMountCount = 0;
+    let queryUnmountCount = 0;
+    let queryRenderCount = 0;
+
+    @graphql(query)
+    class Query extends React.Component<any, any> {
+      componentWillMount () {
+        queryMountCount++;
+      }
+
+      componentWillUnmount () {
+        queryUnmountCount++;
+      }
+
+      render () {
+        try {
+          switch (queryRenderCount++) {
+            case 0:
+              expect(this.props.data.loading).toBe(true);
+              expect(this.props.data.todo_list).toBeFalsy();
+              break;
+            case 1:
+              expect(this.props.data.loading).toBe(false);
+              expect(this.props.data.todo_list).toEqual({
+                id: '123',
+                title: 'how to apollo',
+                tasks: [],
+              });
+              break;
+            case 2:
+              expect(queryMountCount).toBe(2);
+              expect(queryUnmountCount).toBe(1);
+              expect(this.props.data.todo_list).toEqual(updatedData.todo_list);
+              break;
+            case 3:
+              expect(queryMountCount).toBe(2);
+              expect(queryUnmountCount).toBe(1);
+              expect(this.props.data.todo_list).toEqual(updatedData.todo_list);
+              break;
+            default:
+              throw new Error('Rendered too many times');
+          }
+        } catch (error) {
+          reject(error);
+        }
+        return null;
+      }
+    }
+
+    const wrapperMutation = renderer.create(
+      <ApolloProvider client={client}>
+        <Mutation/>
+      </ApolloProvider>
+    );
+
+    const wrapperQuery1 = renderer.create(
+      <ApolloProvider client={client}>
+        <Query id="123"/>
+      </ApolloProvider>
+    );
+
+    setTimeout(() => {
+      wrapperQuery1.unmount();
+
+      mutate({ refetchQueries: ['todos'] })
+        .then((...args) => {
+          setTimeout(() => {
+            // This re-renders the recycled query that should have been refetched while recycled.
+            const wrapperQuery2 = renderer.create(
+              <ApolloProvider client={client}>
+                <Query id="123"/>
+              </ApolloProvider>
+            );
+            resolve();
+          }, 5);
+        })
+        .catch((error) => {
+          reject(error);
+          throw error;
+        });
+    }, 5);
+  }));
+
 });
