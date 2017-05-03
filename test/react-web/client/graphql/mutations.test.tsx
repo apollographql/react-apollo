@@ -745,8 +745,6 @@ describe('mutations', () => {
     setTimeout(() => {
       wrapperQuery1.unmount();
 
-      // This mutate call _SHOULD_ trigger the error but rejected promise is swallowed in
-      // apollo-client see https://github.com/apollographql/apollo-client/blob/master/src/core/QueryManager.ts#L331
       mutate({ refetchQueries: ['todos'] })
         .then((...args) => {
           setTimeout(() => {
@@ -760,7 +758,6 @@ describe('mutations', () => {
           }, 5);
         })
         .catch((error) => {
-          // This should happen until recycle `standby` options is added and used
           reject(error);
           throw error;
         });
