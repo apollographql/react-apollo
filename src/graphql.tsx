@@ -23,17 +23,11 @@ import ApolloClient, {
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
-} from 'apollo-client';
-
-import {
   FetchMoreOptions,
   UpdateQueryOptions,
-} from 'apollo-client/core/ObservableQuery';
-
-import {
   FetchMoreQueryOptions,
   SubscribeToMoreOptions,
-} from 'apollo-client/core/watchQueryOptions';
+} from 'apollo-client';
 
 import {
   // GraphQLResult,

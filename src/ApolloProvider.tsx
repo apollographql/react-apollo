@@ -51,12 +51,6 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
     }
   }
 
-  shouldComponentUpdate(nextProps) {
-    return this.props.client !== nextProps.client ||
-      this.props.store !== nextProps.store ||
-      this.props.children !== nextProps.children;
-  }
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.client !== this.props.client && !nextProps.store) {
       nextProps.client.initStore();

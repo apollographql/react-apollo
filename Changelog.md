@@ -4,7 +4,9 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 1.1.3
 - Perf: Removed unneeded usage of shouldComponentUpdate [PR #661](https://github.com/apollographql/react-apollo/pull/661) inspired by [PR #653](https://github.com/apollographql/react-apollo/pull/653)
+- Perf: Removed  unneeded usage of shouldComponentUpdate in Provider [PR #669](https://github.com/apollographql/react-apollo/pull/669)
 - Chore: remove unused immutable prop [PR #539](https://github.com/apollographql/react-apollo/pull/539)
 
 ### 1.1.2
