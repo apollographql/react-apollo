@@ -1,8 +1,12 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { Component } from 'react';
+import {
+  Component,
+} from 'react';
 
-import { Store } from 'redux';
+import {
+  Store,
+} from 'redux';
 
 import ApolloClient, { ApolloStore } from 'apollo-client';
 
