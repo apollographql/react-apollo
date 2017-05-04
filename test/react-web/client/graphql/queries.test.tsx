@@ -1127,7 +1127,7 @@ describe('queries', () => {
 
   // Failing because fetchMore is not bound w/ createBoundRefetch either,
   //   so no loading state
-  it('exposes fetchMore as part of the props api', (done) => {
+  it('exposes fetchMore as part of the props api', () => new Promise((resolve, reject) => {
     const query = gql`
       query people($skip: Int, $first: Int) { allPeople(first: $first, skip: $skip) { people { name } } }
     `;
@@ -1149,7 +1149,7 @@ describe('queries', () => {
         expect(this.props.data.fetchMore).toBeTruthy();
         expect(this.props.data.fetchMore instanceof Function).toBe(true);
       }
-      componentWillReceiveProps = wrap(done, (props) => {
+      componentWillReceiveProps = wrap(reject, (props) => {
         if (count === 0) {
           expect(props.data.fetchMore).toBeTruthy();
           expect(props.data.fetchMore instanceof Function).toBe(true);
@@ -1160,16 +1160,16 @@ describe('queries', () => {
                 people: prev.allPeople.people.concat(fetchMoreResult.allPeople.people),
               },
             }),
-          }).then(wrap(done, result => {
+          }).then(wrap(reject, result => {
             expect(result.data.allPeople.people).toEqual(data1.allPeople.people);
           }));
         } else if (count === 1) {
-          expect(props.data.variables).toEqual(variables);
+          expect(props.data.variables).toEqual(variables2);
           expect(props.data.loading).toBe(false);
           expect(props.data.allPeople.people).toEqual(
             data.allPeople.people.concat(data1.allPeople.people)
           );
-          done();
+          resolve();
         } else {
           throw new Error('should not reach this point');
         }
@@ -1181,7 +1181,7 @@ describe('queries', () => {
     };
 
     renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
-  });
+  }));
 
   it('exposes stopPolling as part of the props api', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
