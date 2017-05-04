@@ -2185,6 +2185,47 @@ describe('queries', () => {
     expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
   });
 
+  it('renders loading state correctly when recycling queries with different variables but the same result', (done) => {
+    const query = gql`
+       query remount($first: Int) { allPeople(first: $first) { people { name } } }
+     `;
+     const data = { allPeople: null };
+     const variables = { first: 1 };
+     const variables2 = { first: 2 };
+     const networkInterface = mockNetworkInterface(
+       { request: { query, variables }, result: { data }, delay: 10 },
+       { request: { query, variables: variables2 }, result: { data }, delay: 10 }
+     );
+     const client = new ApolloClient({ networkInterface, addTypename: false });
+     let count = 0;
+     let firstCount = 1;
+     let wrapper;
+     @graphql(query, { options: ({ first }) => ({ variables: { first: firstCount }})})
+     class Container extends React.Component<any, any> {
+
+       componentWillReceiveProps(props) {
+         if (count === 0) {
+           expect(props.data.loading).toBe(false); // got data for first request
+           wrapper.unmount();
+           firstCount = 2;
+           wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+         }
+
+         if (count === 1) {
+           expect(props.data.loading).toBe(false); // on second request
+           done();
+         }
+
+         count++;
+       }
+       render() {
+         return null;
+       }
+     };
+     wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+
+  });
+
   it('will not try to refetch recycled `ObservableQuery`s when resetting the client store', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
