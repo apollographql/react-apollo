@@ -428,7 +428,7 @@ export default function graphql(
 
         const opts = this.calculateOptions() as any;
         if (opts.ssr === false) return false;
-        if (opts.fetchPolicy === 'network-only') {
+        if (opts.fetchPolicy === 'network-only' || opts.fetchPolicy === 'cache-and-network') {
           opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
         }
 
