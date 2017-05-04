@@ -186,6 +186,28 @@ describe('SSR', () => {
         });
     });
 
+    it('should allow cache-and-network fetchPolicy as an option and still render prefetched data', () => {
+
+      const query = gql`{ currentUser { firstName } }`;
+      const data = { currentUser: { firstName: 'James' } };
+      const networkInterface = mockNetworkInterface(
+        { request: { query }, result: { data }, delay: 50 }
+      );
+      const apolloClient = new ApolloClient({ networkInterface, addTypename: false });
+
+      const WrappedElement = graphql(query, { options: { fetchPolicy: 'cache-and-network' }})(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
+
+      const app = (<ApolloProvider client={apolloClient}><WrappedElement /></ApolloProvider>);
+
+      return getDataFromTree(app)
+        .then(() => {
+          const markup = ReactDOM.renderToString(app);
+          expect(markup).toMatch(/James/);
+        });
+    });
+
     it('should pick up queries deep in the render tree', () => {
 
       const query = gql`{ currentUser { firstName } }`;
