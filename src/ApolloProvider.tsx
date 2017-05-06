@@ -6,7 +6,7 @@ import { Store } from 'redux';
 
 import ApolloClient, { ApolloStore } from 'apollo-client';
 
-import invariant = require('invariant');
+import invariant from 'invariant';
 
 export declare interface ProviderProps {
   store?: Store<any>;

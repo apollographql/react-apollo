@@ -6,14 +6,13 @@ import {
 } from 'react';
 import * as PropTypes from 'prop-types';
 
-// modules don't export ES6 modules
-import pick = require('lodash.pick');
+const pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
-import invariant = require('invariant');
-import assign = require('object-assign');
+import invariant from 'invariant';
+import assign from 'object-assign';
 
-import hoistNonReactStatics = require('hoist-non-react-statics');
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import ApolloClient, {
   ObservableQuery,

@@ -5,7 +5,7 @@ import {
   OperationDefinitionNode,
 } from 'graphql';
 
-import invariant = require('invariant');
+import invariant from 'invariant';
 
 export enum DocumentType {
   Query,
