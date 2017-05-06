@@ -129,7 +129,7 @@
     "uglify-js": "^2.6.2"
   },
   "dependencies": {
-    "apollo-client": "^1.1.2",
+    "apollo-client": "^1.2.1",
     "graphql-anywhere": "^3.0.0",
     "graphql-tag": "^2.0.0",
     "hoist-non-react-statics": "^1.2.0",

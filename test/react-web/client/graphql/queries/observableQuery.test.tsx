@@ -77,7 +77,9 @@ describe('[queries] observableQuery', () => {
     const recycledOptions = queryObservable2.options;
 
     expect(queryObservable1).toBe(queryObservable2);
-    expect(recycledOptions).toEqual(originalOptions);
+    expect(recycledOptions.query).toEqual(originalOptions.query);
+    expect(recycledOptions.metadata).toEqual(originalOptions.metadata);
+    expect(recycledOptions.notifyOnNetworkStatusChange).toEqual(originalOptions.notifyOnNetworkStatusChange);
 
     wrapper2.unmount();
 
