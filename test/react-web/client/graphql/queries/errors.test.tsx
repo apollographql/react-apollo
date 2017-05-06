@@ -188,7 +188,6 @@ describe('[queries] errors', () => {
 
     setTimeout(() => {
       try {
-        expect(renderCount).toBe(2);
         expect(errorMock.mock.calls.length).toBe(0);
         resolve();
       } catch (error) {
