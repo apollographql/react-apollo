@@ -9,10 +9,10 @@ import * as PropTypes from 'prop-types';
 const pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
-import invariant from 'invariant';
-import assign from 'object-assign';
+const invariant = require('invariant');
+const assign = require('object-assign');
 
-import hoistNonReactStatics from 'hoist-non-react-statics';
+const hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
   ObservableQuery,

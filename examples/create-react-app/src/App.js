@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { ApolloProvider } from "../../../lib";
+import { ApolloProvider } from "../../../";
 
 import Pokemon from "./Pokemon";
 
