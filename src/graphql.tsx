@@ -128,7 +128,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
   const {
     options = defaultMapPropsToOptions,
     skip = defaultMapPropsToSkip,
-    alias = 'Apollo'
+    alias = 'Apollo',
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
