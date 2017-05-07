@@ -65,15 +65,15 @@ export interface QueryProps {
   updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
 }
 
-export type MutationFunc = (opts: MutationOptions) => Promise<ApolloQueryResult<{}>>;
+export type MutationFunc<TResult> = (opts: MutationOptions) => Promise<ApolloQueryResult<TResult>>;
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps;
   data?: QueryProps & TResult;
-  mutate?: MutationFunc;
+  mutate?: MutationFunc<TResult>;
 }
 
-export type DefaultChildProps<P, R> = P & { data: QueryProps & R };
+export type DefaultChildProps<P, R> = P & { data?: QueryProps & R, mutate?: MutationFunc<R> };
 
 export interface OperationOption<TProps, TResult> {
   options?: QueryOptions | MutationOptions | ((props: TProps) => QueryOptions | MutationOptions);
@@ -308,7 +308,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         return opts;
       }
 
-      calculateResultProps(result: (QueryProps & TResult) | ((mutationOpts: MutationOptions) => Promise<ApolloQueryResult<{}>>)) {
+      calculateResultProps(result: (QueryProps & TResult) | MutationFunc<TResult>) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
