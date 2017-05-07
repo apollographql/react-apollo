@@ -125,7 +125,11 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 ): ComponentDecorator<TProps, TChildProps> {
 
   // extract options
-  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo' } = operationOptions;
+  const {
+    options = defaultMapPropsToOptions,
+    skip = defaultMapPropsToSkip,
+    alias = 'Apollo'
+  } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
@@ -153,7 +157,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
     // However, this is an unlikely scenario.
     const recycler = new ObservableQueryRecycler();
 
-    class GraphQL extends Component<TProps, any> {
+    class GraphQL extends Component<TProps, {}> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
