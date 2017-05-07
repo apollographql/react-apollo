@@ -35,17 +35,15 @@ import {
   OperationOption,
   MutationOptions,
   QueryOptions,
-  GraphQLDataProps,
-  InjectedGraphQLProps,
 } from './graphql';
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export function withApollo(
+export function withApollo<TProps, TResult>(
   WrappedComponent,
-  operationOptions: OperationOption = {},
+  operationOptions: OperationOption<TProps, TResult> = {},
 ) {
 
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;

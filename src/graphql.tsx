@@ -29,7 +29,7 @@ import ApolloClient, {
 } from 'apollo-client';
 
 import {
-  // GraphQLResult,
+  ExecutionResult,
   DocumentNode,
 } from 'graphql';
 
@@ -50,11 +50,11 @@ export declare interface QueryOptions {
   skip?: boolean;
 }
 
-export interface GraphQLDataProps {
+export interface QueryProps {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
-  variables: {
+  variables?: {
     [variable: string]: any;
   };
   fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult<any>>;
@@ -65,8 +65,33 @@ export interface GraphQLDataProps {
   updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
 }
 
-export interface InjectedGraphQLProps<T> {
-  data?: T & GraphQLDataProps;
+export type MutationFunc = (opts: MutationOptions) => Promise<ApolloQueryResult<{}>>;
+
+export interface OptionProps<TProps, TResult> {
+  ownProps: TProps;
+  data?: QueryProps & TResult;
+  mutate?: MutationFunc;
+}
+
+export type DefaultChildProps<P, R> = P & { data: QueryProps & R };
+
+export interface OperationOption<TProps, TResult> {
+  options?: QueryOptions | MutationOptions | ((props: TProps) => QueryOptions | MutationOptions);
+  props?: (props: OptionProps<TProps, TResult>) => any;
+  skip?: boolean | ((props: any) => boolean);
+  name?: string;
+  withRef?: boolean;
+  shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
+  alias?: string;
+}
+
+export type CompositeComponent<P> = ComponentClass<P> | StatelessComponent<P>;
+
+export interface ComponentDecorator<TOwnProps, TMergedProps> {
+    (component: CompositeComponent<TMergedProps>): ComponentClass<TOwnProps>;
+}
+export interface InferableComponentDecorator<TOwnProps> {
+    <T extends CompositeComponent<TOwnProps>>(component: T): T;
 }
 
 const defaultMapPropsToOptions = props => ({});
@@ -94,24 +119,10 @@ function getDisplayName(WrappedComponent) {
 // Helps track hot reloading.
 let nextVersion = 0;
 
-export interface OperationOption {
-  options?: Object | ((props: any) => QueryOptions | MutationOptions);
-  props?: (props: any) => any;
-  skip?: boolean | ((props: any) => boolean);
-  name?: string;
-  withRef?: boolean;
-  shouldResubscribe?: (props: any, nextProps: any) => boolean;
-  alias?: string;
-}
-
-export interface WrapWithApollo {
-  <P, TComponentConstruct extends (ComponentClass<P> | StatelessComponent<P>)>(component: TComponentConstruct): TComponentConstruct;
-}
-
-export default function graphql(
+export default function graphql<TResult = {}, TProps = {}, TChildProps = DefaultChildProps<TProps, TResult>>(
   document: DocumentNode,
-  operationOptions: OperationOption = {},
-) {
+  operationOptions: OperationOption<TProps, TResult> = {},
+): ComponentDecorator<TProps, TChildProps> {
 
   // extract options
   const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo' } = operationOptions;
@@ -130,7 +141,7 @@ export default function graphql(
   // Helps track hot reloading.
   const version = nextVersion++;
 
-  const wrapWithApolloComponent: WrapWithApollo = WrappedComponent => {
+  function wrapWithApolloComponent(WrappedComponent) {
 
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
@@ -142,7 +153,7 @@ export default function graphql(
     // However, this is an unlikely scenario.
     const recycler = new ObservableQueryRecycler();
 
-    class GraphQL extends Component<any, any> {
+    class GraphQL extends Component<TProps, any> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
@@ -297,11 +308,11 @@ export default function graphql(
         return opts;
       }
 
-      calculateResultProps(result) {
+      calculateResultProps(result: (QueryProps & TResult) | ((mutationOpts: MutationOptions) => Promise<ApolloQueryResult<{}>>)) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult = { [name]: result, ownProps: this.props };
+        const newResult: OptionProps<TProps, TResult> = { [name]: result, ownProps: this.props };
         if (mapResultToProps) return mapResultToProps(newResult);
 
         return { [name]: defaultMapResultToProps(result) };
@@ -520,7 +531,7 @@ export default function graphql(
             this.previousData = currentResult.data;
           }
         }
-        return data;
+        return (data as QueryProps & TResult);
       }
 
       render() {
@@ -547,7 +558,7 @@ export default function graphql(
 
     // Make sure we preserve any custom statics on the original component.
     return hoistNonReactStatics(GraphQL, WrappedComponent, {});
-  };
+  }
 
   return wrapWithApolloComponent;
 }

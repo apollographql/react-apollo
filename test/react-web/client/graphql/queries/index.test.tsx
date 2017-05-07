@@ -15,6 +15,7 @@ declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql} from '../../../../../src';
+import { DocumentType } from '../../../../../src/parser';
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
@@ -40,9 +41,15 @@ describe('queries', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    const ContainerWithData = graphql(query)(({ data }) => { // tslint:disable-line
+    type ResultData = {
+      allPeople?: {
+        people: { name: string }[]
+      }
+    }
+
+
+    const ContainerWithData = graphql<ResultData>(query)(({ data }) => { // tslint:disable-line
       expect(data).toBeTruthy();
-      expect(data.ownProps).toBeFalsy();
       expect(data.loading).toBe(true);
       return null;
     });
