@@ -4,6 +4,8 @@ Expect active development and potentially significant breaking changes in the `0
 
 ### vNext
 
+### 1.3.0
+- Feature: Support tree shaking and smaller (marginally) bundles via rollup [PR #691](https://github.com/apollographql/react-apollo/pull/691)
 - Fix: Render full markup on the server when using the `cache-and-network` fetchPolicy [PR #688](https://github.com/apollographql/react-apollo/pull/688)
 
 ### 1.2.0

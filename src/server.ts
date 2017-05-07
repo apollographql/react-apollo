@@ -2,7 +2,7 @@
 import { Children } from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
-import assign = require('object-assign');
+const assign = require('object-assign');
 
 
 declare interface Context {

@@ -6,14 +6,13 @@ import {
 } from 'react';
 import * as PropTypes from 'prop-types';
 
-// modules don't export ES6 modules
-import pick = require('lodash.pick');
+const pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
-import invariant = require('invariant');
-import assign = require('object-assign');
+const invariant = require('invariant');
+const assign = require('object-assign');
 
-import hoistNonReactStatics = require('hoist-non-react-statics');
+const hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
   ObservableQuery,
@@ -94,54 +93,6 @@ function getDisplayName(WrappedComponent) {
 
 // Helps track hot reloading.
 let nextVersion = 0;
-
-export function withApollo(
-  WrappedComponent,
-  operationOptions: OperationOption = {},
-) {
-
-  const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
-
-  class WithApollo extends Component<any, any> {
-    static displayName = withDisplayName;
-    static WrappedComponent = WrappedComponent;
-    static contextTypes = { client: PropTypes.object.isRequired };
-
-    // data storage
-    private client: ApolloClient; // apollo client
-
-    constructor(props, context) {
-      super(props, context);
-      this.client = context.client;
-
-      invariant(!!this.client,
-          `Could not find "client" in the context of ` +
-          `"${withDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`,
-        );
-
-    }
-
-    getWrappedInstance() {
-      invariant(operationOptions.withRef,
-        `To access the wrapped instance, you need to specify ` +
-        `{ withRef: true } in the options`,
-      );
-
-      return (this.refs as any).wrappedInstance;
-    }
-
-    render() {
-      const props = assign({}, this.props);
-      props.client = this.client;
-      if (operationOptions.withRef) props.ref = 'wrappedInstance';
-      return createElement(WrappedComponent, props);
-    }
-  }
-
-  // Make sure we preserve any custom statics on the original component.
-  return hoistNonReactStatics(WithApollo, WrappedComponent, {});
-}
 
 export interface OperationOption {
   options?: Object | ((props: any) => QueryOptions | MutationOptions);

@@ -1,9 +1,11 @@
 {
   "name": "react-apollo",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "React data container for Apollo Client",
-  "main": "lib/index.js",
-  "browser": "lib/browser.js",
+  "main": "lib/react-apollo.umd.js",
+  "module": "./lib/index.js",
+  "jsnext:main": "./lib/index.js",
+  "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "deploy": "npm run compile && npm test && npm publish --tag next && git push --tags",
@@ -13,7 +15,8 @@
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=20",
     "compile": "tsc",
-    "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/index.js --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
+    "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
+    "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
     "minify:browser": "uglifyjs --compress --mangle --screw-ie8 -o=./dist/index.min.js -- ./dist/index.js",
     "compress:browser": "./scripts/gzip.js --file=./dist/index.min.js",
     "watch": "tsc -w",
@@ -119,6 +122,7 @@
     "redux-form": "^6.0.5",
     "redux-immutable": "^4.0.0",
     "redux-loop": "^2.2.2",
+    "rollup": "^0.41.6",
     "source-map-support": "^0.4.0",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "^1.0.2",
@@ -129,7 +133,7 @@
     "uglify-js": "^2.6.2"
   },
   "dependencies": {
-    "apollo-client": "^1.2.1",
+    "apollo-client": "^1.2.2",
     "graphql-anywhere": "^3.0.0",
     "graphql-tag": "^2.0.0",
     "hoist-non-react-statics": "^1.2.0",

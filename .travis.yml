@@ -20,6 +20,7 @@ script:
   - npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
+  - npm run bundle
   - cd examples/create-react-app && npm test && cd ../../
   - npm run filesize
   - python node_modules/travis-weigh-in/weigh_in.py ./dist/index.min.js.gz || true # ignore size errors
