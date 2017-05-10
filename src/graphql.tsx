@@ -54,7 +54,7 @@ export interface QueryProps {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
-  variables?: {
+  variables: {
     [variable: string]: any;
   };
   fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult<any>>;
@@ -157,7 +157,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
     // However, this is an unlikely scenario.
     const recycler = new ObservableQueryRecycler();
 
-    class GraphQL extends Component<TProps, {}> {
+    class GraphQL extends Component<TProps, void> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {

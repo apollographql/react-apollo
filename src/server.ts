@@ -1,34 +1,34 @@
 
-import { Children } from 'react';
+import { Children, ReactElement, ComponentClass, StatelessComponent } from 'react';
 import * as ReactDOM from 'react-dom/server';
-import ApolloClient from 'apollo-client';
+import ApolloClient, { ApolloQueryResult } from 'apollo-client';
 const assign = require('object-assign');
 
 
-declare interface Context {
+export declare interface Context {
   client?: ApolloClient;
   store?: any;
   [key: string]: any;
 }
 
-declare interface QueryTreeArgument {
-  rootElement: any;
+export declare interface QueryTreeArgument {
+  rootElement: ReactElement<any>;
   rootContext?: Context;
 }
 
-declare interface QueryResult {
-  query: Promise<any>;
-  element: any;
-  context: any;
+export declare interface QueryResult {
+  query: Promise<ApolloQueryResult<any>>;
+  element: ReactElement<any>;
+  context: Context;
 }
 
 // Recurse an React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
 export function walkTree(
-  element: any,
-  context: any,
-  visitor: (element: any, instance: any, context: any) => boolean | void,
+  element: ReactElement<any>,
+  context: Context,
+  visitor: (element: ReactElement<any>, instance: any, context: Context) => boolean | void,
 ) {
   const Component = element.type;
   // a stateless functional component or a class
@@ -40,7 +40,10 @@ export function walkTree(
     // Are we are a react class?
     //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
     if (Component.prototype && Component.prototype.isReactComponent) {
-      const instance = new Component(props, context);
+      // typescript force casting since typescript doesn't have definitions for class
+      // methods
+      const _component = Component as any;
+      const instance = new _component(props, context);
       // In case the user doesn't pass these to super in the constructor
       instance.props = instance.props || props;
       instance.context = instance.context || context;
@@ -73,7 +76,9 @@ export function walkTree(
         return;
       }
 
-      child = Component(props, context);
+      // typescript casting for stateless component
+      const _component = Component as StatelessComponent<any>;
+      child = _component(props, context);
     }
 
     if (child) {
@@ -118,7 +123,7 @@ function getQueriesFromTree(
 }
 
 // XXX component Cache
-export function getDataFromTree(rootElement, rootContext: any = {}, fetchRoot: boolean = true): Promise<void> {
+export function getDataFromTree(rootElement: ReactElement<any>, rootContext: any = {}, fetchRoot: boolean = true): Promise<void> {
 
   let queries = getQueriesFromTree({ rootElement, rootContext }, fetchRoot);
 
@@ -149,7 +154,7 @@ export function getDataFromTree(rootElement, rootContext: any = {}, fetchRoot: b
   });
 }
 
-export function renderToStringWithData(component) {
+export function renderToStringWithData(component: ReactElement<any>): Promise<string> {
   return getDataFromTree(component)
     .then(() => ReactDOM.renderToString(component));
 }

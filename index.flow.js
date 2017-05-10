@@ -64,7 +64,7 @@ declare module "react-apollo" {
     error?: ApolloError,
     networkStatus: number,
     loading: boolean,
-    variables?: {
+    variables: {
       [variable: string]: any,
     },
     fetchMore: (
@@ -89,7 +89,7 @@ declare module "react-apollo" {
     props: P
   ) => QueryOptions | MutationOptions;
 
-  declare export interface OperationOption<TProps, TResult> {
+  declare export interface OperationOption<TProps: {}, TResult: {}> {
     options?: OptionDescription<TProps>,
     props?: (props: OptionProps<TProps, TResult>) => any,
     skip?: boolean | ((props: any) => boolean),
@@ -100,8 +100,8 @@ declare module "react-apollo" {
   }
 
   declare export interface OperationComponent<
-    TResult: mixed = {},
-    TOwnProps: mixed = {},
+    TResult: Object = {},
+    TOwnProps: Object = {},
     TMergedProps = DefaultChildProps<TOwnProps, TResult>
   > {
     (
@@ -124,20 +124,41 @@ declare module "react-apollo" {
 
   declare export function parser(document: DocumentNode): IDocumentDefinition;
 
+  declare export interface Context {
+    client?: ApolloClient,
+    store?: Store,
+    [key: string]: any
+  }
+
+  declare export interface QueryTreeArgument {
+    rootElement: React$Element<*>,
+    rootContext?: Context
+  }
+
+  declare export interface QueryResult {
+    query: Promise<ApolloQueryResult<mixed>>,
+    element: React$Element<*>,
+    context: Context
+  }
+
   declare export function walkTree(
-    element: any,
-    context: any,
-    visitor: (element: any, instance: any, context: any) => boolean | void
+    element: React$Element<*>,
+    context: Context,
+    visitor: (
+      element: React$Element<*>,
+      instance: any,
+      context: Context
+    ) => boolean | void
   ): void;
 
   declare export function getDataFromTree(
-    rootElement: any,
+    rootElement: React$Element<*>,
     rootContext?: any,
     fetchRoot?: boolean
   ): Promise<void>;
 
   declare export function renderToStringWithData(
-    component: any
+    component: React$Element<*>
   ): Promise<string>;
 
   declare export function cleanupApolloState(apolloState: any): void;
