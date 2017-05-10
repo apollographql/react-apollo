@@ -99,7 +99,7 @@
     "colors": "^1.1.2",
     "enzyme": "^2.2.0",
     "enzyme-to-json": "^1.1.5",
-    "flow-bin": "^0.45.0",
+    "flow-bin": "^0.46.0",
     "graphql": "^0.9.1",
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
