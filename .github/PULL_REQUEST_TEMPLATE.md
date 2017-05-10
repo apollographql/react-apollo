@@ -13,3 +13,4 @@ TODO:
 - [ ] Make sure all tests and linter rules pass
 - [ ] Update CHANGELOG.md with your change
 - [ ] If this was a change that affects the external API, update the docs and post a link to the PR in the discussion
+- [ ] If this was a change that affects GitHunt-React, update GitHunt-React and post a link to the PR in the discussion
