@@ -39,6 +39,7 @@ export declare interface MutationOpts {
   variables?: Object;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
+  client?: ApolloClient;
 }
 
 export declare interface QueryOpts {
@@ -46,6 +47,7 @@ export declare interface QueryOpts {
   variables?: { [key: string]: any };
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
+  client?: ApolloClient;
   // deprecated
   skip?: boolean;
 }
@@ -191,7 +193,13 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       constructor(props, context) {
         super(props, context);
         this.version = version;
-        this.client = context.client;
+
+        const opts = this.calculateOptions(props);
+        if (opts.client) {
+          this.client = opts.client;
+        } else {
+          this.client = context.client;
+        }
 
         invariant(!!this.client,
           `Could not find "client" in the context of ` +
@@ -219,13 +227,14 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       }
 
       componentWillReceiveProps(nextProps, nextContext) {
-        if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+        const nextOptions = this.calculateOptions(nextProps);
+        if (shallowEqual(this.props, nextProps) && (!!nextOptions.client || this.client === nextContext.client)) {
           return;
         }
 
         this.shouldRerender = true;
 
-        if (this.client !== nextContext.client) {
+        if (!nextOptions.client && this.client !== nextContext.client) {
           this.client = nextContext.client;
           this.unsubscribeFromQuery();
           this.queryObservable = null;
