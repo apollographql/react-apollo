@@ -163,7 +163,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
-        client: PropTypes.object.isRequired,
+        client: PropTypes.object,
       };
 
       // react / redux and react dev tools (HMR) needs
