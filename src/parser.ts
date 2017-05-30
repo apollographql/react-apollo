@@ -57,7 +57,7 @@ export function parser(document: DocumentNode): IDocumentDefinition {
 
   invariant(((queries.length + mutations.length + subscriptions.length) <= 1),
     // tslint:disable-line
-    `react-apollo only supports a query, subscription, or a mutation per HOC. ${document} had ${queries.length} queries, ${subscriptions.length} subscriptions and ${mutations.length} muations. You can use 'compose' to join multiple operation types to a component`,
+    `react-apollo only supports a query, subscription, or a mutation per HOC. ${document} had ${queries.length} queries, ${subscriptions.length} subscriptions and ${mutations.length} mutations. You can use 'compose' to join multiple operation types to a component`,
   );
 
 
