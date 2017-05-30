@@ -1,0 +1,165 @@
+import type {
+  ApolloClient,
+  MutationQueryReducersMap,
+  ApolloQueryResult,
+  ApolloError,
+  FetchPolicy,
+  FetchMoreOptions,
+  UpdateQueryOptions,
+  FetchMoreQueryOptions,
+  SubscribeToMoreOptions,
+} from "apollo-client";
+import type { Store } from "redux";
+import type { DocumentNode, VariableDefinitionNode } from "graphql";
+
+declare module "react-apollo" {
+  declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
+
+  declare export interface ProviderProps {
+    store?: Store<any>,
+    client: ApolloClient,
+  }
+
+  declare export class ApolloProvider extends React$Component {
+    props: ProviderProps,
+    childContextTypes: {
+      store: Store,
+      client: ApolloClient,
+    },
+    contextTypes: {
+      store: Store,
+    },
+    getChildContext(): {
+      store: Store,
+      client: ApolloClient,
+    },
+    render(): React$Element<*>,
+  }
+  declare export type MutationFunc<TResult> = (
+    opts: MutationOpts
+  ) => Promise<ApolloQueryResult<TResult>>;
+
+  declare export type DefaultChildProps<P, R> = {
+    data: QueryProps & R,
+    mutate: MutationFunc<R>,
+  } & P;
+
+  declare export interface MutationOpts {
+    variables?: { [key: string]: mixed },
+    optimisticResponse?: Object,
+    updateQueries?: MutationQueryReducersMap,
+  }
+
+  declare export interface QueryOpts {
+    ssr?: boolean,
+    variables?: {
+      [key: string]: mixed,
+    },
+    fetchPolicy?: FetchPolicy,
+    pollInterval?: number,
+    skip?: boolean,
+  }
+
+  declare export interface QueryProps {
+    error?: ApolloError,
+    networkStatus: number,
+    loading: boolean,
+    variables: {
+      [variable: string]: any,
+    },
+    fetchMore: (
+      fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions
+    ) => Promise<ApolloQueryResult<any>>,
+    refetch: (variables?: any) => Promise<ApolloQueryResult<any>>,
+    startPolling: (pollInterval: number) => void,
+    stopPolling: () => void,
+    subscribeToMore: (options: SubscribeToMoreOptions) => () => void,
+    updateQuery: (
+      mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any
+    ) => void,
+  }
+
+  declare export interface OptionProps<TProps, TResult> {
+    ownProps: TProps,
+    data?: QueryProps & TResult,
+    mutate?: MutationFunc<TResult>,
+  }
+
+  declare export type OptionDescription<P> = (
+    props: P
+  ) => QueryOpts | MutationOpts;
+
+  declare export interface OperationOption<TProps: {}, TResult: {}> {
+    options?: OptionDescription<TProps>,
+    props?: (props: OptionProps<TProps, TResult>) => any,
+    skip?: boolean | ((props: any) => boolean),
+    name?: string,
+    withRef?: boolean,
+    shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean,
+    alias?: string,
+  }
+
+  declare export interface OperationComponent<
+    TResult: Object = {},
+    TOwnProps: Object = {},
+    TMergedProps = DefaultChildProps<TOwnProps, TResult>
+  > {
+    (
+      component:
+        | StatelessComponent<TMergedProps>
+        | React$Component<*, TMergedProps, *>
+    ): React$Component<*, TOwnProps, *>,
+  }
+
+  declare export function graphql<TResult, TProps, TChildProps>(
+    document: DocumentNode,
+    operationOptions?: OperationOption<TProps, TResult>
+  ): OperationComponent<TResult, TProps, TChildProps>;
+
+  declare export interface IDocumentDefinition {
+    type: DocumentType,
+    name: string,
+    variables: VariableDefinitionNode[],
+  }
+
+  declare export function parser(document: DocumentNode): IDocumentDefinition;
+
+  declare export interface Context {
+    client?: ApolloClient,
+    store?: Store,
+    [key: string]: any
+  }
+
+  declare export interface QueryTreeArgument {
+    rootElement: React$Element<*>,
+    rootContext?: Context
+  }
+
+  declare export interface QueryResult {
+    query: Promise<ApolloQueryResult<mixed>>,
+    element: React$Element<*>,
+    context: Context
+  }
+
+  declare export function walkTree(
+    element: React$Element<*>,
+    context: Context,
+    visitor: (
+      element: React$Element<*>,
+      instance: any,
+      context: Context
+    ) => boolean | void
+  ): void;
+
+  declare export function getDataFromTree(
+    rootElement: React$Element<*>,
+    rootContext?: any,
+    fetchRoot?: boolean
+  ): Promise<void>;
+
+  declare export function renderToStringWithData(
+    component: React$Element<*>
+  ): Promise<string>;
+
+  declare export function cleanupApolloState(apolloState: any): void;
+}

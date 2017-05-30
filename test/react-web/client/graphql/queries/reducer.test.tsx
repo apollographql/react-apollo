@@ -40,8 +40,15 @@ describe('[queries] reducer', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    const props = ({ data }) => ({ showSpinner: data.loading });
-    const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
+    type ResultData = {
+      getThing: { thing: boolean }
+    }
+    type ResultShape = {
+      showSpinner: boolean
+    }
+
+    const props = (result) => ({ showSpinner: result.data && result.data.loading });
+    const ContainerWithData = graphql<ResultData, {}, ResultShape>(query, { props })(({ showSpinner }) => {
       expect(showSpinner).toBe(true);
       return null;
     });
@@ -60,7 +67,16 @@ describe('[queries] reducer', () => {
       expect(ownProps.sample).toBe(1);
       return { showSpinner: data.loading };
     };
-    const ContainerWithData = graphql(query, { props })(({ showSpinner }) => {
+    type ResultData = {
+      getThing: { thing: boolean }
+    }
+    type ReducerResult = {
+      showSpinner: boolean,
+    }
+    type Props = {
+      sample: number
+    }
+    const ContainerWithData = graphql<ResultData, Props, ReducerResult>(query, { props })(({ showSpinner }) => {
       expect(showSpinner).toBe(true);
       return null;
     });
@@ -77,9 +93,20 @@ describe('[queries] reducer', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query, { props: ({ data }) => ({ thingy: data.getThing }) }) // tslint:disable-line
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
+    type Result = {
+      getThing?: { thing: boolean }
+    }
+
+    type PropsResult = {
+      thingy: boolean
+    }
+
+    const withData = graphql<Result, {}, PropsResult>(query, {
+      props: ({ data }) => ({ thingy: data.getThing })
+    })
+
+    class Container extends React.Component<PropsResult, any> {
+      componentWillReceiveProps(props: PropsResult) {
         expect(props.thingy).toEqual(data.getThing);
         done();
       }
@@ -88,7 +115,9 @@ describe('[queries] reducer', () => {
       }
     };
 
-    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+    const ContainerWithData = withData(Container);
+
+    renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
   });
 
 
