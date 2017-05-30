@@ -11,7 +11,7 @@ declare function require(name: string);
 import { mockNetworkInterface } from '../../../../../src/test-utils';
 
 
-import { ApolloProvider, graphql } from '../../../../../src';
+import { ApolloProvider, graphql, mutation as mutationSugar } from '../../../../../src';
 
 describe('[mutations]', () => {
 
@@ -21,7 +21,7 @@ describe('[mutations]', () => {
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    const ContainerWithData =  graphql(query)(({ mutate }) => {
+    const ContainerWithData =  mutationSugar(query)(({ mutate }) => {
       expect(mutate).toBeTruthy();
       expect(typeof mutate).toBe('function');
       return null;

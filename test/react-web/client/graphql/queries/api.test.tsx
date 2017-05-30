@@ -14,7 +14,7 @@ import { withState } from 'recompose';
 declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql} from '../../../../../src';
+import { ApolloProvider, graphql, query as querySugar } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
@@ -46,7 +46,7 @@ describe('[queries] api', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let hasRefetched, count = 0;
-    @graphql(query)
+    @querySugar(query)
     class Container extends React.Component<any, any> {
       componentWillMount(){
         expect(this.props.data.refetch).toBeTruthy();

@@ -8,7 +8,7 @@ import { ApolloError } from 'apollo-client/errors';
 declare function require(name: string);
 
 import { mockSubscriptionNetworkInterface } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, graphql, subscription as subSugar } from '../../../../src';
 
 
 
@@ -26,7 +26,7 @@ describe('subscriptions', () => {
     // XXX fix in apollo-client
     client.subscribe = client.subscribe.bind(client);
 
-    const ContainerWithData = graphql(query)(({ data }) => { // tslint:disable-line
+    const ContainerWithData = subSugar(query)(({ data }) => { // tslint:disable-line
       expect(data).toBeTruthy();
       expect(data.ownProps).toBeFalsy();
       expect(data.loading).toBe(true);

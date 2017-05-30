@@ -651,3 +651,10 @@ class ObservableQueryRecycler {
     return observableQuery;
   }
 }
+
+// sugar for graphql
+// these will have advanced types and may lead to
+// more specific API usage in the future
+export const query = graphql;
+export const mutation = graphql;
+export const subscription = graphql;
