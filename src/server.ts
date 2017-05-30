@@ -22,7 +22,7 @@ export declare interface QueryResult {
   context: Context;
 }
 
-// Recurse an React Element tree, running visitor on each element.
+// Recurse a React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
 export function walkTree(
