@@ -14,6 +14,7 @@
     "test-watch": "jest --watch",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=20",
+    "flow-check": "flow check",
     "compile": "tsc",
     "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js && cp ./index.js.flow ./lib",
     "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
@@ -54,9 +55,10 @@
       "json"
     ],
     "modulePathIgnorePatterns": [
-      "<rootDir>/examples"
+      "<rootDir>/examples",
+      "<rootDir>/test/flow.js"
     ],
-"testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "collectCoverage": true
   },
   "license": "MIT",

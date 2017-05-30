@@ -33,8 +33,6 @@ import {
 import { parser, DocumentType } from './parser';
 import {
   OperationOption,
-  MutationOptions,
-  QueryOptions,
 } from './graphql';
 
 function getDisplayName(WrappedComponent) {

@@ -36,7 +36,7 @@ declare module "react-apollo" {
     render(): React$Element<*>,
   }
   declare export type MutationFunc<TResult> = (
-    opts: MutationOptions
+    opts: MutationOpts
   ) => Promise<ApolloQueryResult<TResult>>;
 
   declare export type DefaultChildProps<P, R> = {
@@ -44,13 +44,13 @@ declare module "react-apollo" {
     mutate: MutationFunc<R>,
   } & P;
 
-  declare export interface MutationOptions {
+  declare export interface MutationOpts {
     variables?: { [key: string]: mixed },
     optimisticResponse?: Object,
     updateQueries?: MutationQueryReducersMap,
   }
 
-  declare export interface QueryOptions {
+  declare export interface QueryOpts {
     ssr?: boolean,
     variables?: {
       [key: string]: mixed,
@@ -87,7 +87,7 @@ declare module "react-apollo" {
 
   declare export type OptionDescription<P> = (
     props: P
-  ) => QueryOptions | MutationOptions;
+  ) => QueryOpts | MutationOpts;
 
   declare export interface OperationOption<TProps: {}, TResult: {}> {
     options?: OptionDescription<TProps>,

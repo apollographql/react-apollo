@@ -35,13 +35,13 @@ import {
 
 import { parser, DocumentType } from './parser';
 
-export declare interface MutationOptions {
+export declare interface MutationOpts {
   variables?: Object;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
 }
 
-export declare interface QueryOptions {
+export declare interface QueryOpts {
   ssr?: boolean;
   variables?: { [key: string]: any };
   fetchPolicy?: FetchPolicy;
@@ -65,7 +65,7 @@ export interface QueryProps {
   updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
 }
 
-export type MutationFunc<TResult> = (opts: MutationOptions) => Promise<ApolloQueryResult<TResult>>;
+export type MutationFunc<TResult> = (opts: MutationOpts) => Promise<ApolloQueryResult<TResult>>;
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps;
@@ -76,7 +76,7 @@ export interface OptionProps<TProps, TResult> {
 export type DefaultChildProps<P, R> = P & { data?: QueryProps & R, mutate?: MutationFunc<R> };
 
 export interface OperationOption<TProps, TResult> {
-  options?: QueryOptions | MutationOptions | ((props: TProps) => QueryOptions | MutationOptions);
+  options?: QueryOpts | MutationOpts | ((props: TProps) => QueryOpts | MutationOpts);
   props?: (props: OptionProps<TProps, TResult>) => any;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
@@ -131,7 +131,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
     alias = 'Apollo',
   } = operationOptions;
 
-  let mapPropsToOptions = options as (props: any) => QueryOptions | MutationOptions;
+  let mapPropsToOptions = options as (props: any) => QueryOpts | MutationOpts;
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
 
   let mapPropsToSkip = skip as (props: any) => boolean;
@@ -329,12 +329,12 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
         // Create the observable but don't subscribe yet. The query won't
         // fire until we do.
-        const opts: QueryOptions = this.calculateOptions(this.props);
+        const opts: QueryOpts = this.calculateOptions(this.props);
 
         this.createQuery(opts);
       }
 
-      createQuery(opts: QueryOptions) {
+      createQuery(opts: QueryOpts) {
         if (this.type === DocumentType.Subscription) {
           this.queryObservable = this.client.subscribe(assign({
             query: document,
@@ -361,7 +361,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       }
 
       updateQuery(props) {
-        const opts = this.calculateOptions(props) as QueryOptions;
+        const opts = this.calculateOptions(props) as QueryOpts;
 
         // if we skipped initially, we may not have yet created the observable
         if (!this.queryObservable) {
@@ -456,7 +456,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
       shouldSkip(props = this.props) {
         return mapPropsToSkip(props) ||
-          (mapPropsToOptions(props) as QueryOptions).skip;
+          (mapPropsToOptions(props) as QueryOpts).skip;
       }
 
       forceRenderChildren() {
@@ -476,7 +476,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
       dataForChild() {
         if (this.type === DocumentType.Mutation) {
-          return (mutationOpts: MutationOptions) => {
+          return (mutationOpts: MutationOpts) => {
             const opts = this.calculateOptions(this.props, mutationOpts);
 
             if (typeof opts.variables === 'undefined') delete opts.variables;
@@ -626,7 +626,7 @@ class ObservableQueryRecycler {
    * All mutations that occured between the time of recycling and the time of
    * reusing have been applied.
    */
-  public reuse (options: QueryOptions): ObservableQuery<any> {
+  public reuse (options: QueryOpts): ObservableQuery<any> {
     if (this.observableQueries.length <= 0) {
       return null;
     }
