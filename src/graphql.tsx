@@ -262,6 +262,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
       componentWillUnmount() {
         if (this.type === DocumentType.Query) {
+          // It is critical that this happens prior to recyling the query
+          // if not it breaks the loading state / network status because
+          // an orphan observer is created in AC (intended) which is cleaned up
+          // when the browser has time via a setTimeout(0)
           // Unsubscribe from our query subscription.
           this.unsubscribeFromQuery();
 

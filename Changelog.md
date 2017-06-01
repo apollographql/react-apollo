@@ -6,7 +6,7 @@
 #### BREAKING FOR TYPESCRIPT USERS
 - Feature: Enhanced typescript definitions to allow for more valid type checking of graphql HOC [PR #695](https://github.com/apollographql/react-apollo/pull/695)
 - Feature: Flow types: [PR #695](https://github.com/apollographql/react-apollo/pull/695)
-
+- Fix: Fix bug with sync re-renders and recyled queries [PR #740](https://github.com/apollographql/react-apollo/pull/740)
 
 ### 1.3.0
 - Feature: Support tree shaking and smaller (marginally) bundles via rollup [PR #691](https://github.com/apollographql/react-apollo/pull/691)
