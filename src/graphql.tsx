@@ -262,14 +262,14 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
       componentWillUnmount() {
         if (this.type === DocumentType.Query) {
+          // Unsubscribe from our query subscription.
+          this.unsubscribeFromQuery();
+
           // Recycle the query observable if there ever was one.
           if (this.queryObservable) {
             recycler.recycle(this.queryObservable);
             delete this.queryObservable;
           }
-
-          // Unsubscribe from our query subscription.
-          this.unsubscribeFromQuery();
         }
 
         if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
