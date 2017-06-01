@@ -262,6 +262,12 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
       componentWillUnmount() {
         if (this.type === DocumentType.Query) {
+          // Recycle the query observable if there ever was one.
+          if (this.queryObservable) {
+            recycler.recycle(this.queryObservable);
+            delete this.queryObservable;
+          }
+
           // It is critical that this happens prior to recyling the query
           // if not it breaks the loading state / network status because
           // an orphan observer is created in AC (intended) which is cleaned up
@@ -269,11 +275,6 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
           // Unsubscribe from our query subscription.
           this.unsubscribeFromQuery();
 
-          // Recycle the query observable if there ever was one.
-          if (this.queryObservable) {
-            recycler.recycle(this.queryObservable);
-            delete this.queryObservable;
-          }
         }
 
         if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
@@ -613,6 +614,7 @@ class ObservableQueryRecycler {
     observableQuery.setOptions({
       fetchPolicy: 'standby',
       pollInterval: 0,
+      fetchResults: false, // ensure we don't create another observer in AC
     });
 
     this.observableQueries.push({
