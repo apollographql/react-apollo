@@ -247,7 +247,7 @@ describe('[queries] errors', () => {
       } finally {
         console.error = origError;
       }
-    }, 20);
+    }, 50);
   }));
 
   it('passes any cached data when there is a GraphQL error', (done) => {
