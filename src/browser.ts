@@ -1,6 +1,9 @@
 export { default as ApolloProvider } from './ApolloProvider';
 export {
   default as graphql,
+  query,
+  mutation,
+  subscription,
   MutationOpts,
   QueryOpts,
   QueryProps,
