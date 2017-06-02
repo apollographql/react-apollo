@@ -194,7 +194,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         super(props, context);
         this.version = version;
 
-        const opts = this.calculateOptions(props);
+        const opts = mapPropsToOptions(props);
         if (opts.client) {
           this.client = opts.client;
         } else {
