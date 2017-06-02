@@ -268,8 +268,13 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
             delete this.queryObservable;
           }
 
+          // It is critical that this happens prior to recyling the query
+          // if not it breaks the loading state / network status because
+          // an orphan observer is created in AC (intended) which is cleaned up
+          // when the browser has time via a setTimeout(0)
           // Unsubscribe from our query subscription.
           this.unsubscribeFromQuery();
+
         }
 
         if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
@@ -609,6 +614,7 @@ class ObservableQueryRecycler {
     observableQuery.setOptions({
       fetchPolicy: 'standby',
       pollInterval: 0,
+      fetchResults: false, // ensure we don't create another observer in AC
     });
 
     this.observableQueries.push({

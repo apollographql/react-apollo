@@ -34,7 +34,7 @@ function wait(ms) {
 describe('[queries] observableQuery', () => {
 
   // observableQuery
-  it('will recycle `ObservableQuery`s when re-rendering the entire tree', () => {
+  it('will recycle `ObservableQuery`s when re-rendering the entire tree', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface(
@@ -43,48 +43,115 @@ describe('[queries] observableQuery', () => {
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query)
+    // storage
+    let queryObservable1: ObservableQuery<any>;
+    let queryObservable2: ObservableQuery<any>;
+    let originalOptions;
+    let wrapper1;
+    let wrapper2;
+    let count = 0;
+    let recycledOptions;
+
+    const assert1 = () => {
+      expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
+      queryObservable1 = (client as any).queryManager.observableQueries['1'].observableQuery;
+      originalOptions = Object.assign({}, queryObservable1.options);
+    }
+
+    const assert2 = () => {
+      expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
+    }
+
+    @graphql(query, { options: { fetchPolicy: 'cache-and-network' }})
     class Container extends React.Component<any, any> {
+      componentWillMount() {
+
+        // during the first mount, the loading prop should be true;
+        if (count === 0) {
+          expect(this.props.data.loading).toBe(true);
+        }
+
+        // during the second mount, the loading prop should be false, and data should
+        // be present;
+        if (count === 3) {
+          expect(this.props.data.loading).toBe(false);
+          expect(this.props.data.allPeople).toEqual(data.allPeople);
+        }
+      }
+
+      componentDidMount(){
+        if (count === 4) {
+          wrapper1.unmount();
+          done();
+        }
+      }
+
+      componentDidUpdate(prevProps) {
+        if (count === 3) {
+          expect(prevProps.data.loading).toBe(true);
+          expect(this.props.data.loading).toBe(false);
+          expect(this.props.data.allPeople).toEqual(data.allPeople);
+
+          // ensure first assertion and umount tree
+          assert1();
+          wrapper1.find("#break").simulate("click");
+
+          // ensure cleanup
+          assert2();
+       }
+      }
+
       render () {
+        // side effect to keep track of render counts
+        count++;
         return null;
       }
     }
 
-    const wrapper1 = renderer.create(
+    class RedirectOnMount extends React.Component<any, any> {
+      componentWillMount() {
+        this.props.onMount();
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    class AppWrapper extends React.Component<any, any> {
+      state = {
+        renderRedirect: false,
+      };
+
+      goToRedirect = () => {
+        this.setState({ renderRedirect: true });
+      };
+
+      handleRedirectMount = () => {
+        this.setState({ renderRedirect: false });
+      };
+
+      render() {
+        if (this.state.renderRedirect) {
+          return <RedirectOnMount onMount={this.handleRedirectMount} />;
+        } else {
+          return (
+            <div>
+              <Container />
+              <button id="break" onClick={this.goToRedirect}>Break things</button>
+            </div>
+          );
+        }
+      }
+    }
+
+    wrapper1 = mount(
       <ApolloProvider client={client}>
-        <Container/>
+        <AppWrapper/>
       </ApolloProvider>
     );
 
-    expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
-    const queryObservable1: ObservableQuery<any> = (client as any).queryManager.observableQueries['1'].observableQuery;
-
-    const originalOptions = Object.assign({}, queryObservable1.options);
-
-    wrapper1.unmount();
-
-    expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
-
-    const wrapper2 = renderer.create(
-      <ApolloProvider client={client}>
-        <Container/>
-      </ApolloProvider>
-    );
-
-    expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
-    const queryObservable2: ObservableQuery<any> = (client as any).queryManager.observableQueries['1'].observableQuery;
-
-    const recycledOptions = queryObservable2.options;
-
-    expect(queryObservable1).toBe(queryObservable2);
-    expect(recycledOptions.query).toEqual(originalOptions.query);
-    expect(recycledOptions.metadata).toEqual(originalOptions.metadata);
-    expect(recycledOptions.notifyOnNetworkStatusChange).toEqual(originalOptions.notifyOnNetworkStatusChange);
-
-    wrapper2.unmount();
-
-    expect(Object.keys((client as any).queryManager.observableQueries)).toEqual(['1']);
-  });
+ });
 
   it('will not try to refetch recycled `ObservableQuery`s when resetting the client store', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
