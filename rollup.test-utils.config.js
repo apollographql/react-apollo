@@ -1,6 +1,6 @@
 export default {
   entry: "lib/test-utils.js",
-  dest: "lib/react-apollo.test-utils.umd.js",
+  dest: "lib/test-utils.js",
   format: "umd",
   sourceMap: true,
   moduleName: "react-apollo",
