@@ -1,6 +1,6 @@
 import React from "react";
 import renderer from "react-test-renderer";
-import { MockedProvider } from "../../../lib/react-apollo.test-utils.umd";
+import { MockedProvider } from "../../../lib/test-utils";
 import { print } from "graphql";
 import { addTypenameToDocument } from "apollo-client/queries/queryTransform";
 
