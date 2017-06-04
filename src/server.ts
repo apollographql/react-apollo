@@ -57,7 +57,7 @@ export function walkTree(
       };
 
       // this is a poor man's version of
-      //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
+      // https://github.com/facebook/react/blob/3f75ea8cdc537e189eb43158128a5a0295103211/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
       if (instance.componentWillMount) {
         instance.componentWillMount();
       }
