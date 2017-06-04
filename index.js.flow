@@ -104,8 +104,8 @@ declare module "react-apollo" {
     (
       component:
         | StatelessComponent<TMergedProps>
-        | React$Component<*, TMergedProps, *>
-    ): Component<*, TOwnProps, *>,
+        | React$Component<void, TMergedProps, void>
+    ): Class<React$Component<void, TOwnProps, void>>,
   }
 
   declare export function graphql<TResult, TProps, TChildProps>(
