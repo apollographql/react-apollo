@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -124,7 +124,7 @@
     "redux-form": "^6.0.5",
     "redux-immutable": "^4.0.0",
     "redux-loop": "^2.2.2",
-    "rollup": "^0.41.6",
+    "rollup": "^0.42.0",
     "source-map-support": "^0.4.0",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "^1.0.2",

@@ -2,6 +2,9 @@
 
 ### vNext
 
+### 1.4.1
+- Fix: Fix compilation of test-utils from move to ES bundles
+
 ### 1.4.0
 #### BREAKING FOR TYPESCRIPT USERS
 - Feature: Enhanced typescript definitions to allow for more valid type checking of graphql HOC [PR #695](https://github.com/apollographql/react-apollo/pull/695)
