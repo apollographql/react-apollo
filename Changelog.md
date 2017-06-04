@@ -2,6 +2,9 @@
 
 ### vNext
 
+### 1.4.2
+- Fix: Fix component reference and variable statement for flow types
+
 ### 1.4.1
 - Fix: Fix compilation of test-utils from move to ES bundles
 
