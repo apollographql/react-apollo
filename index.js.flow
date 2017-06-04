@@ -11,6 +11,7 @@ import type {
 } from "apollo-client";
 import type { Store } from "redux";
 import type { DocumentNode, VariableDefinitionNode } from "graphql";
+import type { Component } from "react";
 
 declare module "react-apollo" {
   declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
@@ -45,16 +46,14 @@ declare module "react-apollo" {
   } & P;
 
   declare export interface MutationOpts {
-    variables?: { [key: string]: mixed },
+    variables?: Object,
     optimisticResponse?: Object,
     updateQueries?: MutationQueryReducersMap,
   }
 
   declare export interface QueryOpts {
     ssr?: boolean,
-    variables?: {
-      [key: string]: mixed,
-    },
+    variables?: Object,
     fetchPolicy?: FetchPolicy,
     pollInterval?: number,
     skip?: boolean,
@@ -64,13 +63,11 @@ declare module "react-apollo" {
     error?: ApolloError,
     networkStatus: number,
     loading: boolean,
-    variables: {
-      [variable: string]: any,
-    },
+    variables: Object,
     fetchMore: (
       fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions
     ) => Promise<ApolloQueryResult<any>>,
-    refetch: (variables?: any) => Promise<ApolloQueryResult<any>>,
+    refetch: (variables?: Object) => Promise<ApolloQueryResult<any>>,
     startPolling: (pollInterval: number) => void,
     stopPolling: () => void,
     subscribeToMore: (options: SubscribeToMoreOptions) => () => void,
@@ -107,8 +104,8 @@ declare module "react-apollo" {
     (
       component:
         | StatelessComponent<TMergedProps>
-        | React$Component<*, TMergedProps, *>
-    ): React$Component<*, TOwnProps, *>,
+        | React$Component<void, TMergedProps, void>
+    ): Class<React$Component<void, TOwnProps, void>>,
   }
 
   declare export function graphql<TResult, TProps, TChildProps>(
