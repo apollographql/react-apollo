@@ -228,14 +228,18 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
       componentWillReceiveProps(nextProps, nextContext) {
         const { client } = mapPropsToOptions(nextProps);
-        if (shallowEqual(this.props, nextProps) && (!!client || this.client === nextContext.client)) {
+        if (shallowEqual(this.props, nextProps) && (this.client === client || this.client === nextContext.client)) {
           return;
         }
 
         this.shouldRerender = true;
 
-        if (!client && this.client !== nextContext.client) {
-          this.client = nextContext.client;
+        if (this.client !== client && this.client !== nextContext.client) {
+          if (client) {
+            this.client = client;
+          } else {
+            this.client = nextContext.client;
+          }
           this.unsubscribeFromQuery();
           this.queryObservable = null;
           this.previousData = {};
