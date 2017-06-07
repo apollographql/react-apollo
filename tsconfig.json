@@ -5,7 +5,7 @@
     "lib": ["es6", "dom"],
     "moduleResolution": "node",
     "sourceMap": true,
-    "declaration": true,
+    "declaration": false,
     "noImplicitAny": false,
     "rootDir": "src",
     "outDir": "lib",
