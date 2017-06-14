@@ -467,7 +467,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       forceRenderChildren() {
         // force a rerender that goes through shouldComponentUpdate
         this.shouldRerender = true;
-        if (this.hasMounted) this.setState({});
+        if (this.hasMounted) this.forceUpdate();
       }
 
       getWrappedInstance() {
