@@ -95,7 +95,7 @@
     "@types/redux-immutable": "^3.0.30",
     "@types/sinon": "^2.1.1",
     "babel-jest": "^19.0.0",
-    "babel-preset-react-native": "^1.9.0",
+    "babel-preset-react-native": "^2.0.0",
     "browserify": "^14.1.0",
     "cheerio": "^0.22.0",
     "colors": "^1.1.2",
