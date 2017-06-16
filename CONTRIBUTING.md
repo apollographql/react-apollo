@@ -31,6 +31,8 @@ Creating a good reproduction really helps contributors investigate and resolve y
 
 Include in the issue a link to your reproduction—a couple good options are a small Github repo or a [CodeSandbox](https://codesandbox.io/). Here's a starter CodeSandbox you can use: https://codesandbox.io/s/yrwE7pvJ7
 
+If you have a more complicated issue where it is helpful to run it locally, you may consider using [react-apollo-error-template](https://github.com/apollographql/react-apollo-error-template) for reproducing the issue.
+
 ### Improving the documentation
 
 Improving the documentation, examples, and other open source content can be the easiest way to contribute to the library. If you see a piece of content that can be better, open a PR with an improvement, no matter how small! If you would like to suggest a big change or major rewrite, we’d love to hear your ideas but please open an issue for discussion before writing the PR.
