@@ -138,7 +138,7 @@
     "apollo-client": "^1.4.0",
     "graphql-anywhere": "^3.0.0",
     "graphql-tag": "^2.0.0",
-    "hoist-non-react-statics": "^1.2.0",
+    "hoist-non-react-statics": "^2.0.0",
     "invariant": "^2.2.1",
     "lodash.flatten": "^4.2.0",
     "lodash.isequal": "^4.1.1",
