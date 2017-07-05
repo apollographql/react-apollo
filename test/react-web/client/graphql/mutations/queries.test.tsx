@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
@@ -6,19 +5,22 @@ import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
 
-declare function require(name: string);
+declare function require(name: string)
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
-
 
 import { ApolloProvider, graphql } from '../../../../../src';
 
 describe('[mutations] query integration', () => {
-
-  it('allows for passing optimisticResponse for a mutation', (done) => {
+  it('allows for passing optimisticResponse for a mutation', done => {
     const query = gql`
       mutation createTodo {
-        createTodo { id, text, completed, __typename }
+        createTodo {
+          id
+          text
+          completed
+          __typename
+        }
         __typename
       }
     `;
@@ -33,7 +35,10 @@ describe('[mutations] query integration', () => {
       },
     };
 
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
@@ -48,31 +53,34 @@ describe('[mutations] query integration', () => {
             completed: true,
           },
         };
-        this.props.mutate({ optimisticResponse })
-          .then(result => {
-            expect(result.data).toEqual(data);
-            done();
-          })
-          ;
+        this.props.mutate({ optimisticResponse }).then(result => {
+          expect(result.data).toEqual(data);
+          done();
+        });
 
         const dataInStore = client.queryManager.getDataWithOptimisticResults();
-        expect(dataInStore['Todo:99']).toEqual(
-          optimisticResponse.createTodo
-        );
-
+        expect(dataInStore['Todo:99']).toEqual(optimisticResponse.createTodo);
       }
       render() {
         return null;
       }
-    };
+    }
 
-    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
   });
 
-  it('allows for updating queries from a mutation', (done) => {
+  it('allows for updating queries from a mutation', done => {
     const mutation = gql`
       mutation createTodo {
-        createTodo { id, text, completed }
+        createTodo {
+          id
+          text
+          completed
+        }
       }
     `;
 
@@ -103,7 +111,9 @@ describe('[mutations] query integration', () => {
         const originalList = previousQueryResult.todo_list;
         const newTask = mutationResult.data.createTodo;
         return {
-          todo_list: assign(originalList, { tasks: [...originalList.tasks, newTask] }),
+          todo_list: assign(originalList, {
+            tasks: [...originalList.tasks, newTask],
+          }),
         };
       },
     };
@@ -111,7 +121,13 @@ describe('[mutations] query integration', () => {
     const query = gql`
       query todos($id: ID!) {
         todo_list(id: $id) {
-          id, title, tasks { id, text, completed }
+          id
+          title
+          tasks {
+            id
+            text
+            completed
+          }
         }
       }
     `;
@@ -122,32 +138,35 @@ describe('[mutations] query integration', () => {
 
     const networkInterface = mockNetworkInterface(
       { request: { query, variables: { id: '123' } }, result: { data } },
-      { request: { query: mutation }, result: { data: mutationData } }
+      { request: { query: mutation }, result: { data: mutationData } },
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
     @graphql(query)
-    @graphql(mutation, { options: () => ({ optimisticResponse, updateQueries }) })
+    @graphql(mutation, {
+      options: () => ({ optimisticResponse, updateQueries }),
+    })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (!props.data.todo_list) return;
         if (!props.data.todo_list.tasks.length) {
-          props.mutate()
-            .then(result => {
-              expect(result.data).toEqual(mutationData);
-            });
+          props.mutate().then(result => {
+            expect(result.data).toEqual(mutationData);
+          });
 
           const dataInStore = client.queryManager.getDataWithOptimisticResults();
           expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
-            optimisticResponse.createTodo
+            optimisticResponse.createTodo,
           );
           return;
         }
 
         if (count === 0) {
-          count ++;
-          expect(props.data.todo_list.tasks).toEqual([optimisticResponse.createTodo]);
+          count++;
+          expect(props.data.todo_list.tasks).toEqual([
+            optimisticResponse.createTodo,
+          ]);
         } else if (count === 1) {
           expect(props.data.todo_list.tasks).toEqual([mutationData.createTodo]);
           done();
@@ -156,9 +175,12 @@ describe('[mutations] query integration', () => {
       render() {
         return null;
       }
-    };
+    }
 
-    renderer.create(<ApolloProvider client={client}><Container id={'123'} /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container id={'123'} />
+      </ApolloProvider>,
+    );
   });
-
 });

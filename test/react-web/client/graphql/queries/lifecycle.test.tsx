@@ -11,15 +11,17 @@ import { NetworkInterface } from 'apollo-client';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string);
+declare function require(name: string)
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql} from '../../../../../src';
+import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (
+  ...args: any[]
+) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -32,31 +34,37 @@ function wait(ms) {
 }
 
 describe('[queries] lifecycle', () => {
-
   // lifecycle
-  it('reruns the query if it changes', (done) => {
+  it('reruns the query if it changes', done => {
     let count = 0;
     const query = gql`
       query people($first: Int) {
-        allPeople(first: $first) { people { name } }
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
       }
     `;
 
-    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables1 = { first: 1 };
 
-    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const variables2 = { first: 2 };
 
     const networkInterface = mockNetworkInterface(
       { request: { query, variables: variables1 }, result: { data: data1 } },
-      { request: { query, variables: variables2 }, result: { data: data2 } }
+      { request: { query, variables: variables2 }, result: { data: data2 } },
     );
 
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query, {
-      options: (props) => ({ variables: props, fetchPolicy: count === 0 ? 'cache-and-network' : 'cache-first' }),
+      options: props => ({
+        variables: props,
+        fetchPolicy: count === 0 ? 'cache-and-network' : 'cache-first',
+      }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
@@ -72,7 +80,7 @@ describe('[queries] lifecycle', () => {
       render() {
         return null;
       }
-    };
+    }
 
     class ChangingProps extends React.Component<any, any> {
       state = { first: 1 };
@@ -89,15 +97,29 @@ describe('[queries] lifecycle', () => {
       }
     }
 
-    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ChangingProps />
+      </ApolloProvider>,
+    );
   });
 
-  it('rebuilds the queries on prop change when using `options`', (done) => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+  it('rebuilds the queries on prop change when using `options`', done => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
-
 
     let firstRun = true;
     let isDone = false;
@@ -108,9 +130,9 @@ describe('[queries] lifecycle', () => {
         isDone = true;
       }
       return {};
-    };
+    }
 
-    const Container = graphql(query, { options })((props) => null);
+    const Container = graphql(query, { options })(props => null);
 
     class ChangingProps extends React.Component<any, any> {
       state = { listId: 1 };
@@ -127,31 +149,39 @@ describe('[queries] lifecycle', () => {
       }
     }
 
-    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ChangingProps />
+      </ApolloProvider>,
+    );
   });
 
-  it('reruns the query if just the variables change', (done) => {
+  it('reruns the query if just the variables change', done => {
     let count = 0;
     const query = gql`
       query people($first: Int) {
-        allPeople(first: $first) { people { name } }
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
       }
     `;
 
-    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables1 = { first: 1 };
 
-    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const variables2 = { first: 2 };
 
     const networkInterface = mockNetworkInterface(
       { request: { query, variables: variables1 }, result: { data: data1 } },
-      { request: { query, variables: variables2 }, result: { data: data2 } }
+      { request: { query, variables: variables2 }, result: { data: data2 } },
     );
 
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query, { options: (props) => ({ variables: props }) })
+    @graphql(query, { options: props => ({ variables: props }) })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
@@ -166,7 +196,7 @@ describe('[queries] lifecycle', () => {
       render() {
         return null;
       }
-    };
+    }
 
     class ChangingProps extends React.Component<any, any> {
       state = { first: 1 };
@@ -183,26 +213,34 @@ describe('[queries] lifecycle', () => {
       }
     }
 
-    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ChangingProps />
+      </ApolloProvider>,
+    );
   });
 
-  it('reruns the queries on prop change when using passed props', (done) => {
+  it('reruns the queries on prop change when using passed props', done => {
     let count = 0;
     const query = gql`
       query people($first: Int) {
-        allPeople(first: $first) { people { name } }
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
       }
     `;
 
-    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables1 = { first: 1 };
 
-    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const variables2 = { first: 2 };
 
     const networkInterface = mockNetworkInterface(
       { request: { query, variables: variables1 }, result: { data: data1 } },
-      { request: { query, variables: variables2 }, result: { data: data2 } }
+      { request: { query, variables: variables2 }, result: { data: data2 } },
     );
 
     const client = new ApolloClient({ networkInterface, addTypename: false });
@@ -222,7 +260,7 @@ describe('[queries] lifecycle', () => {
       render() {
         return null;
       }
-    };
+    }
 
     class ChangingProps extends React.Component<any, any> {
       state = { first: 1 };
@@ -239,14 +277,26 @@ describe('[queries] lifecycle', () => {
       }
     }
 
-    renderer.create(<ApolloProvider client={client}><ChangingProps /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ChangingProps />
+      </ApolloProvider>,
+    );
   });
 
-  it('stays subscribed to updates after irrelevant prop changes', (done) => {
-    const query = gql`query people($first: Int) { allPeople(first: $first) { people { name } } }`;
+  it('stays subscribed to updates after irrelevant prop changes', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
     const variables = { first: 1 };
-    const data1 = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const networkInterface = mockNetworkInterface(
       { request: { query, variables }, result: { data: data1 } },
       { request: { query, variables }, result: { data: data2 } },
@@ -254,8 +304,13 @@ describe('[queries] lifecycle', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
-    @graphql(query, { options() { return { variables, notifyOnNetworkStatusChange: false }; } })
-    class Container extends React.Component<any, any> {8
+    @graphql(query, {
+      options() {
+        return { variables, notifyOnNetworkStatusChange: false };
+      },
+    })
+    class Container extends React.Component<any, any> {
+      8;
       componentWillReceiveProps(props) {
         count += 1;
 
@@ -279,7 +334,7 @@ describe('[queries] lifecycle', () => {
       render() {
         return null;
       }
-    };
+    }
 
     class Parent extends React.Component<any, any> {
       constructor() {
@@ -287,30 +342,56 @@ describe('[queries] lifecycle', () => {
         this.state = { foo: 42 };
       }
       render() {
-        return <Container foo={this.state.foo} changeState={() => this.setState({ foo: 43 })}/>;
+        return (
+          <Container
+            foo={this.state.foo}
+            changeState={() => this.setState({ foo: 43 })}
+          />
+        );
       }
-    };
+    }
 
-    renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Parent />
+      </ApolloProvider>,
+    );
   });
 
-  it('correctly rebuilds props on remount', (done) => {
-    const query = gql`query pollingPeople { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Darth Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface(
-      { request: { query }, result: { data }, newData: () => ({
+  it('correctly rebuilds props on remount', done => {
+    const query = gql`
+      query pollingPeople {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Darth Skywalker' }] } };
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+      newData: () => ({
         data: {
-          allPeople: { people: [ { name: `Darth Skywalker - ${Math.random()}` } ] },
+          allPeople: {
+            people: [{ name: `Darth Skywalker - ${Math.random()}` }],
+          },
         },
-      }) }
-    );
+      }),
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
-    let wrapper, app, count = 0;
+    let wrapper,
+      app,
+      count = 0;
 
-    @graphql(query, { options: { pollInterval: 10, notifyOnNetworkStatusChange: false }})
+    @graphql(query, {
+      options: { pollInterval: 10, notifyOnNetworkStatusChange: false },
+    })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        if (count === 1) { // has data
+        if (count === 1) {
+          // has data
           wrapper.unmount();
           wrapper = mount(app);
         }
@@ -324,18 +405,34 @@ describe('[queries] lifecycle', () => {
       render() {
         return null;
       }
-    };
+    }
 
-    app = <ApolloProvider client={client}><Container /></ApolloProvider>;
+    app = (
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>
+    );
 
     wrapper = mount(app);
   });
 
   it('will re-execute a query when the client changes', async () => {
-    const query = gql`{ a b c }`;
-    const networkInterface1 = { query: jest.fn(() => Promise.resolve({ data: { a: 1, b: 2, c: 3 } })) };
-    const networkInterface2 = { query: jest.fn(() => Promise.resolve({ data: { a: 4, b: 5, c: 6 } })) };
-    const networkInterface3 = { query: jest.fn(() => Promise.resolve({ data: { a: 7, b: 8, c: 9 } })) };
+    const query = gql`
+      {
+        a
+        b
+        c
+      }
+    `;
+    const networkInterface1 = {
+      query: jest.fn(() => Promise.resolve({ data: { a: 1, b: 2, c: 3 } })),
+    };
+    const networkInterface2 = {
+      query: jest.fn(() => Promise.resolve({ data: { a: 4, b: 5, c: 6 } })),
+    };
+    const networkInterface3 = {
+      query: jest.fn(() => Promise.resolve({ data: { a: 7, b: 8, c: 9 } })),
+    };
     const client1 = new ApolloClient({ networkInterface: networkInterface1 });
     const client2 = new ApolloClient({ networkInterface: networkInterface2 });
     const client3 = new ApolloClient({ networkInterface: networkInterface3 });
@@ -357,7 +454,7 @@ describe('[queries] lifecycle', () => {
       render() {
         return (
           <ApolloProvider client={this.state.client}>
-            <Query/>
+            <Query />
           </ApolloProvider>
         );
       }
@@ -376,7 +473,7 @@ describe('[queries] lifecycle', () => {
       }
     }
 
-    renderer.create(<ClientSwitcher/>);
+    renderer.create(<ClientSwitcher />);
 
     await wait(1);
     refetchQuery();
@@ -410,5 +507,4 @@ describe('[queries] lifecycle', () => {
       { loading: false, a: 7, b: 8, c: 9 },
     ]);
   });
-
 });

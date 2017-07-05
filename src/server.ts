@@ -1,22 +1,25 @@
-
-import { Children, ReactElement, ComponentClass, StatelessComponent } from 'react';
+import {
+  Children,
+  ReactElement,
+  ComponentClass,
+  StatelessComponent,
+} from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { ApolloQueryResult } from 'apollo-client';
 const assign = require('object-assign');
 
-
-export declare interface Context {
+export interface Context {
   client?: ApolloClient;
   store?: any;
   [key: string]: any;
 }
 
-export declare interface QueryTreeArgument {
+export interface QueryTreeArgument {
   rootElement: ReactElement<any>;
   rootContext?: Context;
 }
 
-export declare interface QueryResult {
+export interface QueryResult {
   query: Promise<ApolloQueryResult<any>>;
   element: ReactElement<any>;
   context: Context;
@@ -28,7 +31,11 @@ export declare interface QueryResult {
 export function walkTree(
   element: ReactElement<any>,
   context: Context,
-  visitor: (element: ReactElement<any>, instance: any, context: Context) => boolean | void,
+  visitor: (
+    element: ReactElement<any>,
+    instance: any,
+    context: Context,
+  ) => boolean | void,
 ) {
   const Component = element.type;
   // a stateless functional component or a class
@@ -52,7 +59,7 @@ export function walkTree(
       //   (we can't do the default React thing as we aren't mounted "properly"
       //   however, we don't need to re-render as well only support setState in
       //   componentWillMount, which happens *before* render).
-      instance.setState = (newState) => {
+      instance.setState = newState => {
         instance.state = assign({}, instance.state, newState);
       };
 
@@ -71,7 +78,8 @@ export function walkTree(
       }
 
       child = instance.render();
-    } else { // just a stateless functional
+    } else {
+      // just a stateless functional
       if (visitor(element, null, context) === false) {
         return;
       }
@@ -84,7 +92,8 @@ export function walkTree(
     if (child) {
       walkTree(child, childContext, visitor);
     }
-  } else { // a basic string or dom element, just get children
+  } else {
+    // a basic string or dom element, just get children
     if (visitor(element, null, context) === false) {
       return;
     }
@@ -100,13 +109,13 @@ export function walkTree(
 }
 
 function getQueriesFromTree(
-  { rootElement, rootContext = {} }: QueryTreeArgument, fetchRoot: boolean = true,
+  { rootElement, rootContext = {} }: QueryTreeArgument,
+  fetchRoot: boolean = true,
 ): QueryResult[] {
   const queries = [];
 
   walkTree(rootElement, rootContext, (element, instance, context) => {
-
-    const skipRoot = !fetchRoot && (element === rootElement);
+    const skipRoot = !fetchRoot && element === rootElement;
     if (instance && typeof instance.fetchData === 'function' && !skipRoot) {
       const query = instance.fetchData();
       if (query) {
@@ -123,8 +132,11 @@ function getQueriesFromTree(
 }
 
 // XXX component Cache
-export function getDataFromTree(rootElement: ReactElement<any>, rootContext: any = {}, fetchRoot: boolean = true): Promise<void> {
-
+export function getDataFromTree(
+  rootElement: ReactElement<any>,
+  rootContext: any = {},
+  fetchRoot: boolean = true,
+): Promise<void> {
   let queries = getQueriesFromTree({ rootElement, rootContext }, fetchRoot);
 
   // no queries found, nothing to do
@@ -132,36 +144,41 @@ export function getDataFromTree(rootElement: ReactElement<any>, rootContext: any
 
   const errors = [];
   // wait on each query that we found, re-rendering the subtree when it's done
-  const mappedQueries = queries.map(({ query, element, context }) =>  {
+  const mappedQueries = queries.map(({ query, element, context }) => {
     // we've just grabbed the query for element, so don't try and get it again
-    return (
-      query
-        .then(_ => getDataFromTree(element, context, false))
-        .catch(e => errors.push(e))
-    );
+    return query
+      .then(_ => getDataFromTree(element, context, false))
+      .catch(e => errors.push(e));
   });
 
   // Run all queries. If there are errors, still wait for all queries to execute
   // so the caller can ignore them if they wish. See https://github.com/apollographql/react-apollo/pull/488#issuecomment-284415525
   return Promise.all(mappedQueries).then(_ => {
     if (errors.length > 0) {
-      const error = errors.length === 1
-        ? errors[0]
-        : new Error(`${errors.length} errors were thrown when executing your GraphQL queries.`);
+      const error =
+        errors.length === 1
+          ? errors[0]
+          : new Error(
+              `${errors.length} errors were thrown when executing your GraphQL queries.`,
+            );
       error.queryErrors = errors;
       throw error;
     }
   });
 }
 
-export function renderToStringWithData(component: ReactElement<any>): Promise<string> {
-  return getDataFromTree(component)
-    .then(() => ReactDOM.renderToString(component));
+export function renderToStringWithData(
+  component: ReactElement<any>,
+): Promise<string> {
+  return getDataFromTree(component).then(() =>
+    ReactDOM.renderToString(component),
+  );
 }
 
 export function cleanupApolloState(apolloState) {
   for (let queryId in apolloState.queries) {
     let fieldsToNotShip = ['minimizedQuery', 'minimizedQueryString'];
-    for (let field of fieldsToNotShip) delete apolloState.queries[queryId][field];
+    for (let field of fieldsToNotShip)
+      delete apolloState.queries[queryId][field];
   }
 }
