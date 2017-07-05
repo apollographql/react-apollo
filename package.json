@@ -21,8 +21,17 @@
     "minify:browser": "uglifyjs -c -m -o ./dist/index.min.js -- ./dist/index.js",
     "compress:browser": "./scripts/gzip.js --file=./dist/index.min.js",
     "watch": "tsc -w",
-    "lint": "tslint 'src/*.ts*' && tslint 'test/*.ts*'"
+    "lint": "tslint 'src/*.ts*' && tslint 'test/*.ts*'",
+    "lint-staged": "lint-staged",
+    "lint-fix": "prettier --trailing-comma all --single-quote --write \"{src,test}/**/*.ts*\""
   },
+  "lint-staged": {
+    "*.ts*": [
+      "prettier --trailing-comma all --single-quote --write",
+      "git add"
+    ]
+  },
+  "pre-commit": "lint-staged",
   "repository": {
     "type": "git",
     "url": "apollostack/react-apollo"
@@ -108,10 +117,13 @@
     "jest": "^19.0.0",
     "jest-react-native": "^18.0.0",
     "jsdom": "^11.0.0",
+    "lint-staged": "^4.0.0",
     "lodash": "^4.16.6",
     "minimist": "^1.2.0",
     "mobx": "^3.1.0",
     "mobx-react": "^4.1.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.5.2",
     "pretty-bytes": "^4.0.2",
     "react": "^15.5.4",
     "react-addons-test-utils": "^15.5.1",

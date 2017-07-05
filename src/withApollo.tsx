@@ -31,9 +31,7 @@ import {
 } from 'graphql';
 
 import { parser, DocumentType } from './parser';
-import {
-  OperationOption,
-} from './graphql';
+import { OperationOption } from './graphql';
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -43,7 +41,6 @@ export function withApollo<TProps, TResult>(
   WrappedComponent,
   operationOptions: OperationOption<TProps, TResult> = {},
 ) {
-
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
   class WithApollo extends Component<any, any> {
@@ -58,18 +55,19 @@ export function withApollo<TProps, TResult>(
       super(props, context);
       this.client = context.client;
 
-      invariant(!!this.client,
-          `Could not find "client" in the context of ` +
+      invariant(
+        !!this.client,
+        `Could not find "client" in the context of ` +
           `"${withDisplayName}". ` +
           `Wrap the root component in an <ApolloProvider>`,
-        );
-
+      );
     }
 
     getWrappedInstance() {
-      invariant(operationOptions.withRef,
+      invariant(
+        operationOptions.withRef,
         `To access the wrapped instance, you need to specify ` +
-        `{ withRef: true } in the options`,
+          `{ withRef: true } in the options`,
       );
 
       return (this.refs as any).wrappedInstance;
@@ -86,4 +84,3 @@ export function withApollo<TProps, TResult>(
   // Make sure we preserve any custom statics on the original component.
   return hoistNonReactStatics(WithApollo, WrappedComponent, {});
 }
-
