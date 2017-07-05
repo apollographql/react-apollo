@@ -3,7 +3,7 @@ import {
   createElement,
   ComponentClass,
   StatelessComponent,
-} from 'react';
+} from "react";
 import * as PropTypes from 'prop-types';
 
 const pick = require('lodash.pick');
