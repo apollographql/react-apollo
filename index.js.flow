@@ -8,12 +8,14 @@ import type {
   UpdateQueryOptions,
   FetchMoreQueryOptions,
   SubscribeToMoreOptions,
+  PureQueryOptions,
+  MutationUpdaterFn,
 } from "apollo-client";
 import type { Store } from "redux";
 import type { DocumentNode, VariableDefinitionNode } from "graphql";
-import type { Component } from "react";
 
 declare module "react-apollo" {
+  import type { Component } from "react";
   declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
 
   declare export interface ProviderProps {
@@ -49,6 +51,8 @@ declare module "react-apollo" {
     variables?: Object,
     optimisticResponse?: Object,
     updateQueries?: MutationQueryReducersMap,
+    refetchQueries?: string[] | PureQueryOptions[];
+    update?: MutationUpdaterFn;
   }
 
   declare export interface QueryOpts {

@@ -123,7 +123,7 @@ describe('[queries] skip', () => {
     renderer.create(<ApolloProvider client={client}><Parent /></ApolloProvider>);
   });
 
-  it('doesn\'t run options or props when skipped', (done) => {
+  it('doesn\'t run options or props when skipped, except option.client', (done) => {
     const query = gql`query people { allPeople(first: 1) { people { name } } }`;
     const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
     const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
@@ -132,7 +132,7 @@ describe('[queries] skip', () => {
     let queryExecuted;
     @graphql(query, {
       skip: ({ skip }) => skip,
-      options: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
+      options: ({ client, ...willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
       props: ({ willThrowIfAccesed }) => ({ pollInterval: willThrowIfAccesed.pollInterval }),
     })
     class Container extends React.Component<any, any> {
