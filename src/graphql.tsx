@@ -27,6 +27,8 @@ import ApolloClient, {
   FetchMoreQueryOptions,
   SubscribeToMoreOptions,
 } from 'apollo-client';
+import { PureQueryOptions } from 'apollo-client/core/types';
+import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
 import {
   ExecutionResult,
@@ -39,6 +41,8 @@ export declare interface MutationOpts {
   variables?: Object;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
+  refetchQueries?: string[] | PureQueryOptions[];
+  update?: MutationUpdaterFn;
   client?: ApolloClient;
 }
 
