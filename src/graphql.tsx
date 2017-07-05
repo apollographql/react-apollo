@@ -43,6 +43,7 @@ export declare interface MutationOpts {
   updateQueries?: MutationQueryReducersMap;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
+  client?: ApolloClient;
 }
 
 export declare interface QueryOpts {
@@ -50,6 +51,7 @@ export declare interface QueryOpts {
   variables?: { [key: string]: any };
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
+  client?: ApolloClient;
   // deprecated
   skip?: boolean;
 }
@@ -165,7 +167,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
-        client: PropTypes.object.isRequired,
+        client: PropTypes.object,
       };
 
       // react / redux and react dev tools (HMR) needs
@@ -195,7 +197,13 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       constructor(props, context) {
         super(props, context);
         this.version = version;
-        this.client = context.client;
+
+        const { client } = mapPropsToOptions(props);
+        if (client) {
+          this.client = client;
+        } else {
+          this.client = context.client;
+        }
 
         invariant(!!this.client,
           `Could not find "client" in the context of ` +
@@ -223,14 +231,19 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       }
 
       componentWillReceiveProps(nextProps, nextContext) {
-        if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+        const { client } = mapPropsToOptions(nextProps);
+        if (shallowEqual(this.props, nextProps) && (this.client === client || this.client === nextContext.client)) {
           return;
         }
 
         this.shouldRerender = true;
 
-        if (this.client !== nextContext.client) {
-          this.client = nextContext.client;
+        if (this.client !== client && this.client !== nextContext.client) {
+          if (client) {
+            this.client = client;
+          } else {
+            this.client = nextContext.client;
+          }
           this.unsubscribeFromQuery();
           this.queryObservable = null;
           this.previousData = {};

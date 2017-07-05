@@ -1,6 +1,7 @@
 # Change log
 
 ### vNext
+- Feature: You can now supply a client in options object passed to the `graphql` high oder component. [PR #729]
 
 ### 1.4.2
 - Fix: Fix component reference and variable statement for flow types
