@@ -213,6 +213,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
         this.store = this.client.store;
         this.type = operation.type;
+        this.dataForChildViaMutation = this.dataForChildViaMutation.bind(this);
       }
 
       componentWillMount() {
@@ -496,16 +497,18 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         return (this.refs as any).wrappedInstance;
       }
 
+      dataForChildViaMutation(mutationOpts: MutationOpts) {
+        const opts = this.calculateOptions(this.props, mutationOpts);
+
+        if (typeof opts.variables === 'undefined') delete opts.variables;
+
+        (opts as any).mutation = document;
+        return this.client.mutate((opts as any));
+      }
+
       dataForChild() {
         if (this.type === DocumentType.Mutation) {
-          return (mutationOpts: MutationOpts) => {
-            const opts = this.calculateOptions(this.props, mutationOpts);
-
-            if (typeof opts.variables === 'undefined') delete opts.variables;
-
-            (opts as any).mutation = document;
-            return this.client.mutate((opts as any));
-          };
+          return this.dataForChildViaMutation;
         }
 
         const opts = this.calculateOptions(this.props);
