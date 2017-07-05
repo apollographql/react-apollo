@@ -8,7 +8,7 @@ export {
   OptionProps,
   DefaultChildProps,
   OperationOption,
- } from './graphql';
+} from './graphql';
 export { withApollo } from './withApollo';
 
 // expose easy way to join queries from redux

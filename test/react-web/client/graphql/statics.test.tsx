@@ -1,17 +1,22 @@
-
 import * as React from 'react';
 import gql from 'graphql-tag';
 
 import graphql from '../../../../src/graphql';
 
-let sampleOperation = gql`{ user { name } }`;
+let sampleOperation = gql`
+  {
+    user {
+      name
+    }
+  }
+`;
 
 describe('statics', () => {
   it('should be preserved', () => {
     @graphql(sampleOperation)
     class ApolloContainer extends React.Component<any, any> {
       static veryStatic = 'such global';
-    };
+    }
 
     expect(ApolloContainer.veryStatic).toBe('such global');
   });
@@ -20,7 +25,9 @@ describe('statics', () => {
     @graphql(sampleOperation)
     class ApolloContainer extends React.Component<any, any> {}
 
-    expect((ApolloContainer as any).displayName).toBe('Apollo(ApolloContainer)');
+    expect((ApolloContainer as any).displayName).toBe(
+      'Apollo(ApolloContainer)',
+    );
   });
 
   it('honors custom display names', () => {
