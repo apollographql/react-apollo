@@ -30,3 +30,6 @@ node_modules
 lib
 test-lib
 dist
+
+# ingore yarn lock but allow contribs to use it if they want
+yarn.lock

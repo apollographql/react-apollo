@@ -28,20 +28,17 @@ import ApolloClient, {
   SubscribeToMoreOptions,
 } from 'apollo-client';
 
-import {
-  ExecutionResult,
-  DocumentNode,
-} from 'graphql';
+import { ExecutionResult, DocumentNode } from 'graphql';
 
 import { parser, DocumentType } from './parser';
 
-export declare interface MutationOpts {
+export interface MutationOpts {
   variables?: Object;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
 }
 
-export declare interface QueryOpts {
+export interface QueryOpts {
   ssr?: boolean;
   variables?: { [key: string]: any };
   fetchPolicy?: FetchPolicy;
@@ -57,15 +54,21 @@ export interface QueryProps {
   variables: {
     [variable: string]: any;
   };
-  fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult<any>>;
+  fetchMore: (
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+  ) => Promise<ApolloQueryResult<any>>;
   refetch: (variables?: any) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
+  updateQuery: (
+    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
+  ) => void;
 }
 
-export type MutationFunc<TResult> = (opts: MutationOpts) => Promise<ApolloQueryResult<TResult>>;
+export type MutationFunc<TResult> = (
+  opts: MutationOpts,
+) => Promise<ApolloQueryResult<TResult>>;
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps;
@@ -73,10 +76,16 @@ export interface OptionProps<TProps, TResult> {
   mutate?: MutationFunc<TResult>;
 }
 
-export type DefaultChildProps<P, R> = P & { data?: QueryProps & R, mutate?: MutationFunc<R> };
+export type DefaultChildProps<P, R> = P & {
+  data?: QueryProps & R;
+  mutate?: MutationFunc<R>;
+};
 
 export interface OperationOption<TProps, TResult> {
-  options?: QueryOpts | MutationOpts | ((props: TProps) => QueryOpts | MutationOpts);
+  options?:
+    | QueryOpts
+    | MutationOpts
+    | ((props: TProps) => QueryOpts | MutationOpts);
   props?: (props: OptionProps<TProps, TResult>) => any;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
@@ -88,10 +97,10 @@ export interface OperationOption<TProps, TResult> {
 export type CompositeComponent<P> = ComponentClass<P> | StatelessComponent<P>;
 
 export interface ComponentDecorator<TOwnProps, TMergedProps> {
-    (component: CompositeComponent<TMergedProps>): ComponentClass<TOwnProps>;
+  (component: CompositeComponent<TMergedProps>): ComponentClass<TOwnProps>;
 }
 export interface InferableComponentDecorator<TOwnProps> {
-    <T extends CompositeComponent<TOwnProps>>(component: T): T;
+  <T extends CompositeComponent<TOwnProps>>(component: T): T;
 }
 
 const defaultMapPropsToOptions = props => ({});
@@ -100,10 +109,18 @@ const defaultMapPropsToSkip = props => false;
 
 // the fields we want to copy over to our data prop
 function observableQueryFields(observable) {
-  const fields = pick(observable, 'variables',
-    'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling', 'subscribeToMore');
+  const fields = pick(
+    observable,
+    'variables',
+    'refetch',
+    'fetchMore',
+    'updateQuery',
+    'startPolling',
+    'stopPolling',
+    'subscribeToMore',
+  );
 
-  Object.keys(fields).forEach((key) => {
+  Object.keys(fields).forEach(key => {
     if (typeof fields[key] === 'function') {
       fields[key] = fields[key].bind(observable);
     }
@@ -119,11 +136,14 @@ function getDisplayName(WrappedComponent) {
 // Helps track hot reloading.
 let nextVersion = 0;
 
-export default function graphql<TResult = {}, TProps = {}, TChildProps = DefaultChildProps<TProps, TResult>>(
+export default function graphql<
+  TResult = {},
+  TProps = {},
+  TChildProps = DefaultChildProps<TProps, TResult>
+>(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TResult> = {},
 ): ComponentDecorator<TProps, TChildProps> {
-
   // extract options
   const {
     options = defaultMapPropsToOptions,
@@ -132,10 +152,11 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOpts | MutationOpts;
-  if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options;
+  if (typeof mapPropsToOptions !== 'function')
+    mapPropsToOptions = () => options;
 
   let mapPropsToSkip = skip as (props: any) => boolean;
-  if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = (() => skip as any);
+  if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = () => skip as any;
 
   const mapResultToProps = operationOptions.props;
 
@@ -146,7 +167,6 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
   const version = nextVersion++;
 
   function wrapWithApolloComponent(WrappedComponent) {
-
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
     // A recycler that we can use to recycle old observable queries to keep
@@ -193,10 +213,11 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         this.version = version;
         this.client = context.client;
 
-        invariant(!!this.client,
+        invariant(
+          !!this.client,
           `Could not find "client" in the context of ` +
-          `"${graphQLDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`,
+            `"${graphQLDisplayName}". ` +
+            `Wrap the root component in an <ApolloProvider>`,
         );
 
         this.store = this.client.store;
@@ -219,7 +240,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       }
 
       componentWillReceiveProps(nextProps, nextContext) {
-        if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+        if (
+          shallowEqual(this.props, nextProps) &&
+          this.client === nextContext.client
+        ) {
           return;
         }
 
@@ -239,9 +263,11 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         if (this.type === DocumentType.Mutation) {
           return;
         }
-        if (this.type === DocumentType.Subscription
-          && operationOptions.shouldResubscribe
-          && operationOptions.shouldResubscribe(this.props, nextProps)) {
+        if (
+          this.type === DocumentType.Subscription &&
+          operationOptions.shouldResubscribe &&
+          operationOptions.shouldResubscribe(this.props, nextProps)
+        ) {
           this.unsubscribeFromQuery();
           delete this.queryObservable;
           this.updateQuery(nextProps);
@@ -274,10 +300,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
           // when the browser has time via a setTimeout(0)
           // Unsubscribe from our query subscription.
           this.unsubscribeFromQuery();
-
         }
 
-        if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
+        if (this.type === DocumentType.Subscription)
+          this.unsubscribeFromQuery();
 
         this.hasMounted = false;
       }
@@ -307,21 +333,30 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
             continue;
           }
 
-          invariant(typeof props[variable.name.value] !== 'undefined',
-            `The operation '${operation.name}' wrapping '${getDisplayName(WrappedComponent)}' ` +
-            `is expecting a variable: '${variable.name.value}' but it was not found in the props ` +
-            `passed to '${graphQLDisplayName}'`,
+          invariant(
+            typeof props[variable.name.value] !== 'undefined',
+            `The operation '${operation.name}' wrapping '${getDisplayName(
+              WrappedComponent,
+            )}' ` +
+              `is expecting a variable: '${variable.name
+                .value}' but it was not found in the props ` +
+              `passed to '${graphQLDisplayName}'`,
           );
         }
         opts = { ...opts, variables };
         return opts;
       }
 
-      calculateResultProps(result: (QueryProps & TResult) | MutationFunc<TResult>) {
+      calculateResultProps(
+        result: (QueryProps & TResult) | MutationFunc<TResult>,
+      ) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult: OptionProps<TProps, TResult> = { [name]: result, ownProps: this.props };
+        const newResult: OptionProps<TProps, TResult> = {
+          [name]: result,
+          ownProps: this.props,
+        };
         if (mapResultToProps) return mapResultToProps(newResult);
 
         return { [name]: defaultMapResultToProps(result) };
@@ -341,9 +376,14 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
       createQuery(opts: QueryOpts) {
         if (this.type === DocumentType.Subscription) {
-          this.queryObservable = this.client.subscribe(assign({
-            query: document,
-          }, opts));
+          this.queryObservable = this.client.subscribe(
+            assign(
+              {
+                query: document,
+              },
+              opts,
+            ),
+          );
         } else {
           // Try to reuse an `ObservableQuery` instance from our recycler. If
           // we get null then there is no instance to reuse and we should
@@ -351,14 +391,19 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
           const queryObservable = recycler.reuse(opts);
 
           if (queryObservable === null) {
-            this.queryObservable = this.client.watchQuery(assign({
-              query: document,
-              metadata: {
-                reactComponent: {
-                  displayName: graphQLDisplayName,
+            this.queryObservable = this.client.watchQuery(
+              assign(
+                {
+                  query: document,
+                  metadata: {
+                    reactComponent: {
+                      displayName: graphQLDisplayName,
+                    },
+                  },
                 },
-              },
-            }, opts));
+                opts,
+              ),
+            );
           } else {
             this.queryObservable = queryObservable;
           }
@@ -380,12 +425,13 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
           this.queryObservable._setOptionsNoResult(opts);
         } else {
           if (this.queryObservable.setOptions) {
-            this.queryObservable.setOptions(opts)
+            this.queryObservable
+              .setOptions(opts)
               // The error will be passed to the child container, so we don't
               // need to log it here. We could conceivably log something if
               // an option was set. OTOH we don't log errors w/ the original
               // query. See https://github.com/apollostack/react-apollo/issues/404
-              .catch((error) => null);
+              .catch(error => null);
           }
         }
       }
@@ -394,16 +440,23 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       fetchData(): Promise<ApolloQueryResult<any>> | boolean {
         if (this.shouldSkip()) return false;
         if (
-          operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription
-        ) return false;
+          operation.type === DocumentType.Mutation ||
+          operation.type === DocumentType.Subscription
+        )
+          return false;
 
         const opts = this.calculateOptions() as any;
         if (opts.ssr === false) return false;
-        if (opts.fetchPolicy === 'network-only' || opts.fetchPolicy === 'cache-and-network') {
+        if (
+          opts.fetchPolicy === 'network-only' ||
+          opts.fetchPolicy === 'cache-and-network'
+        ) {
           opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
         }
 
-        const observable = this.client.watchQuery(assign({ query: document }, opts));
+        const observable = this.client.watchQuery(
+          assign({ query: document }, opts),
+        );
         const result = observable.currentResult();
 
         if (result.loading) {
@@ -427,16 +480,18 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
             results = { data: results };
           }
           const clashingKeys = Object.keys(observableQueryFields(results.data));
-          invariant(clashingKeys.length === 0,
+          invariant(
+            clashingKeys.length === 0,
             `the result of the '${graphQLDisplayName}' operation contains keys that ` +
-            `conflict with the return object.` +
-            clashingKeys.map(k => `'${k}'`).join(', ') + ` not allowed.`,
+              `conflict with the return object.` +
+              clashingKeys.map(k => `'${k}'`).join(', ') +
+              ` not allowed.`,
           );
 
           this.forceRenderChildren();
         };
 
-        const handleError = (error) => {
+        const handleError = error => {
           // Quick fix for https://github.com/apollostack/react-apollo/issues/378
           if (error.hasOwnProperty('graphQLErrors')) return next({ error });
           throw error;
@@ -449,7 +504,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
 
           Instead, we subscribe to the store for network errors and re-render that way
         */
-        this.querySubscription = this.queryObservable.subscribe({ next, error: handleError });
+        this.querySubscription = this.queryObservable.subscribe({
+          next,
+          error: handleError,
+        });
       }
 
       unsubscribeFromQuery() {
@@ -460,8 +518,9 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       }
 
       shouldSkip(props = this.props) {
-        return mapPropsToSkip(props) ||
-          (mapPropsToOptions(props) as QueryOpts).skip;
+        return (
+          mapPropsToSkip(props) || (mapPropsToOptions(props) as QueryOpts).skip
+        );
       }
 
       forceRenderChildren() {
@@ -471,9 +530,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
       }
 
       getWrappedInstance() {
-        invariant(operationOptions.withRef,
+        invariant(
+          operationOptions.withRef,
           `To access the wrapped instance, you need to specify ` +
-          `{ withRef: true } in the options`,
+            `{ withRef: true } in the options`,
         );
 
         return (this.refs as any).wrappedInstance;
@@ -487,7 +547,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
             if (typeof opts.variables === 'undefined') delete opts.variables;
 
             (opts as any).mutation = document;
-            return this.client.mutate((opts as any));
+            return this.client.mutate(opts as any);
           };
         }
 
@@ -496,11 +556,14 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         assign(data, observableQueryFields(this.queryObservable));
 
         if (this.type === DocumentType.Subscription) {
-          assign(data, {
-            loading: !this.lastSubscriptionData,
-            variables: opts.variables,
-          }, this.lastSubscriptionData);
-
+          assign(
+            data,
+            {
+              loading: !this.lastSubscriptionData,
+              variables: opts.variables,
+            },
+            this.lastSubscriptionData,
+          );
         } else {
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
@@ -517,7 +580,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
           // _feel_ like it was logged ASAP while still tolerating asynchrony.
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
-              console.error('Unhandled (in react-apollo)', error.stack || error);
+              console.error(
+                'Unhandled (in react-apollo)',
+                error.stack || error,
+              );
             }
           }, 10);
           Object.defineProperty(data, 'error', {
@@ -540,7 +606,7 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
             this.previousData = currentResult.data;
           }
         }
-        return (data as QueryProps & TResult);
+        return data as QueryProps & TResult;
       }
 
       render() {
@@ -551,7 +617,11 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
-        if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
+        if (
+          !shouldRerender &&
+          renderedElement &&
+          renderedElement.type === WrappedComponent
+        ) {
           return renderedElement;
         }
 
@@ -559,8 +629,12 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = Default
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        if (operationOptions.withRef) mergedPropsAndData.ref = 'wrappedInstance';
-        this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);
+        if (operationOptions.withRef)
+          mergedPropsAndData.ref = 'wrappedInstance';
+        this.renderedElement = createElement(
+          WrappedComponent,
+          mergedPropsAndData,
+        );
         return this.renderedElement;
       }
     }
@@ -593,8 +667,8 @@ class ObservableQueryRecycler {
    * The internal store for our observable queries and temporary subscriptions.
    */
   private observableQueries: Array<{
-    observableQuery: ObservableQuery<any>,
-    subscription: Subscription,
+    observableQuery: ObservableQuery<any>;
+    subscription: Subscription;
   }> = [];
 
   /**
@@ -608,7 +682,7 @@ class ObservableQueryRecycler {
    * gets reused all of the mutations that have happened since recycle and
    * reuse have been applied.
    */
-  public recycle (observableQuery: ObservableQuery<any>): void {
+  public recycle(observableQuery: ObservableQuery<any>): void {
     // Stop the query from polling when we recycle. Polling may resume when we
     // reuse it and call `setOptions`.
     observableQuery.setOptions({
@@ -632,7 +706,7 @@ class ObservableQueryRecycler {
    * All mutations that occured between the time of recycling and the time of
    * reusing have been applied.
    */
-  public reuse (options: QueryOpts): ObservableQuery<any> {
+  public reuse(options: QueryOpts): ObservableQuery<any> {
     if (this.observableQueries.length <= 0) {
       return null;
     }

@@ -3,7 +3,7 @@ import { gql } from '../src';
 
 describe('react-apollo pacakge', () => {
   it('exports apollo-client', () => {
-      expect(new ApolloClient()).toBeInstanceOf(ApolloClient);
+    expect(new ApolloClient()).toBeInstanceOf(ApolloClient);
   });
 
   it('exports createNetworkInterface', () => {

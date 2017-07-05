@@ -11,15 +11,17 @@ import { NetworkInterface } from 'apollo-client';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string);
+declare function require(name: string)
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql} from '../../../../../src';
+import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (
+  ...args: any[]
+) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -32,35 +34,60 @@ function wait(ms) {
 }
 
 describe('[queries] reducer', () => {
-
   // props reducer
   it('allows custom mapping of a result to props', () => {
-    const query = gql`query thing { getThing { thing } }`;
+    const query = gql`
+      query thing {
+        getThing {
+          thing
+        }
+      }
+    `;
     const data = { getThing: { thing: true } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     type ResultData = {
-      getThing: { thing: boolean }
-    }
+      getThing: { thing: boolean };
+    };
     type ResultShape = {
-      showSpinner: boolean
-    }
+      showSpinner: boolean;
+    };
 
-    const props = (result) => ({ showSpinner: result.data && result.data.loading });
-    const ContainerWithData = graphql<ResultData, {}, ResultShape>(query, { props })(({ showSpinner }) => {
+    const props = result => ({
+      showSpinner: result.data && result.data.loading,
+    });
+    const ContainerWithData = graphql<ResultData, {}, ResultShape>(query, {
+      props,
+    })(({ showSpinner }) => {
       expect(showSpinner).toBe(true);
       return null;
     });
 
-    const wrapper = renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
+    const wrapper = renderer.create(
+      <ApolloProvider client={client}>
+        <ContainerWithData />
+      </ApolloProvider>,
+    );
     (wrapper as any).unmount();
   });
 
   it('allows custom mapping of a result to props that includes the passed props', () => {
-    const query = gql`query thing { getThing { thing } }`;
+    const query = gql`
+      query thing {
+        getThing {
+          thing
+        }
+      }
+    `;
     const data = { getThing: { thing: true } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     const props = ({ data, ownProps }) => {
@@ -68,42 +95,55 @@ describe('[queries] reducer', () => {
       return { showSpinner: data.loading };
     };
     type ResultData = {
-      getThing: { thing: boolean }
-    }
+      getThing: { thing: boolean };
+    };
     type ReducerResult = {
-      showSpinner: boolean,
-    }
+      showSpinner: boolean;
+    };
     type Props = {
-      sample: number
-    }
-    const ContainerWithData = graphql<ResultData, Props, ReducerResult>(query, { props })(({ showSpinner }) => {
+      sample: number;
+    };
+    const ContainerWithData = graphql<ResultData, Props, ReducerResult>(query, {
+      props,
+    })(({ showSpinner }) => {
       expect(showSpinner).toBe(true);
       return null;
     });
 
     const wrapper = renderer.create(
-      <ApolloProvider client={client}><ContainerWithData sample={1} /></ApolloProvider>
+      <ApolloProvider client={client}>
+        <ContainerWithData sample={1} />
+      </ApolloProvider>,
     );
     (wrapper as any).unmount();
   });
 
-  it('allows custom mapping of a result to props', (done) => {
-    const query = gql`query thing { getThing { thing } }`;
+  it('allows custom mapping of a result to props', done => {
+    const query = gql`
+      query thing {
+        getThing {
+          thing
+        }
+      }
+    `;
     const data = { getThing: { thing: true } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     type Result = {
-      getThing?: { thing: boolean }
-    }
+      getThing?: { thing: boolean };
+    };
 
     type PropsResult = {
-      thingy: boolean
-    }
+      thingy: boolean;
+    };
 
     const withData = graphql<Result, {}, PropsResult>(query, {
-      props: ({ data }) => ({ thingy: data.getThing })
-    })
+      props: ({ data }) => ({ thingy: data.getThing }),
+    });
 
     class Container extends React.Component<PropsResult, any> {
       componentWillReceiveProps(props: PropsResult) {
@@ -113,12 +153,14 @@ describe('[queries] reducer', () => {
       render() {
         return null;
       }
-    };
+    }
 
     const ContainerWithData = withData(Container);
 
-    renderer.create(<ApolloProvider client={client}><ContainerWithData /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ContainerWithData />
+      </ApolloProvider>,
+    );
   });
-
-
 });

@@ -11,15 +11,17 @@ import { NetworkInterface } from 'apollo-client';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string);
+declare function require(name: string)
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql} from '../../../../../src';
+import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (
+  ...args: any[]
+) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -32,26 +34,39 @@ function wait(ms) {
 }
 
 describe('[queries] polling', () => {
-
   // polling
-  it('allows a polling query to be created', (done) => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const data2 = { allPeople: { people: [ { name: 'Leia Skywalker' } ] } };
+  it('allows a polling query to be created', done => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const networkInterface = mockNetworkInterface(
       { request: { query }, result: { data } },
       { request: { query }, result: { data: data2 } },
-      { request: { query }, result: { data: data2 } }
+      { request: { query }, result: { data: data2 } },
     );
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let count = 0;
-    const Container = graphql(query, { options: () => ({ pollInterval: 75, notifyOnNetworkStatusChange: false }) })(() => {
+    const Container = graphql(query, {
+      options: () => ({ pollInterval: 75, notifyOnNetworkStatusChange: false }),
+    })(() => {
       count++;
       return null;
     });
 
-    const wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+    const wrapper = renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
 
     setTimeout(() => {
       expect(count).toBe(3);
@@ -60,15 +75,27 @@ describe('[queries] polling', () => {
     }, 160);
   });
 
-  it('exposes stopPolling as part of the props api', (done) => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+  it('exposes stopPolling as part of the props api', done => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) { // tslint:disable-line
+      componentWillReceiveProps({ data }) {
+        // tslint:disable-line
         expect(data.stopPolling).toBeTruthy();
         expect(data.stopPolling instanceof Function).toBe(true);
         expect(data.stopPolling).not.toThrow();
@@ -77,22 +104,38 @@ describe('[queries] polling', () => {
       render() {
         return null;
       }
-    };
+    }
 
-    renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
   });
 
-  it('exposes startPolling as part of the props api', (done) => {
-    const query = gql`query people { allPeople(first: 1) { people { name } } }`;
-    const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-    const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
+  it('exposes startPolling as part of the props api', done => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
     const client = new ApolloClient({ networkInterface, addTypename: false });
     let wrapper;
 
     // @graphql(query)
-    @graphql(query, { options: { pollInterval: 10 }})
+    @graphql(query, { options: { pollInterval: 10 } })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) { // tslint:disable-line
+      componentWillReceiveProps({ data }) {
+        // tslint:disable-line
         expect(data.startPolling).toBeTruthy();
         expect(data.startPolling instanceof Function).toBe(true);
         // XXX this does throw because of no pollInterval
@@ -105,9 +148,12 @@ describe('[queries] polling', () => {
       render() {
         return null;
       }
-    };
+    }
 
-    wrapper = renderer.create(<ApolloProvider client={client}><Container /></ApolloProvider>);
+    wrapper = renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
   });
-
 });

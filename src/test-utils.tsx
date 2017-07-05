@@ -7,13 +7,9 @@ import {
   SubscriptionNetworkInterface,
 } from 'apollo-client';
 
-import {
-  ExecutionResult,
-  DocumentNode,
-} from 'graphql';
+import { ExecutionResult, DocumentNode } from 'graphql';
 
 import { print } from 'graphql';
-
 
 import ApolloProvider from './ApolloProvider';
 
@@ -30,7 +26,10 @@ export class MockedProvider extends React.Component<any, any> {
 
   render() {
     return (
-      <ApolloProvider client={this.client || this.props.client} store={this.props.store || null}>
+      <ApolloProvider
+        client={this.client || this.props.client}
+        store={this.props.store || null}
+      >
         {this.props.children}
       </ApolloProvider>
     );
@@ -44,7 +43,8 @@ export class MockedSubscriptionProvider extends React.Component<any, any> {
     super(props, context);
 
     const networkInterface = mockSubscriptionNetworkInterface(
-      this.props.subscriptions, ...this.props.responses,
+      this.props.subscriptions,
+      ...this.props.responses,
     );
 
     this.client = new ApolloClient({ networkInterface });
@@ -62,15 +62,19 @@ export class MockedSubscriptionProvider extends React.Component<any, any> {
 // Pass in multiple mocked responses, so that you can test flows that end up
 // making multiple queries to the server
 export function mockNetworkInterface(
-  ...mockedResponses: MockedResponse[],
+  ...mockedResponses: MockedResponse[]
 ): NetworkInterface {
   return new MockNetworkInterface(...mockedResponses);
 }
 
 export function mockSubscriptionNetworkInterface(
-  mockedSubscriptions: MockedSubscription[], ...mockedResponses: MockedResponse[],
+  mockedSubscriptions: MockedSubscription[],
+  ...mockedResponses: MockedResponse[]
 ): MockSubscriptionNetworkInterface {
-  return new MockSubscriptionNetworkInterface(mockedSubscriptions, ...mockedResponses);
+  return new MockSubscriptionNetworkInterface(
+    mockedSubscriptions,
+    ...mockedResponses,
+  );
 }
 
 export interface ParsedRequest {
@@ -103,9 +107,11 @@ export class MockNetworkInterface implements NetworkInterface {
   private mockedResponsesByKey: { [key: string]: MockedResponse[] } = {};
 
   constructor(...mockedResponses: MockedResponse[]) {
-    mockedResponses.forEach((mockedResponse) => {
+    mockedResponses.forEach(mockedResponse => {
       if (!mockedResponse.result && !mockedResponse.error) {
-        throw new Error('Mocked response should contain either result or error.');
+        throw new Error(
+          'Mocked response should contain either result or error.',
+        );
       }
       this.addMockedResponse(mockedResponse);
     });
@@ -131,12 +137,18 @@ export class MockNetworkInterface implements NetworkInterface {
 
       const key = requestToKey(parsedRequest);
 
-      if (!this.mockedResponsesByKey[key] || this.mockedResponsesByKey[key].length === 0) {
-        throw new Error('No more mocked responses for the query: ' + print(request.query));
+      if (
+        !this.mockedResponsesByKey[key] ||
+        this.mockedResponsesByKey[key].length === 0
+      ) {
+        throw new Error(
+          'No more mocked responses for the query: ' + print(request.query),
+        );
       }
 
       const original = [...this.mockedResponsesByKey[key]];
-      const { result, error, delay, newData } = this.mockedResponsesByKey[key].shift() || {} as any;
+      const { result, error, delay, newData } =
+        this.mockedResponsesByKey[key].shift() || ({} as any);
 
       if (newData) {
         original[0].result = newData();
@@ -144,7 +156,9 @@ export class MockNetworkInterface implements NetworkInterface {
       }
 
       if (!result && !error) {
-        throw new Error(`Mocked response should contain either result or error: ${key}`);
+        throw new Error(
+          `Mocked response should contain either result or error: ${key}`,
+        );
       }
 
       setTimeout(() => {
@@ -155,16 +169,20 @@ export class MockNetworkInterface implements NetworkInterface {
   }
 }
 
-export class MockSubscriptionNetworkInterface extends MockNetworkInterface implements SubscriptionNetworkInterface {
-  public mockedSubscriptionsByKey: { [key: string ]: MockedSubscription[] } = {};
-  public mockedSubscriptionsById: { [id: number]: MockedSubscription} = {};
-  public handlersById: {[id: number]: (error: any, result: any) => void} = {};
+export class MockSubscriptionNetworkInterface extends MockNetworkInterface
+  implements SubscriptionNetworkInterface {
+  public mockedSubscriptionsByKey: { [key: string]: MockedSubscription[] } = {};
+  public mockedSubscriptionsById: { [id: number]: MockedSubscription } = {};
+  public handlersById: { [id: number]: (error: any, result: any) => void } = {};
   public subId: number;
 
-  constructor(mockedSubscriptions: MockedSubscription[], ...mockedResponses: MockedResponse[]) {
+  constructor(
+    mockedSubscriptions: MockedSubscription[],
+    ...mockedResponses: MockedResponse[]
+  ) {
     super(...mockedResponses);
     this.subId = 0;
-    mockedSubscriptions.forEach((sub) => {
+    mockedSubscriptions.forEach(sub => {
       this.addMockedSubscription(sub);
     });
   }
@@ -188,12 +206,15 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface imple
     mockedSubs.push(mockedSubscription);
   }
 
-  public subscribe(request: Request, handler: (error: any, result: any) => void): number {
-     const parsedRequest: ParsedRequest = {
-        query: request.query,
-        variables: request.variables,
-        debugName: request.debugName,
-      };
+  public subscribe(
+    request: Request,
+    handler: (error: any, result: any) => void,
+  ): number {
+    const parsedRequest: ParsedRequest = {
+      query: request.query,
+      variables: request.variables,
+      debugName: request.debugName,
+    };
     const key = requestToKey(parsedRequest);
     if (this.mockedSubscriptionsByKey.hasOwnProperty(key)) {
       const subscription = this.mockedSubscriptionsByKey[key].shift();
@@ -201,9 +222,10 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface imple
       this.mockedSubscriptionsById[subscription.id] = subscription;
       return subscription.id;
     } else {
-      throw new Error('Network interface does not have subscription associated with this request.');
+      throw new Error(
+        'Network interface does not have subscription associated with this request.',
+      );
     }
-
   }
 
   public fireResult(id: number) {
@@ -211,15 +233,21 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface imple
     if (this.mockedSubscriptionsById.hasOwnProperty(id.toString())) {
       const subscription = this.mockedSubscriptionsById[id];
       if (subscription.results.length === 0) {
-        throw new Error(`No more mocked subscription responses for the query: ` +
-        `${print(subscription.request.query)}, variables: ${JSON.stringify(subscription.request.variables)}`);
+        throw new Error(
+          `No more mocked subscription responses for the query: ` +
+            `${print(subscription.request.query)}, variables: ${JSON.stringify(
+              subscription.request.variables,
+            )}`,
+        );
       }
       const response = subscription.results.shift();
       setTimeout(() => {
         handler(response.error, response.result);
       }, response.delay ? response.delay : 0);
     } else {
-      throw new Error('Network interface does not have subscription associated with this id.');
+      throw new Error(
+        'Network interface does not have subscription associated with this id.',
+      );
     }
   }
 
