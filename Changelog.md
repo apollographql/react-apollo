@@ -1,7 +1,13 @@
 # Change log
 
 ### vNext
-- Feature: You can now supply a client in options object passed to the `graphql` high oder component. [PR #729]
+
+### 1.4.3
+- Feature: You can now supply a client in options object passed to the `graphql` high oder component. [PR #729](https://github.com/apollographql/react-apollo/pull/729)
+- Fix: Fix issue when using flow definitions [PR# 787](https://github.com/apollographql/react-apollo/pull/787)
+- Improvement: Reduce re-renders by using forceUpdate instead of setState({  }) [PR #775](https://github.com/apollographql/react-apollo/pull/775)
+- Improvement: Refactor dataForChild to use bound function to reduce rerenders [PR #772](https://github.com/apollographql/react-apollo/pull/772)
+- Fix: Add in missing types for MutationOpts [PR #770](https://github.com/apollographql/react-apollo/pull/770)
 
 ### 1.4.2
 - Fix: Fix component reference and variable statement for flow types
