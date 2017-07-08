@@ -563,7 +563,9 @@ export default function graphql<
         if (typeof opts.variables === 'undefined') delete opts.variables;
 
         (opts as any).mutation = document;
-        return this.client.mutate(opts as any);
+        return this.client.mutate(opts as any) as Promise<
+          ApolloQueryResult<TResult>
+        >;
       }
 
       dataForChild() {
@@ -733,6 +735,9 @@ class ObservableQueryRecycler {
     const { observableQuery, subscription } = this.observableQueries.pop();
     subscription.unsubscribe();
 
+    // strip off react-apollo specific options
+    const { ssr, skip, client, ...modifiableOpts } = options;
+
     // When we reuse an `ObservableQuery` then the document and component
     // GraphQL display name should be the same. Only the options may be
     // different.
@@ -741,7 +746,7 @@ class ObservableQueryRecycler {
     //
     // If this observable query used to poll then polling will be restarted.
     observableQuery.setOptions({
-      ...options,
+      ...modifiableOpts,
       // Explicitly set options changed when recycling to make sure they
       // are set to `undefined` if not provided in options.
       pollInterval: options.pollInterval,
