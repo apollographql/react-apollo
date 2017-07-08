@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "4"
+  - "8"
 cache:
   directories:
     - $HOME/.npm
@@ -17,13 +17,13 @@ install:
   - cd examples/create-react-app && yarn && cd ../../
 
 script:
+  - npm run danger
   - npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
   - npm run bundle
   - cd examples/create-react-app && npm test && cd ../../
   - npm run filesize
-  - python node_modules/travis-weigh-in/weigh_in.py ./dist/index.min.js.gz || true # ignore size errors
 
 # Allow Travis tests to run in containers.
 sudo: false
@@ -35,6 +35,6 @@ deploy:
     secure: jctKs4JKowu1fYaqy2ALIBQAq+yRGVxdDlQGG5rlItmPKLd2mMHZ8Cz/+bew0Y8E9jTCExxGP0tX7HN32RoDWFID7sZspPhEiuh6QKVtyxVoiEyLGiH1qCFYJsD/H8Ms7xVjnNgbqTwj+CiJyPsLjXRahLNn1cAE6E6As9S2QVKc/1O9cLesqRdilZoKcLxSu8ppwxoqvLyOilgg0iiPMepp90B2suLmXht2CPFhDqbWhF8s8IblNB8m6xBLHkH3nrTPTISWjZqSHjKz6rmknrwI9LJQHVXkrB7xEpvIkzTbQWajTdDPkGS6EyZyltIFoEICG9Yecski0wuxRXU64dsrSPcB4vEvJv8qq5LckvqHjT84JTWfKDZl3LjlRJY7Oig5Z93YlnV89W1sMJMQOKzt7XMEMHyER1ja/ZY6SbPfJxer2JIy0MNo1CDNLMDBS1OcmCvw6joZwSBm3sJd9Fe9g898K5UIiY/jRnh6CqG0U9BzY9L2wjtrB3biSF4iIaMZvFF/pwS8JI7MZOdo0bwTJIRqhqDcLpF7nS3+ph0rytemjMhEP4IgVCqXyiBiAAMXtN7D3RWe7E+I4dBvK1Cgdjgp2bNJTcAaBdLsFCiBSkKH0JYAV7mj6nt77EpqEgoyJD+32gSDomzUq2Nxo4USxwiHq5F4vBbX99+XJuw=
   on:
     tags: true
-    node: '4'
+    node: '8'
     repo: apollographql/react-apollo
     branch: master
