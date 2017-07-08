@@ -33,3 +33,4 @@ dist
 
 # don't track yarn lock but allow contributors to use it for local dev
 yarn.lock
+package-lock.json
