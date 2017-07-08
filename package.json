@@ -9,11 +9,12 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "deploy": "npm run compile && npm test && npm publish --tag next && git push --tags",
+    "danger": "danger run --verbose",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
     "posttest": "npm run lint",
-    "filesize": "npm run compile:browser && ./scripts/filesize.js --file=./dist/index.min.js --maxGzip=20",
+    "filesize": "npm run compile:browser && bundlesize",
     "flow-check": "flow check",
     "compile": "tsc",
     "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js && cp ./index.js.flow ./lib",
@@ -25,6 +26,12 @@
     "lint-staged": "lint-staged",
     "lint-fix": "prettier --trailing-comma all --single-quote --write \"{src,test}/**/*.ts*\""
   },
+  "bundlesize": [
+    {
+      "path": "./dist/index.min.js",
+      "threshold": "20 Kb"
+    }
+  ],
   "lint-staged": {
     "*.ts*": [
       "prettier --trailing-comma all --single-quote --write",
@@ -84,9 +91,6 @@
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha",
     "redux": "^2.0.0 || ^3.0.0"
   },
-  "optionalDependencies": {
-    "react-dom": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha"
-  },
   "devDependencies": {
     "@types/enzyme": "^2.4.32",
     "@types/graphql": "^0.9.0",
@@ -106,8 +110,10 @@
     "babel-jest": "^19.0.0",
     "babel-preset-react-native": "^2.0.0",
     "browserify": "^14.1.0",
+    "bundlesize": "^0.6.1",
     "cheerio": "^0.22.0",
     "colors": "^1.1.2",
+    "danger": "^1.0.0",
     "enzyme": "^2.2.0",
     "enzyme-to-json": "^1.1.5",
     "flow-bin": "^0.49.1",
