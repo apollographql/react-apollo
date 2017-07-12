@@ -82,5 +82,10 @@ export function withApollo<TProps, TResult>(
   }
 
   // Make sure we preserve any custom statics on the original component.
-  return hoistNonReactStatics(WithApollo, WrappedComponent, {});
+  const strictModeCompatible = { arguments: true, caller: true };
+  return hoistNonReactStatics(
+    WithApollo,
+    WrappedComponent,
+    strictModeCompatible,
+  );
 }
