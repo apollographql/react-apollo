@@ -134,7 +134,7 @@
     "react": "^15.5.4",
     "react-addons-test-utils": "^15.5.1",
     "react-dom": "^15.5.4",
-    "react-native": "^0.42.3",
+    "react-native": "^0.46.3",
     "react-redux": "^5.0.3",
     "react-test-renderer": "^15.5.4",
     "recompose": "^0.23.0",
