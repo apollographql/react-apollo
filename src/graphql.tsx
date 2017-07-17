@@ -217,22 +217,6 @@ export default function graphql<
       constructor(props, context) {
         super(props, context);
         this.version = version;
-
-        const { client } = mapPropsToOptions(props);
-        if (client) {
-          this.client = client;
-        } else {
-          this.client = context.client;
-        }
-
-        invariant(
-          !!this.client,
-          `Could not find "client" in the context of ` +
-            `"${graphQLDisplayName}". ` +
-            `Wrap the root component in an <ApolloProvider>`,
-        );
-
-        this.store = this.client.store;
         this.type = operation.type;
         this.dataForChildViaMutation = this.dataForChildViaMutation.bind(this);
       }
@@ -326,6 +310,26 @@ export default function graphql<
         this.hasMounted = false;
       }
 
+      getClient(): ApolloClient {
+        if (this.client) return this.client;
+        const { client } = mapPropsToOptions(this.props);
+
+        if (client) {
+          this.client = client;
+        } else {
+          this.client = this.context.client;
+        }
+
+        invariant(
+          !!this.client,
+          `Could not find "client" in the context of ` +
+            `"${graphQLDisplayName}". ` +
+            `Wrap the root component in an <ApolloProvider>`,
+        );
+
+        return this.client;
+      }
+
       calculateOptions(props = this.props, newOpts?) {
         let opts = mapPropsToOptions(props);
 
@@ -394,7 +398,7 @@ export default function graphql<
 
       createQuery(opts: QueryOpts) {
         if (this.type === DocumentType.Subscription) {
-          this.queryObservable = this.client.subscribe(
+          this.queryObservable = this.getClient().subscribe(
             assign(
               {
                 query: document,
@@ -409,7 +413,7 @@ export default function graphql<
           const queryObservable = recycler.reuse(opts);
 
           if (queryObservable === null) {
-            this.queryObservable = this.client.watchQuery(
+            this.queryObservable = this.getClient().watchQuery(
               assign(
                 {
                   query: document,
@@ -472,7 +476,7 @@ export default function graphql<
           opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
         }
 
-        const observable = this.client.watchQuery(
+        const observable = this.getClient().watchQuery(
           assign({ query: document }, opts),
         );
         const result = observable.currentResult();
@@ -563,7 +567,7 @@ export default function graphql<
         if (typeof opts.variables === 'undefined') delete opts.variables;
 
         (opts as any).mutation = document;
-        return this.client.mutate(opts as any) as Promise<
+        return this.getClient().mutate(opts as any) as Promise<
           ApolloQueryResult<TResult>
         >;
       }
