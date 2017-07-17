@@ -173,7 +173,7 @@ describe('[queries] skip', () => {
     );
   });
 
-  it("doesn't run options or props when skipped, except option.client", done => {
+  it("doesn't run options or props when skipped, including option.client", done => {
     const query = gql`
       query people {
         allPeople(first: 1) {
@@ -191,11 +191,15 @@ describe('[queries] skip', () => {
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
     let queryExecuted;
+    let optionsCalled;
     @graphql(query, {
       skip: ({ skip }) => skip,
-      options: ({ client, ...willThrowIfAccesed }) => ({
-        pollInterval: willThrowIfAccesed.pollInterval,
-      }),
+      options: props => {
+        optionsCalled = true;
+        return {
+          pollInterval: props.pollInterval,
+        };
+      },
       props: ({ willThrowIfAccesed }) => ({
         pollInterval: willThrowIfAccesed.pollInterval,
       }),
@@ -219,6 +223,10 @@ describe('[queries] skip', () => {
     setTimeout(() => {
       if (!queryExecuted) {
         done();
+        return;
+      }
+      if (optionsCalled) {
+        fail(new Error('options ruan even through skip present'));
         return;
       }
       fail(new Error('query ran even though skip present'));
