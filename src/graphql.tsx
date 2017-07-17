@@ -622,7 +622,11 @@ export default function graphql<
             assign(data, this.previousData, currentResult.data);
           } else if (error) {
             // if there is error, use any previously cached data
-            assign(data, (this.queryObservable.getLastResult() || {}).data);
+            try {
+              assign(data, this.store.readQuery({ query: document, opts }));
+            } catch (exception) {
+              // raised if possibly no data. do nothing. 
+            }
           } else {
             assign(data, currentResult.data);
             this.previousData = currentResult.data;
