@@ -17,7 +17,7 @@ const filesOnly = (file: string) =>
 
 // Custom subsets of known files
 const modifiedAppFiles = modified
-  .filter(p => includes(p, 'src/'))
+  .filter(p => includes(p, 'src/') || includes(p, 'test/'))
   .filter(p => filesOnly(p) && typescriptOnly(p));
 
 // Takes a list of file paths, and converts it into clickable links
@@ -79,8 +79,8 @@ if (pr.body.length === 0) {
 
 const hasAppChanges = modifiedAppFiles.length > 0;
 
-const testChanges = modifiedAppFiles.filter(
-  filepath => filepath.includes('__tests__') || filepath.includes('test'),
+const testChanges = modifiedAppFiles.filter(filepath =>
+  filepath.includes('test'),
 );
 const hasTestChanges = testChanges.length > 0;
 
