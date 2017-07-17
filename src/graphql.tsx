@@ -662,7 +662,12 @@ export default function graphql<
     }
 
     // Make sure we preserve any custom statics on the original component.
-    return hoistNonReactStatics(GraphQL, WrappedComponent, {});
+    const strictModeCompatible = { arguments: true, caller: true };
+    return hoistNonReactStatics(
+      GraphQL,
+      WrappedComponent,
+      strictModeCompatible,
+    );
   }
 
   return wrapWithApolloComponent;
