@@ -1,6 +1,8 @@
 # Change log
 
 ### vNext
+- Fix: Fix issue around hoisting non react statics for RN
+- Fix: Fix issue where options was called even though skip was present
 
 ### 1.4.3
 - Feature: You can now supply a client in options object passed to the `graphql` high oder component. [PR #729](https://github.com/apollographql/react-apollo/pull/729)
