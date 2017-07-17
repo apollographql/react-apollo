@@ -623,7 +623,7 @@ export default function graphql<
           } else if (error) {
             // if there is error, use any previously cached data
             try {
-              assign(data, this.client.readQuery({ query: document, opts }));
+              assign(data, this.client.readQuery({ query: document, variables: opts.variables }));
             } catch (exception) {
               // raised if possibly no data. do nothing. 
             }
