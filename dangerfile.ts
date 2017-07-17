@@ -56,15 +56,6 @@ const raiseIssueAboutPaths = (
 };
 
 // Rules
-
-// make sure someone else reviews these changes
-const someoneAssigned = danger.github.pr.assignee;
-if (someoneAssigned === null) {
-  warn(
-    'Please assign someone to merge this PR, and optionally include people who should review.',
-  );
-}
-
 // When there are app-changes and it's not a PR marked as trivial, expect
 // there to be CHANGELOG changes.
 const changelogChanges = includes(modified, 'Changelog.md');
