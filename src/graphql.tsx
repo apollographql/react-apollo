@@ -625,7 +625,7 @@ export default function graphql<
             try {
               assign(data, this.client.readQuery({ query: document, variables: opts.variables }));
             } catch (exception) {
-              // raised if possibly no data. do nothing. 
+              // raised if possibly no data. do nothing.
             }
           } else {
             assign(data, currentResult.data);
