@@ -1,6 +1,8 @@
 # Change log
 
 ### vNext
+
+### 1.4.4
 - Fix: Fix issue around hoisting non react statics for RN [#859](https://github.com/apollographql/react-apollo/pull/859)
 - Fix: Fix issue where options was called even though skip was present [#859](https://github.com/apollographql/react-apollo/pull/859)
 - Improvement: Allow for better typescript usage with improved types [#862](https://github.com/apollographql/react-apollo/pull/862)
