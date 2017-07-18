@@ -1,9 +1,4 @@
-import {
-  Component,
-  createElement,
-  ComponentClass,
-  StatelessComponent,
-} from 'react';
+import { Component, createElement } from 'react';
 import * as PropTypes from 'prop-types';
 
 const pick = require('lodash.pick');
@@ -16,98 +11,26 @@ const hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
   ObservableQuery,
-  MutationQueryReducersMap,
   Subscription,
   ApolloStore,
   ApolloQueryResult,
-  ApolloError,
-  FetchPolicy,
-  FetchMoreOptions,
-  UpdateQueryOptions,
-  FetchMoreQueryOptions,
-  SubscribeToMoreOptions,
 } from 'apollo-client';
-import { PureQueryOptions } from 'apollo-client/core/types';
-import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
-
-import { ExecutionResult, DocumentNode } from 'graphql';
 
 import { parser, DocumentType } from './parser';
+import { ObservableQueryRecycler } from './queryRecycler';
 
-export interface MutationOpts {
-  variables?: Object;
-  optimisticResponse?: Object;
-  updateQueries?: MutationQueryReducersMap;
-  refetchQueries?: string[] | PureQueryOptions[];
-  update?: MutationUpdaterFn;
-  client?: ApolloClient;
-}
+import { DocumentNode } from 'graphql';
 
-export interface QueryOpts {
-  ssr?: boolean;
-  variables?: { [key: string]: any };
-  fetchPolicy?: FetchPolicy;
-  pollInterval?: number;
-  client?: ApolloClient;
-  // deprecated
-  skip?: boolean;
-}
-
-export interface QueryProps {
-  error?: ApolloError;
-  networkStatus: number;
-  loading: boolean;
-  variables: {
-    [variable: string]: any;
-  };
-  fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
-  ) => Promise<ApolloQueryResult<any>>;
-  refetch: (variables?: any) => Promise<ApolloQueryResult<any>>;
-  startPolling: (pollInterval: number) => void;
-  stopPolling: () => void;
-  subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-  updateQuery: (
-    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
-  ) => void;
-}
-
-export type MutationFunc<TResult> = (
-  opts: MutationOpts,
-) => Promise<ApolloQueryResult<TResult>>;
-
-export interface OptionProps<TProps, TResult> {
-  ownProps: TProps;
-  data?: QueryProps & TResult;
-  mutate?: MutationFunc<TResult>;
-}
-
-export type DefaultChildProps<P, R> = P & {
-  data?: QueryProps & R;
-  mutate?: MutationFunc<R>;
-};
-
-export interface OperationOption<TProps, TResult> {
-  options?:
-    | QueryOpts
-    | MutationOpts
-    | ((props: TProps) => QueryOpts | MutationOpts);
-  props?: (props: OptionProps<TProps, TResult>) => any;
-  skip?: boolean | ((props: any) => boolean);
-  name?: string;
-  withRef?: boolean;
-  shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
-  alias?: string;
-}
-
-export type CompositeComponent<P> = ComponentClass<P> | StatelessComponent<P>;
-
-export interface ComponentDecorator<TOwnProps, TMergedProps> {
-  (component: CompositeComponent<TMergedProps>): ComponentClass<TOwnProps>;
-}
-export interface InferableComponentDecorator<TOwnProps> {
-  <T extends CompositeComponent<TOwnProps>>(component: T): T;
-}
+import {
+  MutationOpts,
+  ChildProps,
+  OperationOption,
+  ComponentDecorator,
+  QueryOpts,
+  QueryProps,
+  MutationFunc,
+  OptionProps,
+} from './types';
 
 const defaultMapPropsToOptions = props => ({});
 const defaultMapResultToProps = props => props;
@@ -145,7 +68,7 @@ let nextVersion = 0;
 export default function graphql<
   TResult = {},
   TProps = {},
-  TChildProps = DefaultChildProps<TProps, TResult>
+  TChildProps = ChildProps<TProps, TResult>
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TResult> = {},
@@ -670,93 +593,4 @@ export default function graphql<
   }
 
   return wrapWithApolloComponent;
-}
-
-/**
- * An observable query recycler stores some observable queries that are no
- * longer in use, but that we may someday use again.
- *
- * Recycling observable queries avoids a few unexpected functionalities that
- * may be hit when using the `react-apollo` API. Namely not updating queries
- * when a component unmounts, and calling reducers/`updateQueries` more times
- * then is necessary for old observable queries.
- *
- * We assume that the GraphQL document for every `ObservableQuery` is the same.
- *
- * For more context on why this was added and links to the issues recycling
- * `ObservableQuery`s fixes see issue [#462][1].
- *
- * [1]: https://github.com/apollographql/react-apollo/pull/462
- */
-class ObservableQueryRecycler {
-  /**
-   * The internal store for our observable queries and temporary subscriptions.
-   */
-  private observableQueries: Array<{
-    observableQuery: ObservableQuery<any>;
-    subscription: Subscription;
-  }> = [];
-
-  /**
-   * Recycles an observable query that the recycler is finished with. It is
-   * stored in this class so that it may be used later on.
-   *
-   * A subscription is made to the observable query so that it continues to
-   * live even though the updates are noops.
-   *
-   * By recycling an observable query we keep the results fresh so that when it
-   * gets reused all of the mutations that have happened since recycle and
-   * reuse have been applied.
-   */
-  public recycle(observableQuery: ObservableQuery<any>): void {
-    // Stop the query from polling when we recycle. Polling may resume when we
-    // reuse it and call `setOptions`.
-    observableQuery.setOptions({
-      fetchPolicy: 'standby',
-      pollInterval: 0,
-      fetchResults: false, // ensure we don't create another observer in AC
-    });
-
-    this.observableQueries.push({
-      observableQuery,
-      subscription: observableQuery.subscribe({}),
-    });
-  }
-
-  /**
-   * Reuses an observable query that was recycled earlier on in this class’s
-   * lifecycle. This observable was kept fresh by our recycler with a
-   * subscription that will be unsubscribed from before returning the
-   * observable query.
-   *
-   * All mutations that occured between the time of recycling and the time of
-   * reusing have been applied.
-   */
-  public reuse(options: QueryOpts): ObservableQuery<any> {
-    if (this.observableQueries.length <= 0) {
-      return null;
-    }
-    const { observableQuery, subscription } = this.observableQueries.pop();
-    subscription.unsubscribe();
-
-    // strip off react-apollo specific options
-    const { ssr, skip, client, ...modifiableOpts } = options;
-
-    // When we reuse an `ObservableQuery` then the document and component
-    // GraphQL display name should be the same. Only the options may be
-    // different.
-    //
-    // Therefore we need to set the new options.
-    //
-    // If this observable query used to poll then polling will be restarted.
-    observableQuery.setOptions({
-      ...modifiableOpts,
-      // Explicitly set options changed when recycling to make sure they
-      // are set to `undefined` if not provided in options.
-      pollInterval: options.pollInterval,
-      fetchPolicy: options.fetchPolicy,
-    });
-
-    return observableQuery;
-  }
 }
