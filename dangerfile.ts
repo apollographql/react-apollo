@@ -1,4 +1,4 @@
-import { danger, fail, warn, message } from 'danger';
+// Removed import
 import { includes } from 'lodash';
 import * as fs from 'fs';
 
@@ -17,8 +17,10 @@ const filesOnly = (file: string) =>
 
 // Custom subsets of known files
 const modifiedAppFiles = modified
-  .filter(p => includes(p, 'src/') || includes(p, 'test/'))
+  .filter(p => includes(p, 'src/'))
   .filter(p => filesOnly(p) && typescriptOnly(p));
+
+const modifiedTestFiles = modified.filter(p => includes(p, 'test/'));
 
 // Takes a list of file paths, and converts it into clickable links
 const linkableFiles = paths => {
@@ -70,10 +72,7 @@ if (pr.body.length === 0) {
 
 const hasAppChanges = modifiedAppFiles.length > 0;
 
-const testChanges = modifiedAppFiles.filter(filepath =>
-  filepath.includes('test'),
-);
-const hasTestChanges = testChanges.length > 0;
+const hasTestChanges = modifiedTestFiles.length > 0;
 
 // Warn when there is a big PR
 const bigPRThreshold = 500;
@@ -89,7 +88,7 @@ if (hasAppChanges && !hasTestChanges) {
 }
 
 // Be careful of leaving testing shortcuts in the codebase
-const onlyTestFiles = testChanges.filter(x => {
+const onlyTestFiles = modifiedTestFiles.filter(x => {
   const content = fs.readFileSync(x).toString();
   return (
     content.includes('it.only') ||

@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -15,7 +15,7 @@
     "test-watch": "jest --watch",
     "posttest": "npm run lint",
     "filesize": "npm run compile:browser && bundlesize",
-    "flow-check": "flow check",
+    "type-check": "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators && flow check",
     "compile": "tsc",
     "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js && cp ./index.js.flow ./lib",
     "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
@@ -52,7 +52,7 @@
     "npm",
     "react"
   ],
-  "author": "James Baxley <james.baxley@newspring.cc>",
+  "author": "James Baxley <james@meteor.com>",
   "babel": {
     "presets": [
       "react-native"
@@ -72,7 +72,8 @@
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
-      "<rootDir>/test/flow.js"
+      "<rootDir>/test/flow.js",
+      "<rootDir>/test/typescript.ts"
     ],
     "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "collectCoverage": true

@@ -1,14 +1,15 @@
 export { default as ApolloProvider } from './ApolloProvider';
-export {
-  default as graphql,
+export { default as graphql } from './graphql';
+import {
   MutationOpts,
   QueryOpts,
   QueryProps,
+  NamedProps,
   MutationFunc,
   OptionProps,
-  DefaultChildProps,
+  ChildProps,
   OperationOption,
-} from './graphql';
+} from './types';
 export { withApollo } from './withApollo';
 
 // expose easy way to join queries from redux

@@ -31,7 +31,7 @@ import {
 } from 'graphql';
 
 import { parser, DocumentType } from './parser';
-import { OperationOption } from './graphql';
+import { OperationOption } from './types';
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
