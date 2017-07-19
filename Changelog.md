@@ -2,6 +2,9 @@
 
 ### vNext
 
+### 1.4.5
+- Fix: export all types from main type file
+
 ### 1.4.4
 - Fix: Fix issue around hoisting non react statics for RN [#859](https://github.com/apollographql/react-apollo/pull/859)
 - Fix: Fix issue where options was called even though skip was present [#859](https://github.com/apollographql/react-apollo/pull/859)
