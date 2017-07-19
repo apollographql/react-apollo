@@ -560,6 +560,12 @@ export default function graphql<
 
       render() {
         if (this.shouldSkip()) {
+          if (operationOptions.withRef) {
+            return createElement(
+              WrappedComponent,
+              assign({}, this.props, { ref: 'wrappedInstance' }),
+            );
+          }
           return createElement(WrappedComponent, this.props);
         }
 
