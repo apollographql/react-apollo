@@ -1,6 +1,8 @@
 # Change log
 
 ### vNext
+
+### 1.4.6
 - Fix: Fix issue where `withRef`-option of `graphql` did not work when the query was skipped [#865](https://github.com/apollographql/react-apollo/pull/865)
 
 ### 1.4.5
