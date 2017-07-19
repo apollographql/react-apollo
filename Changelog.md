@@ -2,6 +2,8 @@
 
 ### vNext
 
+- Fix: Fix issue where `withRef`-option of `graphql` did not work when the query was skipped [#865](https://github.com/apollographql/react-apollo/pull/865)
+
 ### 1.4.4
 - Fix: Fix issue around hoisting non react statics for RN [#859](https://github.com/apollographql/react-apollo/pull/859)
 - Fix: Fix issue where options was called even though skip was present [#859](https://github.com/apollographql/react-apollo/pull/859)
