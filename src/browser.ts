@@ -1,6 +1,6 @@
 export { default as ApolloProvider } from './ApolloProvider';
 export { default as graphql } from './graphql';
-import {
+export {
   MutationOpts,
   QueryOpts,
   QueryProps,
