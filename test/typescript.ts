@@ -6,7 +6,7 @@ import * as React from 'react';
 import gql from 'graphql-tag';
 
 import { graphql } from '../src';
-import { ChildProps, NamedProps, QueryProps } from '../src/types';
+import { ChildProps, NamedProps, QueryProps } from '../src';
 
 const historyQuery = gql`
   query history($solutionId: String) {

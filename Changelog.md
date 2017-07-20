@@ -2,6 +2,9 @@
 
 ### vNext
 
+### 1.4.7
+- Feature: Add support for flow typecheck to work out of the box (without any configuration)
+
 ### 1.4.6
 - Fix: Fix issue where `withRef`-option of `graphql` did not work when the query was skipped [#865](https://github.com/apollographql/react-apollo/pull/865)
 

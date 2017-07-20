@@ -28,6 +28,13 @@ script:
 # Allow Travis tests to run in containers.
 sudo: false
 
+notifications:
+  email: false
+
+before_deploy:
+  - npm run deploy
+  - cd ./npm
+
 deploy:
   provider: npm
   email: james.baxley@newspring.cc

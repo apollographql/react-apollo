@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -8,28 +8,30 @@
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "deploy": "npm run compile && npm test && npm publish --tag next && git push --tags",
+    "deploy": "./scripts/deploy.sh",
     "danger": "danger run --verbose",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
-    "posttest": "npm run lint",
+    "posttest": "npm run lint && npm run type-check",
     "filesize": "npm run compile:browser && bundlesize",
     "type-check": "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators && flow check",
     "compile": "tsc",
-    "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js && cp ./index.js.flow ./lib",
+    "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "compile:browser": "rm -rf ./dist && mkdir ./dist && browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
     "minify:browser": "uglifyjs -c -m -o ./dist/index.min.js -- ./dist/index.js",
     "compress:browser": "./scripts/gzip.js --file=./dist/index.min.js",
     "watch": "tsc -w",
     "lint": "tslint 'src/*.ts*' && tslint 'test/*.ts*'",
     "lint-staged": "lint-staged",
-    "lint-fix": "prettier --trailing-comma all --single-quote --write \"{src,test}/**/*.ts*\""
+    "lint-fix": "prettier --trailing-comma all --single-quote --write \"{src,test}/**/*.ts*\"",
+    "postcompile": "npm run bundle",
+    "prepublish": "npm run compile"
   },
   "bundlesize": [
     {
       "path": "./dist/index.min.js",
-      "threshold": "20 Kb"
+      "threshold": "12 Kb"
     }
   ],
   "lint-staged": {
@@ -79,15 +81,6 @@
     "collectCoverage": true
   },
   "license": "MIT",
-  "files": [
-    "dist",
-    "lib",
-    "src",
-    "exports.d.ts",
-    "CHANGELOG.md",
-    "LICENSE",
-    "README.md"
-  ],
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha",
     "redux": "^2.0.0 || ^3.0.0"
@@ -118,7 +111,7 @@
     "enzyme": "^2.2.0",
     "enzyme-to-json": "^1.1.5",
     "flow-bin": "^0.49.1",
-    "graphql": "^0.10.4",
+    "graphql": "^0.10.0",
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
     "jest": "^19.0.0",
@@ -132,14 +125,14 @@
     "pre-commit": "^1.2.2",
     "prettier": "^1.5.2",
     "pretty-bytes": "^4.0.2",
-    "react": "^15.5.4",
+    "react": "^15.6.1",
     "react-addons-test-utils": "^15.5.1",
     "react-dom": "^15.5.4",
     "react-native": "^0.42.3",
     "react-redux": "^5.0.3",
     "react-test-renderer": "^15.5.4",
     "recompose": "^0.23.0",
-    "redux": "^3.5.2",
+    "redux": "^3.7.2",
     "redux-form": "^6.0.5",
     "redux-immutable": "^4.0.0",
     "redux-loop": "^2.2.2",
