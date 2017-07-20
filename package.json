@@ -31,7 +31,7 @@
   "bundlesize": [
     {
       "path": "./dist/index.min.js",
-      "threshold": "20 Kb"
+      "threshold": "12 Kb"
     }
   ],
   "lint-staged": {
@@ -81,15 +81,6 @@
     "collectCoverage": true
   },
   "license": "MIT",
-  "files": [
-    "dist",
-    "lib",
-    "src",
-    "exports.d.ts",
-    "CHANGELOG.md",
-    "LICENSE",
-    "README.md"
-  ],
   "peerDependencies": {
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha",
     "redux": "^2.0.0 || ^3.0.0"
