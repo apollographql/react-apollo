@@ -105,7 +105,7 @@
     "@types/react-addons-test-utils": "^0.14.14",
     "@types/react-dom": "^15.5.0",
     "@types/react-redux": "^4.4.31",
-    "@types/redux-form": "^6.3.2",
+    "@types/redux-form": "^7.0.0",
     "@types/redux-immutable": "^3.0.30",
     "@types/sinon": "^2.1.1",
     "babel-jest": "^19.0.0",
