@@ -24,13 +24,16 @@ script:
   - npm run bundle
   - cd examples/create-react-app && npm test && cd ../../
   - npm run filesize
-  - ./scripts/deploy.sh
 
 # Allow Travis tests to run in containers.
 sudo: false
 
 notifications:
   email: false
+
+before_deploy:
+  - npm run deploy
+  - cd ./npm
 
 deploy:
   provider: npm

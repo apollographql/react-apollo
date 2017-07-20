@@ -1,6 +1,8 @@
 # Change log
 
 ### vNext
+
+### 1.4.7
 - Feature: Add support for flow typecheck to work out of the box (without any configuration)
 
 ### 1.4.6
