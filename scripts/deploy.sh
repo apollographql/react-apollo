@@ -22,7 +22,7 @@ rm -rf ./npm
 mkdir ./npm
 
 # Copy all files from ./lib to /npm
-cd ./lib && cp -r ./ ../../npm/
+cd ./lib && cp -r ./ ../npm/
 # Copy also the umd bundle with the source map file
 cp react-apollo.umd.js ../npm/ && cp react-apollo.umd.js.map ../npm/
 
@@ -43,6 +43,7 @@ node -e "var package = require('./package.json'); \
   var fs = require('fs'); \
   fs.writeFileSync('./npm/version.js', 'exports.version = \"' + package.version + '\"'); \
   fs.writeFileSync('./npm/package.json', JSON.stringify(package, null, 2)); \
+  fs.writeFileSync('./src/version.ts', 'export const version = \'' + origVersion + '\';');
   "
 
 

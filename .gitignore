@@ -30,6 +30,7 @@ node_modules
 lib
 test-lib
 dist
+npm
 
 # don't track yarn lock but allow contributors to use it for local dev
 yarn.lock
