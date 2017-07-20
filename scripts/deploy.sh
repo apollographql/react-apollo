@@ -22,7 +22,7 @@ rm -rf ./npm
 mkdir ./npm
 
 # Copy all files from ./lib/src to /npm
-cd ./lib/src && cp -r ./ ../../npm/
+cd ./lib && cp -r ./ ../../npm/
 # Copy also the umd bundle with the source map file
 cd ../
 cp react-apollo.umd.js ../npm/ && cp react-apollo.umd.js.map ../npm/
