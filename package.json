@@ -8,7 +8,7 @@
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "deploy": "npm run compile && npm test && npm publish --tag next && git push --tags",
+    "deploy": "./scripts/deploy.sh",
     "danger": "danger run --verbose",
     "test": "npm run compile && jest",
     "testonly": "jest",
