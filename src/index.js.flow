@@ -43,10 +43,13 @@ export type MutationFunc<TResult> = (
   opts: MutationOpts
 ) => Promise<ApolloQueryResult<TResult>>;
 
-export type DefaultChildProps<P, R> = {
+export type ChildProps<P, R> = {
   data: QueryProps & R,
   mutate: MutationFunc<R>
 } & P;
+
+// back compat
+export type DefaultChildProps<P, R> = ChildProps<P, R>
 
 export interface MutationOpts {
   variables?: Object,
@@ -83,8 +86,8 @@ export interface QueryProps {
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps,
-  data?: QueryProps & TResult,
-  mutate?: MutationFunc<TResult>
+  data: QueryProps & TResult,
+  mutate: MutationFunc<TResult>
 }
 
 export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
@@ -102,12 +105,12 @@ export interface OperationOption<TProps: {}, TResult: {}> {
 export interface OperationComponent<
   TResult: Object = {},
   TOwnProps: Object = {},
-  TMergedProps = DefaultChildProps<TOwnProps, TResult>
+  TMergedProps = ChildProps<TOwnProps, TResult>
 > {
   (
     component:
       | StatelessComponent<TMergedProps>
-      | React$Component<void, TMergedProps, void>
+      | Class<React$Component<void, TMergedProps, void>>
   ): Class<React$Component<void, TOwnProps, void>>
 }
 
