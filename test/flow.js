@@ -10,8 +10,9 @@
 */
 
 // @flow
+import { Component } from "react";
 import { graphql } from "../src";
-import type { OperationComponent, QueryProps } from "../src";
+import type { OperationComponent, QueryProps, ChildProps } from "../src";
 import gql from "graphql-tag";
 
 const query = gql`
@@ -94,3 +95,14 @@ export default withCharacter(({ loading, hero, error }) => {
   if (error) return <h1>ERROR</h1>;
   return null;
 });
+
+export class Character extends Component {
+  render(){
+    const { loading, hero, error } = this.props;
+    if (loading) return <div>Loading</div>;
+    if (error) return <h1>ERROR</h1>;
+    return null// actual component with data;
+  }
+}
+
+const CharacterWithData = withCharacter(Character);

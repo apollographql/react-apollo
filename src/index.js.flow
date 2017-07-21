@@ -86,8 +86,8 @@ export interface QueryProps {
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps,
-  data?: QueryProps & TResult,
-  mutate?: MutationFunc<TResult>
+  data: QueryProps & TResult,
+  mutate: MutationFunc<TResult>
 }
 
 export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
@@ -110,7 +110,7 @@ export interface OperationComponent<
   (
     component:
       | StatelessComponent<TMergedProps>
-      | React$Component<void, TMergedProps, void>
+      | Class<React$Component<void, TMergedProps, void>>
   ): Class<React$Component<void, TOwnProps, void>>
 }
 
