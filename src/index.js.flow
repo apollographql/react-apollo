@@ -48,6 +48,9 @@ export type ChildProps<P, R> = {
   mutate: MutationFunc<R>
 } & P;
 
+// back compat
+export type DefaultChildProps<P, R> = ChildProps<P, R>
+
 export interface MutationOpts {
   variables?: Object,
   optimisticResponse?: Object,
