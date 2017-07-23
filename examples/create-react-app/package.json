@@ -8,9 +8,8 @@
     "react-test-renderer": "^15.3.2"
   },
   "dependencies": {
-    "apollo-client": "^0.6.0",
-    "graphql-tag": "^0.1.15",
     "react": "^15.3.2",
+    "react-apollo": "^1.4.8",
     "react-dom": "^15.3.2"
   },
   "scripts": {
