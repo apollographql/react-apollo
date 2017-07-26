@@ -1,13 +1,13 @@
-import { renderToString } from "react-dom/server";
-import { onPageLoad } from "meteor/server-render";
-import { createApolloServer } from "meteor/apollo";
-import { graphql } from "graphql";
-import { print } from "graphql/language/printer";
+import { renderToString } from 'react-dom/server';
+import { onPageLoad } from 'meteor/server-render';
+import { createApolloServer } from 'meteor/apollo';
+import { graphql } from 'graphql';
+import { print } from 'graphql/language/printer';
 
-import { ApolloClient, getDataFromTree, ApolloProvider } from "react-apollo";
+import { ApolloClient, getDataFromTree, ApolloProvider } from 'react-apollo';
 
-import { schema } from "/imports/schema";
-import { App } from "/imports/app";
+import { schema } from '/imports/schema';
+import { App } from '/imports/app';
 
 export const render = async sink => {
   const client = new ApolloClient({
@@ -29,9 +29,11 @@ export const render = async sink => {
   await getDataFromTree(WrappedApp);
 
   const body = renderToString(WrappedApp);
-  sink.renderIntoElementById("app", body);
+  sink.renderIntoElementById('app', body);
   sink.appendToBody(`
-    <script>window.__APOLLO_STATE__=${JSON.stringify(client.getInitialState())};</script>
+    <script>window.__APOLLO_STATE__=${JSON.stringify(
+      client.getInitialState(),
+    )};</script>
   `);
 };
 

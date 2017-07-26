@@ -9,7 +9,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { makeExecutableSchema } from "graphql-tools";
+import { makeExecutableSchema } from 'graphql-tools';
 
 const schemaString = `
 schema {
@@ -152,46 +152,46 @@ union SearchResult = Human | Droid | Starship
 
 const humans = [
   {
-    id: "1000",
-    name: "Luke Skywalker",
-    friends: ["1002", "1003", "2000", "2001"],
-    appearsIn: ["NEWHOPE", "EMPIRE", "JEDI"],
+    id: '1000',
+    name: 'Luke Skywalker',
+    friends: ['1002', '1003', '2000', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     height: 1.72,
     mass: 77,
-    starships: ["3001", "3003"],
+    starships: ['3001', '3003'],
   },
   {
-    id: "1001",
-    name: "Darth Vader",
-    friends: ["1004"],
-    appearsIn: ["NEWHOPE", "EMPIRE", "JEDI"],
+    id: '1001',
+    name: 'Darth Vader',
+    friends: ['1004'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     height: 2.02,
     mass: 136,
-    starships: ["3002"],
+    starships: ['3002'],
   },
   {
-    id: "1002",
-    name: "Han Solo",
-    friends: ["1000", "1003", "2001"],
-    appearsIn: ["NEWHOPE", "EMPIRE", "JEDI"],
+    id: '1002',
+    name: 'Han Solo',
+    friends: ['1000', '1003', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     height: 1.8,
     mass: 80,
-    starships: ["3000", "3003"],
+    starships: ['3000', '3003'],
   },
   {
-    id: "1003",
-    name: "Leia Organa",
-    friends: ["1000", "1002", "2000", "2001"],
-    appearsIn: ["NEWHOPE", "EMPIRE", "JEDI"],
+    id: '1003',
+    name: 'Leia Organa',
+    friends: ['1000', '1002', '2000', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
     height: 1.5,
     mass: 49,
     starships: [],
   },
   {
-    id: "1004",
-    name: "Wilhuff Tarkin",
-    friends: ["1001"],
-    appearsIn: ["NEWHOPE"],
+    id: '1004',
+    name: 'Wilhuff Tarkin',
+    friends: ['1001'],
+    appearsIn: ['NEWHOPE'],
     height: 1.8,
     mass: null,
     starships: [],
@@ -205,18 +205,18 @@ humans.forEach(ship => {
 
 const droids = [
   {
-    id: "2000",
-    name: "C-3PO",
-    friends: ["1000", "1002", "1003", "2001"],
-    appearsIn: ["NEWHOPE", "EMPIRE", "JEDI"],
-    primaryFunction: "Protocol",
+    id: '2000',
+    name: 'C-3PO',
+    friends: ['1000', '1002', '1003', '2001'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
+    primaryFunction: 'Protocol',
   },
   {
-    id: "2001",
-    name: "R2-D2",
-    friends: ["1000", "1002", "1003"],
-    appearsIn: ["NEWHOPE", "EMPIRE", "JEDI"],
-    primaryFunction: "Astromech",
+    id: '2001',
+    name: 'R2-D2',
+    friends: ['1000', '1002', '1003'],
+    appearsIn: ['NEWHOPE', 'EMPIRE', 'JEDI'],
+    primaryFunction: 'Astromech',
   },
 ];
 
@@ -227,23 +227,23 @@ droids.forEach(ship => {
 
 const starships = [
   {
-    id: "3000",
-    name: "Millenium Falcon",
+    id: '3000',
+    name: 'Millenium Falcon',
     length: 34.37,
   },
   {
-    id: "3001",
-    name: "X-Wing",
+    id: '3001',
+    name: 'X-Wing',
     length: 12.5,
   },
   {
-    id: "3002",
-    name: "TIE Advanced x1",
+    id: '3002',
+    name: 'TIE Advanced x1',
     length: 9.2,
   },
   {
-    id: "3003",
-    name: "Imperial shuttle",
+    id: '3003',
+    name: 'Imperial shuttle',
     length: 20,
   },
 ];
@@ -265,12 +265,12 @@ function getCharacter(id) {
  * Allows us to fetch the undisputed hero of the Star Wars trilogy, R2-D2.
  */
 function getHero(episode) {
-  if (episode === "EMPIRE") {
+  if (episode === 'EMPIRE') {
     // Luke is the hero of Episode V.
-    return humanData["1000"];
+    return humanData['1000'];
   }
   // Artoo is the hero otherwise.
-  return droidData["2001"];
+  return droidData['2001'];
 }
 
 /**
@@ -292,11 +292,11 @@ function getStarship(id) {
 }
 
 function toCursor(str) {
-  return Buffer("cursor" + str).toString("base64");
+  return Buffer('cursor' + str).toString('base64');
 }
 
 function fromCursor(str) {
-  return Buffer.from(str, "base64").toString().slice(6);
+  return Buffer.from(str, 'base64').toString().slice(6);
 }
 
 const resolvers = {
@@ -308,7 +308,7 @@ const resolvers = {
     starship: (root, { id }) => getStarship(id),
     reviews: () => null,
     search: (root, { text }) => {
-      const re = new RegExp(text, "i");
+      const re = new RegExp(text, 'i');
 
       const allData = [...humans, ...droids, ...starships];
 
@@ -321,17 +321,17 @@ const resolvers = {
   Character: {
     __resolveType(data, context, info) {
       if (humanData[data.id]) {
-        return info.schema.getType("Human");
+        return info.schema.getType('Human');
       }
       if (droidData[data.id]) {
-        return info.schema.getType("Droid");
+        return info.schema.getType('Droid');
       }
       return null;
     },
   },
   Human: {
     height: ({ height }, { unit }) => {
-      if (unit === "FOOT") {
+      if (unit === 'FOOT') {
         return height * 3.28084;
       }
 
@@ -399,7 +399,7 @@ const resolvers = {
   },
   Starship: {
     length: ({ length }, { unit }) => {
-      if (unit === "FOOT") {
+      if (unit === 'FOOT') {
         return length * 3.28084;
       }
 
@@ -409,13 +409,13 @@ const resolvers = {
   SearchResult: {
     __resolveType(data, context, info) {
       if (humanData[data.id]) {
-        return info.schema.getType("Human");
+        return info.schema.getType('Human');
       }
       if (droidData[data.id]) {
-        return info.schema.getType("Droid");
+        return info.schema.getType('Droid');
       }
       if (starshipData[data.id]) {
-        return info.schema.getType("Starship");
+        return info.schema.getType('Starship');
       }
       return null;
     },
