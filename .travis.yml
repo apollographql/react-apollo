@@ -14,8 +14,8 @@ before_install:
 
 install:
   - npm install
-  - cd examples/typescript && npm && cd ../../
-  - cd examples/base && npm && cd ../../
+  - cd examples/typescript && npm i && cd ../../
+  - cd examples/base && npm i && cd ../../
   # - cd examples/ssr && npm && cd ../../
   # XXX install meteor
   # start meteor app for integration testing
