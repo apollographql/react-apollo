@@ -4,6 +4,7 @@ import * as fs from 'fs';
 
 // Setup
 const pr = danger.github.pr;
+const commits = danger.github.commits;
 const modified = danger.git.modified_files;
 const bodyAndTitle = (pr.body + pr.title).toLowerCase();
 
