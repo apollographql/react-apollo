@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites errors="1"
+            failures="0"
+            tests="1">
+
+  <testsuite name="ssr"
+    errors="1" failures="0" hostname="" id="" package="ssr" skipped="0"
+    tests="1" time="0.006000" timestamp="Mon, 31 Jul 2017 05:07:14 GMT">
+  
+    <testcase name="Initial State" classname="ssr" time="0.006000" assertions="0">
+    </testcase>
+  
+
+  
+    <system-err>
+        Error while running [Ssr / Initial State]:
+
+  TypeError: browser.url(...).source(...).expect.element(...).text.to.equal(...).execute is not a function
+    at Object.Initial State (C:\Users\james\Projects\apollo\react-apollo\examples\ssr\tests\ssr.js:24:8)
+    at Module.call (C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\lib\runner\module.js:62:34)
+    at C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\lib\runner\testcase.js:70:29
+    at _fulfilled (C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\node_modules\q\q.js:834:54)
+    at self.promiseDispatch.done (C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\node_modules\q\q.js:863:30)
+    at Promise.promise.promiseDispatch (C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\node_modules\q\q.js:796:13)
+    at C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\node_modules\q\q.js:556:49
+    at runSingle (C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\node_modules\q\q.js:137:13)
+    at flush (C:\Users\james\AppData\Roaming\npm\node_modules\nightwatch\node_modules\q\q.js:125:13)
+    at _combinedTickCallback (internal/process/next_tick.js:95:7)
+    </system-err>
+  
+
+  
+  </testsuite>
+</testsuites>
