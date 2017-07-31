@@ -20,7 +20,6 @@ export const start = () => {
     </ApolloProvider>
   );
 
-  console.log('building react app on the client');
   render(WrappedApp, document.getElementById('app'));
 };
 
