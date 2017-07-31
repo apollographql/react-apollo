@@ -1,0 +1,31 @@
+{
+  "name": "ssr",
+  "private": true,
+  "scripts": {
+    "start": "meteor run",
+    "test": "nightwatch",
+    "visualize": "meteor --production --extra-packages bundle-visualizer"
+  },
+  "dependencies": {
+    "apollo-client": "^1.9.0-1",
+    "babel-runtime": "^6.20.0",
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "graphql-server-express": "^1.0.4",
+    "graphql-tag": "^2.4.2",
+    "graphql-tools": "^1.1.0",
+    "meteor-node-stubs": "^0.2.11",
+    "react": "^15.6.1",
+    "react-apollo": "^1.4.8",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "babel-plugin-transform-react-require": "^1.0.1",
+    "babel-preset-react": "^6.24.1",
+    "cheerio": "^1.0.0-rc.2",
+    "chromedriver": "^2.31.0",
+    "nightwatch": "^0.9.16",
+    "selenium-webdriver": "^3.5.0"
+  }
+}
