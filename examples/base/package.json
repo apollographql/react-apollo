@@ -6,7 +6,7 @@
     "apollo-client": "^1.9.0-1",
     "graphql-tag": "^2.4.2",
     "react": "^15.6.1",
-    "react-apollo": "^1.4.8",
+    "react-apollo": "file:../..",
     "react-dom": "^15.6.1",
     "react-scripts": "1.0.10"
   },
@@ -14,10 +14,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "flow": "flow"
+    "eject": "react-scripts eject"
   },
-  "devDependencies": {
-    "flow-bin": "^0.51.1"
-  }
+  "devDependencies": {}
 }

@@ -1,4 +1,3 @@
-// @flow
 import React from "react";
 import { render } from "react-dom";
 import { ApolloClient, createNetworkInterface } from "apollo-client";

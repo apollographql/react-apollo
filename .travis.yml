@@ -15,18 +15,20 @@ before_install:
 install:
   - npm install
   - cd examples/typescript && npm && cd ../../
-  # XXX install base and SSR deps
-  # install meteor
+  - cd examples/base && npm && cd ../../
+  # - cd examples/ssr && npm && cd ../../
+  # XXX install meteor
   # start meteor app for integration testing
-  
+
 script:
   - npm run danger
   - npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
   - npm run bundle
+  - cd examples/base && npm test && cd ../../
   - cd examples/typescript && npm test && cd ../../
-    # XXX test base and SSR
+    # XXX test SSR
   - npm run filesize
 
 # Allow Travis tests to run in containers.

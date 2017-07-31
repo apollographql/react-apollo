@@ -1,9 +1,8 @@
-// @flow
 import React from "react";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
 
-const HERO_QUERY = gql`
+export const HERO_QUERY = gql`
   query GetCharacter($episode: Episode!) {
     hero(episode: $episode) {
       name
@@ -17,14 +16,14 @@ const HERO_QUERY = gql`
   }
 `;
 
-const withCharacter = graphql(HERO_QUERY, {
+export const withCharacter = graphql(HERO_QUERY, {
   options: ({ episode }) => ({
     variables: { episode },
   }),
   props: ({ data }) => ({ ...data }),
 });
 
-export const Character = withCharacter(({ loading, hero, error }) => {
+export const CharacterWithoutData = ({ loading, hero, error }) => {
   if (loading) return <div>Loading</div>;
   if (error) return <h1>ERROR</h1>;
   return (
@@ -35,16 +34,20 @@ export const Character = withCharacter(({ loading, hero, error }) => {
             {hero.name}
           </h3>
 
-          {hero.friends.map(friend =>
-            <h6 key={friend.id}>
-              {friend.name}:{" "}
-              {friend.appearsIn.map(x => x.toLowerCase()).join(", ")}
-            </h6>
+          {hero.friends && hero.friends.map(friend =>
+            friend && (
+              <h6 key={friend.id}>
+                {friend.name}:{" "}
+                {friend.appearsIn.map(x => x && x.toLowerCase()).join(", ")}
+              </h6>
+            )
           )}
         </div>}
     </div>
   );
-});
+};
+
+export const Character = withCharacter(CharacterWithoutData);
 
 export const App = () =>
   <div>

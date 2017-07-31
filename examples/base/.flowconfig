@@ -1,9 +1,0 @@
-[ignore]
-.*/node_modules/.*
-../../test/flow.js
-
-[include]
-
-[libs]
-
-[options]
