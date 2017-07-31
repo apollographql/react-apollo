@@ -1,6 +1,6 @@
-import React from "react";
-import { graphql } from "react-apollo";
-import gql from "graphql-tag";
+import React from 'react';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 export const HERO_QUERY = gql`
   query GetCharacter($episode: Episode!) {
@@ -34,14 +34,15 @@ export const CharacterWithoutData = ({ loading, hero, error }) => {
             {hero.name}
           </h3>
 
-          {hero.friends && hero.friends.map(friend =>
-            friend && (
-              <h6 key={friend.id}>
-                {friend.name}:{" "}
-                {friend.appearsIn.map(x => x && x.toLowerCase()).join(", ")}
-              </h6>
-            )
-          )}
+          {hero.friends &&
+            hero.friends.map(
+              friend =>
+                friend &&
+                <h6 key={friend.id}>
+                  {friend.name}:{' '}
+                  {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
+                </h6>,
+            )}
         </div>}
     </div>
   );
