@@ -593,7 +593,7 @@ export default function graphql<
         const mergedPropsAndData = assign({}, props, clientProps);
 
         if (operationOptions.withRef)
-          mergedPropsAndData.ref = 'wrappedInstance';
+          mergedPropsAndData.ref = this.setWrappedInstance;
         this.renderedElement = createElement(
           WrappedComponent,
           mergedPropsAndData,
