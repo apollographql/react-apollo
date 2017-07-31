@@ -4,6 +4,7 @@ import * as fs from 'fs';
 
 // Setup
 const pr = danger.github.pr;
+const commits = danger.github.commits;
 const modified = danger.git.modified_files;
 const bodyAndTitle = (pr.body + pr.title).toLowerCase();
 
@@ -57,44 +58,52 @@ const raiseIssueAboutPaths = (
   }
 };
 
-// Rules
-// When there are app-changes and it's not a PR marked as trivial, expect
-// there to be CHANGELOG changes.
-const changelogChanges = includes(modified, 'Changelog.md');
-if (modifiedAppFiles.length > 0 && !trivialPR && !changelogChanges) {
-  fail('No CHANGELOG added.');
+const authors = commits.map(x => x.author.login);
+const isBot = authors.some(x => ['greenkeeper', 'renovate'].indexOf(x) > -1);
+
+if (!isBot) {
+  // Rules
+  // When there are app-changes and it's not a PR marked as trivial, expect
+  // there to be CHANGELOG changes.
+  const changelogChanges = includes(modified, 'Changelog.md');
+  if (modifiedAppFiles.length > 0 && !trivialPR && !changelogChanges) {
+    fail('No CHANGELOG added.');
+  }
+
+  // No PR is too small to warrant a paragraph or two of summary
+  if (pr.body.length === 0) {
+    fail('Please add a description to your PR.');
+  }
+
+  const hasAppChanges = modifiedAppFiles.length > 0;
+
+  const hasTestChanges = modifiedTestFiles.length > 0;
+
+  // Warn when there is a big PR
+  const bigPRThreshold = 500;
+  if (
+    danger.github.pr.additions + danger.github.pr.deletions >
+    bigPRThreshold
+  ) {
+    warn(':exclamation: Big PR');
+  }
+
+  // Warn if there are library changes, but not tests
+  if (hasAppChanges && !hasTestChanges) {
+    warn(
+      "There are library changes, but not tests. That's OK as long as you're refactoring existing code",
+    );
+  }
+
+  // Be careful of leaving testing shortcuts in the codebase
+  const onlyTestFiles = modifiedTestFiles.filter(x => {
+    const content = fs.readFileSync(x).toString();
+    return (
+      content.includes('it.only') ||
+      content.includes('describe.only') ||
+      content.includes('fdescribe') ||
+      content.includes('fit(')
+    );
+  });
+  raiseIssueAboutPaths(fail, onlyTestFiles, 'an `only` was left in the test');
 }
-
-// No PR is too small to warrant a paragraph or two of summary
-if (pr.body.length === 0) {
-  fail('Please add a description to your PR.');
-}
-
-const hasAppChanges = modifiedAppFiles.length > 0;
-
-const hasTestChanges = modifiedTestFiles.length > 0;
-
-// Warn when there is a big PR
-const bigPRThreshold = 500;
-if (danger.github.pr.additions + danger.github.pr.deletions > bigPRThreshold) {
-  warn(':exclamation: Big PR');
-}
-
-// Warn if there are library changes, but not tests
-if (hasAppChanges && !hasTestChanges) {
-  warn(
-    "There are library changes, but not tests. That's OK as long as you're refactoring existing code",
-  );
-}
-
-// Be careful of leaving testing shortcuts in the codebase
-const onlyTestFiles = modifiedTestFiles.filter(x => {
-  const content = fs.readFileSync(x).toString();
-  return (
-    content.includes('it.only') ||
-    content.includes('describe.only') ||
-    content.includes('fdescribe') ||
-    content.includes('fit(')
-  );
-});
-raiseIssueAboutPaths(fail, onlyTestFiles, 'an `only` was left in the test');
