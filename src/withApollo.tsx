@@ -51,9 +51,13 @@ export function withApollo<TProps, TResult>(
     // data storage
     private client: ApolloClient; // apollo client
 
+    // wrapped instance
+    private wrappedInstance: any;
+
     constructor(props, context) {
       super(props, context);
       this.client = context.client;
+      this.setWrappedInstance = this.setWrappedInstance.bind(this);
 
       invariant(
         !!this.client,
@@ -70,13 +74,17 @@ export function withApollo<TProps, TResult>(
           `{ withRef: true } in the options`,
       );
 
-      return (this.refs as any).wrappedInstance;
+      return this.wrappedInstance;
+    }
+
+    setWrappedInstance(ref) {
+      this.wrappedInstance = ref;
     }
 
     render() {
       const props = assign({}, this.props);
       props.client = this.client;
-      if (operationOptions.withRef) props.ref = 'wrappedInstance';
+      if (operationOptions.withRef) props.ref = this.setWrappedInstance;
       return createElement(WrappedComponent, props);
     }
   }
