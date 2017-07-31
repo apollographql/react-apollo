@@ -38,7 +38,8 @@
     "*.ts*": [
       "prettier --trailing-comma all --single-quote --write",
       "git add"
-    ]
+    ],
+    "*.js*": ["prettier --trailing-comma all --single-quote --write", "git add"]
   },
   "pre-commit": "lint-staged",
   "repository": {
@@ -56,29 +57,22 @@
   ],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
-    "presets": [
-      "react-native"
-    ]
+    "presets": ["react-native"]
   },
   "jest": {
     "preset": "jest-react-native",
     "testEnvironment": "jsdom",
     "transform": {
-      ".*": "<rootDir>/preprocessor.js"
+      ".*": "./preprocessor.js"
     },
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ],
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow.js",
       "<rootDir>/test/typescript.ts"
     ],
-    "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "collectCoverage": true
+    "projects": ["<rootDir>", "<rootDir>/examples/*"],
+    "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$"
   },
   "license": "MIT",
   "peerDependencies": {
@@ -94,14 +88,14 @@
     "@types/lodash": "^4.14.36",
     "@types/node": "^8.0.0",
     "@types/object-assign": "^4.0.28",
-    "@types/react": "^15.0.12",
+    "@types/react": "^15.6.0",
     "@types/react-addons-test-utils": "^0.14.14",
     "@types/react-dom": "^15.5.0",
-    "@types/react-redux": "^4.4.31",
+    "@types/react-redux": "^4.4.47",
     "@types/redux-form": "^7.0.0",
     "@types/redux-immutable": "^3.0.30",
     "@types/sinon": "^2.1.1",
-    "babel-jest": "^19.0.0",
+    "babel-jest": "^20.0.3",
     "babel-preset-react-native": "^2.0.0",
     "browserify": "^14.1.0",
     "bundlesize": "^0.12.1",
@@ -114,7 +108,7 @@
     "graphql": "^0.10.0",
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
-    "jest": "^19.0.0",
+    "jest": "^20.0.4",
     "jest-react-native": "^18.0.0",
     "jsdom": "^11.0.0",
     "lint-staged": "^4.0.0",
@@ -140,6 +134,7 @@
     "source-map-support": "^0.4.0",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "^1.0.2",
+    "ts-jest": "^20.0.7",
     "tslint": "^5.1.0",
     "typescript": "^2.3.0",
     "typescript-require": "^0.2.9-1",

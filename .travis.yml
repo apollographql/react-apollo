@@ -14,7 +14,11 @@ before_install:
 
 install:
   - npm install
-  - cd examples/create-react-app && yarn && cd ../../
+  - cd examples/typescript && npm i && cd ../../
+  - cd examples/base && npm i && cd ../../
+  # - cd examples/ssr && npm && cd ../../
+  # XXX install meteor
+  # start meteor app for integration testing
 
 script:
   - npm run danger
@@ -22,7 +26,9 @@ script:
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
   - npm run bundle
-  - cd examples/create-react-app && npm test && cd ../../
+  - cd examples/base && npm test && cd ../../
+  - cd examples/typescript && npm test && cd ../../
+    # XXX test SSR
   - npm run filesize
 
 # Allow Travis tests to run in containers.

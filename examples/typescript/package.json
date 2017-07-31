@@ -1,0 +1,29 @@
+{
+  "name": "typescript",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "apollo-client": "^1.9.0-1",
+    "graphql-tag": "^2.4.2",
+    "react": "^15.6.1",
+    "react-apollo": "file:../..",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^20.0.5",
+    "@types/node": "^8.0.16",
+    "@types/react": "^15.6.0",
+    "@types/react-dom": "^15.5.1",
+    "apollo-codegen": "^0.16.2",
+    "react-scripts-ts": "2.4.0",
+    "react-test-renderer": "^15.6.1"
+  },
+  "scripts": {
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
+    "schema": "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
+    "types": "apollo-codegen generate ./src/**/*.tsx --schema ./src/schema.json --target typescript --output ./src/schema.ts --add-typename"
+  }
+}
