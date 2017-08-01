@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/jest": "20.0.5",
     "@types/node": "8.0.19",
-    "@types/react": "15.6.0",
+    "@types/react": "15.6.1",
     "@types/react-dom": "15.5.1",
     "apollo-codegen": "0.16.2",
     "react-scripts-ts": "2.4.0",
