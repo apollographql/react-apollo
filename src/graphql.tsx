@@ -137,11 +137,15 @@ export default function graphql<
       // the element to render
       private renderedElement: any;
 
+      // wrapped instance
+      private wrappedInstance: any;
+
       constructor(props, context) {
         super(props, context);
         this.version = version;
         this.type = operation.type;
         this.dataForChildViaMutation = this.dataForChildViaMutation.bind(this);
+        this.setWrappedInstance = this.setWrappedInstance.bind(this);
       }
 
       componentWillMount() {
@@ -481,7 +485,11 @@ export default function graphql<
             `{ withRef: true } in the options`,
         );
 
-        return (this.refs as any).wrappedInstance;
+        return this.wrappedInstance;
+      }
+
+      setWrappedInstance(ref) {
+        this.wrappedInstance = ref;
       }
 
       dataForChildViaMutation(mutationOpts: MutationOpts) {
@@ -563,7 +571,7 @@ export default function graphql<
           if (operationOptions.withRef) {
             return createElement(
               WrappedComponent,
-              assign({}, this.props, { ref: 'wrappedInstance' }),
+              assign({}, this.props, { ref: this.setWrappedInstance }),
             );
           }
           return createElement(WrappedComponent, this.props);
@@ -585,7 +593,7 @@ export default function graphql<
         const mergedPropsAndData = assign({}, props, clientProps);
 
         if (operationOptions.withRef)
-          mergedPropsAndData.ref = 'wrappedInstance';
+          mergedPropsAndData.ref = this.setWrappedInstance;
         this.renderedElement = createElement(
           WrappedComponent,
           mergedPropsAndData,
