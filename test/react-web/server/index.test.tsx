@@ -15,7 +15,7 @@ import {
   walkTree,
   getDataFromTree,
   renderToStringWithData,
-} from '../../../src/server';
+} from '../../../src';
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
