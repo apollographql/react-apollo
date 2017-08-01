@@ -10,10 +10,16 @@
 */
 
 // @flow
-import { Component } from "react";
-import { graphql } from "../src";
-import type { OperationComponent, QueryProps, ChildProps } from "../src";
-import gql from "graphql-tag";
+import { Component } from 'react';
+import {
+  withApollo,
+  compose,
+  gql,
+  graphql,
+  ApolloClient,
+  createNetworkInterface,
+} from '../src';
+import type { OperationComponent, QueryProps, ChildProps } from '../src';
 
 const query = gql`
   {
@@ -75,7 +81,7 @@ export type InputProps = {
 const withCharacter: OperationComponent<
   Response,
   InputProps,
-  Props
+  Props,
 > = graphql(HERO_QUERY, {
   options: ({ episode }) => ({
     // $ExpectError [string] This type cannot be compared to number
@@ -97,12 +103,18 @@ export default withCharacter(({ loading, hero, error }) => {
 });
 
 export class Character extends Component {
-  render(){
+  render() {
     const { loading, hero, error } = this.props;
     if (loading) return <div>Loading</div>;
     if (error) return <h1>ERROR</h1>;
-    return null// actual component with data;
+    return null; // actual component with data;
   }
 }
 
 const CharacterWithData = withCharacter(Character);
+
+const Manual = withApollo(({ client }) => {
+  // XXX please don't every actually do this
+  client.query({ query: HERO_QUERY });
+  return null;
+});
