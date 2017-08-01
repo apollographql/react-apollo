@@ -15,7 +15,7 @@
     "@types/react": "^15.6.0",
     "@types/react-dom": "^15.5.1",
     "apollo-codegen": "^0.16.2",
-    "react-scripts-ts": "2.4.0",
+    "react-scripts-ts": "2.5.0",
     "react-test-renderer": "^15.6.1"
   },
   "scripts": {
