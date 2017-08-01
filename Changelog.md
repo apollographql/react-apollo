@@ -2,6 +2,9 @@
 
 ### vNext
 
+### 1.4.10
+- Fix: fix UMD bundle pointing to apolloClient for some reason
+
 ### 1.4.9
 - Fix: fix matching types with exports for flow and ts
 
