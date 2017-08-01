@@ -1,2 +1,7 @@
 export * from './browser';
-export * from './server';
+export {
+  getDataFromTree,
+  renderToStringWithData,
+  walkTree,
+  cleanupApolloState,
+} from './server';
