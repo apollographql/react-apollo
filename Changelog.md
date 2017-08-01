@@ -3,6 +3,9 @@
 ### vNext
 - Replace string refs with callback refs [#908](https://github.com/apollographql/react-apollo/pull/908)
 
+### 1.4.9
+- Fix: fix matching types with exports for flow and ts
+
 ### 1.4.8
 - Fix: Ensure typescript and flow type definitions match in name
 
