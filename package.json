@@ -88,7 +88,7 @@
     "@types/lodash": "4.14.71",
     "@types/node": "8.0.19",
     "@types/object-assign": "4.0.30",
-    "@types/react": "15.6.0",
+    "@types/react": "15.6.1",
     "@types/react-addons-test-utils": "0.14.19",
     "@types/react-dom": "15.5.1",
     "@types/react-redux": "4.4.47",
