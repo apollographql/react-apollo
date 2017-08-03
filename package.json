@@ -92,7 +92,7 @@
     "@types/react-addons-test-utils": "0.14.19",
     "@types/react-dom": "15.5.1",
     "@types/react-redux": "4.4.47",
-    "@types/redux-form": "7.0.1",
+    "@types/redux-form": "7.0.2",
     "@types/redux-immutable": "3.0.34",
     "@types/sinon": "2.3.3",
     "babel-jest": "20.0.3",
