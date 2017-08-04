@@ -99,10 +99,14 @@ export interface OptionProps<TProps, TResult> {
 
 export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
 
+export type NamedProps<P, R> = P & {
+  ownProps: R;
+};
+
 export interface OperationOption<TProps: {}, TResult: {}> {
   options?: OptionDescription<TProps>,
   props?: (props: OptionProps<TProps, TResult>) => any,
-  skip?: boolean | ((props: any) => boolean),
+  +skip?: boolean | ((props: any) => boolean),
   name?: string,
   withRef?: boolean,
   shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean,
@@ -117,7 +121,7 @@ export interface OperationComponent<
   (
     component:
       | StatelessComponent<TMergedProps>
-      | Class<React$Component<void, TMergedProps, void>>,
+      | Class<React$Component<any, TMergedProps, any>>,
   ): Class<React$Component<void, TOwnProps, void>>,
 }
 
@@ -129,7 +133,7 @@ declare export function graphql<TResult, TProps, TChildProps>(
 declare export function withApollo<TProps>(
   component:
     | StatelessComponent<TProps & ApolloClient>
-    | Class<React$Component<void, TProps & ApolloClient, void>>,
+    | Class<React$Component<any, TProps & ApolloClient, any>>,
 ): Class<React$Component<void, TProps & ApolloClient, void>>;
 
 export interface IDocumentDefinition {
