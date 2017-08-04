@@ -98,7 +98,7 @@
     "babel-jest": "20.0.3",
     "babel-preset-react-native": "2.1.0",
     "browserify": "14.4.0",
-    "bundlesize": "0.12.2",
+    "bundlesize": "0.13.2",
     "cheerio": "0.22.0",
     "colors": "1.1.2",
     "danger": "1.1.0",
