@@ -106,7 +106,7 @@ export type NamedProps<P, R> = P & {
 export interface OperationOption<TProps: {}, TResult: {}> {
   options?: OptionDescription<TProps>,
   props?: (props: OptionProps<TProps, TResult>) => any,
-  skip?: boolean | ((props: any) => boolean),
+  +skip?: boolean | ((props: any) => boolean),
   name?: string,
   withRef?: boolean,
   shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean,
