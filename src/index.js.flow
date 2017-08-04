@@ -99,6 +99,10 @@ export interface OptionProps<TProps, TResult> {
 
 export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
 
+export type NamedProps<P, R> = P & {
+  ownProps: R;
+};
+
 export interface OperationOption<TProps: {}, TResult: {}> {
   options?: OptionDescription<TProps>,
   props?: (props: OptionProps<TProps, TResult>) => any,
