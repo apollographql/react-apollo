@@ -101,7 +101,7 @@
     "bundlesize": "0.13.2",
     "cheerio": "0.22.0",
     "colors": "1.1.2",
-    "danger": "1.1.0",
+    "danger": "1.2.0",
     "enzyme": "2.9.1",
     "enzyme-to-json": "1.5.1",
     "flow-bin": "0.52.0",
