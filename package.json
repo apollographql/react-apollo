@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.4.10",
+  "version": "1.4.11",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -39,7 +39,10 @@
       "prettier --trailing-comma all --single-quote --write",
       "git add"
     ],
-    "*.js*": ["prettier --trailing-comma all --single-quote --write", "git add"]
+    "*.js*": [
+      "prettier --trailing-comma all --single-quote --write",
+      "git add"
+    ]
   },
   "pre-commit": "lint-staged",
   "repository": {
@@ -57,7 +60,9 @@
   ],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
-    "presets": ["react-native"]
+    "presets": [
+      "react-native"
+    ]
   },
   "jest": {
     "preset": "jest-react-native",
@@ -65,13 +70,21 @@
     "transform": {
       ".*": "./preprocessor.js"
     },
-    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow.js",
       "<rootDir>/test/typescript.ts"
     ],
-    "projects": ["<rootDir>", "<rootDir>/examples/*"],
+    "projects": [
+      "<rootDir>",
+      "<rootDir>/examples/*"
+    ],
     "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$"
   },
   "license": "MIT",
