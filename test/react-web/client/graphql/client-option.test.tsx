@@ -9,6 +9,7 @@ import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { mockNetworkInterface } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
+import { ObservableQueryRecycler } from '../../../../src/queryRecycler';
 
 describe('client option', () => {
   it('renders with client from options', () => {
@@ -33,7 +34,7 @@ describe('client option', () => {
       },
     };
     const ContainerWithData = graphql(query, config)(props => null);
-    shallow(<ContainerWithData />);
+    shallow(<ContainerWithData />, { context: { getQueryRecycler: () => new ObservableQueryRecycler() }});
   });
 
   it('ignores client from context if client from options is present', done => {

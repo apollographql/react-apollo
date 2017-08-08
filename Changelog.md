@@ -1,6 +1,7 @@
 # Change log
 
 ### vNext
+- Fix: Scope query recyclers by client [#876](https://github.com/apollographql/react-apollo/pull/876)
 - Replace string refs with callback refs [#908](https://github.com/apollographql/react-apollo/pull/908)
 
 ### 1.4.10
