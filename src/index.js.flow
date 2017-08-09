@@ -122,6 +122,7 @@ export interface OperationComponent<
     component:
       | StatelessComponent<TMergedProps>
       | Class<React$Component<any, TMergedProps, any>>,
+      | Class<React$PureComponent<any, TMergedProps, any>>,
   ): Class<React$Component<void, TOwnProps, void>>,
 }
 
@@ -134,6 +135,7 @@ declare export function withApollo<TProps>(
   component:
     | StatelessComponent<TProps & ApolloClient>
     | Class<React$Component<any, TProps & ApolloClient, any>>,
+    | Class<React$PureComponent<any, TMergedProps, any>>,
 ): Class<React$Component<void, TProps & ApolloClient, void>>;
 
 export interface IDocumentDefinition {
