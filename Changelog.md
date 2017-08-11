@@ -1,6 +1,7 @@
 # Change log
 
 ### vNext
+- MockNetworkInterface match mock requests regardless of variable order [#973](https://github.com/apollographql/react-apollo/pull/973)
 
 ### 1.4.11
 - Replace string refs with callback refs [#908](https://github.com/apollographql/react-apollo/pull/908)
