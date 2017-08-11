@@ -258,9 +258,10 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface
 
 function requestToKey(request: ParsedRequest): string {
   const queryString = request.query && print(request.query);
-  return JSON.stringify({
+  const requestKey = {
     variables: request.variables || {},
     debugName: request.debugName,
     query: queryString,
-  });
+  };
+  return JSON.stringify(requestKey, Object.keys(requestKey).sort());
 }
