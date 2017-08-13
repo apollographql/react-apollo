@@ -43,13 +43,17 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
         'sure you pass in your client via the "client" prop.',
     );
 
-    if (!props.store) {
+    if (!props.store && typeof props.client.initStore === 'function') {
       props.client.initStore();
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.client !== this.props.client && !nextProps.store) {
+    if (
+      nextProps.client !== this.props.client &&
+      !nextProps.store &&
+      typeof nextProps.client.initStore === 'function'
+    ) {
       nextProps.client.initStore();
     }
   }
