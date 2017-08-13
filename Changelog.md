@@ -1,6 +1,8 @@
 # Change log
 
 ### vNext
+- Fix: Scope query recyclers by client [#876](https://github.com/apollographql/react-apollo/pull/876)
+- MockNetworkInterface match mock requests regardless of variable order [#973](https://github.com/apollographql/react-apollo/pull/973)
 
 ### 1.4.12
 - Fix: fix issue with bad deploy

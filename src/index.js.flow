@@ -27,21 +27,21 @@ export { gql, compose };
 declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
 
 export interface ProviderProps {
-  store?: Store<any>,
+  store?: Store<*, *>,
   client: ApolloClient,
 }
 
 declare export class ApolloProvider extends React$Component {
   props: ProviderProps,
   childContextTypes: {
-    store: Store,
+    store: Store<*, *>,
     client: ApolloClient,
   },
   contextTypes: {
-    store: Store,
+    store: Store<*, *>,
   },
   getChildContext(): {
-    store: Store,
+    store: Store<*, *>,
     client: ApolloClient,
   },
   render(): React$Element<*>,
@@ -100,7 +100,7 @@ export interface OptionProps<TProps, TResult> {
 export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
 
 export type NamedProps<P, R> = P & {
-  ownProps: R;
+  ownProps: R,
 };
 
 export interface OperationOption<TProps: {}, TResult: {}> {
@@ -146,7 +146,7 @@ declare export function parser(document: DocumentNode): IDocumentDefinition;
 
 export interface Context {
   client?: ApolloClient,
-  store?: Store,
+  store?: Store<*, *>,
   [key: string]: any,
 }
 
