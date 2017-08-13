@@ -132,6 +132,16 @@ describe('<ApolloProvider /> Component', () => {
     expect(wrapper.contains(<div className="unique" />)).toBe(true);
   });
 
+  it('should support the 2.0', () => {
+    const wrapper = shallow(
+      <ApolloProvider client={{}}>
+        <div className="unique" />
+      </ApolloProvider>,
+    );
+
+    expect(wrapper.contains(<div className="unique" />)).toBe(true);
+  });
+
   it('should require a client', () => {
     const originalConsoleError = console.error;
     console.error = () => {
