@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.4.10",
+  "version": "1.4.11",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -39,7 +39,10 @@
       "prettier --trailing-comma all --single-quote --write",
       "git add"
     ],
-    "*.js*": ["prettier --trailing-comma all --single-quote --write", "git add"]
+    "*.js*": [
+      "prettier --trailing-comma all --single-quote --write",
+      "git add"
+    ]
   },
   "pre-commit": "lint-staged",
   "repository": {
@@ -57,7 +60,9 @@
   ],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
-    "presets": ["react-native"]
+    "presets": [
+      "react-native"
+    ]
   },
   "jest": {
     "preset": "jest-react-native",
@@ -65,13 +70,21 @@
     "transform": {
       ".*": "./preprocessor.js"
     },
-    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow.js",
       "<rootDir>/test/typescript.ts"
     ],
-    "projects": ["<rootDir>", "<rootDir>/examples/*"],
+    "projects": [
+      "<rootDir>",
+      "<rootDir>/examples/*"
+    ],
     "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$"
   },
   "license": "MIT",
@@ -86,12 +99,12 @@
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jest": "20.0.6",
     "@types/lodash": "4.14.71",
-    "@types/node": "8.0.19",
+    "@types/node": "8.0.20",
     "@types/object-assign": "4.0.30",
     "@types/react": "15.6.1",
     "@types/react-addons-test-utils": "0.14.19",
     "@types/react-dom": "15.5.2",
-    "@types/react-redux": "4.4.47",
+    "@types/react-redux": "5.0.1",
     "@types/redux-form": "7.0.2",
     "@types/redux-immutable": "3.0.34",
     "@types/sinon": "2.3.3",
@@ -101,7 +114,7 @@
     "bundlesize": "0.13.2",
     "cheerio": "0.22.0",
     "colors": "1.1.2",
-    "danger": "1.1.0",
+    "danger": "1.2.0",
     "enzyme": "2.9.1",
     "enzyme-to-json": "1.5.1",
     "flow-bin": "0.52.0",
@@ -111,7 +124,7 @@
     "jest": "20.0.4",
     "jest-react-native": "18.0.0",
     "jsdom": "11.1.0",
-    "lint-staged": "4.0.2",
+    "lint-staged": "4.0.3",
     "lodash": "4.17.4",
     "minimist": "1.2.0",
     "mobx": "3.2.2",
@@ -123,19 +136,19 @@
     "react-addons-test-utils": "15.6.0",
     "react-dom": "15.6.1",
     "react-native": "0.42.3",
-    "react-redux": "5.0.5",
+    "react-redux": "5.0.6",
     "react-test-renderer": "15.6.1",
     "recompose": "0.24.0",
     "redux": "3.7.2",
     "redux-form": "6.8.0",
     "redux-immutable": "4.0.0",
     "redux-loop": "2.2.2",
-    "rollup": "0.45.2",
+    "rollup": "0.47.2",
     "source-map-support": "0.4.15",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "1.0.2",
-    "ts-jest": "20.0.8",
-    "tslint": "5.5.0",
+    "ts-jest": "20.0.10",
+    "tslint": "5.6.0",
     "typescript": "2.4.2",
     "typescript-require": "0.2.9",
     "typings": "2.1.1",
