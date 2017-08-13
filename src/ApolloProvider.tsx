@@ -5,6 +5,7 @@ import { Component } from 'react';
 import { Store } from 'redux';
 
 import ApolloClient, { ApolloStore } from 'apollo-client';
+import QueryRecyclerProvider from './QueryRecyclerProvider';
 
 const invariant = require('invariant');
 
@@ -61,6 +62,10 @@ export default class ApolloProvider extends Component<ProviderProps, any> {
   }
 
   render() {
-    return React.Children.only(this.props.children);
+    return (
+      <QueryRecyclerProvider>
+        {React.Children.only(this.props.children)}
+      </QueryRecyclerProvider>
+    );
   }
 }
