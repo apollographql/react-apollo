@@ -39,8 +39,10 @@ type MutationPayload = {
 };
 
 type MutationInput = {
-  id: string;
-  newDelta: string;
+  input: {
+    id: string;
+    newDelta: string;
+  };
 };
 
 type Props = {
@@ -86,8 +88,10 @@ class UpdateHistoryView extends React.Component<
   updateHistory() {
     this.props.updateHistory({
       variables: {
-        id: 'historyId',
-        newDelta: 'newDelta',
+        input: {
+          id: 'historyId',
+          newDelta: 'newDelta',
+        },
       },
     });
   }
