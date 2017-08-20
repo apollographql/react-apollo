@@ -11,14 +11,7 @@
 
 // @flow
 import * as React from 'react';
-import {
-  withApollo,
-  compose,
-  gql,
-  graphql,
-  ApolloClient,
-  createNetworkInterface,
-} from '../src';
+import { withApollo, compose, gql, graphql } from '../src';
 import type { OperationComponent, QueryProps, ChildProps } from '../src';
 
 const query = gql`
@@ -34,18 +27,71 @@ const mutation = gql`
 
 type IQuery = {
   foo: string,
+  bar: string,
 };
-
-// common errors
 
 const withData: OperationComponent<IQuery> = graphql(query);
 
-const ComponentWithData = withData(({ data: { foo } }) => {
-  // $ExpectError
+// Test a functional component
+const FunctionalWithData = withData(({ data: { foo } }) => {
+  // $ExpectError string type beeing treated as numerical
   if (foo > 1) return <span />;
 
   return null;
 });
+
+// Test class component, this requieres a stricter definition
+type BasicComponentProps = {
+  data: IQuery & QueryProps,
+  mutate: any, // The mutation is actually required or we get a error at the withData
+};
+class BasicComponent extends React.Component<BasicComponentProps> {
+  render() {
+    const { foo, bar } = this.props.data;
+
+    // $ExpectError string type beeing treated as numerical
+    if (bar > 1) return null;
+
+    // The below works as expected
+    return (
+      <div>
+        {foo.length} string length
+      </div>
+    );
+  }
+}
+const BasicClassWithData = withData(BasicComponent);
+
+// A class component with it's own variable
+// since we don't rely on the ChildProps<P, R> we don't need the mutate: any
+type CmplxOwnProps = { faz: string };
+type CmplxComponentProps = {
+  data: IQuery & QueryProps,
+  faz: string, // For some reason the syntax { ... } & CmplxOwnProps doesn't work
+};
+class CmplxComponent extends React.Component<CmplxComponentProps> {
+  render() {
+    const { data: { loading, error, bar, foo }, faz } = this.props;
+    if (loading) return <div>Loading</div>;
+    if (error) return <h1>ERROR</h1>;
+
+    // $ExpectError string type beeing treated as numerical
+    if (bar > 1) return null;
+
+    // The below works as expected
+    return (
+      <div>
+        {foo.length} string length compared to faz {faz.length} length
+      </div>
+    );
+  }
+}
+const withFancyData: OperationComponent<
+  IQuery,
+  CmplxOwnProps,
+  CmplxComponentProps,
+> = graphql(query);
+const CmplxWithData = withFancyData(CmplxComponent);
 
 const HERO_QUERY = gql`
   query GetCharacter($episode: Episode!) {
@@ -114,7 +160,7 @@ export class Character extends React.Component<Props> {
 const CharacterWithData = withCharacter(Character);
 
 const Manual = withApollo(({ client }) => {
-  // XXX please don't every actually do this
+  // XXX please don't ever actually do this
   client.query({ query: HERO_QUERY });
   return null;
 });
