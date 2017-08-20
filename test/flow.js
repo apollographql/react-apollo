@@ -64,10 +64,10 @@ const BasicClassWithData = withData(BasicComponent);
 
 // A class component with it's own variable
 // since we don't rely on the ChildProps<P, R> we don't need the mutate: any
-type CmplxOwnProps = { faz: string };
+type CmplxOwnProps = {| faz: string |};
 type CmplxComponentProps = {
   data: IQuery & QueryProps,
-  faz: string, // For some reason the syntax { ... } & CmplxOwnProps doesn't work
+  ...CmplxOwnProps,
 };
 class CmplxComponent extends React.Component<CmplxComponentProps> {
   render() {
