@@ -10,7 +10,7 @@
 */
 
 // @flow
-import { Component } from 'react';
+import * as React from 'react';
 import {
   withApollo,
   compose,
@@ -102,7 +102,7 @@ export default withCharacter(({ loading, hero, error }) => {
   return null;
 });
 
-export class Character extends Component {
+export class Character extends React.Component<Props> {
   render() {
     const { loading, hero, error } = this.props;
     if (loading) return <div>Loading</div>;
