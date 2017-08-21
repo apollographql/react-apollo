@@ -63,11 +63,11 @@ class BasicComponent extends React.Component<BasicComponentProps> {
 const BasicClassWithData = withData(BasicComponent);
 
 // A class component with it's own variable
-// since we don't rely on the ChildProps<P, R> we don't need the mutate: any
-type CmplxOwnProps = {| faz: string |};
+type CmplxOwnProps = { faz: string };
 type CmplxComponentProps = {
   data: IQuery & QueryProps,
-  ...CmplxOwnProps,
+  mutate: any, // The mutation is actually required or we get a error at the withData
+  ...$Exact<CmplxOwnProps>,
 };
 class CmplxComponent extends React.Component<CmplxComponentProps> {
   render() {
@@ -86,12 +86,39 @@ class CmplxComponent extends React.Component<CmplxComponentProps> {
     );
   }
 }
-const withFancyData: OperationComponent<
-  IQuery,
-  CmplxOwnProps,
-  CmplxComponentProps,
-> = graphql(query);
+const withFancyData: OperationComponent<IQuery, CmplxOwnProps> = graphql(query);
 const CmplxWithData = withFancyData(CmplxComponent);
+
+// Same as above but with the Props specified at the end
+// since we don't rely on the ChildProps<P, R> we don't need the mutate: any
+type Cmplx2OwnProps = {| faz: string |}; // We can have exact own props as we don't rely on the TMergedProps
+type Cmplx2ComponentProps = {
+  data: IQuery & QueryProps,
+  ...Cmplx2OwnProps,
+};
+class Cmplx2Component extends React.Component<Cmplx2ComponentProps> {
+  render() {
+    const { data: { loading, error, bar, foo }, faz } = this.props;
+    if (loading) return <div>Loading</div>;
+    if (error) return <h1>ERROR</h1>;
+
+    // $ExpectError string type beeing treated as numerical
+    if (bar > 1) return null;
+
+    // The below works as expected
+    return (
+      <div>
+        {foo.length} string length compared to faz {faz.length} length
+      </div>
+    );
+  }
+}
+const withFancyData2: OperationComponent<
+  IQuery,
+  Cmplx2OwnProps,
+  Cmplx2ComponentProps,
+> = graphql(query);
+const Cmplx2WithData = withFancyData2(Cmplx2Component);
 
 const HERO_QUERY = gql`
   query GetCharacter($episode: Episode!) {
