@@ -96,7 +96,7 @@
     "@types/redux-immutable": "3.0.35",
     "@types/sinon": "2.3.3",
     "babel-jest": "20.0.3",
-    "babel-preset-react-native": "2.1.0",
+    "babel-preset-react-native": "3.0.1",
     "browserify": "14.4.0",
     "bundlesize": "0.13.2",
     "cheerio": "0.22.0",
