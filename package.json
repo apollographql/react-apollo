@@ -93,7 +93,7 @@
     "@types/react-dom": "15.5.2",
     "@types/react-redux": "5.0.5",
     "@types/redux-form": "7.0.2",
-    "@types/redux-immutable": "3.0.34",
+    "@types/redux-immutable": "3.0.35",
     "@types/sinon": "2.3.3",
     "babel-jest": "20.0.3",
     "babel-preset-react-native": "2.1.0",
