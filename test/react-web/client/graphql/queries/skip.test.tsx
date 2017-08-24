@@ -177,7 +177,7 @@ describe('[queries] skip', () => {
       query people($id: ID!) {
         allPeople(first: $id) {
           people {
-            name
+            id
           }
         }
       }
@@ -194,17 +194,28 @@ describe('[queries] skip', () => {
 
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
+    let count = 0,
+      renderCount = 0;
     @graphql(query, {
       skip: ({ person }) => !person,
       options: ({ person }) => ({
-        variables: person.id,
+        variables: {
+          id: person.id,
+        },
       }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        done();
+        count++;
+        if (count === 1) expect(props.data.loading).toBe(true);
+        if (count === 2) expect(props.data.allPeople).toEqual(data.allPeople);
+        if (count === 2) {
+          expect(renderCount).toBe(2);
+          done();
+        }
       }
       render() {
+        renderCount++;
         return null;
       }
     }
