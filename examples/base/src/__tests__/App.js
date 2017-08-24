@@ -133,6 +133,41 @@ describe('withCharacter', () => {
   });
 });
 
+describe('MocksWithoutTypename', () => {
+  it('reshapes the data into the passed props', done => {
+    const hero_without_typename = {
+      name: 'anakin',
+      id: '1',
+      friends: null,
+    };
+    const queryWithoutTypename = HERO_QUERY;
+
+    class Container extends React.Component<ShapedProps> {
+      componentWillReceiveProps(next: ShapedProps) {
+        expect(next.hero).toEqual(hero_without_typename);
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    const ContainerWithData = withCharacter(Container);
+    const mocks = [
+      {
+        request: { query: queryWithoutTypename, variables },
+        result: { data: { hero: hero_without_typename } },
+      },
+    ];
+
+    renderer.create(
+      <MockedProvider mocks={mocks} removeTypename>
+        <ContainerWithData {...variables} />
+      </MockedProvider>,
+    );
+  });
+});
+
 describe('CharacterWithoutData', () => {
   it('handles a loading state', () => {
     const output = renderer.create(<CharacterWithoutData loading />);

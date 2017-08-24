@@ -4,6 +4,7 @@
 - Feature: Support apollo-client 2.0
 - Fix: Scope query recyclers by client [#876](https://github.com/apollographql/react-apollo/pull/876)
 - MockNetworkInterface match mock requests regardless of variable order [#973](https://github.com/apollographql/react-apollo/pull/973)
+- Allow to pass removeTypenames to MockedProvider [#1001](https://github.com/apollographql/react-apollo/pull/1001)
 
 ### 1.4.12
 - Fix: fix issue with bad deploy
