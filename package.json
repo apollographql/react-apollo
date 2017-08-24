@@ -85,7 +85,7 @@
     "@types/invariant": "2.2.29",
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jest": "20.0.8",
-    "@types/lodash": "4.14.71",
+    "@types/lodash": "4.14.74",
     "@types/node": "8.0.22",
     "@types/object-assign": "4.0.30",
     "@types/react": "15.6.1",
