@@ -243,9 +243,9 @@ export default function graphql<
         );
       }
 
-      getClient(): ApolloClient {
+      getClient(props): ApolloClient {
         if (this.client) return this.client;
-        const { client } = mapPropsToOptions(this.props);
+        const { client } = mapPropsToOptions(props);
 
         if (client) {
           this.client = client;
@@ -329,9 +329,9 @@ export default function graphql<
         this.createQuery(opts);
       }
 
-      createQuery(opts: QueryOpts) {
+      createQuery(opts: QueryOpts, props: any = this.props) {
         if (this.type === DocumentType.Subscription) {
-          this.queryObservable = this.getClient().subscribe(
+          this.queryObservable = this.getClient(props).subscribe(
             assign(
               {
                 query: document,
@@ -348,7 +348,7 @@ export default function graphql<
           if (recycler) queryObservable = recycler.reuse(opts);
 
           if (queryObservable === null) {
-            this.queryObservable = this.getClient().watchQuery(
+            this.queryObservable = this.getClient(props).watchQuery(
               assign(
                 {
                   query: document,
@@ -372,7 +372,7 @@ export default function graphql<
 
         // if we skipped initially, we may not have yet created the observable
         if (!this.queryObservable) {
-          this.createQuery(opts);
+          this.createQuery(opts, props);
         }
 
         if (this.queryObservable._setOptionsNoResult) {
@@ -411,7 +411,7 @@ export default function graphql<
           opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
         }
 
-        const observable = this.getClient().watchQuery(
+        const observable = this.getClient(this.props).watchQuery(
           assign({ query: document }, opts),
         );
         const result = observable.currentResult();
@@ -506,7 +506,7 @@ export default function graphql<
         if (typeof opts.variables === 'undefined') delete opts.variables;
 
         (opts as any).mutation = document;
-        return this.getClient().mutate(opts as any) as Promise<
+        return this.getClient(this.props).mutate(opts as any) as Promise<
           ApolloQueryResult<TResult>
         >;
       }
