@@ -344,26 +344,25 @@ export default function graphql<
           // we get null then there is no instance to reuse and we should
           // create a new `ObservableQuery`. Otherwise we will use our old one.
           const recycler = this.getQueryRecycler();
-          if (recycler) {
-            const queryObservable = recycler.reuse(opts);
+          let queryObservable = null;
+          if (recycler) queryObservable = recycler.reuse(opts);
 
-            if (queryObservable === null) {
-              this.queryObservable = this.getClient().watchQuery(
-                assign(
-                  {
-                    query: document,
-                    metadata: {
-                      reactComponent: {
-                        displayName: graphQLDisplayName,
-                      },
+          if (queryObservable === null) {
+            this.queryObservable = this.getClient().watchQuery(
+              assign(
+                {
+                  query: document,
+                  metadata: {
+                    reactComponent: {
+                      displayName: graphQLDisplayName,
                     },
                   },
-                  opts,
-                ),
-              );
-            } else {
-              this.queryObservable = queryObservable;
-            }
+                },
+                opts,
+              ),
+            );
+          } else {
+            this.queryObservable = queryObservable;
           }
         }
       }
