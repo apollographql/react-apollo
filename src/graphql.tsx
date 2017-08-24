@@ -124,6 +124,11 @@ export default function graphql<
       private querySubscription: Subscription;
       private previousData: any = {};
       private lastSubscriptionData: any;
+      private refetcherQueue: {
+        args: any;
+        resolve: (value?: {} | PromiseLike<{}>) => void;
+        reject: (reason?: any) => void;
+      };
 
       // calculated switches to control rerenders
       private shouldRerender: boolean;
@@ -155,6 +160,11 @@ export default function graphql<
 
         if (!this.shouldSkip(this.props)) {
           this.subscribeToQuery();
+          // call any stacked refetch functions
+          if (this.refetcherQueue) {
+            const { args, resolve, reject } = this.refetcherQueue;
+            this.queryObservable.refetch(args).then(resolve).catch(reject);
+          }
         }
       }
 
@@ -569,6 +579,15 @@ export default function graphql<
           } else {
             assign(data, currentResult.data);
             this.previousData = currentResult.data;
+          }
+
+          // handle race condition where refetch is called on child mount
+          if (!this.querySubscription) {
+            (data as QueryProps).refetch = args => {
+              return new Promise((r, f) => {
+                this.refetcherQueue = { resolve: r, reject: f, args };
+              });
+            };
           }
         }
         return data as QueryProps & TResult;
