@@ -1,6 +1,9 @@
 # Change log
 
 ### vNext
+
+
+### 1.4.15
 - Fix: handle calling refetch in child componentDidMount
 - Fix: ensure options gets up to date props [#1025](https://github.com/apollographql/react-apollo/pull/1005)
 - Fix: ensure queryRecycler exists before using it
