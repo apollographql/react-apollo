@@ -130,7 +130,7 @@
     "redux-form": "6.8.0",
     "redux-immutable": "4.0.0",
     "redux-loop": "2.2.2",
-    "rollup": "0.47.4",
+    "rollup": "0.48.2",
     "source-map-support": "0.4.16",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "1.0.2",
