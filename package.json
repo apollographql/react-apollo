@@ -131,7 +131,7 @@
     "redux-immutable": "4.0.0",
     "redux-loop": "2.2.2",
     "rollup": "0.48.2",
-    "source-map-support": "0.4.15",
+    "source-map-support": "0.4.16",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "1.0.2",
     "ts-jest": "20.0.10",
@@ -139,7 +139,7 @@
     "typescript": "2.4.2",
     "typescript-require": "0.2.9",
     "typings": "2.1.1",
-    "uglify-js": "3.0.27"
+    "uglify-js": "3.0.28"
   },
   "dependencies": {
     "apollo-client": "^1.4.0 || ^2.0.0-0",
