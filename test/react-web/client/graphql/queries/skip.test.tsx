@@ -144,7 +144,6 @@ describe('[queries] skip', () => {
 
     @graphql(query, { skip: true })
     class Container extends React.Component<any, any> {
-      8;
       componentWillReceiveProps(props) {
         done();
       }
@@ -163,6 +162,63 @@ describe('[queries] skip', () => {
       }
       render() {
         return <Container foo={this.state.foo} />;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Parent />
+      </ApolloProvider>,
+    );
+  });
+
+  it('supports using props for skipping which are used in options', done => {
+    const query = gql`
+      query people($id: ID!) {
+        allPeople(first: $id) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: { people: { id: 1 } },
+    };
+    const variables = { id: 1 };
+    const networkInterface = mockNetworkInterface({
+      request: { query, variables },
+      result: { data },
+    });
+
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    @graphql(query, {
+      skip: ({ person }) => !person,
+      options: ({ person }) => ({
+        variables: person.id,
+      }),
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { person: null };
+      }
+      componentDidMount() {
+        this.setState({ person: { id: 1 } });
+      }
+      render() {
+        return <Container person={this.state.person} />;
       }
     }
 
