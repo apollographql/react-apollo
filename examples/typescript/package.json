@@ -10,7 +10,7 @@
     "react-dom": "^15.6.1"
   },
   "devDependencies": {
-    "@types/jest": "20.0.7",
+    "@types/jest": "20.0.8",
     "@types/node": "8.0.22",
     "@types/react": "15.6.1",
     "@types/react-dom": "15.5.2",
