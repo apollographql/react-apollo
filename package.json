@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.4.13",
+  "version": "1.4.14",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -142,14 +142,10 @@
     "uglify-js": "3.0.28"
   },
   "dependencies": {
-    "apollo-client": "^1.4.0 || ^2.0.0-0",
-    "graphql-anywhere": "^3.0.0",
+    "apollo-client": "^1.4.0",
     "graphql-tag": "^2.0.0",
     "hoist-non-react-statics": "^2.2.0",
     "invariant": "^2.2.1",
-    "lodash.flatten": "^4.2.0",
-    "lodash.isequal": "^4.1.1",
-    "lodash.isobject": "^3.0.2",
     "lodash.pick": "^4.4.0",
     "object-assign": "^4.0.1",
     "prop-types": "^15.5.8"

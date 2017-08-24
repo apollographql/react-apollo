@@ -58,7 +58,7 @@ const raiseIssueAboutPaths = (
   }
 };
 
-const authors = commits.map(x => x.author.login);
+const authors = commits.map(x => x.author && x.author.login);
 const isBot = authors.some(x => ['greenkeeper', 'renovate'].indexOf(x) > -1);
 
 if (!isBot) {

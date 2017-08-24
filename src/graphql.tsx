@@ -215,8 +215,11 @@ export default function graphql<
         if (this.type === DocumentType.Query) {
           // Recycle the query observable if there ever was one.
           if (this.queryObservable) {
-            this.getQueryRecycler().recycle(this.queryObservable);
-            delete this.queryObservable;
+            const recycler = this.getQueryRecycler();
+            if (recycler) {
+              recycler.recycle(this.queryObservable);
+              delete this.queryObservable;
+            }
           }
 
           // It is critical that this happens prior to recyling the query
@@ -234,7 +237,10 @@ export default function graphql<
       }
 
       getQueryRecycler() {
-        return this.context.getQueryRecycler(GraphQL);
+        return (
+          this.context.getQueryRecycler &&
+          this.context.getQueryRecycler(GraphQL)
+        );
       }
 
       getClient(): ApolloClient {
@@ -337,7 +343,9 @@ export default function graphql<
           // Try to reuse an `ObservableQuery` instance from our recycler. If
           // we get null then there is no instance to reuse and we should
           // create a new `ObservableQuery`. Otherwise we will use our old one.
-          const queryObservable = this.getQueryRecycler().reuse(opts);
+          const recycler = this.getQueryRecycler();
+          let queryObservable = null;
+          if (recycler) queryObservable = recycler.reuse(opts);
 
           if (queryObservable === null) {
             this.queryObservable = this.getClient().watchQuery(

@@ -34,7 +34,33 @@ describe('client option', () => {
       },
     };
     const ContainerWithData = graphql(query, config)(props => null);
-    shallow(<ContainerWithData />, { context: { getQueryRecycler: () => new ObservableQueryRecycler() }});
+    shallow(<ContainerWithData />, {
+      context: { getQueryRecycler: () => new ObservableQueryRecycler() },
+    });
+  });
+  it('doesnt require a recycler', () => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const config = {
+      options: {
+        client,
+      },
+    };
+    const ContainerWithData = graphql(query, config)(props => null);
+    shallow(<ContainerWithData />);
   });
 
   it('ignores client from context if client from options is present', done => {
