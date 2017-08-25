@@ -1,9 +1,7 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 
-// @IMPORTANT this is normally consumed from react-apollo/test-utils
-// but during development, it needs to be pulled from lib
-import { MockedProvider } from 'react-apollo/lib/test-utils';
+import { MockedProvider } from 'react-apollo/test-utils';
 
 import { addTypenameToDocument } from 'apollo-client';
 
