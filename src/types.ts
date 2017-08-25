@@ -34,9 +34,9 @@ export interface QueryOpts {
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   client?: ApolloClient;
+  notifyOnNetworkStatusChange?: boolean;
   // deprecated
   skip?: boolean;
-  notifyOnNetworkStatusChange?: boolean;
 }
 
 export interface QueryProps {
