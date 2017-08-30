@@ -128,8 +128,8 @@ declare export function graphql<TResult, TProps, TChildProps>(
 ): OperationComponent<TResult, TProps, TChildProps>;
 
 declare export function withApollo<TProps>(
-  component: React$ComponentType<TProps & ApolloClient>,
-): React$ComponentType<TProps & ApolloClient>;
+  component: React$ComponentType<ApolloClient & TProps>,
+): React$ComponentType<ApolloClient & TProps>;
 
 export interface IDocumentDefinition {
   type: DocumentType,
