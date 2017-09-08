@@ -91,7 +91,7 @@
     "@types/react": "15.6.2",
     "@types/react-addons-test-utils": "0.14.19",
     "@types/react-dom": "15.5.4",
-    "@types/react-redux": "5.0.6",
+    "@types/react-redux": "5.0.7",
     "@types/redux-form": "7.0.4",
     "@types/redux-immutable": "3.0.37",
     "@types/sinon": "2.3.3",
