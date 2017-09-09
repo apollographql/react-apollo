@@ -24,7 +24,7 @@
     "babel-plugin-transform-react-require": "1.0.1",
     "babel-preset-react": "6.24.1",
     "cheerio": "1.0.0-rc.2",
-    "chromedriver": "2.32.1",
+    "chromedriver": "2.32.2",
     "nightwatch": "0.9.16",
     "selenium-webdriver": "3.5.0"
   }
