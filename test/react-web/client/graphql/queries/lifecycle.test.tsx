@@ -16,19 +16,6 @@ declare function require(name: string)
 import { mockNetworkInterface } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
 function wait(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
@@ -506,5 +493,68 @@ describe('[queries] lifecycle', () => {
       { loading: false, a: 4, b: 5, c: 6 },
       { loading: false, a: 7, b: 8, c: 9 },
     ]);
+  });
+
+  it('handles racecondition with prefilled data from the server', async done => {
+    const query = gql`
+      query GetUser($first: Int) {
+        user(first: $first) {
+          name
+        }
+      }
+    `;
+    const variables = { first: 1 };
+    const data2 = { user: { name: 'Luke Skywalker' } };
+
+    const networkInterface = mockNetworkInterface({
+      request: { query, variables, delay: 10 },
+      result: { data: data2 },
+    });
+    const client = new ApolloClient({
+      networkInterface,
+      addTypename: false,
+      // prefill the store (like SSR would)
+      initialState: {
+        apollo: {
+          data: {
+            ROOT_QUERY: {
+              'user({"first":1})': null,
+            },
+          },
+        },
+      },
+    });
+
+    let hasRefetched,
+      count = 0;
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps({ data }) {
+        count++;
+      }
+
+      componentDidMount() {
+        this.props.data.refetch().then(result => {
+          expect(result.data.user.name).toBe('Luke Skywalker');
+          done();
+        });
+      }
+
+      render() {
+        const user = this.props.data.user || {};
+        const { name = '' } = user;
+        if (count === 2) {
+          expect(name).toBe('Luke Skywalker');
+        }
+        return null;
+      }
+    }
+
+    mount(
+      <ApolloProvider client={client}>
+        <Container first={1} />
+      </ApolloProvider>,
+    );
   });
 });

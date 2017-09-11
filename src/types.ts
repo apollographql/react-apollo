@@ -25,6 +25,7 @@ export interface MutationOpts {
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
   client?: ApolloClient;
+  notifyOnNetworkStatusChange?: boolean;
 }
 
 export interface QueryOpts {
@@ -33,6 +34,7 @@ export interface QueryOpts {
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   client?: ApolloClient;
+  notifyOnNetworkStatusChange?: boolean;
   // deprecated
   skip?: boolean;
 }

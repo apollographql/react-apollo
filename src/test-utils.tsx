@@ -20,8 +20,9 @@ export class MockedProvider extends React.Component<any, any> {
     super(props, context);
     if (this.props.client) return;
 
+    const addTypename = !this.props.removeTypename;
     const networkInterface = mockNetworkInterface.apply(null, this.props.mocks);
-    this.client = new ApolloClient({ networkInterface });
+    this.client = new ApolloClient({ networkInterface, addTypename });
   }
 
   render() {
