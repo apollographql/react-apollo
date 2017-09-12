@@ -139,7 +139,7 @@
     "typescript": "2.4.2",
     "typescript-require": "0.2.9",
     "typings": "2.1.1",
-    "uglify-js": "3.0.28"
+    "uglify-js": "3.1.0"
   },
   "dependencies": {
     "apollo-client": "^1.4.0",
