@@ -103,7 +103,7 @@
     "colors": "1.1.2",
     "danger": "1.2.0",
     "enzyme": "2.9.1",
-    "enzyme-to-json": "1.5.1",
+    "enzyme-to-json": "1.6.0",
     "flow-bin": "0.52.0",
     "graphql": "0.11.3",
     "immutable": "3.8.1",
