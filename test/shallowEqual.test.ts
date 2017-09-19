@@ -41,3 +41,9 @@ it('should return false if arguments have different keys', () => {
     shallowEqual({ a: 1, b: 2, c: undefined }, { a: 1, bb: 2, c: undefined }),
   ).toBe(false);
 });
+
+it('should return false if one of arguments is falsy', () => {
+  expect(shallowEqual(null, {})).toBe(false);
+
+  expect(shallowEqual({}, null)).toBe(false);
+});
