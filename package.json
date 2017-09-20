@@ -114,7 +114,7 @@
     "lint-staged": "4.2.1",
     "lodash": "4.17.4",
     "minimist": "1.2.0",
-    "mobx": "3.2.2",
+    "mobx": "3.3.0",
     "mobx-react": "4.3.2",
     "pre-commit": "1.2.2",
     "prettier": "1.7.0",
