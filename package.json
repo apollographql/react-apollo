@@ -94,7 +94,7 @@
     "@types/react-redux": "5.0.9",
     "@types/redux-form": "7.0.5",
     "@types/redux-immutable": "3.0.37",
-    "@types/sinon": "2.3.4",
+    "@types/sinon": "2.3.5",
     "babel-jest": "20.0.3",
     "babel-preset-react-native": "3.0.2",
     "browserify": "14.4.0",
