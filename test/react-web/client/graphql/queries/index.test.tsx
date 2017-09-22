@@ -244,6 +244,59 @@ describe('queries', () => {
     );
   });
 
+  it("doesn't care about the order of variables in a request", done => {
+    const query = gql`
+      query people($first: Int, $jedi: Boolean) {
+        allPeople(first: $first, jedi: $jedi) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const variables = { first: 1, jedi: true };
+    const mocks = [
+      {
+        request: {
+          query,
+          variables,
+        },
+        result: {
+          data,
+        },
+      },
+    ];
+    const networkInterface = mockNetworkInterface.apply(null, mocks);
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const options = {
+      options: {
+        variables: {
+          jedi: true,
+          first: 1,
+        },
+      },
+    };
+
+    @graphql(query, options)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        expect(props.data.loading).toBe(false);
+        expect(props.data.allPeople).toEqual(data.allPeople);
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
+  });
+
   it('allows falsy values in the mapped variables from props', done => {
     const query = gql`
       query people($first: Int) {

@@ -53,4 +53,5 @@ cp src/index.js.flow npm/
 cp src/index.js.flow npm/react-apollo.umd.js.flow
 cp -R flow-typed npm/
 
-# npm deploy is handled by Travis
+echo 'deploying to npm...'
+cd npm && npm publish && git push --tags

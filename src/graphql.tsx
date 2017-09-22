@@ -98,19 +98,12 @@ export default function graphql<
   function wrapWithApolloComponent(WrappedComponent) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    // A recycler that we can use to recycle old observable queries to keep
-    // them hot between component unmounts and remounts.
-    //
-    // Note that the existence of this recycler could potentially cause memory
-    // leaks if many components are being created and unmounted in parallel.
-    // However, this is an unlikely scenario.
-    const recycler = new ObservableQueryRecycler();
-
     class GraphQL extends Component<TProps, void> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
         client: PropTypes.object,
+        getQueryRecycler: PropTypes.func,
       };
 
       // react / redux and react dev tools (HMR) needs
@@ -121,6 +114,7 @@ export default function graphql<
       // data storage
       private store: ApolloStore;
       private client: ApolloClient; // apollo client
+      private recycler: ObservableQueryRecycler;
       private type: DocumentType;
 
       // request / action storage. Note that we delete querySubscription if we
@@ -130,6 +124,11 @@ export default function graphql<
       private querySubscription: Subscription;
       private previousData: any = {};
       private lastSubscriptionData: any;
+      private refetcherQueue: {
+        args: any;
+        resolve: (value?: {} | PromiseLike<{}>) => void;
+        reject: (reason?: any) => void;
+      };
 
       // calculated switches to control rerenders
       private shouldRerender: boolean;
@@ -142,6 +141,7 @@ export default function graphql<
 
       constructor(props, context) {
         super(props, context);
+
         this.version = version;
         this.type = operation.type;
         this.dataForChildViaMutation = this.dataForChildViaMutation.bind(this);
@@ -160,6 +160,11 @@ export default function graphql<
 
         if (!this.shouldSkip(this.props)) {
           this.subscribeToQuery();
+          // call any stacked refetch functions
+          if (this.refetcherQueue) {
+            const { args, resolve, reject } = this.refetcherQueue;
+            this.queryObservable.refetch(args).then(resolve).catch(reject);
+          }
         }
       }
 
@@ -183,6 +188,7 @@ export default function graphql<
           this.unsubscribeFromQuery();
           this.queryObservable = null;
           this.previousData = {};
+
           this.updateQuery(nextProps);
           if (!this.shouldSkip(nextProps)) {
             this.subscribeToQuery();
@@ -219,8 +225,11 @@ export default function graphql<
         if (this.type === DocumentType.Query) {
           // Recycle the query observable if there ever was one.
           if (this.queryObservable) {
-            recycler.recycle(this.queryObservable);
-            delete this.queryObservable;
+            const recycler = this.getQueryRecycler();
+            if (recycler) {
+              recycler.recycle(this.queryObservable);
+              delete this.queryObservable;
+            }
           }
 
           // It is critical that this happens prior to recyling the query
@@ -237,9 +246,16 @@ export default function graphql<
         this.hasMounted = false;
       }
 
-      getClient(): ApolloClient {
+      getQueryRecycler() {
+        return (
+          this.context.getQueryRecycler &&
+          this.context.getQueryRecycler(GraphQL)
+        );
+      }
+
+      getClient(props): ApolloClient {
         if (this.client) return this.client;
-        const { client } = mapPropsToOptions(this.props);
+        const { client } = mapPropsToOptions(props);
 
         if (client) {
           this.client = client;
@@ -323,9 +339,9 @@ export default function graphql<
         this.createQuery(opts);
       }
 
-      createQuery(opts: QueryOpts) {
+      createQuery(opts: QueryOpts, props: any = this.props) {
         if (this.type === DocumentType.Subscription) {
-          this.queryObservable = this.getClient().subscribe(
+          this.queryObservable = this.getClient(props).subscribe(
             assign(
               {
                 query: document,
@@ -337,10 +353,12 @@ export default function graphql<
           // Try to reuse an `ObservableQuery` instance from our recycler. If
           // we get null then there is no instance to reuse and we should
           // create a new `ObservableQuery`. Otherwise we will use our old one.
-          const queryObservable = recycler.reuse(opts);
+          const recycler = this.getQueryRecycler();
+          let queryObservable = null;
+          if (recycler) queryObservable = recycler.reuse(opts);
 
           if (queryObservable === null) {
-            this.queryObservable = this.getClient().watchQuery(
+            this.queryObservable = this.getClient(props).watchQuery(
               assign(
                 {
                   query: document,
@@ -364,7 +382,7 @@ export default function graphql<
 
         // if we skipped initially, we may not have yet created the observable
         if (!this.queryObservable) {
-          this.createQuery(opts);
+          this.createQuery(opts, props);
         }
 
         if (this.queryObservable._setOptionsNoResult) {
@@ -403,7 +421,7 @@ export default function graphql<
           opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
         }
 
-        const observable = this.getClient().watchQuery(
+        const observable = this.getClient(this.props).watchQuery(
           assign({ query: document }, opts),
         );
         const result = observable.currentResult();
@@ -498,7 +516,7 @@ export default function graphql<
         if (typeof opts.variables === 'undefined') delete opts.variables;
 
         (opts as any).mutation = document;
-        return this.getClient().mutate(opts as any) as Promise<
+        return this.getClient(this.props).mutate(opts as any) as Promise<
           ApolloQueryResult<TResult>
         >;
       }
@@ -561,6 +579,15 @@ export default function graphql<
           } else {
             assign(data, currentResult.data);
             this.previousData = currentResult.data;
+          }
+
+          // handle race condition where refetch is called on child mount
+          if (!this.querySubscription) {
+            (data as QueryProps).refetch = args => {
+              return new Promise((r, f) => {
+                this.refetcherQueue = { resolve: r, reject: f, args };
+              });
+            };
           }
         }
         return data as QueryProps & TResult;

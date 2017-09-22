@@ -9,9 +9,36 @@ import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { mockNetworkInterface } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
+import { ObservableQueryRecycler } from '../../../../src/queryRecycler';
 
 describe('client option', () => {
   it('renders with client from options', () => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const networkInterface = mockNetworkInterface({
+      request: { query },
+      result: { data },
+    });
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const config = {
+      options: {
+        client,
+      },
+    };
+    const ContainerWithData = graphql(query, config)(props => null);
+    shallow(<ContainerWithData />, {
+      context: { getQueryRecycler: () => new ObservableQueryRecycler() },
+    });
+  });
+  it('doesnt require a recycler', () => {
     const query = gql`
       query people {
         allPeople(first: 1) {

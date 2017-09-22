@@ -20,8 +20,9 @@ export class MockedProvider extends React.Component<any, any> {
     super(props, context);
     if (this.props.client) return;
 
+    const addTypename = !this.props.removeTypename;
     const networkInterface = mockNetworkInterface.apply(null, this.props.mocks);
-    this.client = new ApolloClient({ networkInterface });
+    this.client = new ApolloClient({ networkInterface, addTypename });
   }
 
   render() {
@@ -258,9 +259,10 @@ export class MockSubscriptionNetworkInterface extends MockNetworkInterface
 
 function requestToKey(request: ParsedRequest): string {
   const queryString = request.query && print(request.query);
-  return JSON.stringify({
+  const requestKey = {
     variables: request.variables || {},
     debugName: request.debugName,
     query: queryString,
-  });
+  };
+  return JSON.stringify(requestKey, Object.keys(requestKey).sort());
 }
