@@ -31,7 +31,8 @@ export interface ProviderProps {
   client: ApolloClient,
 }
 
-declare export class ApolloProvider extends React$Component<ProviderProps> {
+declare export class ApolloProvider extends React$Component {
+  props: ProviderProps,
   childContextTypes: {
     store: Store<*, *>,
     client: ApolloClient,
@@ -118,8 +119,10 @@ export interface OperationComponent<
   TMergedProps = ChildProps<TOwnProps, TResult>,
 > {
   (
-    component: React$ComponentType<TMergedProps>,
-  ): React$ComponentType<TOwnProps>,
+    component:
+      | StatelessComponent<TMergedProps>
+      | Class<React$Component<any, TMergedProps, any>>,
+  ): Class<React$Component<void, TOwnProps, void>>,
 }
 
 declare export function graphql<TResult, TProps, TChildProps>(
@@ -128,8 +131,10 @@ declare export function graphql<TResult, TProps, TChildProps>(
 ): OperationComponent<TResult, TProps, TChildProps>;
 
 declare export function withApollo<TProps>(
-  component: React$ComponentType<ApolloClient & TProps>,
-): React$ComponentType<ApolloClient & TProps>;
+  component:
+    | StatelessComponent<TProps & ApolloClient>
+    | Class<React$Component<any, TProps & ApolloClient, any>>,
+): Class<React$Component<void, TProps & ApolloClient, void>>;
 
 export interface IDocumentDefinition {
   type: DocumentType,
