@@ -6,7 +6,7 @@ import * as React from 'react';
 import gql from 'graphql-tag';
 
 import { graphql } from '../src';
-import { ChildProps, NamedProps, QueryProps } from '../src';
+import { ChildProps, NamedProps, QueryProps, MutationFunc } from '../src';
 
 const historyQuery = gql`
   query history($solutionId: String) {
@@ -17,8 +17,32 @@ const historyQuery = gql`
   }
 `;
 
+const historyMutation = gql`
+  mutation updateHistory($input: updateHistoryMutation) {
+    updateHistory(input: $input) {
+      solutionId
+      delta
+    }
+  }
+`;
+
 type Data = {
   history: Record<any, any>[];
+};
+
+type Mutation = {
+  updateHistory?: MutationFunc<MutationPayload, MutationInput>;
+};
+
+type MutationPayload = {
+  updateHistory: Record<any, any>[];
+};
+
+type MutationInput = {
+  input: {
+    id: string;
+    newDelta: string;
+  };
 };
 
 type Props = {
@@ -55,3 +79,24 @@ const withHistoryUsingName = graphql<Data, Props>(historyQuery, {
     ...organisationData,
   }),
 });
+
+// mutation with name
+class UpdateHistoryView extends React.Component<
+  ChildProps<Props & Mutation, MutationPayload>,
+  {}
+> {
+  updateHistory() {
+    this.props.updateHistory({
+      variables: {
+        input: {
+          id: 'historyId',
+          newDelta: 'newDelta',
+        },
+      },
+    });
+  }
+
+  render() {
+    return null;
+  }
+}

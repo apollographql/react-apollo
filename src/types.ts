@@ -18,8 +18,8 @@ import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
 import { ExecutionResult, DocumentNode } from 'graphql';
 
-export interface MutationOpts {
-  variables?: Object;
+export interface MutationOpts<TVariables = OperationVariables> {
+  variables?: TVariables;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
   refetchQueries?: string[] | PureQueryOptions[];
@@ -28,9 +28,9 @@ export interface MutationOpts {
   notifyOnNetworkStatusChange?: boolean;
 }
 
-export interface QueryOpts {
+export interface QueryOpts<TVariables = OperationVariables> {
   ssr?: boolean;
-  variables?: { [key: string]: any };
+  variables?: TVariables;
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   client?: ApolloClient;
@@ -39,17 +39,15 @@ export interface QueryOpts {
   skip?: boolean;
 }
 
-export interface QueryProps {
+export interface QueryProps<TVariables = OperationVariables> {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
-  variables: {
-    [variable: string]: any;
-  };
+  variables: TVariables;
   fetchMore: (
     fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
   ) => Promise<ApolloQueryResult<any>>;
-  refetch: (variables?: any) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
@@ -58,8 +56,8 @@ export interface QueryProps {
   ) => void;
 }
 
-export type MutationFunc<TResult> = (
-  opts: MutationOpts,
+export type MutationFunc<TResult, TVariables = OperationVariables> = (
+  opts: MutationOpts<TVariables>,
 ) => Promise<ApolloQueryResult<TResult>>;
 
 export interface OptionProps<TProps, TResult> {
@@ -75,6 +73,10 @@ export type ChildProps<P, R> = P & {
 
 export type NamedProps<P, R> = P & {
   ownProps: R;
+};
+
+export type OperationVariables = {
+  [key: string]: any;
 };
 
 export interface OperationOption<TProps, TResult> {
