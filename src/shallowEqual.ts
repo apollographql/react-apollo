@@ -1,7 +1,7 @@
 // https://github.com/reactjs/react-redux/blob/master/src/utils/shallowEqual.js
 
 export default function shallowEqual(objA, objB) {
-  if (!objA || !objB) return true;
+  if (!objA || !objB) return false;
   if (objA === objB) return true;
 
   const keysA = Object.keys(objA);
