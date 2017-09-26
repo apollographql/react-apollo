@@ -124,7 +124,7 @@
     "react-dom": "15.6.1",
     "react-native": "0.48.4",
     "react-redux": "5.0.6",
-    "react-test-renderer": "15.6.1",
+    "react-test-renderer": "15.6.2",
     "recompose": "0.25.0",
     "redux": "3.7.2",
     "redux-form": "6.8.0",
