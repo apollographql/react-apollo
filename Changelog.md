@@ -4,6 +4,7 @@
 - fix shallowEqual bug.
 - Added notifyOnNetworkStatusChange to QueryOpts and MutationOpts Typesccript definitions [#1034](https://github.com/apollographql/react-apollo/pull/1034)
 - Added variables types with Typescript [#997](https://github.com/apollographql/react-apollo/pull/997)
+- Made `ChildProps.data` non-optional [#1143](https://github.com/apollographql/react-apollo/pull/1143)
 
 ### 1.4.15
 - Fix: handle calling refetch in child componentDidMount
