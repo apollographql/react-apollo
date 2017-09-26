@@ -119,7 +119,7 @@
     "pre-commit": "1.2.2",
     "prettier": "1.7.0",
     "pretty-bytes": "4.0.2",
-    "react": "15.6.1",
+    "react": "15.6.2",
     "react-addons-test-utils": "15.6.0",
     "react-dom": "15.6.1",
     "react-native": "0.48.4",
