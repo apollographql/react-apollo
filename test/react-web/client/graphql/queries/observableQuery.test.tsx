@@ -11,7 +11,7 @@ import { NetworkInterface } from 'apollo-client';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
@@ -447,5 +447,96 @@ describe('[queries] observableQuery', () => {
       wrapper.unmount();
       done();
     }, 10);
+  });
+  it("will recycle `ObservableQuery`s when re-rendering a portion of the tree but not return stale data if variables don't match", done => {
+    const query = gql`
+      query people($first: Int!) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const variables = { id: 1 };
+    const variables2 = { id: 2 };
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
+    const networkInterface = mockNetworkInterface(
+      { request: { query, variables }, result: { data } },
+      { request: { query, variables2 }, result: { data: data2 } },
+    );
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+    let remount: any;
+
+    class Remounter extends React.Component<any, any> {
+      state = {
+        showChildren: true,
+        variables: variables,
+      };
+
+      componentDidMount() {
+        remount = () => {
+          this.setState({ showChildren: false }, () => {
+            setTimeout(() => {
+              this.setState({
+                showChildren: true,
+                variables: variables2,
+              });
+            }, 10);
+          });
+        };
+      }
+
+      render() {
+        if (!this.state.showChildren) return null;
+        const Thing = this.props.render;
+        return <Thing first={this.state.variables.id} />;
+      }
+    }
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      render() {
+        const { variables, loading, allPeople } = this.props.data;
+        // first variable render
+        if (variables.first === 1) {
+          if (loading) expect(allPeople).toBeUndefined();
+          if (!loading) expect(allPeople).toEqual(data.allPeople);
+        }
+
+        if (variables.first === 2) {
+          // second variables render
+          if (loading) expect(allPeople).toBeUndefined();
+          if (!loading) expect(allPeople).toEqual(data2.allPeople);
+        }
+
+        return null;
+      }
+    }
+
+    // the initial mount fires off the query
+    // the same as episode id = 1
+    const wrapper = renderer.create(
+      <ApolloProvider client={client}>
+        <Remounter render={Container} />
+      </ApolloProvider>,
+    );
+
+    // after the initial data has been returned
+    // the user navigates to a different page
+    // but the query is recycled
+    setTimeout(() => {
+      // move to the "home" page from the "episode" page
+      remount();
+      setTimeout(() => {
+        // move to a new "epsiode" page
+        // epsiode id = 2
+        // wait to verify the data isn't stale then end
+        wrapper.unmount();
+        done();
+      }, 20);
+    }, 5);
   });
 });
