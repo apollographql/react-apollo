@@ -91,8 +91,9 @@ export function walkTree(
       const _component = Component as StatelessComponent<any>;
       child = _component(props, context);
     }
-
-    if (child) {
+    if (child && Array.isArray(child)) {
+      child.forEach(item => walkTree(item, context, visitor));
+    } else if (child) {
       walkTree(child, childContext, visitor);
     }
   } else {
