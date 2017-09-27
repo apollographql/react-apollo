@@ -109,6 +109,7 @@
     "colors": "1.1.2",
     "danger": "1.2.0",
     "enzyme": "3.0.0",
+    "enzyme-adapter-react-16": "^1.0.0",
     "enzyme-to-json": "1.6.0",
     "flow-bin": "0.52.0",
     "graphql": "0.11.4",
@@ -149,7 +150,6 @@
   },
   "dependencies": {
     "apollo-client": "^1.4.0",
-    "enzyme-adapter-react-16": "^1.0.0",
     "graphql-tag": "^2.0.0",
     "hoist-non-react-statics": "^2.2.0",
     "invariant": "^2.2.1",
