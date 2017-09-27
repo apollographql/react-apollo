@@ -16,7 +16,7 @@
     "posttest": "npm run lint && npm run type-check",
     "filesize": "npm run compile:browser && bundlesize",
     "type-check":
-      "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators && flow check",
+      "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators",
     "compile": "tsc",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
@@ -77,7 +77,8 @@
       "<rootDir>/test/typescript.ts"
     ],
     "projects": ["<rootDir>", "<rootDir>/examples/*"],
-    "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$"
+    "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "setupFiles": ["<rootDir>/scripts/tests.js"]
   },
   "license": "MIT",
   "peerDependencies": {
