@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import { mount, shallow } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
 import {
   reducer as formReducer,
   reduxForm,
@@ -13,12 +13,13 @@ import { combineReducers as loopCombine, install } from 'redux-loop';
 import { Map } from 'immutable';
 import { combineReducers as combineImmutable } from 'redux-immutable';
 import gql from 'graphql-tag';
+import Cache from 'apollo-cache-inmemory';
 
 import ApolloClient from 'apollo-client';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../src/test-utils';
+import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 
 describe('redux integration', () => {
@@ -38,12 +39,15 @@ describe('redux integration', () => {
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const variables2 = { first: 2 };
 
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query, variables }, result: { data } },
       { request: { query, variables: variables2 }, result: { data: data2 } },
     );
 
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     let wrapper;
 
     function counter(state = 1, action) {
@@ -55,15 +59,10 @@ describe('redux integration', () => {
       }
     }
 
-    // Typscript workaround
-    const apolloReducer = client.reducer() as () => any;
-
     const store = createStore(
       combineReducers({
         counter,
-        apollo: apolloReducer,
       }),
-      applyMiddleware(client.middleware()),
     );
 
     @connect(state => ({ first: state.counter }))
@@ -84,9 +83,11 @@ describe('redux integration', () => {
     }
 
     wrapper = renderer.create(
-      <ApolloProvider store={store} client={client}>
-        <Container />
-      </ApolloProvider>,
+      <Provider store={store}>
+        <ApolloProvider client={client}>
+          <Container />
+        </ApolloProvider>
+      </Provider>,
     ) as any;
   });
 
@@ -104,22 +105,20 @@ describe('redux integration', () => {
       const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
       const variables = { name: 'Luke' };
 
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query, variables },
         result: { data },
       });
 
-      const client = new ApolloClient({ networkInterface, addTypename: false });
-
-      // Typscript workaround
-      const apolloReducer = client.reducer() as () => any;
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       const store = createStore(
         combineReducers({
-          apollo: apolloReducer,
           form: formReducer,
         }),
-        applyMiddleware(client.middleware()),
       );
 
       function MyField({ input: { value } }) {
@@ -161,9 +160,11 @@ describe('redux integration', () => {
       }
 
       mount(
-        <ApolloProvider store={store} client={client}>
-          <Container />
-        </ApolloProvider>,
+        <Provider store={store}>
+          <ApolloProvider client={client}>
+            <Container />
+          </ApolloProvider>
+        </Provider>,
       ) as any;
     });
   });
@@ -185,12 +186,15 @@ describe('redux integration', () => {
       const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
       const variables2 = { first: 2 };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query, variables }, result: { data } },
         { request: { query, variables: variables2 }, result: { data: data2 } },
       );
 
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
       let wrapper;
 
       function counter(state = 1, action) {
@@ -238,9 +242,11 @@ describe('redux integration', () => {
       }
 
       wrapper = renderer.create(
-        <ApolloProvider store={store} client={client} immutable={true}>
-          <Container />
-        </ApolloProvider>,
+        <Provider store={store}>
+          <ApolloProvider client={client}>
+            <Container />
+          </ApolloProvider>
+        </Provider>,
       ) as any;
     });
 
@@ -260,12 +266,15 @@ describe('redux integration', () => {
       const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
       const variables2 = { first: 2 };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query, variables }, result: { data } },
         { request: { query, variables: variables2 }, result: { data: data2 } },
       );
 
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
       let wrapper;
 
       function counter(state = 1, action) {
@@ -277,15 +286,10 @@ describe('redux integration', () => {
         }
       }
 
-      // Typscript workaround
-      const apolloReducer = client.reducer() as () => any;
-
       const store = createStore(
         loopCombine({
           counter,
-          apollo: apolloReducer,
         }),
-        applyMiddleware(client.middleware()),
         install(),
       );
 
@@ -307,9 +311,11 @@ describe('redux integration', () => {
       }
 
       wrapper = renderer.create(
-        <ApolloProvider store={store} client={client}>
-          <Container />
-        </ApolloProvider>,
+        <Provider store={store}>
+          <ApolloProvider client={client}>
+            <Container />
+          </ApolloProvider>
+        </Provider>,
       ) as any;
     });
   });
@@ -331,12 +337,15 @@ describe('redux integration', () => {
       const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
       const variables2 = { first: 2 };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query, variables }, result: { data } },
         { request: { query, variables: variables2 }, result: { data: data2 } },
       );
 
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
       let wrapper;
 
       function counter(state = 1, action) {
@@ -372,9 +381,11 @@ describe('redux integration', () => {
       }
 
       wrapper = mount(
-        <ApolloProvider store={store} client={client} immutable={true}>
-          <Container />
-        </ApolloProvider>,
+        <Provider store={store}>
+          <ApolloProvider client={client}>
+            <Container />
+          </ApolloProvider>
+        </Provider>,
       ) as any;
     });
   });
@@ -395,23 +406,21 @@ it('works with redux form to drive queries', done => {
   const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
   const variables = { name: 'Luke' };
 
-  const networkInterface = mockNetworkInterface({
+  const link = mockSingleLink({
     request: { query, variables },
     result: { data },
   });
 
-  const client = new ApolloClient({ networkInterface, addTypename: false });
+  const client = new ApolloClient({
+    link,
+    cache: new Cache({ addTypename: false }),
+  });
   let wrapper;
-
-  // Typscript workaround
-  const apolloReducer = client.reducer() as () => any;
 
   const store = createStore(
     combineReducers({
-      apollo: apolloReducer,
       form: formReducer,
     }),
-    applyMiddleware(client.middleware()),
   );
 
   @reduxForm({
@@ -462,9 +471,11 @@ it('works with redux form to drive queries', done => {
   }
 
   wrapper = mount(
-    <ApolloProvider store={store} client={client}>
-      <Container />
-    </ApolloProvider>,
+    <Provider store={store}>
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>
+    </Provider>,
   ) as any;
 
   setTimeout(() => {

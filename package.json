@@ -82,6 +82,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
+    "apollo-client": "^2.0.0-beta.2",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0",
     "redux": "^2.0.0 || ^3.0.0"
   },
@@ -101,6 +102,7 @@
     "@types/redux-form": "7.0.5",
     "@types/redux-immutable": "3.0.37",
     "@types/sinon": "2.3.5",
+    "apollo-client": "^2.0.0-beta.2",
     "babel-jest": "20.0.3",
     "babel-preset-react-native": "3.0.2",
     "browserify": "14.4.0",
@@ -109,9 +111,11 @@
     "colors": "1.1.2",
     "danger": "1.2.0",
     "enzyme": "3.0.0",
+    "enzyme-adapter-react-16": "^1.0.0",
     "enzyme-to-json": "1.6.0",
     "flow-bin": "0.52.0",
     "graphql": "0.11.3",
+    "graphql-tag": "^2.0.0",
     "immutable": "3.8.1",
     "isomorphic-fetch": "2.2.1",
     "jest": "20.0.4",
@@ -148,13 +152,12 @@
     "uglify-js": "3.1.1"
   },
   "dependencies": {
-    "apollo-client": "^1.4.0",
-    "enzyme-adapter-react-16": "^1.0.0",
-    "graphql-tag": "^2.0.0",
+    "apollo-cache-inmemory": "^0.2.0-beta.2",
+    "apollo-link": "^0.6.1-beta.5",
     "hoist-non-react-statics": "^2.2.0",
     "invariant": "^2.2.1",
+    "lodash.flowright": "^3.5.0",
     "lodash.pick": "^4.4.0",
-    "object-assign": "^4.0.1",
     "prop-types": "^15.5.8"
   }
 }

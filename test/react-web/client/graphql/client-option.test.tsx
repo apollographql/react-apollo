@@ -7,7 +7,8 @@ import * as renderer from 'react-test-renderer';
 import { mount, shallow } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import { mockNetworkInterface } from '../../../../src/test-utils';
+import Cache from 'apollo-cache-inmemory';
+import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 import { ObservableQueryRecycler } from '../../../../src/queryRecycler';
 
@@ -23,11 +24,14 @@ describe('client option', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     const config = {
       options: {
         client,
@@ -49,11 +53,14 @@ describe('client option', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     const config = {
       options: {
         client,
@@ -76,22 +83,22 @@ describe('client option', () => {
     const dataProvider = {
       allPeople: { people: [{ name: 'Leia Organa Solo' }] },
     };
-    const networkInterfaceProvider = mockNetworkInterface({
+    const linkProvider = mockSingleLink({
       request: { query },
       result: { data: dataProvider },
     });
     const clientProvider = new ApolloClient({
-      networkInterface: networkInterfaceProvider,
-      addTypename: false,
+      link: linkProvider,
+      cache: new Cache({ addTypename: false }),
     });
     const dataOptions = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterfaceOptions = mockNetworkInterface({
+    const linkOptions = mockSingleLink({
       request: { query },
       result: { data: dataOptions },
     });
     const clientOptions = new ApolloClient({
-      networkInterface: networkInterfaceOptions,
-      addTypename: false,
+      link: linkOptions,
+      cache: new Cache({ addTypename: false }),
     });
 
     const config = {
@@ -132,11 +139,14 @@ describe('client option', () => {
     `;
     const variables = { first: 1 };
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data: data1 },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let hasRefetched,
       count = 0;

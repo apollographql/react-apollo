@@ -2,11 +2,12 @@ import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
-import ApolloClient, { createFragment } from 'apollo-client';
+import ApolloClient from 'apollo-client';
+import Cache from 'apollo-cache-inmemory';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../src/test-utils';
+import { mockSingleLink } from '../../../../src/test-utils';
 
 import { ApolloProvider, graphql } from '../../../../src';
 
@@ -21,11 +22,14 @@ describe('fragments', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     try {
       @graphql(query)
@@ -72,11 +76,14 @@ describe('fragments', () => {
         people: [{ name: 'Luke Skywalker' }],
       },
     };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {

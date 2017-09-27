@@ -4,10 +4,11 @@ import gql from 'graphql-tag';
 import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
+import Cache from 'apollo-cache-inmemory';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 
 import { ApolloProvider, graphql } from '../../../../../src';
 
@@ -91,12 +92,15 @@ describe('[mutations] update queries', () => {
         todo_list: { id: '123', title: 'how to apollo', tasks: [] },
       };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query, variables: { id: '123' } }, result: { data } },
         { request: { query: mutation }, result: { data: mutationData } },
         { request: { query: mutation }, result: { data: mutationData } },
       );
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       let mutate;
 
@@ -304,7 +308,7 @@ describe('[mutations] update queries', () => {
         },
       };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query, variables: { id: '123' } }, result: { data } },
         { request: { query: mutation }, result: { data: mutationData } },
         {
@@ -312,7 +316,10 @@ describe('[mutations] update queries', () => {
           result: { data: updatedData },
         },
       );
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       let mutate;
 

@@ -4,10 +4,11 @@ import gql from 'graphql-tag';
 import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
+import Cache from 'apollo-cache-inmemory';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 
 import { ApolloProvider, graphql } from '../../../../../src';
 
@@ -35,11 +36,12 @@ describe('[mutations] query integration', () => {
       },
     };
 
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const cache = new Cache({ addTypename: false });
+    const client = new ApolloClient({ link, cache });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -58,7 +60,7 @@ describe('[mutations] query integration', () => {
           done();
         });
 
-        const dataInStore = client.queryManager.getDataWithOptimisticResults();
+        const dataInStore = cache.extract(true);
         expect(dataInStore['Todo:99']).toEqual(optimisticResponse.createTodo);
       }
       render() {
@@ -136,11 +138,12 @@ describe('[mutations] query integration', () => {
       todo_list: { id: '123', title: 'how to apollo', tasks: [] },
     };
 
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query, variables: { id: '123' } }, result: { data } },
       { request: { query: mutation }, result: { data: mutationData } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const cache = new Cache({ addTypename: false });
+    const client = new ApolloClient({ link, cache });
 
     let count = 0;
     @graphql(query)
@@ -155,7 +158,7 @@ describe('[mutations] query integration', () => {
             expect(result.data).toEqual(mutationData);
           });
 
-          const dataInStore = client.queryManager.getDataWithOptimisticResults();
+          const dataInStore = cache.extract(true);
           expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
             optimisticResponse.createTodo,
           );

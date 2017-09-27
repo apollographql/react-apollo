@@ -5,10 +5,10 @@ import { observable } from 'mobx';
 import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
+import Cache from 'apollo-cache-inmemory';
+declare function require(name: string);
 
-declare function require(name: string)
-
-import { mockNetworkInterface } from '../../../../src/test-utils';
+import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 
 describe('mobx integration', () => {
@@ -37,12 +37,15 @@ describe('mobx integration', () => {
       const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
       const variables2 = { first: 1 };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query, variables }, result: { data } },
         { request: { query, variables: variables2 }, result: { data: data2 } },
       );
 
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       let count = 0;
 
@@ -89,11 +92,7 @@ describe('mobx integration', () => {
         }
 
         render() {
-          return (
-            <div>
-              {this.props.appState.first}
-            </div>
-          );
+          return <div>{this.props.appState.first}</div>;
         }
       }
 

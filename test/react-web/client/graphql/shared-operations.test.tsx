@@ -3,19 +3,24 @@ import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
+import Cache from 'apollo-cache-inmemory';
+import { ApolloLink } from 'apollo-link';
 
 const TestUtils = require('react-dom/test-utils');
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../src/test-utils';
+import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql, withApollo } from '../../../../src';
 import { compose } from '../../../../src/';
 
 describe('shared operations', () => {
   describe('withApollo', () => {
     it('passes apollo-client to props', () => {
-      const client = new ApolloClient();
+      const client = new ApolloClient({
+        link: new ApolloLink((o, f) => f(o)),
+        cache: new Cache(),
+      });
 
       @withApollo
       class ContainerWithData extends React.Component<any, any> {
@@ -33,7 +38,10 @@ describe('shared operations', () => {
     });
 
     it('allows a way to access the wrapped component instance', () => {
-      const client = new ApolloClient();
+      const client = new ApolloClient({
+        link: new ApolloLink((o, f) => f(o)),
+        cache: new Cache(),
+      });
 
       const testData = { foo: 'bar' };
 
@@ -115,11 +123,14 @@ describe('shared operations', () => {
     `;
     const shipsData = { allships: { ships: [{ name: 'Tie Fighter' }] } };
 
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query: peopleQuery }, result: { data: peopleData } },
       { request: { query: shipsQuery }, result: { data: shipsData } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withShips = graphql(shipsQuery, { name: 'ships' });
@@ -169,11 +180,14 @@ describe('shared operations', () => {
     `;
     const shipsData = { allships: { ships: [{ name: 'Tie Fighter' }] } };
 
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query: peopleQuery }, result: { data: peopleData } },
       { request: { query: shipsQuery }, result: { data: shipsData } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withShips = graphql(shipsQuery, { name: 'ships' });
@@ -223,14 +237,17 @@ describe('shared operations', () => {
       allPeople: { people: [{ name: 'Leia Skywalker' }] },
     };
 
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query: peopleQuery }, result: { data: peopleData } },
       {
         request: { query: peopleMutation },
         result: { data: peopleMutationData },
       },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withPeopleMutation = graphql(peopleMutation, { name: 'addPerson' });
@@ -267,11 +284,14 @@ describe('shared operations', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const testData = { foo: 'bar' };
 
@@ -336,11 +356,14 @@ describe('shared operations', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let queryExecuted;
     @graphql(query, { options: { skip: true } })
@@ -395,11 +418,14 @@ describe('shared operations', () => {
       `;
       const shipsData = { allships: { ships: [{ name: 'Tie Fighter' }] } };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query: peopleQuery }, result: { data: peopleData } },
         { request: { query: shipsQuery }, result: { data: shipsData } },
       );
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       const enhanced = compose(
         graphql(peopleQuery, { name: 'people' }),

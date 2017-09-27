@@ -4,10 +4,11 @@ import gql from 'graphql-tag';
 import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
+import Cache from 'apollo-cache-inmemory';
 
 declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 
 import { ApolloProvider, graphql } from '../../../../../src';
 
@@ -23,11 +24,14 @@ describe('[mutations]', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const ContainerWithData = graphql(query)(({ mutate }) => {
       expect(mutate).toBeTruthy();
@@ -53,11 +57,14 @@ describe('[mutations]', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const props = ({ ownProps, addPerson }) => ({
       [ownProps.methodName]: (name: string) =>
@@ -88,11 +95,14 @@ describe('[mutations]', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     let bar;
     const ContainerWithData = graphql(query)(() => {
       bar(); // this will throw
@@ -122,11 +132,14 @@ describe('[mutations]', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -160,11 +173,14 @@ describe('[mutations]', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables = { id: 1 };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
