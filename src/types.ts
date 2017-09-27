@@ -67,7 +67,7 @@ export interface OptionProps<TProps, TResult> {
 }
 
 export type ChildProps<P, R> = P & {
-  data: QueryProps & Partial<R>;
+  data?: QueryProps & Partial<R>;
   mutate?: MutationFunc<R>;
 };
 

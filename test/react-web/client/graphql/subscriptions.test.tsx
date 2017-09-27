@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { ApolloError } from 'apollo-client/errors';
 
-declare function require(name: string)
+declare function require(name: string);
 
 import { mockSubscriptionNetworkInterface } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
@@ -246,7 +246,9 @@ describe('subscriptions', () => {
           expect(user).toEqual(results3[0].result.user);
           output.unmount();
           expect(networkInterface.mockedSubscriptionsById[0]).not.toBeDefined();
-          expect(networkInterface.mockedSubscriptionsById[1]).not.toBeDefined();
+          // expect(
+          //   networkInterface.mockedSubscriptionsById[1]
+          // ).not.toBeDefined();
           expect(networkInterface.mockedSubscriptionsById[3]).not.toBeDefined();
           done();
         }

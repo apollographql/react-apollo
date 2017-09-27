@@ -5,7 +5,7 @@ import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
 
-declare function require(name: string)
+declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
 

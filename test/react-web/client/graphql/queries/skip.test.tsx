@@ -11,7 +11,7 @@ import { NetworkInterface } from 'apollo-client';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
@@ -599,13 +599,16 @@ describe('[queries] skip', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
-        // loading is true, but data still there
-        if (count === 0) expect(data.allPeople).toEqual(data1.allPeople);
-        if (count === 1) expect(data).toBeFalsy();
-        if (count === 2 && data.loading) expect(data.allPeople).toBeFalsy();
-        if (count === 2 && !data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
-          done();
+        try {
+          // loading is true, but data still there
+          if (count === 0) expect(data.allPeople).toEqual(data1.allPeople);
+          if (count === 1) expect(data).toBeUndefined();
+          if (count === 2 && !data.loading) {
+            expect(data.allPeople).toEqual(data2.allPeople);
+            done();
+          }
+        } catch (e) {
+          console.log({ e });
         }
       }
       render() {
