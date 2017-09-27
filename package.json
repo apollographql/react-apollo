@@ -96,7 +96,7 @@
     "@types/object-assign": "4.0.30",
     "@types/react": "15.6.4",
     "@types/react-addons-test-utils": "0.14.19",
-    "@types/react-dom": "15.5.4",
+    "@types/react-dom": "15.5.5",
     "@types/react-redux": "5.0.9",
     "@types/redux-form": "7.0.5",
     "@types/redux-immutable": "3.0.37",
