@@ -123,7 +123,7 @@
     "mobx": "3.3.0",
     "mobx-react": "4.3.2",
     "pre-commit": "1.2.2",
-    "prettier": "1.7.0",
+    "prettier": "1.7.2",
     "pretty-bytes": "4.0.2",
     "react": "16.0.0",
     "react-addons-test-utils": "15.6.0",
