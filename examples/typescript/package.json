@@ -13,7 +13,7 @@
     "@types/jest": "20.0.8",
     "@types/node": "8.0.31",
     "@types/react": "15.6.4",
-    "@types/react-dom": "15.5.4",
+    "@types/react-dom": "15.5.5",
     "apollo-codegen": "0.16.5",
     "react-scripts-ts": "2.4.0",
     "react-test-renderer": "15.6.1"
