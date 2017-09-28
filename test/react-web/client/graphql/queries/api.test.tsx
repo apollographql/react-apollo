@@ -67,30 +67,33 @@ describe('[queries] api', () => {
         expect(this.props.data.refetch instanceof Function).toBe(true);
       }
       componentWillReceiveProps({ data }) {
-        // tslint:disable-line
-        if (count === 0) expect(data.loading).toBe(false); // first data
-        if (count === 1) expect(data.loading).toBe(true); // first refetch
-        if (count === 2) expect(data.loading).toBe(false); // second data
-        if (count === 3) expect(data.loading).toBe(true); // second refetch
-        if (count === 4) expect(data.loading).toBe(false); // third data
-        count++;
-        if (hasRefetched) return;
-        hasRefetched = true;
-        expect(data.refetch).toBeTruthy();
-        expect(data.refetch instanceof Function).toBe(true);
-        data
-          .refetch()
-          .then(result => {
-            expect(result.data).toEqual(data1);
-            data
-              .refetch({ first: 2 }) // new variables
-              .then(response => {
-                expect(response.data).toEqual(data1);
-                expect(data.allPeople).toEqual(data1.allPeople);
-                done();
-              });
-          })
-          .catch(done);
+        try {
+          if (count === 0) expect(data.loading).toBe(false); // first data
+          if (count === 1) expect(data.loading).toBe(true); // first refetch
+          if (count === 2) expect(data.loading).toBe(false); // second data
+          if (count === 3) expect(data.loading).toBe(true); // second refetch
+          if (count === 4) expect(data.loading).toBe(false); // third data
+          count++;
+          if (hasRefetched) return;
+          hasRefetched = true;
+          expect(data.refetch).toBeTruthy();
+          expect(data.refetch instanceof Function).toBe(true);
+          data
+            .refetch()
+            .then(result => {
+              expect(result.data).toEqual(data1);
+              return data
+                .refetch({ first: 2 }) // new variables
+                .then(response => {
+                  expect(response.data).toEqual(data1);
+                  expect(data.allPeople).toEqual(data1.allPeople);
+                  done();
+                });
+            })
+            .catch(done.fail);
+        } catch (e) {
+          done.fail(e);
+        }
       }
       render() {
         return null;
@@ -221,87 +224,83 @@ describe('[queries] api', () => {
     );
   });
 
-  xit(
-    'reruns props function after query results change via fetchMore',
-    done => {
-      const query = gql`
-        query people($cursor: Int) {
-          allPeople(cursor: $cursor) {
-            cursor
-            people {
-              name
-            }
+  it('reruns props function after query results change via fetchMore', done => {
+    const query = gql`
+      query people($cursor: Int) {
+        allPeople(cursor: $cursor) {
+          cursor
+          people {
+            name
           }
-        }
-      `;
-      const vars1 = { cursor: null };
-      const data1 = {
-        allPeople: { cursor: 1, people: [{ name: 'Luke Skywalker' }] },
-      };
-      const vars2 = { cursor: 1 };
-      const data2 = {
-        allPeople: { cursor: 2, people: [{ name: 'Leia Skywalker' }] },
-      };
-      const link = mockSingleLink(
-        { request: { query, variables: vars1 }, result: { data: data1 } },
-        { request: { query, variables: vars2 }, result: { data: data2 } },
-      );
-      const client = new ApolloClient({
-        link,
-        cache: new Cache({ addTypename: false }),
-      });
-
-      let isUpdated = false;
-      @graphql(query, {
-        // XXX: I think we should be able to avoid this https://github.com/apollostack/react-apollo/issues/197
-        options: { variables: { cursor: null } },
-        props({ data: { loading, allPeople, fetchMore } }) {
-          if (loading) return { loading };
-
-          const { cursor, people } = allPeople;
-          return {
-            people,
-            getMorePeople: () =>
-              fetchMore({
-                variables: { cursor },
-                updateQuery(prev, { fetchMoreResult }) {
-                  const { allPeople: { cursor, people } } = fetchMoreResult;
-                  return {
-                    allPeople: {
-                      cursor,
-                      people: [...people, ...prev.allPeople.people],
-                    },
-                  };
-                },
-              }),
-          };
-        },
-      })
-      class Container extends React.Component<any, any> {
-        componentWillReceiveProps(props) {
-          if (props.loading) return;
-
-          if (isUpdated) {
-            console.log(props.people);
-            // expect(props.people.length).toBe(2);
-            // done();
-            return;
-          }
-
-          isUpdated = true;
-          expect(props.people).toEqual(data1.allPeople.people);
-          props.getMorePeople();
-        }
-        render() {
-          return null;
         }
       }
+    `;
+    const vars1 = { cursor: null };
+    const data1 = {
+      allPeople: { cursor: 1, people: [{ name: 'Luke Skywalker' }] },
+    };
+    const vars2 = { cursor: 1 };
+    const data2 = {
+      allPeople: { cursor: 2, people: [{ name: 'Leia Skywalker' }] },
+    };
+    const link = mockSingleLink(
+      { request: { query, variables: vars1 }, result: { data: data1 } },
+      { request: { query, variables: vars2 }, result: { data: data2 } },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
-      renderer.create(
-        <ApolloProvider client={client}>
-          <Container />
-        </ApolloProvider>,
-      );
-    },
-  );
+    let isUpdated = false;
+    @graphql(query, {
+      // XXX: I think we should be able to avoid this https://github.com/apollostack/react-apollo/issues/197
+      options: { variables: { cursor: null } },
+      props({ data: { loading, allPeople, fetchMore } }) {
+        if (loading) return { loading };
+
+        const { cursor, people } = allPeople;
+        return {
+          people,
+          getMorePeople: () =>
+            fetchMore({
+              variables: { cursor },
+              updateQuery(prev, { fetchMoreResult }) {
+                const { allPeople: { cursor, people } } = fetchMoreResult;
+                return {
+                  allPeople: {
+                    cursor,
+                    people: [...people, ...prev.allPeople.people],
+                  },
+                };
+              },
+            }),
+        };
+      },
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        if (props.loading) return;
+
+        if (isUpdated) {
+          expect(props.people.length).toBe(2);
+          done();
+          return;
+        }
+
+        isUpdated = true;
+        expect(props.people).toEqual(data1.allPeople.people);
+        props.getMorePeople();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
+  });
 });

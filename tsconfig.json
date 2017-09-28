@@ -14,7 +14,9 @@
     "pretty": true,
     "removeComments": true,
     "jsx": "react",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "include": [
     "./typings.d.ts",
@@ -22,9 +24,5 @@
     "./src/server.ts",
     "./src/test-utils.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "lib"
-   ]
+  "exclude": ["node_modules", "dist", "lib"]
 }

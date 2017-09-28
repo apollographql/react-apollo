@@ -1,10 +1,7 @@
 import { ComponentClass, StatelessComponent } from 'react';
 
 import ApolloClient, {
-  ObservableQuery,
   MutationQueryReducersMap,
-  Subscription,
-  ApolloStore,
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
@@ -12,11 +9,11 @@ import ApolloClient, {
   UpdateQueryOptions,
   FetchMoreQueryOptions,
   SubscribeToMoreOptions,
+  PureQueryOptions,
+  MutationUpdaterFn,
 } from 'apollo-client';
-import { PureQueryOptions } from 'apollo-client/core/types';
-import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
-
-import { ExecutionResult, DocumentNode } from 'graphql';
+// import { PureQueryOptions } from 'apollo-client/core/types';
+// import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
 export interface MutationOpts<TVariables = OperationVariables> {
   variables?: TVariables;
@@ -24,7 +21,7 @@ export interface MutationOpts<TVariables = OperationVariables> {
   updateQueries?: MutationQueryReducersMap;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
-  client?: ApolloClient;
+  client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
 }
 
@@ -33,7 +30,7 @@ export interface QueryOpts<TVariables = OperationVariables> {
   variables?: TVariables;
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
-  client?: ApolloClient;
+  client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   // deprecated
   skip?: boolean;

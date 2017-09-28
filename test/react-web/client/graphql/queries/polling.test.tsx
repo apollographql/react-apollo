@@ -34,6 +34,14 @@ function wait(ms) {
 }
 
 describe('[queries] polling', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
   // polling
   it('allows a polling query to be created', done => {
     const query = gql`

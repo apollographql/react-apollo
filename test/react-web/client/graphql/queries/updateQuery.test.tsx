@@ -33,7 +33,7 @@ function wait(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
 
-xdescribe('[queries] updateQuery', () => {
+describe('[queries] updateQuery', () => {
   // updateQuery
   it('exposes updateQuery as part of the props api', done => {
     const query = gql`
@@ -46,12 +46,12 @@ xdescribe('[queries] updateQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const ink = mockSingleLink({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
     const client = new ApolloClient({
-      ink,
+      link,
       cache: new Cache({ addTypename: false }),
     });
 
@@ -90,12 +90,12 @@ xdescribe('[queries] updateQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const ink = mockSingleLink({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
     const client = new ApolloClient({
-      ink,
+      link,
       cache: new Cache({ addTypename: false }),
     });
 
@@ -130,12 +130,12 @@ xdescribe('[queries] updateQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const ink = mockSingleLink({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
     const client = new ApolloClient({
-      ink,
+      link,
       cache: new Cache({ addTypename: false }),
     });
 
@@ -179,12 +179,12 @@ xdescribe('[queries] updateQuery', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-    const ink = mockSingleLink(
+    const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, result: { data: data2 } },
     );
     const client = new ApolloClient({
-      ink,
+      link,
       cache: new Cache({ addTypename: false }),
     });
 
@@ -231,12 +231,12 @@ xdescribe('[queries] updateQuery', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-    const ink = mockSingleLink(
+    const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, result: { data: data2 } },
     );
     const client = new ApolloClient({
-      ink,
+      link,
       cache: new Cache({ addTypename: false }),
     });
 

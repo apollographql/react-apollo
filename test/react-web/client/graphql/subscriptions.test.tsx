@@ -2,23 +2,31 @@ import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
-import ApolloClient from 'apollo-client';
-import { ApolloError } from 'apollo-client';
+import { ApolloClient, ApolloError } from 'apollo-client';
+import { ApolloLink } from 'apollo-link';
+import Cache from 'apollo-cache-inmemory';
 
-declare function require(name: string);
-
-// import { mockSubscriptionNetworkInterface } from '../../../../src/test-utils';
+import { MockSubscriptionLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 
 describe('subscriptions', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
+
   const results = [
     'James Baxley',
     'John Pinkerton',
     'Sam Clairidge',
     'Ben Coleman',
-  ].map(name => ({ result: { user: { name } }, delay: 10 }));
+  ].map(name => ({ result: { data: { user: { name } } }, delay: 10 }));
 
-  xit('binds a subscription to props', () => {
+  it('binds a subscription to props', () => {
     const query = gql`
       subscription UserInfo {
         user {
@@ -26,17 +34,16 @@ describe('subscriptions', () => {
         }
       }
     `;
-    const networkInterface = mockSubscriptionNetworkInterface([
-      { request: { query }, results: [...results] },
-    ]);
-    const client = new ApolloClient({ networkInterface, addTypename: false });
-    // XXX fix in apollo-client
-    client.subscribe = client.subscribe.bind(client);
+    const link = new MockSubscriptionLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const ContainerWithData = graphql(query)(({ data }) => {
       // tslint:disable-line
       expect(data).toBeTruthy();
-      expect(data.ownProps).toBeFalsy();
+      expect(data.user).toBeFalsy();
       expect(data.loading).toBe(true);
       return null;
     });
@@ -49,7 +56,7 @@ describe('subscriptions', () => {
     output.unmount();
   });
 
-  xit('includes the variables in the props', () => {
+  it('includes the variables in the props', () => {
     const query = gql`
       subscription UserInfo($name: String) {
         user(name: $name) {
@@ -58,12 +65,11 @@ describe('subscriptions', () => {
       }
     `;
     const variables = { name: 'James Baxley' };
-    const networkInterface = mockSubscriptionNetworkInterface([
-      { request: { query, variables }, results: [...results] },
-    ]);
-    const client = new ApolloClient({ networkInterface, addTypename: false });
-    // XXX fix in apollo-client
-    client.subscribe = client.subscribe.bind(client);
+    const link = new MockSubscriptionLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const ContainerWithData = graphql(query)(({ data }) => {
       // tslint:disable-line
@@ -80,7 +86,7 @@ describe('subscriptions', () => {
     output.unmount();
   });
 
-  xit('does not swallow children errors', () => {
+  it('does not swallow children errors', done => {
     const query = gql`
       subscription UserInfo {
         user {
@@ -88,12 +94,11 @@ describe('subscriptions', () => {
         }
       }
     `;
-    const networkInterface = mockSubscriptionNetworkInterface([
-      { request: { query }, results: [...results] },
-    ]);
-    const client = new ApolloClient({ networkInterface, addTypename: false });
-    // XXX fix in apollo-client
-    client.subscribe = client.subscribe.bind(client);
+    const link = new MockSubscriptionLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let bar;
     const ContainerWithData = graphql(query)(() => {
@@ -101,19 +106,28 @@ describe('subscriptions', () => {
       return null;
     });
 
-    try {
-      renderer.create(
-        <ApolloProvider client={client}>
-          <ContainerWithData />
-        </ApolloProvider>,
-      );
-      throw new Error();
-    } catch (e) {
-      expect(e.name).toMatch(/TypeError/);
+    class ErrorBoundary extends React.Component {
+      componentDidCatch(e, info) {
+        expect(e.name).toMatch(/TypeError/);
+        expect(e.message).toMatch(/bar is not a function/);
+        done();
+      }
+
+      render() {
+        return this.props.children;
+      }
     }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ErrorBoundary>
+          <ContainerWithData />
+        </ErrorBoundary>
+      </ApolloProvider>,
+    );
   });
 
-  xit('executes a subscription', done => {
+  it('executes a subscription', done => {
     const query = gql`
       subscription UserInfo {
         user {
@@ -121,12 +135,11 @@ describe('subscriptions', () => {
         }
       }
     `;
-    const networkInterface = mockSubscriptionNetworkInterface([
-      { request: { query }, results: [...results] },
-    ]);
-    const client = new ApolloClient({ networkInterface, addTypename: false });
-    // XXX fix in apollo-client
-    client.subscribe = client.subscribe.bind(client);
+    const link = new MockSubscriptionLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let count = 0;
     let output;
@@ -153,7 +166,7 @@ describe('subscriptions', () => {
     }
 
     const interval = setInterval(() => {
-      networkInterface.fireResult(0);
+      link.simulateResult(results[count]);
       if (count > 3) clearInterval(interval);
     }, 50);
 
@@ -163,7 +176,7 @@ describe('subscriptions', () => {
       </ApolloProvider>,
     );
   });
-  xit('resubscribes to a subscription', done => {
+  it('resubscribes to a subscription', done => {
     //we make an extra Hoc which will trigger the inner HoC to resubscribe
     //these are the results for the outer subscription
     const triggerResults = [
@@ -174,14 +187,14 @@ describe('subscriptions', () => {
       '5',
       '6',
       '7',
-    ].map(trigger => ({ result: { trigger }, delay: 10 }));
+    ].map(trigger => ({ result: { data: { trigger } }, delay: 10 }));
     //These are the results fro the resubscription
     const results3 = [
       'NewUser: 1',
       'NewUser: 2',
       'NewUser: 3',
       'NewUser: 4',
-    ].map(name => ({ result: { user: { name } }, delay: 10 }));
+    ].map(name => ({ result: { data: { user: { name } } }, delay: 10 }));
 
     const query = gql`
       subscription UserInfo {
@@ -195,14 +208,19 @@ describe('subscriptions', () => {
         trigger
       }
     `;
-    const networkInterface = mockSubscriptionNetworkInterface([
-      { request: { query }, results: [...results] },
-      { request: { query: triggerQuery }, results: [...triggerResults] },
-      { request: { query }, results: [...results3] },
-    ]);
-    const client = new ApolloClient({ networkInterface, addTypename: false });
-    // XXX fix in apollo-client
-    client.subscribe = client.subscribe.bind(client);
+
+    const userLink = new MockSubscriptionLink();
+    const triggerLink = new MockSubscriptionLink();
+    const link = new ApolloLink((o, f) => f(o)).split(
+      ({ query: document }) => document === query,
+      userLink,
+      triggerLink,
+    );
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let count = 0;
     let unsubscribed = false;
@@ -218,39 +236,22 @@ describe('subscriptions', () => {
         expect(this.props.data.loading).toBeTruthy();
       }
       componentWillReceiveProps({ data: { loading, user } }) {
-        // odd counts will be outer wrapper getting subscriptions - ie unchanged
-        expect(loading).toBeFalsy();
-        if (count === 0) expect(user).toEqual(results[0].result.user);
-        if (count === 1) expect(user).toEqual(results[0].result.user);
-        if (count === 2) expect(user).toEqual(results[1].result.user);
-        if (count === 3) expect(user).toEqual(results[1].result.user);
-        if (count <= 1) {
-          expect(networkInterface.mockedSubscriptionsById[0]).toBeDefined();
-        }
-        expect(networkInterface.mockedSubscriptionsById[1]).toBeDefined();
-        if (count === 2) {
-          expect(networkInterface.mockedSubscriptionsById[0]).toBeDefined();
-          //expect(networkInterface.mockedSubscriptionsById[2]).toBeDefined();
-        }
-        if (count === 3) {
-          //it's resubscribed
-          expect(networkInterface.mockedSubscriptionsById[0]).not.toBeDefined();
-          expect(networkInterface.mockedSubscriptionsById[2]).toBeDefined();
-          expect(user).toEqual(results[1].result.user);
-        }
-        if (count === 4) {
-          //it's got result of new subscription
-          expect(user).toEqual(results3[0].result.user);
-        }
-        if (count === 5) {
-          expect(user).toEqual(results3[0].result.user);
-          output.unmount();
-          expect(networkInterface.mockedSubscriptionsById[0]).not.toBeDefined();
-          // expect(
-          //   networkInterface.mockedSubscriptionsById[1]
-          // ).not.toBeDefined();
-          expect(networkInterface.mockedSubscriptionsById[3]).not.toBeDefined();
-          done();
+        try {
+          // odd counts will be outer wrapper getting subscriptions - ie unchanged
+          expect(loading).toBeFalsy();
+          if (count === 0) expect(user).toEqual(results[0].result.user);
+          if (count === 1) expect(user).toEqual(results[0].result.user);
+          if (count === 2) expect(user).toEqual(results[1].result.user);
+          if (count === 3) expect(user).toEqual(results[1].result.user);
+          if (count === 4) expect(user).toEqual(results3[0].result.user);
+          if (count === 5) {
+            expect(user).toEqual(results3[0].result.user);
+            output.unmount();
+
+            done();
+          }
+        } catch (e) {
+          done.fail(e);
         }
 
         count++;
@@ -262,8 +263,12 @@ describe('subscriptions', () => {
 
     const interval = setInterval(() => {
       try {
-        networkInterface.fireResult(count > 2 ? 2 : 0);
-        networkInterface.fireResult(1);
+        if (count > 2) {
+          userLink.simulateResult(results3[count - 2]);
+        } else {
+          userLink.simulateResult(results[count]);
+        }
+        triggerLink.simulateResult(triggerResults[count]);
       } catch (ex) {
         clearInterval(interval);
       }

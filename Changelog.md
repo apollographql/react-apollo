@@ -2,8 +2,12 @@
 
 ### vNext
 
+### 2.0.0-beta.0
+- upgrade to Apollo Client 2.0
+- remove direct dependencies on Apollo Client, graphql-tag
+
 ### 1.4.16
-- upgrade to react-16 
+- upgrade to react-16
 - fix shallowEqual bug.
 - Added notifyOnNetworkStatusChange to QueryOpts and MutationOpts Typesccript definitions [#1034](https://github.com/apollographql/react-apollo/pull/1034)
 - Added variables types with Typescript [#997](https://github.com/apollographql/react-apollo/pull/997)

@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "1.4.16",
+  "version": "2.0.0-beta.0",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -21,22 +21,22 @@
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "compile:browser":
-      "rm -rf ./dist && mkdir ./dist && browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
+      "rm -rf ./dist && mkdir ./dist && NODE_ENV=production browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
     "minify:browser":
-      "uglifyjs -c -m -o ./dist/index.min.js -- ./dist/index.js",
+      "uglifyjs --compress dead_code=true,unused=true -m -o ./dist/index.min.js -- ./dist/index.js",
     "compress:browser": "./scripts/gzip.js --file=./dist/index.min.js",
     "watch": "tsc -w",
-    "lint": "tslint 'src/*.ts*' && tslint 'test/*.ts*'",
+    "lint": "tslint 'src/*.ts*' --type-check -p tsconfig.json",
     "lint-staged": "lint-staged",
     "lint-fix":
       "prettier --trailing-comma all --single-quote --write \"{src,test}/**/*.ts*\"",
     "postcompile": "npm run bundle",
-    "prepublish": "npm run compile"
+    "prepublishOnly": "npm run compile"
   },
   "bundlesize": [
     {
       "path": "./dist/index.min.js",
-      "threshold": "12 Kb"
+      "threshold": "8 Kb"
     }
   ],
   "lint-staged": {
@@ -82,7 +82,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "apollo-client": "^2.0.0-beta.2",
+    "apollo-client": "^2.0.0-beta.3",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0",
     "redux": "^2.0.0 || ^3.0.0"
   },
@@ -102,7 +102,8 @@
     "@types/redux-form": "7.0.5",
     "@types/redux-immutable": "3.0.37",
     "@types/sinon": "2.3.5",
-    "apollo-client": "^2.0.0-beta.2",
+    "apollo-cache-inmemory": "^0.2.0-beta.3",
+    "apollo-client": "^2.0.0-beta.3",
     "babel-jest": "20.0.3",
     "babel-preset-react-native": "3.0.2",
     "browserify": "14.4.0",
@@ -149,11 +150,11 @@
     "typescript": "2.4.2",
     "typescript-require": "0.2.9",
     "typings": "2.1.1",
-    "uglify-js": "3.1.1"
+    "uglify-js": "3.1.1",
+    "zen-observable-ts": "^0.4.4"
   },
   "dependencies": {
-    "apollo-cache-inmemory": "^0.2.0-beta.2",
-    "apollo-link": "^0.6.1-beta.5",
+    "apollo-link": "^0.6.1-beta.6",
     "hoist-non-react-statics": "^2.2.0",
     "invariant": "^2.2.1",
     "lodash.flowright": "^3.5.0",

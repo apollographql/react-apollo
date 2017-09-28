@@ -35,6 +35,15 @@ function wait(ms) {
 }
 
 describe('queries', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
+
   // general api
   it('binds a query to props', () => {
     const query = gql`
@@ -259,7 +268,7 @@ describe('queries', () => {
     );
   });
 
-  xit("doesn't care about the order of variables in a request", done => {
+  it("doesn't care about the order of variables in a request", done => {
     const query = gql`
       query people($first: Int, $jedi: Boolean) {
         allPeople(first: $first, jedi: $jedi) {
@@ -391,7 +400,8 @@ describe('queries', () => {
     expect(error).toBeNull();
   });
 
-  it("errors if the passed props don't contain the needed variables", () => {
+  // note this should log an error in the console until they are all cleaned up with react 16
+  it("errors if the passed props don't contain the needed variables", done => {
     const query = gql`
       query people($first: Int!) {
         allPeople(first: $first) {
@@ -412,17 +422,24 @@ describe('queries', () => {
       cache: new Cache({ addTypename: false }),
     });
     const Container = graphql(query)(() => null);
+    class ErrorBoundary extends React.Component {
+      componentDidCatch(e, info) {
+        expect(e.name).toMatch(/Invariant Violation/);
+        expect(e.message).toMatch(/The operation 'people'/);
+        done();
+      }
 
-    try {
-      renderer.create(
-        <ApolloProvider client={client}>
-          <Container frst={1} />
-        </ApolloProvider>,
-      );
-    } catch (e) {
-      expect(e.name).toMatch(/Invariant Violation/);
-      expect(e.message).toMatch(/The operation 'people'/);
+      render() {
+        return this.props.children;
+      }
     }
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ErrorBoundary>
+          <Container frst={1} />
+        </ErrorBoundary>
+      </ApolloProvider>,
+    );
   });
 
   // context

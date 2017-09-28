@@ -7,6 +7,7 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import { ApolloLink } from 'apollo-link';
 import Cache from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
@@ -139,13 +140,11 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const link = mockSingleLink();
+    const link = new ApolloLink((o, f) => {
+      done.fail(new Error('query ran even though skip present'));
+      return f(o);
+    }).concat(mockSingleLink());
     const oldQuery = link.query;
-
-    link.query = function(request) {
-      fail(new Error('query ran even though skip present'));
-      return oldQuery.call(this, request);
-    };
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
@@ -364,7 +363,7 @@ describe('[queries] skip', () => {
 
   // test the case of skip:false -> skip:true -> skip:false to make sure things
   // are cleaned up properly
-  xit('allows you to skip then unskip a query with top-level syntax', done => {
+  it('allows you to skip then unskip a query with top-level syntax', done => {
     const query = gql`
       query people {
         allPeople(first: 1) {
@@ -427,90 +426,87 @@ describe('[queries] skip', () => {
     );
   });
 
-  xit(
-    'allows you to skip then unskip a query with new options (top-level syntax)',
-    done => {
-      const query = gql`
-        query people($first: Int) {
-          allPeople(first: $first) {
-            people {
-              name
-            }
+  it('allows you to skip then unskip a query with new options (top-level syntax)', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
           }
         }
-      `;
-      const dataOne = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-      const dataTwo = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-      const link = mockSingleLink(
-        {
-          request: { query, variables: { first: 1 } },
-          result: { data: dataOne },
-        },
-        {
-          request: { query, variables: { first: 2 } },
-          result: { data: dataTwo },
-        },
-        {
-          request: { query, variables: { first: 2 } },
-          result: { data: dataTwo },
-        },
-      );
-      const client = new ApolloClient({
-        link,
-        cache: new Cache({ addTypename: false }),
-      });
+      }
+    `;
+    const dataOne = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const dataTwo = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
+    const link = mockSingleLink(
+      {
+        request: { query, variables: { first: 1 } },
+        result: { data: dataOne },
+      },
+      {
+        request: { query, variables: { first: 2 } },
+        result: { data: dataTwo },
+      },
+      {
+        request: { query, variables: { first: 2 } },
+        result: { data: dataTwo },
+      },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
-      let hasSkipped = false;
-      @graphql(query, { skip: ({ skip }) => skip })
-      class Container extends React.Component<any, any> {
-        8;
-        componentWillReceiveProps(newProps) {
-          if (newProps.skip) {
-            hasSkipped = true;
-            // change back to skip: false, with a different variable
-            this.props.setState({ skip: false, first: 2 });
+    let hasSkipped = false;
+    @graphql(query, { skip: ({ skip }) => skip })
+    class Container extends React.Component<any, any> {
+      8;
+      componentWillReceiveProps(newProps) {
+        if (newProps.skip) {
+          hasSkipped = true;
+          // change back to skip: false, with a different variable
+          this.props.setState({ skip: false, first: 2 });
+        } else {
+          if (hasSkipped) {
+            if (!newProps.data.loading) {
+              expect(newProps.data.allPeople).toEqual(dataTwo.allPeople);
+              done();
+            }
           } else {
-            if (hasSkipped) {
-              if (!newProps.data.loading) {
-                expect(newProps.data.allPeople).toEqual(dataTwo.allPeople);
-                done();
-              }
-            } else {
-              expect(newProps.data.allPeople).toEqual(dataOne.allPeople);
-              this.props.setState({ skip: true });
-            }
+            expect(newProps.data.allPeople).toEqual(dataOne.allPeople);
+            this.props.setState({ skip: true });
           }
         }
-        render() {
-          return null;
-        }
       }
-
-      class Parent extends React.Component<any, any> {
-        constructor() {
-          super();
-          this.state = { skip: false, first: 1 };
-        }
-        render() {
-          return (
-            <Container
-              skip={this.state.skip}
-              first={this.state.first}
-              setState={state => this.setState(state)}
-            />
-          );
-        }
+      render() {
+        return null;
       }
+    }
 
-      renderer.create(
-        <ApolloProvider client={client}>
-          <Parent />
-        </ApolloProvider>,
-      );
-    },
-  );
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { skip: false, first: 1 };
+      }
+      render() {
+        return (
+          <Container
+            skip={this.state.skip}
+            first={this.state.first}
+            setState={state => this.setState(state)}
+          />
+        );
+      }
+    }
 
-  xit('allows you to skip then unskip a query with opts syntax', done => {
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Parent />
+      </ApolloProvider>,
+    );
+  });
+
+  it('allows you to skip then unskip a query with opts syntax', done => {
     const query = gql`
       query people {
         allPeople(first: 1) {
@@ -522,18 +518,18 @@ describe('[queries] skip', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const nextData = { allPeople: { people: [{ name: 'Anakin Skywalker' }] } };
-    const link = mockSingleLink({
-      request: { query },
-      result: { data },
-      newData: () => ({ data: nextData }),
-    });
-    const oldQuery = link.query;
-
     let ranQuery = 0;
-    link.query = function(request) {
+    const link = new ApolloLink((o, f) => {
       ranQuery++;
-      return oldQuery.call(this, request);
-    };
+      return f(o);
+    }).concat(
+      mockSingleLink({
+        request: { query },
+        result: { data },
+        newData: () => ({ data: nextData }),
+      }),
+    );
+
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),

@@ -1,6 +1,10 @@
-import { ObservableQuery, Subscription } from 'apollo-client';
+import { ObservableQuery } from 'apollo-client';
+import { ZenObservable } from 'zen-observable-ts';
 
+import shallowEqual from './shallowEqual';
 import { QueryOpts } from './types';
+
+// XXX move this logic to ObservableQuery / QueryManager in apollo-client
 
 /**
  * An observable query recycler stores some observable queries that are no
@@ -23,8 +27,8 @@ export class ObservableQueryRecycler {
    * The internal store for our observable queries and temporary subscriptions.
    */
   private observableQueries: Array<{
-    observableQuery: ObservableQuery<any>;
-    subscription: Subscription;
+    observableQuery: ObservableQuery<any> | any;
+    subscription: ZenObservable.Subscription;
   }> = [];
 
   /**
@@ -71,6 +75,21 @@ export class ObservableQueryRecycler {
 
     // strip off react-apollo specific options
     const { ssr, skip, client, ...modifiableOpts } = options;
+
+    // When `setOptions` is called in apollo-client, we want set the `currentResult()`
+    // to be loading: true BUT keep the previous data. This is for cases like
+    // calling `refetch` with new variables but not rerendering the child component
+    // with no data.
+    //
+    // HOWERVER, in routing / recycling this isn't ideal because you navigate to a new page
+    // which provides new variables and get stale data which would require the UI component
+    // to check accuracy of data (which it may not know)
+    // so if there are new variables when recycling, we don't recyle and make an entirely
+    // new observable after cleaning up the old one
+    if (
+      !shallowEqual(modifiableOpts.variables || {}, observableQuery.variables)
+    )
+      return null;
 
     // When we reuse an `ObservableQuery` then the document and component
     // GraphQL display name should be the same. Only the options may be

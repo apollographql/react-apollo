@@ -227,69 +227,67 @@ describe('[queries] loading', () => {
     );
   });
 
-  xit(
-    'resets the loading state after a refetched query',
-    () =>
-      new Promise((resolve, reject) => {
-        const query = gql`
-          query people {
-            allPeople(first: 1) {
-              people {
-                name
-              }
+  it('resets the loading state after a refetched query', () =>
+    new Promise((resolve, reject) => {
+      const query = gql`
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
             }
-          }
-        `;
-        const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-        const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-        const link = mockSingleLink(
-          { request: { query }, result: { data } },
-          { request: { query }, result: { data: data2 } },
-        );
-        const client = new ApolloClient({
-          link,
-          cache: new Cache({ addTypename: false }),
-        });
-
-        let count = 0;
-        @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-        class Container extends React.Component<any, any> {
-          componentWillReceiveProps = wrap(reject, props => {
-            switch (count++) {
-              case 0:
-                expect(props.data.networkStatus).toBe(7);
-                props.data.refetch();
-                break;
-              case 1:
-                expect(props.data.loading).toBe(true);
-                expect(props.data.networkStatus).toBe(4);
-                expect(props.data.allPeople).toEqual(data.allPeople);
-                break;
-              case 2:
-                expect(props.data.loading).toBe(false);
-                expect(props.data.networkStatus).toBe(7);
-                expect(props.data.allPeople).toEqual(data2.allPeople);
-                resolve();
-                break;
-              default:
-                reject(new Error('Too many props updates'));
-            }
-          });
-
-          render() {
-            return null;
           }
         }
+      `;
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
+      const link = mockSingleLink(
+        { request: { query }, result: { data } },
+        { request: { query }, result: { data: data2 } },
+      );
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
-        const wrapper = renderer.create(
-          <ApolloProvider client={client}>
-            <Container />
-          </ApolloProvider>,
-        );
-      }),
-  );
+      let count = 0;
+      @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
+      class Container extends React.Component<any, any> {
+        componentWillReceiveProps = wrap(reject, props => {
+          switch (count++) {
+            case 0:
+              expect(props.data.networkStatus).toBe(7);
+              // this isn't reloading fully
+              props.data.refetch();
+              break;
+            case 1:
+              expect(props.data.loading).toBe(true);
+              expect(props.data.networkStatus).toBe(4);
+              expect(props.data.allPeople).toEqual(data.allPeople);
+              break;
+            case 2:
+              expect(props.data.loading).toBe(false);
+              expect(props.data.networkStatus).toBe(7);
+              expect(props.data.allPeople).toEqual(data2.allPeople);
+              resolve();
+              break;
+            default:
+              reject(new Error('Too many props updates'));
+          }
+        });
 
-  xit('correctly sets loading state on remounted network-only query', done => {
+        render() {
+          return null;
+        }
+      }
+
+      const wrapper = renderer.create(
+        <ApolloProvider client={client}>
+          <Container />
+        </ApolloProvider>,
+      );
+    }));
+
+  it('correctly sets loading state on remounted network-only query', done => {
     const query = gql`
       query pollingPeople {
         allPeople(first: 1) {
@@ -329,19 +327,24 @@ describe('[queries] loading', () => {
         }
       }
       componentWillReceiveProps(props) {
-        if (count === 0) {
-          // has data
-          wrapper.unmount();
-          setTimeout(() => {
-            wrapper = mount(app);
-          }, 5);
-        }
-
-        if (count === 2) {
-          // remounted data after fetch
-          expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople).toBeTruthy();
-          done();
+        try {
+          if (count === 0) {
+            // has data
+            wrapper.unmount();
+            setTimeout(() => {
+              wrapper = mount(app);
+            }, 5);
+          }
+          if (count === 3) {
+            // remounted data after fetch
+            expect(props.data.loading).toBe(false);
+            expect(props.data.allPeople.people[0].name).toMatch(
+              /Darth Skywalker - /,
+            );
+            done();
+          }
+        } catch (e) {
+          done.fail(e);
         }
         count++;
       }

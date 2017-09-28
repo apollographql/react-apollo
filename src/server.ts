@@ -1,40 +1,35 @@
-import {
-  Children,
-  ReactElement,
-  ComponentClass,
-  StatelessComponent,
-} from 'react';
+import { Children, ReactElement, StatelessComponent } from 'react';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient, { ApolloQueryResult } from 'apollo-client';
 const assign = require('object-assign');
 
-export interface Context {
-  client?: ApolloClient;
+export interface Context<Cache> {
+  client?: ApolloClient<Cache>;
   store?: any;
   [key: string]: any;
 }
 
-export interface QueryTreeArgument {
+export interface QueryTreeArgument<Cache> {
   rootElement: ReactElement<any>;
-  rootContext?: Context;
+  rootContext?: Context<Cache>;
 }
 
-export interface QueryResult {
+export interface QueryResult<Cache> {
   query: Promise<ApolloQueryResult<any>>;
   element: ReactElement<any>;
-  context: Context;
+  context: Context<Cache>;
 }
 
 // Recurse a React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
-export function walkTree(
+export function walkTree<Cache>(
   element: ReactElement<any>,
-  context: Context,
+  context: Context<Cache>,
   visitor: (
     element: ReactElement<any>,
     instance: any,
-    context: Context,
+    context: Context<Cache>,
   ) => boolean | void,
 ) {
   const Component = element.type;
@@ -108,10 +103,10 @@ export function walkTree(
   }
 }
 
-function getQueriesFromTree(
-  { rootElement, rootContext = {} }: QueryTreeArgument,
+function getQueriesFromTree<Cache>(
+  { rootElement, rootContext = {} }: QueryTreeArgument<Cache>,
   fetchRoot: boolean = true,
-): QueryResult[] {
+): QueryResult<Cache>[] {
   const queries = [];
 
   walkTree(rootElement, rootContext, (element, instance, context) => {

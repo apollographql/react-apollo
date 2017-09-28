@@ -283,7 +283,7 @@ describe('[queries] lifecycle', () => {
     );
   });
 
-  xit('stays subscribed to updates after irrelevant prop changes', done => {
+  it('stays subscribed to updates after irrelevant prop changes', done => {
     const query = gql`
       query people($first: Int) {
         allPeople(first: $first) {
@@ -307,30 +307,31 @@ describe('[queries] lifecycle', () => {
 
     let count = 0;
     @graphql(query, {
-      options() {
-        return { variables, notifyOnNetworkStatusChange: false };
-      },
+      options: { variables, notifyOnNetworkStatusChange: false },
     })
     class Container extends React.Component<any, any> {
       8;
       componentWillReceiveProps(props) {
         count += 1;
-
-        if (count == 1) {
-          expect(props.foo).toEqual(42);
-          expect(props.data.loading).toEqual(false);
-          expect(props.data.allPeople).toEqual(data1.allPeople);
-          props.changeState();
-        } else if (count == 2) {
-          expect(props.foo).toEqual(43);
-          expect(props.data.loading).toEqual(false);
-          expect(props.data.allPeople).toEqual(data1.allPeople);
-          props.data.refetch();
-        } else if (count == 3) {
-          expect(props.foo).toEqual(43);
-          expect(props.data.loading).toEqual(false);
-          expect(props.data.allPeople).toEqual(data2.allPeople);
-          done();
+        try {
+          if (count === 1) {
+            expect(props.foo).toEqual(42);
+            expect(props.data.loading).toEqual(false);
+            expect(props.data.allPeople).toEqual(data1.allPeople);
+            props.changeState();
+          } else if (count === 2) {
+            expect(props.foo).toEqual(43);
+            expect(props.data.loading).toEqual(false);
+            expect(props.data.allPeople).toEqual(data1.allPeople);
+            props.data.refetch();
+          } else if (count === 3) {
+            expect(props.foo).toEqual(43);
+            expect(props.data.loading).toEqual(false);
+            expect(props.data.allPeople).toEqual(data2.allPeople);
+            done();
+          }
+        } catch (e) {
+          done.fail(e);
         }
       }
       render() {
@@ -360,7 +361,7 @@ describe('[queries] lifecycle', () => {
     );
   });
 
-  xit('correctly rebuilds props on remount', done => {
+  it('correctly rebuilds props on remount', done => {
     const query = gql`
       query pollingPeople {
         allPeople(first: 1) {
@@ -421,7 +422,7 @@ describe('[queries] lifecycle', () => {
     wrapper = mount(app);
   });
 
-  xit('will re-execute a query when the client changes', async () => {
+  it('will re-execute a query when the client changes', async () => {
     const query = gql`
       {
         a
@@ -429,18 +430,60 @@ describe('[queries] lifecycle', () => {
         c
       }
     `;
-    const link1 = {
-      query: jest.fn(() => Promise.resolve({ data: { a: 1, b: 2, c: 3 } })),
-    };
-    const link2 = {
-      query: jest.fn(() => Promise.resolve({ data: { a: 4, b: 5, c: 6 } })),
-    };
-    const link3 = {
-      query: jest.fn(() => Promise.resolve({ data: { a: 7, b: 8, c: 9 } })),
-    };
-    const client1 = new ApolloClient({ link: link1 });
-    const client2 = new ApolloClient({ link: link2 });
-    const client3 = new ApolloClient({ link: link3 });
+    const link1 = mockSingleLink(
+      {
+        request: { query },
+        result: { data: { a: 1, b: 2, c: 3 } },
+      },
+      {
+        request: { query },
+        result: { data: { a: 1, b: 2, c: 3 } },
+      },
+      {
+        request: { query },
+        result: { data: { a: 1, b: 2, c: 3 } },
+      },
+    );
+    const link2 = mockSingleLink(
+      {
+        request: { query },
+        result: { data: { a: 4, b: 5, c: 6 } },
+      },
+      {
+        request: { query },
+        result: { data: { a: 4, b: 5, c: 6 } },
+      },
+      {
+        request: { query },
+        result: { data: { a: 4, b: 5, c: 6 } },
+      },
+    );
+    const link3 = mockSingleLink(
+      {
+        request: { query },
+        result: { data: { a: 7, b: 8, c: 9 } },
+      },
+      {
+        request: { query },
+        result: { data: { a: 7, b: 8, c: 9 } },
+      },
+      {
+        request: { query },
+        result: { data: { a: 7, b: 8, c: 9 } },
+      },
+    );
+    const client1 = new ApolloClient({
+      link: link1,
+      cache: new Cache({ addTypename: false }),
+    });
+    const client2 = new ApolloClient({
+      link: link2,
+      cache: new Cache({ addTypename: false }),
+    });
+    const client3 = new ApolloClient({
+      link: link3,
+      cache: new Cache({ addTypename: false }),
+    });
     const renders = [];
     let switchClient;
     let refetchQuery;

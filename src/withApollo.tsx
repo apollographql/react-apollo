@@ -1,9 +1,4 @@
-import {
-  Component,
-  createElement,
-  ComponentClass,
-  StatelessComponent,
-} from 'react';
+import { Component, createElement } from 'react';
 import * as PropTypes from 'prop-types';
 
 const invariant = require('invariant');
@@ -11,26 +6,8 @@ const assign = require('object-assign');
 
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-import ApolloClient, {
-  ObservableQuery,
-  MutationQueryReducersMap,
-  Subscription,
-  ApolloStore,
-  ApolloQueryResult,
-  ApolloError,
-  FetchPolicy,
-  FetchMoreOptions,
-  UpdateQueryOptions,
-  FetchMoreQueryOptions,
-  SubscribeToMoreOptions,
-} from 'apollo-client';
+import ApolloClient from 'apollo-client';
 
-import {
-  // GraphQLResult,
-  DocumentNode,
-} from 'graphql';
-
-import { parser, DocumentType } from './parser';
 import { OperationOption } from './types';
 
 function getDisplayName(WrappedComponent) {
@@ -49,7 +26,7 @@ export function withApollo<TProps, TResult>(
     static contextTypes = { client: PropTypes.object.isRequired };
 
     // data storage
-    private client: ApolloClient; // apollo client
+    private client: ApolloClient<any>; // apollo client
 
     // wrapped instance
     private wrappedInstance: any;

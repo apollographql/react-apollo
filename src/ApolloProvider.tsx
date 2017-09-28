@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Component } from 'react';
 
-import ApolloClient, { ApolloStore } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import QueryRecyclerProvider from './QueryRecyclerProvider';
 
 const invariant = require('invariant');
@@ -11,7 +11,10 @@ export interface ProviderProps<Cache> {
   client: ApolloClient<Cache>;
 }
 
-export default class ApolloProvider extends Component<ProviderProps, any> {
+export default class ApolloProvider extends Component<
+  ProviderProps<Cache>,
+  any
+> {
   static propTypes = {
     client: PropTypes.object.isRequired,
     children: PropTypes.element.isRequired,

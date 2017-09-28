@@ -13,6 +13,15 @@ import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 
 describe('[mutations]', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
+
   it('binds a mutation to props', () => {
     const query = gql`
       mutation addPerson {
@@ -84,7 +93,7 @@ describe('[mutations]', () => {
     );
   });
 
-  it('does not swallow children errors', () => {
+  it('does not swallow children errors', done => {
     const query = gql`
       mutation addPerson {
         allPeople(first: 1) {
@@ -109,16 +118,25 @@ describe('[mutations]', () => {
       return null;
     });
 
-    try {
-      renderer.create(
-        <ApolloProvider client={client}>
-          <ContainerWithData />
-        </ApolloProvider>,
-      );
-      throw new Error();
-    } catch (e) {
-      expect(e.name).toMatch(/TypeError/);
+    class ErrorBoundary extends React.Component {
+      componentDidCatch(e, info) {
+        expect(e.name).toMatch(/TypeError/);
+        expect(e.message).toMatch(/bar is not a function/);
+        done();
+      }
+
+      render() {
+        return this.props.children;
+      }
     }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ErrorBoundary>
+          <ContainerWithData />
+        </ErrorBoundary>
+      </ApolloProvider>,
+    );
   });
 
   it('can execute a mutation', done => {

@@ -34,8 +34,17 @@ function wait(ms) {
 }
 
 describe('[queries] errors', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
+
   // errors
-  it('does not swallow children errors', () => {
+  it('does not swallow children errors', done => {
     const query = gql`
       query people {
         allPeople(first: 1) {
@@ -54,22 +63,30 @@ describe('[queries] errors', () => {
       link,
       cache: new Cache({ addTypename: false }),
     });
+
+    class ErrorBoundary extends React.Component {
+      componentDidCatch(e, info) {
+        expect(e.message).toMatch(/bar is not a function/);
+        done();
+      }
+
+      render() {
+        return this.props.children;
+      }
+    }
     let bar;
     const ContainerWithData = graphql(query)(() => {
       bar(); // this will throw
       return null;
     });
 
-    try {
-      renderer.create(
-        <ApolloProvider client={client}>
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ErrorBoundary>
           <ContainerWithData />
-        </ApolloProvider>,
-      );
-      throw new Error();
-    } catch (e) {
-      expect(e.name).toMatch(/TypeError/);
-    }
+        </ErrorBoundary>
+      </ApolloProvider>,
+    );
   });
 
   it('can unmount without error', done => {
@@ -360,7 +377,7 @@ describe('[queries] errors', () => {
       }, 50);
     }));
 
-  xit('passes any cached data when there is a GraphQL error', done => {
+  it('passes any cached data when there is a GraphQL error', done => {
     const query = gql`
       query people {
         allPeople(first: 1) {
@@ -384,21 +401,25 @@ describe('[queries] errors', () => {
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps = props => {
-        switch (count++) {
-          case 0:
-            expect(props.data.allPeople).toEqual(data.allPeople);
-            props.data.refetch();
-            break;
-          case 1:
-            expect(props.data.loading).toBe(true);
-            expect(props.data.allPeople).toEqual(data.allPeople);
-            break;
-          case 2:
-            expect(props.data.loading).toBe(false);
-            expect(props.data.error).toBeTruthy();
-            expect(props.data.allPeople).toEqual(data.allPeople);
-            done();
-            break;
+        try {
+          switch (count++) {
+            case 0:
+              expect(props.data.allPeople).toEqual(data.allPeople);
+              props.data.refetch();
+              break;
+            case 1:
+              expect(props.data.loading).toBe(true);
+              expect(props.data.allPeople).toEqual(data.allPeople);
+              break;
+            case 2:
+              expect(props.data.loading).toBe(false);
+              expect(props.data.error).toBeTruthy();
+              expect(props.data.allPeople).toEqual(data.allPeople);
+              done();
+              break;
+          }
+        } catch (e) {
+          done.fail(e);
         }
       };
 
