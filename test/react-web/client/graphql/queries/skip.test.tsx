@@ -125,10 +125,10 @@ describe('[queries] skip', () => {
 
   it('continues to not subscribe to a skipped query when props change', done => {
     const query = gql`
-      query people {
-        allPeople(first: 1) {
+      query people($id: ID!) {
+        allPeople(first: $id) {
           people {
-            name
+            id
           }
         }
       }
@@ -142,7 +142,14 @@ describe('[queries] skip', () => {
     };
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query, { skip: true })
+    @graphql(query, {
+      skip: true,
+      options: ({ person }) => ({
+        variables: {
+          id: person.id,
+        },
+      }),
+    })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         done();
