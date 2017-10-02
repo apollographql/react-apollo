@@ -163,13 +163,25 @@ export default function graphql<
           // call any stacked refetch functions
           if (this.refetcherQueue) {
             const { args, resolve, reject } = this.refetcherQueue;
-            this.queryObservable.refetch(args).then(resolve).catch(reject);
+            this.queryObservable
+              .refetch(args)
+              .then(resolve)
+              .catch(reject);
           }
         }
       }
 
       componentWillReceiveProps(nextProps, nextContext) {
+        if (this.shouldSkip(nextProps)) {
+          if (!this.shouldSkip(this.props)) {
+            // if this has changed, we better unsubscribe
+            this.unsubscribeFromQuery();
+          }
+          return;
+        }
+
         const { client } = mapPropsToOptions(nextProps);
+
         if (
           shallowEqual(this.props, nextProps) &&
           (this.client === client || this.client === nextContext.client)
@@ -207,13 +219,6 @@ export default function graphql<
           delete this.queryObservable;
           this.updateQuery(nextProps);
           this.subscribeToQuery();
-          return;
-        }
-        if (this.shouldSkip(nextProps)) {
-          if (!this.shouldSkip(this.props)) {
-            // if this has changed, we better unsubscribe
-            this.unsubscribeFromQuery();
-          }
           return;
         }
 
