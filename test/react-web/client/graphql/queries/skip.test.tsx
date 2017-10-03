@@ -125,10 +125,10 @@ describe('[queries] skip', () => {
 
   it('continues to not subscribe to a skipped query when props change', done => {
     const query = gql`
-      query people($id: ID!) {
-        allPeople(first: $id) {
+      query people {
+        allPeople(first: 1) {
           people {
-            id
+            name
           }
         }
       }
@@ -142,14 +142,7 @@ describe('[queries] skip', () => {
     };
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    @graphql(query, {
-      skip: true,
-      options: ({ person }) => ({
-        variables: {
-          id: person.id,
-        },
-      }),
-    })
+    @graphql(query, { skip: true })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         done();
@@ -305,6 +298,64 @@ describe('[queries] skip', () => {
       }
       fail(new Error('query ran even though skip present'));
     }, 25);
+  });
+
+  it("doesn't run options or props when skipped even if the component updates", done => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const networkInterface = mockNetworkInterface();
+
+    const client = new ApolloClient({ networkInterface, addTypename: false });
+
+    let queryWasSkipped = true;
+
+    @graphql(query, {
+      skip: true,
+      options: () => {
+        queryWasSkipped = false;
+        return {};
+      },
+      props: () => {
+        queryWasSkipped = false;
+        return {};
+      },
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        expect(queryWasSkipped).toBe(true);
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { foo: 'bar' };
+      }
+      componentDidMount() {
+        this.setState({ foo: 'baz' });
+      }
+      render() {
+        return <Container foo={this.state.foo} />;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Parent />
+      </ApolloProvider>,
+    );
   });
 
   it('allows you to skip a query without running it (alternate syntax)', done => {
