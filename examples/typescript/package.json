@@ -7,7 +7,7 @@
     "graphql-tag": "^2.4.2",
     "react": "^15.6.1",
     "react-apollo": "file:../..",
-    "react-dom": "^15.6.1"
+    "react-dom": "^16.0.0"
   },
   "devDependencies": {
     "@types/jest": "20.0.8",

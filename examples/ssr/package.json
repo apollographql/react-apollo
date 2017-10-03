@@ -17,7 +17,7 @@
     "meteor-node-stubs": "^0.2.11",
     "react": "^15.6.1",
     "react-apollo": "^1.4.8",
-    "react-dom": "^15.6.1"
+    "react-dom": "^16.0.0"
   },
   "devDependencies": {
     "assert": "1.4.1",
