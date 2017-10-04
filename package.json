@@ -138,7 +138,7 @@
     "redux-immutable": "4.0.0",
     "redux-loop": "2.2.2",
     "rollup": "0.50.0",
-    "source-map-support": "0.4.18",
+    "source-map-support": "0.5.0",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "1.0.2",
     "ts-jest": "20.0.14",
