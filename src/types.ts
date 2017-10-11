@@ -62,7 +62,7 @@ export type MutationFunc<TResult, TVariables = OperationVariables> = (
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps;
-  data?: QueryProps & TResult;
+  data?: QueryProps & Partial<TResult>;
   mutate?: MutationFunc<TResult>;
 }
 

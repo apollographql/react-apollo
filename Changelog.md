@@ -2,8 +2,11 @@
 
 ### vNext
 
+- Made `OptionProps.data`'s `TResult` partial [#1231](https://github.com/apollographql/react-apollo/pull/1231)
+
+
 ### 1.4.16
-- upgrade to react-16 
+- upgrade to react-16
 - fix shallowEqual bug.
 - Added notifyOnNetworkStatusChange to QueryOpts and MutationOpts Typesccript definitions [#1034](https://github.com/apollographql/react-apollo/pull/1034)
 - Added variables types with Typescript [#997](https://github.com/apollographql/react-apollo/pull/997)
