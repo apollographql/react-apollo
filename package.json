@@ -83,8 +83,7 @@
   "license": "MIT",
   "peerDependencies": {
     "apollo-client": "^2.0.0-beta.3",
-    "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0",
-    "redux": "^2.0.0 || ^3.0.0"
+    "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
     "@types/enzyme": "2.8.9",
