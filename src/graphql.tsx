@@ -522,7 +522,11 @@ export default function graphql<
         }
 
         const opts = this.calculateOptions(this.props);
-        const data = {};
+        const client = this.getClient(this.props);
+        const data = {
+          writeQuery: client.writeQuery.bind(client),
+        };
+
         assign(data, observableQueryFields(this.queryObservable));
 
         if (this.type === DocumentType.Subscription) {
