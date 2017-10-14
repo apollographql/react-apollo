@@ -87,7 +87,7 @@
   },
   "devDependencies": {
     "@types/enzyme": "2.8.12",
-    "@types/graphql": "0.9.4",
+    "@types/graphql": "0.11.5",
     "@types/invariant": "2.2.29",
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jest": "20.0.8",
