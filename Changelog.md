@@ -4,6 +4,9 @@
 - fix skip on component update.
 - Fix: ensure `client` option can be used with mutation query [#1145](https://github.com/apollographql/react-apollo/pull/1145)
 
+- Made `OptionProps.data`'s `TResult` partial [#1231](https://github.com/apollographql/react-apollo/pull/1231)
+
+
 ### 1.4.16
 - upgrade to react-16
 - fix shallowEqual bug.
