@@ -2,6 +2,8 @@
 
 ### vNext
 
+- Removed `redux` from peer dependencies. [Issue #1223](https://github.com/apollographql/react-apollo/issues/1223) [PR #1224](https://github.com/apollographql/react-apollo/pull/1224)
+
 ### 2.0.0-beta.0
 - upgrade to Apollo Client 2.0
 - remove direct dependencies on Apollo Client, graphql-tag
