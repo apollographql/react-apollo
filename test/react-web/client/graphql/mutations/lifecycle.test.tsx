@@ -5,30 +5,36 @@ import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
 
-declare function require(name: string)
+declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
 
 import { ApolloProvider, graphql } from '../../../../../src';
 
+const query = gql`
+  mutation addPerson($id: Int) {
+    allPeople(id: $id) {
+      people {
+        name
+      }
+    }
+  }
+`;
+
+const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+const createClient = variables => {
+  const networkInterface = mockNetworkInterface({
+    request: { query, variables },
+    result: { data },
+  });
+
+  return new ApolloClient({ networkInterface, addTypename: false });
+};
+
 describe('[mutations] lifecycle', () => {
   it('allows falsy values in the mapped variables from props', done => {
-    const query = gql`
-      mutation addPerson($id: Int) {
-        allPeople(id: $id) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const variables = { id: null };
-    const networkInterface = mockNetworkInterface({
-      request: { query, variables },
-      result: { data },
-    });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = createClient({ id: null });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -51,22 +57,7 @@ describe('[mutations] lifecycle', () => {
   });
 
   it("errors if the passed props don't contain the needed variables", () => {
-    const query = gql`
-      mutation addPerson($first: Int) {
-        allPeople(first: $first) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const variables = { first: 1 };
-    const networkInterface = mockNetworkInterface({
-      request: { query, variables },
-      result: { data },
-    });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = createClient({ first: 1 });
     const Container = graphql(query)(() => null);
 
     try {
@@ -81,21 +72,7 @@ describe('[mutations] lifecycle', () => {
   });
 
   it('rebuilds the mutation on prop change when using `options`', done => {
-    const query = gql`
-      mutation addPerson {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
-      request: { query },
-      result: { data },
-    });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = createClient({});
 
     function options(props) {
       // expect(props.listId).toBe(2);
@@ -112,6 +89,7 @@ describe('[mutations] lifecycle', () => {
         return null;
       }
     }
+
     class ChangingProps extends React.Component<any, any> {
       state = { listId: 1 };
 
@@ -132,22 +110,7 @@ describe('[mutations] lifecycle', () => {
   });
 
   it('can execute a mutation with custom variables', done => {
-    const query = gql`
-      mutation addPerson($id: Int) {
-        allPeople(id: $id) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const variables = { id: 1 };
-    const networkInterface = mockNetworkInterface({
-      request: { query, variables },
-      result: { data },
-    });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = createClient({ id: 1 });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -165,6 +128,39 @@ describe('[mutations] lifecycle', () => {
     renderer.create(
       <ApolloProvider client={client}>
         <Container />
+      </ApolloProvider>,
+    );
+  });
+
+  it('accepts client in options', done => {
+    const client = createClient({});
+
+    @graphql(query, { options: () => ({ client }) })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        if (props.listId !== 2) return;
+        props.mutate().then(x => done());
+      }
+      render() {
+        return null;
+      }
+    }
+
+    class ChangingProps extends React.Component<any, any> {
+      state = { listId: 1 };
+
+      componentDidMount() {
+        setTimeout(() => this.setState({ listId: 2 }), 50);
+      }
+
+      render() {
+        return <Container listId={this.state.listId} />;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ChangingProps />
       </ApolloProvider>,
     );
   });
