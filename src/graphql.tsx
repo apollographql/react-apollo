@@ -191,6 +191,10 @@ export default function graphql<
 
         this.shouldRerender = true;
 
+        if (this.type === DocumentType.Mutation) {
+          return;
+        }
+
         if (this.client !== client && this.client !== nextContext.client) {
           if (client) {
             this.client = client;
@@ -207,9 +211,7 @@ export default function graphql<
           }
           return;
         }
-        if (this.type === DocumentType.Mutation) {
-          return;
-        }
+
         if (
           this.type === DocumentType.Subscription &&
           operationOptions.shouldResubscribe &&

@@ -1,9 +1,10 @@
 # Change log
 
 ### vNext
+- fix skip on component update.
+- Fix: ensure `client` option can be used with mutation query [#1145](https://github.com/apollographql/react-apollo/pull/1145)
 
 ### 1.4.16
-- fix skip on component update.
 - upgrade to react-16
 - fix shallowEqual bug.
 - Added notifyOnNetworkStatusChange to QueryOpts and MutationOpts Typesccript definitions [#1034](https://github.com/apollographql/react-apollo/pull/1034)
