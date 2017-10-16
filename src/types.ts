@@ -12,6 +12,7 @@ import ApolloClient, {
   PureQueryOptions,
   MutationUpdaterFn,
 } from 'apollo-client';
+import { DataProxy } from 'apollo-cache';
 // import { PureQueryOptions } from 'apollo-client/core/types';
 // import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
@@ -51,6 +52,7 @@ export interface QueryProps<TVariables = OperationVariables> {
   updateQuery: (
     mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
   ) => void;
+  writeQuery: (options: DataProxy.WriteQueryOptions) => void;
 }
 
 export type MutationFunc<TResult, TVariables = OperationVariables> = (
