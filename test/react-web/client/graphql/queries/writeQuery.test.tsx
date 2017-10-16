@@ -132,7 +132,6 @@ describe('[queries] writeQuery', () => {
       componentWillReceiveProps(props) {
         // tslint:disable-line
         if (!props.loading) {
-          console.log(props.data);
           expect(props.data.todo).toEqual(data.todo);
         }
         done();
