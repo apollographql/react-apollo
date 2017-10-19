@@ -11,10 +11,10 @@ import { NetworkInterface } from 'apollo-client';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
 import { mockNetworkInterface } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
+import { ApolloProvider, graphql, ChildProps } from '../../../../../src';
 import { DocumentType } from '../../../../../src/parser';
 
 // XXX: this is also defined in apollo-client
@@ -92,7 +92,25 @@ describe('queries', () => {
     });
     const client = new ApolloClient({ networkInterface, addTypename: false });
 
-    const ContainerWithData = graphql(query)(({ data }) => {
+    // Ensure variable types work correctly here
+    type TResult = {
+      allPeople: {
+        people: {
+          name: string;
+        };
+      };
+    };
+
+    type TVariables = {
+      first: number;
+    };
+
+    const ContainerWithData = graphql<
+      TResult,
+      {},
+      ChildProps<{}, TResult>,
+      TVariables
+    >(query)(({ data }) => {
       // tslint:disable-line
       expect(data).toBeTruthy();
       expect(data.variables).toEqual(variables);
@@ -423,11 +441,7 @@ describe('queries', () => {
         expect(props.data.allPeople).toEqual(data.allPeople);
       }
       render() {
-        return (
-          <div>
-            {this.props.children}
-          </div>
-        );
+        return <div>{this.props.children}</div>;
       }
     }
 
@@ -448,11 +462,7 @@ describe('queries', () => {
       }
 
       render() {
-        return (
-          <div>
-            {this.props.children}
-          </div>
-        );
+        return <div>{this.props.children}</div>;
       }
     }
 
@@ -471,11 +481,7 @@ describe('queries', () => {
         }
 
         count++;
-        return (
-          <div>
-            {this.props.children}
-          </div>
-        );
+        return <div>{this.props.children}</div>;
       }
     }
 
