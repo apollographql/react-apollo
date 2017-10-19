@@ -14,7 +14,7 @@
     "graphql-server-express": "^1.0.4",
     "graphql-tag": "^2.4.2",
     "graphql-tools": "^1.1.0",
-    "meteor-node-stubs": "^0.2.11",
+    "meteor-node-stubs": "^0.3.0",
     "react": "^15.6.1",
     "react-apollo": "^1.4.8",
     "react-dom": "^15.6.1"
