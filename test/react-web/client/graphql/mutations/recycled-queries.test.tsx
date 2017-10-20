@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 declare function require(name: string);
 

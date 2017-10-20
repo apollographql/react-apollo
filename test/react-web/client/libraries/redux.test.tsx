@@ -13,7 +13,7 @@ import { combineReducers as loopCombine, install } from 'redux-loop';
 import { Map } from 'immutable';
 import { combineReducers as combineImmutable } from 'redux-immutable';
 import gql from 'graphql-tag';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import ApolloClient from 'apollo-client';
 

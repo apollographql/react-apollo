@@ -7,7 +7,7 @@ import * as renderer from 'react-test-renderer';
 import { mount, shallow } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 import { ObservableQueryRecycler } from '../../../../src/queryRecycler';

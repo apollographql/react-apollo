@@ -8,7 +8,7 @@ import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
@@ -475,14 +475,25 @@ describe('[queries] observableQuery', () => {
         allPeople(first: $first) {
           people {
             name
+            friends(id: $first) {
+              name
+            }
           }
         }
       }
     `;
     const variables = { id: 1 };
     const variables2 = { id: 2 };
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
+    const data = {
+      allPeople: {
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
+      },
+    };
+    const data2 = {
+      allPeople: {
+        people: [{ name: 'Leia Skywalker', friends: [{ name: 'luke' }] }],
+      },
+    };
 
     const link = mockSingleLink(
       { request: { query, variables }, result: { data } },

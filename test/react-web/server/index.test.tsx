@@ -20,7 +20,7 @@ import {
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';

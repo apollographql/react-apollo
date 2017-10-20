@@ -7,7 +7,7 @@ declare function require(name: string);
 import * as TestUtils from 'react-dom/test-utils';
 
 import ApolloClient from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import gql from 'graphql-tag';
 

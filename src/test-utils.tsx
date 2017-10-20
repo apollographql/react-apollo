@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ApolloClient from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import ApolloProvider from './ApolloProvider';
 import { mockSingleLink } from './test-links';

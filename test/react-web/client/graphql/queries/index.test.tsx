@@ -7,7 +7,7 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
