@@ -82,7 +82,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "apollo-client": "^2.0.0-rc.4",
+    "apollo-client": "^2.0.0-rc.5",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
@@ -102,7 +102,7 @@
     "@types/redux-immutable": "3.0.37",
     "@types/sinon": "2.3.5",
     "apollo-cache-inmemory": "^0.2.0-rc.2",
-    "apollo-client": "^2.0.0-rc.4",
+    "apollo-client": "^2.0.0-rc.5",
     "babel-jest": "20.0.3",
     "babel-preset-react-native": "3.0.2",
     "browserify": "14.4.0",
