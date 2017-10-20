@@ -1,7 +1,8 @@
 # Change log
 
 ### vNext
-
+- BREAKING: removed cleanupApolloState as it is no longer needed!
+- Exported getDataFromTree on the client 
 - Removed `redux` from peer dependencies. [Issue #1223](https://github.com/apollographql/react-apollo/issues/1223) [PR #1224](https://github.com/apollographql/react-apollo/pull/1224)
 
 ### 2.0.0-beta.0
