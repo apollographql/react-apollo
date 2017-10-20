@@ -186,4 +186,102 @@ describe('[mutations] query integration', () => {
       </ApolloProvider>,
     );
   });
+  it('allows for updating queries from a mutation automatically', done => {
+    const query = gql`
+      query getMini($id: ID!) {
+        mini(id: $id) {
+          __typename
+          id
+          cover(maxWidth: 600, maxHeight: 400)
+        }
+      }
+    `;
+
+    const queryData = {
+      mini: {
+        id: 1,
+        __typename: 'Mini',
+        cover: 'image1',
+      },
+    };
+
+    const variables = { id: 1 };
+
+    const mutation = gql`
+      mutation($signature: String!) {
+        mini: submitMiniCoverS3DirectUpload(signature: $signature) {
+          __typename
+          id
+          cover(maxWidth: 600, maxHeight: 400)
+        }
+      }
+    `;
+
+    const mutationData = {
+      mini: {
+        id: 1,
+        cover: 'image2',
+        __typename: 'Mini',
+      },
+    };
+
+    const link = mockSingleLink(
+      { request: { query, variables }, result: { data: queryData } },
+      {
+        request: { query: mutation, variables: { signature: '1233' } },
+        result: { data: mutationData },
+      },
+    );
+    const cache = new Cache({ addTypename: false });
+    const client = new ApolloClient({ link, cache });
+
+    class Boundary extends React.Component {
+      componentDidCatch(e) {
+        done.fail(e);
+      }
+      render() {
+        return this.props.children;
+      }
+    }
+
+    let count = 0;
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        if (count === 0) {
+          expect(props.data.mini).toEqual(queryData.mini);
+        }
+        if (count === 1) {
+          expect(props.data.mini).toEqual(mutationData.mini);
+          done();
+        }
+        count++;
+      }
+      render() {
+        return <MutationContainer {...this.props.data.mini} signature="1233" />;
+      }
+    }
+
+    @graphql(mutation)
+    class MutationContainer extends React.Component {
+      componentWillReceiveProps(props) {
+        if (count === 1) {
+          props.mutate().then(result => {
+            expect(result.data).toEqual(mutationData);
+          });
+        }
+      }
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Boundary>
+          <Container id={1} />
+        </Boundary>
+      </ApolloProvider>,
+    );
+  });
 });
