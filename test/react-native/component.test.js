@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import renderer from 'react-test-renderer';
 
 import ApolloClient from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { ApolloProvider, graphql } from '../../src';
 import { mockSingleLink } from '../../src/test-utils';

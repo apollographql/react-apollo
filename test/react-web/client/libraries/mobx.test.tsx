@@ -5,7 +5,7 @@ import { observable } from 'mobx';
 import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 declare function require(name: string);
 
 import { mockSingleLink } from '../../../../src/test-utils';

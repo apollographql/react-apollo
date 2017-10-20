@@ -3,7 +3,7 @@ import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 declare function require(name: string);
 

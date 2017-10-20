@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 
 import { ApolloClient, ApolloError } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
-import Cache from 'apollo-cache-inmemory';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { MockSubscriptionLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
