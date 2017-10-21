@@ -615,7 +615,7 @@ describe('SSR', () => {
         .catch(console.error);
     });
 
-    it('should allow for setting state in a component', done => {
+    it('should allow for setting state via an updater function', done => {
       const query = gql`
         query user($id: ID) {
           currentUser(id: $id) {
@@ -637,15 +637,25 @@ describe('SSR', () => {
 
       @graphql(query, { name: 'user' })
       class Element extends React.Component<any, any> {
-        state = { thing: 1 };
+        state = {
+          thing: 1,
+          userId: null,
+          client: null,
+        };
 
         componentWillMount() {
-          this.setState(state => ({ thing: state.thing + 1 }));
+          this.setState((state, props, context) => ({
+            thing: state.thing + 1,
+            userId: props.id,
+            client: context.client,
+          }));
         }
 
         render() {
-          const { user } = this.props;
+          const { user, id } = this.props;
           expect(this.state.thing).toBe(2);
+          expect(this.state.userId).toBe(id);
+          expect(this.state.client).toBe(apolloClient);
           return (
             <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
           );

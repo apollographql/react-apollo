@@ -5,7 +5,7 @@
 - Fix: ensure `client` option can be used with mutation query [#1145](https://github.com/apollographql/react-apollo/pull/1145)
 
 - Made `OptionProps.data`'s `TResult` partial [#1231](https://github.com/apollographql/react-apollo/pull/1231)
-- Support passing callback to `setState` in SSR mode [#1263](https://github.com/apollographql/react-apollo/pull/1263)
+- Support passing an updater function to `setState` in SSR mode [#1263](https://github.com/apollographql/react-apollo/pull/1263)
 
 
 ### 1.4.16

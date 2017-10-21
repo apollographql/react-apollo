@@ -61,7 +61,7 @@ export function walkTree(
       //   componentWillMount, which happens *before* render).
       instance.setState = newState => {
         if (typeof newState === 'function') {
-          newState = newState(instance.state);
+          newState = newState(instance.state, instance.props, instance.context);
         }
         instance.state = assign({}, instance.state, newState);
       };
