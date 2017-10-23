@@ -78,7 +78,10 @@ export function walkTree(
       }
 
       child = instance.render();
-    } else {
+    }  else if (Array.isArray(element)) {
+      // function returning an array of components (react@16)
+      element.forEach(item => walkTree(item, context, visitor));
+    }  else {
       // just a stateless functional
       if (visitor(element, null, context) === false) {
         return;
@@ -88,8 +91,9 @@ export function walkTree(
       const _component = Component as StatelessComponent<any>;
       child = _component(props, context);
     }
-
-    if (child) {
+    if (child && Array.isArray(child)) {
+      child.forEach(item => walkTree(item, context, visitor));
+    } else if (child) {
       walkTree(child, childContext, visitor);
     }
   } else {
