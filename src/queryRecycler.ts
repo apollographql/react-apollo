@@ -53,7 +53,7 @@ export class ObservableQueryRecycler {
 
     this.observableQueries.push({
       observableQuery,
-      subscription: observableQuery.subscribe({}),
+      subscription: (observableQuery as any).subscribe({}),
     });
   }
 
