@@ -66,23 +66,27 @@ describe('SSR', () => {
 
       it('basic element trees with nulls', () => {
         let elementCount = 0;
-        const rootElement = (
-          <div>
-            {null}
-          </div>
-        );
+        const rootElement = <div>{null}</div>;
         walkTree(rootElement, {}, element => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
       });
 
+      it('basic element trees with arrays', () => {
+        let elementCount = 0;
+        const rootElement = [1, 2];
+        walkTree(rootElement, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(2);
+      });
+
       it('functional stateless components', () => {
         let elementCount = 0;
-        const MyComponent = ({ n }) =>
-          <div>
-            {_.times(n, i => <span key={i} />)}
-          </div>;
+        const MyComponent = ({ n }) => (
+          <div>{_.times(n, i => <span key={i} />)}</div>
+        );
         walkTree(<MyComponent n={5} />, {}, element => {
           elementCount += 1;
         });
@@ -91,11 +95,12 @@ describe('SSR', () => {
 
       it('functional stateless components with children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }) =>
+        const MyComponent = ({ n, children = null }) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
-          </div>;
+          </div>
+        );
         walkTree(
           <MyComponent n={5}>
             <span>Foo</span>
@@ -110,20 +115,15 @@ describe('SSR', () => {
 
       it('functional stateless components with null children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }) =>
+        const MyComponent = ({ n, children = null }) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
-          </div>;
-        walkTree(
-          <MyComponent n={5}>
-            {null}
-          </MyComponent>,
-          {},
-          element => {
-            elementCount += 1;
-          },
+          </div>
         );
+        walkTree(<MyComponent n={5}>{null}</MyComponent>, {}, element => {
+          elementCount += 1;
+        });
         expect(elementCount).toEqual(7);
       });
 
@@ -136,15 +136,20 @@ describe('SSR', () => {
         expect(elementCount).toEqual(1);
       });
 
+      it('functional stateless components that render an array', () => {
+        let elementCount = 0;
+        const MyComponent = () => [1, 2];
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(3);
+      });
+
       it('basic classes', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
           render() {
-            return (
-              <div>
-                {_.times(this.props.n, i => <span key={i} />)}
-              </div>
-            );
+            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
         walkTree(<MyComponent n={5} />, {}, element => {
@@ -166,6 +171,19 @@ describe('SSR', () => {
         expect(elementCount).toEqual(1);
       });
 
+      it('basic classes components that render an array', () => {
+        let elementCount = 0;
+        class MyComponent extends React.Component<any, any> {
+          render() {
+            return [1, 2];
+          }
+        }
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(3);
+      });
+
       it('basic classes with incomplete constructors', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
@@ -173,11 +191,7 @@ describe('SSR', () => {
             super(); // note doesn't pass props or context
           }
           render() {
-            return (
-              <div>
-                {_.times(this.props.n, i => <span key={i} />)}
-              </div>
-            );
+            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
         walkTree(<MyComponent n={5} />, {}, element => {
@@ -232,11 +246,9 @@ describe('SSR', () => {
         addTypename: false,
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -271,11 +283,9 @@ describe('SSR', () => {
 
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'network-only' },
-      })(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      })(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -310,11 +320,9 @@ describe('SSR', () => {
 
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'cache-and-network' },
-      })(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      })(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -347,19 +355,18 @@ describe('SSR', () => {
         addTypename: false,
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
-      const Page = () =>
+      const Page = () => (
         <div>
           <span>Hi</span>
           <div>
             <WrappedElement />
           </div>
-        </div>;
+        </div>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -409,10 +416,9 @@ describe('SSR', () => {
         skip: ({ data: { loading } }) => loading,
         options: ({ data }) => ({ variables: { id: data.currentUser.id } }),
       });
-      const Component = ({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.user.firstName}
-        </div>;
+      const Component = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.user.firstName}</div>
+      );
       const WrappedComponent = withId(withUser(Component));
 
       const app = (
@@ -448,11 +454,7 @@ describe('SSR', () => {
 
       const WrappedElement = graphql(query, {
         options: { skip: true },
-      })(({ data }) =>
-        <div>
-          {data ? 'loading' : 'skipped'}
-        </div>,
-      );
+      })(({ data }) => <div>{data ? 'loading' : 'skipped'}</div>);
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -484,19 +486,18 @@ describe('SSR', () => {
         addTypename: false,
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.error}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.error}</div>
+      ));
 
-      const Page = () =>
+      const Page = () => (
         <div>
           <span>Hi</span>
           <div>
             <WrappedElement />
           </div>
-        </div>;
+        </div>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -535,11 +536,9 @@ describe('SSR', () => {
         addTypename: false,
       });
 
-      const WrappedElement = graphql(query, { skip: true })(({ data }) =>
-        <div>
-          {!data ? 'skipped' : 'dang'}
-        </div>,
-      );
+      const WrappedElement = graphql(query, { skip: true })(({ data }) => (
+        <div>{!data ? 'skipped' : 'dang'}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -573,11 +572,9 @@ describe('SSR', () => {
         addTypename: false,
       });
 
-      const Element = graphql(query, { name: 'user' })(({ user }) =>
-        <div>
-          {user.loading ? 'loading' : user.currentUser.firstName}
-        </div>,
-      );
+      const Element = graphql(query, { name: 'user' })(({ user }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -626,9 +623,7 @@ describe('SSR', () => {
           const { user } = this.props;
           expect(this.state.thing).toBe(2);
           return (
-            <div>
-              {user.loading ? 'loading' : user.currentUser.firstName}
-            </div>
+            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
           );
         }
       }
@@ -674,11 +669,9 @@ describe('SSR', () => {
       const Element = graphql(query, {
         name: 'user',
         options: props => ({ variables: props, ssr: false }),
-      })(({ user }) =>
-        <div>
-          {user.loading ? 'loading' : user.currentUser.firstName}
-        </div>,
-      );
+      })(({ user }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -735,11 +728,11 @@ describe('SSR', () => {
         graphql(query, {
           name: 'user',
           skip: ({ counter }) => !(counter > 1),
-        })(({ user }) =>
+        })(({ user }) => (
           <div>
             {!user || user.loading ? 'loading' : user.currentUser.firstName}
-          </div>,
-        ),
+          </div>
+        )),
       );
 
       const app = (
@@ -808,10 +801,9 @@ describe('SSR', () => {
         },
       });
 
-      const Element = ({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>;
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
 
       const WrappedElement = withQuery(withMutation(Element));
 
@@ -869,10 +861,9 @@ describe('SSR', () => {
       });
 
       const withMutation = graphql(mutation);
-      const Element = ({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>;
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
 
       const WrappedElement = withMutation(withQuery(Element));
 
@@ -907,11 +898,9 @@ describe('SSR', () => {
         addTypename: false,
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       class MyRootContainer extends React.Component<any, any> {
         constructor(props) {
@@ -924,11 +913,7 @@ describe('SSR', () => {
         }
 
         render() {
-          return (
-            <div>
-              {this.props.children}
-            </div>
-          );
+          return <div>{this.props.children}</div>;
         }
       }
 
@@ -1065,11 +1050,7 @@ describe('SSR', () => {
           const { data } = this.props;
           if (data.loading) return null;
           const { film } = data;
-          return (
-            <h6>
-              {film.title}
-            </h6>
-          );
+          return <h6>{film.title}</h6>;
         }
       }
 
@@ -1090,16 +1071,14 @@ describe('SSR', () => {
           const { ship } = data;
           return (
             <div>
-              <h4>
-                {ship.name} appeared in the following flims:
-              </h4>
+              <h4>{ship.name} appeared in the following flims:</h4>
               <br />
               <ul>
-                {ship.films.map((film, key) =>
+                {ship.films.map((film, key) => (
                   <li key={key}>
                     <Film id={film.id} />
-                  </li>,
-                )}
+                  </li>
+                ))}
               </ul>
             </div>
           );
@@ -1121,11 +1100,11 @@ describe('SSR', () => {
           return (
             <ul>
               {!data.loading &&
-                data.allShips.map((ship, key) =>
+                data.allShips.map((ship, key) => (
                   <li key={key}>
                     <Starship id={ship.id} />
-                  </li>,
-                )}
+                  </li>
+                ))}
             </ul>
           );
         }
@@ -1147,26 +1126,26 @@ describe('SSR', () => {
           return (
             <div>
               <h1>Planets</h1>
-              {data.allPlanets.map((planet, key) =>
-                <div key={key}>
-                  {planet.name}
-                </div>,
-              )}
+              {data.allPlanets.map((planet, key) => (
+                <div key={key}>{planet.name}</div>
+              ))}
             </div>
           );
         }
       }
 
-      const Bar = () =>
+      const Bar = () => (
         <div>
           <h2>Bar</h2>
           <AllPlanets />
-        </div>;
-      const Foo = () =>
+        </div>
+      );
+      const Foo = () => (
         <div>
           <h1>Foo</h1>
           <Bar />
-        </div>;
+        </div>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
