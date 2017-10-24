@@ -5,13 +5,13 @@
 - Exported getDataFromTree on the client 
 - Removed `redux` from peer dependencies. [Issue #1223](https://github.com/apollographql/react-apollo/issues/1223) [PR #1224](https://github.com/apollographql/react-apollo/pull/1224)
 - Support arrays being returned from render in SSR [#1158](https://github.com/apollographql/react-apollo/pull/1158)
+- Support passing an updater function to `setState` in SSR mode [#1263](https://github.com/apollographql/react-apollo/pull/1263)
 
 ### 2.0.0-beta.0
 - upgrade to Apollo Client 2.0
 - remove direct dependencies on Apollo Client, graphql-tag
 - fix skip on component update.
 - Fix: ensure `client` option can be used with mutation query [#1145](https://github.com/apollographql/react-apollo/pull/1145)
-
 - Made `OptionProps.data`'s `TResult` partial [#1231](https://github.com/apollographql/react-apollo/pull/1231)
 
 ### 1.4.16

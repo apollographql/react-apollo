@@ -82,7 +82,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "apollo-client": "^2.0.0-rc.5",
+    "apollo-client": "^2.0.0-rc.7",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {

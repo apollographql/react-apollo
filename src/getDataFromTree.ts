@@ -59,6 +59,9 @@ export function walkTree<Cache>(
       //   however, we don't need to re-render as well only support setState in
       //   componentWillMount, which happens *before* render).
       instance.setState = newState => {
+        if (typeof newState === 'function') {
+          newState = newState(instance.state, instance.props, instance.context);
+        }
         instance.state = assign({}, instance.state, newState);
       };
 

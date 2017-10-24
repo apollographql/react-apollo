@@ -649,6 +649,73 @@ describe('SSR', () => {
         .catch(console.error);
     });
 
+    it('should allow for setting state via an updater function', done => {
+      const query = gql`
+        query user($id: ID) {
+          currentUser(id: $id) {
+            firstName
+          }
+        }
+      `;
+      const data = { currentUser: { firstName: 'James' } };
+      const variables = { id: 1 };
+      const link = mockSingleLink({
+        request: { query, variables },
+        result: { data },
+        delay: 50,
+      });
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({
+          addTypename: false,
+        }),
+      });
+
+      @graphql(query, { name: 'user' })
+      class Element extends React.Component<any, any> {
+        state = {
+          thing: 1,
+          userId: null,
+          client: null,
+        };
+
+        componentWillMount() {
+          this.setState((state, props, context) => ({
+            thing: state.thing + 1,
+            userId: props.id,
+            client: context.client,
+          }));
+        }
+
+        render() {
+          const { user, id } = this.props;
+          expect(this.state.thing).toBe(2);
+          expect(this.state.userId).toBe(id);
+          expect(this.state.client).toBe(apolloClient);
+          return (
+            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+          );
+        }
+      }
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <Element id={1} />
+        </ApolloProvider>
+      );
+
+      getDataFromTree(app)
+        .then(() => {
+          const initialState = apolloClient.cache.extract();
+          expect(initialState).toBeTruthy();
+          expect(
+            initialState['$ROOT_QUERY.currentUser({"id":1})'],
+          ).toBeTruthy();
+          done();
+        })
+        .catch(console.error);
+    });
+
     it("shouldn't run queries if ssr is turned to off", () => {
       const query = gql`
         query user($id: ID) {
