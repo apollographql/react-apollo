@@ -75,6 +75,15 @@ describe('SSR', () => {
         expect(elementCount).toEqual(1);
       });
 
+      it('basic element trees with arrays', () => {
+        let elementCount = 0;
+        const rootElement = [1, 2];
+        walkTree(rootElement, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(2);
+      });
+
       it('functional stateless components', () => {
         let elementCount = 0;
         const MyComponent = ({ n }) => (
@@ -129,6 +138,15 @@ describe('SSR', () => {
         expect(elementCount).toEqual(1);
       });
 
+      it('functional stateless components that render an array', () => {
+        let elementCount = 0;
+        const MyComponent = () => [1, 2];
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(3);
+      });
+
       it('basic classes', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
@@ -153,6 +171,19 @@ describe('SSR', () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
+      });
+
+      it('basic classes components that render an array', () => {
+        let elementCount = 0;
+        class MyComponent extends React.Component<any, any> {
+          render() {
+            return [1, 2];
+          }
+        }
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(3);
       });
 
       it('basic classes with incomplete constructors', () => {

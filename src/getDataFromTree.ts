@@ -31,6 +31,11 @@ export function walkTree<Cache>(
     context: Context<Cache>,
   ) => boolean | void,
 ) {
+  if (Array.isArray(element)) {
+    element.forEach(item => walkTree(item, context, visitor));
+
+    return;
+  }
   const Component = element.type;
   // a stateless functional component or a class
   if (typeof Component === 'function') {
@@ -84,7 +89,11 @@ export function walkTree<Cache>(
     }
 
     if (child) {
-      walkTree(child, childContext, visitor);
+      if (Array.isArray(child)) {
+        child.forEach(item => walkTree(item, context, visitor));
+      } else {
+        walkTree(child, childContext, visitor);
+      }
     }
   } else {
     // a basic string or dom element, just get children
