@@ -54,4 +54,4 @@ cp src/index.js.flow npm/react-apollo.umd.js.flow
 cp -R flow-typed npm/
 
 echo 'deploying to npm...'
-cd npm && npm publish --tag=next
+cd npm && npm publish
