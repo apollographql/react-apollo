@@ -10,7 +10,7 @@ declare function require(name: string);
 
 import { mockSingleLink } from '../../../../../src/test-utils';
 
-import { ApolloProvider, graphql } from '../../../../../src';
+import { ApolloProvider, graphql, compose } from '../../../../../src';
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
@@ -280,6 +280,183 @@ describe('[mutations] query integration', () => {
       <ApolloProvider client={client}>
         <Boundary>
           <Container id={1} />
+        </Boundary>
+      </ApolloProvider>,
+    );
+  });
+  it('handles refetchingQueries after a mutation', done => {
+    // reproduction of query from Apollo Engine
+    const accountId = '1234';
+
+    const billingInfoQuery = gql`
+      query Account__PaymentDetailQuery($accountId: ID!) {
+        account(id: $accountId) {
+          id
+          currentPlan {
+            id
+            name
+          }
+        }
+      }
+    `;
+
+    const overlappingQuery = gql`
+      query Account__PaymentQuery($accountId: ID!) {
+        account(id: $accountId) {
+          id
+          currentPlan {
+            id
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = {
+      account: {
+        id: accountId,
+        currentPlan: {
+          id: 'engine-77',
+          name: 'Utility',
+        },
+      },
+    };
+    const data2 = {
+      account: {
+        id: accountId,
+        currentPlan: {
+          id: 'engine-78',
+          name: 'Free',
+        },
+      },
+    };
+
+    const setPlanMutation = gql`
+      mutation Account__SetPlanMutation($accountId: ID!, $planId: ID!) {
+        accountSetPlan(accountId: $accountId, planId: $planId)
+      }
+    `;
+
+    const mutationData = {
+      accountSetPlan: true,
+    };
+
+    const variables = {
+      accountId,
+    };
+
+    const link = mockSingleLink(
+      {
+        request: { query: billingInfoQuery, variables },
+        result: { data: data1 },
+      },
+      {
+        request: { query: overlappingQuery, variables },
+        result: { data: data1 },
+      },
+      {
+        request: {
+          query: setPlanMutation,
+          variables: { accountId, planId: 'engine-78' },
+        },
+        result: { data: mutationData },
+      },
+      {
+        request: { query: billingInfoQuery, variables },
+        result: { data: data2 },
+      },
+    );
+    const cache = new Cache({ addTypename: false });
+    const client = new ApolloClient({ link, cache });
+
+    class Boundary extends React.Component {
+      componentDidCatch(e) {
+        done.fail(e);
+      }
+      render() {
+        return this.props.children;
+      }
+    }
+
+    let refetched;
+    class RelatedUIComponent extends React.Component {
+      componentWillReceiveProps(props) {
+        if (refetched) {
+          expect(props.billingData.account.currentPlan.name).toBe('Free');
+          done();
+        }
+      }
+      render() {
+        return this.props.children;
+      }
+    }
+
+    const RelatedUIComponentWithData = graphql(overlappingQuery, {
+      options: { variables: { accountId } },
+      name: 'billingData',
+    })(RelatedUIComponent);
+
+    let count = 0;
+    class PaymentDetail extends React.Component {
+      componentWillReceiveProps(props) {
+        if (count === 1) {
+          expect(props.billingData.account.currentPlan.name).toBe('Free');
+          done();
+        }
+        count++;
+      }
+      async onPaymentInfoChanged() {
+        try {
+          refetched = true;
+          await this.props.setPlan({
+            refetchQueries: [
+              {
+                query: billingInfoQuery,
+                variables: {
+                  accountId,
+                },
+              },
+            ],
+            variables: {
+              accountId,
+              planId: 'engine-78',
+            },
+          });
+        } catch (e) {
+          done.fail(e);
+        }
+      }
+
+      componentDidMount() {
+        setTimeout(() => {
+          // trigger mutation and future updates
+          this.onPaymentInfoChanged();
+        }, 10);
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    const PaymentDetailWithData = compose(
+      graphql(setPlanMutation, {
+        name: 'setPlan',
+      }),
+      graphql(billingInfoQuery, {
+        options: () => ({
+          variables: { accountId },
+        }),
+        name: 'billingData',
+      }),
+    )(PaymentDetail);
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Boundary>
+          <RelatedUIComponentWithData>
+            <PaymentDetailWithData />
+          </RelatedUIComponentWithData>
         </Boundary>
       </ApolloProvider>,
     );

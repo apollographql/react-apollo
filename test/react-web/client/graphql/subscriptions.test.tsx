@@ -188,6 +188,7 @@ describe('subscriptions', () => {
       '6',
       '7',
     ].map(trigger => ({ result: { data: { trigger } }, delay: 10 }));
+
     //These are the results fro the resubscription
     const results3 = [
       'NewUser: 1',
@@ -212,7 +213,7 @@ describe('subscriptions', () => {
     const userLink = new MockSubscriptionLink();
     const triggerLink = new MockSubscriptionLink();
     const link = new ApolloLink((o, f) => f(o)).split(
-      ({ query: document }) => document === query,
+      ({ operationName }) => operationName === 'UserInfo',
       userLink,
       triggerLink,
     );
@@ -268,6 +269,7 @@ describe('subscriptions', () => {
         } else {
           userLink.simulateResult(results[count]);
         }
+
         triggerLink.simulateResult(triggerResults[count]);
       } catch (ex) {
         clearInterval(interval);
