@@ -23,10 +23,16 @@ export function withApollo<TProps, TResult>(
   class WithApollo extends Component<any, any> {
     static displayName = withDisplayName;
     static WrappedComponent = WrappedComponent;
-    static contextTypes = { client: PropTypes.object.isRequired };
+    static contextTypes = {
+      client: PropTypes.object,
+      clients: PropTypes.object,
+      defaultClient: PropTypes.object,
+    };
 
     // data storage
     private client: ApolloClient<any>; // apollo client
+    private clients: Map<string, ApolloClient<any>>; // apollo clients
+    private defaultClient: ApolloClient<any>;
 
     // wrapped instance
     private wrappedInstance: any;
@@ -34,6 +40,8 @@ export function withApollo<TProps, TResult>(
     constructor(props, context) {
       super(props, context);
       this.client = context.client;
+      this.clients = context.clients;
+      this.defaultClient = context.defaultClient;
       this.setWrappedInstance = this.setWrappedInstance.bind(this);
 
       invariant(
@@ -61,6 +69,8 @@ export function withApollo<TProps, TResult>(
     render() {
       const props = assign({}, this.props);
       props.client = this.client;
+      props.clients = this.clients;
+      props.defaultClient = this.defaultClient;
       if (operationOptions.withRef) props.ref = this.setWrappedInstance;
       return createElement(WrappedComponent, props);
     }

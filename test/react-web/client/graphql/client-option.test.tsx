@@ -127,6 +127,77 @@ describe('client option', () => {
       </ApolloProvider>,
     );
   });
+
+  it('uses client in context if options.client is a string', done => {
+    const query1 = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data1 = {
+      allPeople: { people: [{ name: 'Leia Organa Solo' }] },
+    };
+    const link1 = mockSingleLink({
+      request: { query: query1 },
+      result: { data: data1 },
+    });
+    const client1 = new ApolloClient({
+      link: link1,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    const query2 = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data2 = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
+    const link2 = mockSingleLink({
+      request: { query: query2 },
+      result: { data: data2 },
+    });
+    const client2 = new ApolloClient({
+      link: link2,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    const config = {
+      options: {
+        client: 'client2',
+      },
+    };
+
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps({ data }) {
+        // tslint:disable-line
+        expect(data.loading).toBe(false); // first data
+        expect(data.allPeople).toMatchObject({
+          people: [{ name: 'Luke Skywalker' }],
+        });
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+    const ContainerWithData = graphql(query2, config)(Container);
+    renderer.create(
+      <ApolloProvider clients={{ client1, client2 }} defaultClient={client1}>
+        <ContainerWithData />
+      </ApolloProvider>,
+    );
+  });
+
   it('exposes refetch as part of the props api', done => {
     const query = gql`
       query people($first: Int) {

@@ -123,10 +123,52 @@ describe('<ApolloProvider /> Component', () => {
         </ApolloProvider>,
       );
     }).toThrowError(
-      'ApolloClient was not passed a client instance. Make ' +
-        'sure you pass in your client via the "client" prop.',
+      'ApolloClient was not passed a client or clients. Make sure ' +
+        'you pass in your client(s) via the "client" or "clients" & "defaultClient" props.',
     );
     console.error = originalConsoleError;
+  });
+
+  it('should require a defaultClient when using clients', () => {
+    const originalConsoleError = console.error;
+    console.error = () => {
+      /* noop */
+    };
+    expect(() => {
+      shallow(
+        <ApolloProvider clients={{ client }}>
+          <div className="unique" />
+        </ApolloProvider>,
+      );
+    }).toThrowError(
+      'ApolloClient was not passed a client or clients. Make sure ' +
+        'you pass in your client(s) via the "client" or "clients" & "defaultClient" props.',
+    );
+    console.error = originalConsoleError;
+  });
+
+  it('should support multiple clients & defaultClient', () => {
+    const newClient = new ApolloClient({
+      cache: new Cache(),
+      link: new ApolloLink((o, f) => f(o)),
+    });
+
+    const wrapper = shallow(
+      <div>
+        <ApolloProvider
+          clients={{ main: client, newClient: newClient }}
+          defaultClient={client}
+        >
+          <div className="unique" />
+        </ApolloProvider>
+      </div>,
+    );
+
+    expect(wrapper.find(ApolloProvider).props().clients.main).toBe(client);
+    expect(wrapper.find(ApolloProvider).props().clients.newClient).toBe(
+      newClient,
+    );
+    expect(wrapper.find(ApolloProvider).props().defaultClient).toBe(client);
   });
 
   it('should not require a store', () => {
