@@ -6,6 +6,7 @@
 - Made `OptionProps.data`'s `TResult` partial [#1231](https://github.com/apollographql/react-apollo/pull/1231)
 - Support passing an updater function to `setState` in SSR mode [#1263](https://github.com/apollographql/react-apollo/pull/1263)
 - Support arrays being returned from render in SSR [#1158](https://github.com/apollographql/react-apollo/pull/1158)
+- Correctly initializes component state as null (not undefined) [#1300](https://github.com/apollographql/react-apollo/pull/1300)
 
 ### 1.4.16
 - upgrade to react-16

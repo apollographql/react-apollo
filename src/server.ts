@@ -60,7 +60,10 @@ export function walkTree(
       // In case the user doesn't pass these to super in the constructor
       instance.props = instance.props || props;
       instance.context = instance.context || context;
-      instance.state = instance.state || null
+
+      // set the state to null (not undefined) if not set
+      //   https://github.com/facebook/react/blob/177cd8525348c83a89962c426fa482b5c8ca4f39/packages/react-dom/src/server/ReactPartialRenderer.js#L392
+      instance.state = instance.state || null;
 
       // Override setState to just change the state, not queue up an update.
       //   (we can't do the default React thing as we aren't mounted "properly"
