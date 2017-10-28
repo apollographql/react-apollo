@@ -60,6 +60,7 @@ export function walkTree(
       // In case the user doesn't pass these to super in the constructor
       instance.props = instance.props || props;
       instance.context = instance.context || context;
+      instance.state = instance.state || null
 
       // Override setState to just change the state, not queue up an update.
       //   (we can't do the default React thing as we aren't mounted "properly"
