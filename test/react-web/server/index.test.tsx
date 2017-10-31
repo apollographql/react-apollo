@@ -649,6 +649,32 @@ describe('SSR', () => {
         .catch(console.error);
     });
 
+    it('should correctly initialize an empty state to null', () => {
+      class Element extends React.Component<any, any> {
+        render() {
+          expect(this.state).toBeNull();
+        }
+      }
+
+      return getDataFromTree(<Element />);
+    });
+
+    it('should maintain any state set in the element constructor', () => {
+      class Element extends React.Component<any, any> {
+        s;
+        constructor(props) {
+          super(props);
+          this.state = { foo: 'bar' };
+        }
+
+        render() {
+          expect(this.state).toEqual({ foo: 'bar' });
+        }
+      }
+
+      return getDataFromTree(<Element />);
+    });
+
     it('should allow for setting state via an updater function', done => {
       const query = gql`
         query user($id: ID) {
