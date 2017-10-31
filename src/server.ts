@@ -61,6 +61,10 @@ export function walkTree(
       instance.props = instance.props || props;
       instance.context = instance.context || context;
 
+      // set the state to null (not undefined) if not set
+      //   see ReactPartialRenderer.js#L392 in react-dom
+      instance.state = instance.state || null;
+
       // Override setState to just change the state, not queue up an update.
       //   (we can't do the default React thing as we aren't mounted "properly"
       //   however, we don't need to re-render as well only support setState in

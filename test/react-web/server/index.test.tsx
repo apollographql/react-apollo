@@ -646,6 +646,16 @@ describe('SSR', () => {
         .catch(console.error);
     });
 
+    it('should correctly initialize an empty state to null', () => {
+      class Element extends React.Component<any, any> {
+        render() {
+          expect(this.state).toBeNull();
+        }
+      }
+
+      return getDataFromTree(<Element />);
+    });
+
     it('should allow for setting state via an updater function', done => {
       const query = gql`
         query user($id: ID) {
@@ -689,7 +699,6 @@ describe('SSR', () => {
           expect(this.state.client).toBe(apolloClient);
           return (
             <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
-
           );
         }
       }
