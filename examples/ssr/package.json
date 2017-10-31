@@ -7,7 +7,7 @@
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
   "dependencies": {
-    "apollo-client": "^1.9.0-1",
+    "apollo-client": "^2.0.0",
     "babel-runtime": "^6.20.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
