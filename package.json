@@ -129,7 +129,7 @@
     "react": "16.0.0",
     "react-addons-test-utils": "15.6.0",
     "react-dom": "16.0.0",
-    "react-native": "0.49.3",
+    "react-native": "0.49.5",
     "react-redux": "5.0.6",
     "react-test-renderer": "16.0.0",
     "recompose": "0.26.0",
