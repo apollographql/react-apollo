@@ -9,6 +9,8 @@ class QueryRecyclerProvider extends Component {
 
   static contextTypes = {
     client: PropTypes.object,
+    clients: PropTypes.object,
+    defaultClient: PropTypes.object,
   };
 
   static childContextTypes = {
@@ -24,7 +26,11 @@ class QueryRecyclerProvider extends Component {
   }
 
   componentWillReceiveProps(_, nextContext) {
-    if (this.context.client !== nextContext.client) {
+    if (
+      this.context.client !== nextContext.client ||
+      this.context.clients !== nextContext.clients ||
+      this.context.defaultClient !== nextContext.defaultClient
+    ) {
       this.recyclers = new WeakMap();
     }
   }

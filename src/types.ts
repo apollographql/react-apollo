@@ -21,7 +21,7 @@ export interface MutationOpts<TVariables = OperationVariables> {
   updateQueries?: MutationQueryReducersMap;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
-  client?: ApolloClient<any>;
+  client?: ApolloClient<any> | string;
   notifyOnNetworkStatusChange?: boolean;
 }
 
@@ -30,7 +30,7 @@ export interface QueryOpts<TVariables = OperationVariables> {
   variables?: TVariables;
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
-  client?: ApolloClient<any>;
+  client?: ApolloClient<any> | string;
   notifyOnNetworkStatusChange?: boolean;
   // deprecated
   skip?: boolean;

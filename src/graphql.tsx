@@ -102,6 +102,8 @@ export default function graphql<
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
         client: PropTypes.object,
+        clients: PropTypes.object,
+        defaultClient: PropTypes.object,
         getQueryRecycler: PropTypes.func,
       };
 
@@ -180,8 +182,10 @@ export default function graphql<
         this.shouldRerender = true;
 
         if (this.client !== client && this.client !== nextContext.client) {
-          if (client) {
+          if (client instanceof ApolloClient) {
             this.client = client;
+          } else if (typeof client === 'string') {
+            this.client = nextContext.clients[client];
           } else {
             this.client = nextContext.client;
           }
@@ -257,10 +261,12 @@ export default function graphql<
         if (this.client) return this.client;
         const { client } = mapPropsToOptions(props);
 
-        if (client) {
+        if (client instanceof ApolloClient) {
           this.client = client;
+        } else if (typeof client === 'string') {
+          this.client = this.context.clients[client];
         } else {
-          this.client = this.context.client;
+          this.client = this.context.defaultClient || this.context.client;
         }
 
         invariant(

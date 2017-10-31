@@ -8,7 +8,9 @@ import QueryRecyclerProvider from './QueryRecyclerProvider';
 const invariant = require('invariant');
 
 export interface ProviderProps<Cache> {
-  client: ApolloClient<Cache>;
+  client?: ApolloClient<Cache>;
+  clients?: Map<string, ApolloClient<Cache>>;
+  defaultClient?: ApolloClient<Cache>;
 }
 
 export default class ApolloProvider extends Component<
@@ -16,27 +18,33 @@ export default class ApolloProvider extends Component<
   any
 > {
   static propTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
+    clients: PropTypes.object,
+    defaultClient: PropTypes.object,
     children: PropTypes.element.isRequired,
   };
 
   static childContextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
+    clients: PropTypes.object,
+    defaultClient: PropTypes.object,
   };
 
   constructor(props, context) {
     super(props, context);
 
     invariant(
-      props.client,
-      'ApolloClient was not passed a client instance. Make ' +
-        'sure you pass in your client via the "client" prop.',
+      !!props.client || (!!props.clients && !!props.defaultClient),
+      'ApolloClient was not passed a client or clients. Make sure ' +
+        'you pass in your client(s) via the "client" or "clients" & "defaultClient" props.',
     );
   }
 
   getChildContext() {
     return {
       client: this.props.client,
+      clients: this.props.clients,
+      defaultClient: this.props.defaultClient || this.props.client,
     };
   }
 
