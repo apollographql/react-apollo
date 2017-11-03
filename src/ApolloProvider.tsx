@@ -7,12 +7,12 @@ import QueryRecyclerProvider from './QueryRecyclerProvider';
 
 const invariant = require('invariant');
 
-export interface ProviderProps<Cache> {
-  client: ApolloClient<Cache>;
+export interface ProviderProps<TCache> {
+  client: ApolloClient<TCache>;
 }
 
-export default class ApolloProvider extends Component<
-  ProviderProps<Cache>,
+export default class ApolloProvider<TCache> extends Component<
+  ProviderProps<TCache>,
   any
 > {
   static propTypes = {
