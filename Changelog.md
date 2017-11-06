@@ -7,6 +7,7 @@
 - Support arrays being returned from render in SSR [#1158](https://github.com/apollographql/react-apollo/pull/1158)
 - Support passing an updater function to `setState` in SSR mode [#1263](https://github.com/apollographql/react-apollo/pull/1263)
 - Correctly initializes component state as null (not undefined) [#1300](https://github.com/apollographql/react-apollo/pull/1310)
+- Correctly provide the generic cache type to ApolloProvider [#1319](https://github.com/apollographql/react-apollo/pull/1319)
 
 ### 2.0.0-beta.0
 - upgrade to Apollo Client 2.0
