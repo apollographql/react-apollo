@@ -325,9 +325,15 @@ describe('[queries] skip', () => {
       }
     `;
 
-    const networkInterface = mockNetworkInterface();
+    const link = mockSingleLink({
+      request: { query },
+      result: {},
+    });
 
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let queryWasSkipped = true;
 
