@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "React data container for Apollo Client",
   "main": "lib/react-apollo.umd.js",
   "module": "./lib/index.js",
@@ -101,6 +101,7 @@
     "@types/redux-form": "7.0.5",
     "@types/redux-immutable": "3.0.37",
     "@types/sinon": "2.3.5",
+    "@types/zen-observable": "^0.5.3",
     "apollo-cache-inmemory": "^1.0.0",
     "apollo-client": "^2.0.0",
     "babel-jest": "20.0.3",
