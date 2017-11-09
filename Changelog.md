@@ -5,6 +5,7 @@
 ### 2.0.1
 - fix skip on component update [#1330](https://github.com/apollographql/react-apollo/pull/1330)
 - Correctly provide the generic cache type to ApolloProvider [#1319](https://github.com/apollographql/react-apollo/pull/1319)
+- Correctly initializes component state as null (not undefined) [#1300](https://github.com/apollographql/react-apollo/pull/1310)
 
 ### 2.0.0
 - BREAKING: removed cleanupApolloState as it is no longer needed!
@@ -12,7 +13,6 @@
 - Removed `redux` from peer dependencies. [Issue #1223](https://github.com/apollographql/react-apollo/issues/1223) [PR #1224](https://github.com/apollographql/react-apollo/pull/1224)
 - Support arrays being returned from render in SSR [#1158](https://github.com/apollographql/react-apollo/pull/1158)
 - Support passing an updater function to `setState` in SSR mode [#1263](https://github.com/apollographql/react-apollo/pull/1263)
-- Correctly initializes component state as null (not undefined) [#1300](https://github.com/apollographql/react-apollo/pull/1310)
 
 ### 2.0.0-beta.0
 - upgrade to Apollo Client 2.0
