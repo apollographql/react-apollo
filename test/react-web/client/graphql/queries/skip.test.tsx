@@ -314,6 +314,70 @@ describe('[queries] skip', () => {
     }, 25);
   });
 
+  it("doesn't run options or props when skipped even if the component updates", done => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const link = mockSingleLink({
+      request: { query },
+      result: {},
+    });
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    let queryWasSkipped = true;
+
+    @graphql(query, {
+      skip: true,
+      options: () => {
+        queryWasSkipped = false;
+        return {};
+      },
+      props: () => {
+        queryWasSkipped = false;
+        return {};
+      },
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        expect(queryWasSkipped).toBe(true);
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { foo: 'bar' };
+      }
+      componentDidMount() {
+        this.setState({ foo: 'baz' });
+      }
+      render() {
+        return <Container foo={this.state.foo} />;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Parent />
+      </ApolloProvider>,
+    );
+  });
+
   it('allows you to skip a query without running it (alternate syntax)', done => {
     const query = gql`
       query people {
