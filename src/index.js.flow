@@ -115,7 +115,7 @@ export interface OperationComponent<
   TOwnProps: Object = {},
   TMergedProps = ChildProps<TOwnProps, TResult>,
 > {
-  (component: React$ComponentType<TOwnProps>): React$ComponentType<TOwnProps>;
+  (component: React$ComponentType<TMergedProps>): React$ComponentType<TOwnProps>;
 }
 
 declare export function graphql<TResult, TProps, TChildProps>(
