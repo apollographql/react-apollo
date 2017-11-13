@@ -21,10 +21,14 @@ Get started today on the app you’ve been dreaming of, and let React Apollo tak
 
 ## Installation
 
-It is simple to install React Apollo.
+It is simple to install React Apollo and related libraries.
 
 ```bash
-npm install react-apollo --save
+# installing the preset package and react integration
+npm install apollo-client-preset react-apollo graphql-tag graphql --save
+
+# installing each piece independently
+npm install apollo-client apollo-cache-inmemory apollo-link-http react-apollo graphql-tag graphql ---save
 ```
 
 That’s it! You may now use React Apollo in any of your React environments.
@@ -37,27 +41,25 @@ For an amazing developer experience you may also install the [Apollo Client Deve
 
 To get started you will first want to create an instance of [`ApolloClient`][] and then you will want to provide that client to your React component tree using the [`<ApolloProvider/>`][] component. Finally, we will show you a basic example of connecting your GraphQL data to your React components with the [`graphql()`][] enhancer function.
 
-First we want an instance of [`ApolloClient`][]. We can import the class from `react-apollo` and construct it like so:
+First we want an instance of [`ApolloClient`][]. We can import the class from `react-apollo`.
+To get started, create an ApolloClient instance and point it at your GraphQL server:
 
 ```js
-import { ApolloClient } from 'react-apollo';
-
-const client = new ApolloClient();
-```
-
-This will create a new client that you can use for all of your GraphQL data fetching needs, but most of the time you will also want to create your own custom network interface. By default Apollo Client guesses that your GraphQL API lives at `/graphql`, but this is not always the case. To use your own network interface you may call the [`createNetworkInterface`][] function:
-
-```js
-import { ApolloClient, createNetworkInterface } from 'react-apollo';
+import { ApolloClient } from 'apollo-client';
+import { HttpLink } from 'apollo-link-http';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 
 const client = new ApolloClient({
-  networkInterface: createNetworkInterface({
-    uri: 'https://graphql.example.com',
-  }),
+  // By default, this client will send queries to the
+  //  `/graphql` endpoint on the same host
+  // Pass the configuration option { uri: YOUR_GRAPHQL_API_URL } to the `HttpLink` to connect
+  // to a different host
+  link: new HttpLink(),
+  cache: new InMemoryCache()
 });
 ```
 
-Replace `https://graphql.example.com` with your GraphQL API’s URL to connect to your API.
+> Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/2.0-migration.html).
 
 Next you will want to add a [`<ApolloProvider/>`][] component to the root of your React component tree. This component works almost the same as the [`<Provider/>` component in `react-redux`][]. In fact if you pass a `store` prop into [`<ApolloProvider/>`][] it will also serve as a provider for `react-redux`! To use an [`<ApolloProvider/>`][] with your newly constructed client see the following:
 
