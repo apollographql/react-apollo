@@ -92,6 +92,7 @@
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jest": "20.0.8",
     "@types/lodash": "4.14.74",
+    "@types/lodash-es": "^4.17.0",
     "@types/node": "8.0.31",
     "@types/object-assign": "4.0.30",
     "@types/react": "^16.0.22",
@@ -157,8 +158,7 @@
     "apollo-link": "^1.0.0",
     "hoist-non-react-statics": "^2.2.0",
     "invariant": "^2.2.1",
-    "lodash.flowright": "^3.5.0",
-    "lodash.pick": "^4.4.0",
+    "lodash-es": "^4.17.4",
     "prop-types": "^15.5.8"
   }
 }
