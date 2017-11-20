@@ -70,6 +70,9 @@
     "transform": {
       ".*": "./preprocessor.js"
     },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!(lodash-es|react-native)/)"
+    ],
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
