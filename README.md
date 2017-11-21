@@ -79,7 +79,8 @@ Now you may create components in this React tree that are connected to your Grap
 Finally, to demonstrate the power of React Apollo in building interactive UIs let us connect one of your component’s to your GraphQL server using the [`graphql()`][] component enhancer:
 
 ```js
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 function TodoApp({ data: { todos, refetch } }) {
   return (
