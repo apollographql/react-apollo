@@ -7,13 +7,13 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import { NetworkInterface } from 'apollo-client';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
@@ -34,8 +34,17 @@ function wait(ms) {
 }
 
 describe('[queries] errors', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
+
   // errors
-  it('does not swallow children errors', () => {
+  it('does not swallow children errors', done => {
     const query = gql`
       query people {
         allPeople(first: 1) {
@@ -46,27 +55,38 @@ describe('[queries] errors', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    class ErrorBoundary extends React.Component {
+      componentDidCatch(e, info) {
+        expect(e.message).toMatch(/bar is not a function/);
+        done();
+      }
+
+      render() {
+        return this.props.children;
+      }
+    }
     let bar;
     const ContainerWithData = graphql(query)(() => {
       bar(); // this will throw
       return null;
     });
 
-    try {
-      renderer.create(
-        <ApolloProvider client={client}>
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ErrorBoundary>
           <ContainerWithData />
-        </ApolloProvider>,
-      );
-      throw new Error();
-    } catch (e) {
-      expect(e.name).toMatch(/TypeError/);
-    }
+        </ErrorBoundary>
+      </ApolloProvider>,
+    );
   });
 
   it('can unmount without error', done => {
@@ -80,11 +100,14 @@ describe('[queries] errors', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const ContainerWithData = graphql(query)(() => null);
 
@@ -112,11 +135,14 @@ describe('[queries] errors', () => {
         }
       }
     `;
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       error: new Error('boo'),
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class ErrorContainer extends React.Component<any, any> {
@@ -165,7 +191,7 @@ describe('[queries] errors', () => {
       const var1 = { var: 1 };
       const data = { allPeople: { people: { name: 'Luke Skywalker' } } };
       const var2 = { var: 2 };
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         {
           request: { query, variables: var1 },
           result: { data },
@@ -175,7 +201,10 @@ describe('[queries] errors', () => {
           error: new Error('boo'),
         },
       );
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       let iteration = 0;
       @withState('var', 'setVar', 1)
@@ -223,11 +252,14 @@ describe('[queries] errors', () => {
           }
         }
       `;
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         error: new Error('oops'),
       });
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       const origError = console.error;
       const errorMock = jest.fn();
@@ -287,11 +319,14 @@ describe('[queries] errors', () => {
           }
         }
       `;
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         error: new Error('oops'),
       });
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       const origError = console.error;
       const errorMock = jest.fn();
@@ -353,31 +388,38 @@ describe('[queries] errors', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, error: new Error('No Network Connection') },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let count = 0;
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps = props => {
-        switch (count++) {
-          case 0:
-            expect(props.data.allPeople).toEqual(data.allPeople);
-            props.data.refetch();
-            break;
-          case 1:
-            expect(props.data.loading).toBe(true);
-            expect(props.data.allPeople).toEqual(data.allPeople);
-            break;
-          case 2:
-            expect(props.data.loading).toBe(false);
-            expect(props.data.error).toBeTruthy();
-            expect(props.data.allPeople).toEqual(data.allPeople);
-            done();
-            break;
+        try {
+          switch (count++) {
+            case 0:
+              expect(props.data.allPeople).toEqual(data.allPeople);
+              props.data.refetch();
+              break;
+            case 1:
+              expect(props.data.loading).toBe(true);
+              expect(props.data.allPeople).toEqual(data.allPeople);
+              break;
+            case 2:
+              expect(props.data.loading).toBe(false);
+              expect(props.data.error).toBeTruthy();
+              expect(props.data.allPeople).toEqual(data.allPeople);
+              done();
+              break;
+          }
+        } catch (e) {
+          done.fail(e);
         }
       };
 

@@ -1,23 +1,22 @@
 import { Component, createElement } from 'react';
 import * as PropTypes from 'prop-types';
 
-const pick = require('lodash.pick');
 import shallowEqual from './shallowEqual';
 
 const invariant = require('invariant');
 const assign = require('object-assign');
+const pick = require('lodash.pick');
 
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
 import ApolloClient, {
   ObservableQuery,
-  Subscription,
-  ApolloStore,
   ApolloQueryResult,
 } from 'apollo-client';
 
+import { ZenObservable } from 'zen-observable-ts';
+
 import { parser, DocumentType } from './parser';
-import { ObservableQueryRecycler } from './queryRecycler';
 
 import { DocumentNode } from 'graphql';
 
@@ -32,9 +31,9 @@ import {
   OptionProps,
 } from './types';
 
-const defaultMapPropsToOptions = props => ({});
+const defaultMapPropsToOptions = () => ({});
 const defaultMapResultToProps = props => props;
-const defaultMapPropsToSkip = props => false;
+const defaultMapPropsToSkip = () => false;
 
 // the fields we want to copy over to our data prop
 function observableQueryFields(observable) {
@@ -82,7 +81,7 @@ export default function graphql<
 
   let mapPropsToOptions = options as (props: any) => QueryOpts | MutationOpts;
   if (typeof mapPropsToOptions !== 'function')
-    mapPropsToOptions = () => options;
+    mapPropsToOptions = () => options as QueryOpts | MutationOpts;
 
   let mapPropsToSkip = skip as (props: any) => boolean;
   if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = () => skip as any;
@@ -112,16 +111,14 @@ export default function graphql<
       public hasMounted: boolean;
 
       // data storage
-      private store: ApolloStore;
-      private client: ApolloClient; // apollo client
-      private recycler: ObservableQueryRecycler;
+      private client: ApolloClient<any>; // apollo client
       private type: DocumentType;
 
       // request / action storage. Note that we delete querySubscription if we
       // unsubscribe but never delete queryObservable once it is created. We
       // only delete queryObservable when we unmount the component.
       private queryObservable: ObservableQuery<any> | any;
-      private querySubscription: Subscription;
+      private querySubscription: ZenObservable.Subscription;
       private previousData: any = {};
       private lastSubscriptionData: any;
       private refetcherQueue: {
@@ -163,13 +160,25 @@ export default function graphql<
           // call any stacked refetch functions
           if (this.refetcherQueue) {
             const { args, resolve, reject } = this.refetcherQueue;
-            this.queryObservable.refetch(args).then(resolve).catch(reject);
+            this.queryObservable
+              .refetch(args)
+              .then(resolve)
+              .catch(reject);
           }
         }
       }
 
       componentWillReceiveProps(nextProps, nextContext) {
+        if (this.shouldSkip(nextProps)) {
+          if (!this.shouldSkip(this.props)) {
+            // if this has changed, we better unsubscribe
+            this.unsubscribeFromQuery();
+          }
+          return;
+        }
+
         const { client } = mapPropsToOptions(nextProps);
+
         if (
           shallowEqual(this.props, nextProps) &&
           (this.client === client || this.client === nextContext.client)
@@ -209,13 +218,6 @@ export default function graphql<
           this.subscribeToQuery();
           return;
         }
-        if (this.shouldSkip(nextProps)) {
-          if (!this.shouldSkip(this.props)) {
-            // if this has changed, we better unsubscribe
-            this.unsubscribeFromQuery();
-          }
-          return;
-        }
 
         this.updateQuery(nextProps);
         this.subscribeToQuery();
@@ -253,7 +255,7 @@ export default function graphql<
         );
       }
 
-      getClient(props): ApolloClient {
+      getClient<Cache>(props): ApolloClient<Cache> {
         if (this.client) return this.client;
         const { client } = mapPropsToOptions(props);
 
@@ -342,12 +344,7 @@ export default function graphql<
       createQuery(opts: QueryOpts, props: any = this.props) {
         if (this.type === DocumentType.Subscription) {
           this.queryObservable = this.getClient(props).subscribe(
-            assign(
-              {
-                query: document,
-              },
-              opts,
-            ),
+            assign({ query: document }, opts),
           );
         } else {
           // Try to reuse an `ObservableQuery` instance from our recycler. If
@@ -398,7 +395,7 @@ export default function graphql<
               // need to log it here. We could conceivably log something if
               // an option was set. OTOH we don't log errors w/ the original
               // query. See https://github.com/apollostack/react-apollo/issues/404
-              .catch(error => null);
+              .catch(() => null);
           }
         }
       }
@@ -479,7 +476,7 @@ export default function graphql<
 
       unsubscribeFromQuery() {
         if (this.querySubscription) {
-          (this.querySubscription as Subscription).unsubscribe();
+          (this.querySubscription as ZenObservable.Subscription).unsubscribe();
           delete this.querySubscription;
         }
       }

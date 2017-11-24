@@ -12,9 +12,9 @@ export {
 } from './types';
 export { withApollo } from './withApollo';
 
-// expose easy way to join queries from redux
-export { compose } from 'redux';
+// expose getDataFromTree for the client
+export { getDataFromTree } from './getDataFromTree';
 
-// re-exports of close dependencies.
-export * from 'apollo-client';
-export { default as gql } from 'graphql-tag';
+// expose easy way to join queries from redux
+import * as compose from 'lodash.flowright';
+export { compose };

@@ -4,15 +4,15 @@ import { ObservableQueryRecycler } from './queryRecycler';
 
 class QueryRecyclerProvider extends Component {
   static propTypes = {
-    children: PropTypes.element.isRequired
+    children: PropTypes.element.isRequired,
   };
 
   static contextTypes = {
-    client: PropTypes.object
+    client: PropTypes.object,
   };
 
   static childContextTypes = {
-    getQueryRecycler: PropTypes.func.isRequired
+    getQueryRecycler: PropTypes.func.isRequired,
   };
 
   private recyclers: WeakMap<Component, ObservableQueryRecycler>;
@@ -23,7 +23,7 @@ class QueryRecyclerProvider extends Component {
     this.getQueryRecycler = this.getQueryRecycler.bind(this);
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(_, nextContext) {
     if (this.context.client !== nextContext.client) {
       this.recyclers = new WeakMap();
     }
@@ -37,9 +37,9 @@ class QueryRecyclerProvider extends Component {
   }
 
   getChildContext() {
-    return ({
-      getQueryRecycler: this.getQueryRecycler
-    });
+    return {
+      getQueryRecycler: this.getQueryRecycler,
+    };
   }
 
   render() {

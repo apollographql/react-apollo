@@ -1,10 +1,7 @@
 import { ComponentClass, StatelessComponent } from 'react';
 
 import ApolloClient, {
-  ObservableQuery,
   MutationQueryReducersMap,
-  Subscription,
-  ApolloStore,
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
@@ -12,44 +9,42 @@ import ApolloClient, {
   UpdateQueryOptions,
   FetchMoreQueryOptions,
   SubscribeToMoreOptions,
+  PureQueryOptions,
+  MutationUpdaterFn,
 } from 'apollo-client';
-import { PureQueryOptions } from 'apollo-client/core/types';
-import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
+// import { PureQueryOptions } from 'apollo-client/core/types';
+// import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
-import { ExecutionResult, DocumentNode } from 'graphql';
-
-export interface MutationOpts {
-  variables?: Object;
+export interface MutationOpts<TVariables = OperationVariables> {
+  variables?: TVariables;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
-  client?: ApolloClient;
+  client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
 }
 
-export interface QueryOpts {
+export interface QueryOpts<TVariables = OperationVariables> {
   ssr?: boolean;
-  variables?: { [key: string]: any };
+  variables?: TVariables;
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
-  client?: ApolloClient;
+  client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   // deprecated
   skip?: boolean;
 }
 
-export interface QueryProps {
+export interface QueryProps<TVariables = OperationVariables> {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
-  variables: {
-    [variable: string]: any;
-  };
+  variables: TVariables;
   fetchMore: (
     fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
   ) => Promise<ApolloQueryResult<any>>;
-  refetch: (variables?: any) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
@@ -58,8 +53,8 @@ export interface QueryProps {
   ) => void;
 }
 
-export type MutationFunc<TResult> = (
-  opts: MutationOpts,
+export type MutationFunc<TResult, TVariables = OperationVariables> = (
+  opts: MutationOpts<TVariables>,
 ) => Promise<ApolloQueryResult<TResult>>;
 
 export interface OptionProps<TProps, TResult> {
@@ -69,12 +64,16 @@ export interface OptionProps<TProps, TResult> {
 }
 
 export type ChildProps<P, R> = P & {
-  data?: QueryProps & R;
+  data?: QueryProps & Partial<R>;
   mutate?: MutationFunc<R>;
 };
 
 export type NamedProps<P, R> = P & {
   ownProps: R;
+};
+
+export type OperationVariables = {
+  [key: string]: any;
 };
 
 export interface OperationOption<TProps, TResult> {

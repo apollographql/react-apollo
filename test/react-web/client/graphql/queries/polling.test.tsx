@@ -7,13 +7,13 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import { NetworkInterface } from 'apollo-client';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
@@ -34,6 +34,14 @@ function wait(ms) {
 }
 
 describe('[queries] polling', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
   // polling
   it('allows a polling query to be created', done => {
     const query = gql`
@@ -47,12 +55,15 @@ describe('[queries] polling', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, result: { data: data2 } },
       { request: { query }, result: { data: data2 } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let count = 0;
     const Container = graphql(query, {
@@ -86,11 +97,14 @@ describe('[queries] polling', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -124,11 +138,14 @@ describe('[queries] polling', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     let wrapper;
 
     // @graphql(query)

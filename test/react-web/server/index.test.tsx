@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
+import { ApolloLink, Observable } from 'apollo-link';
 import {
   execute,
   GraphQLSchema,
@@ -19,19 +20,20 @@ import {
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
 
-import { mockNetworkInterface } from '../../../src/test-utils';
+import { mockSingleLink } from '../../../src/test-utils';
 
 describe('SSR', () => {
   // it('should render the expected markup', (done) => {
 
   //   const query = gql`query ssr { allPeople(first: 1) { people { name } } }`;
   //   const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-  //   const networkInterface = mockNetworkInterface({ request: { query }, result: { data } });
-  //   const client = new ApolloClient({ networkInterface });
+  //   const link = mockSingleLink({ request: { query }, result: { data } });
+  //   const client = new ApolloClient({ link });
 
   //   const Element = ({ ssr }) => (<div>{ssr.loading ? 'loading' : 'loaded'}</div>);
   //   const WrappedElement = graphql(query)(Element);
@@ -66,23 +68,27 @@ describe('SSR', () => {
 
       it('basic element trees with nulls', () => {
         let elementCount = 0;
-        const rootElement = (
-          <div>
-            {null}
-          </div>
-        );
+        const rootElement = <div>{null}</div>;
         walkTree(rootElement, {}, element => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
       });
 
+      it('basic element trees with arrays', () => {
+        let elementCount = 0;
+        const rootElement = [1, 2];
+        walkTree(rootElement, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(2);
+      });
+
       it('functional stateless components', () => {
         let elementCount = 0;
-        const MyComponent = ({ n }) =>
-          <div>
-            {_.times(n, i => <span key={i} />)}
-          </div>;
+        const MyComponent = ({ n }) => (
+          <div>{_.times(n, i => <span key={i} />)}</div>
+        );
         walkTree(<MyComponent n={5} />, {}, element => {
           elementCount += 1;
         });
@@ -91,11 +97,12 @@ describe('SSR', () => {
 
       it('functional stateless components with children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }) =>
+        const MyComponent = ({ n, children = null }) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
-          </div>;
+          </div>
+        );
         walkTree(
           <MyComponent n={5}>
             <span>Foo</span>
@@ -110,20 +117,15 @@ describe('SSR', () => {
 
       it('functional stateless components with null children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }) =>
+        const MyComponent = ({ n, children = null }) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
-          </div>;
-        walkTree(
-          <MyComponent n={5}>
-            {null}
-          </MyComponent>,
-          {},
-          element => {
-            elementCount += 1;
-          },
+          </div>
         );
+        walkTree(<MyComponent n={5}>{null}</MyComponent>, {}, element => {
+          elementCount += 1;
+        });
         expect(elementCount).toEqual(7);
       });
 
@@ -136,15 +138,20 @@ describe('SSR', () => {
         expect(elementCount).toEqual(1);
       });
 
+      it('functional stateless components that render an array', () => {
+        let elementCount = 0;
+        const MyComponent = () => [1, 2];
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(3);
+      });
+
       it('basic classes', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
           render() {
-            return (
-              <div>
-                {_.times(this.props.n, i => <span key={i} />)}
-              </div>
-            );
+            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
         walkTree(<MyComponent n={5} />, {}, element => {
@@ -166,6 +173,19 @@ describe('SSR', () => {
         expect(elementCount).toEqual(1);
       });
 
+      it('basic classes components that render an array', () => {
+        let elementCount = 0;
+        class MyComponent extends React.Component<any, any> {
+          render() {
+            return [1, 2];
+          }
+        }
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(3);
+      });
+
       it('basic classes with incomplete constructors', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
@@ -173,11 +193,7 @@ describe('SSR', () => {
             super(); // note doesn't pass props or context
           }
           render() {
-            return (
-              <div>
-                {_.times(this.props.n, i => <span key={i} />)}
-              </div>
-            );
+            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
         walkTree(<MyComponent n={5} />, {}, element => {
@@ -222,21 +238,19 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -259,23 +273,21 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'network-only' },
-      })(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      })(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -298,23 +310,21 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'cache-and-network' },
-      })(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      })(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -337,29 +347,28 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
-      const Page = () =>
+      const Page = () => (
         <div>
           <span>Hi</span>
           <div>
             <WrappedElement />
           </div>
-        </div>;
+        </div>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -391,7 +400,7 @@ describe('SSR', () => {
       `;
       const variables = { id: '1234' };
       const userData = { user: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query: idQuery }, result: { data: idData }, delay: 50 },
         {
           request: { query: userQuery, variables },
@@ -400,8 +409,8 @@ describe('SSR', () => {
         },
       );
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
       const withId = graphql(idQuery);
@@ -409,10 +418,9 @@ describe('SSR', () => {
         skip: ({ data: { loading } }) => loading,
         options: ({ data }) => ({ variables: { id: data.currentUser.id } }),
       });
-      const Component = ({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.user.firstName}
-        </div>;
+      const Component = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.user.firstName}</div>
+      );
       const WrappedComponent = withId(withUser(Component));
 
       const app = (
@@ -436,23 +444,19 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
       const WrappedElement = graphql(query, {
         options: { skip: true },
-      })(({ data }) =>
-        <div>
-          {data ? 'loading' : 'skipped'}
-        </div>,
-      );
+      })(({ data }) => <div>{data ? 'loading' : 'skipped'}</div>);
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -474,29 +478,28 @@ describe('SSR', () => {
           }
         }
       `;
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         error: new Error('Failed to fetch'),
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.error}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.error}</div>
+      ));
 
-      const Page = () =>
+      const Page = () => (
         <div>
           <span>Hi</span>
           <div>
             <WrappedElement />
           </div>
-        </div>;
+        </div>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -525,21 +528,19 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query, { skip: true })(({ data }) =>
-        <div>
-          {!data ? 'skipped' : 'dang'}
-        </div>,
-      );
+      const WrappedElement = graphql(query, { skip: true })(({ data }) => (
+        <div>{!data ? 'skipped' : 'dang'}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -563,21 +564,20 @@ describe('SSR', () => {
       `;
       const data = { currentUser: { firstName: 'James' } };
       const variables = { id: 1 };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query, variables },
         result: { data },
         delay: 50,
       });
+      const cache = new Cache({ addTypename: false });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache,
       });
 
-      const Element = graphql(query, { name: 'user' })(({ user }) =>
-        <div>
-          {user.loading ? 'loading' : user.currentUser.firstName}
-        </div>,
-      );
+      const Element = graphql(query, { name: 'user' })(({ user }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -586,11 +586,9 @@ describe('SSR', () => {
       );
 
       return getDataFromTree(app).then(() => {
-        const initialState = apolloClient.store.getState();
-        expect(initialState.apollo.data).toBeTruthy();
-        expect(
-          initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})'],
-        ).toBeTruthy();
+        const initialState = cache.extract();
+        expect(initialState).toBeTruthy();
+        expect(initialState['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
       });
     });
 
@@ -604,14 +602,16 @@ describe('SSR', () => {
       `;
       const data = { currentUser: { firstName: 'James' } };
       const variables = { id: 1 };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query, variables },
         result: { data },
         delay: 50,
       });
+
+      const cache = new Cache({ addTypename: false });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache,
       });
 
       @graphql(query, { name: 'user' })
@@ -626,9 +626,7 @@ describe('SSR', () => {
           const { user } = this.props;
           expect(this.state.thing).toBe(2);
           return (
-            <div>
-              {user.loading ? 'loading' : user.currentUser.firstName}
-            </div>
+            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
           );
         }
       }
@@ -641,10 +639,103 @@ describe('SSR', () => {
 
       getDataFromTree(app)
         .then(() => {
-          const initialState = apolloClient.store.getState();
-          expect(initialState.apollo.data).toBeTruthy();
+          const initialState = cache.extract();
+          expect(initialState).toBeTruthy();
           expect(
-            initialState.apollo.data['$ROOT_QUERY.currentUser({"id":1})'],
+            initialState['$ROOT_QUERY.currentUser({"id":1})'],
+          ).toBeTruthy();
+          done();
+        })
+        .catch(console.error);
+    });
+
+    it('should correctly initialize an empty state to null', () => {
+      class Element extends React.Component<any, any> {
+        render() {
+          expect(this.state).toBeNull();
+        }
+      }
+
+      return getDataFromTree(<Element />);
+    });
+
+    it('should maintain any state set in the element constructor', () => {
+      class Element extends React.Component<any, any> {
+        s;
+        constructor(props) {
+          super(props);
+          this.state = { foo: 'bar' };
+        }
+
+        render() {
+          expect(this.state).toEqual({ foo: 'bar' });
+        }
+      }
+
+      return getDataFromTree(<Element />);
+    });
+
+    it('should allow for setting state via an updater function', done => {
+      const query = gql`
+        query user($id: ID) {
+          currentUser(id: $id) {
+            firstName
+          }
+        }
+      `;
+      const data = { currentUser: { firstName: 'James' } };
+      const variables = { id: 1 };
+      const link = mockSingleLink({
+        request: { query, variables },
+        result: { data },
+        delay: 50,
+      });
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({
+          addTypename: false,
+        }),
+      });
+
+      @graphql(query, { name: 'user' })
+      class Element extends React.Component<any, any> {
+        state = {
+          thing: 1,
+          userId: null,
+          client: null,
+        };
+
+        componentWillMount() {
+          this.setState((state, props, context) => ({
+            thing: state.thing + 1,
+            userId: props.id,
+            client: context.client,
+          }));
+        }
+
+        render() {
+          const { user, id } = this.props;
+          expect(this.state.thing).toBe(2);
+          expect(this.state.userId).toBe(id);
+          expect(this.state.client).toBe(apolloClient);
+          return (
+            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+          );
+        }
+      }
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <Element id={1} />
+        </ApolloProvider>
+      );
+
+      getDataFromTree(app)
+        .then(() => {
+          const initialState = apolloClient.cache.extract();
+          expect(initialState).toBeTruthy();
+          expect(
+            initialState['$ROOT_QUERY.currentUser({"id":1})'],
           ).toBeTruthy();
           done();
         })
@@ -661,24 +752,24 @@ describe('SSR', () => {
       `;
       const data = { currentUser: { firstName: 'James' } };
       const variables = { id: 1 };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query, variables },
         result: { data },
         delay: 50,
       });
+
+      const cache = new Cache({ addTypename: false });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache,
       });
 
       const Element = graphql(query, {
         name: 'user',
         options: props => ({ variables: props, ssr: false }),
-      })(({ user }) =>
-        <div>
-          {user.loading ? 'loading' : user.currentUser.firstName}
-        </div>,
-      );
+      })(({ user }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -687,9 +778,9 @@ describe('SSR', () => {
       );
 
       return getDataFromTree(app).then(() => {
-        const initialState = apolloClient.store.getState();
-        expect(initialState.apollo.queries).toEqual({});
-        expect(initialState.apollo.data).toEqual({});
+        const initialState = cache.extract();
+        expect(initialState).toEqual({});
+        expect(initialState).toEqual({});
       });
     });
 
@@ -702,12 +793,15 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
-      const client = new ApolloClient({ networkInterface, addTypename: false });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
 
       function counter(state = 1, action) {
         switch (action.type) {
@@ -718,15 +812,10 @@ describe('SSR', () => {
         }
       }
 
-      // Typscript workaround
-      const apolloReducer = client.reducer() as () => any;
-
       const store = createStore(
         combineReducers({
           counter,
-          apollo: apolloReducer,
         }),
-        applyMiddleware(client.middleware()),
       );
 
       store.dispatch({ type: 'INCREMENT' });
@@ -735,17 +824,19 @@ describe('SSR', () => {
         graphql(query, {
           name: 'user',
           skip: ({ counter }) => !(counter > 1),
-        })(({ user }) =>
+        })(({ user }) => (
           <div>
             {!user || user.loading ? 'loading' : user.currentUser.firstName}
-          </div>,
-        ),
+          </div>
+        )),
       );
 
       const app = (
-        <ApolloProvider store={store} client={client}>
-          <WrappedElement />
-        </ApolloProvider>
+        <Provider store={store}>
+          <ApolloProvider client={client}>
+            <WrappedElement />
+          </ApolloProvider>
+        </Provider>
       );
 
       return getDataFromTree(app).then(() => {
@@ -773,7 +864,7 @@ describe('SSR', () => {
       `;
       const mutationData = { logRoutes: { id: 'foo' } };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query }, result: { data: data1 }, delay: 5 },
         {
           request: { query: mutation },
@@ -782,8 +873,8 @@ describe('SSR', () => {
         },
       );
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
       const withQuery = graphql(query, {
@@ -808,10 +899,9 @@ describe('SSR', () => {
         },
       });
 
-      const Element = ({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>;
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
 
       const WrappedElement = withQuery(withMutation(Element));
 
@@ -846,7 +936,7 @@ describe('SSR', () => {
       `;
       const mutationData = { logRoutes: { id: 'foo' } };
 
-      const networkInterface = mockNetworkInterface(
+      const link = mockSingleLink(
         { request: { query }, result: { data: data1 }, delay: 5 },
         {
           request: { query: mutation },
@@ -855,8 +945,8 @@ describe('SSR', () => {
         },
       );
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
       const withQuery = graphql(query, {
@@ -869,10 +959,9 @@ describe('SSR', () => {
       });
 
       const withMutation = graphql(mutation);
-      const Element = ({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>;
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
 
       const WrappedElement = withMutation(withQuery(Element));
 
@@ -897,21 +986,19 @@ describe('SSR', () => {
         }
       `;
       const data = { currentUser: { firstName: 'James' } };
-      const networkInterface = mockNetworkInterface({
+      const link = mockSingleLink({
         request: { query },
         result: { data },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
-        networkInterface,
-        addTypename: false,
+        link,
+        cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) =>
-        <div>
-          {data.loading ? 'loading' : data.currentUser.firstName}
-        </div>,
-      );
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       class MyRootContainer extends React.Component<any, any> {
         constructor(props) {
@@ -924,11 +1011,7 @@ describe('SSR', () => {
         }
 
         render() {
-          return (
-            <div>
-              {this.props.children}
-            </div>
-          );
+          return <div>{this.props.children}</div>;
         }
       }
 
@@ -1040,8 +1123,8 @@ describe('SSR', () => {
       const Schema = new GraphQLSchema({ query: QueryType });
 
       const apolloClient = new ApolloClient({
-        networkInterface: {
-          query: config =>
+        link: new ApolloLink(config => {
+          return new Observable(observer => {
             execute(
               Schema,
               config.query,
@@ -1049,8 +1132,17 @@ describe('SSR', () => {
               null,
               config.variables,
               config.operationName,
-            ),
-        },
+            )
+              .then(result => {
+                observer.next(result);
+                observer.complete();
+              })
+              .catch(e => {
+                observer.error(e);
+              });
+          });
+        }),
+        cache: new Cache(),
       });
 
       @graphql(gql`
@@ -1065,11 +1157,7 @@ describe('SSR', () => {
           const { data } = this.props;
           if (data.loading) return null;
           const { film } = data;
-          return (
-            <h6>
-              {film.title}
-            </h6>
-          );
+          return <h6>{film.title}</h6>;
         }
       }
 
@@ -1090,16 +1178,14 @@ describe('SSR', () => {
           const { ship } = data;
           return (
             <div>
-              <h4>
-                {ship.name} appeared in the following flims:
-              </h4>
+              <h4>{ship.name} appeared in the following flims:</h4>
               <br />
               <ul>
-                {ship.films.map((film, key) =>
+                {ship.films.map((film, key) => (
                   <li key={key}>
                     <Film id={film.id} />
-                  </li>,
-                )}
+                  </li>
+                ))}
               </ul>
             </div>
           );
@@ -1121,11 +1207,11 @@ describe('SSR', () => {
           return (
             <ul>
               {!data.loading &&
-                data.allShips.map((ship, key) =>
+                data.allShips.map((ship, key) => (
                   <li key={key}>
                     <Starship id={ship.id} />
-                  </li>,
-                )}
+                  </li>
+                ))}
             </ul>
           );
         }
@@ -1147,26 +1233,26 @@ describe('SSR', () => {
           return (
             <div>
               <h1>Planets</h1>
-              {data.allPlanets.map((planet, key) =>
-                <div key={key}>
-                  {planet.name}
-                </div>,
-              )}
+              {data.allPlanets.map((planet, key) => (
+                <div key={key}>{planet.name}</div>
+              ))}
             </div>
           );
         }
       }
 
-      const Bar = () =>
+      const Bar = () => (
         <div>
           <h2>Bar</h2>
           <AllPlanets />
-        </div>;
-      const Foo = () =>
+        </div>
+      );
+      const Foo = () => (
         <div>
           <h1>Foo</h1>
           <Bar />
-        </div>;
+        </div>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>

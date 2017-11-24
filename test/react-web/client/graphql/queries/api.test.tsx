@@ -7,13 +7,14 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import { NetworkInterface } from 'apollo-client';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
@@ -47,12 +48,15 @@ describe('[queries] api', () => {
     `;
     const variables = { first: 1 };
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query, variables }, result: { data: data1 } },
       { request: { query, variables }, result: { data: data1 } },
       { request: { query, variables: { first: 2 } }, result: { data: data1 } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let hasRefetched,
       count = 0;
@@ -63,30 +67,33 @@ describe('[queries] api', () => {
         expect(this.props.data.refetch instanceof Function).toBe(true);
       }
       componentWillReceiveProps({ data }) {
-        // tslint:disable-line
-        if (count === 0) expect(data.loading).toBe(false); // first data
-        if (count === 1) expect(data.loading).toBe(true); // first refetch
-        if (count === 2) expect(data.loading).toBe(false); // second data
-        if (count === 3) expect(data.loading).toBe(true); // second refetch
-        if (count === 4) expect(data.loading).toBe(false); // third data
-        count++;
-        if (hasRefetched) return;
-        hasRefetched = true;
-        expect(data.refetch).toBeTruthy();
-        expect(data.refetch instanceof Function).toBe(true);
-        data
-          .refetch()
-          .then(result => {
-            expect(result.data).toEqual(data1);
-            data
-              .refetch({ first: 2 }) // new variables
-              .then(response => {
-                expect(response.data).toEqual(data1);
-                expect(data.allPeople).toEqual(data1.allPeople);
-                done();
-              });
-          })
-          .catch(done);
+        try {
+          if (count === 0) expect(data.loading).toBe(false); // first data
+          if (count === 1) expect(data.loading).toBe(true); // first refetch
+          if (count === 2) expect(data.loading).toBe(false); // second data
+          if (count === 3) expect(data.loading).toBe(true); // second refetch
+          if (count === 4) expect(data.loading).toBe(false); // third data
+          count++;
+          if (hasRefetched) return;
+          hasRefetched = true;
+          expect(data.refetch).toBeTruthy();
+          expect(data.refetch instanceof Function).toBe(true);
+          data
+            .refetch()
+            .then(result => {
+              expect(result.data).toEqual(data1);
+              return data
+                .refetch({ first: 2 }) // new variables
+                .then(response => {
+                  expect(response.data).toEqual(data1);
+                  expect(data.allPeople).toEqual(data1.allPeople);
+                  done();
+                });
+            })
+            .catch(done.fail);
+        } catch (e) {
+          done.fail(e);
+        }
       }
       render() {
         return null;
@@ -111,11 +118,14 @@ describe('[queries] api', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -152,11 +162,14 @@ describe('[queries] api', () => {
     const variables = { skip: 1, first: 1 };
     const variables2 = { skip: 2, first: 1 };
 
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query, variables }, result: { data } },
       { request: { query, variables: variables2 }, result: { data: data1 } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let count = 0;
     @graphql(query, { options: () => ({ variables }) })
@@ -230,11 +243,14 @@ describe('[queries] api', () => {
     const data2 = {
       allPeople: { cursor: 2, people: [{ name: 'Leia Skywalker' }] },
     };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query, variables: vars1 }, result: { data: data1 } },
       { request: { query, variables: vars2 }, result: { data: data2 } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let isUpdated = false;
     @graphql(query, {
@@ -264,17 +280,17 @@ describe('[queries] api', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        if (props.loading) {
-          return;
-        } else if (isUpdated) {
+        if (props.loading) return;
+
+        if (isUpdated) {
           expect(props.people.length).toBe(2);
           done();
           return;
-        } else {
-          isUpdated = true;
-          expect(props.people).toEqual(data1.allPeople.people);
-          props.getMorePeople();
         }
+
+        isUpdated = true;
+        expect(props.people).toEqual(data1.allPeople.people);
+        props.getMorePeople();
       }
       render() {
         return null;

@@ -7,13 +7,13 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import { NetworkInterface } from 'apollo-client';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 import { DocumentType } from '../../../../../src/parser';
 
@@ -35,6 +35,15 @@ function wait(ms) {
 }
 
 describe('queries', () => {
+  let error;
+  beforeEach(() => {
+    error = console.error;
+    console.error = jest.fn(() => {});
+  });
+  afterEach(() => {
+    console.error = error;
+  });
+
   // general api
   it('binds a query to props', () => {
     const query = gql`
@@ -47,11 +56,14 @@ describe('queries', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     type ResultData = {
       allPeople?: {
@@ -86,11 +98,14 @@ describe('queries', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables = { first: 1 };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     const ContainerWithData = graphql(query)(({ data }) => {
       // tslint:disable-line
@@ -136,11 +151,14 @@ describe('queries', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -180,11 +198,14 @@ describe('queries', () => {
       allPeople: { people: [{ name: 'Luke Skywalker' }] },
       otherPeople: { people: [{ name: 'Luke Skywalker' }] },
     };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -218,11 +239,14 @@ describe('queries', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables = { first: 1 };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -267,8 +291,11 @@ describe('queries', () => {
         },
       },
     ];
-    const networkInterface = mockNetworkInterface.apply(null, mocks);
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const link = mockSingleLink.apply(null, mocks);
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     const options = {
       options: {
         variables: {
@@ -309,11 +336,14 @@ describe('queries', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables = { first: null };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -346,11 +376,14 @@ describe('queries', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables = { first: 1 };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     const Container = graphql(query)(() => null);
 
     let error = null;
@@ -367,7 +400,8 @@ describe('queries', () => {
     expect(error).toBeNull();
   });
 
-  it("errors if the passed props don't contain the needed variables", () => {
+  // note this should log an error in the console until they are all cleaned up with react 16
+  it("errors if the passed props don't contain the needed variables", done => {
     const query = gql`
       query people($first: Int!) {
         allPeople(first: $first) {
@@ -379,23 +413,33 @@ describe('queries', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const variables = { first: 1 };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     const Container = graphql(query)(() => null);
+    class ErrorBoundary extends React.Component {
+      componentDidCatch(e, info) {
+        expect(e.name).toMatch(/Invariant Violation/);
+        expect(e.message).toMatch(/The operation 'people'/);
+        done();
+      }
 
-    try {
-      renderer.create(
-        <ApolloProvider client={client}>
-          <Container frst={1} />
-        </ApolloProvider>,
-      );
-    } catch (e) {
-      expect(e.name).toMatch(/Invariant Violation/);
-      expect(e.message).toMatch(/The operation 'people'/);
+      render() {
+        return this.props.children;
+      }
     }
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ErrorBoundary>
+          <Container frst={1} />
+        </ErrorBoundary>
+      </ApolloProvider>,
+    );
   });
 
   // context
@@ -410,11 +454,14 @@ describe('queries', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -423,11 +470,7 @@ describe('queries', () => {
         expect(props.data.allPeople).toEqual(data.allPeople);
       }
       render() {
-        return (
-          <div>
-            {this.props.children}
-          </div>
-        );
+        return <div>{this.props.children}</div>;
       }
     }
 
@@ -448,11 +491,7 @@ describe('queries', () => {
       }
 
       render() {
-        return (
-          <div>
-            {this.props.children}
-          </div>
-        );
+        return <div>{this.props.children}</div>;
       }
     }
 
@@ -471,11 +510,7 @@ describe('queries', () => {
         }
 
         count++;
-        return (
-          <div>
-            {this.props.children}
-          </div>
-        );
+        return <div>{this.props.children}</div>;
       }
     }
 
@@ -506,16 +541,19 @@ describe('queries', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        const queries = client.queryManager.getApolloState().queries;
+        const queries = client.queryManager.queryStore.getStore();
         const queryIds = Object.keys(queries);
         expect(queryIds.length).toEqual(1);
         const query = queries[queryIds[0]];

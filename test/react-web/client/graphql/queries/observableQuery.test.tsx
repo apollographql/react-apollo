@@ -7,13 +7,14 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import { NetworkInterface } from 'apollo-client';
+import { ApolloLink } from 'apollo-link';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
@@ -46,11 +47,14 @@ describe('[queries] observableQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, result: { data } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     // storage
     let queryObservable1: ObservableQuery<any>;
@@ -62,18 +66,15 @@ describe('[queries] observableQuery', () => {
     let recycledOptions;
 
     const assert1 = () => {
-      expect(
-        Object.keys((client as any).queryManager.observableQueries),
-      ).toEqual(['1']);
-      queryObservable1 = (client as any).queryManager.observableQueries['1']
-        .observableQuery;
+      const keys = Array.from(client.queryManager.queries.keys());
+      expect(keys).toEqual(['1']);
+      queryObservable1 = client.queryManager.queries.get('1').observableQuery;
       originalOptions = Object.assign({}, queryObservable1.options);
     };
 
     const assert2 = () => {
-      expect(
-        Object.keys((client as any).queryManager.observableQueries),
-      ).toEqual(['1']);
+      const keys = Array.from(client.queryManager.queries.keys());
+      expect(keys).toEqual(['1']);
     };
 
     @graphql(query, { options: { fetchPolicy: 'cache-and-network' } })
@@ -179,20 +180,28 @@ describe('[queries] observableQuery', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     let finish = () => {};
-    const networkInterface = {
-      query: jest.fn(() => {
-        setTimeout(finish, 5);
-        return Promise.resolve({ data: {} });
+    let called = 0;
+    const link = new ApolloLink((o, f) => {
+      called++;
+      setTimeout(finish, 5);
+      return f(o);
+    }).concat(
+      mockSingleLink({
+        request: { query },
+        result: { data: { allPeople: null } },
       }),
-    } as NetworkInterface;
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     // make sure that the in flight query is done before resetting store
     finish = () => {
       client.resetStore();
 
       // The query should not have been fetch again
-      expect(networkInterface.query).toHaveBeenCalledTimes(1);
+      expect(called).toBe(1);
 
       done();
     };
@@ -210,21 +219,19 @@ describe('[queries] observableQuery', () => {
       </ApolloProvider>,
     );
 
-    expect(
-      Object.keys((client as any).queryManager.observableQueries),
-    ).toEqual(['1']);
-    const queryObservable1 = (client as any).queryManager.observableQueries['1']
+    let keys = Array.from(client.queryManager.queries.keys());
+    expect(keys).toEqual(['1']);
+    const queryObservable1 = client.queryManager.queries.get('1')
       .observableQuery;
 
     // The query should only have been invoked when first mounting and not when resetting store
-    expect(networkInterface.query).toHaveBeenCalledTimes(1);
+    expect(called).toBe(1);
 
     wrapper1.unmount();
 
-    expect(
-      Object.keys((client as any).queryManager.observableQueries),
-    ).toEqual(['1']);
-    const queryObservable2 = (client as any).queryManager.observableQueries['1']
+    keys = Array.from(client.queryManager.queries.keys());
+    expect(keys).toEqual(['1']);
+    const queryObservable2 = client.queryManager.queries.get('1')
       .observableQuery;
 
     expect(queryObservable1).toBe(queryObservable2);
@@ -241,10 +248,26 @@ describe('[queries] observableQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = {
-      query: jest.fn(() => Promise.resolve({ data: {} })),
-    } as NetworkInterface;
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    let called = 0;
+    const link = new ApolloLink((o, f) => {
+      called++;
+      return f(o);
+    }).concat(
+      mockSingleLink(
+        {
+          request: { query },
+          result: { data: { allPeople: null } },
+        },
+        {
+          request: { query },
+          result: { data: { allPeople: { people: null } } },
+        },
+      ),
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -259,15 +282,14 @@ describe('[queries] observableQuery', () => {
       </ApolloProvider>,
     );
 
-    expect(
-      Object.keys((client as any).queryManager.observableQueries),
-    ).toEqual(['1']);
+    const keys = Array.from(client.queryManager.queries.keys());
+    expect(keys).toEqual(['1']);
 
-    expect(networkInterface.query).toHaveBeenCalledTimes(1);
+    expect(called).toBe(1);
 
-    client.resetStore();
-
-    expect(networkInterface.query).toHaveBeenCalledTimes(2);
+    client.resetStore().then(() => {
+      expect(called).toBe(2);
+    });
   });
 
   it('will recycle `ObservableQuery`s when re-rendering a portion of the tree', done => {
@@ -281,11 +303,14 @@ describe('[queries] observableQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, result: { data } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     let remount: any;
 
     class Remounter extends React.Component<any, any> {
@@ -323,32 +348,27 @@ describe('[queries] observableQuery', () => {
       </ApolloProvider>,
     );
 
-    expect(
-      Object.keys((client as any).queryManager.observableQueries),
-    ).toEqual(['1']);
-    const queryObservable1 = (client as any).queryManager.observableQueries['1']
+    let keys = Array.from(client.queryManager.queries.keys());
+    expect(keys).toEqual(['1']);
+    const queryObservable1 = client.queryManager.queries.get('1')
       .observableQuery;
 
     remount();
 
     setTimeout(() => {
-      expect(
-        Object.keys((client as any).queryManager.observableQueries),
-      ).toEqual(['1']);
-      const queryObservable2 = (client as any).queryManager.observableQueries[
-        '1'
-      ].observableQuery;
+      keys = Array.from(client.queryManager.queries.keys());
+      expect(keys).toEqual(['1']);
+      const queryObservable2 = client.queryManager.queries.get('1')
+        .observableQuery;
       expect(queryObservable1).toBe(queryObservable2);
 
       remount();
 
       setTimeout(() => {
-        expect(
-          Object.keys((client as any).queryManager.observableQueries),
-        ).toEqual(['1']);
-        const queryObservable3 = (client as any).queryManager.observableQueries[
-          '1'
-        ].observableQuery;
+        keys = Array.from(client.queryManager.queries.keys());
+        expect(keys).toEqual(['1']);
+        const queryObservable3 = client.queryManager.queries.get('1')
+          .observableQuery;
         expect(queryObservable1).toBe(queryObservable3);
 
         wrapper.unmount();
@@ -368,11 +388,14 @@ describe('[queries] observableQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, result: { data } },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
     let remount: any;
 
     class Remounter extends React.Component<any, any> {
@@ -413,27 +436,24 @@ describe('[queries] observableQuery', () => {
       </ApolloProvider>,
     );
 
-    expect(
-      Object.keys((client as any).queryManager.observableQueries),
-    ).toEqual(['1', '2']);
-    const queryObservable1 = (client as any).queryManager.observableQueries['1']
+    let keys = Array.from(client.queryManager.queries.keys());
+    expect(keys).toEqual(['1', '2']);
+    const queryObservable1 = client.queryManager.queries.get('1')
       .observableQuery;
-    const queryObservable2 = (client as any).queryManager.observableQueries['2']
+    const queryObservable2 = client.queryManager.queries.get('2')
       .observableQuery;
     expect(queryObservable1).not.toBe(queryObservable2);
 
     remount();
 
     setTimeout(() => {
-      expect(
-        Object.keys((client as any).queryManager.observableQueries),
-      ).toEqual(['1', '2']);
-      const queryObservable3 = (client as any).queryManager.observableQueries[
-        '1'
-      ].observableQuery;
-      const queryObservable4 = (client as any).queryManager.observableQueries[
-        '2'
-      ].observableQuery;
+      keys = Array.from(client.queryManager.queries.keys());
+      expect(keys).toEqual(['1', '2']);
+      const queryObservable3 = client.queryManager.queries.get('1')
+        .observableQuery;
+      const queryObservable4 = client.queryManager.queries.get('2')
+        .observableQuery;
+      expect(queryObservable1).not.toBe(queryObservable2);
 
       // What we really want to test here is if the `queryObservable` on
       // `Container`s are referentially equal. But because there is no way to
@@ -447,5 +467,115 @@ describe('[queries] observableQuery', () => {
       wrapper.unmount();
       done();
     }, 10);
+  });
+
+  it("will recycle `ObservableQuery`s when re-rendering a portion of the tree but not return stale data if variables don't match", done => {
+    const query = gql`
+      query people($first: Int!) {
+        allPeople(first: $first) {
+          people {
+            name
+            friends(id: $first) {
+              name
+            }
+          }
+        }
+      }
+    `;
+    const variables = { id: 1 };
+    const variables2 = { id: 2 };
+    const data = {
+      allPeople: {
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
+      },
+    };
+    const data2 = {
+      allPeople: {
+        people: [{ name: 'Leia Skywalker', friends: [{ name: 'luke' }] }],
+      },
+    };
+
+    const link = mockSingleLink(
+      { request: { query, variables }, result: { data } },
+      { request: { query, variables2 }, result: { data: data2 } },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+    let remount: any;
+
+    class Remounter extends React.Component<any, any> {
+      state = {
+        showChildren: true,
+        variables: variables,
+      };
+
+      componentDidMount() {
+        remount = () => {
+          this.setState({ showChildren: false }, () => {
+            setTimeout(() => {
+              this.setState({
+                showChildren: true,
+                variables: variables2,
+              });
+            }, 10);
+          });
+        };
+      }
+
+      render() {
+        if (!this.state.showChildren) return null;
+        const Thing = this.props.render;
+        return <Thing first={this.state.variables.id} />;
+      }
+    }
+
+    @graphql(query)
+    class Container extends React.Component<any, any> {
+      render() {
+        try {
+          const { variables, loading, allPeople } = this.props.data;
+          // first variable render
+          if (variables.first === 1) {
+            if (loading) expect(allPeople).toBeUndefined();
+            if (!loading) expect(allPeople).toEqual(data.allPeople);
+          }
+
+          if (variables.first === 2) {
+            // second variables render
+            if (loading) expect(allPeople).toBeUndefined();
+            if (!loading) expect(allPeople).toEqual(data2.allPeople);
+          }
+        } catch (e) {
+          done.fail(e);
+        }
+
+        return null;
+      }
+    }
+
+    // the initial mount fires off the query
+    // the same as episode id = 1
+    const wrapper = renderer.create(
+      <ApolloProvider client={client}>
+        <Remounter render={Container} />
+      </ApolloProvider>,
+    );
+
+    // after the initial data has been returned
+    // the user navigates to a different page
+    // but the query is recycled
+    setTimeout(() => {
+      // move to the "home" page from the "episode" page
+      remount();
+      setTimeout(() => {
+        // move to a new "epsiode" page
+        // epsiode id = 2
+        // wait to verify the data isn't stale then end
+        wrapper.unmount();
+        done();
+      }, 20);
+    }, 5);
   });
 });

@@ -7,13 +7,14 @@ import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
-import { NetworkInterface } from 'apollo-client';
+import { ApolloLink } from 'apollo-link';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
 
-declare function require(name: string)
+declare function require(name: string);
 
-import { mockNetworkInterface } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
@@ -46,11 +47,14 @@ describe('[queries] skip', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let queryExecuted;
     @graphql(query, { options: () => ({ skip: true }) })
@@ -90,11 +94,14 @@ describe('[queries] skip', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let queryExecuted;
     @graphql(query, { skip: ({ skip }) => skip })
@@ -133,14 +140,15 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const networkInterface = mockNetworkInterface();
-    const oldQuery = networkInterface.query;
-
-    networkInterface.query = function(request) {
-      fail(new Error('query ran even though skip present'));
-      return oldQuery.call(this, request);
-    };
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const link = new ApolloLink((o, f) => {
+      done.fail(new Error('query ran even though skip present'));
+      return f(o);
+    }).concat(mockSingleLink());
+    const oldQuery = link.query;
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query, { skip: true })
     class Container extends React.Component<any, any> {
@@ -187,12 +195,15 @@ describe('[queries] skip', () => {
       allPeople: { people: { id: 1 } },
     };
     const variables = { id: 1 };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query, variables },
       result: { data },
     });
 
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let count = 0,
       renderCount = 0;
@@ -251,11 +262,14 @@ describe('[queries] skip', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let queryExecuted;
     let optionsCalled;
@@ -300,6 +314,70 @@ describe('[queries] skip', () => {
     }, 25);
   });
 
+  it("doesn't run options or props when skipped even if the component updates", done => {
+    const query = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const link = mockSingleLink({
+      request: { query },
+      result: {},
+    });
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    let queryWasSkipped = true;
+
+    @graphql(query, {
+      skip: true,
+      options: () => {
+        queryWasSkipped = false;
+        return {};
+      },
+      props: () => {
+        queryWasSkipped = false;
+        return {};
+      },
+    })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        expect(queryWasSkipped).toBe(true);
+        done();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    class Parent extends React.Component<any, any> {
+      constructor() {
+        super();
+        this.state = { foo: 'bar' };
+      }
+      componentDidMount() {
+        this.setState({ foo: 'baz' });
+      }
+      render() {
+        return <Container foo={this.state.foo} />;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Parent />
+      </ApolloProvider>,
+    );
+  });
+
   it('allows you to skip a query without running it (alternate syntax)', done => {
     const query = gql`
       query people {
@@ -311,11 +389,14 @@ describe('[queries] skip', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let queryExecuted;
     @graphql(query, { skip: true })
@@ -357,11 +438,14 @@ describe('[queries] skip', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
+    const link = mockSingleLink({
       request: { query },
       result: { data },
     });
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let hasSkipped = false;
     @graphql(query, { skip: ({ skip }) => skip })
@@ -418,7 +502,7 @@ describe('[queries] skip', () => {
     `;
     const dataOne = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const dataTwo = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       {
         request: { query, variables: { first: 1 } },
         result: { data: dataOne },
@@ -432,7 +516,10 @@ describe('[queries] skip', () => {
         result: { data: dataTwo },
       },
     );
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let hasSkipped = false;
     @graphql(query, { skip: ({ skip }) => skip })
@@ -495,19 +582,22 @@ describe('[queries] skip', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const nextData = { allPeople: { people: [{ name: 'Anakin Skywalker' }] } };
-    const networkInterface = mockNetworkInterface({
-      request: { query },
-      result: { data },
-      newData: () => ({ data: nextData }),
-    });
-    const oldQuery = networkInterface.query;
-
     let ranQuery = 0;
-    networkInterface.query = function(request) {
+    const link = new ApolloLink((o, f) => {
       ranQuery++;
-      return oldQuery.call(this, request);
-    };
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+      return f(o);
+    }).concat(
+      mockSingleLink({
+        request: { query },
+        result: { data },
+        newData: () => ({ data: nextData }),
+      }),
+    );
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     let hasSkipped = false;
     let hasRequeried = false;
@@ -585,13 +675,16 @@ describe('[queries] skip', () => {
     const data3 = { allPeople: { people: [{ name: 'Anakin Skywalker' }] } };
     const variables3 = { first: 3 };
 
-    const networkInterface = mockNetworkInterface(
+    const link = mockSingleLink(
       { request: { query, variables: variables1 }, result: { data: data1 } },
       { request: { query, variables: variables2 }, result: { data: data2 } },
       { request: { query, variables: variables3 }, result: { data: data2 } },
     );
 
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query, {
       skip: () => count === 1,
@@ -599,13 +692,16 @@ describe('[queries] skip', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
-        // loading is true, but data still there
-        if (count === 0) expect(data.allPeople).toEqual(data1.allPeople);
-        if (count === 1) expect(data).toBeFalsy();
-        if (count === 2 && data.loading) expect(data.allPeople).toBeFalsy();
-        if (count === 2 && !data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
-          done();
+        try {
+          // loading is true, but data still there
+          if (count === 0) expect(data.allPeople).toEqual(data1.allPeople);
+          if (count === 1) expect(data).toBeUndefined();
+          if (count === 2 && !data.loading) {
+            expect(data.allPeople).toEqual(data2.allPeople);
+            done();
+          }
+        } catch (e) {
+          console.log({ e });
         }
       }
       render() {
@@ -650,8 +746,11 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const networkInterface = mockNetworkInterface();
-    const client = new ApolloClient({ networkInterface, addTypename: false });
+    const link = mockSingleLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
 
     @graphql(query, {
       skip: true,
