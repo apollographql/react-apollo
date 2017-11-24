@@ -12,7 +12,6 @@ import type {
   PureQueryOptions,
   MutationUpdaterFn,
 } from 'apollo-client';
-import * as React from 'react';
 import type { Store } from 'redux';
 import type { DocumentNode, VariableDefinitionNode } from 'graphql';
 
@@ -46,6 +45,7 @@ declare export class ApolloProvider extends React$Component<ProviderProps> {
   };
   render(): React$Element<*>;
 }
+
 export type MutationFunc<TResult> = (
   opts: MutationOpts,
 ) => Promise<ApolloQueryResult<TResult>>;
