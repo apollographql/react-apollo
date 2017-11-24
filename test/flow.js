@@ -11,7 +11,8 @@
 
 // @flow
 import * as React from 'react';
-import { withApollo, compose, gql, graphql } from '../src';
+import gql from 'graphql-tag';
+import { withApollo, compose, graphql } from '../src';
 import type { OperationComponent, QueryProps, ChildProps } from '../src';
 
 const query = gql`
@@ -33,18 +34,15 @@ type IQuery = {
 const withData: OperationComponent<IQuery> = graphql(query);
 
 // Test a functional component
-const FunctionalWithData = withData(({ data: { foo } }) => {
+const FunctionalWithData = withData(({ data }) => {
   // $ExpectError string type beeing treated as numerical
-  if (foo > 1) return <span />;
+  if (data.foo > 1) return <span />;
 
   return null;
 });
 
 // Test class component, this requieres a stricter definition
-type BasicComponentProps = {
-  data: IQuery & QueryProps,
-  mutate: any, // The mutation is actually required or we get a error at the withData
-};
+type BasicComponentProps = ChildProps<{}, IQuery>;
 class BasicComponent extends React.Component<BasicComponentProps> {
   render() {
     const { foo, bar } = this.props.data;
@@ -53,22 +51,17 @@ class BasicComponent extends React.Component<BasicComponentProps> {
     if (bar > 1) return null;
 
     // The below works as expected
-    return (
-      <div>
-        {foo.length} string length
-      </div>
-    );
+    return <div>{foo.length} string length</div>;
   }
 }
 const BasicClassWithData = withData(BasicComponent);
 
 // A class component with it's own variable
-type CmplxOwnProps = { faz: string };
+type CmplxOwnProps = {| faz: string |};
 type CmplxComponentProps = {
-  data: IQuery & QueryProps,
+  data: QueryProps & IQuery,
   mutate: any, // The mutation is actually required or we get a error at the withData
-  ...$Exact<CmplxOwnProps>,
-};
+} & CmplxOwnProps;
 class CmplxComponent extends React.Component<CmplxComponentProps> {
   render() {
     const { data: { loading, error, bar, foo }, faz } = this.props;
@@ -91,11 +84,10 @@ const CmplxWithData = withFancyData(CmplxComponent);
 
 // Same as above but with the Props specified at the end
 // since we don't rely on the ChildProps<P, R> we don't need the mutate: any
-type Cmplx2OwnProps = {| faz: string |}; // We can have exact own props as we don't rely on the TMergedProps
+type Cmplx2OwnProps = { faz: string }; // We can have exact own props as we don't rely on the TMergedProps
 type Cmplx2ComponentProps = {
   data: IQuery & QueryProps,
-  ...Cmplx2OwnProps,
-};
+} & Cmplx2OwnProps;
 class Cmplx2Component extends React.Component<Cmplx2ComponentProps> {
   render() {
     const { data: { loading, error, bar, foo }, faz } = this.props;
