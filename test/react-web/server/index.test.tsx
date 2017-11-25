@@ -147,6 +147,16 @@ describe('SSR', () => {
         expect(elementCount).toEqual(3);
       });
 
+      it('function stateless components that render with a null in array', () => {
+        let elementCount = 0;
+
+        const MyComponent = () => [null, <div />];
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(2);
+      });
+
       it('basic classes', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
@@ -184,6 +194,20 @@ describe('SSR', () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(3);
+      });
+
+      it('basic classes components that render with a null in array', () => {
+        let elementCount = 0;
+
+        class MyComponent extends React.Component<any, any> {
+          render() {
+            return [null, <div />];
+          }
+        }
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(2);
       });
 
       it('basic classes with incomplete constructors', () => {
