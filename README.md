@@ -19,6 +19,8 @@ React Apollo is:
 
 Get started today on the app you’ve been dreaming of, and let React Apollo take you to the moon!
 
+> **Looking for React Apollo 1.x documentation**? The 1.x documention is available [here](https://s3.amazonaws.com/apollo-docs-1.x/index.html).
+
 ## Installation
 
 It is simple to install React Apollo and related libraries.
