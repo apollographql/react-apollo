@@ -27,25 +27,25 @@ export { gql, compose };
 declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
 
 export interface ProviderProps {
-  store?: Store<*, *>,
-  client: ApolloClient,
+  store?: Store<*, *>;
+  client: ApolloClient;
 }
 
-declare export class ApolloProvider extends React$Component {
-  props: ProviderProps,
+declare export class ApolloProvider extends React$Component<ProviderProps> {
   childContextTypes: {
     store: Store<*, *>,
     client: ApolloClient,
-  },
+  };
   contextTypes: {
     store: Store<*, *>,
-  },
+  };
   getChildContext(): {
     store: Store<*, *>,
     client: ApolloClient,
-  },
-  render(): React$Element<*>,
+  };
+  render(): React$Element<*>;
 }
+
 export type MutationFunc<TResult> = (
   opts: MutationOpts,
 ) => Promise<ApolloQueryResult<TResult>>;
@@ -59,42 +59,42 @@ export type ChildProps<P, R> = {
 export type DefaultChildProps<P, R> = ChildProps<P, R>;
 
 export interface MutationOpts {
-  variables?: Object,
-  optimisticResponse?: Object,
-  updateQueries?: MutationQueryReducersMap<*>,
-  refetchQueries?: string[] | PureQueryOptions[],
-  update?: MutationUpdaterFn<*>,
+  variables?: Object;
+  optimisticResponse?: Object;
+  updateQueries?: MutationQueryReducersMap<*>;
+  refetchQueries?: string[] | PureQueryOptions[];
+  update?: MutationUpdaterFn<*>;
 }
 
 export interface QueryOpts {
-  ssr?: boolean,
-  variables?: Object,
-  fetchPolicy?: FetchPolicy,
-  pollInterval?: number,
-  skip?: boolean,
+  ssr?: boolean;
+  variables?: Object;
+  fetchPolicy?: FetchPolicy;
+  pollInterval?: number;
+  skip?: boolean;
 }
 
 export interface QueryProps {
-  error?: ApolloError,
-  networkStatus: number,
-  loading: boolean,
-  variables: Object,
+  error?: ApolloError;
+  networkStatus: number;
+  loading: boolean;
+  variables: Object;
   fetchMore: (
     fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
-  ) => Promise<ApolloQueryResult<any>>,
-  refetch: (variables?: Object) => Promise<ApolloQueryResult<any>>,
-  startPolling: (pollInterval: number) => void,
-  stopPolling: () => void,
-  subscribeToMore: (options: SubscribeToMoreOptions) => () => void,
+  ) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: Object) => Promise<ApolloQueryResult<any>>;
+  startPolling: (pollInterval: number) => void;
+  stopPolling: () => void;
+  subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
   updateQuery: (
     mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
-  ) => void,
+  ) => void;
 }
 
 export interface OptionProps<TProps, TResult> {
-  ownProps: TProps,
-  data: QueryProps & TResult,
-  mutate: MutationFunc<TResult>,
+  ownProps: TProps;
+  data: QueryProps & TResult;
+  mutate: MutationFunc<TResult>;
 }
 
 export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
@@ -104,25 +104,23 @@ export type NamedProps<P, R> = P & {
 };
 
 export interface OperationOption<TProps: {}, TResult: {}> {
-  options?: OptionDescription<TProps>,
-  props?: (props: OptionProps<TProps, TResult>) => any,
-  +skip?: boolean | ((props: any) => boolean),
-  name?: string,
-  withRef?: boolean,
-  shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean,
-  alias?: string,
+  options?: OptionDescription<TProps>;
+  props?: (props: OptionProps<TProps, TResult>) => any;
+  +skip?: boolean | ((props: any) => boolean);
+  name?: string;
+  withRef?: boolean;
+  shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
+  alias?: string;
 }
 
 export interface OperationComponent<
   TResult: Object = {},
   TOwnProps: Object = {},
-  TMergedProps = ChildProps<TOwnProps, TResult>,
+  TMergedProps: Object = ChildProps<TOwnProps, TResult>,
 > {
   (
-    component:
-      | StatelessComponent<TMergedProps>
-      | Class<React$Component<any, TMergedProps, any>>,
-  ): Class<React$Component<void, TOwnProps, void>>,
+    component: React$ComponentType<TMergedProps>,
+  ): React$ComponentType<TOwnProps>;
 }
 
 declare export function graphql<TResult, TProps, TChildProps>(
@@ -131,34 +129,32 @@ declare export function graphql<TResult, TProps, TChildProps>(
 ): OperationComponent<TResult, TProps, TChildProps>;
 
 declare export function withApollo<TProps>(
-  component:
-    | StatelessComponent<TProps & ApolloClient>
-    | Class<React$Component<any, TProps & ApolloClient, any>>,
-): Class<React$Component<void, TProps & ApolloClient, void>>;
+  component: React$ComponentType<ApolloClient & TProps>,
+): React$ComponentType<ApolloClient & TProps>;
 
 export interface IDocumentDefinition {
-  type: DocumentType,
-  name: string,
-  variables: VariableDefinitionNode[],
+  type: DocumentType;
+  name: string;
+  variables: VariableDefinitionNode[];
 }
 
 declare export function parser(document: DocumentNode): IDocumentDefinition;
 
 export interface Context {
-  client?: ApolloClient,
-  store?: Store<*, *>,
-  [key: string]: any,
+  client?: ApolloClient;
+  store?: Store<*, *>;
+  [key: string]: any;
 }
 
 export interface QueryTreeArgument {
-  rootElement: React$Element<*>,
-  rootContext?: Context,
+  rootElement: React$Element<*>;
+  rootContext?: Context;
 }
 
 export interface QueryResult {
-  query: Promise<ApolloQueryResult<mixed>>,
-  element: React$Element<*>,
-  context: Context,
+  query: Promise<ApolloQueryResult<mixed>>;
+  element: React$Element<*>;
+  context: Context;
 }
 
 declare export function walkTree(

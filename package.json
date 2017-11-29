@@ -114,7 +114,7 @@
     "enzyme": "3.0.0",
     "enzyme-adapter-react-16": "^1.0.0",
     "enzyme-to-json": "1.6.0",
-    "flow-bin": "0.52.0",
+    "flow-bin": "0.59.0",
     "graphql": "0.11.4",
     "graphql-tag": "^2.0.0",
     "immutable": "3.8.1",
