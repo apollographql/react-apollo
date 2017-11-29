@@ -95,7 +95,7 @@ function TodoApp({ data: { todos, refetch } }) {
         Refresh
       </button>
       <ul>
-        {todos.map(todo => (
+        {todos && todos.map(todo => (
           <li key={todo.id}>
             {todo.text}
           </li>
