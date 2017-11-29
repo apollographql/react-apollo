@@ -553,7 +553,7 @@ export default function graphql<
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
               console.error(
-                'Unhandled (in react-apollo)',
+                `Unhandled (in react-apollo:${graphQLDisplayName})`,
                 error.stack || error,
               );
             }
