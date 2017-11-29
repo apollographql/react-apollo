@@ -366,7 +366,7 @@ describe('[queries] errors', () => {
           expect(renderCount).toBe(2);
           expect(errorMock.mock.calls.length).toBe(1);
           expect(errorMock.mock.calls[0][0]).toEqual(
-            'Unhandled (in react-apollo)',
+            'Unhandled (in react-apollo:Apollo(UnhandledErrorComponent))',
           );
           resolve();
         } catch (error) {
