@@ -39,6 +39,8 @@ For an amazing developer experience you may also install the [Apollo Client Deve
 
 ## Usage
 
+> Looking for apollo 1.x docs? See [here](https://s3.amazonaws.com/apollo-docs-1.x/index.html).
+
 To get started you will first want to create an instance of [`ApolloClient`][] and then you will want to provide that client to your React component tree using the [`<ApolloProvider/>`][] component. Finally, we will show you a basic example of connecting your GraphQL data to your React components with the [`graphql()`][] enhancer function.
 
 First we want an instance of [`ApolloClient`][]. We can import the class from `apollo-client`.
