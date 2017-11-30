@@ -3,6 +3,13 @@
 ### vNext
 
 ### 2.0.1
+- upgraded required apollo-client for bugfix for subscriptions
+- add component name in unhandled error message [#1362](https://github.com/apollographql/react-apollo/pull/1362)
+- upgraded flow support to 0.59.0 :tada: [#1354](https://github.com/apollographql/react-apollo/pull/1354)
+- skip null items on SSR if present [#1355](https://github.com/apollographql/react-apollo/pull/1355)
+
+
+### 2.0.1
 - fix skip on component update [#1330](https://github.com/apollographql/react-apollo/pull/1330)
 - Correctly provide the generic cache type to ApolloProvider [#1319](https://github.com/apollographql/react-apollo/pull/1319)
 - Correctly initializes component state as null (not undefined) [#1300](https://github.com/apollographql/react-apollo/pull/1310)

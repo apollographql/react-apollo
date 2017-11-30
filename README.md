@@ -39,6 +39,8 @@ For an amazing developer experience you may also install the [Apollo Client Deve
 
 ## Usage
 
+> Looking for apollo 1.x docs? See [here](https://s3.amazonaws.com/apollo-docs-1.x/index.html).
+
 To get started you will first want to create an instance of [`ApolloClient`][] and then you will want to provide that client to your React component tree using the [`<ApolloProvider/>`][] component. Finally, we will show you a basic example of connecting your GraphQL data to your React components with the [`graphql()`][] enhancer function.
 
 First we want an instance of [`ApolloClient`][]. We can import the class from `apollo-client`.
@@ -61,7 +63,7 @@ const client = new ApolloClient({
 
 > Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/2.0-migration.html).
 
-Next you will want to add a [`<ApolloProvider/>`][] component to the root of your React component tree. This component works almost the same as the [`<Provider/>` component in `react-redux`][]. In fact if you pass a `store` prop into [`<ApolloProvider/>`][] it will also serve as a provider for `react-redux`! To use an [`<ApolloProvider/>`][] with your newly constructed client see the following:
+Next you will want to add a [`<ApolloProvider/>`][] component to the root of your React component tree. This component [provides](https://reactjs.org/docs/context.html) the React Apollo functionality to all the other components in the application without passing it explicitly. To use an [`<ApolloProvider/>`][] with your newly constructed client see the following:
 
 ```js
 import { ApolloProvider } from 'react-apollo';
@@ -95,7 +97,7 @@ function TodoApp({ data: { todos, refetch } }) {
         Refresh
       </button>
       <ul>
-        {todos.map(todo => (
+        {todos && todos.map(todo => (
           <li key={todo.id}>
             {todo.text}
           </li>

@@ -440,8 +440,6 @@ export default function graphql<
             // Subscriptions don't currently support `currentResult`, so we
             // need to do this ourselves
             this.lastSubscriptionData = results;
-
-            results = { data: results };
           }
           const clashingKeys = Object.keys(observableQueryFields(results.data));
           invariant(
@@ -534,7 +532,7 @@ export default function graphql<
               loading: !this.lastSubscriptionData,
               variables: opts.variables,
             },
-            this.lastSubscriptionData,
+            this.lastSubscriptionData && this.lastSubscriptionData.data,
           );
         } else {
           // fetch the current result (if any) from the store
@@ -553,7 +551,7 @@ export default function graphql<
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
               console.error(
-                'Unhandled (in react-apollo)',
+                `Unhandled (in react-apollo:${graphQLDisplayName})`,
                 error.stack || error,
               );
             }
