@@ -10,12 +10,12 @@
   "scripts": {
     "deploy": "./scripts/deploy.sh",
     "danger": "danger run --verbose",
-    "test":
-      "npm run compile && npm run type-check:flow && npm run type-check:ts && jest",
+    "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
     "posttest": "npm run lint && npm run type-check",
     "filesize": "npm run compile:browser && bundlesize",
+    "type-check": "npm run type-check:flow && npm run type-check:ts",
     "type-check:ts":
       "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators",
     "type-check:flow": "flow check test/flow.js --include-warnings",
