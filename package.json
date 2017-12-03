@@ -15,8 +15,10 @@
     "test-watch": "jest --watch",
     "posttest": "npm run lint && npm run type-check",
     "filesize": "npm run compile:browser && bundlesize",
-    "type-check":
+    "type-check": "npm run type-check:flow && npm run type-check:ts",
+    "type-check:ts":
       "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators",
+    "type-check:flow": "flow check test/flow.js --include-warnings",
     "compile": "tsc",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
@@ -115,7 +117,7 @@
     "enzyme-adapter-react-16": "^1.0.0",
     "enzyme-to-json": "1.6.0",
     "flow-bin": "0.59.0",
-    "graphql": "0.11.4",
+    "graphql": "0.11.7",
     "graphql-tag": "^2.0.0",
     "immutable": "3.8.1",
     "isomorphic-fetch": "2.2.1",

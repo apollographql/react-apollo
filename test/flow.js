@@ -10,6 +10,7 @@
 */
 
 // @flow
+import React from 'react';
 import gql from 'graphql-tag';
 import { withApollo, compose, graphql } from '../src';
 import type { OperationComponent, QueryProps, ChildProps } from '../src';
