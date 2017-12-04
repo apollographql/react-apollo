@@ -219,6 +219,8 @@ export default function graphql<
           return;
         }
 
+        this.unsubscribeFromQuery();
+        this.queryObservable = null;
         this.updateQuery(nextProps);
         this.subscribeToQuery();
       }
