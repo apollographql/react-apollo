@@ -27,7 +27,6 @@ script:
   - npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
-  - npm run bundle
   # XXX I will update these and removes these comments as seperate PR's
   # to showcase the upgrade process
   # - cd examples/base && npm test && cd ../../
