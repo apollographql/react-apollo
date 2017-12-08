@@ -157,6 +157,16 @@ describe('SSR', () => {
         expect(elementCount).toEqual(2);
       });
 
+      it('function stateless components that render with a undefined in array', () => {
+        let elementCount = 0;
+
+        const MyComponent = () => [undefined, <div />];
+        walkTree(<MyComponent />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(2);
+      });
+
       it('basic classes', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
