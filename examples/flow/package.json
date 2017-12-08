@@ -1,0 +1,30 @@
+{
+  "name": "flow",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "apollo-client-preset": "^1.0.4",
+    "graphql": "^0.11.7",
+    "graphql-tag": "^2.5.0",
+    "react": "^16.0.0",
+    "react-apollo": "file:../..",
+    "react-dom": "^16.0.0",
+    "react-scripts": "1.0.14"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "flow": "flow",
+    "schema":
+      "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
+    "types":
+      "apollo-codegen generate \"src/**/*.js\" --schema ./src/schema.json --target flow --output ./src/schema.flow.js --add-typename"
+  },
+  "devDependencies": {
+    "apollo-codegen": "^0.18.0",
+    "flow-bin": "0.58.0",
+    "react-test-renderer": "^16.2.0"
+  }
+}
