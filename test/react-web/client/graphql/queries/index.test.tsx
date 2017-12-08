@@ -14,7 +14,7 @@ import { withState } from 'recompose';
 declare function require(name: string);
 
 import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
+import { ApolloProvider, graphql, ChildProps } from '../../../../../src';
 import { DocumentType } from '../../../../../src/parser';
 
 // XXX: this is also defined in apollo-client
@@ -107,7 +107,26 @@ describe('queries', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(({ data }) => {
+    // Ensure variable types work correctly here
+
+    type TResult = {
+      allPeople: {
+        people: {
+          name: string;
+        };
+      };
+    };
+
+    type TVariables = {
+      first: number;
+    };
+
+    const ContainerWithData = graphql<
+      TResult,
+      {},
+      ChildProps<{}, TResult>,
+      TVariables
+    >(query)(({ data }) => {
       // tslint:disable-line
       expect(data).toBeTruthy();
       expect(data.variables).toEqual(variables);

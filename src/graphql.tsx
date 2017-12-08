@@ -67,11 +67,12 @@ let nextVersion = 0;
 export default function graphql<
   TResult = {},
   TProps = {},
-  TChildProps = ChildProps<TProps, TResult>
+  TChildProps = ChildProps<TProps, TResult>,
+  TGraphQLVariables = {}
 >(
   document: DocumentNode,
-  operationOptions: OperationOption<TProps, TResult> = {},
-): ComponentDecorator<TProps, TChildProps> {
+  operationOptions: OperationOption<TProps & TGraphQLVariables, TResult> = {},
+): ComponentDecorator<TProps & TGraphQLVariables, TChildProps> {
   // extract options
   const {
     options = defaultMapPropsToOptions,
@@ -97,7 +98,7 @@ export default function graphql<
   function wrapWithApolloComponent(WrappedComponent) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    class GraphQL extends Component<TProps, void> {
+    class GraphQL extends Component<TProps & TGraphQLVariables, void> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
@@ -320,7 +321,7 @@ export default function graphql<
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult: OptionProps<TProps, TResult> = {
+        const newResult: OptionProps<TProps & TGraphQLVariables, TResult> = {
           [name]: result,
           ownProps: this.props,
         };
