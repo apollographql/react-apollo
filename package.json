@@ -22,7 +22,7 @@
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "compile:browser":
-      "rm -rf ./dist && mkdir ./dist && NODE_ENV=production browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
+      "rm -rf ./dist && mkdir ./dist && NODE_ENV=production browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js -t [ babelify --global true --only lodash-es --presets [ env ] ] && npm run minify:browser && npm run compress:browser",
     "minify:browser":
       "uglifyjs --compress dead_code=true,unused=true -m -o ./dist/index.min.js -- ./dist/index.js",
     "compress:browser": "./scripts/gzip.js --file=./dist/index.min.js",
@@ -71,6 +71,9 @@
     "transform": {
       ".*": "./preprocessor.js"
     },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!(lodash-es|react-native)/)"
+    ],
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
@@ -92,7 +95,8 @@
     "@types/invariant": "2.2.29",
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jest": "20.0.8",
-    "@types/lodash": "4.14.74",
+    "@types/lodash": "4.14.86",
+    "@types/lodash-es": "4.17.0",
     "@types/node": "8.0.31",
     "@types/object-assign": "4.0.30",
     "@types/react": "16.0.28",
@@ -105,8 +109,11 @@
     "@types/zen-observable": "0.5.3",
     "apollo-cache-inmemory": "1.1.3",
     "apollo-client": "2.1.0",
+    "babel-core": "^6.26.0",
     "babel-jest": "20.0.3",
+    "babel-preset-env": "^1.6.1",
     "babel-preset-react-native": "3.0.2",
+    "babelify": "^8.0.0",
     "browserify": "14.4.0",
     "bundlesize": "0.14.4",
     "cheerio": "0.22.0",
@@ -159,8 +166,7 @@
     "apollo-link": "^1.0.0",
     "hoist-non-react-statics": "^2.2.0",
     "invariant": "^2.2.1",
-    "lodash.flowright": "^3.5.0",
-    "lodash.pick": "^4.4.0",
+    "lodash-es": "^4.17.4",
     "prop-types": "^15.5.8"
   }
 }

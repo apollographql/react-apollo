@@ -16,5 +16,5 @@ export { withApollo } from './withApollo';
 export { getDataFromTree } from './getDataFromTree';
 
 // expose easy way to join queries from redux
-import * as compose from 'lodash.flowright';
-export { compose };
+import flowRight from 'lodash-es/flowRight';
+export { flowRight as compose };
