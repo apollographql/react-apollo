@@ -51,6 +51,7 @@ cp LICENSE npm/
 cp src/index.js.flow npm/
 # please keep this in sync with the filename used in package.main
 cp src/index.js.flow npm/react-apollo.umd.js.flow
+cp -R flow-typed npm/
 
 echo 'deploying to npm...'
 cd npm && npm publish

@@ -20,7 +20,7 @@
     "flow-typed":
       "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
     "type-check":
-      "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators",
+      "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators && flow check",
     "compile": "tsc",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
@@ -122,7 +122,7 @@
     "enzyme-to-json": "1.6.0",
     "flow-bin": "0.59.0",
     "flow-typed": "^2.2.3",
-    "graphql": "0.11.4",
+    "graphql": "0.11.7",
     "graphql-tag": "2.6.0",
     "immutable": "3.8.1",
     "isomorphic-fetch": "2.2.1",
