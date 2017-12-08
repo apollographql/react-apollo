@@ -3,8 +3,7 @@
 ### vNext
 - Use lodash-es to allow lodash functions to be used in ES modules [#1344](https://github.com/apollographql/react-apollo/pull/1344)
 
-### 2.0.1
-
+### 2.0.2
 - upgraded required apollo-client for bugfix for subscriptions
 - add component name in unhandled error message [#1362](https://github.com/apollographql/react-apollo/pull/1362)
 - upgraded flow support to 0.59.0 :tada: [#1354](https://github.com/apollographql/react-apollo/pull/1354)
