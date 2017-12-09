@@ -65,8 +65,8 @@ function getDisplayName(WrappedComponent) {
 let nextVersion = 0;
 
 export default function graphql<
-  TResult = {},
   TProps = {},
+  TResult = {},
   TGraphQLVariables = {},
   TChildProps = ChildProps<TProps, TResult, TGraphQLVariables>
 >(
