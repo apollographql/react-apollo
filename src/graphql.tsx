@@ -5,7 +5,7 @@ import shallowEqual from './shallowEqual';
 
 const invariant = require('invariant');
 const assign = require('object-assign');
-import pick from 'lodash-es/pick';
+const pick = require('lodash.pick');
 
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
@@ -306,8 +306,9 @@ export default function graphql<
             `The operation '${operation.name}' wrapping '${getDisplayName(
               WrappedComponent,
             )}' ` +
-              `is expecting a variable: '${variable.name
-                .value}' but it was not found in the props ` +
+              `is expecting a variable: '${
+                variable.name.value
+              }' but it was not found in the props ` +
               `passed to '${graphQLDisplayName}'`,
           );
         }
@@ -445,7 +446,9 @@ export default function graphql<
           const clashingKeys = Object.keys(observableQueryFields(results.data));
           invariant(
             clashingKeys.length === 0,
-            `the result of the '${graphQLDisplayName}' operation contains keys that ` +
+            `the result of the '${
+              graphQLDisplayName
+            }' operation contains keys that ` +
               `conflict with the return object.` +
               clashingKeys.map(k => `'${k}'`).join(', ') +
               ` not allowed.`,
