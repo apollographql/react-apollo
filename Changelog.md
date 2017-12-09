@@ -1,5 +1,10 @@
 # Change log
 
+### next
+- Added optional `V` parameterized type on `ChildProps` to pass through to `MutationFunc<V>` [#1395](https://github.com/apollographql/react-apollo/pull/1395)
+- Reordered parameterized types on `graphql` to shorten required types allowing `ChildProps` to be fully derived with optional variables type passed through [#1395](https://github.com/apollographql/react-apollo/pull/1395)
+
+
 ### 2.0.4
 - rolled back on the lodash-es changes from
   [#1344](https://github.com/apollographql/react-apollo/pull/1344) due to build
