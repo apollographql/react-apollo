@@ -5,7 +5,7 @@ import shallowEqual from './shallowEqual';
 
 const invariant = require('invariant');
 const assign = require('object-assign');
-import pick from 'lodash-es/pick';
+const pick = require('lodash.pick');
 
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
