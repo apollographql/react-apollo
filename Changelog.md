@@ -1,6 +1,11 @@
 # Change log
 
 ### vNext
+
+### 2.0.4
+- Revert lodash-es module change for transpilation failures [#1392](https://github.com/apollographql/react-apollo/pull/1392)
+
+### 2.0.3
 - Use lodash-es to allow lodash functions to be used in ES modules [#1344](https://github.com/apollographql/react-apollo/pull/1344)
 - turn back on flow checking
 
