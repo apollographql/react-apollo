@@ -63,9 +63,9 @@ export interface OptionProps<TProps, TResult> {
   mutate?: MutationFunc<TResult>;
 }
 
-export type ChildProps<P, R> = P & {
+export type ChildProps<P, R, V = OperationVariables> = P & {
   data?: QueryProps & Partial<R>;
-  mutate?: MutationFunc<R>;
+  mutate?: MutationFunc<R, V>;
 };
 
 export type NamedProps<P, R> = P & {
