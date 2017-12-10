@@ -89,21 +89,20 @@ class Query extends React.Component<Props, State> {
       return;
     }
 
-    if (
-      this.props.options !== nextProps.options ||
-      this.props.query !== nextProps.query
-    ) {
-      this.querySubscription.unsubscribe();
-      this._initializeQueryObservable(nextProps);
-      this._startQuerySubscription();
-      this._updateCurrentData();
+    if (nextProps.skip) {
+      if (!this.props.skip) {
+        this._removeQuerySubscription();
+      }
+      return;
     }
+    this._removeQuerySubscription();
+    this._initializeQueryObservable(nextProps);
+    this._startQuerySubscription();
+    this._updateCurrentData();
   }
 
   componentWillUnmount() {
-    if (this.querySubscription) {
-      this.querySubscription.unsubscribe();
-    }
+    this._removeQuerySubscription();
   }
 
   _initializeQueryObservable = props => {
@@ -121,6 +120,11 @@ class Query extends React.Component<Props, State> {
     });
   };
 
+  _removeQuerySubscription = () => {
+    if (this.querySubscription) {
+      this.querySubscription.unsubscribe();
+    }
+  };
   _updateCurrentData = () => {
     this.setState({ result: this.queryObservable.currentResult() });
   };

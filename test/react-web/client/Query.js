@@ -722,7 +722,51 @@ describe('Query component', () => {
     );
   });
 
-  it('should update if the skip flag changes', () => {});
+  it('should update if the skip prop changes', done => {
+    const render = jest.fn(() => null);
+    let count = 0;
+
+    class Component extends React.Component {
+      state = {
+        skip: true,
+      };
+      componentDidMount() {
+        setTimeout(() => {
+          count++;
+          this.setState({
+            skip: false,
+          });
+        }, 0);
+      }
+
+      render() {
+        const { skip } = this.state;
+        return (
+          <Query
+            query={query}
+            skip={skip}
+            loading={() => null}
+            render={render}
+          />
+        );
+      }
+    }
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    setTimeout(() => {
+      catchAsyncError(done, () => {
+        expect(render).toHaveBeenCalledTimes(1);
+        done();
+      });
+    }, 50);
+  });
+
+  it('unsubscribes from queries if the skip prop changes from false to true', () => {});
 
   it('should update if the client changes', () => {});
 });
