@@ -10,11 +10,13 @@ import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
+import '../../../../setup/toEqualWithoutSymbol';
 
 declare function require(name: string);
 
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
+import objectWithoutSymbol from '../../../../objectWithoutSymbol';
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
@@ -317,17 +319,17 @@ describe('[queries] lifecycle', () => {
           if (count === 1) {
             expect(props.foo).toEqual(42);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqual(data1.allPeople);
+            expect(props.data.allPeople).toEqualWithoutSymbol(data1.allPeople);
             props.changeState();
           } else if (count === 2) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqual(data1.allPeople);
+            expect(props.data.allPeople).toEqualWithoutSymbol(data1.allPeople);
             props.data.refetch();
           } else if (count === 3) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqual(data2.allPeople);
+            expect(props.data.allPeople).toEqualWithoutSymbol(data2.allPeople);
             done();
           }
         } catch (e) {

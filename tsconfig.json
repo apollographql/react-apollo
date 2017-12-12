@@ -18,7 +18,7 @@
     "noUnusedParameters": true
   },
   "include": [
-    "./typings.d.ts",
+    "typings",
     "./src/index.ts",
     "./src/server.ts",
     "./src/test-utils.tsx"
