@@ -2,12 +2,11 @@
   "compilerOptions": {
     "target": "es5",
     "module": "es2015",
-    "lib": ["es6", "dom"],
+    "lib": ["es2017", "dom"],
     "moduleResolution": "node",
     "sourceMap": true,
     "declaration": true,
     "noImplicitAny": false,
-    "rootDir": "src",
     "outDir": "lib",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
@@ -18,11 +17,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": [
-    "./typings.d.ts",
-    "./src/index.ts",
-    "./src/server.ts",
-    "./src/test-utils.tsx"
-  ],
+  "include": ["./typings.d.ts", "./src/index.ts", "./src/server.ts", "./src/test-utils.tsx"],
   "exclude": ["node_modules", "dist", "lib"]
 }

@@ -17,7 +17,7 @@
     "posttest": "npm run lint && npm run type-check",
     "filesize": "npm run compile:browser && bundlesize",
     "flow-typed": "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
-    "type-check": "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators && flow check",
+    "type-check": "tsc --project tsconfig-test.json && flow check",
     "compile": "tsc",
     "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "compile:browser":
