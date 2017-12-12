@@ -89,7 +89,7 @@
     "babel-core": "^6.26.0",
     "babel-jest": "21.2.0",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-react-native": "3.0.2",
+    "babel-preset-react-native": "4.0.0",
     "bundlesize": "0.15.3",
     "cheerio": "1.0.0-rc.2",
     "colors": "1.1.2",
