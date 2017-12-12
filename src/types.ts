@@ -57,18 +57,22 @@ export type MutationFunc<TResult, TVariables = OperationVariables> = (
   opts: MutationOpts<TVariables>,
 ) => Promise<ApolloQueryResult<TResult>>;
 
-export interface OptionProps<TProps, TResult> {
+export interface OptionProps<TProps, TResult, TVariables = OperationVariables> {
   ownProps: TProps;
-  data?: QueryProps & TResult;
-  mutate?: MutationFunc<TResult>;
+  data?: QueryProps<TVariables> & TResult;
+  mutate?: MutationFunc<TResult, TVariables>;
 }
 
-export type ChildProps<P, R> = P & {
-  data?: QueryProps & Partial<R>;
-  mutate?: MutationFunc<R>;
+export type ChildProps<
+  TProps,
+  TResult,
+  TVariables = OperationVariables
+> = TProps & {
+  data?: QueryProps<TVariables> & Partial<TResult>;
+  mutate?: MutationFunc<TResult, TVariables>;
 };
 
-export type NamedProps<P, R> = P & {
+export type NamedProps<TProps, R> = TProps & {
   ownProps: R;
 };
 
@@ -76,11 +80,15 @@ export type OperationVariables = {
   [key: string]: any;
 };
 
-export interface OperationOption<TProps, TResult> {
+export interface OperationOption<
+  TProps,
+  TResult,
+  TVariables = OperationVariables
+> {
   options?:
-    | QueryOpts
-    | MutationOpts
-    | ((props: TProps) => QueryOpts | MutationOpts);
+    | QueryOpts<TVariables>
+    | MutationOpts<TVariables>
+    | ((props: TProps) => QueryOpts<TVariables> | MutationOpts<TVariables>);
   props?: (props: OptionProps<TProps, TResult>) => any;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
@@ -90,10 +98,7 @@ export interface OperationOption<TProps, TResult> {
 }
 
 export interface ComponentDecorator<TOwnProps, TMergedProps> {
-  (component: React.ComponentType<TMergedProps>): React.ComponentClass<
-    TOwnProps
-  >;
-}
-export interface InferableComponentDecorator<TOwnProps> {
-  <T extends React.ComponentType<TOwnProps>>(component: T): T;
+  <TComposed extends React.ComponentType<TMergedProps>>(
+    component: TComposed,
+  ): React.ComponentClass<TOwnProps>;
 }

@@ -58,20 +58,32 @@ const withHistory = graphql<Data, Props>(historyQuery, {
   }),
 });
 
-class HistoryView extends React.Component<ChildProps<Props, Data>, {}> {}
+class HistoryView extends React.Component<ChildProps<Props, Data>, {}> {
+  render() {
+    if (this.props.data.history.length > 0) {
+      return <div>yay type checking works</div>;
+    } else {
+      return null;
+    }
+  }
+}
 
 const HistoryViewWithData = withHistory(HistoryView);
 
 // decorator
-@graphql<Data, Props>(historyQuery)
+@graphql<Props, Data>(historyQuery)
 class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
   render() {
-    return null;
+    if (this.props.data.history.length > 0) {
+      return <div>yay type checking works</div>;
+    } else {
+      return null;
+    }
   }
 }
 
 // with using name
-const withHistoryUsingName = graphql<Data, Props>(historyQuery, {
+const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
   name: 'organisationData',
   props: ({
     organisationData,
