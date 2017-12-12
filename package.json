@@ -8,8 +8,7 @@
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "analyze":
-      "npm run compile && webpack -p --config scripts/webpack.inspect.js",
+    "analyze": "npm run compile && webpack -p --config scripts/webpack.inspect.js",
     "deploy": "./scripts/deploy.sh",
     "danger": "danger run --verbose",
     "test": "npm run compile && jest",
@@ -17,20 +16,16 @@
     "test-watch": "jest --watch",
     "posttest": "npm run lint && npm run type-check",
     "filesize": "npm run compile:browser && bundlesize",
-    "flow-typed":
-      "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
-    "type-check":
-      "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators && flow check",
+    "flow-typed": "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
+    "type-check": "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators && flow check",
     "compile": "tsc",
-    "bundle":
-      "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
+    "bundle": "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "compile:browser":
       "rm -rf ./dist && mkdir ./dist && NODE_ENV=production webpack -p ./lib/react-apollo.browser.umd.js ./dist/index.min.js --config ./scripts/webpack.config.js",
     "watch": "tsc -w",
     "lint": "tslint 'src/*.ts*' --type-check -p tsconfig.json",
     "lint-staged": "lint-staged",
-    "lint-fix":
-      "prettier --trailing-comma all --single-quote --write \"{src,test}/**/*.ts*\"",
+    "lint-fix": "prettier --write \"{src,test}/**/*.ts*\" && tslint 'src/*.ts*' --type-check -p tsconfig.json --fix",
     "postcompile": "npm run bundle",
     "prepublishOnly": "npm run compile"
   },
@@ -41,26 +36,15 @@
     }
   ],
   "lint-staged": {
-    "*.ts*": [
-      "prettier --trailing-comma all --single-quote --write",
-      "git add"
-    ],
-    "*.js*": ["prettier --trailing-comma all --single-quote --write", "git add"]
+    "*.ts*": ["prettier --write", "git add"],
+    "*.js*": ["prettier --write", "git add"]
   },
   "pre-commit": "lint-staged",
   "repository": {
     "type": "git",
     "url": "apollostack/react-apollo"
   },
-  "keywords": [
-    "ecmascript",
-    "es2015",
-    "jsnext",
-    "javascript",
-    "relay",
-    "npm",
-    "react"
-  ],
+  "keywords": ["ecmascript", "es2015", "jsnext", "javascript", "relay", "npm", "react"],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
     "presets": ["react-native"]
@@ -71,15 +55,9 @@
     "transform": {
       ".*": "./preprocessor.js"
     },
-    "transformIgnorePatterns": [
-      "<rootDir>/node_modules/(?!(lodash-es|react-native)/)"
-    ],
+    "transformIgnorePatterns": ["<rootDir>/node_modules/(?!(lodash-es|react-native)/)"],
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
-    "modulePathIgnorePatterns": [
-      "<rootDir>/examples",
-      "<rootDir>/test/flow.js",
-      "<rootDir>/test/typescript.ts"
-    ],
+    "modulePathIgnorePatterns": ["<rootDir>/examples", "<rootDir>/test/flow.js", "<rootDir>/test/typescript.ts"],
     "projects": ["<rootDir>", "<rootDir>/examples/*"],
     "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "setupFiles": ["<rootDir>/scripts/tests.js"]
