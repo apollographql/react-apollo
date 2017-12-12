@@ -4,12 +4,11 @@ import gql from 'graphql-tag';
 
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { mockSingleLink } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
+import '../../../setup/toEqualWithoutSymbol';
 
 declare function require(name: string);
-
-import { mockSingleLink } from '../../../../src/test-utils';
-
-import { ApolloProvider, graphql } from '../../../../src';
 
 describe('fragments', () => {
   // XXX in a later version, we should support this for composition
@@ -36,7 +35,7 @@ describe('fragments', () => {
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(props) {
           expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople).toEqual(data.allPeople);
+          expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
           done();
         }
         render() {
@@ -89,7 +88,7 @@ describe('fragments', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }
       render() {

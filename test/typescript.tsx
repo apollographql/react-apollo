@@ -4,7 +4,6 @@
 // that the are handled
 import * as React from 'react';
 import gql from 'graphql-tag';
-
 import { graphql } from '../src';
 import { ChildProps, NamedProps, QueryProps, MutationFunc } from '../src';
 
@@ -50,7 +49,7 @@ type Props = {
 };
 
 // standard wrapping
-const withHistory = graphql<Data, Props>(historyQuery, {
+const withHistory = graphql<Props, Data>(historyQuery, {
   options: ownProps => ({
     variables: {
       solutionId: ownProps.solutionId,
@@ -58,7 +57,7 @@ const withHistory = graphql<Data, Props>(historyQuery, {
   }),
 });
 
-class HistoryView extends React.Component<ChildProps<Props, Data>, {}> {
+class HistoryView extends React.Component<ChildProps<Props, Data>> {
   render() {
     if (this.props.data.history.length > 0) {
       return <div>yay type checking works</div>;
@@ -69,6 +68,7 @@ class HistoryView extends React.Component<ChildProps<Props, Data>, {}> {
 }
 
 const HistoryViewWithData = withHistory(HistoryView);
+<HistoryViewWithData solutionId="foo" />; // tslint:disable-line
 
 // decorator
 @graphql<Props, Data>(historyQuery)
@@ -81,6 +81,7 @@ class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
     }
   }
 }
+<DecoratedHistoryView solutionId="foo" />; // tslint:disable-line
 
 // with using name
 const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
@@ -91,6 +92,9 @@ const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
     ...organisationData,
   }),
 });
+
+const HistoryViewUsingName = withHistoryUsingName(HistoryView);
+<HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
 
 // mutation with name
 class UpdateHistoryView extends React.Component<

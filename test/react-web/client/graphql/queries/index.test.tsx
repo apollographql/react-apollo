@@ -10,12 +10,12 @@ import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql, ChildProps } from '../../../../../src';
 import { DocumentType } from '../../../../../src/parser';
+import '../../../../setup/toEqualWithoutSymbol';
+
+declare function require(name: string);
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
@@ -183,7 +183,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }
       render() {
@@ -230,8 +230,8 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
-        expect(props.data.otherPeople).toEqual(data.otherPeople);
+        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+        expect(props.data.otherPeople).toEqualWithoutSymbol(data.otherPeople);
         done();
       }
       render() {
@@ -271,8 +271,10 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
-        expect(props.data.variables).toEqual(this.props.data.variables);
+        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+        expect(props.data.variables).toEqualWithoutSymbol(
+          this.props.data.variables,
+        );
         done();
       }
       render() {
@@ -328,7 +330,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }
       render() {
@@ -368,7 +370,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }
       render() {
@@ -486,7 +488,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
       }
       render() {
         return <div>{this.props.children}</div>;

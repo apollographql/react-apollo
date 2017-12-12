@@ -10,11 +10,11 @@ import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
+import '../../../../setup/toEqualWithoutSymbol';
+
+declare function require(name: string);
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
@@ -197,7 +197,7 @@ describe('[queries] updateQuery', () => {
       }
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).toEqual(data2.allPeople);
+          expect(props.data.allPeople).toEqualWithoutSymbol(data2.allPeople);
           done();
           return;
         } else {
@@ -245,7 +245,7 @@ describe('[queries] updateQuery', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).toEqual(data2.allPeople);
+          expect(props.data.allPeople).toEqualWithoutSymbol(data2.allPeople);
           done();
           return;
         } else {

@@ -1,35 +1,27 @@
-import { Component, createElement } from 'react';
+import * as React from 'react';
 import * as PropTypes from 'prop-types';
-
 import shallowEqual from './shallowEqual';
-
-const invariant = require('invariant');
-const assign = require('object-assign');
-const pick = require('lodash.pick');
-
-const hoistNonReactStatics = require('hoist-non-react-statics');
-
 import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,
 } from 'apollo-client';
-
 import { ZenObservable } from 'zen-observable-ts';
-
 import { parser, DocumentType } from './parser';
-
 import { DocumentNode } from 'graphql';
-
 import {
   MutationOpts,
   ChildProps,
   OperationOption,
-  ComponentDecorator,
   QueryOpts,
   QueryProps,
   MutationFunc,
   OptionProps,
 } from './types';
+
+const invariant = require('invariant');
+const assign = require('object-assign');
+const pick = require('lodash.pick');
+const hoistNonReactStatics = require('hoist-non-react-statics');
 
 const defaultMapPropsToOptions = () => ({});
 const defaultMapResultToProps = props => props;
@@ -65,14 +57,16 @@ function getDisplayName(WrappedComponent) {
 let nextVersion = 0;
 
 export default function graphql<
-  TResult = {},
   TProps = {},
-  TChildProps = ChildProps<TProps, TResult>,
+  TResult = {},
   TGraphQLVariables = {}
+  // ,
+  // TChildProps = ChildProps<TProps, TResult, TGraphQLVariables>
 >(
   document: DocumentNode,
-  operationOptions: OperationOption<TProps & TGraphQLVariables, TResult> = {},
-): ComponentDecorator<TProps & TGraphQLVariables, TChildProps> {
+  operationOptions: OperationOption<TProps, TResult, TGraphQLVariables> = {},
+  // ): ComponentDecorator<TProps, TChildProps> {
+) {
   // extract options
   const {
     options = defaultMapPropsToOptions,
@@ -95,10 +89,14 @@ export default function graphql<
   // Helps track hot reloading.
   const version = nextVersion++;
 
-  function wrapWithApolloComponent(WrappedComponent) {
+  function wrapWithApolloComponent<
+    TComposed extends React.ComponentType<
+      ChildProps<TProps, TResult, TGraphQLVariables>
+    >
+  >(WrappedComponent: TComposed) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    class GraphQL extends Component<TProps & TGraphQLVariables, void> {
+    class GraphQL extends React.Component<TProps & TGraphQLVariables, void> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
@@ -593,12 +591,12 @@ export default function graphql<
       render() {
         if (this.shouldSkip()) {
           if (operationOptions.withRef) {
-            return createElement(
+            return React.createElement(
               WrappedComponent,
               assign({}, this.props, { ref: this.setWrappedInstance }),
             );
           }
-          return createElement(WrappedComponent, this.props);
+          return React.createElement(WrappedComponent, this.props);
         }
 
         const { shouldRerender, renderedElement, props } = this;
@@ -618,7 +616,7 @@ export default function graphql<
 
         if (operationOptions.withRef)
           mergedPropsAndData.ref = this.setWrappedInstance;
-        this.renderedElement = createElement(
+        this.renderedElement = React.createElement(
           WrappedComponent,
           mergedPropsAndData,
         );

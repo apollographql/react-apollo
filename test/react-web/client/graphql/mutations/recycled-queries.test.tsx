@@ -5,12 +5,11 @@ import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { mockSingleLink } from '../../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../../src';
+import '../../../../setup/toEqualWithoutSymbol';
 
 declare function require(name: string);
-
-import { mockSingleLink } from '../../../../../src/test-utils';
-
-import { ApolloProvider, graphql } from '../../../../../src';
 
 describe('[mutations] update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing
@@ -137,7 +136,7 @@ describe('[mutations] update queries', () => {
                 expect(this.props.data.todo_list).toBeFalsy();
                 break;
               case 1:
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualWithoutSymbol({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [],
@@ -146,7 +145,7 @@ describe('[mutations] update queries', () => {
               case 2:
                 expect(queryMountCount).toBe(1);
                 expect(queryUnmountCount).toBe(0);
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualWithoutSymbol({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [
@@ -357,7 +356,7 @@ describe('[mutations] update queries', () => {
                 break;
               case 1:
                 expect(this.props.data.loading).toBe(false);
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualWithoutSymbol({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [],
@@ -366,14 +365,14 @@ describe('[mutations] update queries', () => {
               case 2:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual(
+                expect(this.props.data.todo_list).toEqualWithoutSymbol(
                   updatedData.todo_list,
                 );
                 break;
               case 3:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual(
+                expect(this.props.data.todo_list).toEqualWithoutSymbol(
                   updatedData.todo_list,
                 );
                 break;

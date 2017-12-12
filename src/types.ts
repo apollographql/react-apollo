@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import ApolloClient, {
   MutationQueryReducersMap,
   ApolloQueryResult,
@@ -95,10 +93,4 @@ export interface OperationOption<
   withRef?: boolean;
   shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
   alias?: string;
-}
-
-export interface ComponentDecorator<TOwnProps, TMergedProps> {
-  <TComposed extends React.ComponentType<TMergedProps>>(
-    component: TComposed,
-  ): React.ComponentClass<TOwnProps>;
 }

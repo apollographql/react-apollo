@@ -10,11 +10,11 @@ import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
+import '../../../../setup/toEqualWithoutSymbol';
+
+declare function require(name: string);
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
@@ -262,12 +262,14 @@ describe('[queries] loading', () => {
             case 1:
               expect(props.data.loading).toBe(true);
               expect(props.data.networkStatus).toBe(4);
-              expect(props.data.allPeople).toEqual(data.allPeople);
+              expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
               break;
             case 2:
               expect(props.data.loading).toBe(false);
               expect(props.data.networkStatus).toBe(7);
-              expect(props.data.allPeople).toEqual(data2.allPeople);
+              expect(props.data.allPeople).toEqualWithoutSymbol(
+                data2.allPeople,
+              );
               resolve();
               break;
             default:

@@ -8,14 +8,13 @@ import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
 import { connect } from 'react-redux';
 import { withState } from 'recompose';
+import { mockSingleLink } from '../../../../../src/test-utils';
+import { ApolloProvider, ChildProps, graphql } from '../../../../../src';
+import '../../../../setup/toEqualWithoutSymbol';
 
 declare function require(name: string);
-
-import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
 
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
@@ -29,10 +28,6 @@ const wrap = (done: Function, cb: (...args: any[]) => any) => (
     done(e);
   }
 };
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
 
 describe('[queries] api', () => {
   // api
@@ -60,8 +55,12 @@ describe('[queries] api', () => {
 
     let hasRefetched,
       count = 0;
-    @graphql(query)
-    class Container extends React.Component<any, any> {
+
+    type Props = {};
+    type Data = {};
+
+    @graphql<Props, Data>(query)
+    class Container extends React.Component<ChildProps<Props, Data>> {
       componentWillMount() {
         expect(this.props.data.refetch).toBeTruthy();
         expect(this.props.data.refetch instanceof Function).toBe(true);
@@ -81,12 +80,12 @@ describe('[queries] api', () => {
           data
             .refetch()
             .then(result => {
-              expect(result.data).toEqual(data1);
+              expect(result.data).toEqualWithoutSymbol(data1);
               return data
                 .refetch({ first: 2 }) // new variables
                 .then(response => {
-                  expect(response.data).toEqual(data1);
-                  expect(data.allPeople).toEqual(data1.allPeople);
+                  expect(response.data).toEqualWithoutSymbol(data1);
+                  expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
                   done();
                 });
             })
@@ -201,9 +200,9 @@ describe('[queries] api', () => {
               }),
             );
         } else if (count === 1) {
-          expect(props.data.variables).toEqual(variables);
+          expect(props.data.variables).toEqualWithoutSymbol(variables);
           expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople.people).toEqual(
+          expect(props.data.allPeople.people).toEqualWithoutSymbol(
             data.allPeople.people.concat(data1.allPeople.people),
           );
           done();
@@ -254,11 +253,8 @@ describe('[queries] api', () => {
 
     let isUpdated = false;
     @graphql(query, {
-      // XXX: I think we should be able to avoid this https://github.com/apollostack/react-apollo/issues/197
-      options: { variables: { cursor: null } },
       props({ data: { loading, allPeople, fetchMore } }) {
         if (loading) return { loading };
-
         const { cursor, people } = allPeople;
         return {
           people,

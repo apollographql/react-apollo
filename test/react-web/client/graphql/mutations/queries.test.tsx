@@ -5,12 +5,11 @@ import assign = require('object-assign');
 
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { mockSingleLink } from '../../../../../src/test-utils';
+import { ApolloProvider, graphql, compose } from '../../../../../src';
+import '../../../../setup/toEqualWithoutSymbol';
 
 declare function require(name: string);
-
-import { mockSingleLink } from '../../../../../src/test-utils';
-
-import { ApolloProvider, graphql, compose } from '../../../../../src';
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
@@ -249,10 +248,10 @@ describe('[mutations] query integration', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (count === 0) {
-          expect(props.data.mini).toEqual(queryData.mini);
+          expect(props.data.mini).toEqualWithoutSymbol(queryData.mini);
         }
         if (count === 1) {
-          expect(props.data.mini).toEqual(mutationData.mini);
+          expect(props.data.mini).toEqualWithoutSymbol(mutationData.mini);
           done();
         }
         count++;
