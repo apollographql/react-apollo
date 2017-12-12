@@ -17,6 +17,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["typings", "src", "test"],
-  "exclude": ["node_modules", "dist", "lib"]
+  "include": ["./typings/**/*", "./src/**/*", "./test/**/*"],
+  "exclude": ["./node_modules", "./dist", "./lib"]
 }

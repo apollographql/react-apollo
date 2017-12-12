@@ -19,10 +19,9 @@
 
   beforeAll(() => {
     jasmine.addMatchers({
-      toEqualWithoutSymbol: function(
-        util: jasmine.MatchersUtil,
-        customEqualityTesters: Array<jasmine.CustomEqualityTester>,
-      ): jasmine.CustomMatcher {
+      toEqualWithoutSymbol: function(): // util: jasmine.MatchersUtil,
+      // customEqualityTesters: Array<jasmine.CustomEqualityTester>,
+      jasmine.CustomMatcher {
         return {
           compare: function(actual: any, expected: any) {
             return doAssertions(() => {

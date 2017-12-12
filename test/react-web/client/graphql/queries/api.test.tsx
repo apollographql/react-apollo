@@ -3,7 +3,6 @@ import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import {
   ApolloProvider,
@@ -12,19 +11,7 @@ import {
   OptionProps,
 } from '../../../../../src';
 import '../../../../setup/toEqualWithoutSymbol';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
+import wrap from '../../../../setup/wrap';
 
 describe('[queries] api', () => {
   // api

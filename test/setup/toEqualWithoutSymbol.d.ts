@@ -1,5 +1,5 @@
 declare namespace jasmine {
-  interface Matchers<T> {
+  interface Matchers {
     toEqualWithoutSymbol(expected: any): boolean;
   }
 }

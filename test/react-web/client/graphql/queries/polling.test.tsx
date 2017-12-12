@@ -1,5 +1,3 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom';
