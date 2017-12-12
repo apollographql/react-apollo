@@ -1,4 +1,4 @@
-import { ComponentClass, StatelessComponent } from 'react';
+import * as React from 'react';
 
 import ApolloClient, {
   MutationQueryReducersMap,
@@ -89,11 +89,11 @@ export interface OperationOption<TProps, TResult> {
   alias?: string;
 }
 
-export type CompositeComponent<P> = ComponentClass<P> | StatelessComponent<P>;
-
 export interface ComponentDecorator<TOwnProps, TMergedProps> {
-  (component: CompositeComponent<TMergedProps>): ComponentClass<TOwnProps>;
+  (component: React.ComponentType<TMergedProps>): React.ComponentClass<
+    TOwnProps
+  >;
 }
 export interface InferableComponentDecorator<TOwnProps> {
-  <T extends CompositeComponent<TOwnProps>>(component: T): T;
+  <T extends React.ComponentType<TOwnProps>>(component: T): T;
 }
