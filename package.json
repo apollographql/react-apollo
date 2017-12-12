@@ -11,7 +11,7 @@
     "analyze": "npm run compile && webpack -p --config scripts/webpack.inspect.js",
     "deploy": "./scripts/deploy.sh",
     "danger": "danger run --verbose",
-    "test": "npm run compile && jest",
+    "test": "npm run lint && npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
     "posttest": "npm run lint && npm run type-check",
