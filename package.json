@@ -20,7 +20,7 @@
     "flow-typed":
       "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
     "type-check": "tsc --project tsconfig-test.json && flow check",
-    "compile": "tsc",
+    "compile": "tsc && rimraf lib/src lib/test",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "compile:browser":
@@ -142,6 +142,7 @@
     "redux-form": "7.2.0",
     "redux-immutable": "4.0.0",
     "redux-loop": "4.2.4",
+    "rimraf": "^2.6.2",
     "rollup": "0.52.1",
     "source-map-support": "0.5.0",
     "swapi-graphql": "0.0.6",
