@@ -59,9 +59,8 @@ let nextVersion = 0;
 export default function graphql<
   TProps = {},
   TResult = {},
-  TGraphQLVariables = {}
-  // ,
-  // TChildProps = ChildProps<TProps, TResult, TGraphQLVariables>
+  TGraphQLVariables = {},
+  TChildProps = ChildProps<TProps, TResult, TGraphQLVariables>
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TResult, TGraphQLVariables> = {},
@@ -89,14 +88,15 @@ export default function graphql<
   // Helps track hot reloading.
   const version = nextVersion++;
 
-  function wrapWithApolloComponent<
-    TComposed extends React.ComponentType<
-      ChildProps<TProps, TResult, TGraphQLVariables>
-    >
-  >(WrappedComponent: TComposed) {
+  function wrapWithApolloComponent<TOriginalProps extends TChildProps>(
+    WrappedComponent: React.ComponentType<TOriginalProps>,
+  ) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    class GraphQL extends React.Component<TProps & TGraphQLVariables, void> {
+    class GraphQL extends React.Component<
+      TOriginalProps & TGraphQLVariables,
+      void
+    > {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
