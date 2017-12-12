@@ -1,6 +1,6 @@
 # [React Apollo](http://dev.apollodata.com/react/) [![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/react-apollo) [![Get on Slack](https://img.shields.io/badge/slack-join-orange.svg)](http://www.apollostack.com/#slack)
 
-React Apollo allows you to fetch data from your GraphQL server and use it in building complex and reactive UIs using the React framework. React Apollo may be used in any context that React may be used. In the browser, in React Native, or in Node.js when you want to server side render.
+React Apollo allows you to fetch data from your GraphQL server and use it in building complex and reactive UIs using the React framework. React Apollo may be used in any context that React may be used. In the browser, in React Native, or in Node.js when you want to do server-side rendering.
 
 React Apollo unlike many other tools in the React ecosystem requires _no_ complex build setup to get up and running. As long as you have a GraphQL server you can get started building out your application with React immediately. React Apollo works out of the box with both [`create-react-app`][] and [React Native][] with a single install and with no extra hassle configuring Babel or other JavaScript tools.
 
@@ -78,7 +78,7 @@ ReactDOM.render(
 
 Now you may create components in this React tree that are connected to your GraphQL API.
 
-Finally, to demonstrate the power of React Apollo in building interactive UIs let us connect one of your component’s to your GraphQL server using the [`graphql()`][] component enhancer:
+Finally, to demonstrate the power of React Apollo in building interactive UIs let us connect one of your components to your GraphQL server using the [`graphql()`][] component enhancer:
 
 You'll need install `graphql-tag` to use `gql` module:
 
