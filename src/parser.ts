@@ -27,7 +27,8 @@ export function parser(document: DocumentNode): IDocumentDefinition {
   invariant(
     !!document && !!document.kind,
     // tslint:disable-line
-    `Argument of ${document} passed to parser was not a valid GraphQL DocumentNode. You may need to use 'graphql-tag' or another method to convert your operation into a document`,
+    `Argument of ${document} passed to parser was not a valid GraphQL DocumentNode. You may need to use 'graphql-tag'` +
+      ` or another method to convert your operation into a document`,
   );
 
   const fragments = document.definitions.filter((x: DefinitionNode) => x.kind === 'FragmentDefinition');
