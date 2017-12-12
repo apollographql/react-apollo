@@ -14,10 +14,7 @@ function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export function withApollo<TProps, TResult>(
-  WrappedComponent,
-  operationOptions: OperationOption<TProps, TResult> = {},
-) {
+export function withApollo<TProps, TResult>(WrappedComponent, operationOptions: OperationOption<TProps, TResult> = {}) {
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
   class WithApollo extends Component<any, any> {
@@ -38,18 +35,12 @@ export function withApollo<TProps, TResult>(
 
       invariant(
         !!this.client,
-        `Could not find "client" in the context of ` +
-          `"${withDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`,
+        `Could not find "client" in the context of ` + `"${withDisplayName}". ` + `Wrap the root component in an <ApolloProvider>`,
       );
     }
 
     getWrappedInstance() {
-      invariant(
-        operationOptions.withRef,
-        `To access the wrapped instance, you need to specify ` +
-          `{ withRef: true } in the options`,
-      );
+      invariant(operationOptions.withRef, `To access the wrapped instance, you need to specify ` + `{ withRef: true } in the options`);
 
       return this.wrappedInstance;
     }

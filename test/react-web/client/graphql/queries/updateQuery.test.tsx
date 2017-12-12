@@ -19,9 +19,7 @@ import { ApolloProvider, graphql } from '../../../../../src';
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -149,9 +147,7 @@ describe('[queries] updateQuery', () => {
           this.props.data.updateQuery();
           done();
         } catch (e) {
-          expect(e.toString()).toMatch(
-            /ObservableQuery with this id doesn't exist:/,
-          );
+          expect(e.toString()).toMatch(/ObservableQuery with this id doesn't exist:/);
           done();
         }
       }
@@ -179,10 +175,7 @@ describe('[queries] updateQuery', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-    const link = mockSingleLink(
-      { request: { query }, result: { data } },
-      { request: { query }, result: { data: data2 } },
-    );
+    const link = mockSingleLink({ request: { query }, result: { data } }, { request: { query }, result: { data: data2 } });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
@@ -231,10 +224,7 @@ describe('[queries] updateQuery', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-    const link = mockSingleLink(
-      { request: { query }, result: { data } },
-      { request: { query }, result: { data: data2 } },
-    );
+    const link = mockSingleLink({ request: { query }, result: { data } }, { request: { query }, result: { data: data2 } });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),

@@ -76,8 +76,7 @@ describe('[mutations]', () => {
     });
 
     const props = ({ ownProps, addPerson }) => ({
-      [ownProps.methodName]: (name: string) =>
-        addPerson({ variables: { name } }),
+      [ownProps.methodName]: (name: string) => addPerson({ variables: { name } }),
     });
 
     const ContainerWithData = graphql(query, { props })(({ test }) => {

@@ -73,18 +73,13 @@ class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
 // with using name
 const withHistoryUsingName = graphql<Data, Props>(historyQuery, {
   name: 'organisationData',
-  props: ({
-    organisationData,
-  }: NamedProps<{ organisationData: QueryProps & Data }, Props>) => ({
+  props: ({ organisationData }: NamedProps<{ organisationData: QueryProps & Data }, Props>) => ({
     ...organisationData,
   }),
 });
 
 // mutation with name
-class UpdateHistoryView extends React.Component<
-  ChildProps<Props & Mutation, MutationPayload>,
-  {}
-> {
+class UpdateHistoryView extends React.Component<ChildProps<Props & Mutation, MutationPayload>, {}> {
   updateHistory() {
     this.props.updateHistory({
       variables: {

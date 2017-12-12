@@ -20,9 +20,7 @@ import { ApolloProvider, graphql } from '../../../../../src';
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -187,25 +185,19 @@ describe('[queries] api', () => {
               variables: { skip: 2 },
               updateQuery: (prev, { fetchMoreResult }) => ({
                 allPeople: {
-                  people: prev.allPeople.people.concat(
-                    fetchMoreResult.allPeople.people,
-                  ),
+                  people: prev.allPeople.people.concat(fetchMoreResult.allPeople.people),
                 },
               }),
             })
             .then(
               wrap(done, result => {
-                expect(result.data.allPeople.people).toEqual(
-                  data1.allPeople.people,
-                );
+                expect(result.data.allPeople.people).toEqual(data1.allPeople.people);
               }),
             );
         } else if (count === 1) {
           expect(props.data.variables).toEqual(variables);
           expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople.people).toEqual(
-            data.allPeople.people.concat(data1.allPeople.people),
-          );
+          expect(props.data.allPeople.people).toEqual(data.allPeople.people.concat(data1.allPeople.people));
           done();
         } else {
           throw new Error('should not reach this point');

@@ -19,10 +19,6 @@ export class MockedProvider extends React.Component<any, any> {
   }
 
   render() {
-    return (
-      <ApolloProvider client={this.client || this.props.client}>
-        {this.props.children}
-      </ApolloProvider>
-    );
+    return <ApolloProvider client={this.client || this.props.client}>{this.props.children}</ApolloProvider>;
   }
 }

@@ -20,9 +20,7 @@ import { DocumentType } from '../../../../../src/parser';
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -121,12 +119,7 @@ describe('queries', () => {
       first: number;
     };
 
-    const ContainerWithData = graphql<
-      TResult,
-      {},
-      ChildProps<{}, TResult>,
-      TVariables
-    >(query)(({ data }) => {
+    const ContainerWithData = graphql<TResult, {}, ChildProps<{}, TResult>, TVariables>(query)(({ data }) => {
       // tslint:disable-line
       expect(data).toBeTruthy();
       expect(data.variables).toEqual(variables);

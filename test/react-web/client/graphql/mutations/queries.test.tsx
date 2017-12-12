@@ -159,17 +159,13 @@ describe('[mutations] query integration', () => {
           });
 
           const dataInStore = cache.extract(true);
-          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
-            optimisticResponse.createTodo,
-          );
+          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(optimisticResponse.createTodo);
           return;
         }
 
         if (count === 0) {
           count++;
-          expect(props.data.todo_list.tasks).toEqual([
-            optimisticResponse.createTodo,
-          ]);
+          expect(props.data.todo_list.tasks).toEqual([optimisticResponse.createTodo]);
         } else if (count === 1) {
           expect(props.data.todo_list.tasks).toEqual([mutationData.createTodo]);
           done();
