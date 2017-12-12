@@ -23,9 +23,9 @@
     "compile:browser":
       "rm -rf ./dist && mkdir ./dist && NODE_ENV=production webpack -p ./lib/react-apollo.browser.umd.js ./dist/index.min.js --config ./scripts/webpack.config.js",
     "watch": "tsc -w",
-    "lint": "tslint 'src/*.ts*' --type-check -p tsconfig.json",
+    "lint": "tslint 'src/*.ts*' --project tsconfig.json",
     "lint-staged": "lint-staged",
-    "lint-fix": "prettier --write \"{src,test}/**/*.ts*\" && tslint 'src/*.ts*' --type-check -p tsconfig.json --fix",
+    "lint-fix": "prettier --write \"{src,test}/**/*.ts*\" && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "postcompile": "npm run bundle",
     "prepublishOnly": "npm run compile"
   },
