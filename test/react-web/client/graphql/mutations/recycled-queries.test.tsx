@@ -366,12 +366,16 @@ describe('[mutations] update queries', () => {
               case 2:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual(updatedData.todo_list);
+                expect(this.props.data.todo_list).toEqual(
+                  updatedData.todo_list,
+                );
                 break;
               case 3:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual(updatedData.todo_list);
+                expect(this.props.data.todo_list).toEqual(
+                  updatedData.todo_list,
+                );
                 break;
               default:
                 throw new Error('Rendered too many times');

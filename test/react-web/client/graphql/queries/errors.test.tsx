@@ -19,7 +19,9 @@ import { ApolloProvider, graphql } from '../../../../../src';
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (
+  ...args: any[]
+) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -273,7 +275,9 @@ describe('[queries] errors', () => {
                 expect(this.props.data.loading).toEqual(true);
                 break;
               case 1:
-                expect(this.props.data.error.message).toEqual('Network error: oops');
+                expect(this.props.data.error.message).toEqual(
+                  'Network error: oops',
+                );
                 break;
               default:
                 throw new Error('Too many renders.');
@@ -361,7 +365,9 @@ describe('[queries] errors', () => {
         try {
           expect(renderCount).toBe(2);
           expect(errorMock.mock.calls.length).toBe(1);
-          expect(errorMock.mock.calls[0][0]).toEqual('Unhandled (in react-apollo:Apollo(UnhandledErrorComponent))');
+          expect(errorMock.mock.calls[0][0]).toEqual(
+            'Unhandled (in react-apollo:Apollo(UnhandledErrorComponent))',
+          );
           resolve();
         } catch (error) {
           reject(error);

@@ -52,19 +52,24 @@ export class MockLink extends ApolloLink {
     const responses = this.mockedResponsesByKey[key];
     if (!responses || responses.length === 0) {
       throw new Error(
-        `No more mocked responses for the query: ${print(operation.query)}, variables: ${JSON.stringify(operation.variables)}`,
+        `No more mocked responses for the query: ${print(
+          operation.query,
+        )}, variables: ${JSON.stringify(operation.variables)}`,
       );
     }
 
     const original = [...this.mockedResponsesByKey[key]];
-    const { result, error, delay, newData } = this.mockedResponsesByKey[key].shift() || ({} as any);
+    const { result, error, delay, newData } =
+      this.mockedResponsesByKey[key].shift() || ({} as any);
 
     if (newData) {
       original[0].result = newData();
       this.mockedResponsesByKey[key].push(original[0]);
     }
     if (!result && !error) {
-      throw new Error(`Mocked response should contain either result or error: ${key}`);
+      throw new Error(
+        `Mocked response should contain either result or error: ${key}`,
+      );
     }
 
     return new Observable<FetchResult>(observer => {
@@ -135,7 +140,9 @@ function requestToKey(request: GraphQLRequest): string {
 
 // Pass in multiple mocked responses, so that you can test flows that end up
 // making multiple queries to the server
-export function mockSingleLink(...mockedResponses: MockedResponse[]): ApolloLink {
+export function mockSingleLink(
+  ...mockedResponses: MockedResponse[]
+): ApolloLink {
   return new MockLink(mockedResponses);
 }
 

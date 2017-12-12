@@ -9,7 +9,10 @@ const pick = require('lodash.pick');
 
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-import ApolloClient, { ObservableQuery, ApolloQueryResult } from 'apollo-client';
+import ApolloClient, {
+  ObservableQuery,
+  ApolloQueryResult,
+} from 'apollo-client';
 
 import { ZenObservable } from 'zen-observable-ts';
 
@@ -17,7 +20,16 @@ import { parser, DocumentType } from './parser';
 
 import { DocumentNode } from 'graphql';
 
-import { MutationOpts, ChildProps, OperationOption, ComponentDecorator, QueryOpts, QueryProps, MutationFunc, OptionProps } from './types';
+import {
+  MutationOpts,
+  ChildProps,
+  OperationOption,
+  ComponentDecorator,
+  QueryOpts,
+  QueryProps,
+  MutationFunc,
+  OptionProps,
+} from './types';
 
 const defaultMapPropsToOptions = () => ({});
 const defaultMapResultToProps = props => props;
@@ -25,7 +37,16 @@ const defaultMapPropsToSkip = () => false;
 
 // the fields we want to copy over to our data prop
 function observableQueryFields(observable) {
-  const fields = pick(observable, 'variables', 'refetch', 'fetchMore', 'updateQuery', 'startPolling', 'stopPolling', 'subscribeToMore');
+  const fields = pick(
+    observable,
+    'variables',
+    'refetch',
+    'fetchMore',
+    'updateQuery',
+    'startPolling',
+    'stopPolling',
+    'subscribeToMore',
+  );
 
   Object.keys(fields).forEach(key => {
     if (typeof fields[key] === 'function') {
@@ -43,15 +64,25 @@ function getDisplayName(WrappedComponent) {
 // Helps track hot reloading.
 let nextVersion = 0;
 
-export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildProps<TProps, TResult>, TGraphQLVariables = {}>(
+export default function graphql<
+  TResult = {},
+  TProps = {},
+  TChildProps = ChildProps<TProps, TResult>,
+  TGraphQLVariables = {}
+>(
   document: DocumentNode,
   operationOptions: OperationOption<TProps & TGraphQLVariables, TResult> = {},
 ): ComponentDecorator<TProps & TGraphQLVariables, TChildProps> {
   // extract options
-  const { options = defaultMapPropsToOptions, skip = defaultMapPropsToSkip, alias = 'Apollo' } = operationOptions;
+  const {
+    options = defaultMapPropsToOptions,
+    skip = defaultMapPropsToSkip,
+    alias = 'Apollo',
+  } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOpts | MutationOpts;
-  if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options as QueryOpts | MutationOpts;
+  if (typeof mapPropsToOptions !== 'function')
+    mapPropsToOptions = () => options as QueryOpts | MutationOpts;
 
   let mapPropsToSkip = skip as (props: any) => boolean;
   if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = () => skip as any;
@@ -149,7 +180,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
 
         const { client } = mapPropsToOptions(nextProps);
 
-        if (shallowEqual(this.props, nextProps) && (this.client === client || this.client === nextContext.client)) {
+        if (
+          shallowEqual(this.props, nextProps) &&
+          (this.client === client || this.client === nextContext.client)
+        ) {
           return;
         }
 
@@ -209,13 +243,17 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
           this.unsubscribeFromQuery();
         }
 
-        if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
+        if (this.type === DocumentType.Subscription)
+          this.unsubscribeFromQuery();
 
         this.hasMounted = false;
       }
 
       getQueryRecycler() {
-        return this.context.getQueryRecycler && this.context.getQueryRecycler(GraphQL);
+        return (
+          this.context.getQueryRecycler &&
+          this.context.getQueryRecycler(GraphQL)
+        );
       }
 
       getClient<Cache>(props): ApolloClient<Cache> {
@@ -230,7 +268,9 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
 
         invariant(
           !!this.client,
-          `Could not find "client" in the context of ` + `"${graphQLDisplayName}". ` + `Wrap the root component in an <ApolloProvider>`,
+          `Could not find "client" in the context of ` +
+            `"${graphQLDisplayName}". ` +
+            `Wrap the root component in an <ApolloProvider>`,
         );
 
         return this.client;
@@ -263,8 +303,12 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
 
           invariant(
             typeof props[variable.name.value] !== 'undefined',
-            `The operation '${operation.name}' wrapping '${getDisplayName(WrappedComponent)}' ` +
-              `is expecting a variable: '${variable.name.value}' but it was not found in the props ` +
+            `The operation '${operation.name}' wrapping '${getDisplayName(
+              WrappedComponent,
+            )}' ` +
+              `is expecting a variable: '${
+                variable.name.value
+              }' but it was not found in the props ` +
               `passed to '${graphQLDisplayName}'`,
           );
         }
@@ -272,7 +316,9 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
         return opts;
       }
 
-      calculateResultProps(result: (QueryProps & TResult) | MutationFunc<TResult>) {
+      calculateResultProps(
+        result: (QueryProps & TResult) | MutationFunc<TResult>,
+      ) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
@@ -299,7 +345,9 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
 
       createQuery(opts: QueryOpts, props: any = this.props) {
         if (this.type === DocumentType.Subscription) {
-          this.queryObservable = this.getClient(props).subscribe(assign({ query: document }, opts));
+          this.queryObservable = this.getClient(props).subscribe(
+            assign({ query: document }, opts),
+          );
         } else {
           // Try to reuse an `ObservableQuery` instance from our recycler. If
           // we get null then there is no instance to reuse and we should
@@ -357,15 +405,24 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
       // For server-side rendering (see server.ts)
       fetchData(): Promise<ApolloQueryResult<any>> | boolean {
         if (this.shouldSkip()) return false;
-        if (operation.type === DocumentType.Mutation || operation.type === DocumentType.Subscription) return false;
+        if (
+          operation.type === DocumentType.Mutation ||
+          operation.type === DocumentType.Subscription
+        )
+          return false;
 
         const opts = this.calculateOptions() as any;
         if (opts.ssr === false) return false;
-        if (opts.fetchPolicy === 'network-only' || opts.fetchPolicy === 'cache-and-network') {
+        if (
+          opts.fetchPolicy === 'network-only' ||
+          opts.fetchPolicy === 'cache-and-network'
+        ) {
           opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
         }
 
-        const observable = this.getClient(this.props).watchQuery(assign({ query: document }, opts));
+        const observable = this.getClient(this.props).watchQuery(
+          assign({ query: document }, opts),
+        );
         const result = observable.currentResult();
 
         if (result.loading) {
@@ -425,7 +482,9 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
       }
 
       shouldSkip(props = this.props) {
-        return mapPropsToSkip(props) || (mapPropsToOptions(props) as QueryOpts).skip;
+        return (
+          mapPropsToSkip(props) || (mapPropsToOptions(props) as QueryOpts).skip
+        );
       }
 
       forceRenderChildren() {
@@ -435,7 +494,11 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
       }
 
       getWrappedInstance() {
-        invariant(operationOptions.withRef, `To access the wrapped instance, you need to specify ` + `{ withRef: true } in the options`);
+        invariant(
+          operationOptions.withRef,
+          `To access the wrapped instance, you need to specify ` +
+            `{ withRef: true } in the options`,
+        );
 
         return this.wrappedInstance;
       }
@@ -450,7 +513,9 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
         if (typeof opts.variables === 'undefined') delete opts.variables;
 
         (opts as any).mutation = document;
-        return this.getClient(this.props).mutate(opts as any) as Promise<ApolloQueryResult<TResult>>;
+        return this.getClient(this.props).mutate(opts as any) as Promise<
+          ApolloQueryResult<TResult>
+        >;
       }
 
       dataForChild() {
@@ -487,7 +552,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
           // _feel_ like it was logged ASAP while still tolerating asynchrony.
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
-              console.error(`Unhandled (in react-apollo:${graphQLDisplayName})`, error.stack || error);
+              console.error(
+                `Unhandled (in react-apollo:${graphQLDisplayName})`,
+                error.stack || error,
+              );
             }
           }, 10);
           Object.defineProperty(data, 'error', {
@@ -525,7 +593,10 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
       render() {
         if (this.shouldSkip()) {
           if (operationOptions.withRef) {
-            return createElement(WrappedComponent, assign({}, this.props, { ref: this.setWrappedInstance }));
+            return createElement(
+              WrappedComponent,
+              assign({}, this.props, { ref: this.setWrappedInstance }),
+            );
           }
           return createElement(WrappedComponent, this.props);
         }
@@ -533,7 +604,11 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
-        if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
+        if (
+          !shouldRerender &&
+          renderedElement &&
+          renderedElement.type === WrappedComponent
+        ) {
           return renderedElement;
         }
 
@@ -541,8 +616,12 @@ export default function graphql<TResult = {}, TProps = {}, TChildProps = ChildPr
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = assign({}, props, clientProps);
 
-        if (operationOptions.withRef) mergedPropsAndData.ref = this.setWrappedInstance;
-        this.renderedElement = createElement(WrappedComponent, mergedPropsAndData);
+        if (operationOptions.withRef)
+          mergedPropsAndData.ref = this.setWrappedInstance;
+        this.renderedElement = createElement(
+          WrappedComponent,
+          mergedPropsAndData,
+        );
         return this.renderedElement;
       }
     }

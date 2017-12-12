@@ -20,7 +20,9 @@ import { ApolloProvider, graphql } from '../../../../../src';
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (
+  ...args: any[]
+) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -45,7 +47,10 @@ describe('[queries] observableQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const link = mockSingleLink({ request: { query }, result: { data } }, { request: { query }, result: { data } });
+    const link = mockSingleLink(
+      { request: { query }, result: { data } },
+      { request: { query }, result: { data } },
+    );
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
@@ -216,7 +221,8 @@ describe('[queries] observableQuery', () => {
 
     let keys = Array.from(client.queryManager.queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable1 = client.queryManager.queries.get('1').observableQuery;
+    const queryObservable1 = client.queryManager.queries.get('1')
+      .observableQuery;
 
     // The query should only have been invoked when first mounting and not when resetting store
     expect(called).toBe(1);
@@ -225,7 +231,8 @@ describe('[queries] observableQuery', () => {
 
     keys = Array.from(client.queryManager.queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable2 = client.queryManager.queries.get('1').observableQuery;
+    const queryObservable2 = client.queryManager.queries.get('1')
+      .observableQuery;
 
     expect(queryObservable1).toBe(queryObservable2);
   });
@@ -296,7 +303,10 @@ describe('[queries] observableQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const link = mockSingleLink({ request: { query }, result: { data } }, { request: { query }, result: { data } });
+    const link = mockSingleLink(
+      { request: { query }, result: { data } },
+      { request: { query }, result: { data } },
+    );
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
@@ -340,14 +350,16 @@ describe('[queries] observableQuery', () => {
 
     let keys = Array.from(client.queryManager.queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable1 = client.queryManager.queries.get('1').observableQuery;
+    const queryObservable1 = client.queryManager.queries.get('1')
+      .observableQuery;
 
     remount();
 
     setTimeout(() => {
       keys = Array.from(client.queryManager.queries.keys());
       expect(keys).toEqual(['1']);
-      const queryObservable2 = client.queryManager.queries.get('1').observableQuery;
+      const queryObservable2 = client.queryManager.queries.get('1')
+        .observableQuery;
       expect(queryObservable1).toBe(queryObservable2);
 
       remount();
@@ -355,7 +367,8 @@ describe('[queries] observableQuery', () => {
       setTimeout(() => {
         keys = Array.from(client.queryManager.queries.keys());
         expect(keys).toEqual(['1']);
-        const queryObservable3 = client.queryManager.queries.get('1').observableQuery;
+        const queryObservable3 = client.queryManager.queries.get('1')
+          .observableQuery;
         expect(queryObservable1).toBe(queryObservable3);
 
         wrapper.unmount();
@@ -375,7 +388,10 @@ describe('[queries] observableQuery', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const link = mockSingleLink({ request: { query }, result: { data } }, { request: { query }, result: { data } });
+    const link = mockSingleLink(
+      { request: { query }, result: { data } },
+      { request: { query }, result: { data } },
+    );
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
@@ -422,8 +438,10 @@ describe('[queries] observableQuery', () => {
 
     let keys = Array.from(client.queryManager.queries.keys());
     expect(keys).toEqual(['1', '2']);
-    const queryObservable1 = client.queryManager.queries.get('1').observableQuery;
-    const queryObservable2 = client.queryManager.queries.get('2').observableQuery;
+    const queryObservable1 = client.queryManager.queries.get('1')
+      .observableQuery;
+    const queryObservable2 = client.queryManager.queries.get('2')
+      .observableQuery;
     expect(queryObservable1).not.toBe(queryObservable2);
 
     remount();
@@ -431,8 +449,10 @@ describe('[queries] observableQuery', () => {
     setTimeout(() => {
       keys = Array.from(client.queryManager.queries.keys());
       expect(keys).toEqual(['1', '2']);
-      const queryObservable3 = client.queryManager.queries.get('1').observableQuery;
-      const queryObservable4 = client.queryManager.queries.get('2').observableQuery;
+      const queryObservable3 = client.queryManager.queries.get('1')
+        .observableQuery;
+      const queryObservable4 = client.queryManager.queries.get('2')
+        .observableQuery;
       expect(queryObservable1).not.toBe(queryObservable2);
 
       // What we really want to test here is if the `queryObservable` on

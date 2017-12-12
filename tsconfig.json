@@ -17,6 +17,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["./typings.d.ts", "./src/index.ts", "./src/server.ts", "./src/test-utils.tsx"],
+  "include": [
+    "./typings.d.ts",
+    "./src/index.ts",
+    "./src/server.ts",
+    "./src/test-utils.tsx"
+  ],
   "exclude": ["node_modules", "dist", "lib"]
 }

@@ -122,7 +122,10 @@ describe('<ApolloProvider /> Component', () => {
           <div className="unique" />
         </ApolloProvider>,
       );
-    }).toThrowError('ApolloClient was not passed a client instance. Make ' + 'sure you pass in your client via the "client" prop.');
+    }).toThrowError(
+      'ApolloClient was not passed a client instance. Make ' +
+        'sure you pass in your client via the "client" prop.',
+    );
     console.error = originalConsoleError;
   });
 
@@ -172,7 +175,9 @@ describe('<ApolloProvider /> Component', () => {
   });
 
   it('child component should be able to query new client when props change', () => {
-    const container = TestUtils.renderIntoDocument(<Container client={client} />) as React.Component<any, any>;
+    const container = TestUtils.renderIntoDocument(
+      <Container client={client} />,
+    ) as React.Component<any, any>;
 
     const child = TestUtils.findRenderedComponentWithType(container, Child);
     expect(child.context.client).toEqual(client);

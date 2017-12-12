@@ -41,12 +41,16 @@ export interface QueryProps<TVariables = OperationVariables> {
   networkStatus: number;
   loading: boolean;
   variables: TVariables;
-  fetchMore: (fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions) => Promise<ApolloQueryResult<any>>;
+  fetchMore: (
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+  ) => Promise<ApolloQueryResult<any>>;
   refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
+  updateQuery: (
+    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
+  ) => void;
 }
 
 export type MutationFunc<TResult, TVariables = OperationVariables> = (
@@ -73,7 +77,10 @@ export type OperationVariables = {
 };
 
 export interface OperationOption<TProps, TResult> {
-  options?: QueryOpts | MutationOpts | ((props: TProps) => QueryOpts | MutationOpts);
+  options?:
+    | QueryOpts
+    | MutationOpts
+    | ((props: TProps) => QueryOpts | MutationOpts);
   props?: (props: OptionProps<TProps, TResult>) => any;
   skip?: boolean | ((props: any) => boolean);
   name?: string;

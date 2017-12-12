@@ -19,7 +19,12 @@ describe('subscriptions', () => {
     console.error = error;
   });
 
-  const results = ['James Baxley', 'John Pinkerton', 'Sam Claridge', 'Ben Coleman'].map(name => ({
+  const results = [
+    'James Baxley',
+    'John Pinkerton',
+    'Sam Claridge',
+    'Ben Coleman',
+  ].map(name => ({
     result: { data: { user: { name } } },
     delay: 10,
   }));
@@ -177,13 +182,26 @@ describe('subscriptions', () => {
   it('resubscribes to a subscription', done => {
     //we make an extra Hoc which will trigger the inner HoC to resubscribe
     //these are the results for the outer subscription
-    const triggerResults = ['0', 'trigger resubscribe', '3', '4', '5', '6', '7'].map(trigger => ({
+    const triggerResults = [
+      '0',
+      'trigger resubscribe',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+    ].map(trigger => ({
       result: { data: { trigger } },
       delay: 10,
     }));
 
     //These are the results fro the resubscription
-    const results3 = ['NewUser: 1', 'NewUser: 2', 'NewUser: 3', 'NewUser: 4'].map(name => ({
+    const results3 = [
+      'NewUser: 1',
+      'NewUser: 2',
+      'NewUser: 3',
+      'NewUser: 4',
+    ].map(name => ({
       result: { data: { user: { name } } },
       delay: 10,
     }));
@@ -203,7 +221,11 @@ describe('subscriptions', () => {
 
     const userLink = new MockSubscriptionLink();
     const triggerLink = new MockSubscriptionLink();
-    const link = new ApolloLink((o, f) => f(o)).split(({ operationName }) => operationName === 'UserInfo', userLink, triggerLink);
+    const link = new ApolloLink((o, f) => f(o)).split(
+      ({ operationName }) => operationName === 'UserInfo',
+      userLink,
+      triggerLink,
+    );
 
     const client = new ApolloClient({
       link,

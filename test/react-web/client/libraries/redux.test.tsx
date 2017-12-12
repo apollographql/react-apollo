@@ -3,7 +3,12 @@ import * as renderer from 'react-test-renderer';
 import { mount, shallow } from 'enzyme';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
-import { reducer as formReducer, reduxForm, formValueSelector, Field } from 'redux-form';
+import {
+  reducer as formReducer,
+  reduxForm,
+  formValueSelector,
+  Field,
+} from 'redux-form';
 import { combineReducers as loopCombine, install } from 'redux-loop';
 import { Map } from 'immutable';
 import { combineReducers as combineImmutable } from 'redux-immutable';
@@ -452,7 +457,12 @@ it('works with redux form to drive queries', done => {
         <form onSubmit={handleSubmit}>
           <div>
             <label>First Name</label>
-            <Field name="firstName" component="input" type="text" placeholder="First Name" />
+            <Field
+              name="firstName"
+              component="input"
+              type="text"
+              placeholder="First Name"
+            />
           </div>
           <button type="submit">Submit</button>
         </form>

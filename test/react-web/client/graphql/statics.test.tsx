@@ -25,7 +25,9 @@ describe('statics', () => {
     @graphql(sampleOperation)
     class ApolloContainer extends React.Component<any, any> {}
 
-    expect((ApolloContainer as any).displayName).toBe('Apollo(ApolloContainer)');
+    expect((ApolloContainer as any).displayName).toBe(
+      'Apollo(ApolloContainer)',
+    );
   });
 
   it('honors custom display names', () => {

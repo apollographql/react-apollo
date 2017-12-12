@@ -19,7 +19,9 @@ import { ApolloProvider, graphql } from '../../../../../src';
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (
+  ...args: any[]
+) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -238,7 +240,10 @@ describe('[queries] loading', () => {
       `;
       const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
       const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
-      const link = mockSingleLink({ request: { query }, result: { data } }, { request: { query }, result: { data: data2 } });
+      const link = mockSingleLink(
+        { request: { query }, result: { data } },
+        { request: { query }, result: { data: data2 } },
+      );
       const client = new ApolloClient({
         link,
         cache: new Cache({ addTypename: false }),
@@ -333,7 +338,9 @@ describe('[queries] loading', () => {
           if (count === 3) {
             // remounted data after fetch
             expect(props.data.loading).toBe(false);
-            expect(props.data.allPeople.people[0].name).toMatch(/Darth Skywalker - /);
+            expect(props.data.allPeople.people[0].name).toMatch(
+              /Darth Skywalker - /,
+            );
             done();
           }
         } catch (e) {

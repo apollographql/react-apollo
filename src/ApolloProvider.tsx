@@ -11,7 +11,10 @@ export interface ProviderProps<TCache> {
   client: ApolloClient<TCache>;
 }
 
-export default class ApolloProvider<TCache> extends Component<ProviderProps<TCache>, any> {
+export default class ApolloProvider<TCache> extends Component<
+  ProviderProps<TCache>,
+  any
+> {
   static propTypes = {
     client: PropTypes.object.isRequired,
     children: PropTypes.element.isRequired,
@@ -24,7 +27,11 @@ export default class ApolloProvider<TCache> extends Component<ProviderProps<TCac
   constructor(props, context) {
     super(props, context);
 
-    invariant(props.client, 'ApolloClient was not passed a client instance. Make ' + 'sure you pass in your client via the "client" prop.');
+    invariant(
+      props.client,
+      'ApolloClient was not passed a client instance. Make ' +
+        'sure you pass in your client via the "client" prop.',
+    );
   }
 
   getChildContext() {
@@ -34,6 +41,10 @@ export default class ApolloProvider<TCache> extends Component<ProviderProps<TCac
   }
 
   render() {
-    return <QueryRecyclerProvider>{React.Children.only(this.props.children)}</QueryRecyclerProvider>;
+    return (
+      <QueryRecyclerProvider>
+        {React.Children.only(this.props.children)}
+      </QueryRecyclerProvider>
+    );
   }
 }

@@ -63,10 +63,15 @@ describe('shared operations', () => {
         </ApolloProvider>,
       ) as any;
 
-      const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
+      const decorated = TestUtils.findRenderedComponentWithType(
+        tree,
+        Decorated,
+      );
 
       expect(() => (decorated as any).someMethod()).toThrow();
-      expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
+      expect((decorated as any).getWrappedInstance().someMethod()).toEqual(
+        testData,
+      );
       expect((decorated as any).wrappedInstance.someMethod()).toEqual(testData);
 
       const DecoratedWithSkip = withApollo(Container, {
@@ -80,11 +85,18 @@ describe('shared operations', () => {
         </ApolloProvider>,
       ) as any;
 
-      const decoratedWithSkip = TestUtils.findRenderedComponentWithType(treeWithSkip, DecoratedWithSkip);
+      const decoratedWithSkip = TestUtils.findRenderedComponentWithType(
+        treeWithSkip,
+        DecoratedWithSkip,
+      );
 
       expect(() => (decoratedWithSkip as any).someMethod()).toThrow();
-      expect((decoratedWithSkip as any).getWrappedInstance().someMethod()).toEqual(testData);
-      expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(testData);
+      expect(
+        (decoratedWithSkip as any).getWrappedInstance().someMethod(),
+      ).toEqual(testData);
+      expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(
+        testData,
+      );
     });
   });
 
@@ -304,10 +316,14 @@ describe('shared operations', () => {
     const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
 
     expect(() => (decorated as any).someMethod()).toThrow();
-    expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
+    expect((decorated as any).getWrappedInstance().someMethod()).toEqual(
+      testData,
+    );
     expect((decorated as any).wrappedInstance.someMethod()).toEqual(testData);
 
-    const DecoratedWithSkip = graphql(query, { withRef: true, skip: true })(Container);
+    const DecoratedWithSkip = graphql(query, { withRef: true, skip: true })(
+      Container,
+    );
 
     const treeWithSkip = TestUtils.renderIntoDocument(
       <ApolloProvider client={client}>
@@ -315,11 +331,18 @@ describe('shared operations', () => {
       </ApolloProvider>,
     ) as any;
 
-    const decoratedWithSkip = TestUtils.findRenderedComponentWithType(treeWithSkip, DecoratedWithSkip);
+    const decoratedWithSkip = TestUtils.findRenderedComponentWithType(
+      treeWithSkip,
+      DecoratedWithSkip,
+    );
 
     expect(() => (decoratedWithSkip as any).someMethod()).toThrow();
-    expect((decoratedWithSkip as any).getWrappedInstance().someMethod()).toEqual(testData);
-    expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(testData);
+    expect(
+      (decoratedWithSkip as any).getWrappedInstance().someMethod(),
+    ).toEqual(testData);
+    expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(
+      testData,
+    );
   });
 
   it('allows options to take an object', done => {
@@ -404,7 +427,10 @@ describe('shared operations', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const enhanced = compose(graphql(peopleQuery, { name: 'people' }), graphql(shipsQuery, { name: 'ships' }));
+      const enhanced = compose(
+        graphql(peopleQuery, { name: 'people' }),
+        graphql(shipsQuery, { name: 'ships' }),
+      );
 
       const ContainerWithData = enhanced(props => {
         const { people, ships } = props;

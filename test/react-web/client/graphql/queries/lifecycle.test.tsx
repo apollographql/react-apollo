@@ -345,7 +345,12 @@ describe('[queries] lifecycle', () => {
         this.state = { foo: 42 };
       }
       render() {
-        return <Container foo={this.state.foo} changeState={() => this.setState({ foo: 43 })} />;
+        return (
+          <Container
+            foo={this.state.foo}
+            changeState={() => this.setState({ foo: 43 })}
+          />
+        );
       }
     }
 

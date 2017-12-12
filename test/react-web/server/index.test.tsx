@@ -3,9 +3,20 @@ import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import { ApolloLink, Observable } from 'apollo-link';
-import { execute, GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLID } from 'graphql';
+import {
+  execute,
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLList,
+  GraphQLString,
+  GraphQLID,
+} from 'graphql';
 import { graphql, ApolloProvider } from '../../../src';
-import { walkTree, getDataFromTree, renderToStringWithData } from '../../../src';
+import {
+  walkTree,
+  getDataFromTree,
+  renderToStringWithData,
+} from '../../../src';
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
@@ -75,7 +86,9 @@ describe('SSR', () => {
 
       it('functional stateless components', () => {
         let elementCount = 0;
-        const MyComponent = ({ n }) => <div>{_.times(n, i => <span key={i} />)}</div>;
+        const MyComponent = ({ n }) => (
+          <div>{_.times(n, i => <span key={i} />)}</div>
+        );
         walkTree(<MyComponent n={5} />, {}, element => {
           elementCount += 1;
         });
@@ -269,7 +282,9 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>);
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -304,7 +319,9 @@ describe('SSR', () => {
 
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'network-only' },
-      })(({ data }) => <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>);
+      })(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -339,7 +356,9 @@ describe('SSR', () => {
 
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'cache-and-network' },
-      })(({ data }) => <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>);
+      })(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -372,7 +391,9 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>);
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const Page = () => (
         <div>
@@ -431,7 +452,9 @@ describe('SSR', () => {
         skip: ({ data: { loading } }) => loading,
         options: ({ data }) => ({ variables: { id: data.currentUser.id } }),
       });
-      const Component = ({ data }) => <div>{data.loading ? 'loading' : data.user.firstName}</div>;
+      const Component = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.user.firstName}</div>
+      );
       const WrappedComponent = withId(withUser(Component));
 
       const app = (
@@ -499,7 +522,9 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => <div>{data.loading ? 'loading' : data.error}</div>);
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.error}</div>
+      ));
 
       const Page = () => (
         <div>
@@ -547,7 +572,9 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query, { skip: true })(({ data }) => <div>{!data ? 'skipped' : 'dang'}</div>);
+      const WrappedElement = graphql(query, { skip: true })(({ data }) => (
+        <div>{!data ? 'skipped' : 'dang'}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -582,7 +609,9 @@ describe('SSR', () => {
         cache,
       });
 
-      const Element = graphql(query, { name: 'user' })(({ user }) => <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>);
+      const Element = graphql(query, { name: 'user' })(({ user }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -630,7 +659,9 @@ describe('SSR', () => {
         render() {
           const { user } = this.props;
           expect(this.state.thing).toBe(2);
-          return <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>;
+          return (
+            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+          );
         }
       }
 
@@ -644,7 +675,9 @@ describe('SSR', () => {
         .then(() => {
           const initialState = cache.extract();
           expect(initialState).toBeTruthy();
-          expect(initialState['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
+          expect(
+            initialState['$ROOT_QUERY.currentUser({"id":1})'],
+          ).toBeTruthy();
           done();
         })
         .catch(console.error);
@@ -719,7 +752,9 @@ describe('SSR', () => {
           expect(this.state.thing).toBe(2);
           expect(this.state.userId).toBe(id);
           expect(this.state.client).toBe(apolloClient);
-          return <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>;
+          return (
+            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+          );
         }
       }
 
@@ -733,7 +768,9 @@ describe('SSR', () => {
         .then(() => {
           const initialState = apolloClient.cache.extract();
           expect(initialState).toBeTruthy();
-          expect(initialState['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
+          expect(
+            initialState['$ROOT_QUERY.currentUser({"id":1})'],
+          ).toBeTruthy();
           done();
         })
         .catch(console.error);
@@ -764,7 +801,9 @@ describe('SSR', () => {
       const Element = graphql(query, {
         name: 'user',
         options: props => ({ variables: props, ssr: false }),
-      })(({ user }) => <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>);
+      })(({ user }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -819,7 +858,11 @@ describe('SSR', () => {
         graphql(query, {
           name: 'user',
           skip: ({ counter }) => !(counter > 1),
-        })(({ user }) => <div>{!user || user.loading ? 'loading' : user.currentUser.firstName}</div>),
+        })(({ user }) => (
+          <div>
+            {!user || user.loading ? 'loading' : user.currentUser.firstName}
+          </div>
+        )),
       );
 
       const app = (
@@ -890,7 +933,9 @@ describe('SSR', () => {
         },
       });
 
-      const Element = ({ data }) => <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>;
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
 
       const WrappedElement = withQuery(withMutation(Element));
 
@@ -948,7 +993,9 @@ describe('SSR', () => {
       });
 
       const withMutation = graphql(mutation);
-      const Element = ({ data }) => <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>;
+      const Element = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
 
       const WrappedElement = withMutation(withQuery(Element));
 
@@ -983,7 +1030,9 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>);
+      const WrappedElement = graphql(query)(({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       class MyRootContainer extends React.Component<any, any> {
         constructor(props) {
@@ -1023,7 +1072,9 @@ describe('SSR', () => {
     // XXX break into smaller tests
     // XXX mock all queries
     it('should work on a non trivial example', function() {
-      const planetMap = new Map([['Planet:1', { id: 'Planet:1', name: 'Tatooine' }]]);
+      const planetMap = new Map([
+        ['Planet:1', { id: 'Planet:1', name: 'Tatooine' }],
+      ]);
 
       const shipMap = new Map([
         [
@@ -1108,7 +1159,14 @@ describe('SSR', () => {
       const apolloClient = new ApolloClient({
         link: new ApolloLink(config => {
           return new Observable(observer => {
-            execute(Schema, config.query, null, null, config.variables, config.operationName)
+            execute(
+              Schema,
+              config.query,
+              null,
+              null,
+              config.variables,
+              config.operationName,
+            )
               .then(result => {
                 observer.next(result);
                 observer.complete();
@@ -1209,7 +1267,9 @@ describe('SSR', () => {
           return (
             <div>
               <h1>Planets</h1>
-              {data.allPlanets.map((planet, key) => <div key={key}>{planet.name}</div>)}
+              {data.allPlanets.map((planet, key) => (
+                <div key={key}>{planet.name}</div>
+              ))}
             </div>
           );
         }

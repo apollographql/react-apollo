@@ -20,7 +20,9 @@ import { ApolloProvider, graphql } from '../../../../../src';
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (...args: any[]) => {
+const wrap = (done: Function, cb: (...args: any[]) => any) => (
+  ...args: any[]
+) => {
   try {
     return cb(...args);
   } catch (e) {
@@ -472,7 +474,12 @@ describe('[queries] skip', () => {
         this.state = { skip: false };
       }
       render() {
-        return <Container skip={this.state.skip} setSkip={skip => this.setState({ skip })} />;
+        return (
+          <Container
+            skip={this.state.skip}
+            setSkip={skip => this.setState({ skip })}
+          />
+        );
       }
     }
 
@@ -546,7 +553,13 @@ describe('[queries] skip', () => {
         this.state = { skip: false, first: 1 };
       }
       render() {
-        return <Container skip={this.state.skip} first={this.state.first} setState={state => this.setState(state)} />;
+        return (
+          <Container
+            skip={this.state.skip}
+            first={this.state.first}
+            setState={state => this.setState(state)}
+          />
+        );
       }
     }
 
@@ -625,7 +638,12 @@ describe('[queries] skip', () => {
         this.state = { skip: false };
       }
       render() {
-        return <Container skip={this.state.skip} setSkip={skip => this.setState({ skip })} />;
+        return (
+          <Container
+            skip={this.state.skip}
+            setSkip={skip => this.setState({ skip })}
+          />
+        );
       }
     }
 

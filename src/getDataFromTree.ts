@@ -25,7 +25,11 @@ export interface QueryResult<Cache> {
 export function walkTree<Cache>(
   element: ReactElement<any>,
   context: Context<Cache>,
-  visitor: (element: ReactElement<any>, instance: any, context: Context<Cache>) => boolean | void,
+  visitor: (
+    element: ReactElement<any>,
+    instance: any,
+    context: Context<Cache>,
+  ) => boolean | void,
 ) {
   if (Array.isArray(element)) {
     element.forEach(item => walkTree(item, context, visitor));
@@ -139,7 +143,11 @@ function getQueriesFromTree<Cache>(
 }
 
 // XXX component Cache
-export function getDataFromTree(rootElement: ReactElement<any>, rootContext: any = {}, fetchRoot: boolean = true): Promise<void> {
+export function getDataFromTree(
+  rootElement: ReactElement<any>,
+  rootContext: any = {},
+  fetchRoot: boolean = true,
+): Promise<void> {
   let queries = getQueriesFromTree({ rootElement, rootContext }, fetchRoot);
 
   // no queries found, nothing to do
@@ -149,14 +157,23 @@ export function getDataFromTree(rootElement: ReactElement<any>, rootContext: any
   // wait on each query that we found, re-rendering the subtree when it's done
   const mappedQueries = queries.map(({ query, element, context }) => {
     // we've just grabbed the query for element, so don't try and get it again
-    return query.then(_ => getDataFromTree(element, context, false)).catch(e => errors.push(e));
+    return query
+      .then(_ => getDataFromTree(element, context, false))
+      .catch(e => errors.push(e));
   });
 
   // Run all queries. If there are errors, still wait for all queries to execute
   // so the caller can ignore them if they wish. See https://github.com/apollographql/react-apollo/pull/488#issuecomment-284415525
   return Promise.all(mappedQueries).then(_ => {
     if (errors.length > 0) {
-      const error = errors.length === 1 ? errors[0] : new Error(`${errors.length} errors were thrown when executing your GraphQL queries.`);
+      const error =
+        errors.length === 1
+          ? errors[0]
+          : new Error(
+              `${
+                errors.length
+              } errors were thrown when executing your GraphQL queries.`,
+            );
       error.queryErrors = errors;
       throw error;
     }

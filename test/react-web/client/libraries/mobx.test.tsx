@@ -68,7 +68,9 @@ describe('mobx integration', () => {
                 expect(this.props.appState.first).toEqual(1);
                 expect(this.props.data.loading).toEqual(false);
                 expect(this.props.data.allPeople).toEqual(data.allPeople);
-                this.props.data.refetch({ first: this.props.appState.first }).catch(reject);
+                this.props.data
+                  .refetch({ first: this.props.appState.first })
+                  .catch(reject);
                 break;
               case 2:
                 expect(this.props.appState.first).toEqual(1);
