@@ -1,17 +1,16 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
 import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, ChildProps, graphql } from '../../../../../src';
+import {
+  ApolloProvider,
+  ChildProps,
+  graphql,
+  OptionProps,
+} from '../../../../../src';
 import '../../../../setup/toEqualWithoutSymbol';
 
 declare function require(name: string);
@@ -56,8 +55,12 @@ describe('[queries] api', () => {
     let hasRefetched,
       count = 0;
 
-    type Props = {};
-    type Data = {};
+    interface Props {
+      first: number;
+    }
+    interface Data {
+      allPeople: { people: [{ name: string }] };
+    }
 
     @graphql<Props, Data>(query)
     class Container extends React.Component<ChildProps<Props, Data>> {
@@ -65,7 +68,7 @@ describe('[queries] api', () => {
         expect(this.props.data.refetch).toBeTruthy();
         expect(this.props.data.refetch instanceof Function).toBe(true);
       }
-      componentWillReceiveProps({ data }) {
+      componentWillReceiveProps({ data }: ChildProps<Props, Data>) {
         try {
           if (count === 0) expect(data.loading).toBe(false); // first data
           if (count === 1) expect(data.loading).toBe(true); // first refetch
@@ -95,7 +98,7 @@ describe('[queries] api', () => {
         }
       }
       render() {
-        return null;
+        return <div>{this.props.first}</div>;
       }
     }
 
@@ -116,19 +119,19 @@ describe('[queries] api', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
+    // example of loose typing
     @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
+    class Container extends React.Component<any> {
+      componentWillReceiveProps({ data }: OptionProps) {
         // tslint:disable-line
         expect(data.subscribeToMore).toBeTruthy();
         expect(data.subscribeToMore instanceof Function).toBe(true);
@@ -172,12 +175,12 @@ describe('[queries] api', () => {
 
     let count = 0;
     @graphql(query, { options: () => ({ variables }) })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillMount() {
         expect(this.props.data.fetchMore).toBeTruthy();
         expect(this.props.data.fetchMore instanceof Function).toBe(true);
       }
-      componentWillReceiveProps = wrap(done, props => {
+      componentWillReceiveProps(props: OptionProps) {
         if (count === 0) {
           expect(props.data.fetchMore).toBeTruthy();
           expect(props.data.fetchMore instanceof Function).toBe(true);
@@ -210,7 +213,8 @@ describe('[queries] api', () => {
           throw new Error('should not reach this point');
         }
         count++;
-      });
+        done();
+      }
       render() {
         return null;
       }
@@ -252,8 +256,18 @@ describe('[queries] api', () => {
     });
 
     let isUpdated = false;
-    @graphql(query, {
-      props({ data: { loading, allPeople, fetchMore } }) {
+
+    interface Props {}
+    interface Data {
+      allPeople: {
+        cursor: any;
+        people: [{ name: string }];
+      };
+    }
+    @graphql<Props, Data>(query, {
+      props({
+        data: { loading, allPeople, fetchMore },
+      }: ChildProps<Props, Data>) {
         if (loading) return { loading };
         const { cursor, people } = allPeople;
         return {
@@ -262,7 +276,7 @@ describe('[queries] api', () => {
             fetchMore({
               variables: { cursor },
               updateQuery(prev, { fetchMoreResult }) {
-                const { allPeople: { cursor, people } } = fetchMoreResult;
+                const { allPeople: { cursor, people } } = fetchMoreResult; // tslint:disable-line:no-shadowed-variable
                 return {
                   allPeople: {
                     cursor,
@@ -274,7 +288,7 @@ describe('[queries] api', () => {
         };
       },
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps(props) {
         if (props.loading) return;
 

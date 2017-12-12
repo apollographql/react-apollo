@@ -25,28 +25,28 @@ const historyMutation = gql`
   }
 `;
 
-type Data = {
+interface Data {
   history: Record<any, any>[];
-};
+}
 
-type Mutation = {
+interface Mutation {
   updateHistory?: MutationFunc<MutationPayload, MutationInput>;
-};
+}
 
-type MutationPayload = {
+interface MutationPayload {
   updateHistory: Record<any, any>[];
-};
+}
 
-type MutationInput = {
+interface MutationInput {
   input: {
     id: string;
     newDelta: string;
   };
-};
+}
 
-type Props = {
+interface Props {
   solutionId: string;
-};
+}
 
 // standard wrapping
 const withHistory = graphql<Props, Data>(historyQuery, {

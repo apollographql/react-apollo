@@ -13,6 +13,10 @@ import ApolloClient, {
 // import { PureQueryOptions } from 'apollo-client/core/types';
 // import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
+export type OperationVariables = {
+  [key: string]: any;
+};
+
 export interface MutationOpts<TVariables = OperationVariables> {
   variables?: TVariables;
   optimisticResponse?: Object;
@@ -55,7 +59,11 @@ export type MutationFunc<TResult, TVariables = OperationVariables> = (
   opts: MutationOpts<TVariables>,
 ) => Promise<ApolloQueryResult<TResult>>;
 
-export interface OptionProps<TProps, TResult, TVariables = OperationVariables> {
+export interface OptionProps<
+  TProps = any,
+  TResult = any,
+  TVariables = OperationVariables
+> {
   ownProps: TProps;
   data?: QueryProps<TVariables> & TResult;
   mutate?: MutationFunc<TResult, TVariables>;
@@ -72,10 +80,6 @@ export type ChildProps<
 
 export type NamedProps<TProps, R> = TProps & {
   ownProps: R;
-};
-
-export type OperationVariables = {
-  [key: string]: any;
 };
 
 export interface OperationOption<
