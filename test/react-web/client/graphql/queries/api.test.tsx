@@ -13,8 +13,6 @@ import {
 } from '../../../../../src';
 import '../../../../setup/toEqualWithoutSymbol';
 
-declare function require(name: string);
-
 // XXX: this is also defined in apollo-client
 // I'm not sure why mocha doesn't provide something like this, you can't
 // always use promises
@@ -288,7 +286,7 @@ describe('[queries] api', () => {
         };
       },
     })
-    class Container extends React.Component<any> {
+    class Container extends React.Component<ChildProps<Props, Data>> {
       componentWillReceiveProps(props) {
         if (props.loading) return;
 
@@ -299,7 +297,7 @@ describe('[queries] api', () => {
         }
 
         isUpdated = true;
-        expect(props.people).toEqual(data1.allPeople.people);
+        expect(props.people).toEqualWithoutSymbol(data1.allPeople.people);
         props.getMorePeople();
       }
       render() {
