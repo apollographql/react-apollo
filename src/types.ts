@@ -69,14 +69,21 @@ export interface OptionProps<
   mutate?: MutationFunc<TResult, TVariables>;
 }
 
+// allow usage individually for simple components
+export interface DataProps<TResult, TVariables = OperationVariables> {
+  data?: QueryProps<TVariables> & Partial<TResult>;
+}
+
+// allow usage individually for simple components
+export interface MutateProps<TResult, TVariables = OperationVariables> {
+  mutate?: MutationFunc<TResult, TVariables>;
+}
+
 export type ChildProps<
   TProps,
   TResult,
   TVariables = OperationVariables
-> = TProps & {
-  data?: QueryProps<TVariables> & Partial<TResult>;
-  mutate?: MutationFunc<TResult, TVariables>;
-};
+> = TProps & DataProps<TResult, TVariables> & MutateProps<TResult, TVariables>;
 
 export type NamedProps<TProps, R> = TProps & {
   ownProps: R;

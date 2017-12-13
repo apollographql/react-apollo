@@ -40,7 +40,7 @@ describe('[queries] errors', () => {
     });
 
     class ErrorBoundary extends React.Component {
-      componentDidCatch(e, info) {
+      componentDidCatch(e) {
         expect(e.message).toMatch(/bar is not a function/);
         done();
       }
@@ -375,7 +375,7 @@ describe('[queries] errors', () => {
     let count = 0;
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps = props => {
+      componentWillReceiveProps(props) {
         try {
           switch (count++) {
             case 0:
@@ -392,18 +392,20 @@ describe('[queries] errors', () => {
               expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
               done();
               break;
+            default:
+              throw new Error('Unexpected fall through');
           }
         } catch (e) {
           done.fail(e);
         }
-      };
+      }
 
       render() {
         return null;
       }
     }
 
-    const wrapper = renderer.create(
+    renderer.create(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,

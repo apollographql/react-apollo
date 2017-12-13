@@ -1,36 +1,12 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql, ChildProps } from '../../../../../src';
-import { DocumentType } from '../../../../../src/parser';
+import { ApolloProvider, graphql, DataProps } from '../../../../../src';
 import '../../../../setup/toEqualWithoutSymbol';
-
-declare function require(name: string);
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
 
 describe('queries', () => {
   let error;
@@ -63,18 +39,19 @@ describe('queries', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    type ResultData = {
+    interface Data {
       allPeople?: {
         people: { name: string }[];
       };
-    };
+    }
 
-    const ContainerWithData = graphql<ResultData>(query)(({ data }) => {
-      // tslint:disable-line
-      expect(data).toBeTruthy();
-      expect(data.loading).toBe(true);
-      return null;
-    });
+    const ContainerWithData = graphql<any, Data>(query)(
+      ({ data }: DataProps<Data>) => {
+        expect(data).toBeTruthy();
+        expect(data.loading).toBe(true);
+        return null;
+      },
+    );
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -94,11 +71,11 @@ describe('queries', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
     const variables = { first: 1 };
     const link = mockSingleLink({
       request: { query, variables },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
@@ -107,29 +84,25 @@ describe('queries', () => {
 
     // Ensure variable types work correctly here
 
-    type TResult = {
+    interface Data {
       allPeople: {
         people: {
           name: string;
         };
       };
-    };
+    }
 
-    type TVariables = {
+    interface Variables {
       first: number;
-    };
+    }
 
-    const ContainerWithData = graphql<
-      TResult,
-      {},
-      ChildProps<{}, TResult>,
-      TVariables
-    >(query)(({ data }) => {
-      // tslint:disable-line
-      expect(data).toBeTruthy();
-      expect(data.variables).toEqual(variables);
-      return null;
-    });
+    const ContainerWithData = graphql<any, Data, Variables>(query)(
+      ({ data }: DataProps<Data, Variables>) => {
+        expect(data).toBeTruthy();
+        expect(data.variables).toEqual(variables);
+        return null;
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
@@ -442,7 +415,7 @@ describe('queries', () => {
     });
     const Container = graphql(query)(() => null);
     class ErrorBoundary extends React.Component {
-      componentDidCatch(e, info) {
+      componentDidCatch(e) {
         expect(e.name).toMatch(/Invariant Violation/);
         expect(e.message).toMatch(/The operation 'people'/);
         done();
@@ -570,13 +543,13 @@ describe('queries', () => {
     });
 
     @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
+    class Container extends React.Component<any> {
+      componentWillReceiveProps() {
         const queries = client.queryManager.queryStore.getStore();
         const queryIds = Object.keys(queries);
         expect(queryIds.length).toEqual(1);
-        const query = queries[queryIds[0]];
-        expect(query.metadata).toEqual({
+        const queryFirst = queries[queryIds[0]];
+        expect(queryFirst.metadata).toEqual({
           reactComponent: {
             displayName: 'Apollo(Container)',
           },
