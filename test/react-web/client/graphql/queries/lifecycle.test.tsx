@@ -1,24 +1,13 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
 import '../../../../setup/toEqualWithoutSymbol';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import objectWithoutSymbol from '../../../../objectWithoutSymbol';
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import wait from '../../../../setup/wait';
 
 describe('[queries] lifecycle', () => {
   // lifecycle
@@ -56,7 +45,7 @@ describe('[queries] lifecycle', () => {
         fetchPolicy: count === 0 ? 'cache-and-network' : 'cache-first',
       }),
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
@@ -178,7 +167,7 @@ describe('[queries] lifecycle', () => {
     });
 
     @graphql(query, { options: props => ({ variables: props }) })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
@@ -245,7 +234,7 @@ describe('[queries] lifecycle', () => {
     });
 
     @graphql(query)
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
@@ -309,7 +298,7 @@ describe('[queries] lifecycle', () => {
     @graphql(query, {
       options: { variables, notifyOnNetworkStatusChange: false },
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       8;
       componentWillReceiveProps(props) {
         count += 1;
@@ -340,10 +329,7 @@ describe('[queries] lifecycle', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { foo: 42 };
-      }
+      state = { foo: 42 };
       render() {
         return (
           <Container
@@ -394,7 +380,7 @@ describe('[queries] lifecycle', () => {
     @graphql(query, {
       options: { pollInterval: 10, notifyOnNetworkStatusChange: false },
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps(props) {
         if (count === 1) {
           // has data
@@ -509,7 +495,7 @@ describe('[queries] lifecycle', () => {
     }
 
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-    class Query extends React.Component<any, any> {
+    class Query extends React.Component<any> {
       componentDidMount() {
         refetchQuery = () => this.props.data.refetch();
       }
@@ -590,7 +576,7 @@ describe('[queries] lifecycle', () => {
       count = 0;
 
     @graphql(query)
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         count++;
       }

@@ -29,10 +29,9 @@ describe('queries', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
