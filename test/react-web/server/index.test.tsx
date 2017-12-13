@@ -21,10 +21,8 @@ import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { createStore, combineReducers } from 'redux';
 import { connect, Provider } from 'react-redux';
-
 import { mockSingleLink } from '../../../src/test-utils';
 
 describe('SSR', () => {
@@ -466,41 +464,6 @@ describe('SSR', () => {
       return getDataFromTree(app).then(() => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
-      });
-    });
-
-    it('should correctly skip queries (deprecated)', () => {
-      const query = gql`
-        {
-          currentUser {
-            firstName
-          }
-        }
-      `;
-      const data = { currentUser: { firstName: 'James' } };
-      const link = mockSingleLink({
-        request: { query },
-        result: { data },
-        delay: 50,
-      });
-      const apolloClient = new ApolloClient({
-        link,
-        cache: new Cache({ addTypename: false }),
-      });
-
-      const WrappedElement = graphql(query, {
-        options: { skip: true },
-      })(({ data }) => <div>{data ? 'loading' : 'skipped'}</div>);
-
-      const app = (
-        <ApolloProvider client={apolloClient}>
-          <WrappedElement />
-        </ApolloProvider>
-      );
-
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
-        expect(markup).toMatch(/skipped/);
       });
     });
 
