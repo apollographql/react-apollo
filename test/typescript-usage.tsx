@@ -5,7 +5,7 @@
 import * as React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from '../src';
-import { ChildProps, NamedProps, QueryProps, MutationFunc } from '../src';
+import { ChildProps, NamedProps, QueryProps } from '../src';
 
 const historyQuery = gql`
   query history($solutionId: String) {
@@ -16,33 +16,33 @@ const historyQuery = gql`
   }
 `;
 
-const historyMutation = gql`
-  mutation updateHistory($input: updateHistoryMutation) {
-    updateHistory(input: $input) {
-      solutionId
-      delta
-    }
-  }
-`;
+// const historyMutation = gql`
+//   mutation updateHistory($input: updateHistoryMutation) {
+//     updateHistory(input: $input) {
+//       solutionId
+//       delta
+//     }
+//   }
+// `;
 
 interface Data {
   history: Record<any, any>[];
 }
 
-interface Mutation {
-  updateHistory?: MutationFunc<MutationPayload, MutationInput>;
-}
-
-interface MutationPayload {
-  updateHistory: Record<any, any>[];
-}
-
-interface MutationInput {
-  input: {
-    id: string;
-    newDelta: string;
-  };
-}
+// interface Mutation {
+//   updateHistory?: MutationFunc<MutationPayload, MutationInput>;
+// }
+//
+// interface MutationPayload {
+//   updateHistory: Record<any, any>[];
+// }
+//
+// interface MutationInput {
+//   input: {
+//     id: string;
+//     newDelta: string;
+//   };
+// }
 
 interface Props {
   solutionId: string;
@@ -97,22 +97,22 @@ const HistoryViewUsingName = withHistoryUsingName(HistoryView);
 <HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
 
 // mutation with name
-class UpdateHistoryView extends React.Component<
-  ChildProps<Props & Mutation, MutationPayload>,
-  {}
-> {
-  updateHistory() {
-    this.props.updateHistory({
-      variables: {
-        input: {
-          id: 'historyId',
-          newDelta: 'newDelta',
-        },
-      },
-    });
-  }
-
-  render() {
-    return null;
-  }
-}
+// class UpdateHistoryView extends React.Component<
+//   ChildProps<Props & Mutation, MutationPayload>,
+//   {}
+// > {
+//   updateHistory() {
+//     this.props.updateHistory({
+//       variables: {
+//         input: {
+//           id: 'historyId',
+//           newDelta: 'newDelta',
+//         },
+//       },
+//     });
+//   }
+//
+//   render() {
+//     return null;
+//   }
+// }
