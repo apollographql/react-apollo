@@ -48,6 +48,7 @@ interface Props {
   solutionId: string;
 }
 
+// --------------------------
 // standard wrapping
 const withHistory = graphql<Props, Data>(historyQuery, {
   options: ownProps => ({
@@ -70,6 +71,25 @@ class HistoryView extends React.Component<ChildProps<Props, Data>> {
 const HistoryViewWithData = withHistory(HistoryView);
 <HistoryViewWithData solutionId="foo" />; // tslint:disable-line
 
+// --------------------------
+// stateless function with data
+const HistoryViewSFC = graphql<Props, Data>(historyQuery, {
+  options: ownProps => ({
+    variables: {
+      solutionId: ownProps.solutionId,
+    },
+  }),
+})(props => {
+  if (this.props.data.history.length > 0) {
+    return <div>yay type checking works</div>;
+  } else {
+    return null;
+  }
+});
+
+<HistoryViewSFC solutionId="foo" />; // tslint:disable-line
+
+// --------------------------
 // decorator
 @graphql<Props, Data>(historyQuery)
 class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
@@ -83,6 +103,7 @@ class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
 }
 <DecoratedHistoryView solutionId="foo" />; // tslint:disable-line
 
+// --------------------------
 // with using name
 const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
   name: 'organisationData',
@@ -96,6 +117,7 @@ const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
 const HistoryViewUsingName = withHistoryUsingName(HistoryView);
 <HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
 
+// --------------------------
 // mutation with name
 // class UpdateHistoryView extends React.Component<
 //   ChildProps<Props & Mutation, MutationPayload>,
