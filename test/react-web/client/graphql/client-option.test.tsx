@@ -1,14 +1,13 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 import { ObservableQueryRecycler } from '../../../../src/queryRecycler';
+import '../../../setup/toEqualWithoutSymbol';
 
 describe('client option', () => {
   it('renders with client from options', () => {
@@ -109,7 +108,7 @@ describe('client option', () => {
       componentWillReceiveProps({ data }) {
         // tslint:disable-line
         expect(data.loading).toBeFalsy(); // first data
-        expect(data.allPeople).toMatchObject({
+        expect(data.allPeople).toEqualWithoutSymbol({
           people: [{ name: 'Luke Skywalker' }],
         });
         done();
@@ -146,8 +145,6 @@ describe('client option', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    let hasRefetched,
-      count = 0;
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {

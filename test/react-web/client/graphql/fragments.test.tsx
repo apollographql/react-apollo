@@ -1,14 +1,11 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 import '../../../setup/toEqualWithoutSymbol';
-
-declare function require(name: string);
 
 describe('fragments', () => {
   // XXX in a later version, we should support this for composition
@@ -20,10 +17,12 @@ describe('fragments', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -35,8 +34,9 @@ describe('fragments', () => {
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(props) {
           expect(props.data.loading).toBeFalsy();
-          expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
-          done();
+          expect(props.data.allPeople).toEqualWithoutSymbol(
+            expectedData.allPeople,
+          );
         }
         render() {
           return null;
