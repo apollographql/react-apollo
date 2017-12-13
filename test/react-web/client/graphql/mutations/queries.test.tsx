@@ -1,15 +1,11 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import assign = require('object-assign');
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql, compose } from '../../../../../src';
 import '../../../../setup/toEqualWithoutSymbol';
-
-declare function require(name: string);
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
@@ -114,7 +110,7 @@ describe('[mutations] query integration', () => {
         const originalList = previousQueryResult.todo_list;
         const newTask = mutationResult.data.createTodo;
         return {
-          todo_list: assign(originalList, {
+          todo_list: Object.assign(originalList, {
             tasks: [...originalList.tasks, newTask],
           }),
         };

@@ -1,15 +1,11 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import assign = require('object-assign');
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 import '../../../../setup/toEqualWithoutSymbol';
-
-declare function require(name: string);
 
 describe('[mutations] update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing
@@ -66,7 +62,7 @@ describe('[mutations] update queries', () => {
           const originalList = previousQueryResult.todo_list;
           const newTask = mutationResult.data.createTodo;
           return {
-            todo_list: assign(originalList, {
+            todo_list: Object.assign(originalList, {
               tasks: [...originalList.tasks, newTask],
             }),
           };
@@ -386,7 +382,7 @@ describe('[mutations] update queries', () => {
         }
       }
 
-      const wrapperMutation = renderer.create(
+      renderer.create(
         <ApolloProvider client={client}>
           <Mutation />
         </ApolloProvider>,
@@ -405,7 +401,7 @@ describe('[mutations] update queries', () => {
           .then((...args) => {
             setTimeout(() => {
               // This re-renders the recycled query that should have been refetched while recycled.
-              const wrapperQuery2 = renderer.create(
+              renderer.create(
                 <ApolloProvider client={client}>
                   <Query id="123" />
                 </ApolloProvider>,

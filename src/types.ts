@@ -53,7 +53,7 @@ export interface QueryProps<TVariables = OperationVariables> {
   ) => void;
 }
 
-export type MutationFunc<TResult, TVariables = OperationVariables> = (
+export type MutationFunc<TResult = any, TVariables = OperationVariables> = (
   opts: MutationOpts<TVariables>,
 ) => Promise<ApolloQueryResult<TResult>>;
 
@@ -73,13 +73,13 @@ export interface DataProps<TResult, TVariables = OperationVariables> {
 }
 
 // export to allow usage individually for simple components
-export interface MutateProps<TResult, TVariables = OperationVariables> {
+export interface MutateProps<TResult = any, TVariables = OperationVariables> {
   mutate?: MutationFunc<TResult, TVariables>;
 }
 
 export type ChildProps<
-  TProps,
-  TResult,
+  TProps = {},
+  TResult = {},
   TVariables = OperationVariables
 > = TProps & DataProps<TResult, TVariables> & MutateProps<TResult, TVariables>;
 
