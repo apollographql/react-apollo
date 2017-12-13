@@ -441,8 +441,8 @@ export default function graphql<
           const clashingKeys = Object.keys(observableQueryFields(results.data));
           invariant(
             clashingKeys.length === 0,
-            `the result of the '${graphQLDisplayName}' operation contains keys that ` +
-              `conflict with the return object.` +
+            `the result of the '${graphQLDisplayName}' operation contains ` +
+              `keys that conflict with the return object.` +
               clashingKeys.map(k => `'${k}'`).join(', ') +
               ` not allowed.`,
           );
