@@ -49,10 +49,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqual(data1.allPeople);
+          expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
+          expect(data.allPeople).toEqualWithoutSymbol(data2.allPeople);
           done();
         }
       }
@@ -171,10 +171,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqual(data1.allPeople);
+          expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
+          expect(data.allPeople).toEqualWithoutSymbol(data2.allPeople);
           done();
         }
       }
@@ -238,10 +238,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqual(data1.allPeople);
+          expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
+          expect(data.allPeople).toEqualWithoutSymbol(data2.allPeople);
           done();
         }
       }
@@ -554,27 +554,28 @@ describe('[queries] lifecycle', () => {
     const data2 = { user: { name: 'Luke Skywalker' } };
 
     const link = mockSingleLink({
-      request: { query, variables, delay: 10 },
+      request: { query, variables },
       result: { data: data2 },
+      delay: 10,
     });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-      // prefill the store (like SSR would)
-      initialState: {
-        apollo: {
-          data: {
-            ROOT_QUERY: {
-              'user({"first":1})': null,
-            },
+    const initialState = {
+      apollo: {
+        data: {
+          ROOT_QUERY: {
+            'user({"first":1})': null,
           },
         },
       },
+    };
+
+    const client = new ApolloClient({
+      link,
+      // prefill the store (like SSR would)
+      // @see https://github.com/zeit/next.js/blob/master/examples/with-apollo/lib/initApollo.js
+      cache: new Cache({ addTypename: false }).restore(initialState),
     });
 
-    let hasRefetched,
-      count = 0;
-
+    let count = 0;
     @graphql(query)
     class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
