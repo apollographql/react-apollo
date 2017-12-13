@@ -14,8 +14,7 @@
     "removeComments": true,
     "jsx": "react",
     "skipLibCheck": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedLocals": true
   },
   "include": ["./typings/**/*", "./src/**/*", "./test/**/*"],
   "exclude": ["./node_modules", "./dist", "./lib"]
