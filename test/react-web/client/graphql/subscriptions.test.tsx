@@ -5,14 +5,14 @@ import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, ChildProps, graphql } from '../../../../src';
 import '../../../setup/toEqualWithoutSymbol';
 
 describe('subscriptions', () => {
   let error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {});
+    console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;
@@ -42,13 +42,19 @@ describe('subscriptions', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(({ data }) => {
-      // tslint:disable-line
-      expect(data).toBeTruthy();
-      expect(data.user).toBeFalsy();
-      expect(data.loading).toBeTruthy();
-      return null;
-    });
+    interface Props {}
+    interface Data {
+      user: { name: string };
+    }
+
+    const ContainerWithData = graphql<Props, Data>(query)(
+      ({ data }: ChildProps<Props, Data>) => {
+        expect(data).toBeTruthy();
+        expect(data.user).toBeFalsy();
+        expect(data.loading).toBeTruthy();
+        return null;
+      },
+    );
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -73,12 +79,18 @@ describe('subscriptions', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(({ data }) => {
-      // tslint:disable-line
-      expect(data).toBeTruthy();
-      expect(data.variables).toEqual(variables);
-      return null;
-    });
+    interface Props {}
+    interface Data {
+      user: { name: string };
+    }
+
+    const ContainerWithData = graphql<Props, Data>(query)(
+      ({ data }: ChildProps<Props, Data>) => {
+        expect(data).toBeTruthy();
+        expect(data.variables).toEqual(variables);
+        return null;
+      },
+    );
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -151,12 +163,15 @@ describe('subscriptions', () => {
         expect(this.props.data.loading).toBeTruthy();
       }
       componentWillReceiveProps({ data: { loading, user } }) {
-        expect(loading.toBeFalsy());
-        if (count === 0) expect(user).toEqual(results[0].result.data.user);
-        if (count === 1) expect(user).toEqual(results[1].result.data.user);
-        if (count === 2) expect(user).toEqual(results[2].result.data.user);
+        expect(loading).toBeFalsy();
+        if (count === 0)
+          expect(user).toEqualWithoutSymbol(results[0].result.data.user);
+        if (count === 1)
+          expect(user).toEqualWithoutSymbol(results[1].result.data.user);
+        if (count === 2)
+          expect(user).toEqualWithoutSymbol(results[2].result.data.user);
         if (count === 3) {
-          expect(user).toEqual(results[3].result.data.user);
+          expect(user).toEqualWithoutSymbol(results[3].result.data.user);
           output.unmount();
           done();
         }
@@ -194,7 +209,7 @@ describe('subscriptions', () => {
       delay: 10,
     }));
 
-    //These are the results fro the resubscription
+    //These are the results from the resubscription
     const results3 = [
       'NewUser: 1',
       'NewUser: 2',
@@ -217,6 +232,9 @@ describe('subscriptions', () => {
         trigger
       }
     `;
+    interface TriggerData {
+      trigger: any;
+    }
 
     const userLink = new MockSubscriptionLink();
     const triggerLink = new MockSubscriptionLink();
@@ -232,10 +250,9 @@ describe('subscriptions', () => {
     });
 
     let count = 0;
-    let unsubscribed = false;
     let output;
     @graphql(triggerQuery)
-    @graphql(query, {
+    @graphql<{}, TriggerData>(query, {
       shouldResubscribe: (props, nextProps) => {
         return nextProps.data.trigger === 'trigger resubscribe';
       },

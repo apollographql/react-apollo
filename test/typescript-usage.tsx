@@ -26,7 +26,12 @@ const historyQuery = gql`
 // `;
 
 interface Data {
-  history: Record<any, any>[];
+  history: [
+    {
+      solutionId: string;
+      delta: number;
+    }
+  ];
 }
 
 // interface Mutation {
