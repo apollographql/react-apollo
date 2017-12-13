@@ -29,8 +29,8 @@
     "lint": "tslint 'src/*.ts*' --project tsconfig.json",
     "lint-staged": "lint-staged",
     "lint-fix":
-      "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
-    "prettier": "prettier --config .prettierrc --write \"{src,test}/**/*.ts*\"",
+      "npm run pretty && tslint 'src/*.ts*' --project tsconfig.json --fix",
+    "pretty": "prettier --config .prettierrc --write \"{src,test}/**/*.ts*\"",
     "postcompile": "npm run bundle",
     "prepublishOnly": "npm run compile"
   },
@@ -41,7 +41,7 @@
     }
   ],
   "lint-staged": {
-    "*.*": ["prettier", "git add"]
+    "*.*": ["prettier --config .prettierrc --write", "git add"]
   },
   "pre-commit": "lint-staged",
   "repository": {

@@ -125,7 +125,7 @@ describe('[queries] errors', () => {
         // tslint:disable-line
         expect(data.error).toBeTruthy();
         expect(data.error.networkError).toBeTruthy();
-        // expect(data.error instanceof ApolloError).toBe(true);
+        // expect(data.error instanceof ApolloError).toBeTruthy();
         done();
       }
       render() {
@@ -383,11 +383,11 @@ describe('[queries] errors', () => {
               props.data.refetch();
               break;
             case 1:
-              expect(props.data.loading).toBe(true);
+              expect(props.data.loading).toBeTruthy();
               expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
               break;
             case 2:
-              expect(props.data.loading).toBe(false);
+              expect(props.data.loading).toBeFalsy();
               expect(props.data.error).toBeTruthy();
               expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
               done();

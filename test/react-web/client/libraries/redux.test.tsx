@@ -444,7 +444,7 @@ it('works with redux form to drive queries', done => {
       expect(firstName).toBe(variables.name);
       if (nextProps.data.loading || !nextProps.data.allPeople) return;
 
-      expect(nextProps.data.loading).toBe(false);
+      expect(nextProps.data.loading).toBeFalsy();
       expect(nextProps.data.allPeople).toEqual(data.allPeople);
       done();
       wrapper.unmount();

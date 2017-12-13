@@ -141,10 +141,10 @@ describe('shared operations', () => {
       render() {
         const { people, ships } = this.props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(ships).toBeTruthy();
-        expect(ships.loading).toBe(true);
+        expect(ships.loading).toBeTruthy();
         return null;
       }
     }
@@ -196,10 +196,10 @@ describe('shared operations', () => {
       withShips(props => {
         const { people, ships } = props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(ships).toBeTruthy();
-        expect(ships.loading).toBe(true);
+        expect(ships.loading).toBeTruthy();
         return null;
       }),
     );
@@ -258,7 +258,7 @@ describe('shared operations', () => {
       render() {
         const { people, addPerson } = this.props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(addPerson).toBeTruthy();
         return null;
@@ -435,10 +435,10 @@ describe('shared operations', () => {
       const ContainerWithData = enhanced(props => {
         const { people, ships } = props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(ships).toBeTruthy();
-        expect(ships.loading).toBe(true);
+        expect(ships.loading).toBeTruthy();
         return null;
       });
 

@@ -98,7 +98,7 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>,
     );
 
-    expect(wrapper.contains(<div className="unique" />)).toBe(true);
+    expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
   it('should support the 2.0', () => {
@@ -108,7 +108,7 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>,
     );
 
-    expect(wrapper.contains(<div className="unique" />)).toBe(true);
+    expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
   it('should require a client', () => {
@@ -136,7 +136,7 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>,
     );
 
-    expect(wrapper.contains(<div className="unique" />)).toBe(true);
+    expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
   it('should throw if rendered without a child component', () => {

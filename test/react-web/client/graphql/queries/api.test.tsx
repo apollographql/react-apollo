@@ -51,20 +51,20 @@ describe('[queries] api', () => {
     class Container extends React.Component<ChildProps<Props, Data>> {
       componentWillMount() {
         expect(this.props.data.refetch).toBeTruthy();
-        expect(this.props.data.refetch instanceof Function).toBe(true);
+        expect(this.props.data.refetch instanceof Function).toBeTruthy();
       }
       componentWillReceiveProps({ data }: ChildProps<Props, Data>) {
         try {
-          if (count === 0) expect(data.loading).toBe(false); // first data
-          if (count === 1) expect(data.loading).toBe(true); // first refetch
-          if (count === 2) expect(data.loading).toBe(false); // second data
-          if (count === 3) expect(data.loading).toBe(true); // second refetch
-          if (count === 4) expect(data.loading).toBe(false); // third data
+          if (count === 0) expect(data.loading).toBeFalsy(); // first data
+          if (count === 1) expect(data.loading).toBeTruthy(); // first refetch
+          if (count === 2) expect(data.loading).toBeFalsy(); // second data
+          if (count === 3) expect(data.loading).toBeTruthy(); // second refetch
+          if (count === 4) expect(data.loading).toBeFalsy(); // third data
           count++;
           if (hasRefetched) return;
           hasRefetched = true;
           expect(data.refetch).toBeTruthy();
-          expect(data.refetch instanceof Function).toBe(true);
+          expect(data.refetch instanceof Function).toBeTruthy();
           data
             .refetch()
             .then(result => {
@@ -119,7 +119,7 @@ describe('[queries] api', () => {
       componentWillReceiveProps({ data }: OptionProps) {
         // tslint:disable-line
         expect(data.subscribeToMore).toBeTruthy();
-        expect(data.subscribeToMore instanceof Function).toBe(true);
+        expect(data.subscribeToMore instanceof Function).toBeTruthy();
         done();
       }
       render() {
@@ -163,12 +163,12 @@ describe('[queries] api', () => {
     class Container extends React.Component<any> {
       componentWillMount() {
         expect(this.props.data.fetchMore).toBeTruthy();
-        expect(this.props.data.fetchMore instanceof Function).toBe(true);
+        expect(this.props.data.fetchMore instanceof Function).toBeTruthy();
       }
       componentWillReceiveProps(props: OptionProps) {
         if (count === 0) {
           expect(props.data.fetchMore).toBeTruthy();
-          expect(props.data.fetchMore instanceof Function).toBe(true);
+          expect(props.data.fetchMore instanceof Function).toBeTruthy();
           props.data
             .fetchMore({
               variables: { skip: 2 },
@@ -182,14 +182,14 @@ describe('[queries] api', () => {
             })
             .then(
               wrap(done, result => {
-                expect(result.data.allPeople.people).toEqual(
+                expect(result.data.allPeople.people).toEqualWithoutSymbol(
                   data1.allPeople.people,
                 );
               }),
             );
         } else if (count === 1) {
           expect(props.data.variables).toEqualWithoutSymbol(variables);
-          expect(props.data.loading).toBe(false);
+          expect(props.data.loading).toBeFalsy();
           expect(props.data.allPeople.people).toEqualWithoutSymbol(
             data.allPeople.people.concat(data1.allPeople.people),
           );

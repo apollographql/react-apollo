@@ -1,16 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { Component } from 'react';
-
-// import { mount, shallow } from 'enzyme';
-
 // Note: test renderer must be required after react-native.
 import renderer from 'react-test-renderer';
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { ApolloProvider, graphql } from '../../src';
 import { mockSingleLink } from '../../src/test-utils';
+import '../setup/toEqualWithoutSymbol';
 
 describe('App', () => {
   it('renders correctly', () => {
@@ -63,7 +60,7 @@ describe('App', () => {
     class Container extends Component {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople.people.name).toEqual(
+        expect(props.data.allPeople.people.name).toEqualWithoutSymbol(
           data.allPeople.people.name,
         );
         done();
@@ -76,7 +73,7 @@ describe('App', () => {
 
     const ContainerWithData = graphql(query)(Container);
 
-    const output = renderer.create(
+    renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData />
       </ApolloProvider>,

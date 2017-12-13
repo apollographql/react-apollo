@@ -55,12 +55,14 @@ describe('[mutations] query integration', () => {
           },
         };
         this.props.mutate({ optimisticResponse }).then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualWithoutSymbol(data);
           done();
         });
 
         const dataInStore = cache.extract(true);
-        expect(dataInStore['Todo:99']).toEqual(optimisticResponse.createTodo);
+        expect(dataInStore['Todo:99']).toEqualWithoutSymbol(
+          optimisticResponse.createTodo,
+        );
       }
       render() {
         return null;
@@ -154,11 +156,11 @@ describe('[mutations] query integration', () => {
         if (!props.data.todo_list) return;
         if (!props.data.todo_list.tasks.length) {
           props.mutate().then(result => {
-            expect(result.data).toEqual(mutationData);
+            expect(result.data).toEqualWithoutSymbol(mutationData);
           });
 
           const dataInStore = cache.extract(true);
-          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
+          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqualWithoutSymbol(
             optimisticResponse.createTodo,
           );
           return;
@@ -166,11 +168,13 @@ describe('[mutations] query integration', () => {
 
         if (count === 0) {
           count++;
-          expect(props.data.todo_list.tasks).toEqual([
+          expect(props.data.todo_list.tasks).toEqualWithoutSymbol([
             optimisticResponse.createTodo,
           ]);
         } else if (count === 1) {
-          expect(props.data.todo_list.tasks).toEqual([mutationData.createTodo]);
+          expect(props.data.todo_list.tasks).toEqualWithoutSymbol([
+            mutationData.createTodo,
+          ]);
           done();
         }
       }
@@ -266,7 +270,7 @@ describe('[mutations] query integration', () => {
       componentWillReceiveProps(props) {
         if (count === 1) {
           props.mutate().then(result => {
-            expect(result.data).toEqual(mutationData);
+            expect(result.data).toEqualWithoutSymbol(mutationData);
           });
         }
       }

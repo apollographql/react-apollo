@@ -47,7 +47,7 @@ describe('queries', () => {
     const ContainerWithData = graphql<any, Data>(query)(
       ({ data }: DataProps<Data>) => {
         expect(data).toBeTruthy();
-        expect(data.loading).toBe(true);
+        expect(data.loading).toBeTruthy();
         return null;
       },
     );
@@ -152,7 +152,7 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
+        expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }
@@ -199,7 +199,7 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
+        expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         expect(props.data.otherPeople).toEqualWithoutSymbol(data.otherPeople);
         done();
@@ -240,7 +240,7 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
+        expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         expect(props.data.variables).toEqualWithoutSymbol(
           this.props.data.variables,
@@ -299,7 +299,7 @@ describe('queries', () => {
     @graphql(query, options)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
+        expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }
@@ -339,7 +339,7 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
+        expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }
@@ -457,7 +457,7 @@ describe('queries', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
+        expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
       }
       render() {

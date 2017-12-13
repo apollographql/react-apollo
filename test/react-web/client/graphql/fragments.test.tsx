@@ -34,7 +34,7 @@ describe('fragments', () => {
       @graphql(query)
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(props) {
-          expect(props.data.loading).toBe(false);
+          expect(props.data.loading).toBeFalsy();
           expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
           done();
         }
@@ -87,7 +87,7 @@ describe('fragments', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
+        expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
         done();
       }

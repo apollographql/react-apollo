@@ -132,7 +132,7 @@ describe('[mutations] update queries', () => {
           try {
             switch (queryRenderCount++) {
               case 0:
-                expect(this.props.data.loading).toBe(true);
+                expect(this.props.data.loading).toBeTruthy();
                 expect(this.props.data.todo_list).toBeFalsy();
                 break;
               case 1:
@@ -160,7 +160,7 @@ describe('[mutations] update queries', () => {
               case 3:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualWithoutSymbol({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [
@@ -178,7 +178,7 @@ describe('[mutations] update queries', () => {
                 });
                 break;
               case 4:
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualWithoutSymbol({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [
@@ -351,11 +351,11 @@ describe('[mutations] update queries', () => {
           try {
             switch (queryRenderCount++) {
               case 0:
-                expect(this.props.data.loading).toBe(true);
+                expect(this.props.data.loading).toBeTruthy();
                 expect(this.props.data.todo_list).toBeFalsy();
                 break;
               case 1:
-                expect(this.props.data.loading).toBe(false);
+                expect(this.props.data.loading).toBeFalsy();
                 expect(this.props.data.todo_list).toEqualWithoutSymbol({
                   id: '123',
                   title: 'how to apollo',

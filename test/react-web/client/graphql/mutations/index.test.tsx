@@ -163,7 +163,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualWithoutSymbol(data);
           done();
         });
       }
@@ -204,7 +204,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualWithoutSymbol(data);
           done();
         });
       }

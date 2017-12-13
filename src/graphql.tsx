@@ -64,7 +64,6 @@ export default function graphql<
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TResult, TGraphQLVariables> = {},
-  // ): ComponentDecorator<TProps, TChildProps> {
 ) {
   // extract options
   const {

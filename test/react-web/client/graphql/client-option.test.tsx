@@ -108,7 +108,7 @@ describe('client option', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
         // tslint:disable-line
-        expect(data.loading).toBe(false); // first data
+        expect(data.loading).toBeFalsy(); // first data
         expect(data.allPeople).toMatchObject({
           people: [{ name: 'Luke Skywalker' }],
         });
@@ -152,7 +152,7 @@ describe('client option', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
         // tslint:disable-line
-        expect(data.loading).toBe(false); // first data
+        expect(data.loading).toBeFalsy(); // first data
         done();
       }
       render() {

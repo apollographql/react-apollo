@@ -1,41 +1,16 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
 
 describe('[queries] polling', () => {
   let error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {});
+    console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;
@@ -94,10 +69,9 @@ describe('[queries] polling', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
@@ -109,7 +83,7 @@ describe('[queries] polling', () => {
       componentWillReceiveProps({ data }) {
         // tslint:disable-line
         expect(data.stopPolling).toBeTruthy();
-        expect(data.stopPolling instanceof Function).toBe(true);
+        expect(data.stopPolling instanceof Function).toBeTruthy();
         expect(data.stopPolling).not.toThrow();
         done();
       }
@@ -135,24 +109,21 @@ describe('[queries] polling', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
     let wrapper;
-
-    // @graphql(query)
     @graphql(query, { options: { pollInterval: 10 } })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
         // tslint:disable-line
         expect(data.startPolling).toBeTruthy();
-        expect(data.startPolling instanceof Function).toBe(true);
+        expect(data.startPolling instanceof Function).toBeTruthy();
         // XXX this does throw because of no pollInterval
         // expect(data.startPolling).not.toThrow();
         setTimeout(() => {

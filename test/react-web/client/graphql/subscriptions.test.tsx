@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 
-import { ApolloClient, ApolloError } from 'apollo-client';
+import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
@@ -47,7 +47,7 @@ describe('subscriptions', () => {
       // tslint:disable-line
       expect(data).toBeTruthy();
       expect(data.user).toBeFalsy();
-      expect(data.loading).toBe(true);
+      expect(data.loading).toBeTruthy();
       return null;
     });
 
@@ -152,7 +152,7 @@ describe('subscriptions', () => {
         expect(this.props.data.loading).toBeTruthy();
       }
       componentWillReceiveProps({ data: { loading, user } }) {
-        expect(loading).toBeFalsy();
+        expect(loading.toBeFalsy());
         if (count === 0) expect(user).toEqual(results[0].result.data.user);
         if (count === 1) expect(user).toEqual(results[1].result.data.user);
         if (count === 2) expect(user).toEqual(results[2].result.data.user);

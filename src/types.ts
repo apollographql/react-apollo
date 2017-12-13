@@ -34,8 +34,6 @@ export interface QueryOpts<TVariables = OperationVariables> {
   pollInterval?: number;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
-  // deprecated
-  skip?: boolean;
 }
 
 export interface QueryProps<TVariables = OperationVariables> {
@@ -69,12 +67,12 @@ export interface OptionProps<
   mutate?: MutationFunc<TResult, TVariables>;
 }
 
-// allow usage individually for simple components
+// export to allow usage individually for simple components
 export interface DataProps<TResult, TVariables = OperationVariables> {
   data?: QueryProps<TVariables> & Partial<TResult>;
 }
 
-// allow usage individually for simple components
+// export to allow usage individually for simple components
 export interface MutateProps<TResult, TVariables = OperationVariables> {
   mutate?: MutationFunc<TResult, TVariables>;
 }
