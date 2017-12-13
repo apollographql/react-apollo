@@ -1,13 +1,12 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
 import { MockSubscriptionLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
+import '../../../setup/toEqualWithoutSymbol';
 
 describe('subscriptions', () => {
   let error;
@@ -19,12 +18,7 @@ describe('subscriptions', () => {
     console.error = error;
   });
 
-  const results = [
-    'James Baxley',
-    'John Pinkerton',
-    'Sam Claridge',
-    'Ben Coleman',
-  ].map(name => ({
+  const results = ['James Baxley', 'John Pinkerton', 'Sam Claridge', 'Ben Coleman'].map(name => ({
     result: { data: { user: { name } } },
     delay: 10,
   }));
@@ -182,26 +176,13 @@ describe('subscriptions', () => {
   it('resubscribes to a subscription', done => {
     //we make an extra Hoc which will trigger the inner HoC to resubscribe
     //these are the results for the outer subscription
-    const triggerResults = [
-      '0',
-      'trigger resubscribe',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-    ].map(trigger => ({
+    const triggerResults = ['0', 'trigger resubscribe', '3', '4', '5', '6', '7'].map(trigger => ({
       result: { data: { trigger } },
       delay: 10,
     }));
 
     //These are the results fro the resubscription
-    const results3 = [
-      'NewUser: 1',
-      'NewUser: 2',
-      'NewUser: 3',
-      'NewUser: 4',
-    ].map(name => ({
+    const results3 = ['NewUser: 1', 'NewUser: 2', 'NewUser: 3', 'NewUser: 4'].map(name => ({
       result: { data: { user: { name } } },
       delay: 10,
     }));
@@ -249,13 +230,13 @@ describe('subscriptions', () => {
         try {
           // odd counts will be outer wrapper getting subscriptions - ie unchanged
           expect(loading).toBeFalsy();
-          if (count === 0) expect(user).toEqual(results[0].result.data.user);
-          if (count === 1) expect(user).toEqual(results[0].result.data.user);
-          if (count === 2) expect(user).toEqual(results[2].result.data.user);
-          if (count === 3) expect(user).toEqual(results[2].result.data.user);
-          if (count === 4) expect(user).toEqual(results3[2].result.data.user);
+          if (count === 0) expect(user).toEqualWithoutSymbol(results[0].result.data.user);
+          if (count === 1) expect(user).toEqualWithoutSymbol(results[0].result.data.user);
+          if (count === 2) expect(user).toEqualWithoutSymbol(results[2].result.data.user);
+          if (count === 3) expect(user).toEqualWithoutSymbol(results[2].result.data.user);
+          if (count === 4) expect(user).toEqualWithoutSymbol(results3[2].result.data.user);
           if (count === 5) {
-            expect(user).toEqual(results3[2].result.data.user);
+            expect(user).toEqualWithoutSymbol(results3[2].result.data.user);
             output.unmount();
 
             done();
