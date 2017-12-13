@@ -3,13 +3,11 @@ import { mount } from 'enzyme';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 import gql from 'graphql-tag';
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
+import '../../../setup/toEqualWithoutSymbol';
 
 describe('mobx integration', () => {
   class AppState {
@@ -31,14 +29,14 @@ describe('mobx integration', () => {
           }
         }
       `;
-      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
       const variables = { first: 0 };
 
       const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
       const variables2 = { first: 1 };
 
       const link = mockSingleLink(
-        { request: { query, variables }, result: { data } },
+        { request: { query, variables }, result: { data: data1 } },
         { request: { query, variables: variables2 }, result: { data: data2 } },
       );
 
@@ -49,7 +47,11 @@ describe('mobx integration', () => {
 
       let count = 0;
 
-      @graphql(query, {
+      interface Props {
+        appState: AppState;
+      }
+
+      @graphql<Props>(query, {
         options: props => ({ variables: { first: props.appState.first } }),
       })
       @observer
@@ -62,12 +64,16 @@ describe('mobx integration', () => {
                 // XXX update this integration test anyway
                 // expect(this.props.appState.first).toEqual(0);
                 expect(this.props.data.loading).toEqual(false);
-                expect(this.props.data.allPeople).toEqual(data.allPeople);
+                expect(this.props.data.allPeople).toEqualWithoutSymbol(
+                  data1.allPeople,
+                );
                 break;
               case 1:
                 expect(this.props.appState.first).toEqual(1);
                 expect(this.props.data.loading).toEqual(false);
-                expect(this.props.data.allPeople).toEqual(data.allPeople);
+                expect(this.props.data.allPeople).toEqualWithoutSymbol(
+                  data1.allPeople,
+                );
                 this.props.data
                   .refetch({ first: this.props.appState.first })
                   .catch(reject);
@@ -75,12 +81,16 @@ describe('mobx integration', () => {
               case 2:
                 expect(this.props.appState.first).toEqual(1);
                 expect(this.props.data.loading).toEqual(true);
-                expect(this.props.data.allPeople).toEqual(data.allPeople);
+                expect(this.props.data.allPeople).toEqualWithoutSymbol(
+                  data1.allPeople,
+                );
                 break;
               case 3:
                 expect(this.props.appState.first).toEqual(1);
                 expect(this.props.data.loading).toEqual(false);
-                expect(this.props.data.allPeople).toEqual(data2.allPeople);
+                expect(this.props.data.allPeople).toEqualWithoutSymbol(
+                  data2.allPeople,
+                );
                 resolve();
                 break;
               default:
@@ -102,7 +112,7 @@ describe('mobx integration', () => {
         <ApolloProvider client={client}>
           <Container appState={appState} />
         </ApolloProvider>,
-      ) as any;
+      );
 
       setTimeout(() => {
         appState.first += 1;
