@@ -58,12 +58,12 @@ let nextVersion = 0;
 
 export default function graphql<
   TProps = {},
-  TResult = {},
+  TData = {},
   TGraphQLVariables = {},
-  TChildProps = ChildProps<TProps, TResult, TGraphQLVariables>
+  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
 >(
   document: DocumentNode,
-  operationOptions: OperationOption<TProps, TResult, TGraphQLVariables> = {},
+  operationOptions: OperationOption<TProps, TData, TGraphQLVariables> = {},
 ) {
   // extract options
   const {
@@ -313,13 +313,11 @@ export default function graphql<
         return opts;
       }
 
-      calculateResultProps(
-        result: (QueryProps & TResult) | MutationFunc<TResult>,
-      ) {
+      calculateResultProps(result: (QueryProps & TData) | MutationFunc<TData>) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult: OptionProps<TProps & TGraphQLVariables, TResult> = {
+        const newResult: OptionProps<TProps & TGraphQLVariables, TData> = {
           [name]: result,
           ownProps: this.props,
         };
@@ -479,9 +477,7 @@ export default function graphql<
       }
 
       shouldSkip(props = this.props) {
-        return (
-          mapPropsToSkip(props) || (mapPropsToOptions(props) as QueryOpts).skip
-        );
+        return mapPropsToSkip(props);
       }
 
       forceRenderChildren() {
@@ -511,7 +507,7 @@ export default function graphql<
 
         (opts as any).mutation = document;
         return this.getClient(this.props).mutate(opts as any) as Promise<
-          ApolloQueryResult<TResult>
+          ApolloQueryResult<TData>
         >;
       }
 
@@ -584,7 +580,7 @@ export default function graphql<
             };
           }
         }
-        return data as QueryProps & TResult;
+        return data as QueryProps & TData;
       }
 
       render() {
