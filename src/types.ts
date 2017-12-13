@@ -60,16 +60,6 @@ export type MutationFunc<
   opts: MutationOpts<TGraphQLVariables>,
 ) => Promise<ApolloQueryResult<TData>>;
 
-export interface OptionProps<
-  TProps = any,
-  TData = any,
-  TGraphQLVariables = OperationVariables
-> {
-  ownProps: TProps;
-  data?: QueryProps<TGraphQLVariables> & TData;
-  mutate?: MutationFunc<TData, TGraphQLVariables>;
-}
-
 export type DataValue<
   TData,
   TGraphQLVariables = OperationVariables
@@ -114,6 +104,16 @@ export type NamedProps<TProps, R> = TProps & {
   ownProps: R;
 };
 
+export interface OptionProps<
+  TProps = any,
+  TData = any,
+  TGraphQLVariables = OperationVariables
+>
+  extends Partial<DataProps<TData, TGraphQLVariables>>,
+    Partial<MutateProps<TData, TGraphQLVariables>> {
+  ownProps: TProps;
+}
+
 export interface OperationOption<
   TProps,
   TData,
@@ -129,6 +129,9 @@ export interface OperationOption<
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
-  shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
+  shouldResubscribe?: (
+    props: TProps & DataProps<TData, TGraphQLVariables>,
+    nextProps: TProps & DataProps<TData, TGraphQLVariables>,
+  ) => boolean;
   alias?: string;
 }
