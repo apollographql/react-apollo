@@ -12,35 +12,26 @@ import type {
   PureQueryOptions,
   MutationUpdaterFn,
 } from 'apollo-client';
-import type { Store } from 'redux';
 import type { DocumentNode, VariableDefinitionNode } from 'graphql';
-
-import type { Component } from 'react';
-
-import { compose } from 'redux';
 import gql from 'graphql-tag';
+import compose from 'lodash.flowright';
 
 // export everything from apollo-client
 export * from 'apollo-client';
 export { gql, compose };
 
-declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
-
 export interface ProviderProps {
-  store?: Store<*, *>;
   client: ApolloClient;
 }
 
 declare export class ApolloProvider extends React$Component<ProviderProps> {
   childContextTypes: {
-    store: Store<*, *>,
     client: ApolloClient,
   };
   contextTypes: {
-    store: Store<*, *>,
+    client: ApolloClient,
   };
   getChildContext(): {
-    store: Store<*, *>,
     client: ApolloClient,
   };
   render(): React$Element<*>;
@@ -123,7 +114,7 @@ export interface OperationComponent<
   ): React$ComponentType<TOwnProps>;
 }
 
-declare export function graphql<TResult, TProps, TChildProps>(
+declare export function graphql<TProps, TResult, TVariables, TChildProps>(
   document: DocumentNode,
   operationOptions?: OperationOption<TProps, TResult>,
 ): OperationComponent<TResult, TProps, TChildProps>;
@@ -142,7 +133,6 @@ declare export function parser(document: DocumentNode): IDocumentDefinition;
 
 export interface Context {
   client?: ApolloClient;
-  store?: Store<*, *>;
   [key: string]: any;
 }
 
