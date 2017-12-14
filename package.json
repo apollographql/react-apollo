@@ -10,8 +10,9 @@
   "scripts": {
     "analyze":
       "npm run compile && webpack -p --config scripts/webpack.inspect.js",
-    "deploy": "./scripts/deploy.sh",
     "danger": "danger run --verbose",
+    "prepublish": "./scripts/prepare-package.sh",
+    "publish": "cd npm && npm publish",
     "pretest": "npm run lint",
     "test": "npm run compile && jest",
     "testonly": "jest",
@@ -33,8 +34,7 @@
     "lint-staged": "lint-staged",
     "lint-fix":
       "npm run pretty && tslint 'src/*.ts*' --project tsconfig.json --fix",
-    "pretty": "prettier --config .prettierrc --write \"{src,test}/**/*.ts*\"",
-    "prepublishOnly": "npm run compile"
+    "pretty": "prettier --config .prettierrc --write \"{src,test}/**/*.ts*\""
   },
   "bundlesize": [
     {
