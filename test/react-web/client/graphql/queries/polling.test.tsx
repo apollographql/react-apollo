@@ -8,16 +8,12 @@ import { ApolloProvider, graphql } from '../../../../../src';
 
 describe('[queries] polling', () => {
   let error;
-  let originalTimeout;
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
   });
   afterEach(() => {
     console.error = error;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
   });
   // polling
   it('allows a polling query to be created', done => {
@@ -60,7 +56,7 @@ describe('[queries] polling', () => {
       expect(count).toBe(3);
       (wrapper as any).unmount();
       done();
-    }, 100);
+    }, 190);
   });
 
   it('exposes stopPolling as part of the props api', done => {
