@@ -4,7 +4,13 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql, compose } from '../../../../../src';
+import {
+  ApolloProvider,
+  graphql,
+  compose,
+  ChildProps,
+  MutationFunc,
+} from '../../../../../src';
 import '../../../../setup/toEqualWithoutSymbol';
 
 describe('[mutations] query integration', () => {
@@ -397,7 +403,9 @@ describe('[mutations] query integration', () => {
     })(RelatedUIComponent);
 
     let count = 0;
-    class PaymentDetail extends React.Component {
+    class PaymentDetail extends React.Component<
+      ChildProps & { setPlan: MutationFunc }
+    > {
       componentWillReceiveProps(props) {
         if (count === 1) {
           expect(props.billingData.account.currentPlan.name).toBe('Free');

@@ -19,7 +19,7 @@
     "filesize": "npm run compile:browser && bundlesize",
     "flow-typed":
       "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
-    "type-check": "tsc --project tsconfig-test.json && flow check",
+    "type-check": "tsc --project tsconfig.json --noEmit && flow check",
     "compile": "tsc && rimraf lib/src lib/test",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
