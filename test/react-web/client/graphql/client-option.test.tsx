@@ -7,7 +7,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 import { ObservableQueryRecycler } from '../../../../src/queryRecycler';
-import '../../../test-utils/toEqualWithoutSymbol';
+import '../../../test-utils/toEqualJson';
 
 describe('client option', () => {
   it('renders with client from options', () => {
@@ -108,7 +108,7 @@ describe('client option', () => {
       componentWillReceiveProps({ data }) {
         // tslint:disable-line
         expect(data.loading).toBeFalsy(); // first data
-        expect(data.allPeople).toEqualWithoutSymbol({
+        expect(data.allPeople).toEqualJson({
           people: [{ name: 'Luke Skywalker' }],
         });
         done();

@@ -6,7 +6,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql, DataProps } from '../../../../../src';
-import '../../../../test-utils/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualJson';
 
 describe('queries', () => {
   let error;
@@ -153,7 +153,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
         done();
       }
       render() {
@@ -200,8 +200,8 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
-        expect(props.data.otherPeople).toEqualWithoutSymbol(data.otherPeople);
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
+        expect(props.data.otherPeople).toEqualJson(data.otherPeople);
         done();
       }
       render() {
@@ -241,10 +241,8 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
-        expect(props.data.variables).toEqualWithoutSymbol(
-          this.props.data.variables,
-        );
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
+        expect(props.data.variables).toEqualJson(this.props.data.variables);
         done();
       }
       render() {
@@ -300,7 +298,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
         done();
       }
       render() {
@@ -340,7 +338,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
         done();
       }
       render() {
@@ -458,7 +456,7 @@ describe('queries', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
       }
       render() {
         return <div>{this.props.children}</div>;

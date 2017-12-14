@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] updateQuery', () => {
   // updateQuery
@@ -166,7 +166,7 @@ describe('[queries] updateQuery', () => {
       }
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).toEqualWithoutSymbol(data2.allPeople);
+          expect(props.data.allPeople).toEqualJson(data2.allPeople);
           done();
           return;
         } else {
@@ -214,7 +214,7 @@ describe('[queries] updateQuery', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).toEqualWithoutSymbol(data2.allPeople);
+          expect(props.data.allPeople).toEqualJson(data2.allPeople);
           done();
           return;
         } else {

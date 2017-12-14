@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
-import '../../../test-utils/toEqualWithoutSymbol';
+import '../../../test-utils/toEqualJson';
 
 describe('fragments', () => {
   // XXX in a later version, we should support this for composition
@@ -34,9 +34,7 @@ describe('fragments', () => {
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(props) {
           expect(props.data.loading).toBeFalsy();
-          expect(props.data.allPeople).toEqualWithoutSymbol(
-            expectedData.allPeople,
-          );
+          expect(props.data.allPeople).toEqualJson(expectedData.allPeople);
         }
         render() {
           return null;
@@ -88,7 +86,7 @@ describe('fragments', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
         done();
       }
       render() {

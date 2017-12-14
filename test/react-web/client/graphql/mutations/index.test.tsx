@@ -11,7 +11,7 @@ import {
   MutateProps,
   MutationFunc,
 } from '../../../../../src';
-import '../../../../test-utils/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualJson';
 
 describe('[mutations]', () => {
   let error;
@@ -170,7 +170,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqualWithoutSymbol(expectedData);
+          expect(result.data).toEqualJson(expectedData);
           done();
         });
       }
@@ -213,7 +213,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqualWithoutSymbol(expectedData);
+          expect(result.data).toEqualJson(expectedData);
           done();
         });
       }

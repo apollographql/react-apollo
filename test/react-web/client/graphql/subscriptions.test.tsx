@@ -6,7 +6,7 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '../../../../src/test-utils';
 import { ApolloProvider, ChildProps, graphql } from '../../../../src';
-import '../../../test-utils/toEqualWithoutSymbol';
+import '../../../test-utils/toEqualJson';
 
 describe('subscriptions', () => {
   let error;
@@ -164,14 +164,11 @@ describe('subscriptions', () => {
       }
       componentWillReceiveProps({ data: { loading, user } }) {
         expect(loading).toBeFalsy();
-        if (count === 0)
-          expect(user).toEqualWithoutSymbol(results[0].result.data.user);
-        if (count === 1)
-          expect(user).toEqualWithoutSymbol(results[1].result.data.user);
-        if (count === 2)
-          expect(user).toEqualWithoutSymbol(results[2].result.data.user);
+        if (count === 0) expect(user).toEqualJson(results[0].result.data.user);
+        if (count === 1) expect(user).toEqualJson(results[1].result.data.user);
+        if (count === 2) expect(user).toEqualJson(results[2].result.data.user);
         if (count === 3) {
-          expect(user).toEqualWithoutSymbol(results[3].result.data.user);
+          expect(user).toEqualJson(results[3].result.data.user);
           output.unmount();
           done();
         }
@@ -266,17 +263,17 @@ describe('subscriptions', () => {
           // odd counts will be outer wrapper getting subscriptions - ie unchanged
           expect(loading).toBeFalsy();
           if (count === 0)
-            expect(user).toEqualWithoutSymbol(results[0].result.data.user);
+            expect(user).toEqualJson(results[0].result.data.user);
           if (count === 1)
-            expect(user).toEqualWithoutSymbol(results[0].result.data.user);
+            expect(user).toEqualJson(results[0].result.data.user);
           if (count === 2)
-            expect(user).toEqualWithoutSymbol(results[2].result.data.user);
+            expect(user).toEqualJson(results[2].result.data.user);
           if (count === 3)
-            expect(user).toEqualWithoutSymbol(results[2].result.data.user);
+            expect(user).toEqualJson(results[2].result.data.user);
           if (count === 4)
-            expect(user).toEqualWithoutSymbol(results3[2].result.data.user);
+            expect(user).toEqualJson(results3[2].result.data.user);
           if (count === 5) {
-            expect(user).toEqualWithoutSymbol(results3[2].result.data.user);
+            expect(user).toEqualJson(results3[2].result.data.user);
             output.unmount();
 
             done();

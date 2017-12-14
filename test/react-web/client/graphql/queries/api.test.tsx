@@ -10,7 +10,7 @@ import {
   graphql,
   OptionProps,
 } from '../../../../../src';
-import '../../../../test-utils/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualJson';
 import wrap from '../../../../test-utils/wrap';
 
 describe('[queries] api', () => {
@@ -68,12 +68,12 @@ describe('[queries] api', () => {
           data
             .refetch()
             .then(result => {
-              expect(result.data).toEqualWithoutSymbol(data1);
+              expect(result.data).toEqualJson(data1);
               return data
                 .refetch({ first: 2 }) // new variables
                 .then(response => {
-                  expect(response.data).toEqualWithoutSymbol(data1);
-                  expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
+                  expect(response.data).toEqualJson(data1);
+                  expect(data.allPeople).toEqualJson(data1.allPeople);
                   done();
                 });
             })
@@ -182,15 +182,15 @@ describe('[queries] api', () => {
             })
             .then(
               wrap(done, result => {
-                expect(result.data.allPeople.people).toEqualWithoutSymbol(
+                expect(result.data.allPeople.people).toEqualJson(
                   data1.allPeople.people,
                 );
               }),
             );
         } else if (count === 1) {
-          expect(props.data.variables).toEqualWithoutSymbol(variables);
+          expect(props.data.variables).toEqualJson(variables);
           expect(props.data.loading).toBeFalsy();
-          expect(props.data.allPeople.people).toEqualWithoutSymbol(
+          expect(props.data.allPeople.people).toEqualJson(
             data.allPeople.people.concat(data1.allPeople.people),
           );
           done();
@@ -284,7 +284,7 @@ describe('[queries] api', () => {
         }
 
         isUpdated = true;
-        expect(props.people).toEqualWithoutSymbol(data1.allPeople.people);
+        expect(props.people).toEqualJson(data1.allPeople.people);
         props.getMorePeople();
       }
       render() {

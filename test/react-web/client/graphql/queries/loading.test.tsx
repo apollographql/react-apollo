@@ -7,7 +7,7 @@ import { mount } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, DataProps, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] loading', () => {
   // networkStatus / loading
@@ -167,16 +167,12 @@ describe('[queries] loading', () => {
         // variables changed, new query is loading, but old data is still there
         if (count === 1 && nextProps.data.loading) {
           expect(nextProps.data.networkStatus).toBe(2);
-          expect(nextProps.data.allPeople).toEqualWithoutSymbol(
-            data1.allPeople,
-          );
+          expect(nextProps.data.allPeople).toEqualJson(data1.allPeople);
         }
         // query with new variables is loaded
         if (count === 1 && !nextProps.data.loading && this.props.data.loading) {
           expect(nextProps.data.networkStatus).toBe(7);
-          expect(nextProps.data.allPeople).toEqualWithoutSymbol(
-            data2.allPeople,
-          );
+          expect(nextProps.data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -242,14 +238,12 @@ describe('[queries] loading', () => {
             case 1:
               expect(props.data.loading).toBeTruthy();
               expect(props.data.networkStatus).toBe(4);
-              expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               break;
             case 2:
               expect(props.data.loading).toBeFalsy();
               expect(props.data.networkStatus).toBe(7);
-              expect(props.data.allPeople).toEqualWithoutSymbol(
-                data2.allPeople,
-              );
+              expect(props.data.allPeople).toEqualJson(data2.allPeople);
               resolve();
               break;
             default:

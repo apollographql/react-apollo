@@ -1,4 +1,4 @@
-/// <reference path="./toEqualWithoutSymbol.d.ts" />
+/// <reference path="./toEqualJson.d.ts" />
 // @see https://github.com/fluffynuts/polymer-ts-scratch/blob/master/src/specs/test-utils/jasmine-matchers/polymer-matchers.d.ts
 (function() {
   function failWith(message) {
@@ -19,7 +19,7 @@
 
   beforeAll(() => {
     jasmine.addMatchers({
-      toEqualWithoutSymbol: function(): // util: jasmine.MatchersUtil,
+      toEqualJson: function(): // util: jasmine.MatchersUtil,
       // customEqualityTesters: Array<jasmine.CustomEqualityTester>,
       jasmine.CustomMatcher {
         return {

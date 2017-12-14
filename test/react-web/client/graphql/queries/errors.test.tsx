@@ -6,7 +6,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] errors', () => {
   let error;
@@ -189,7 +189,7 @@ describe('[queries] errors', () => {
           // tslint:disable-line
           iteration += 1;
           if (iteration === 1) {
-            expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+            expect(props.data.allPeople).toEqualJson(data.allPeople);
             props.setVar(2);
           } else if (iteration === 2) {
             expect(props.data.loading).toBeTruthy();
@@ -379,17 +379,17 @@ describe('[queries] errors', () => {
         try {
           switch (count++) {
             case 0:
-              expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               props.data.refetch();
               break;
             case 1:
               expect(props.data.loading).toBeTruthy();
-              expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               break;
             case 2:
               expect(props.data.loading).toBeFalsy();
               expect(props.data.error).toBeTruthy();
-              expect(props.data.allPeople).toEqualWithoutSymbol(data.allPeople);
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               done();
               break;
             default:

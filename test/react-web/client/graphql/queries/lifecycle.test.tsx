@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import '../../../../test-utils/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualJson';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 import wait from '../../../../test-utils/wait';
@@ -49,10 +49,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
+          expect(data.allPeople).toEqualJson(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqualWithoutSymbol(data2.allPeople);
+          expect(data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -171,10 +171,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
+          expect(data.allPeople).toEqualJson(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqualWithoutSymbol(data2.allPeople);
+          expect(data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -238,10 +238,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqualWithoutSymbol(data1.allPeople);
+          expect(data.allPeople).toEqualJson(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqualWithoutSymbol(data2.allPeople);
+          expect(data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -306,17 +306,17 @@ describe('[queries] lifecycle', () => {
           if (count === 1) {
             expect(props.foo).toEqual(42);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqualWithoutSymbol(data1.allPeople);
+            expect(props.data.allPeople).toEqualJson(data1.allPeople);
             props.changeState();
           } else if (count === 2) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqualWithoutSymbol(data1.allPeople);
+            expect(props.data.allPeople).toEqualJson(data1.allPeople);
             props.data.refetch();
           } else if (count === 3) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqualWithoutSymbol(data2.allPeople);
+            expect(props.data.allPeople).toEqualJson(data2.allPeople);
             done();
           }
         } catch (e) {
