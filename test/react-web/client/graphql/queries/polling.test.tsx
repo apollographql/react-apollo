@@ -56,7 +56,7 @@ describe('[queries] polling', () => {
       expect(count).toBe(3);
       (wrapper as any).unmount();
       done();
-    }, 190);
+    }, 210); // 0, 75, 150 (next at 225)
   });
 
   it('exposes stopPolling as part of the props api', done => {
