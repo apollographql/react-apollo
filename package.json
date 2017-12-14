@@ -74,13 +74,13 @@
     "transformIgnorePatterns": [
       "<rootDir>/node_modules/(?!(lodash-es|react-native)/)"
     ],
-    "moduleFileExtensions": ["ts", "tsx", "js", "json", "node"],
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow.js",
       "<rootDir>/test/typescript-usage.tsx"
     ],
-    "projects": ["<rootDir>", "<rootDir>/examples/*"],
+    "projects": ["<rootDir>"],
     "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "setupFiles": ["<rootDir>/test/test-utils/setup.ts"]
   },
