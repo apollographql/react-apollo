@@ -11,8 +11,7 @@
     "analyze":
       "npm run compile && webpack -p --config scripts/webpack.inspect.js",
     "danger": "danger run --verbose",
-    "prepublish": "./scripts/prepare-package.sh",
-    "publish": "cd npm && npm publish",
+    "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
     "pretest": "npm run lint",
     "test": "npm run compile && jest",
     "testonly": "jest",
