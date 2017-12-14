@@ -20,7 +20,10 @@
     "flow-typed":
       "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
-    "compile": "tsc && rimraf lib/src lib/test",
+    "precompile": "rimraf lib",
+    "compile":
+      "tsc --project tsconfig.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "postcompile": "npm run bundle",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "compile:browser":
@@ -31,7 +34,6 @@
     "lint-fix":
       "npm run pretty && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "pretty": "prettier --config .prettierrc --write \"{src,test}/**/*.ts*\"",
-    "postcompile": "npm run bundle",
     "prepublishOnly": "npm run compile"
   },
   "bundlesize": [
