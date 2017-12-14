@@ -167,12 +167,16 @@ describe('[queries] loading', () => {
         // variables changed, new query is loading, but old data is still there
         if (count === 1 && nextProps.data.loading) {
           expect(nextProps.data.networkStatus).toBe(2);
-          expect(nextProps.data.allPeople).toEqual(data1.allPeople);
+          expect(nextProps.data.allPeople).toEqualWithoutSymbol(
+            data1.allPeople,
+          );
         }
         // query with new variables is loaded
         if (count === 1 && !nextProps.data.loading && this.props.data.loading) {
           expect(nextProps.data.networkStatus).toBe(7);
-          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
+          expect(nextProps.data.allPeople).toEqualWithoutSymbol(
+            data2.allPeople,
+          );
           done();
         }
       }
@@ -393,7 +397,7 @@ describe('[queries] loading', () => {
 
         if (count === 2) {
           // remounted data after fetch
-          expect(props.data.loading.toBeFalsy());
+          expect(props.data.loading).toBeFalsy();
           done();
         }
         count++;
@@ -409,7 +413,7 @@ describe('[queries] loading', () => {
       </ApolloProvider>
     );
 
-    mount(render(1));
+    wrapper = mount(render(1));
   });
 
   it('correctly sets loading state on remounted component with changed variables (alt)', done => {
