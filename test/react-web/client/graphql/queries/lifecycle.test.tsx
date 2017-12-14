@@ -474,6 +474,19 @@ describe('[queries] lifecycle', () => {
     let switchClient;
     let refetchQuery;
 
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
+    class Query extends React.Component<any> {
+      componentDidMount() {
+        refetchQuery = () => this.props.data.refetch();
+      }
+
+      render() {
+        const { data: { loading, a, b, c } } = this.props;
+        renders.push({ loading, a, b, c });
+        return null;
+      }
+    }
+
     class ClientSwitcher extends React.Component<any, any> {
       state = {
         client: client1,
@@ -491,19 +504,6 @@ describe('[queries] lifecycle', () => {
             <Query />
           </ApolloProvider>
         );
-      }
-    }
-
-    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-    class Query extends React.Component<any> {
-      componentDidMount() {
-        refetchQuery = () => this.props.data.refetch();
-      }
-
-      render() {
-        const { data: { loading, a, b, c } } = this.props;
-        renders.push({ loading, a, b, c });
-        return null;
       }
     }
 

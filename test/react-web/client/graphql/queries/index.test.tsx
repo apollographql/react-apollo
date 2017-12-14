@@ -12,7 +12,7 @@ describe('queries', () => {
   let error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {});
+    console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;
@@ -377,7 +377,7 @@ describe('queries', () => {
     });
     const Container = graphql(query)(() => null);
 
-    let error = null;
+    let errorCaught = null;
     try {
       renderer.create(
         <ApolloProvider client={client}>
@@ -385,10 +385,10 @@ describe('queries', () => {
         </ApolloProvider>,
       );
     } catch (e) {
-      error = e;
+      errorCaught = e;
     }
 
-    expect(error).toBeNull();
+    expect(errorCaught).toBeNull();
   });
 
   // note this should log an error in the console until they are all cleaned up with react 16

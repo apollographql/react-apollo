@@ -250,6 +250,20 @@ describe('[mutations] query integration', () => {
     }
 
     let count = 0;
+    @graphql(mutation)
+    class MutationContainer extends React.Component {
+      componentWillReceiveProps(props) {
+        if (count === 1) {
+          props.mutate().then(result => {
+            expect(result.data).toEqualWithoutSymbol(mutationData);
+          });
+        }
+      }
+      render() {
+        return null;
+      }
+    }
+
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
@@ -264,20 +278,6 @@ describe('[mutations] query integration', () => {
       }
       render() {
         return <MutationContainer {...this.props.data.mini} signature="1233" />;
-      }
-    }
-
-    @graphql(mutation)
-    class MutationContainer extends React.Component {
-      componentWillReceiveProps(props) {
-        if (count === 1) {
-          props.mutate().then(result => {
-            expect(result.data).toEqualWithoutSymbol(mutationData);
-          });
-        }
-      }
-      render() {
-        return null;
       }
     }
 

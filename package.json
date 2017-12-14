@@ -29,7 +29,7 @@
     "compile:browser":
       "rm -rf ./dist && mkdir ./dist && NODE_ENV=production webpack -p ./lib/react-apollo.browser.umd.js ./dist/index.min.js --config ./scripts/webpack.config.js",
     "watch": "tsc -w",
-    "lint": "tslint 'src/*.ts*' --project tsconfig.json",
+    "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint-staged": "lint-staged",
     "lint-fix":
       "npm run pretty && tslint 'src/*.ts*' --project tsconfig.json --fix",

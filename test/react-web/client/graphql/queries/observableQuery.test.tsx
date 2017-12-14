@@ -118,11 +118,11 @@ describe('[queries] observableQuery', () => {
 
       goToRedirect = () => {
         this.setState({ renderRedirect: true });
-      };
+      }; // tslint:disable-line
 
       handleRedirectMount = () => {
         this.setState({ renderRedirect: false });
-      };
+      }; // tslint:disable-line
 
       render() {
         if (this.state.renderRedirect) {
@@ -158,7 +158,7 @@ describe('[queries] observableQuery', () => {
       }
     `;
     // const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    let finish = () => {};
+    let finish = () => {}; // tslint:disable-line
     let called = 0;
     const link = new ApolloLink((o, f) => {
       called++;

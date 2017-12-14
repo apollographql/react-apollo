@@ -632,7 +632,7 @@ describe('[queries] skip', () => {
             done();
           }
         } catch (e) {
-          console.log({ e });
+          console.log({ e }); // tslint:disable-line
         }
       }
       render() {

@@ -12,7 +12,7 @@ describe('[queries] errors', () => {
   let error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {});
+    console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;

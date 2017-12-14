@@ -502,7 +502,7 @@ describe('[queries] loading', () => {
     let count = 0;
 
     const connect = (component): any => {
-      return class Container extends React.Component<any, any> {
+      return class extends React.Component<any, any> {
         constructor(props) {
           super(props);
 
