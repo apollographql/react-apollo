@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { Component } from 'react';
+import { Text } from 'react-native';
+import * as React from 'react';
 // Note: test renderer must be required after react-native.
-import renderer from 'react-test-renderer';
+import * as renderer from 'react-test-renderer';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
@@ -57,7 +57,7 @@ describe('App', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    class Container extends Component {
+    class Container extends React.Component {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
         expect(props.data.allPeople.people.name).toEqualWithoutSymbol(

@@ -23,7 +23,7 @@ export interface QueryResult<Cache> {
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
 export function walkTree<Cache>(
-  element: ReactElement<any>,
+  element: ReactElement<any> | any,
   context: Context<Cache>,
   visitor: (
     element: ReactElement<any>,
