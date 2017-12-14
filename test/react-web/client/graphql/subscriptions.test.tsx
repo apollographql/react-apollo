@@ -6,7 +6,7 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '../../../../src/test-utils';
 import { ApolloProvider, ChildProps, graphql } from '../../../../src';
-import '../../../setup/toEqualWithoutSymbol';
+import '../../../test-utils/toEqualWithoutSymbol';
 
 describe('subscriptions', () => {
   let error;

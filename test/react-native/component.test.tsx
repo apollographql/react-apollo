@@ -7,7 +7,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { ApolloProvider, ChildProps, graphql } from '../../src';
 import { mockSingleLink } from '../../src/test-utils';
-import '../setup/toEqualWithoutSymbol';
+import '../test-utils/toEqualWithoutSymbol';
 
 describe('App', () => {
   it('renders correctly', () => {

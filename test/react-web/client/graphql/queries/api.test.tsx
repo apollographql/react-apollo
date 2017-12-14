@@ -10,8 +10,8 @@ import {
   graphql,
   OptionProps,
 } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
-import wrap from '../../../../setup/wrap';
+import '../../../../test-utils/toEqualWithoutSymbol';
+import wrap from '../../../../test-utils/wrap';
 
 describe('[queries] api', () => {
   // api

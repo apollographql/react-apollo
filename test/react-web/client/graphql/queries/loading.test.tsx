@@ -7,7 +7,7 @@ import { mount } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, DataProps, graphql } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 
 describe('[queries] loading', () => {
   // networkStatus / loading

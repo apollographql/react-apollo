@@ -6,7 +6,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 
 describe('[queries] errors', () => {
   let error;

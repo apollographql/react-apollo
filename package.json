@@ -78,11 +78,11 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow.js",
-      "<rootDir>/test/typescript.tsx"
+      "<rootDir>/test/typescript-usage.tsx"
     ],
     "projects": ["<rootDir>", "<rootDir>/examples/*"],
-    "testRegex": "(/test/(?!setup\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "setupFiles": ["<rootDir>/test/setup/index.ts"]
+    "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "setupFiles": ["<rootDir>/test/test-utils/setup.ts"]
   },
   "license": "MIT",
   "peerDependencies": {

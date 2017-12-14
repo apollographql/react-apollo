@@ -11,7 +11,7 @@ import {
   ChildProps,
   MutationFunc,
 } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {

@@ -11,7 +11,7 @@ import {
   MutateProps,
   MutationFunc,
 } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 
 describe('[mutations]', () => {
   let error;

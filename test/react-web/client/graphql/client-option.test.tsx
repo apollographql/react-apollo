@@ -7,7 +7,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 import { ObservableQueryRecycler } from '../../../../src/queryRecycler';
-import '../../../setup/toEqualWithoutSymbol';
+import '../../../test-utils/toEqualWithoutSymbol';
 
 describe('client option', () => {
   it('renders with client from options', () => {

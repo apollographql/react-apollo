@@ -6,7 +6,7 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 
 describe('[queries] skip', () => {
   it('allows you to skip a query without running it', done => {

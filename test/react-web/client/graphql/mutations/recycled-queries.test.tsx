@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 
 describe('[mutations] update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing

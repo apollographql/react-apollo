@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, ChildProps, graphql } from '../../../../../src';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 
 describe('[queries] reducer', () => {
   // props reducer

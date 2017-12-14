@@ -4,10 +4,10 @@ import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import '../../../../setup/toEqualWithoutSymbol';
+import '../../../../test-utils/toEqualWithoutSymbol';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import wait from '../../../../setup/wait';
+import wait from '../../../../test-utils/wait';
 
 describe('[queries] lifecycle', () => {
   // lifecycle
