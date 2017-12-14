@@ -68,7 +68,7 @@
     "preset": "react-native",
     "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js",
       "^.+\\.jsx?$": "babel-jest"
     },
     "transformIgnorePatterns": [
