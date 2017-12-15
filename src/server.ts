@@ -1,12 +1,9 @@
-import { ReactElement } from 'react';
 import * as ReactDOM from 'react-dom/server';
-
 import { getDataFromTree } from './getDataFromTree';
 
-export function renderToStringWithData(
-  component: ReactElement<any>,
-): Promise<string> {
-  return getDataFromTree(component).then(() =>
-    ReactDOM.renderToString(component),
-  );
+export function renderToStringWithData(component) {
+  return getDataFromTree(component).then(function() {
+    return ReactDOM.renderToString(component);
+  });
 }
+//# sourceMappingURL=server.js.map

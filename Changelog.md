@@ -1,5 +1,8 @@
 # Change log
 
+### next
+- refactor imports/exports to play nicely with webpack
+
 ### 2.0.4
 - rolled back on the lodash-es changes from
   [#1344](https://github.com/apollographql/react-apollo/pull/1344) due to build
