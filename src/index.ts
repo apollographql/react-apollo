@@ -1,2 +1,3 @@
 export * from './browser';
-export { getDataFromTree, renderToStringWithData, walkTree } from './server';
+export { getDataFromTree, walkTree } from './getDataFromTree';
+export { renderToStringWithData } from './server';
