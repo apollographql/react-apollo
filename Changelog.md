@@ -1,7 +1,7 @@
 # Change log
 
 ### next
-- refactor imports/exports to play nicely with webpack
+- refactor imports/exports so that they work with webpack
 
 ### 2.0.4
 - rolled back on the lodash-es changes from
