@@ -218,6 +218,57 @@ describe('Query component', () => {
     }, 0);
   });
 
+  it('errors if a Mutation is provided in the query', () => {
+    const mutation = gql`
+      mutation submitRepository {
+        submitRepository(repoFullName: "apollographql/apollo-client") {
+          createdAt
+        }
+      }
+    `;
+
+    // Prevent error from being logged in console of test.
+    const errorLogger = console.error;
+    console.error = () => {};
+    expect(() => {
+      mount(
+        <MockedProvider>
+          <Query query={mutation} render={() => null} />
+        </MockedProvider>,
+      );
+    }).toThrowError(
+      'The <Query /> component requires a graphql query, but got a mutation.',
+    );
+
+    console.error = errorLogger;
+  });
+
+  it('errors if a Subscription is provided in the query', () => {
+    const subscription = gql`
+      subscription onCommentAdded($repoFullName: String!) {
+        commentAdded(repoFullName: $repoFullName) {
+          id
+          content
+        }
+      }
+    `;
+
+    // Prevent error from being logged in console of test.
+    const errorLogger = console.error;
+    console.error = () => {};
+    expect(() => {
+      mount(
+        <MockedProvider>
+          <Query query={subscription} render={() => null} />
+        </MockedProvider>,
+      );
+    }).toThrowError(
+      'The <Query /> component requires a graphql query, but got a subscription.',
+    );
+
+    console.error = errorLogger;
+  });
+
   it('provides a refetch render prop', done => {
     const queryRefetch = gql`
       query people($first: Int) {
@@ -773,6 +824,59 @@ describe('Query component', () => {
               return null;
             }}
           />
+        );
+      }
+    }
+
+    mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
+  it('should error if the query changes type to a subscription', done => {
+    const subscription = gql`
+      subscription onCommentAdded($repoFullName: String!) {
+        commentAdded(repoFullName: $repoFullName) {
+          id
+          content
+        }
+      }
+    `;
+
+    // Prevent error from showing up in console.
+    const errorLog = console.error;
+    console.error = () => {};
+
+    class Component extends React.Component {
+      state = { query };
+
+      componentDidCatch(error) {
+        catchAsyncError(done, () => {
+          const error = new Error(
+            'The <Query /> component requires a graphql query, but got a subscription.',
+          );
+          expect(error).toEqual(error);
+          console.error = errorLog;
+
+          done();
+        });
+      }
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            query: subscription,
+          });
+        }, 0);
+      }
+
+      render() {
+        const { query } = this.state;
+
+        return (
+          <Query query={query} loading={() => <div />} render={() => null} />
         );
       }
     }

@@ -16,6 +16,7 @@ const invariant = require('invariant');
 const pick = require('lodash.pick');
 
 import { QueryOpts, OperationVariables } from './types';
+import { parser, DocumentType } from './parser';
 
 export interface QueryRenderProp {
   error?: ApolloError;
@@ -127,6 +128,16 @@ class Query extends React.Component<QueryProps, QueryState> {
 
   private initializeQueryObservable = props => {
     const { options, query } = props;
+
+    const operation = parser(query);
+
+    invariant(
+      operation.type === DocumentType.Query,
+      `The <Query /> component requires a graphql query, but got a ${operation.type ===
+      DocumentType.Mutation
+        ? 'mutation'
+        : 'subscription'}.`,
+    );
 
     const clientOptions = { ...options, query };
 
