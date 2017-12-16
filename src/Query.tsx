@@ -1,37 +1,50 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ApolloClient, { ObservableQuery } from 'apollo-client';
+import ApolloClient, {
+  ObservableQuery,
+  ApolloQueryResult,
+  ApolloError,
+  FetchMoreOptions,
+  UpdateQueryOptions,
+  FetchMoreQueryOptions,
+} from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
-import * as invariant from 'invariant';
-import * as pick from 'lodash.pick';
 
 import shallowEqual from './shallowEqual';
-import ApolloConsumer from './ApolloConsumer';
+const invariant = require('invariant');
+const pick = require('lodash.pick');
 
-import {
-  MutationOpts,
-  ChildProps,
-  OperationOption,
-  ComponentDecorator,
-  QueryOpts,
-  QueryProps,
-  MutationFunc,
-  OptionProps,
-} from './types';
+import { QueryOpts, OperationVariables } from './types';
 
-type Props = {
+export interface QueryRenderProp {
+  error?: ApolloError;
+  networkStatus: number;
+  loading: boolean;
+  variables: OperationVariables;
+  fetchMore: (
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+  ) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: OperationVariables) => Promise<ApolloQueryResult<any>>;
+  startPolling: (pollInterval: number) => void;
+  stopPolling: () => void;
+  updateQuery: (
+    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
+  ) => void;
+}
+
+export interface QueryProps {
   query: DocumentNode;
   options?: QueryOpts;
   skip?: Boolean;
   loading?: () => React.ReactNode;
-  error?: (error: any) => React.ReactNode;
-  render?: (result: any) => React.ReactNode;
-};
+  error?: (error: ApolloError) => React.ReactNode;
+  render?: (result: QueryRenderProp) => React.ReactNode;
+}
 
-type State = {
+export interface QueryState {
   result: any;
-};
+}
 
 function observableQueryFields(observable) {
   const fields = pick(
@@ -53,7 +66,7 @@ function observableQueryFields(observable) {
   return fields;
 }
 
-class Query extends React.Component<Props, State> {
+class Query extends React.Component<QueryProps, QueryState> {
   private client: ApolloClient<any>;
   private queryObservable: ObservableQuery<any>;
   private querySubscription: ZenObservable.Subscription;
@@ -71,7 +84,7 @@ class Query extends React.Component<Props, State> {
     );
     this.client = context.client;
 
-    this._initializeQueryObservable(props);
+    this.initializeQueryObservable(props);
     this.state = {
       result: this.queryObservable.currentResult(),
     };
@@ -81,31 +94,38 @@ class Query extends React.Component<Props, State> {
     if (this.props.skip) {
       return;
     }
-    this._startQuerySubscription();
+    this.startQuerySubscription();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    if (shallowEqual(this.props, nextProps)) {
+    if (
+      shallowEqual(this.props, nextProps) &&
+      this.client === nextContext.client
+    ) {
       return;
     }
 
     if (nextProps.skip) {
       if (!this.props.skip) {
-        this._removeQuerySubscription();
+        this.removeQuerySubscription();
       }
       return;
     }
-    this._removeQuerySubscription();
-    this._initializeQueryObservable(nextProps);
-    this._startQuerySubscription();
-    this._updateCurrentData();
+
+    if (this.client !== nextContext.client) {
+      this.client = nextContext.client;
+    }
+    this.removeQuerySubscription();
+    this.initializeQueryObservable(nextProps);
+    this.startQuerySubscription();
+    this.updateCurrentData();
   }
 
   componentWillUnmount() {
-    this._removeQuerySubscription();
+    this.removeQuerySubscription();
   }
 
-  _initializeQueryObservable = props => {
+  private initializeQueryObservable = props => {
     const { options, query } = props;
 
     const clientOptions = { ...options, query };
@@ -113,19 +133,19 @@ class Query extends React.Component<Props, State> {
     this.queryObservable = this.client.watchQuery(clientOptions);
   };
 
-  _startQuerySubscription = () => {
+  private startQuerySubscription = () => {
     this.querySubscription = this.queryObservable.subscribe({
-      next: this._updateCurrentData,
-      error: this._updateCurrentData,
+      next: this.updateCurrentData,
+      error: this.updateCurrentData,
     });
   };
 
-  _removeQuerySubscription = () => {
+  private removeQuerySubscription = () => {
     if (this.querySubscription) {
       this.querySubscription.unsubscribe();
     }
   };
-  _updateCurrentData = () => {
+  private updateCurrentData = () => {
     this.setState({ result: this.queryObservable.currentResult() });
   };
 

@@ -2,10 +2,11 @@ import React from 'react';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 import { mount } from 'enzyme';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import ApolloProvider from '../../../src/ApolloProvider';
 import Query from '../../../src/Query';
-import { MockedProvider } from '../../../src/test-utils';
+import { MockedProvider, mockSingleLink } from '../../../src/test-utils';
 
 const query = gql`
   query people {
@@ -392,7 +393,7 @@ describe('Query component', () => {
     );
   });
 
-  it('provides startPolling in the render prop', done => {
+  it('sets polling interval using options', done => {
     expect.assertions(4);
 
     const options = {
@@ -407,6 +408,67 @@ describe('Query component', () => {
         options={options}
         loading={() => <div />}
         render={result => {
+          if (count === 0) {
+            expect(result.data).toEqual(data1);
+          } else if (count === 1) {
+            expect(result.data).toEqual(data2);
+          } else if (count === 2) {
+            expect(result.data).toEqual(data3);
+          }
+          count++;
+          return null;
+        }}
+      />
+    );
+
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
+
+    const mocks = [
+      {
+        request: { query },
+        result: { data: data1 },
+      },
+      {
+        request: { query },
+        result: { data: data2 },
+      },
+      {
+        request: { query },
+        result: { data: data3 },
+      },
+    ];
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    setTimeout(() => {
+      catchAsyncError(done, () => {
+        expect(count).toBe(3);
+        wrapper.unmount();
+        done();
+      });
+    }, 80);
+  });
+
+  it('provides startPolling in the render prop', done => {
+    expect.assertions(4);
+
+    let count = 0;
+    let isPolling = false;
+    const Component = () => (
+      <Query
+        query={query}
+        loading={() => <div />}
+        render={result => {
+          if (!isPolling) {
+            isPolling = true;
+            result.startPolling(30);
+          }
           if (count === 0) {
             expect(result.data).toEqual(data1);
           } else if (count === 1) {
@@ -722,7 +784,7 @@ describe('Query component', () => {
     );
   });
 
-  it('should update if the skip prop changes', done => {
+  it('should update if the skip prop changes from true to false', done => {
     const render = jest.fn(() => null);
     let count = 0;
 
@@ -766,7 +828,119 @@ describe('Query component', () => {
     }, 50);
   });
 
-  it('unsubscribes from queries if the skip prop changes from false to true', () => {});
+  it('unsubscribes from queries if the skip prop changes from false to true', done => {
+    let count = 0;
+    class Component extends React.Component {
+      state = {
+        skip: false,
+      };
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            skip: true,
+          });
+        }, 0);
+      }
 
-  it('should update if the client changes', () => {});
+      render() {
+        const { skip } = this.state;
+        return (
+          <Query
+            query={query}
+            skip={skip}
+            loading={() => null}
+            render={result => {
+              if (this.state.skip) {
+                setTimeout(() => {
+                  // Since skip is true, this refetch should not call
+                  // the render function.
+                  result.refetch();
+                }, 0);
+              }
+              count++;
+              return null;
+            }}
+          />
+        );
+      }
+    }
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    setTimeout(() => {
+      catchAsyncError(done, () => {
+        expect(count).toBe(2);
+        done();
+      });
+    }, 50);
+  });
+
+  it('should update if the client changes in the context', done => {
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const link1 = mockSingleLink({
+      request: { query },
+      result: { data: data1 },
+    });
+    const client1 = new ApolloClient({
+      link: link1,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const link2 = mockSingleLink({
+      request: { query },
+      result: { data: data2 },
+    });
+    const client2 = new ApolloClient({
+      link: link2,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    let count = 0;
+    class Component extends React.Component {
+      state = {
+        client: client1,
+      };
+
+      render() {
+        return (
+          <ApolloProvider client={this.state.client}>
+            <Query
+              query={query}
+              loading={() => null}
+              render={result => {
+                catchAsyncError(done, () => {
+                  if (count === 0) {
+                    expect(result.data).toEqual(data1);
+                    setTimeout(() => {
+                      this.setState({
+                        client: client2,
+                      });
+                    }, 0);
+                  }
+                  if (count === 1) {
+                    expect(result.data).toEqual(data2);
+                    done();
+                  }
+                  count++;
+                });
+
+                return null;
+              }}
+            />
+          </ApolloProvider>
+        );
+      }
+    }
+
+    const wrapper = mount(
+      <ErrorBoundary>
+        <Component />
+      </ErrorBoundary>,
+    );
+  });
 });
