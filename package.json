@@ -88,7 +88,7 @@
     "apollo-client": "^2.0.3",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
   },
-  "devDependencies": {
+  "dependencies": {
     "@types/enzyme": "3.1.5",
     "@types/graphql": "0.11.7",
     "@types/invariant": "2.2.29",
@@ -102,6 +102,14 @@
     "@types/react-dom": "16.0.3",
     "@types/sinon": "4.1.2",
     "@types/zen-observable": "0.5.3",
+    "apollo-link": "^1.0.6",
+    "hoist-non-react-statics": "^2.3.1",
+    "invariant": "^2.2.2",
+    "lodash.flowright": "^3.5.0",
+    "lodash.pick": "^4.4.0",
+    "prop-types": "^15.6.0"
+  },
+  "devDependencies": {
     "apollo-cache-inmemory": "1.1.4",
     "apollo-client": "2.1.0",
     "babel-core": "^6.26.0",
@@ -148,13 +156,5 @@
     "webpack": "^3.10.0",
     "webpack-bundle-analyzer": "^2.9.1",
     "zen-observable-ts": "0.5.0"
-  },
-  "dependencies": {
-    "apollo-link": "^1.0.6",
-    "hoist-non-react-statics": "^2.3.1",
-    "invariant": "^2.2.2",
-    "lodash.flowright": "^3.5.0",
-    "lodash.pick": "^4.4.0",
-    "prop-types": "^15.6.0"
   }
 }
