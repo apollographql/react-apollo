@@ -23,8 +23,8 @@
       "apollo-codegen generate \"src/**/*.js\" --schema ./src/schema.json --target flow --output ./src/schema.flow.js --add-typename"
   },
   "devDependencies": {
-    "apollo-codegen": "^0.18.0",
+    "apollo-codegen": "0.18.2",
     "flow-bin": "0.58.0",
-    "react-test-renderer": "^16.2.0"
+    "react-test-renderer": "16.2.0"
   }
 }
