@@ -17,7 +17,7 @@ describe('[queries] polling', () => {
   });
   // polling
   it('allows a polling query to be created', done => {
-    const POLL_TIME = 1000;
+    const POLL_TIME = 250;
     const POLL_COUNT = 4;
     const query = gql`
       query people {
@@ -59,10 +59,15 @@ describe('[queries] polling', () => {
 
     const totalTime = POLL_TIME * POLL_COUNT;
     setTimeout(() => {
-      expect(count).toBe(POLL_COUNT);
-      (wrapper as any).unmount();
-      done();
-    }, totalTime + 500); // leave some extra time for travis to catch up
+      try {
+        expect(count).toBe(POLL_COUNT);
+        done();
+      } catch (e) {
+        done.fail(e);
+      } finally {
+        (wrapper as any).unmount();
+      }
+    }, totalTime + 100); // leave some extra time for travis to catch up
   });
 
   it('exposes stopPolling as part of the props api', done => {
