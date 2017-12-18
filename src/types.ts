@@ -1,5 +1,3 @@
-import { ComponentClass, StatelessComponent } from 'react';
-
 import ApolloClient, {
   MutationQueryReducersMap,
   ApolloQueryResult,
@@ -15,8 +13,12 @@ import ApolloClient, {
 // import { PureQueryOptions } from 'apollo-client/core/types';
 // import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
-export interface MutationOpts<TVariables = OperationVariables> {
-  variables?: TVariables;
+export type OperationVariables = {
+  [key: string]: any;
+};
+
+export interface MutationOpts<TGraphQLVariables = OperationVariables> {
+  variables?: TGraphQLVariables;
   optimisticResponse?: Object;
   updateQueries?: MutationQueryReducersMap;
   refetchQueries?: string[] | PureQueryOptions[];
@@ -25,26 +27,24 @@ export interface MutationOpts<TVariables = OperationVariables> {
   notifyOnNetworkStatusChange?: boolean;
 }
 
-export interface QueryOpts<TVariables = OperationVariables> {
+export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   ssr?: boolean;
-  variables?: TVariables;
+  variables?: TGraphQLVariables;
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
-  // deprecated
-  skip?: boolean;
 }
 
-export interface QueryProps<TVariables = OperationVariables> {
+export interface QueryProps<TGraphQLVariables = OperationVariables> {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
-  variables: TVariables;
+  variables: TGraphQLVariables;
   fetchMore: (
     fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
   ) => Promise<ApolloQueryResult<any>>;
-  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: TGraphQLVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
@@ -53,47 +53,85 @@ export interface QueryProps<TVariables = OperationVariables> {
   ) => void;
 }
 
-export type MutationFunc<TResult, TVariables = OperationVariables> = (
-  opts: MutationOpts<TVariables>,
-) => Promise<ApolloQueryResult<TResult>>;
+export type MutationFunc<
+  TData = any,
+  TGraphQLVariables = OperationVariables
+> = (
+  opts: MutationOpts<TGraphQLVariables>,
+) => Promise<ApolloQueryResult<TData>>;
 
-export interface OptionProps<TProps, TResult> {
-  ownProps: TProps;
-  data?: QueryProps & TResult;
-  mutate?: MutationFunc<TResult>;
+export type DataValue<
+  TData,
+  TGraphQLVariables = OperationVariables
+> = QueryProps<TGraphQLVariables> &
+  // data may not yet be loaded
+  Partial<TData>;
+
+// export to allow usage individually for simple components
+export interface DataProps<TData, TGraphQLVariables = OperationVariables> {
+  data: DataValue<TData, TGraphQLVariables>;
 }
 
-export type ChildProps<P, R> = P & {
-  data?: QueryProps & Partial<R>;
-  mutate?: MutationFunc<R>;
-};
+// export to allow usage individually for simple components
+export interface MutateProps<
+  TData = any,
+  TGraphQLVariables = OperationVariables
+> {
+  mutate: MutationFunc<TData, TGraphQLVariables>;
+}
 
-export type NamedProps<P, R> = P & {
+export type ChildProps<
+  TProps = {},
+  TData = {},
+  TGraphQLVariables = OperationVariables
+> = TProps &
+  Partial<DataProps<TData, TGraphQLVariables>> &
+  Partial<MutateProps<TData, TGraphQLVariables>>;
+
+export type ChildDataProps<
+  TProps = {},
+  TData = {},
+  TGraphQLVariables = OperationVariables
+> = TProps & DataProps<TData, TGraphQLVariables>;
+
+export type ChildMutateProps<
+  TProps = {},
+  TData = {},
+  TGraphQLVariables = OperationVariables
+> = TProps & MutateProps<TData, TGraphQLVariables>;
+
+export type NamedProps<TProps, R> = TProps & {
   ownProps: R;
 };
 
-export type OperationVariables = {
-  [key: string]: any;
-};
+export interface OptionProps<
+  TProps = any,
+  TData = any,
+  TGraphQLVariables = OperationVariables
+>
+  extends Partial<DataProps<TData, TGraphQLVariables>>,
+    Partial<MutateProps<TData, TGraphQLVariables>> {
+  ownProps: TProps;
+}
 
-export interface OperationOption<TProps, TResult> {
+export interface OperationOption<
+  TProps,
+  TData,
+  TGraphQLVariables = OperationVariables
+> {
   options?:
-    | QueryOpts
-    | MutationOpts
-    | ((props: TProps) => QueryOpts | MutationOpts);
-  props?: (props: OptionProps<TProps, TResult>) => any;
+    | QueryOpts<TGraphQLVariables>
+    | MutationOpts<TGraphQLVariables>
+    | ((
+        props: TProps,
+      ) => QueryOpts<TGraphQLVariables> | MutationOpts<TGraphQLVariables>);
+  props?: (props: OptionProps<TProps, TData>) => any;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
-  shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
+  shouldResubscribe?: (
+    props: TProps & DataProps<TData, TGraphQLVariables>,
+    nextProps: TProps & DataProps<TData, TGraphQLVariables>,
+  ) => boolean;
   alias?: string;
-}
-
-export type CompositeComponent<P> = ComponentClass<P> | StatelessComponent<P>;
-
-export interface ComponentDecorator<TOwnProps, TMergedProps> {
-  (component: CompositeComponent<TMergedProps>): ComponentClass<TOwnProps>;
-}
-export interface InferableComponentDecorator<TOwnProps> {
-  <T extends CompositeComponent<TOwnProps>>(component: T): T;
 }

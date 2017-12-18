@@ -1,2 +1,4 @@
 export * from './browser';
-export { getDataFromTree, renderToStringWithData, walkTree } from './server';
+export * from './getDataFromTree';
+export { renderToStringWithData } from './server';
+export * from './types';

@@ -2,54 +2,16 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
-import { ApolloLink, Observable } from 'apollo-link';
-import {
-  execute,
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLList,
-  GraphQLString,
-  GraphQLID,
-} from 'graphql';
-import { graphql, ApolloProvider } from '../../../src';
-import {
-  walkTree,
-  getDataFromTree,
-  renderToStringWithData,
-} from '../../../src';
+import { graphql, ApolloProvider, DataValue } from '../../../src';
+import { walkTree, getDataFromTree } from '../../../src';
 import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { connect, Provider } from 'react-redux';
-
 import { mockSingleLink } from '../../../src/test-utils';
+import { ChildProps } from '../../../src/types';
 
 describe('SSR', () => {
-  // it('should render the expected markup', (done) => {
-
-  //   const query = gql`query ssr { allPeople(first: 1) { people { name } } }`;
-  //   const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-  //   const link = mockSingleLink({ request: { query }, result: { data } });
-  //   const client = new ApolloClient({ link });
-
-  //   const Element = ({ ssr }) => (<div>{ssr.loading ? 'loading' : 'loaded'}</div>);
-  //   const WrappedElement = graphql(query)(Element);
-  //   const component = (<ApolloProvider client={client}><WrappedElement /></ApolloProvider>);
-
-  //   try {
-  //     const markup = ReactDOM.renderToString(component);
-  //     expect(markup).to.match(/loading/);
-  //     // We do a timeout to ensure the rest of the application does not fail
-  //     // after the render
-  //     setTimeout(() => done(), 10);
-  //   } catch (e) {
-  //     done(e);
-  //   }
-  // });
-
   describe('`walkTree`', () => {
     describe('traversal', () => {
       it('basic element trees', () => {
@@ -97,7 +59,11 @@ describe('SSR', () => {
 
       it('functional stateless components with children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }) => (
+        interface Props {
+          n: number;
+          children?: React.ReactNode;
+        }
+        const MyComponent = ({ n, children }: Props) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
@@ -140,7 +106,7 @@ describe('SSR', () => {
 
       it('functional stateless components that render an array', () => {
         let elementCount = 0;
-        const MyComponent = () => [1, 2];
+        const MyComponent = () => [1, 2] as any;
         walkTree(<MyComponent />, {}, element => {
           elementCount += 1;
         });
@@ -150,7 +116,7 @@ describe('SSR', () => {
       it('function stateless components that render with a null in array', () => {
         let elementCount = 0;
 
-        const MyComponent = () => [null, <div />];
+        const MyComponent = () => [null, <div />] as any;
         walkTree(<MyComponent />, {}, element => {
           elementCount += 1;
         });
@@ -160,7 +126,7 @@ describe('SSR', () => {
       it('function stateless components that render with a undefined in array', () => {
         let elementCount = 0;
 
-        const MyComponent = () => [undefined, <div />];
+        const MyComponent = () => [undefined, <div />] as any;
         walkTree(<MyComponent />, {}, element => {
           elementCount += 1;
         });
@@ -209,7 +175,7 @@ describe('SSR', () => {
       it('basic classes components that render with a null in array', () => {
         let elementCount = 0;
 
-        class MyComponent extends React.Component<any, any> {
+        class MyComponent extends React.Component<any> {
           render() {
             return [null, <div />];
           }
@@ -222,9 +188,9 @@ describe('SSR', () => {
 
       it('basic classes with incomplete constructors', () => {
         let elementCount = 0;
-        class MyComponent extends React.Component<any, any> {
+        class MyComponent extends React.Component<any> {
           constructor() {
-            super(); // note doesn't pass props or context
+            super(null); // note doesn't pass props or context
           }
           render() {
             return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
@@ -271,10 +237,10 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
+      const data1 = { currentUser: { firstName: 'James' } };
       const link = mockSingleLink({
         request: { query },
-        result: { data },
+        result: { data: data1 },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
@@ -282,9 +248,17 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
-      ));
+      interface Props {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      const WrappedElement = graphql(query)(
+        ({ data }: ChildProps<Props, Data>) => (
+          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+        ),
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -306,10 +280,9 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
       const link = mockSingleLink({
         request: { query },
-        result: { data },
+        result: { data: { currentUser: { firstName: 'James' } } },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
@@ -317,9 +290,15 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
+      interface Props {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'network-only' },
-      })(({ data }) => (
+      })(({ data }: ChildProps<Props, Data>) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
       ));
 
@@ -343,10 +322,9 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
       const link = mockSingleLink({
         request: { query },
-        result: { data },
+        result: { data: { currentUser: { firstName: 'James' } } },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
@@ -354,9 +332,15 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
+      interface Props {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
       const WrappedElement = graphql(query, {
         options: { fetchPolicy: 'cache-and-network' },
-      })(({ data }) => (
+      })(({ data }: ChildProps<Props, Data>) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
       ));
 
@@ -380,10 +364,9 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
       const link = mockSingleLink({
         request: { query },
-        result: { data },
+        result: { data: { currentUser: { firstName: 'James' } } },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
@@ -391,9 +374,18 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
-      ));
+      interface Props {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
+      const WrappedElement = graphql(query)(
+        ({ data }: ChildProps<Props, Data>) => (
+          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+        ),
+      );
 
       const Page = () => (
         <div>
@@ -447,10 +439,19 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
+      interface Props {}
+      interface Data {
+        currentUser: {
+          id: string;
+        };
+      }
+
       const withId = graphql(idQuery);
       const withUser = graphql(userQuery, {
         skip: ({ data: { loading } }) => loading,
-        options: ({ data }) => ({ variables: { id: data.currentUser.id } }),
+        options: ({ data }: ChildProps<Props, Data>) => ({
+          variables: { id: data.currentUser.id },
+        }),
       });
       const Component = ({ data }) => (
         <div>{data.loading ? 'loading' : data.user.firstName}</div>
@@ -466,41 +467,6 @@ describe('SSR', () => {
       return getDataFromTree(app).then(() => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
-      });
-    });
-
-    it('should correctly skip queries (deprecated)', () => {
-      const query = gql`
-        {
-          currentUser {
-            firstName
-          }
-        }
-      `;
-      const data = { currentUser: { firstName: 'James' } };
-      const link = mockSingleLink({
-        request: { query },
-        result: { data },
-        delay: 50,
-      });
-      const apolloClient = new ApolloClient({
-        link,
-        cache: new Cache({ addTypename: false }),
-      });
-
-      const WrappedElement = graphql(query, {
-        options: { skip: true },
-      })(({ data }) => <div>{data ? 'loading' : 'skipped'}</div>);
-
-      const app = (
-        <ApolloProvider client={apolloClient}>
-          <WrappedElement />
-        </ApolloProvider>
-      );
-
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
-        expect(markup).toMatch(/skipped/);
       });
     });
 
@@ -522,9 +488,17 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => (
-        <div>{data.loading ? 'loading' : data.error}</div>
-      ));
+      interface Props {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      const WrappedElement = graphql(query)(
+        ({ data }: ChildProps<Props, Data>) => (
+          <div>{data.loading ? 'loading' : data.error}</div>
+        ),
+      );
 
       const Page = () => (
         <div>
@@ -561,10 +535,9 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
       const link = mockSingleLink({
         request: { query },
-        result: { data },
+        result: { data: { currentUser: { firstName: 'James' } } },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
@@ -572,9 +545,17 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query, { skip: true })(({ data }) => (
-        <div>{!data ? 'skipped' : 'dang'}</div>
-      ));
+      interface Props {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      const WrappedElement = graphql(query, { skip: true })(
+        ({ data }: ChildProps<Props, Data>) => (
+          <div>{!data ? 'skipped' : 'dang'}</div>
+        ),
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -609,9 +590,17 @@ describe('SSR', () => {
         cache,
       });
 
-      const Element = graphql(query, { name: 'user' })(({ user }) => (
-        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
-      ));
+      interface Props {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      const Element = graphql(query, { name: 'user' })(
+        ({ user }: ChildProps<Props, Data> & { user: DataValue<Data> }) => (
+          <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+        ),
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -687,6 +676,7 @@ describe('SSR', () => {
       class Element extends React.Component<any, any> {
         render() {
           expect(this.state).toBeNull();
+          return null;
         }
       }
 
@@ -703,6 +693,7 @@ describe('SSR', () => {
 
         render() {
           expect(this.state).toEqual({ foo: 'bar' });
+          return null;
         }
       }
 
@@ -730,21 +721,40 @@ describe('SSR', () => {
           addTypename: false,
         }),
       });
+      interface Props {
+        id: number;
+      }
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      interface State {
+        thing: number;
+        userId: number;
+        client: null | any;
+      }
 
       @graphql(query, { name: 'user' })
-      class Element extends React.Component<any, any> {
-        state = {
+      class Element extends React.Component<
+        ChildProps<Props, Data> & { user?: DataValue<Data> },
+        State
+      > {
+        state: State = {
           thing: 1,
           userId: null,
           client: null,
         };
 
         componentWillMount() {
-          this.setState((state, props, context) => ({
-            thing: state.thing + 1,
-            userId: props.id,
-            client: context.client,
-          }));
+          this.setState(
+            (state, props, context) =>
+              ({
+                thing: state.thing + 1,
+                userId: props.id,
+                client: context.client,
+              } as any),
+          );
         }
 
         render() {
@@ -798,10 +808,16 @@ describe('SSR', () => {
         cache,
       });
 
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
       const Element = graphql(query, {
         name: 'user',
         options: props => ({ variables: props, ssr: false }),
-      })(({ user }) => (
+      })(({ user }: { user?: DataValue<Data> }) => (
         <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
       ));
 
@@ -815,67 +831,6 @@ describe('SSR', () => {
         const initialState = cache.extract();
         expect(initialState).toEqual({});
         expect(initialState).toEqual({});
-      });
-    });
-
-    it('should work with redux connect', () => {
-      const query = gql`
-        query user {
-          currentUser {
-            firstName
-          }
-        }
-      `;
-      const data = { currentUser: { firstName: 'James' } };
-      const link = mockSingleLink({
-        request: { query },
-        result: { data },
-        delay: 50,
-      });
-      const client = new ApolloClient({
-        link,
-        cache: new Cache({ addTypename: false }),
-      });
-
-      function counter(state = 1, action) {
-        switch (action.type) {
-          case 'INCREMENT':
-            return state + 1;
-          default:
-            return state;
-        }
-      }
-
-      const store = createStore(
-        combineReducers({
-          counter,
-        }),
-      );
-
-      store.dispatch({ type: 'INCREMENT' });
-
-      const WrappedElement = connect(({ counter }) => ({ counter }))(
-        graphql(query, {
-          name: 'user',
-          skip: ({ counter }) => !(counter > 1),
-        })(({ user }) => (
-          <div>
-            {!user || user.loading ? 'loading' : user.currentUser.firstName}
-          </div>
-        )),
-      );
-
-      const app = (
-        <Provider store={store}>
-          <ApolloProvider client={client}>
-            <WrappedElement />
-          </ApolloProvider>
-        </Provider>
-      );
-
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
-        expect(markup).toMatch(/James/);
       });
     });
 
@@ -911,7 +866,9 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const withQuery = graphql(query, {
+      interface Data {}
+      interface QueryProps {}
+      const withQuery = graphql<QueryProps>(query, {
         options: ownProps => ({ ssr: true }),
         props: ({ data }) => {
           expect(data.refetch).toBeTruthy();
@@ -922,7 +879,11 @@ describe('SSR', () => {
         },
       });
 
-      const withMutation = graphql(mutation, {
+      interface MutationProps {
+        refetchQuery: Function;
+        data: Data;
+      }
+      const withMutation = graphql<MutationProps>(mutation, {
         props: ({ ownProps, mutate }) => {
           expect(ownProps.refetchQuery).toBeTruthy();
           return {
@@ -959,7 +920,13 @@ describe('SSR', () => {
           }
         }
       `;
-      const data1 = { currentUser: { firstName: 'James' } };
+
+      interface Props {}
+      interface QueryData {
+        currentUser: {
+          firstName: string;
+        };
+      }
 
       const mutation = gql`
         mutation {
@@ -968,13 +935,21 @@ describe('SSR', () => {
           }
         }
       `;
-      const mutationData = { logRoutes: { id: 'foo' } };
+      interface MutationData {
+        logRoutes: {
+          id: string;
+        };
+      }
 
       const link = mockSingleLink(
-        { request: { query }, result: { data: data1 }, delay: 5 },
+        {
+          request: { query },
+          result: { data: { currentUser: { firstName: 'James' } } },
+          delay: 5,
+        },
         {
           request: { query: mutation },
-          result: { data: mutationData },
+          result: { data: { logRoutes: { id: 'foo' } } },
           delay: 5,
         },
       );
@@ -983,7 +958,11 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const withQuery = graphql(query, {
+      const withMutation = graphql<Props, MutationData>(mutation);
+      const withQuery = graphql<
+        Props & ChildProps<Props, MutationData>,
+        QueryData
+      >(query, {
         props: ({ ownProps, data }) => {
           expect(ownProps.mutate).toBeTruthy();
           return {
@@ -992,7 +971,6 @@ describe('SSR', () => {
         },
       });
 
-      const withMutation = graphql(mutation);
       const Element = ({ data }) => (
         <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
       );
@@ -1019,10 +997,15 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
       const link = mockSingleLink({
         request: { query },
-        result: { data },
+        result: { data: { currentUser: { firstName: 'James' } } },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
@@ -1030,9 +1013,11 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(({ data }) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
-      ));
+      const WrappedElement = graphql(query)(
+        ({ data }: ChildProps<{}, Data>) => (
+          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+        ),
+      );
 
       class MyRootContainer extends React.Component<any, any> {
         constructor(props) {
@@ -1064,246 +1049,6 @@ describe('SSR', () => {
       return getDataFromTree(app).then(() => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
-      });
-    });
-  });
-
-  describe('`renderToStringWithData`', () => {
-    // XXX break into smaller tests
-    // XXX mock all queries
-    it('should work on a non trivial example', function() {
-      const planetMap = new Map([
-        ['Planet:1', { id: 'Planet:1', name: 'Tatooine' }],
-      ]);
-
-      const shipMap = new Map([
-        [
-          'Ship:2',
-          {
-            id: 'Ship:2',
-            name: 'CR90 corvette',
-            films: ['Film:4', 'Film:6', 'Film:3'],
-          },
-        ],
-        [
-          'Ship:3',
-          {
-            id: 'Ship:3',
-            name: 'Star Destroyer',
-            films: ['Film:4', 'Film:5', 'Film:6'],
-          },
-        ],
-      ]);
-
-      const filmMap = new Map([
-        ['Film:3', { id: 'Film:3', title: 'Revenge of the Sith' }],
-        ['Film:4', { id: 'Film:4', title: 'A New Hope' }],
-        ['Film:5', { id: 'Film:5', title: 'the Empire Strikes Back' }],
-        ['Film:6', { id: 'Film:6', title: 'Return of the Jedi' }],
-      ]);
-
-      const PlanetType = new GraphQLObjectType({
-        name: 'Planet',
-        fields: {
-          id: { type: GraphQLID },
-          name: { type: GraphQLString },
-        },
-      });
-
-      const FilmType = new GraphQLObjectType({
-        name: 'Film',
-        fields: {
-          id: { type: GraphQLID },
-          title: { type: GraphQLString },
-        },
-      });
-
-      const ShipType = new GraphQLObjectType({
-        name: 'Ship',
-        fields: {
-          id: { type: GraphQLID },
-          name: { type: GraphQLString },
-          films: {
-            type: new GraphQLList(FilmType),
-            resolve: ({ films }) => films.map(id => filmMap.get(id)),
-          },
-        },
-      });
-
-      const QueryType = new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          allPlanets: {
-            type: new GraphQLList(PlanetType),
-            resolve: () => Array.from(planetMap.values()),
-          },
-          allShips: {
-            type: new GraphQLList(ShipType),
-            resolve: () => Array.from(shipMap.values()),
-          },
-          ship: {
-            type: ShipType,
-            args: { id: { type: GraphQLID } },
-            resolve: (_, { id }) => shipMap.get(id),
-          },
-          film: {
-            type: FilmType,
-            args: { id: { type: GraphQLID } },
-            resolve: (_, { id }) => filmMap.get(id),
-          },
-        },
-      });
-
-      const Schema = new GraphQLSchema({ query: QueryType });
-
-      const apolloClient = new ApolloClient({
-        link: new ApolloLink(config => {
-          return new Observable(observer => {
-            execute(
-              Schema,
-              config.query,
-              null,
-              null,
-              config.variables,
-              config.operationName,
-            )
-              .then(result => {
-                observer.next(result);
-                observer.complete();
-              })
-              .catch(e => {
-                observer.error(e);
-              });
-          });
-        }),
-        cache: new Cache(),
-      });
-
-      @graphql(gql`
-        query data($id: ID!) {
-          film(id: $id) {
-            title
-          }
-        }
-      `)
-      class Film extends React.Component<any, any> {
-        render() {
-          const { data } = this.props;
-          if (data.loading) return null;
-          const { film } = data;
-          return <h6>{film.title}</h6>;
-        }
-      }
-
-      @graphql(gql`
-        query data($id: ID!) {
-          ship(id: $id) {
-            name
-            films {
-              id
-            }
-          }
-        }
-      `)
-      class Starship extends React.Component<any, any> {
-        render() {
-          const { data } = this.props;
-          if (data.loading) return null;
-          const { ship } = data;
-          return (
-            <div>
-              <h4>{ship.name} appeared in the following flims:</h4>
-              <br />
-              <ul>
-                {ship.films.map((film, key) => (
-                  <li key={key}>
-                    <Film id={film.id} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        }
-      }
-
-      @graphql(
-        gql`
-          query data {
-            allShips {
-              id
-            }
-          }
-        `,
-      )
-      class AllShips extends React.Component<any, any> {
-        render() {
-          const { data } = this.props;
-          return (
-            <ul>
-              {!data.loading &&
-                data.allShips.map((ship, key) => (
-                  <li key={key}>
-                    <Starship id={ship.id} />
-                  </li>
-                ))}
-            </ul>
-          );
-        }
-      }
-
-      @graphql(
-        gql`
-          query data {
-            allPlanets {
-              name
-            }
-          }
-        `,
-      )
-      class AllPlanets extends React.Component<any, any> {
-        render() {
-          const { data } = this.props;
-          if (data.loading) return null;
-          return (
-            <div>
-              <h1>Planets</h1>
-              {data.allPlanets.map((planet, key) => (
-                <div key={key}>{planet.name}</div>
-              ))}
-            </div>
-          );
-        }
-      }
-
-      const Bar = () => (
-        <div>
-          <h2>Bar</h2>
-          <AllPlanets />
-        </div>
-      );
-      const Foo = () => (
-        <div>
-          <h1>Foo</h1>
-          <Bar />
-        </div>
-      );
-
-      const app = (
-        <ApolloProvider client={apolloClient}>
-          <div>
-            <Foo />
-            <hr />
-            <AllShips />
-          </div>
-        </ApolloProvider>
-      );
-
-      return renderToStringWithData(app).then(markup => {
-        expect(markup).toMatch(/CR90 corvette/);
-        expect(markup).toMatch(/Return of the Jedi/);
-        expect(markup).toMatch(/A New Hope/);
-        expect(markup).toMatch(/Planets/);
-        expect(markup).toMatch(/Tatooine/);
       });
     });
   });

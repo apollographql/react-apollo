@@ -1,18 +1,11 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { shallow, mount, ReactWrapper } from 'enzyme';
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
-declare function require(name: string);
+import { shallow } from 'enzyme';
 import * as TestUtils from 'react-dom/test-utils';
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import gql from 'graphql-tag';
-
 import ApolloProvider from '../../../src/ApolloProvider';
-import graphql from '../../../src/graphql';
 
 describe('<ApolloProvider /> Component', () => {
   const client = new ApolloClient({
@@ -40,15 +33,6 @@ describe('<ApolloProvider /> Component', () => {
     }
   }
 
-  const query = gql`
-    query {
-      authors {
-        id
-      }
-    }
-  `;
-  const GQLChild = graphql(query)(Child);
-
   class Container extends React.Component<any, any> {
     constructor(props) {
       super(props);
@@ -70,26 +54,35 @@ describe('<ApolloProvider /> Component', () => {
     }
   }
 
-  class ConnectedContainer extends React.Component<any, any> {
-    constructor(props) {
-      super(props);
-      this.state = {};
-    }
-
-    componentDidMount() {
-      this.setState({
-        client: this.props.client,
-      });
-    }
-
-    render() {
-      return (
-        <ApolloProvider client={this.state.client || this.props.client}>
-          <GQLChild />
-        </ApolloProvider>
-      );
-    }
-  }
+  // --- unused ---
+  // const query = gql`
+  //   query {
+  //     authors {
+  //       id
+  //     }
+  //   }
+  // `;
+  // const GQLChild = graphql(query)(Child);
+  // class ConnectedContainer extends React.Component<any, any> {
+  //   constructor(props) {
+  //     super(props);
+  //     this.state = {};
+  //   }
+  //
+  //   componentDidMount() {
+  //     this.setState({
+  //       client: this.props.client,
+  //     });
+  //   }
+  //
+  //   render() {
+  //     return (
+  //       <ApolloProvider client={this.state.client || this.props.client}>
+  //         <GQLChild />
+  //       </ApolloProvider>
+  //     );
+  //   }
+  // }
 
   it('should render children components', () => {
     const wrapper = shallow(
@@ -98,17 +91,17 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>,
     );
 
-    expect(wrapper.contains(<div className="unique" />)).toBe(true);
+    expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
   it('should support the 2.0', () => {
     const wrapper = shallow(
-      <ApolloProvider client={{}}>
+      <ApolloProvider client={{} as ApolloClient<any>}>
         <div className="unique" />
       </ApolloProvider>,
     );
 
-    expect(wrapper.contains(<div className="unique" />)).toBe(true);
+    expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
   it('should require a client', () => {
@@ -136,7 +129,7 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>,
     );
 
-    expect(wrapper.contains(<div className="unique" />)).toBe(true);
+    expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
   it('should throw if rendered without a child component', () => {

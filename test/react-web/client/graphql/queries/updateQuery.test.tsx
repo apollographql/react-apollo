@@ -1,37 +1,11 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] updateQuery', () => {
   // updateQuery
@@ -45,10 +19,9 @@ describe('[queries] updateQuery', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
@@ -56,11 +29,11 @@ describe('[queries] updateQuery', () => {
     });
 
     @graphql(query)
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         // tslint:disable-line
         expect(data.updateQuery).toBeTruthy();
-        expect(data.updateQuery instanceof Function).toBe(true);
+        expect(data.updateQuery instanceof Function).toBeTruthy();
         try {
           data.updateQuery(() => done());
         } catch (error) {
@@ -89,10 +62,9 @@ describe('[queries] updateQuery', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
@@ -102,9 +74,8 @@ describe('[queries] updateQuery', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() {
-        // tslint:disable-line
         expect(this.props.data.updateQuery).toBeTruthy();
-        expect(this.props.data.updateQuery instanceof Function).toBe(true);
+        expect(this.props.data.updateQuery instanceof Function).toBeTruthy();
         done();
       }
       render() {
@@ -129,10 +100,9 @@ describe('[queries] updateQuery', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
@@ -142,9 +112,8 @@ describe('[queries] updateQuery', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() {
-        // tslint:disable-line
         expect(this.props.data.updateQuery).toBeTruthy();
-        expect(this.props.data.updateQuery instanceof Function).toBe(true);
+        expect(this.props.data.updateQuery instanceof Function).toBeTruthy();
         try {
           this.props.data.updateQuery();
           done();
@@ -177,10 +146,10 @@ describe('[queries] updateQuery', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const link = mockSingleLink(
-      { request: { query }, result: { data } },
+      { request: { query }, result: { data: data1 } },
       { request: { query }, result: { data: data2 } },
     );
     const client = new ApolloClient({
@@ -197,7 +166,7 @@ describe('[queries] updateQuery', () => {
       }
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).toEqual(data2.allPeople);
+          expect(props.data.allPeople).toEqualJson(data2.allPeople);
           done();
           return;
         } else {
@@ -229,10 +198,10 @@ describe('[queries] updateQuery', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const link = mockSingleLink(
-      { request: { query }, result: { data } },
+      { request: { query }, result: { data: data1 } },
       { request: { query }, result: { data: data2 } },
     );
     const client = new ApolloClient({
@@ -245,7 +214,7 @@ describe('[queries] updateQuery', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (isUpdated) {
-          expect(props.data.allPeople).toEqual(data2.allPeople);
+          expect(props.data.allPeople).toEqualJson(data2.allPeople);
           done();
           return;
         } else {

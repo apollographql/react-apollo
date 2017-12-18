@@ -74,7 +74,7 @@ export class ObservableQueryRecycler {
     subscription.unsubscribe();
 
     // strip off react-apollo specific options
-    const { ssr, skip, client, ...modifiableOpts } = options;
+    const { ssr, client, ...modifiableOpts } = options;
 
     // When `setOptions` is called in apollo-client, we want set the `currentResult()`
     // to be loading: true BUT keep the previous data. This is for cases like

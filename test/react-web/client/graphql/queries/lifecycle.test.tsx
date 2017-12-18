@@ -1,24 +1,13 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
-
-declare function require(name: string);
-
+import '../../../../test-utils/toEqualJson';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import wait from '../../../../test-utils/wait';
 
 describe('[queries] lifecycle', () => {
   // lifecycle
@@ -56,14 +45,14 @@ describe('[queries] lifecycle', () => {
         fetchPolicy: count === 0 ? 'cache-and-network' : 'cache-first',
       }),
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqual(data1.allPeople);
+          expect(data.allPeople).toEqualJson(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
+          expect(data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -178,14 +167,14 @@ describe('[queries] lifecycle', () => {
     });
 
     @graphql(query, { options: props => ({ variables: props }) })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqual(data1.allPeople);
+          expect(data.allPeople).toEqualJson(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
+          expect(data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -245,14 +234,14 @@ describe('[queries] lifecycle', () => {
     });
 
     @graphql(query)
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqual(data1.allPeople);
+          expect(data.allPeople).toEqualJson(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqual(data2.allPeople);
+          expect(data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -309,7 +298,7 @@ describe('[queries] lifecycle', () => {
     @graphql(query, {
       options: { variables, notifyOnNetworkStatusChange: false },
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       8;
       componentWillReceiveProps(props) {
         count += 1;
@@ -317,17 +306,17 @@ describe('[queries] lifecycle', () => {
           if (count === 1) {
             expect(props.foo).toEqual(42);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqual(data1.allPeople);
+            expect(props.data.allPeople).toEqualJson(data1.allPeople);
             props.changeState();
           } else if (count === 2) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqual(data1.allPeople);
+            expect(props.data.allPeople).toEqualJson(data1.allPeople);
             props.data.refetch();
           } else if (count === 3) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqual(data2.allPeople);
+            expect(props.data.allPeople).toEqualJson(data2.allPeople);
             done();
           }
         } catch (e) {
@@ -340,10 +329,7 @@ describe('[queries] lifecycle', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { foo: 42 };
-      }
+      state = { foo: 42 };
       render() {
         return (
           <Container
@@ -394,7 +380,7 @@ describe('[queries] lifecycle', () => {
     @graphql(query, {
       options: { pollInterval: 10, notifyOnNetworkStatusChange: false },
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps(props) {
         if (count === 1) {
           // has data
@@ -488,6 +474,19 @@ describe('[queries] lifecycle', () => {
     let switchClient;
     let refetchQuery;
 
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
+    class Query extends React.Component<any> {
+      componentDidMount() {
+        refetchQuery = () => this.props.data.refetch();
+      }
+
+      render() {
+        const { data: { loading, a, b, c } } = this.props;
+        renders.push({ loading, a, b, c });
+        return null;
+      }
+    }
+
     class ClientSwitcher extends React.Component<any, any> {
       state = {
         client: client1,
@@ -505,19 +504,6 @@ describe('[queries] lifecycle', () => {
             <Query />
           </ApolloProvider>
         );
-      }
-    }
-
-    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-    class Query extends React.Component<any, any> {
-      componentDidMount() {
-        refetchQuery = () => this.props.data.refetch();
-      }
-
-      render() {
-        const { data: { loading, a, b, c } } = this.props;
-        renders.push({ loading, a, b, c });
-        return null;
       }
     }
 
@@ -568,29 +554,30 @@ describe('[queries] lifecycle', () => {
     const data2 = { user: { name: 'Luke Skywalker' } };
 
     const link = mockSingleLink({
-      request: { query, variables, delay: 10 },
+      request: { query, variables },
       result: { data: data2 },
+      delay: 10,
     });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-      // prefill the store (like SSR would)
-      initialState: {
-        apollo: {
-          data: {
-            ROOT_QUERY: {
-              'user({"first":1})': null,
-            },
+    const initialState = {
+      apollo: {
+        data: {
+          ROOT_QUERY: {
+            'user({"first":1})': null,
           },
         },
       },
+    };
+
+    const client = new ApolloClient({
+      link,
+      // prefill the store (like SSR would)
+      // @see https://github.com/zeit/next.js/blob/master/examples/with-apollo/lib/initApollo.js
+      cache: new Cache({ addTypename: false }).restore(initialState),
     });
 
-    let hasRefetched,
-      count = 0;
-
+    let count = 0;
     @graphql(query)
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps({ data }) {
         count++;
       }

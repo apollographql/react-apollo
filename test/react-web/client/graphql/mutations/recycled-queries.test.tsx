@@ -1,16 +1,11 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import assign = require('object-assign');
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
-
 import { ApolloProvider, graphql } from '../../../../../src';
+import '../../../../test-utils/toEqualJson';
 
 describe('[mutations] update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing
@@ -67,7 +62,7 @@ describe('[mutations] update queries', () => {
           const originalList = previousQueryResult.todo_list;
           const newTask = mutationResult.data.createTodo;
           return {
-            todo_list: assign(originalList, {
+            todo_list: Object.assign(originalList, {
               tasks: [...originalList.tasks, newTask],
             }),
           };
@@ -133,11 +128,11 @@ describe('[mutations] update queries', () => {
           try {
             switch (queryRenderCount++) {
               case 0:
-                expect(this.props.data.loading).toBe(true);
+                expect(this.props.data.loading).toBeTruthy();
                 expect(this.props.data.todo_list).toBeFalsy();
                 break;
               case 1:
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualJson({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [],
@@ -146,7 +141,7 @@ describe('[mutations] update queries', () => {
               case 2:
                 expect(queryMountCount).toBe(1);
                 expect(queryUnmountCount).toBe(0);
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualJson({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [
@@ -161,7 +156,7 @@ describe('[mutations] update queries', () => {
               case 3:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualJson({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [
@@ -179,7 +174,7 @@ describe('[mutations] update queries', () => {
                 });
                 break;
               case 4:
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.todo_list).toEqualJson({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [
@@ -352,12 +347,12 @@ describe('[mutations] update queries', () => {
           try {
             switch (queryRenderCount++) {
               case 0:
-                expect(this.props.data.loading).toBe(true);
+                expect(this.props.data.loading).toBeTruthy();
                 expect(this.props.data.todo_list).toBeFalsy();
                 break;
               case 1:
-                expect(this.props.data.loading).toBe(false);
-                expect(this.props.data.todo_list).toEqual({
+                expect(this.props.data.loading).toBeFalsy();
+                expect(this.props.data.todo_list).toEqualJson({
                   id: '123',
                   title: 'how to apollo',
                   tasks: [],
@@ -366,14 +361,14 @@ describe('[mutations] update queries', () => {
               case 2:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual(
+                expect(this.props.data.todo_list).toEqualJson(
                   updatedData.todo_list,
                 );
                 break;
               case 3:
                 expect(queryMountCount).toBe(2);
                 expect(queryUnmountCount).toBe(1);
-                expect(this.props.data.todo_list).toEqual(
+                expect(this.props.data.todo_list).toEqualJson(
                   updatedData.todo_list,
                 );
                 break;
@@ -387,7 +382,7 @@ describe('[mutations] update queries', () => {
         }
       }
 
-      const wrapperMutation = renderer.create(
+      renderer.create(
         <ApolloProvider client={client}>
           <Mutation />
         </ApolloProvider>,
@@ -406,7 +401,7 @@ describe('[mutations] update queries', () => {
           .then((...args) => {
             setTimeout(() => {
               // This re-renders the recycled query that should have been refetched while recycled.
-              const wrapperQuery2 = renderer.create(
+              renderer.create(
                 <ApolloProvider client={client}>
                   <Query id="123" />
                 </ApolloProvider>,

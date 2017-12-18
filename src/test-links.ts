@@ -14,7 +14,7 @@ export interface MockedResponse {
   result?: FetchResult;
   error?: Error;
   delay?: number;
-  newData: () => GraphQLRequest;
+  newData?: () => FetchResult;
 }
 
 export interface MockedSubscriptionResult {

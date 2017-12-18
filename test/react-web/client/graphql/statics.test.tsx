@@ -1,6 +1,5 @@
 import * as React from 'react';
 import gql from 'graphql-tag';
-
 import graphql from '../../../../src/graphql';
 
 let sampleOperation = gql`

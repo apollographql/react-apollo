@@ -1,43 +1,18 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
 import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] errors', () => {
   let error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {});
+    console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;
@@ -65,7 +40,7 @@ describe('[queries] errors', () => {
     });
 
     class ErrorBoundary extends React.Component {
-      componentDidCatch(e, info) {
+      componentDidCatch(e) {
         expect(e.message).toMatch(/bar is not a function/);
         done();
       }
@@ -150,7 +125,7 @@ describe('[queries] errors', () => {
         // tslint:disable-line
         expect(data.error).toBeTruthy();
         expect(data.error.networkError).toBeTruthy();
-        // expect(data.error instanceof ApolloError).toBe(true);
+        // expect(data.error instanceof ApolloError).toBeTruthy();
         done();
       }
       render() {
@@ -214,7 +189,7 @@ describe('[queries] errors', () => {
           // tslint:disable-line
           iteration += 1;
           if (iteration === 1) {
-            expect(props.data.allPeople).toEqual(data.allPeople);
+            expect(props.data.allPeople).toEqualJson(data.allPeople);
             props.setVar(2);
           } else if (iteration === 2) {
             expect(props.data.loading).toBeTruthy();
@@ -400,35 +375,37 @@ describe('[queries] errors', () => {
     let count = 0;
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps = props => {
+      componentWillReceiveProps(props) {
         try {
           switch (count++) {
             case 0:
-              expect(props.data.allPeople).toEqual(data.allPeople);
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               props.data.refetch();
               break;
             case 1:
-              expect(props.data.loading).toBe(true);
-              expect(props.data.allPeople).toEqual(data.allPeople);
+              expect(props.data.loading).toBeTruthy();
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               break;
             case 2:
-              expect(props.data.loading).toBe(false);
+              expect(props.data.loading).toBeFalsy();
               expect(props.data.error).toBeTruthy();
-              expect(props.data.allPeople).toEqual(data.allPeople);
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               done();
               break;
+            default:
+              throw new Error('Unexpected fall through');
           }
         } catch (e) {
           done.fail(e);
         }
-      };
+      }
 
       render() {
         return null;
       }
     }
 
-    const wrapper = renderer.create(
+    renderer.create(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,

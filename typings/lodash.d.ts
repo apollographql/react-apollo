@@ -28,13 +28,24 @@ declare module 'hoist-non-react-statics' {
    *
    * Returns the target component.
    */
-  function hoistNonReactStatics(targetComponent: any, sourceComponent: any, customStatics: {[name: string]: boolean}): any;
-  namespace hoistNonReactStatics {}
+  function hoistNonReactStatics(
+    targetComponent: any,
+    sourceComponent: any,
+    customStatics: { [name: string]: boolean },
+  ): any;
+  namespace hoistNonReactStatics {
+
+  }
   export = hoistNonReactStatics;
 }
 
 declare module 'redux-loop' {
-  function combineReducers(reducers: any, state?: any, get?: any, set?: any): any;
+  function combineReducers(
+    reducers: any,
+    state?: any,
+    get?: any,
+    set?: any,
+  ): any;
   function install(): any;
 }
 

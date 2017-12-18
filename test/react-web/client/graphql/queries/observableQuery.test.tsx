@@ -1,38 +1,13 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] observableQuery', () => {
   // observableQuery
@@ -57,39 +32,39 @@ describe('[queries] observableQuery', () => {
     });
 
     // storage
-    let queryObservable1: ObservableQuery<any>;
-    let queryObservable2: ObservableQuery<any>;
-    let originalOptions;
+    // let queryObservable1: ObservableQuery<any>;
+    // let queryObservable2: ObservableQuery<any>;
+    // let originalOptions;
     let wrapper1;
-    let wrapper2;
+    // let wrapper2;
     let count = 0;
-    let recycledOptions;
+    // let recycledOptions;
 
     const assert1 = () => {
-      const keys = Array.from(client.queryManager.queries.keys());
+      const keys = Array.from((client.queryManager as any).queries.keys());
       expect(keys).toEqual(['1']);
-      queryObservable1 = client.queryManager.queries.get('1').observableQuery;
-      originalOptions = Object.assign({}, queryObservable1.options);
+      // queryObservable1 = (client.queryManager as any).queries.get('1').observableQuery;
+      // originalOptions = Object.assign({}, queryObservable1.options);
     };
 
     const assert2 = () => {
-      const keys = Array.from(client.queryManager.queries.keys());
+      const keys = Array.from((client.queryManager as any).queries.keys());
       expect(keys).toEqual(['1']);
     };
 
     @graphql(query, { options: { fetchPolicy: 'cache-and-network' } })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillMount() {
         // during the first mount, the loading prop should be true;
         if (count === 0) {
-          expect(this.props.data.loading).toBe(true);
+          expect(this.props.data.loading).toBeTruthy();
         }
 
         // during the second mount, the loading prop should be false, and data should
         // be present;
         if (count === 3) {
-          expect(this.props.data.loading).toBe(false);
-          expect(this.props.data.allPeople).toEqual(data.allPeople);
+          expect(this.props.data.loading).toBeFalsy();
+          expect(this.props.data.allPeople).toEqualJson(data.allPeople);
         }
       }
 
@@ -102,9 +77,9 @@ describe('[queries] observableQuery', () => {
 
       componentDidUpdate(prevProps) {
         if (count === 3) {
-          expect(prevProps.data.loading).toBe(true);
-          expect(this.props.data.loading).toBe(false);
-          expect(this.props.data.allPeople).toEqual(data.allPeople);
+          expect(prevProps.data.loading).toBeTruthy();
+          expect(this.props.data.loading).toBeFalsy();
+          expect(this.props.data.allPeople).toEqualJson(data.allPeople);
 
           // ensure first assertion and umount tree
           assert1();
@@ -139,11 +114,11 @@ describe('[queries] observableQuery', () => {
 
       goToRedirect = () => {
         this.setState({ renderRedirect: true });
-      };
+      }; // tslint:disable-line
 
       handleRedirectMount = () => {
         this.setState({ renderRedirect: false });
-      };
+      }; // tslint:disable-line
 
       render() {
         if (this.state.renderRedirect) {
@@ -178,8 +153,8 @@ describe('[queries] observableQuery', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    let finish = () => {};
+    // const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    let finish = () => {}; // tslint:disable-line
     let called = 0;
     const link = new ApolloLink((o, f) => {
       called++;
@@ -219,9 +194,9 @@ describe('[queries] observableQuery', () => {
       </ApolloProvider>,
     );
 
-    let keys = Array.from(client.queryManager.queries.keys());
+    let keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable1 = client.queryManager.queries.get('1')
+    const queryObservable1 = (client.queryManager as any).queries.get('1')
       .observableQuery;
 
     // The query should only have been invoked when first mounting and not when resetting store
@@ -229,9 +204,9 @@ describe('[queries] observableQuery', () => {
 
     wrapper1.unmount();
 
-    keys = Array.from(client.queryManager.queries.keys());
+    keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable2 = client.queryManager.queries.get('1')
+    const queryObservable2 = (client.queryManager as any).queries.get('1')
       .observableQuery;
 
     expect(queryObservable1).toBe(queryObservable2);
@@ -247,7 +222,7 @@ describe('[queries] observableQuery', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    // const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     let called = 0;
     const link = new ApolloLink((o, f) => {
       called++;
@@ -276,18 +251,16 @@ describe('[queries] observableQuery', () => {
       }
     }
 
-    const wrapper1 = renderer.create(
+    renderer.create(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,
     );
 
-    const keys = Array.from(client.queryManager.queries.keys());
+    const keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1']);
-
     expect(called).toBe(1);
-
-    client.resetStore().then(() => {
+    (client.resetStore() as Promise<null>).then(() => {
       expect(called).toBe(2);
     });
   });
@@ -348,26 +321,26 @@ describe('[queries] observableQuery', () => {
       </ApolloProvider>,
     );
 
-    let keys = Array.from(client.queryManager.queries.keys());
+    let keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable1 = client.queryManager.queries.get('1')
+    const queryObservable1 = (client.queryManager as any).queries.get('1')
       .observableQuery;
 
     remount();
 
     setTimeout(() => {
-      keys = Array.from(client.queryManager.queries.keys());
+      keys = Array.from((client.queryManager as any).queries.keys());
       expect(keys).toEqual(['1']);
-      const queryObservable2 = client.queryManager.queries.get('1')
+      const queryObservable2 = (client.queryManager as any).queries.get('1')
         .observableQuery;
       expect(queryObservable1).toBe(queryObservable2);
 
       remount();
 
       setTimeout(() => {
-        keys = Array.from(client.queryManager.queries.keys());
+        keys = Array.from((client.queryManager as any).queries.keys());
         expect(keys).toEqual(['1']);
-        const queryObservable3 = client.queryManager.queries.get('1')
+        const queryObservable3 = (client.queryManager as any).queries.get('1')
           .observableQuery;
         expect(queryObservable1).toBe(queryObservable3);
 
@@ -436,22 +409,22 @@ describe('[queries] observableQuery', () => {
       </ApolloProvider>,
     );
 
-    let keys = Array.from(client.queryManager.queries.keys());
+    let keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1', '2']);
-    const queryObservable1 = client.queryManager.queries.get('1')
+    const queryObservable1 = (client.queryManager as any).queries.get('1')
       .observableQuery;
-    const queryObservable2 = client.queryManager.queries.get('2')
+    const queryObservable2 = (client.queryManager as any).queries.get('2')
       .observableQuery;
     expect(queryObservable1).not.toBe(queryObservable2);
 
     remount();
 
     setTimeout(() => {
-      keys = Array.from(client.queryManager.queries.keys());
+      keys = Array.from((client.queryManager as any).queries.keys());
       expect(keys).toEqual(['1', '2']);
-      const queryObservable3 = client.queryManager.queries.get('1')
+      const queryObservable3 = (client.queryManager as any).queries.get('1')
         .observableQuery;
-      const queryObservable4 = client.queryManager.queries.get('2')
+      const queryObservable4 = (client.queryManager as any).queries.get('2')
         .observableQuery;
       expect(queryObservable1).not.toBe(queryObservable2);
 
@@ -482,7 +455,7 @@ describe('[queries] observableQuery', () => {
         }
       }
     `;
-    const variables = { id: 1 };
+    const variables1 = { id: 1 };
     const variables2 = { id: 2 };
     const data = {
       allPeople: {
@@ -496,8 +469,8 @@ describe('[queries] observableQuery', () => {
     };
 
     const link = mockSingleLink(
-      { request: { query, variables }, result: { data } },
-      { request: { query, variables2 }, result: { data: data2 } },
+      { request: { query, variables: variables1 }, result: { data } },
+      { request: { query, variables: variables2 }, result: { data: data2 } },
     );
     const client = new ApolloClient({
       link,
@@ -508,7 +481,7 @@ describe('[queries] observableQuery', () => {
     class Remounter extends React.Component<any, any> {
       state = {
         showChildren: true,
-        variables: variables,
+        variables: variables1,
       };
 
       componentDidMount() {
@@ -539,13 +512,13 @@ describe('[queries] observableQuery', () => {
           // first variable render
           if (variables.first === 1) {
             if (loading) expect(allPeople).toBeUndefined();
-            if (!loading) expect(allPeople).toEqual(data.allPeople);
+            if (!loading) expect(allPeople).toEqualJson(data.allPeople);
           }
 
           if (variables.first === 2) {
             // second variables render
             if (loading) expect(allPeople).toBeUndefined();
-            if (!loading) expect(allPeople).toEqual(data2.allPeople);
+            if (!loading) expect(allPeople).toEqualJson(data2.allPeople);
           }
         } catch (e) {
           done.fail(e);
