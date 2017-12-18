@@ -67,7 +67,7 @@ describe('[queries] polling', () => {
       } finally {
         (wrapper as any).unmount();
       }
-    }, totalTime + 100); // leave some extra time for travis to catch up
+    }, totalTime + POLL_TIME - 50); // leave some extra time for travis to catch up (almost a whole additional interval)
   });
 
   it('exposes stopPolling as part of the props api', done => {
