@@ -32,7 +32,8 @@ function observableQueryFields(observable) {
   const fields = pick(
     observable,
     'variables',
-    'refetch',
+    // use the refetch function defined on HOC
+    // 'refetch',
     'fetchMore',
     'updateQuery',
     'startPolling',
@@ -517,7 +518,10 @@ export default function graphql<
         }
 
         const opts = this.calculateOptions(this.props);
-        const data = {};
+        // use the refetch function defined on HOC
+        const data = {
+          refetch: this.refetch
+        };
         assign(data, observableQueryFields(this.queryObservable));
 
         if (this.type === DocumentType.Subscription) {
@@ -581,6 +585,17 @@ export default function graphql<
           }
         }
         return data as QueryProps & TData;
+      }
+
+      /**
+       * wrap the queryObservable.refetch function, and makes the component force update.
+       * if we don`t do this, the WrappedComponent can not get to know the networkStatus
+       * and loading Status has changed via the props.
+       */
+      refetch = (variables?: any) => {
+        const promise = this.queryObservable.refetch(variables);
+        this.forceRenderChildren();
+        return promise;
       }
 
       render() {
