@@ -107,6 +107,55 @@ describe('Query component', () => {
     });
   });
 
+  fit('renders using a child render function', done => {
+    const render = jest.fn(() => <div />);
+
+    const Component = () => <Query query={query}>{render}</Query>;
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    catchAsyncError(done, () => {
+      expect(render).toHaveBeenCalledTimes(1);
+      expect(render.mock.calls[0][0]).toMatchSnapshot(
+        'result in children render prop',
+      );
+      expect(wrapper.find('div').exists()).toBeTruthy();
+      done();
+    });
+  });
+
+  it('renders the child components', () => {
+    const Component = () => (
+      <Query query={query}>
+        <div id="data" />
+      </Query>
+    );
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    expect(wrapper.find('#data').exists()).toBeTruthy();
+  });
+
+  it('should return null if no render or child prop is provided', () => {
+    const Component = () => <Query query={query} />;
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    expect(wrapper.html()).toEqual(null);
+  });
+
   it('renders the error state', done => {
     const mockError = [
       {

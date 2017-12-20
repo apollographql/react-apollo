@@ -40,12 +40,15 @@ export interface QueryProps {
   skip?: Boolean;
   loading?: () => React.ReactNode;
   error?: (error: ApolloError) => React.ReactNode;
-  render?: (result: QueryRenderProp) => React.ReactNode;
+  render?: ((result: QueryRenderProp) => React.ReactNode);
+  children?: ((result: QueryRenderProp) => React.ReactNode) | React.ReactNode;
 }
 
 export interface QueryState {
   result: any;
 }
+
+const isEmptyChildren = children => React.Children.count(children) === 0;
 
 function observableQueryFields(observable) {
   const fields = pick(
@@ -177,7 +180,7 @@ class Query extends React.Component<QueryProps, QueryState> {
   };
 
   render() {
-    const { render, loading, error } = this.props;
+    const { render, loading, error, children } = this.props;
     const result = this.getRenderProps();
 
     if (result.loading && loading) {
@@ -188,7 +191,18 @@ class Query extends React.Component<QueryProps, QueryState> {
       return error(result.error);
     }
 
-    return render(result);
+    if (render) {
+      return render(result);
+    }
+
+    if (typeof children === 'function') {
+      return children(result);
+    }
+
+    if (children && !isEmptyChildren(children))
+      return React.Children.only(children);
+
+    return null;
   }
 }
 
