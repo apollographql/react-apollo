@@ -89,7 +89,7 @@
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
-    "@types/enzyme": "3.1.5",
+    "@types/enzyme": "3.1.6",
     "@types/graphql": "0.11.7",
     "@types/invariant": "2.2.29",
     "@types/isomorphic-fetch": "0.0.34",
