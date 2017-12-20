@@ -113,7 +113,7 @@
     "colors": "1.1.2",
     "danger": "2.1.6",
     "enzyme": "3.2.0",
-    "enzyme-adapter-react-16": "1.1.0",
+    "enzyme-adapter-react-16": "1.1.1",
     "flow-bin": "0.61.0",
     "flow-typed": "2.2.3",
     "graphql": "0.11.7",
