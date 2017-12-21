@@ -598,6 +598,7 @@ export default function graphql<
           this.forceRenderChildren();
         }
         return response;
+        // i don`t know where git can`t receive this;
       };
 
       render() {
