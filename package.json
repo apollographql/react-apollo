@@ -94,7 +94,7 @@
     "@types/invariant": "2.2.29",
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jasmine": "2.8.2",
-    "@types/jest": "21.1.8",
+    "@types/jest": "21.1.9",
     "@types/lodash": "4.14.91",
     "@types/object-assign": "4.0.30",
     "@types/react": "16.0.31",
