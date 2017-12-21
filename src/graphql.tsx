@@ -142,6 +142,7 @@ export default function graphql<
         this.type = operation.type;
         this.dataForChildViaMutation = this.dataForChildViaMutation.bind(this);
         this.setWrappedInstance = this.setWrappedInstance.bind(this);
+        this.refetch = this.refetch.bind(this);
       }
 
       componentWillMount() {
@@ -592,14 +593,13 @@ export default function graphql<
        * after calling original refetch to pass the new dataProps to the wrappedComponent.
        * That can makes WrappedComponent be able to watch on loading status;
        */
-      refetch = (variables?: any) => {
+      refetch(variables?: any) {
         const response = this.queryObservable.refetch(variables);
         if (notifyOnLoadingStatusChange === true) {
           this.forceRenderChildren();
         }
         return response;
-        // i don`t know where git can`t receive this;
-      };
+      }
 
       render() {
         if (this.shouldSkip()) {
