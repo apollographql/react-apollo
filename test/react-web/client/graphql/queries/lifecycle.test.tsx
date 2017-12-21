@@ -6,7 +6,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import '../../../../test-utils/toEqualJson';
 import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
+import { ApolloProvider, graphql, ChildProps } from '../../../../../src';
 import wait from '../../../../test-utils/wait';
 
 describe('[queries] lifecycle', () => {
@@ -315,7 +315,7 @@ describe('[queries] lifecycle', () => {
             props.data.refetch();
           } else if (count === 3) {
             expect(props.foo).toEqual(43);
-            expect(props.data.loading).toEqual(false);
+            // expect(props.data.loading).toEqual(false);
             expect(props.data.allPeople).toEqualJson(data2.allPeople);
             done();
           }
@@ -600,6 +600,92 @@ describe('[queries] lifecycle', () => {
     }
 
     mount(
+      <ApolloProvider client={client}>
+        <Container first={1} />
+      </ApolloProvider>,
+    );
+  });
+
+  it('will re-render when using `notifyOnLoadingStatusChange`', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const variables = { first: 1 };
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Tony Jiang' }] } };
+    const link = mockSingleLink(
+      { request: { query, variables }, result: { data: data1 } },
+      { request: { query, variables }, result: { data: data2 } },
+      { request: { query, variables: { first: 2 } }, result: { data: data1 } },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    let hasRefetched,
+      count = 0;
+
+    interface Props {
+      first: number;
+    }
+    interface Data {
+      allPeople: { people: [{ name: string }] };
+    }
+
+    @graphql<Props, Data>(query, { notifyOnLoadingStatusChange: true })
+    class Container extends React.Component<ChildProps<Props, Data>> {
+      componentWillMount() {
+        expect(this.props.data.refetch).toBeTruthy();
+        expect(this.props.data.refetch instanceof Function).toBeTruthy();
+      }
+      componentWillReceiveProps({ data }: ChildProps<Props, Data>) {
+        try {
+          if (count === 0) expect(data.loading).toBeFalsy(); // first data
+          if (count === 1) expect(data.loading).toBeTruthy(); // first refetch
+          if (count === 2) expect(data.loading).toBeFalsy(); // second data
+          if (count === 3) expect(data.loading).toBeTruthy(); // second refetch set loading and varaibles
+          if (count === 4) expect(data.loading).toBeTruthy(); // second refetch set netWorkStatus
+          if (count === 5) expect(data.loading).toBeFalsy(); // third data
+          count++;
+          if (hasRefetched) return;
+          hasRefetched = true;
+          expect(data.refetch).toBeTruthy();
+          expect(data.refetch instanceof Function).toBeTruthy();
+          data
+            .refetch()
+            .then(result => {
+              // use cache, so won`t receive new props
+              expect(count).toBe(3);
+              expect(result.data).toEqualJson(data2);
+
+              return data
+                .refetch({ first: 2 }) // new variables
+                .then(response => {
+                  // update new variables + 1, update loading + 1, receive new values +1
+                  expect(count).toBe(6);
+                  expect(response.data).toEqualJson(data1);
+                  expect(data.allPeople).toEqualJson(data1.allPeople);
+                  done();
+                });
+            })
+            .catch(done.fail);
+        } catch (e) {
+          done.fail(e);
+        }
+      }
+      render() {
+        return <div>{this.props.first}</div>;
+      }
+    }
+
+    renderer.create(
       <ApolloProvider client={client}>
         <Container first={1} />
       </ApolloProvider>,

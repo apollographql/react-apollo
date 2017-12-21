@@ -32,8 +32,7 @@ function observableQueryFields(observable) {
   const fields = pick(
     observable,
     'variables',
-    // use the refetch function defined on HOC
-    // 'refetch',
+    'refetch',
     'fetchMore',
     'updateQuery',
     'startPolling',
@@ -71,6 +70,7 @@ export default function graphql<
     options = defaultMapPropsToOptions,
     skip = defaultMapPropsToSkip,
     alias = 'Apollo',
+    notifyOnLoadingStatusChange = false,
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOpts | MutationOpts;
@@ -519,10 +519,10 @@ export default function graphql<
 
         const opts = this.calculateOptions(this.props);
         // use the refetch function defined on HOC
-        const data = {
-          refetch: this.refetch
-        };
-        assign(data, observableQueryFields(this.queryObservable));
+        const data = {};
+        assign(data, observableQueryFields(this.queryObservable), {
+          refetch: this.refetch,
+        });
 
         if (this.type === DocumentType.Subscription) {
           assign(
@@ -588,15 +588,17 @@ export default function graphql<
       }
 
       /**
-       * wrap the queryObservable.refetch function, and makes the component force update.
-       * if we don`t do this, the WrappedComponent can not get to know the networkStatus
-       * and loading Status has changed via the props.
+       * redefine refetch function, if option.notifyOnLoadingStatusChange is true, we forceUpdate
+       * after calling original refetch to pass the new dataProps to the wrappedComponent.
+       * That can makes WrappedComponent be able to watch on loading status;
        */
       refetch = (variables?: any) => {
-        const promise = this.queryObservable.refetch(variables);
-        this.forceRenderChildren();
-        return promise;
-      }
+        const response = this.queryObservable.refetch(variables);
+        if (notifyOnLoadingStatusChange === true) {
+          this.forceRenderChildren();
+        }
+        return response;
+      };
 
       render() {
         if (this.shouldSkip()) {
