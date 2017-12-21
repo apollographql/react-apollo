@@ -139,7 +139,7 @@
     "source-map-support": "0.5.0",
     "swapi-graphql": "0.0.6",
     "travis-weigh-in": "1.0.2",
-    "ts-jest": "21.2.4",
+    "ts-jest": "22.0.0",
     "tslint": "5.8.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
