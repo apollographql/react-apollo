@@ -50,13 +50,10 @@ class ErrorBoundary extends React.Component {
 }
 
 describe('Query component', () => {
-  it('calls the render prop', done => {
+  it('calls the children prop', done => {
     const Component = () => (
-      <Query
-        query={query}
-        loading={() => <div />}
-        error={() => <div />}
-        render={result => {
+      <Query query={query} loading={() => <div />} error={() => <div />}>
+        {result => {
           catchAsyncError(done, () => {
             expect(result).toMatchSnapshot('result in render prop');
             done();
@@ -64,7 +61,7 @@ describe('Query component', () => {
 
           return null;
         }}
-      />
+      </Query>
     );
 
     const wrapper = mount(
@@ -74,7 +71,7 @@ describe('Query component', () => {
     );
   });
 
-  it('renders using the render prop', done => {
+  it('renders using the children prop', done => {
     const onRender = () => {
       setTimeout(() => {
         catchAsyncError(done, () => {
@@ -87,14 +84,12 @@ describe('Query component', () => {
     };
 
     const Component = () => (
-      <Query
-        query={query}
-        loading={() => <div id="loading" />}
-        render={result => {
+      <Query query={query} loading={() => <div id="loading" />}>
+        {result => {
           onRender();
           return <div id="data" />;
         }}
-      />
+      </Query>
     );
 
     const wrapper = mount(
@@ -105,55 +100,6 @@ describe('Query component', () => {
     catchAsyncError(done, () => {
       expect(wrapper.find('#loading').exists()).toBeTruthy();
     });
-  });
-
-  fit('renders using a child render function', done => {
-    const render = jest.fn(() => <div />);
-
-    const Component = () => <Query query={query}>{render}</Query>;
-
-    const wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    catchAsyncError(done, () => {
-      expect(render).toHaveBeenCalledTimes(1);
-      expect(render.mock.calls[0][0]).toMatchSnapshot(
-        'result in children render prop',
-      );
-      expect(wrapper.find('div').exists()).toBeTruthy();
-      done();
-    });
-  });
-
-  it('renders the child components', () => {
-    const Component = () => (
-      <Query query={query}>
-        <div id="data" />
-      </Query>
-    );
-
-    const wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    expect(wrapper.find('#data').exists()).toBeTruthy();
-  });
-
-  it('should return null if no render or child prop is provided', () => {
-    const Component = () => <Query query={query} />;
-
-    const wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    expect(wrapper.html()).toEqual(null);
   });
 
   it('renders the error state', done => {
@@ -171,8 +117,9 @@ describe('Query component', () => {
           onError(e);
           return <div id="error" />;
         }}
-        render={result => <div id="data" />}
-      />
+      >
+        {result => <div id="data" />}
+      </Query>
     );
 
     const wrapper = mount(
@@ -200,7 +147,11 @@ describe('Query component', () => {
   it('skips the query', done => {
     const render = jest.fn(() => null);
 
-    const Component = () => <Query query={query} skip render={render} />;
+    const Component = () => (
+      <Query query={query} skip>
+        {render}
+      </Query>
+    );
 
     const wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
@@ -250,7 +201,9 @@ describe('Query component', () => {
     };
 
     const Component = () => (
-      <Query query={queryWithVariables} options={options} render={render} />
+      <Query query={queryWithVariables} options={options}>
+        {render}
+      </Query>
     );
 
     const wrapper = mount(
@@ -282,7 +235,7 @@ describe('Query component', () => {
     expect(() => {
       mount(
         <MockedProvider>
-          <Query query={mutation} render={() => null} />
+          <Query query={mutation}>{() => null} </Query>
         </MockedProvider>,
       );
     }).toThrowError(
@@ -308,7 +261,7 @@ describe('Query component', () => {
     expect(() => {
       mount(
         <MockedProvider>
-          <Query query={subscription} render={() => null} />
+          <Query query={subscription}>{() => null} </Query>
         </MockedProvider>,
       );
     }).toThrowError(
@@ -369,7 +322,8 @@ describe('Query component', () => {
           count++;
           return null;
         }}
-        render={data => {
+      >
+        {data => {
           catchAsyncError(done, () => {
             if (count === 1) {
               // first data
@@ -409,7 +363,7 @@ describe('Query component', () => {
 
           return null;
         }}
-      />
+      </Query>
     );
 
     const wrapper = mount(
@@ -442,11 +396,8 @@ describe('Query component', () => {
     expect.assertions(3);
 
     const Component = () => (
-      <Query
-        query={query}
-        options={{ variables }}
-        loading={() => null}
-        render={data => {
+      <Query query={query} options={{ variables }} loading={() => null}>
+        {data => {
           if (count === 0) {
             data
               .fetchMore({
@@ -483,7 +434,7 @@ describe('Query component', () => {
           count++;
           return null;
         }}
-      />
+      </Query>
     );
 
     const wrapper = mount(
@@ -503,11 +454,8 @@ describe('Query component', () => {
     let count = 0;
 
     const Component = () => (
-      <Query
-        query={query}
-        options={options}
-        loading={() => <div />}
-        render={result => {
+      <Query query={query} options={options} loading={() => <div />}>
+        {result => {
           if (count === 0) {
             expect(result.data).toEqual(data1);
           } else if (count === 1) {
@@ -518,7 +466,7 @@ describe('Query component', () => {
           count++;
           return null;
         }}
-      />
+      </Query>
     );
 
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -561,10 +509,8 @@ describe('Query component', () => {
     let count = 0;
     let isPolling = false;
     const Component = () => (
-      <Query
-        query={query}
-        loading={() => <div />}
-        render={result => {
+      <Query query={query} loading={() => <div />}>
+        {result => {
           if (!isPolling) {
             isPolling = true;
             result.startPolling(30);
@@ -579,7 +525,7 @@ describe('Query component', () => {
           count++;
           return null;
         }}
-      />
+      </Query>
     );
 
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -626,11 +572,8 @@ describe('Query component', () => {
     let count = 0;
 
     const Component = () => (
-      <Query
-        query={query}
-        options={options}
-        loading={() => <div />}
-        render={result => {
+      <Query query={query} options={options} loading={() => <div />}>
+        {result => {
           if (count === 0) {
             expect(result.data).toEqual(data1);
           } else if (count === 1) {
@@ -640,7 +583,7 @@ describe('Query component', () => {
           count++;
           return null;
         }}
-      />
+      </Query>
     );
 
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -693,11 +636,8 @@ describe('Query component', () => {
     let isUpdated;
     expect.assertions(3);
     const Component = () => (
-      <Query
-        query={query}
-        options={{ variables }}
-        loading={() => <div />}
-        render={result => {
+      <Query query={query} options={{ variables }} loading={() => <div />}>
+        {result => {
           if (isUpdated) {
             catchAsyncError(done, () => {
               expect(result.data).toEqual(data2);
@@ -720,7 +660,7 @@ describe('Query component', () => {
 
           return null;
         }}
-      />
+      </Query>
     );
 
     const wrapper = mount(
@@ -777,11 +717,8 @@ describe('Query component', () => {
         const { variables } = this.state;
 
         return (
-          <Query
-            query={query}
-            options={{ variables }}
-            loading={() => <div />}
-            render={result => {
+          <Query query={query} options={{ variables }} loading={() => <div />}>
+            {result => {
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(result.variables).toEqual({ first: 1 });
@@ -797,7 +734,7 @@ describe('Query component', () => {
               count++;
               return null;
             }}
-          />
+          </Query>
         );
       }
     }
@@ -855,10 +792,8 @@ describe('Query component', () => {
         const { query } = this.state;
 
         return (
-          <Query
-            query={query}
-            loading={() => <div />}
-            render={result => {
+          <Query query={query} loading={() => <div />}>
+            {result => {
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(result.data).toEqual(data1);
@@ -872,7 +807,7 @@ describe('Query component', () => {
               count++;
               return null;
             }}
-          />
+          </Query>
         );
       }
     }
@@ -925,7 +860,9 @@ describe('Query component', () => {
         const { query } = this.state;
 
         return (
-          <Query query={query} loading={() => <div />} render={() => null} />
+          <Query query={query} loading={() => <div />}>
+            {() => null}
+          </Query>
         );
       }
     }
@@ -957,12 +894,9 @@ describe('Query component', () => {
       render() {
         const { skip } = this.state;
         return (
-          <Query
-            query={query}
-            skip={skip}
-            loading={() => null}
-            render={render}
-          />
+          <Query query={query} skip={skip} loading={() => null}>
+            {render}
+          </Query>
         );
       }
     }
@@ -998,11 +932,8 @@ describe('Query component', () => {
       render() {
         const { skip } = this.state;
         return (
-          <Query
-            query={query}
-            skip={skip}
-            loading={() => null}
-            render={result => {
+          <Query query={query} skip={skip} loading={() => null}>
+            {result => {
               if (this.state.skip) {
                 setTimeout(() => {
                   // Since skip is true, this refetch should not call
@@ -1013,7 +944,7 @@ describe('Query component', () => {
               count++;
               return null;
             }}
-          />
+          </Query>
         );
       }
     }
@@ -1062,10 +993,8 @@ describe('Query component', () => {
       render() {
         return (
           <ApolloProvider client={this.state.client}>
-            <Query
-              query={query}
-              loading={() => null}
-              render={result => {
+            <Query query={query} loading={() => null}>
+              {result => {
                 catchAsyncError(done, () => {
                   if (count === 0) {
                     expect(result.data).toEqual(data1);
@@ -1084,7 +1013,7 @@ describe('Query component', () => {
 
                 return null;
               }}
-            />
+            </Query>
           </ApolloProvider>
         );
       }
