@@ -105,7 +105,7 @@
     "apollo-cache-inmemory": "1.1.4",
     "apollo-client": "2.1.0",
     "babel-core": "6.26.0",
-    "babel-jest": "21.2.0",
+    "babel-jest": "22.0.4",
     "babel-preset-env": "1.6.1",
     "babel-preset-react-native": "4.0.0",
     "bundlesize": "0.15.3",
