@@ -41,7 +41,7 @@ export interface QueryProps {
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   notifyOnNetworkStatusChange?: boolean;
-  children?: (result: QueryResult) => React.ReactNode;
+  children: (result: QueryResult) => React.ReactNode;
 }
 
 export interface QueryState {
@@ -163,7 +163,7 @@ class Query extends React.Component<QueryProps, QueryState> {
     this.setState({ result: this.queryObservable.currentResult() });
   };
 
-  getRenderProps = () => {
+  getResult = () => {
     const { result } = this.state;
 
     const { loading, error, networkStatus, data } = result;
@@ -181,10 +181,8 @@ class Query extends React.Component<QueryProps, QueryState> {
 
   render() {
     const { children } = this.props;
-    const result = this.getRenderProps();
-
-    const renderedChildren = children(result);
-    return renderedChildren && React.Children.only(renderedChildren);
+    const result = this.getResult();
+    return children(result);
   }
 }
 
