@@ -123,7 +123,7 @@ class Query extends React.Component<QueryProps, QueryState> {
     return children(result);
   }
 
-  private initializeQueryObservable = props => {
+  private initializeQueryObservable(props) {
     const {
       variables,
       pollInterval,
@@ -151,26 +151,26 @@ class Query extends React.Component<QueryProps, QueryState> {
     };
 
     this.queryObservable = this.client.watchQuery(clientOptions);
-  };
+  }
 
-  private startQuerySubscription = () => {
+  private startQuerySubscription() {
     this.querySubscription = this.queryObservable.subscribe({
       next: this.updateCurrentData,
       error: this.updateCurrentData,
     });
-  };
+  }
 
-  private removeQuerySubscription = () => {
+  private removeQuerySubscription() {
     if (this.querySubscription) {
       this.querySubscription.unsubscribe();
     }
-  };
+  }
 
-  private updateCurrentData = () => {
+  private updateCurrentData() {
     this.setState({ result: this.queryObservable.currentResult() });
-  };
+  }
 
-  private getResult = () => {
+  private getResult() {
     const { result } = this.state;
 
     const { loading, error, networkStatus, data } = result;
@@ -184,7 +184,7 @@ class Query extends React.Component<QueryProps, QueryState> {
     };
 
     return renderProps;
-  };
+  }
 }
 
 export default Query;
