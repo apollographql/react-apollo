@@ -150,14 +150,12 @@ describe('Query component', () => {
 
     const render = jest.fn(() => null);
 
-    const options = {
-      variables: {
-        first: 1,
-      },
+    const variables = {
+      first: 1,
     };
 
     const Component = () => (
-      <Query query={queryWithVariables} options={options}>
+      <Query query={queryWithVariables} variables={variables}>
         {render}
       </Query>
     );
@@ -264,14 +262,10 @@ describe('Query component', () => {
     let count = 0;
     let hasRefetched = false;
 
-    const options = {
-      variables,
-    };
-
     expect.assertions(8);
 
     const Component = () => (
-      <Query query={queryRefetch} options={options}>
+      <Query query={queryRefetch} variables={variables}>
         {data => {
           if (data.loading) {
             count++;
@@ -350,7 +344,7 @@ describe('Query component', () => {
     expect.assertions(3);
 
     const Component = () => (
-      <Query query={query} options={{ variables }}>
+      <Query query={query} variables={variables}>
         {data => {
           if (data.loading) {
             return null;
@@ -404,14 +398,10 @@ describe('Query component', () => {
   it('sets polling interval using options', done => {
     expect.assertions(4);
 
-    const options = {
-      pollInterval: 30,
-    };
-
     let count = 0;
 
     const Component = () => (
-      <Query query={query} options={options}>
+      <Query query={query} pollInterval={30}>
         {result => {
           if (result.loading) {
             return null;
@@ -531,14 +521,10 @@ describe('Query component', () => {
   it('provides stopPolling in the render prop', done => {
     expect.assertions(3);
 
-    const options = {
-      pollInterval: 30,
-    };
-
     let count = 0;
 
     const Component = () => (
-      <Query query={query} options={options}>
+      <Query query={query} pollInterval={30}>
         {result => {
           if (result.loading) {
             return null;
@@ -605,7 +591,7 @@ describe('Query component', () => {
     let isUpdated;
     expect.assertions(3);
     const Component = () => (
-      <Query query={query} options={{ variables }}>
+      <Query query={query} variables={variables}>
         {result => {
           if (result.loading) {
             return null;
@@ -689,7 +675,7 @@ describe('Query component', () => {
         const { variables } = this.state;
 
         return (
-          <Query query={query} options={{ variables }}>
+          <Query query={query} variables={variables}>
             {result => {
               if (result.loading) {
                 return null;

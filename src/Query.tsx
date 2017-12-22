@@ -36,7 +36,10 @@ export interface QueryRenderProp {
 
 export interface QueryProps {
   query: DocumentNode;
-  options?: QueryOpts;
+  variables?: OperationVariables;
+  // fetchPolicy?: FetchPolicy;
+  pollInterval?: number;
+  // notifyOnNetworkStatusChange?: boolean;
   children?: (result: QueryRenderProp) => React.ReactNode;
 }
 
@@ -114,7 +117,7 @@ class Query extends React.Component<QueryProps, QueryState> {
   }
 
   private initializeQueryObservable = props => {
-    const { options, query } = props;
+    const { variables, pollInterval, query } = props;
 
     const operation = parser(query);
 
@@ -126,7 +129,11 @@ class Query extends React.Component<QueryProps, QueryState> {
         : 'subscription'}.`,
     );
 
-    const clientOptions = { ...options, query };
+    const clientOptions = {
+      variables,
+      pollInterval,
+      query,
+    };
 
     this.queryObservable = this.client.watchQuery(clientOptions);
   };
