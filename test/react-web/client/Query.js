@@ -123,29 +123,6 @@ describe('Query component', () => {
     );
   });
 
-  it('skips the query', done => {
-    const render = jest.fn(() => null);
-
-    const Component = () => (
-      <Query query={query} skip>
-        {render}
-      </Query>
-    );
-
-    const wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(render).toHaveBeenCalledTimes(1);
-        done();
-      });
-    }, 0);
-  });
-
   it('includes variables in the render props', done => {
     const queryWithVariables = gql`
       query people($first: Int) {
@@ -873,96 +850,6 @@ describe('Query component', () => {
         <Component />
       </MockedProvider>,
     );
-  });
-
-  xit('should update if the skip prop changes from true to false', done => {
-    const render = jest.fn(() => null);
-    let count = 0;
-
-    class Component extends React.Component {
-      state = {
-        skip: true,
-      };
-      componentDidMount() {
-        setTimeout(() => {
-          count++;
-          this.setState({
-            skip: false,
-          });
-        }, 0);
-      }
-
-      render() {
-        const { skip } = this.state;
-        return (
-          <Query query={query} skip={skip}>
-            {render}
-          </Query>
-        );
-      }
-    }
-
-    const wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        console.log(render.mock.calls);
-        expect(render).toHaveBeenCalledTimes(1);
-        done();
-      });
-    }, 50);
-  });
-
-  xit('unsubscribes from queries if the skip prop changes from false to true', done => {
-    let count = 0;
-    class Component extends React.Component {
-      state = {
-        skip: false,
-      };
-      componentDidMount() {
-        setTimeout(() => {
-          this.setState({
-            skip: true,
-          });
-        }, 0);
-      }
-
-      render() {
-        const { skip } = this.state;
-        return (
-          <Query query={query} skip={skip} loading={() => null}>
-            {result => {
-              if (this.state.skip) {
-                setTimeout(() => {
-                  // Since skip is true, this refetch should not call
-                  // the render function.
-                  result.refetch();
-                }, 0);
-              }
-              count++;
-              return null;
-            }}
-          </Query>
-        );
-      }
-    }
-
-    const wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(count).toBe(2);
-        done();
-      });
-    }, 50);
   });
 
   it('should update if the client changes in the context', done => {

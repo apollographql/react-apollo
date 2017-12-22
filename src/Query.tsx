@@ -37,7 +37,6 @@ export interface QueryRenderProp {
 export interface QueryProps {
   query: DocumentNode;
   options?: QueryOpts;
-  skip?: Boolean;
   children?: (result: QueryRenderProp) => React.ReactNode;
 }
 
@@ -90,9 +89,6 @@ class Query extends React.Component<QueryProps, QueryState> {
   }
 
   componentDidMount() {
-    if (this.props.skip) {
-      return;
-    }
     this.startQuerySubscription();
   }
 
@@ -101,13 +97,6 @@ class Query extends React.Component<QueryProps, QueryState> {
       shallowEqual(this.props, nextProps) &&
       this.client === nextContext.client
     ) {
-      return;
-    }
-
-    if (nextProps.skip) {
-      if (!this.props.skip) {
-        this.removeQuerySubscription();
-      }
       return;
     }
 
