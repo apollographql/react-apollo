@@ -1,19 +1,18 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-
-import { ApolloClient, ApolloError } from 'apollo-client';
+import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
 import { MockSubscriptionLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, ChildProps, graphql } from '../../../../src';
+import '../../../test-utils/toEqualJson';
 
 describe('subscriptions', () => {
   let error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {});
+    console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;
@@ -24,7 +23,10 @@ describe('subscriptions', () => {
     'John Pinkerton',
     'Sam Claridge',
     'Ben Coleman',
-  ].map(name => ({ result: { data: { user: { name } } }, delay: 10 }));
+  ].map(name => ({
+    result: { data: { user: { name } } },
+    delay: 10,
+  }));
 
   it('binds a subscription to props', () => {
     const query = gql`
@@ -40,13 +42,19 @@ describe('subscriptions', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(({ data }) => {
-      // tslint:disable-line
-      expect(data).toBeTruthy();
-      expect(data.user).toBeFalsy();
-      expect(data.loading).toBe(true);
-      return null;
-    });
+    interface Props {}
+    interface Data {
+      user: { name: string };
+    }
+
+    const ContainerWithData = graphql<Props, Data>(query)(
+      ({ data }: ChildProps<Props, Data>) => {
+        expect(data).toBeTruthy();
+        expect(data.user).toBeFalsy();
+        expect(data.loading).toBeTruthy();
+        return null;
+      },
+    );
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -71,12 +79,18 @@ describe('subscriptions', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(({ data }) => {
-      // tslint:disable-line
-      expect(data).toBeTruthy();
-      expect(data.variables).toEqual(variables);
-      return null;
-    });
+    interface Props {}
+    interface Data {
+      user: { name: string };
+    }
+
+    const ContainerWithData = graphql<Props, Data>(query)(
+      ({ data }: ChildProps<Props, Data>) => {
+        expect(data).toBeTruthy();
+        expect(data.variables).toEqual(variables);
+        return null;
+      },
+    );
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -150,11 +164,11 @@ describe('subscriptions', () => {
       }
       componentWillReceiveProps({ data: { loading, user } }) {
         expect(loading).toBeFalsy();
-        if (count === 0) expect(user).toEqual(results[0].result.data.user);
-        if (count === 1) expect(user).toEqual(results[1].result.data.user);
-        if (count === 2) expect(user).toEqual(results[2].result.data.user);
+        if (count === 0) expect(user).toEqualJson(results[0].result.data.user);
+        if (count === 1) expect(user).toEqualJson(results[1].result.data.user);
+        if (count === 2) expect(user).toEqualJson(results[2].result.data.user);
         if (count === 3) {
-          expect(user).toEqual(results[3].result.data.user);
+          expect(user).toEqualJson(results[3].result.data.user);
           output.unmount();
           done();
         }
@@ -187,15 +201,21 @@ describe('subscriptions', () => {
       '5',
       '6',
       '7',
-    ].map(trigger => ({ result: { data: { trigger } }, delay: 10 }));
+    ].map(trigger => ({
+      result: { data: { trigger } },
+      delay: 10,
+    }));
 
-    //These are the results fro the resubscription
+    //These are the results from the resubscription
     const results3 = [
       'NewUser: 1',
       'NewUser: 2',
       'NewUser: 3',
       'NewUser: 4',
-    ].map(name => ({ result: { data: { user: { name } } }, delay: 10 }));
+    ].map(name => ({
+      result: { data: { user: { name } } },
+      delay: 10,
+    }));
 
     const query = gql`
       subscription UserInfo {
@@ -209,6 +229,9 @@ describe('subscriptions', () => {
         trigger
       }
     `;
+    interface TriggerData {
+      trigger: any;
+    }
 
     const userLink = new MockSubscriptionLink();
     const triggerLink = new MockSubscriptionLink();
@@ -224,10 +247,9 @@ describe('subscriptions', () => {
     });
 
     let count = 0;
-    let unsubscribed = false;
     let output;
     @graphql(triggerQuery)
-    @graphql(query, {
+    @graphql<{}, TriggerData>(query, {
       shouldResubscribe: (props, nextProps) => {
         return nextProps.data.trigger === 'trigger resubscribe';
       },
@@ -240,13 +262,18 @@ describe('subscriptions', () => {
         try {
           // odd counts will be outer wrapper getting subscriptions - ie unchanged
           expect(loading).toBeFalsy();
-          if (count === 0) expect(user).toEqual(results[0].result.data.user);
-          if (count === 1) expect(user).toEqual(results[0].result.data.user);
-          if (count === 2) expect(user).toEqual(results[2].result.data.user);
-          if (count === 3) expect(user).toEqual(results[2].result.data.user);
-          if (count === 4) expect(user).toEqual(results3[2].result.data.user);
+          if (count === 0)
+            expect(user).toEqualJson(results[0].result.data.user);
+          if (count === 1)
+            expect(user).toEqualJson(results[0].result.data.user);
+          if (count === 2)
+            expect(user).toEqualJson(results[2].result.data.user);
+          if (count === 3)
+            expect(user).toEqualJson(results[2].result.data.user);
+          if (count === 4)
+            expect(user).toEqualJson(results3[2].result.data.user);
           if (count === 5) {
-            expect(user).toEqual(results3[2].result.data.user);
+            expect(user).toEqualJson(results3[2].result.data.user);
             output.unmount();
 
             done();

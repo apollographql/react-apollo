@@ -1,8 +1,8 @@
-import { Component, Children } from 'react';
+import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { ObservableQueryRecycler } from './queryRecycler';
 
-class QueryRecyclerProvider extends Component {
+class QueryRecyclerProvider extends React.Component {
   static propTypes = {
     children: PropTypes.element.isRequired,
   };
@@ -15,7 +15,7 @@ class QueryRecyclerProvider extends Component {
     getQueryRecycler: PropTypes.func.isRequired,
   };
 
-  private recyclers: WeakMap<Component, ObservableQueryRecycler>;
+  private recyclers: WeakMap<React.Component, ObservableQueryRecycler>;
 
   constructor(props) {
     super(props);
@@ -43,7 +43,7 @@ class QueryRecyclerProvider extends Component {
   }
 
   render() {
-    return Children.only(this.props.children);
+    return React.Children.only(this.props.children);
   }
 }
 

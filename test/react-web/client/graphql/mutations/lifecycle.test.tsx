@@ -1,16 +1,11 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import assign = require('object-assign');
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
-
 import { ApolloProvider, graphql } from '../../../../../src';
+import '../../../../test-utils/toEqualJson';
 
 describe('[mutations] lifecycle', () => {
   it('allows falsy values in the mapped variables from props', done => {
@@ -23,11 +18,13 @@ describe('[mutations] lifecycle', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const variables = { id: null };
     const link = mockSingleLink({
       request: { query, variables },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -38,7 +35,7 @@ describe('[mutations] lifecycle', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualJson(expectedData);
           done();
         });
       }
@@ -64,11 +61,13 @@ describe('[mutations] lifecycle', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const variables = { first: 1 };
     const link = mockSingleLink({
       request: { query, variables },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -97,10 +96,12 @@ describe('[mutations] lifecycle', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -151,11 +152,13 @@ describe('[mutations] lifecycle', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const variables = { id: 1 };
     const link = mockSingleLink({
       request: { query, variables },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -166,7 +169,7 @@ describe('[mutations] lifecycle', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate({ variables: { id: 1 } }).then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualJson(expectedData);
           done();
         });
       }

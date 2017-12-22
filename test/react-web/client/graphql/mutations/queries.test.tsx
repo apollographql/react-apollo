@@ -1,16 +1,17 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import assign = require('object-assign');
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
-
-import { ApolloProvider, graphql, compose } from '../../../../../src';
+import {
+  ApolloProvider,
+  graphql,
+  compose,
+  ChildProps,
+  MutationFunc,
+} from '../../../../../src';
+import '../../../../test-utils/toEqualJson';
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
@@ -56,12 +57,14 @@ describe('[mutations] query integration', () => {
           },
         };
         this.props.mutate({ optimisticResponse }).then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualJson(data);
           done();
         });
 
         const dataInStore = cache.extract(true);
-        expect(dataInStore['Todo:99']).toEqual(optimisticResponse.createTodo);
+        expect(dataInStore['Todo:99']).toEqualJson(
+          optimisticResponse.createTodo,
+        );
       }
       render() {
         return null;
@@ -113,7 +116,7 @@ describe('[mutations] query integration', () => {
         const originalList = previousQueryResult.todo_list;
         const newTask = mutationResult.data.createTodo;
         return {
-          todo_list: assign(originalList, {
+          todo_list: Object.assign(originalList, {
             tasks: [...originalList.tasks, newTask],
           }),
         };
@@ -155,11 +158,11 @@ describe('[mutations] query integration', () => {
         if (!props.data.todo_list) return;
         if (!props.data.todo_list.tasks.length) {
           props.mutate().then(result => {
-            expect(result.data).toEqual(mutationData);
+            expect(result.data).toEqualJson(mutationData);
           });
 
           const dataInStore = cache.extract(true);
-          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqual(
+          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqualJson(
             optimisticResponse.createTodo,
           );
           return;
@@ -167,11 +170,13 @@ describe('[mutations] query integration', () => {
 
         if (count === 0) {
           count++;
-          expect(props.data.todo_list.tasks).toEqual([
+          expect(props.data.todo_list.tasks).toEqualJson([
             optimisticResponse.createTodo,
           ]);
         } else if (count === 1) {
-          expect(props.data.todo_list.tasks).toEqual([mutationData.createTodo]);
+          expect(props.data.todo_list.tasks).toEqualJson([
+            mutationData.createTodo,
+          ]);
           done();
         }
       }
@@ -245,34 +250,34 @@ describe('[mutations] query integration', () => {
     }
 
     let count = 0;
+    @graphql(mutation)
+    class MutationContainer extends React.Component {
+      componentWillReceiveProps(props) {
+        if (count === 1) {
+          props.mutate().then(result => {
+            expect(result.data).toEqualJson(mutationData);
+          });
+        }
+      }
+      render() {
+        return null;
+      }
+    }
+
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (count === 0) {
-          expect(props.data.mini).toEqual(queryData.mini);
+          expect(props.data.mini).toEqualJson(queryData.mini);
         }
         if (count === 1) {
-          expect(props.data.mini).toEqual(mutationData.mini);
+          expect(props.data.mini).toEqualJson(mutationData.mini);
           done();
         }
         count++;
       }
       render() {
         return <MutationContainer {...this.props.data.mini} signature="1233" />;
-      }
-    }
-
-    @graphql(mutation)
-    class MutationContainer extends React.Component {
-      componentWillReceiveProps(props) {
-        if (count === 1) {
-          props.mutate().then(result => {
-            expect(result.data).toEqual(mutationData);
-          });
-        }
-      }
-      render() {
-        return null;
       }
     }
 
@@ -398,7 +403,9 @@ describe('[mutations] query integration', () => {
     })(RelatedUIComponent);
 
     let count = 0;
-    class PaymentDetail extends React.Component {
+    class PaymentDetail extends React.Component<
+      ChildProps & { setPlan: MutationFunc }
+    > {
       componentWillReceiveProps(props) {
         if (count === 1) {
           expect(props.billingData.account.currentPlan.name).toBe('Free');

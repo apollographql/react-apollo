@@ -1,35 +1,27 @@
-import { Component, createElement } from 'react';
+import * as React from 'react';
 import * as PropTypes from 'prop-types';
-
 import shallowEqual from './shallowEqual';
-
-const invariant = require('invariant');
-const assign = require('object-assign');
-const pick = require('lodash.pick');
-
-const hoistNonReactStatics = require('hoist-non-react-statics');
-
 import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,
 } from 'apollo-client';
-
 import { ZenObservable } from 'zen-observable-ts';
-
 import { parser, DocumentType } from './parser';
-
 import { DocumentNode } from 'graphql';
-
 import {
   MutationOpts,
   ChildProps,
   OperationOption,
-  ComponentDecorator,
   QueryOpts,
   QueryProps,
   MutationFunc,
   OptionProps,
 } from './types';
+
+const invariant = require('invariant');
+const assign = require('object-assign');
+const pick = require('lodash.pick');
+const hoistNonReactStatics = require('hoist-non-react-statics');
 
 const defaultMapPropsToOptions = () => ({});
 const defaultMapResultToProps = props => props;
@@ -65,14 +57,14 @@ function getDisplayName(WrappedComponent) {
 let nextVersion = 0;
 
 export default function graphql<
-  TResult = {},
   TProps = {},
-  TChildProps = ChildProps<TProps, TResult>,
-  TGraphQLVariables = {}
+  TData = {},
+  TGraphQLVariables = {},
+  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
 >(
   document: DocumentNode,
-  operationOptions: OperationOption<TProps & TGraphQLVariables, TResult> = {},
-): ComponentDecorator<TProps & TGraphQLVariables, TChildProps> {
+  operationOptions: OperationOption<TProps, TData, TGraphQLVariables> = {},
+) {
   // extract options
   const {
     options = defaultMapPropsToOptions,
@@ -95,10 +87,15 @@ export default function graphql<
   // Helps track hot reloading.
   const version = nextVersion++;
 
-  function wrapWithApolloComponent(WrappedComponent) {
+  function wrapWithApolloComponent<TOriginalProps extends TChildProps>(
+    WrappedComponent: React.ComponentType<TOriginalProps>,
+  ) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    class GraphQL extends Component<TProps & TGraphQLVariables, void> {
+    class GraphQL extends React.Component<
+      TOriginalProps & TGraphQLVariables,
+      void
+    > {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
@@ -316,13 +313,11 @@ export default function graphql<
         return opts;
       }
 
-      calculateResultProps(
-        result: (QueryProps & TResult) | MutationFunc<TResult>,
-      ) {
+      calculateResultProps(result: (QueryProps & TData) | MutationFunc<TData>) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult: OptionProps<TProps & TGraphQLVariables, TResult> = {
+        const newResult: OptionProps<TProps & TGraphQLVariables, TData> = {
           [name]: result,
           ownProps: this.props,
         };
@@ -446,10 +441,8 @@ export default function graphql<
           const clashingKeys = Object.keys(observableQueryFields(results.data));
           invariant(
             clashingKeys.length === 0,
-            `the result of the '${
-              graphQLDisplayName
-            }' operation contains keys that ` +
-              `conflict with the return object.` +
+            `the result of the '${graphQLDisplayName}' operation contains ` +
+              `keys that conflict with the return object.` +
               clashingKeys.map(k => `'${k}'`).join(', ') +
               ` not allowed.`,
           );
@@ -484,9 +477,7 @@ export default function graphql<
       }
 
       shouldSkip(props = this.props) {
-        return (
-          mapPropsToSkip(props) || (mapPropsToOptions(props) as QueryOpts).skip
-        );
+        return mapPropsToSkip(props);
       }
 
       forceRenderChildren() {
@@ -516,7 +507,7 @@ export default function graphql<
 
         (opts as any).mutation = document;
         return this.getClient(this.props).mutate(opts as any) as Promise<
-          ApolloQueryResult<TResult>
+          ApolloQueryResult<TData>
         >;
       }
 
@@ -589,18 +580,18 @@ export default function graphql<
             };
           }
         }
-        return data as QueryProps & TResult;
+        return data as QueryProps & TData;
       }
 
       render() {
         if (this.shouldSkip()) {
           if (operationOptions.withRef) {
-            return createElement(
+            return React.createElement(
               WrappedComponent,
               assign({}, this.props, { ref: this.setWrappedInstance }),
             );
           }
-          return createElement(WrappedComponent, this.props);
+          return React.createElement(WrappedComponent, this.props);
         }
 
         const { shouldRerender, renderedElement, props } = this;
@@ -620,7 +611,7 @@ export default function graphql<
 
         if (operationOptions.withRef)
           mergedPropsAndData.ref = this.setWrappedInstance;
-        this.renderedElement = createElement(
+        this.renderedElement = React.createElement(
           WrappedComponent,
           mergedPropsAndData,
         );

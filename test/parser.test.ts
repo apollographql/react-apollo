@@ -1,8 +1,8 @@
-import { OperationDefinition } from 'graphql';
-
 import gql from 'graphql-tag';
-
 import { parser, DocumentType } from '../src/parser';
+
+// import { OperationDefinition } from 'graphql'; FIXME: Doesn't exist anymore
+type OperationDefinition = any;
 
 describe('parser', () => {
   // XXX can this be tested with strictly typed functions?

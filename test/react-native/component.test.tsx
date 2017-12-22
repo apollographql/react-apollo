@@ -1,16 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { Component } from 'react';
-
-// import { mount, shallow } from 'enzyme';
-
+import { Text } from 'react-native';
+import * as React from 'react';
 // Note: test renderer must be required after react-native.
-import renderer from 'react-test-renderer';
-
+import * as renderer from 'react-test-renderer';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
-import { ApolloProvider, graphql } from '../../src';
+import { ApolloProvider, ChildProps, graphql } from '../../src';
 import { mockSingleLink } from '../../src/test-utils';
+import '../test-utils/toEqualJson';
 
 describe('App', () => {
   it('renders correctly', () => {
@@ -23,17 +20,25 @@ describe('App', () => {
         }
       }
     `;
-    const data = { allPeople: { people: { name: 'Luke Skywalker' } } };
-    const link = mockSingleLink({ request: { query }, result: { data } });
+
+    interface Data {
+      allPeople: { people: { name: string } };
+    }
+    const link = mockSingleLink({
+      request: { query },
+      result: { data: { allPeople: { people: { name: 'Luke Skywalker' } } } },
+    });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(({ data }) => {
-      if (data.loading) return <Text>Loading...</Text>;
-      return <Text>{data.allPeople.people.name}</Text>;
-    });
+    const ContainerWithData = graphql(query)(
+      ({ data }: ChildProps<{}, Data>) => {
+        if (data.loading) return <Text>Loading...</Text>;
+        return <Text>{data.allPeople.people.name}</Text>;
+      },
+    );
     const output = renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData />
@@ -53,18 +58,24 @@ describe('App', () => {
         }
       }
     `;
-    const data = { allPeople: { people: { name: 'Luke Skywalker' } } };
-    const link = mockSingleLink({ request: { query }, result: { data } });
+    interface Data {
+      allPeople: { people: { name: string } };
+    }
+    const data1 = { allPeople: { people: { name: 'Luke Skywalker' } } };
+    const link = mockSingleLink({
+      request: { query },
+      result: { data: data1 },
+    });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
-    class Container extends Component {
+    class Container extends React.Component<ChildProps<{}, Data>> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople.people.name).toEqual(
-          data.allPeople.people.name,
+        expect(props.data.allPeople.people.name).toEqualJson(
+          data1.allPeople.people.name,
         );
         done();
       }
@@ -76,7 +87,7 @@ describe('App', () => {
 
     const ContainerWithData = graphql(query)(Container);
 
-    const output = renderer.create(
+    renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData />
       </ApolloProvider>,

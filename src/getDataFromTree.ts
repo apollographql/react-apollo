@@ -23,7 +23,7 @@ export interface QueryResult<Cache> {
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
 export function walkTree<Cache>(
-  element: ReactElement<any>,
+  element: ReactElement<any> | any,
   context: Context<Cache>,
   visitor: (
     element: ReactElement<any>,
@@ -170,7 +170,9 @@ export function getDataFromTree(
         errors.length === 1
           ? errors[0]
           : new Error(
-              `${errors.length} errors were thrown when executing your GraphQL queries.`,
+              `${
+                errors.length
+              } errors were thrown when executing your GraphQL queries.`,
             );
       error.queryErrors = errors;
       throw error;

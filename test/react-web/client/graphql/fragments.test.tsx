@@ -1,15 +1,11 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../src/test-utils';
-
 import { ApolloProvider, graphql } from '../../../../src';
+import '../../../test-utils/toEqualJson';
 
 describe('fragments', () => {
   // XXX in a later version, we should support this for composition
@@ -21,10 +17,12 @@ describe('fragments', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -35,9 +33,8 @@ describe('fragments', () => {
       @graphql(query)
       class Container extends React.Component<any, any> {
         componentWillReceiveProps(props) {
-          expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople).toEqual(data.allPeople);
-          done();
+          expect(props.data.loading).toBeFalsy();
+          expect(props.data.allPeople).toEqualJson(expectedData.allPeople);
         }
         render() {
           return null;
@@ -88,8 +85,8 @@ describe('fragments', () => {
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBe(false);
-        expect(props.data.allPeople).toEqual(data.allPeople);
+        expect(props.data.loading).toBeFalsy();
+        expect(props.data.allPeople).toEqualJson(data.allPeople);
         done();
       }
       render() {

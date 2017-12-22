@@ -1,22 +1,23 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import assign = require('object-assign');
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
-
-import { ApolloProvider, graphql } from '../../../../../src';
+import {
+  ApolloProvider,
+  ChildProps,
+  graphql,
+  MutateProps,
+  MutationFunc,
+} from '../../../../../src';
+import '../../../../test-utils/toEqualJson';
 
 describe('[mutations]', () => {
   let error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {});
+    console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;
@@ -32,17 +33,16 @@ describe('[mutations]', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(({ mutate }) => {
+    const ContainerWithData = graphql(query)(({ mutate }: MutateProps) => {
       expect(mutate).toBeTruthy();
       expect(typeof mutate).toBe('function');
       return null;
@@ -65,30 +65,36 @@ describe('[mutations]', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
-    const props = ({ ownProps, addPerson }) => ({
-      [ownProps.methodName]: (name: string) =>
-        addPerson({ variables: { name } }),
-    });
-
-    const ContainerWithData = graphql(query, { props })(({ test }) => {
-      expect(test).toBeTruthy();
-      expect(typeof test).toBe('function');
-      return null;
-    });
+    interface Props {
+      methodName: string;
+    }
+    const ContainerWithData = graphql<Props>(query, {
+      props: ({ ownProps, mutate: addPerson }) => ({
+        [ownProps.methodName]: (name: string) =>
+          addPerson({ variables: { name } }),
+      }),
+    })(
+      ({
+        myInjectedMutationMethod,
+      }: ChildProps<Props> & { myInjectedMutationMethod: MutationFunc }) => {
+        expect(test).toBeTruthy();
+        expect(typeof test).toBe('function');
+        return null;
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
-        <ContainerWithData methodName="test" />
+        <ContainerWithData methodName="myInjectedMutationMethod" />
       </ApolloProvider>,
     );
   });
@@ -103,10 +109,9 @@ describe('[mutations]', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
@@ -149,10 +154,12 @@ describe('[mutations]', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -163,7 +170,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualJson(expectedData);
           done();
         });
       }
@@ -189,11 +196,13 @@ describe('[mutations]', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const expectedData = {
+      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+    };
     const variables = { id: 1 };
     const link = mockSingleLink({
       request: { query, variables },
-      result: { data },
+      result: { data: expectedData },
     });
     const client = new ApolloClient({
       link,
@@ -204,7 +213,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqual(data);
+          expect(result.data).toEqualJson(expectedData);
           done();
         });
       }

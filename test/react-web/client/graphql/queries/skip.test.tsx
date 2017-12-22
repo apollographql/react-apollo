@@ -1,88 +1,14 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] skip', () => {
-  // skip
-  it('allows you to skip a query (deprecated)', done => {
-    const query = gql`
-      query people {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const link = mockSingleLink({
-      request: { query },
-      result: { data },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
-    let queryExecuted;
-    @graphql(query, { options: () => ({ skip: true }) })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        queryExecuted = true;
-      }
-      render() {
-        expect(this.props.data).toBeUndefined();
-        return null;
-      }
-    }
-
-    renderer.create(
-      <ApolloProvider client={client}>
-        <Container />
-      </ApolloProvider>,
-    );
-
-    setTimeout(() => {
-      if (!queryExecuted) {
-        done();
-        return;
-      }
-      fail(new Error('query ran even though skip present'));
-    }, 25);
-  });
-
   it('allows you to skip a query without running it', done => {
     const query = gql`
       query people {
@@ -144,7 +70,7 @@ describe('[queries] skip', () => {
       done.fail(new Error('query ran even though skip present'));
       return f(o);
     }).concat(mockSingleLink());
-    const oldQuery = link.query;
+    // const oldQuery = link.query;
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
@@ -161,10 +87,8 @@ describe('[queries] skip', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { foo: 42 };
-      }
+      state = { foo: 42 };
+
       componentDidMount() {
         this.setState({ foo: 43 });
       }
@@ -205,9 +129,13 @@ describe('[queries] skip', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    let count = 0,
-      renderCount = 0;
-    @graphql(query, {
+    let count = 0;
+    let renderCount = 0;
+
+    interface Props {
+      person: any;
+    }
+    @graphql<Props>(query, {
       skip: ({ person }) => !person,
       options: ({ person }) => ({
         variables: {
@@ -215,11 +143,12 @@ describe('[queries] skip', () => {
         },
       }),
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillReceiveProps(props) {
         count++;
-        if (count === 1) expect(props.data.loading).toBe(true);
-        if (count === 2) expect(props.data.allPeople).toEqual(data.allPeople);
+        if (count === 1) expect(props.data.loading).toBeTruthy();
+        if (count === 2)
+          expect(props.data.allPeople).toEqualJson(data.allPeople);
         if (count === 2) {
           expect(renderCount).toBe(2);
           done();
@@ -232,10 +161,8 @@ describe('[queries] skip', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { person: null };
-      }
+      state = { person: null };
+
       componentDidMount() {
         this.setState({ person: { id: 1 } });
       }
@@ -273,7 +200,13 @@ describe('[queries] skip', () => {
 
     let queryExecuted;
     let optionsCalled;
-    @graphql(query, {
+
+    interface Props {
+      pollInterval: number;
+      skip: boolean;
+    }
+
+    @graphql<Props>(query, {
       skip: ({ skip }) => skip,
       options: props => {
         optionsCalled = true;
@@ -281,7 +214,8 @@ describe('[queries] skip', () => {
           pollInterval: props.pollInterval,
         };
       },
-      props: ({ willThrowIfAccesed }) => ({
+      props: ({ willThrowIfAccesed }: any) => ({
+        // intentionally incorrect
         pollInterval: willThrowIfAccesed.pollInterval,
       }),
     })
@@ -350,7 +284,7 @@ describe('[queries] skip', () => {
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(queryWasSkipped).toBe(true);
+        expect(queryWasSkipped).toBeTruthy();
         done();
       }
       render() {
@@ -359,10 +293,7 @@ describe('[queries] skip', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { foo: 'bar' };
-      }
+      state = { foo: 'bar' };
       componentDidMount() {
         this.setState({ foo: 'baz' });
       }
@@ -469,10 +400,7 @@ describe('[queries] skip', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { skip: false };
-      }
+      state = { skip: false };
       render() {
         return (
           <Container
@@ -533,11 +461,11 @@ describe('[queries] skip', () => {
         } else {
           if (hasSkipped) {
             if (!newProps.data.loading) {
-              expect(newProps.data.allPeople).toEqual(dataTwo.allPeople);
+              expect(newProps.data.allPeople).toEqualJson(dataTwo.allPeople);
               done();
             }
           } else {
-            expect(newProps.data.allPeople).toEqual(dataOne.allPeople);
+            expect(newProps.data.allPeople).toEqualJson(dataOne.allPeople);
             this.props.setState({ skip: true });
           }
         }
@@ -548,10 +476,7 @@ describe('[queries] skip', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { skip: false, first: 1 };
-      }
+      state = { skip: false, first: 1 };
       render() {
         return (
           <Container
@@ -601,11 +526,15 @@ describe('[queries] skip', () => {
 
     let hasSkipped = false;
     let hasRequeried = false;
-    @graphql(query, {
-      options: ({ skip }) => ({ skip, fetchPolicy: 'network-only' }),
+
+    interface Props {
+      skip: boolean;
+    }
+    @graphql<Props>(query, {
+      options: () => ({ fetchPolicy: 'network-only' }),
+      skip: ({ skip }) => skip,
     })
-    class Container extends React.Component<any, any> {
-      8;
+    class Container extends React.Component<any> {
       componentWillReceiveProps(newProps) {
         if (newProps.skip) {
           // Step 2. We shouldn't query again.
@@ -614,11 +543,11 @@ describe('[queries] skip', () => {
           this.props.setSkip(false);
         } else if (hasRequeried) {
           // Step 4. We need to actually get the data from the query into the component!
-          expect(newProps.data.loading).toBe(false);
+          expect(newProps.data.loading).toBeFalsy();
           done();
         } else if (hasSkipped) {
           // Step 3. We need to query again!
-          expect(newProps.data.loading).toBe(true);
+          expect(newProps.data.loading).toBeTruthy();
           expect(ranQuery).toBe(2);
           hasRequeried = true;
         } else {
@@ -633,10 +562,7 @@ describe('[queries] skip', () => {
     }
 
     class Parent extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { skip: false };
-      }
+      state = { skip: false };
       render() {
         return (
           <Container
@@ -678,7 +604,7 @@ describe('[queries] skip', () => {
     const link = mockSingleLink(
       { request: { query, variables: variables1 }, result: { data: data1 } },
       { request: { query, variables: variables2 }, result: { data: data2 } },
-      { request: { query, variables: variables3 }, result: { data: data2 } },
+      { request: { query, variables: variables3 }, result: { data: data3 } },
     );
 
     const client = new ApolloClient({
@@ -694,14 +620,14 @@ describe('[queries] skip', () => {
       componentWillReceiveProps({ data }) {
         try {
           // loading is true, but data still there
-          if (count === 0) expect(data.allPeople).toEqual(data1.allPeople);
+          if (count === 0) expect(data.allPeople).toEqualJson(data1.allPeople);
           if (count === 1) expect(data).toBeUndefined();
           if (count === 2 && !data.loading) {
-            expect(data.allPeople).toEqual(data2.allPeople);
+            expect(data.allPeople).toEqualJson(data2.allPeople);
             done();
           }
         } catch (e) {
-          console.log({ e });
+          console.log({ e }); // tslint:disable-line
         }
       }
       render() {
@@ -711,7 +637,6 @@ describe('[queries] skip', () => {
 
     class ChangingProps extends React.Component<any, any> {
       state = { first: 1 };
-
       componentDidMount() {
         setTimeout(() => {
           count++;
@@ -768,10 +693,7 @@ describe('[queries] skip', () => {
     }
 
     class Hider extends React.Component<any, any> {
-      constructor() {
-        super();
-        this.state = { hide: false };
-      }
+      state = { hide: false };
       render() {
         if (this.state.hide) {
           return null;
