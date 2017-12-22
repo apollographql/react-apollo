@@ -123,6 +123,78 @@ describe('Query component', () => {
     );
   });
 
+  it('makes use of a custom fetch-policy', done => {
+    const Component = () => (
+      <Query query={query} fetchPolicy={'cache-only'}>
+        {result => {
+          catchAsyncError(done, () => {
+            expect(result.loading).toBeFalsy();
+            expect(result.data).toEqual({});
+            expect(result.networkStatus).toBe(7);
+            done();
+          });
+          return null;
+        }}
+      </Query>
+    );
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
+  it('sets the notifyOnNetworkStatusChange prop', done => {
+    let count = 0;
+
+    let mocks = [
+      {
+        request: { query },
+        result: { data },
+      },
+      {
+        request: { query },
+        result: { data },
+      },
+    ];
+
+    expect.assertions(4);
+    const Component = () => (
+      <Query query={query} notifyOnNetworkStatusChange>
+        {result => {
+          catchAsyncError(done, () => {
+            if (count === 0) {
+              expect(result.loading).toBeTruthy();
+            }
+            if (count === 1) {
+              expect(result.loading).toBeFalsy();
+              setTimeout(() => {
+                result.refetch();
+              });
+            }
+            if (count === 2) {
+              expect(result.loading).toBeTruthy();
+            }
+            if (count === 3) {
+              expect(result.loading).toBeFalsy();
+              done();
+            }
+
+            count++;
+          });
+          return null;
+        }}
+      </Query>
+    );
+
+    const wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
   it('includes variables in the render props', done => {
     const queryWithVariables = gql`
       query people($first: Int) {
@@ -265,29 +337,32 @@ describe('Query component', () => {
     expect.assertions(8);
 
     const Component = () => (
-      <Query query={queryRefetch} variables={variables}>
-        {data => {
-          if (data.loading) {
+      <Query
+        query={queryRefetch}
+        variables={variables}
+        notifyOnNetworkStatusChange
+      >
+        {result => {
+          const { data, loading, variables } = result;
+          if (loading) {
             count++;
             return null;
           }
-
           catchAsyncError(done, () => {
             if (count === 1) {
               // first data
-              expect(data.variables).toEqual({ first: 1 });
-              expect(data.data).toEqual(data1);
+              expect(variables).toEqual({ first: 1 });
+              expect(data).toEqual(data1);
             }
-            // TODO: Should this count be 3? Why is there is no loading state between first and second data?
-            if (count === 2) {
+            if (count === 3) {
               // second data
-              expect(data.variables).toEqual({ first: 1 });
-              expect(data.data).toEqual(data2);
+              expect(variables).toEqual({ first: 1 });
+              expect(data).toEqual(data2);
             }
-            if (count === 4) {
+            if (count === 5) {
               // third data
-              expect(data.variables).toEqual({ first: 2 });
-              expect(data.data).toEqual(data3);
+              expect(variables).toEqual({ first: 2 });
+              expect(data).toEqual(data3);
             }
           });
 
@@ -297,17 +372,19 @@ describe('Query component', () => {
           }
 
           hasRefetched = true;
-          data
-            .refetch()
-            .then(result => {
-              expect(result.data).toEqual(data2);
-              return data.refetch({ first: 2 });
-            })
-            .then(result2 => {
-              expect(result2.data).toEqual(data3);
-              done();
-            })
-            .catch(done.fail);
+          setTimeout(() => {
+            result
+              .refetch()
+              .then(result1 => {
+                expect(result1.data).toEqual(data2);
+                return result.refetch({ first: 2 });
+              })
+              .then(result2 => {
+                expect(result2.data).toEqual(data3);
+                done();
+              })
+              .catch(done.fail);
+          });
 
           return null;
         }}

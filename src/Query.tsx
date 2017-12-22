@@ -7,6 +7,7 @@ import ApolloClient, {
   FetchMoreOptions,
   UpdateQueryOptions,
   FetchMoreQueryOptions,
+  FetchPolicy,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
@@ -15,10 +16,10 @@ import shallowEqual from './shallowEqual';
 const invariant = require('invariant');
 const pick = require('lodash.pick');
 
-import { QueryOpts, OperationVariables } from './types';
+import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
 
-export interface QueryRenderProp {
+export interface QueryResult {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
@@ -37,10 +38,10 @@ export interface QueryRenderProp {
 export interface QueryProps {
   query: DocumentNode;
   variables?: OperationVariables;
-  // fetchPolicy?: FetchPolicy;
+  fetchPolicy?: FetchPolicy;
   pollInterval?: number;
-  // notifyOnNetworkStatusChange?: boolean;
-  children?: (result: QueryRenderProp) => React.ReactNode;
+  notifyOnNetworkStatusChange?: boolean;
+  children?: (result: QueryResult) => React.ReactNode;
 }
 
 export interface QueryState {
@@ -117,7 +118,13 @@ class Query extends React.Component<QueryProps, QueryState> {
   }
 
   private initializeQueryObservable = props => {
-    const { variables, pollInterval, query } = props;
+    const {
+      variables,
+      pollInterval,
+      fetchPolicy,
+      notifyOnNetworkStatusChange,
+      query,
+    } = props;
 
     const operation = parser(query);
 
@@ -133,6 +140,8 @@ class Query extends React.Component<QueryProps, QueryState> {
       variables,
       pollInterval,
       query,
+      fetchPolicy,
+      notifyOnNetworkStatusChange,
     };
 
     this.queryObservable = this.client.watchQuery(clientOptions);
