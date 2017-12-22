@@ -38,8 +38,6 @@ export interface QueryProps {
   query: DocumentNode;
   options?: QueryOpts;
   skip?: Boolean;
-  loading?: () => React.ReactNode;
-  error?: (error: ApolloError) => React.ReactNode;
   children?: (result: QueryRenderProp) => React.ReactNode;
 }
 
@@ -177,16 +175,8 @@ class Query extends React.Component<QueryProps, QueryState> {
   };
 
   render() {
-    const { loading, error, children } = this.props;
+    const { children } = this.props;
     const result = this.getRenderProps();
-
-    if (result.loading && loading) {
-      return loading();
-    }
-
-    if (result.error && error) {
-      return error(result.error);
-    }
 
     const renderedChildren = children(result);
     return renderedChildren && React.Children.only(renderedChildren);
