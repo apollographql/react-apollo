@@ -69,13 +69,13 @@ function observableQueryFields(observable) {
 }
 
 class Query extends React.Component<QueryProps, QueryState> {
-  private client: ApolloClient<any>;
-  private queryObservable: ObservableQuery<any>;
-  private querySubscription: ZenObservable.Subscription;
-
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
+
+  private client: ApolloClient<any>;
+  private queryObservable: ObservableQuery<any>;
+  private querySubscription: ZenObservable.Subscription;
 
   constructor(props, context) {
     super(props, context);
@@ -115,6 +115,12 @@ class Query extends React.Component<QueryProps, QueryState> {
 
   componentWillUnmount() {
     this.removeQuerySubscription();
+  }
+
+  render() {
+    const { children } = this.props;
+    const result = this.getResult();
+    return children(result);
   }
 
   private initializeQueryObservable = props => {
@@ -159,11 +165,12 @@ class Query extends React.Component<QueryProps, QueryState> {
       this.querySubscription.unsubscribe();
     }
   };
+
   private updateCurrentData = () => {
     this.setState({ result: this.queryObservable.currentResult() });
   };
 
-  getResult = () => {
+  private getResult = () => {
     const { result } = this.state;
 
     const { loading, error, networkStatus, data } = result;
@@ -178,12 +185,6 @@ class Query extends React.Component<QueryProps, QueryState> {
 
     return renderProps;
   };
-
-  render() {
-    const { children } = this.props;
-    const result = this.getResult();
-    return children(result);
-  }
 }
 
 export default Query;

@@ -19,14 +19,14 @@ export const HERO_QUERY = gql`
 const Character = ({ episode }) => (
   <Query
     query={HERO_QUERY}
-    options={{
-      variables: {
-        episode,
-      },
-    }}
-    loading={() => <div>Loading</div>}
-    error={() => <h1>ERROR</h1>}
+    variables={{ episode }}
     render={result => {
+      if (result.loading) {
+        return <div>Loading</div>;
+      }
+      if (result.error) {
+        return <h1>ERROR</h1>;
+      }
       const { hero } = result.data;
       return (
         <div>
