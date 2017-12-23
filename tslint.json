@@ -1,16 +1,12 @@
 {
-  "extends": ["tslint-config-prettier"],
   "rules": {
     "align": [false, "parameters", "arguments", "statements"],
     "ban": false,
     "class-name": true,
     "curly": false,
-    "eofline": true,
     "forin": false,
-    "indent": [true, "spaces"],
     "jsdoc-format": true,
     "label-position": true,
-    "max-line-length": [true, 140],
     "member-access": false,
     "member-ordering": [
       true,
@@ -36,22 +32,11 @@
     "no-var-requires": false,
     "no-shadowed-variable": true,
     "no-switch-case-fall-through": true,
-    "no-trailing-whitespace": true,
     "no-unused-expression": true,
     "no-use-before-declare": true,
     "no-var-keyword": true,
     "object-literal-sort-keys": false,
-    "one-line": [
-      true,
-      "check-open-brace",
-      "check-catch",
-      "check-else",
-      "check-finally",
-      "check-whitespace"
-    ],
-    "quotemark": [true, "single", "avoid-escape", "jsx-double"],
     "radix": true,
-    "semicolon": [true, "always"],
     "switch-default": true,
     "triple-equals": [true, "allow-null-check"],
     "typedef": [
@@ -63,36 +48,11 @@
       "variable-declaration",
       "member-variable-declaration"
     ],
-    "typedef-whitespace": [
-      true,
-      {
-        "call-signature": "nospace",
-        "index-signature": "nospace",
-        "parameter": "nospace",
-        "property-declaration": "nospace",
-        "variable-declaration": "nospace"
-      },
-      {
-        "call-signature": "space",
-        "index-signature": "space",
-        "parameter": "space",
-        "property-declaration": "space",
-        "variable-declaration": "space"
-      }
-    ],
     "variable-name": [
       false,
       "check-format",
       "allow-leading-underscore",
       "ban-keywords"
-    ],
-    "whitespace": [
-      true,
-      "check-branch",
-      "check-decl",
-      "check-operator",
-      "check-separator",
-      "check-type"
     ]
   }
 }
