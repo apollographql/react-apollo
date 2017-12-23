@@ -33,7 +33,8 @@
     "lint-staged": "lint-staged",
     "lint-fix":
       "npm run pretty && tslint 'src/*.ts*' --project tsconfig.json --fix",
-    "pretty": "prettier --config .prettierrc --write \"{src,test}/**/*.ts*\""
+    "pretty":
+      "prettier --config .prettierrc --write \"{src,test}/**/*.{js,ts}*\""
   },
   "bundlesize": [
     {
@@ -42,8 +43,7 @@
     }
   ],
   "lint-staged": {
-    "*.ts*": ["prettier --config .prettierrc --write", "git add"],
-    "*.js*": ["prettier --config .prettierrc --write", "git add"]
+    "*.{js,ts}*": ["prettier --single-quote --write", "git add"]
   },
   "pre-commit": "lint-staged",
   "repository": {
@@ -141,7 +141,6 @@
     "travis-weigh-in": "1.0.2",
     "ts-jest": "22.0.0",
     "tslint": "5.8.0",
-    "tslint-config-prettier": "^1.6.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
     "typings": "2.1.1",
