@@ -1,4 +1,5 @@
 {
+  "extends": ["tslint-config-prettier"],
   "rules": {
     "align": [false, "parameters", "arguments", "statements"],
     "ban": false,
@@ -39,7 +40,6 @@
     "no-unused-expression": true,
     "no-use-before-declare": true,
     "no-var-keyword": true,
-    "no-var-requires": false,
     "object-literal-sort-keys": false,
     "one-line": [
       true,
