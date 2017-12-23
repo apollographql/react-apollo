@@ -26,10 +26,6 @@ const mocks = [
   },
 ];
 
-const options = {
-  query,
-};
-
 const catchAsyncError = (done, cb) => {
   try {
     cb();
@@ -37,17 +33,6 @@ const catchAsyncError = (done, cb) => {
     done.fail(e);
   }
 };
-
-class ErrorBoundary extends React.Component {
-  componentDidCatch(error, errorInfo) {
-    console.log(error);
-    console.log(errorInfo);
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
 
 describe('Query component', () => {
   it('calls the children prop', done => {
@@ -974,10 +959,6 @@ describe('Query component', () => {
       }
     }
 
-    const wrapper = mount(
-      <ErrorBoundary>
-        <Component />
-      </ErrorBoundary>,
-    );
+    const wrapper = mount(<Component />);
   });
 });
