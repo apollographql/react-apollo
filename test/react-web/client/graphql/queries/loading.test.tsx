@@ -1,37 +1,13 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import * as ReactDOM from 'react-dom';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
+import { mount } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import { ApolloProvider, DataProps, graphql } from '../../../../../src';
+import '../../../../test-utils/toEqualJson';
 
 describe('[queries] loading', () => {
   // networkStatus / loading
@@ -45,10 +21,9 @@ describe('[queries] loading', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
@@ -57,7 +32,7 @@ describe('[queries] loading', () => {
 
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
     class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
+      componentWillReceiveProps({ data }: DataProps<any>) {
         expect(data.networkStatus).toBeTruthy();
         done();
       }
@@ -94,9 +69,10 @@ describe('[queries] loading', () => {
     });
 
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-    class Container extends React.Component<any, any> {
-      constructor({ data: { networkStatus } }) {
-        super();
+    class Container extends React.Component<any> {
+      constructor(props: DataProps<any>) {
+        super(props);
+        const { data: { networkStatus } } = props;
         expect(networkStatus).toBe(1);
         done();
       }
@@ -191,12 +167,12 @@ describe('[queries] loading', () => {
         // variables changed, new query is loading, but old data is still there
         if (count === 1 && nextProps.data.loading) {
           expect(nextProps.data.networkStatus).toBe(2);
-          expect(nextProps.data.allPeople).toEqual(data1.allPeople);
+          expect(nextProps.data.allPeople).toEqualJson(data1.allPeople);
         }
         // query with new variables is loaded
         if (count === 1 && !nextProps.data.loading && this.props.data.loading) {
           expect(nextProps.data.networkStatus).toBe(7);
-          expect(nextProps.data.allPeople).toEqual(data2.allPeople);
+          expect(nextProps.data.allPeople).toEqualJson(data2.allPeople);
           done();
         }
       }
@@ -251,8 +227,8 @@ describe('[queries] loading', () => {
 
       let count = 0;
       @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-      class Container extends React.Component<any, any> {
-        componentWillReceiveProps = wrap(reject, props => {
+      class Container extends React.Component<any> {
+        componentWillReceiveProps(props) {
           switch (count++) {
             case 0:
               expect(props.data.networkStatus).toBe(7);
@@ -260,27 +236,27 @@ describe('[queries] loading', () => {
               props.data.refetch();
               break;
             case 1:
-              expect(props.data.loading).toBe(true);
+              expect(props.data.loading).toBeTruthy();
               expect(props.data.networkStatus).toBe(4);
-              expect(props.data.allPeople).toEqual(data.allPeople);
+              expect(props.data.allPeople).toEqualJson(data.allPeople);
               break;
             case 2:
-              expect(props.data.loading).toBe(false);
+              expect(props.data.loading).toBeFalsy();
               expect(props.data.networkStatus).toBe(7);
-              expect(props.data.allPeople).toEqual(data2.allPeople);
+              expect(props.data.allPeople).toEqualJson(data2.allPeople);
               resolve();
               break;
             default:
               reject(new Error('Too many props updates'));
           }
-        });
+        }
 
         render() {
           return null;
         }
       }
 
-      const wrapper = renderer.create(
+      renderer.create(
         <ApolloProvider client={client}>
           <Container />
         </ApolloProvider>,
@@ -322,7 +298,7 @@ describe('[queries] loading', () => {
     class Container extends React.Component<any, any> {
       componentWillMount() {
         if (count === 1) {
-          expect(this.props.data.loading).toBe(true); // on remount
+          expect(this.props.data.loading).toBeTruthy(); // on remount
           count++;
         }
       }
@@ -337,7 +313,7 @@ describe('[queries] loading', () => {
           }
           if (count === 3) {
             // remounted data after fetch
-            expect(props.data.loading).toBe(false);
+            expect(props.data.loading).toBeFalsy();
             expect(props.data.allPeople.people[0].name).toMatch(
               /Darth Skywalker - /,
             );
@@ -391,11 +367,16 @@ describe('[queries] loading', () => {
       render,
       count = 0;
 
-    @graphql(query, { options: ({ first }) => ({ variables: { first } }) })
+    interface Props {
+      first: number;
+    }
+    @graphql<Props>(query, {
+      options: ({ first }) => ({ variables: { first } }),
+    })
     class Container extends React.Component<any, any> {
       componentWillMount() {
         if (count === 1) {
-          expect(this.props.data.loading).toBe.true; // on remount
+          expect(this.props.data.loading).toBeTruthy(); // on remount
           count++;
         }
       }
@@ -410,7 +391,7 @@ describe('[queries] loading', () => {
 
         if (count === 2) {
           // remounted data after fetch
-          expect(props.data.loading).toBe.false;
+          expect(props.data.loading).toBeFalsy();
           done();
         }
         count++;
@@ -457,14 +438,14 @@ describe('[queries] loading', () => {
     let count = 0;
 
     @graphql(query)
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       render() {
         const { loading } = this.props.data;
-        if (count === 0) expect(loading).toBe.true;
-        if (count === 1) expect(loading).toBe.false;
-        if (count === 2) expect(loading).toBe.true;
+        if (count === 0) expect(loading).toBeTruthy();
+        if (count === 1) expect(loading).toBeFalsy();
+        if (count === 2) expect(loading).toBeTruthy();
         if (count === 3) {
-          expect(loading).toBe.false;
+          expect(loading).toBeFalsy();
           done();
         }
         count++;
@@ -519,7 +500,7 @@ describe('[queries] loading', () => {
     let count = 0;
 
     const connect = (component): any => {
-      return class Container extends React.Component<any, any> {
+      return class extends React.Component<any, any> {
         constructor(props) {
           super(props);
 
@@ -543,23 +524,25 @@ describe('[queries] loading', () => {
     };
 
     @connect
-    @graphql(query, { options: ({ first }) => ({ variables: { first } }) })
-    class Container extends React.Component<any, any> {
+    @graphql<any, any, { first: number }>(query, {
+      options: ({ first }) => ({ variables: { first } }),
+    })
+    class Container extends React.Component<any> {
       componentWillReceiveProps(props) {
         if (count === 0) {
-          expect(props.data.loading).toBe.false; // has initial data
+          expect(props.data.loading).toBeFalsy(); // has initial data
           setTimeout(() => {
             this.props.setFirst(2);
           }, 5);
         }
 
         if (count === 1) {
-          expect(props.data.loading).toBe.true; // on variables change
+          expect(props.data.loading).toBeTruthy(); // on variables change
         }
 
         if (count === 2) {
           // new data after fetch
-          expect(props.data.loading).toBe.false;
+          expect(props.data.loading).toBeFalsy();
           done();
         }
         count++;
@@ -568,7 +551,7 @@ describe('[queries] loading', () => {
         return null;
       }
     }
-    const output = renderer.create(
+    renderer.create(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,

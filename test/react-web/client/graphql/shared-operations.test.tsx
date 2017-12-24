@@ -1,18 +1,19 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-
-const TestUtils = require('react-dom/test-utils');
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql, withApollo } from '../../../../src';
+import {
+  ApolloProvider,
+  ChildProps,
+  DataValue,
+  graphql,
+  withApollo,
+} from '../../../../src';
 import { compose } from '../../../../src/';
+import * as TestUtils from 'react-dom/test-utils';
 
 describe('shared operations', () => {
   describe('withApollo', () => {
@@ -23,7 +24,7 @@ describe('shared operations', () => {
       });
 
       @withApollo
-      class ContainerWithData extends React.Component<any, any> {
+      class ContainerWithData extends React.Component<any> {
         render() {
           expect(this.props.client).toEqual(client);
           return null;
@@ -45,7 +46,7 @@ describe('shared operations', () => {
 
       const testData = { foo: 'bar' };
 
-      class Container extends React.Component<any, any> {
+      class Container extends React.Component<any> {
         someMethod() {
           return testData;
         }
@@ -111,6 +112,9 @@ describe('shared operations', () => {
       }
     `;
     const peopleData = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    interface PeopleData {
+      allPeople: { people: [{ name: string }] };
+    }
 
     const shipsQuery = gql`
       query ships {
@@ -122,6 +126,9 @@ describe('shared operations', () => {
       }
     `;
     const shipsData = { allships: { ships: [{ name: 'Tie Fighter' }] } };
+    interface ShipsData {
+      allShips: { ships: [{ name: string }] };
+    }
 
     const link = mockSingleLink(
       { request: { query: peopleQuery }, result: { data: peopleData } },
@@ -132,19 +139,28 @@ describe('shared operations', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const withPeople = graphql(peopleQuery, { name: 'people' });
-    const withShips = graphql(shipsQuery, { name: 'ships' });
+    const withPeople = graphql<{}, PeopleData>(peopleQuery, {
+      name: 'people',
+    });
+    const withShips = graphql<{}, ShipsData>(shipsQuery, { name: 'ships' });
+
+    interface ComposedProps {
+      people?: DataValue<PeopleData>;
+      ships?: DataValue<ShipsData>;
+    }
 
     @withPeople
     @withShips
-    class ContainerWithData extends React.Component<any, any> {
+    class ContainerWithData extends React.Component<
+      ChildProps<ComposedProps, ShipsData & PeopleData>
+    > {
       render() {
         const { people, ships } = this.props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(ships).toBeTruthy();
-        expect(ships.loading).toBe(true);
+        expect(ships.loading).toBeTruthy();
         return null;
       }
     }
@@ -168,7 +184,9 @@ describe('shared operations', () => {
       }
     `;
     const peopleData = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-
+    interface PeopleData {
+      allPeople: { people: [{ name: string }] };
+    }
     const shipsQuery = gql`
       query ships {
         allships(first: 1) {
@@ -179,6 +197,9 @@ describe('shared operations', () => {
       }
     `;
     const shipsData = { allships: { ships: [{ name: 'Tie Fighter' }] } };
+    interface ShipsData {
+      allShips: { ships: [{ name: string }] };
+    }
 
     const link = mockSingleLink(
       { request: { query: peopleQuery }, result: { data: peopleData } },
@@ -189,17 +210,23 @@ describe('shared operations', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const withPeople = graphql(peopleQuery, { name: 'people' });
-    const withShips = graphql(shipsQuery, { name: 'ships' });
+    const withPeople = graphql<any, PeopleData>(peopleQuery, {
+      name: 'people',
+    });
+    const withShips = graphql<any, ShipsData>(shipsQuery, { name: 'ships' });
 
+    interface ComposedProps {
+      people?: DataValue<PeopleData>;
+      ships?: DataValue<ShipsData>;
+    }
     const ContainerWithData = withPeople(
-      withShips(props => {
+      withShips((props: ComposedProps) => {
         const { people, ships } = props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(ships).toBeTruthy();
-        expect(ships.loading).toBe(true);
+        expect(ships.loading).toBeTruthy();
         return null;
       }),
     );
@@ -254,11 +281,11 @@ describe('shared operations', () => {
 
     @withPeople
     @withPeopleMutation
-    class ContainerWithData extends React.Component<any, any> {
+    class ContainerWithData extends React.Component<any> {
       render() {
         const { people, addPerson } = this.props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(addPerson).toBeTruthy();
         return null;
@@ -366,13 +393,13 @@ describe('shared operations', () => {
     });
 
     let queryExecuted;
-    @graphql(query, { options: { skip: true } })
+    @graphql(query, { skip: true })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         queryExecuted = true;
       }
       render() {
-        expect(this.props.data).toBeUndefined;
+        expect(this.props.data).toBeUndefined();
         return null;
       }
     }
@@ -435,10 +462,10 @@ describe('shared operations', () => {
       const ContainerWithData = enhanced(props => {
         const { people, ships } = props;
         expect(people).toBeTruthy();
-        expect(people.loading).toBe(true);
+        expect(people.loading).toBeTruthy();
 
         expect(ships).toBeTruthy();
-        expect(ships.loading).toBe(true);
+        expect(ships.loading).toBeTruthy();
         return null;
       });
 

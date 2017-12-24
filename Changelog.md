@@ -1,5 +1,18 @@
 # Change log
 
+### next
+- Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+- Tests are now linted and verified valid typescript [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+- Typescript - updated `types` for consistency and potential to pass through all types e.g. `TProps, TData, TGraphQLVariables` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+- Typescript - added `ChildDataProps` and `ChildMutateProps` for optional stronger typed usage version of `ChildProps` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+- **BREAKING [Typescript usage only]** - `graphql` parameterized types streamlined for 
+a) full typing; and b) ease of use; and c) consistency.  New parameterized is: 
+`graphql<TProps,TData, TGraphQLVariables, TChildProps>` where none are required and full typing only requires the
+first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402) 
+- Typescript - fix `graphql` HOC inference [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+- **Remove deprecated** `operationOptions.options.skip`, use `operationOptions.skip` instead
+- Added <Query /> component [#1398](https://github.com/apollographql/react-apollo/pull/1398)
+- Made prettier solely responsible for formatting, removed all formatting linting rules from tslint [#1452](https://github.com/apollographql/react-apollo/pull/1452)
 - add <ApolloConsumer /> component [#1399](https://github.com/apollographql/react-apollo/pull/1399)
 
 ### 2.0.4

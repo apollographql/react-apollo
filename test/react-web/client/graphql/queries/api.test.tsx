@@ -1,38 +1,17 @@
-/// <reference types="jest" />
-
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom';
 import * as renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import ApolloClient, { ApolloError, ObservableQuery } from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-import { connect } from 'react-redux';
-import { withState } from 'recompose';
-
-declare function require(name: string);
-
 import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
-
-// XXX: this is also defined in apollo-client
-// I'm not sure why mocha doesn't provide something like this, you can't
-// always use promises
-const wrap = (done: Function, cb: (...args: any[]) => any) => (
-  ...args: any[]
-) => {
-  try {
-    return cb(...args);
-  } catch (e) {
-    done(e);
-  }
-};
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
-}
+import {
+  ApolloProvider,
+  ChildProps,
+  graphql,
+  OptionProps,
+} from '../../../../../src';
+import '../../../../test-utils/toEqualJson';
+import wrap from '../../../../test-utils/wrap';
 
 describe('[queries] api', () => {
   // api
@@ -60,33 +39,41 @@ describe('[queries] api', () => {
 
     let hasRefetched,
       count = 0;
-    @graphql(query)
-    class Container extends React.Component<any, any> {
+
+    interface Props {
+      first: number;
+    }
+    interface Data {
+      allPeople: { people: [{ name: string }] };
+    }
+
+    @graphql<Props, Data>(query)
+    class Container extends React.Component<ChildProps<Props, Data>> {
       componentWillMount() {
         expect(this.props.data.refetch).toBeTruthy();
-        expect(this.props.data.refetch instanceof Function).toBe(true);
+        expect(this.props.data.refetch instanceof Function).toBeTruthy();
       }
-      componentWillReceiveProps({ data }) {
+      componentWillReceiveProps({ data }: ChildProps<Props, Data>) {
         try {
-          if (count === 0) expect(data.loading).toBe(false); // first data
-          if (count === 1) expect(data.loading).toBe(true); // first refetch
-          if (count === 2) expect(data.loading).toBe(false); // second data
-          if (count === 3) expect(data.loading).toBe(true); // second refetch
-          if (count === 4) expect(data.loading).toBe(false); // third data
+          if (count === 0) expect(data.loading).toBeFalsy(); // first data
+          if (count === 1) expect(data.loading).toBeTruthy(); // first refetch
+          if (count === 2) expect(data.loading).toBeFalsy(); // second data
+          if (count === 3) expect(data.loading).toBeTruthy(); // second refetch
+          if (count === 4) expect(data.loading).toBeFalsy(); // third data
           count++;
           if (hasRefetched) return;
           hasRefetched = true;
           expect(data.refetch).toBeTruthy();
-          expect(data.refetch instanceof Function).toBe(true);
+          expect(data.refetch instanceof Function).toBeTruthy();
           data
             .refetch()
             .then(result => {
-              expect(result.data).toEqual(data1);
+              expect(result.data).toEqualJson(data1);
               return data
                 .refetch({ first: 2 }) // new variables
                 .then(response => {
-                  expect(response.data).toEqual(data1);
-                  expect(data.allPeople).toEqual(data1.allPeople);
+                  expect(response.data).toEqualJson(data1);
+                  expect(data.allPeople).toEqualJson(data1.allPeople);
                   done();
                 });
             })
@@ -96,7 +83,7 @@ describe('[queries] api', () => {
         }
       }
       render() {
-        return null;
+        return <div>{this.props.first}</div>;
       }
     }
 
@@ -117,22 +104,22 @@ describe('[queries] api', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
     });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
+    // example of loose typing
     @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
+    class Container extends React.Component<any> {
+      componentWillReceiveProps({ data }: OptionProps) {
         // tslint:disable-line
         expect(data.subscribeToMore).toBeTruthy();
-        expect(data.subscribeToMore instanceof Function).toBe(true);
+        expect(data.subscribeToMore instanceof Function).toBeTruthy();
         done();
       }
       render() {
@@ -173,15 +160,15 @@ describe('[queries] api', () => {
 
     let count = 0;
     @graphql(query, { options: () => ({ variables }) })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<any> {
       componentWillMount() {
         expect(this.props.data.fetchMore).toBeTruthy();
-        expect(this.props.data.fetchMore instanceof Function).toBe(true);
+        expect(this.props.data.fetchMore instanceof Function).toBeTruthy();
       }
-      componentWillReceiveProps = wrap(done, props => {
+      componentWillReceiveProps(props: OptionProps) {
         if (count === 0) {
           expect(props.data.fetchMore).toBeTruthy();
-          expect(props.data.fetchMore instanceof Function).toBe(true);
+          expect(props.data.fetchMore instanceof Function).toBeTruthy();
           props.data
             .fetchMore({
               variables: { skip: 2 },
@@ -195,15 +182,15 @@ describe('[queries] api', () => {
             })
             .then(
               wrap(done, result => {
-                expect(result.data.allPeople.people).toEqual(
+                expect(result.data.allPeople.people).toEqualJson(
                   data1.allPeople.people,
                 );
               }),
             );
         } else if (count === 1) {
-          expect(props.data.variables).toEqual(variables);
-          expect(props.data.loading).toBe(false);
-          expect(props.data.allPeople.people).toEqual(
+          expect(props.data.variables).toEqualJson(variables);
+          expect(props.data.loading).toBeFalsy();
+          expect(props.data.allPeople.people).toEqualJson(
             data.allPeople.people.concat(data1.allPeople.people),
           );
           done();
@@ -211,7 +198,8 @@ describe('[queries] api', () => {
           throw new Error('should not reach this point');
         }
         count++;
-      });
+        done();
+      }
       render() {
         return null;
       }
@@ -253,12 +241,19 @@ describe('[queries] api', () => {
     });
 
     let isUpdated = false;
-    @graphql(query, {
-      // XXX: I think we should be able to avoid this https://github.com/apollostack/react-apollo/issues/197
-      options: { variables: { cursor: null } },
-      props({ data: { loading, allPeople, fetchMore } }) {
-        if (loading) return { loading };
 
+    interface Props {}
+    interface Data {
+      allPeople: {
+        cursor: any;
+        people: [{ name: string }];
+      };
+    }
+    @graphql<Props, Data>(query, {
+      props({
+        data: { loading, allPeople, fetchMore },
+      }: ChildProps<Props, Data>) {
+        if (loading) return { loading };
         const { cursor, people } = allPeople;
         return {
           people,
@@ -266,7 +261,7 @@ describe('[queries] api', () => {
             fetchMore({
               variables: { cursor },
               updateQuery(prev, { fetchMoreResult }) {
-                const { allPeople: { cursor, people } } = fetchMoreResult;
+                const { allPeople: { cursor, people } } = fetchMoreResult; // tslint:disable-line:no-shadowed-variable
                 return {
                   allPeople: {
                     cursor,
@@ -278,7 +273,7 @@ describe('[queries] api', () => {
         };
       },
     })
-    class Container extends React.Component<any, any> {
+    class Container extends React.Component<ChildProps<Props, Data>> {
       componentWillReceiveProps(props) {
         if (props.loading) return;
 
@@ -289,7 +284,7 @@ describe('[queries] api', () => {
         }
 
         isUpdated = true;
-        expect(props.people).toEqual(data1.allPeople.people);
+        expect(props.people).toEqualJson(data1.allPeople.people);
         props.getMorePeople();
       }
       render() {
