@@ -17,8 +17,8 @@ describe('<ApolloConsumer /> component', () => {
   it('has a render prop', done => {
     mount(
       <ApolloProvider client={client}>
-        <ApolloConsumer
-          render={clientRender => {
+        <ApolloConsumer>
+          {clientRender => {
             try {
               expect(clientRender).toBe(client);
               done();
@@ -27,7 +27,7 @@ describe('<ApolloConsumer /> component', () => {
             }
             return null;
           }}
-        />
+        </ApolloConsumer>
       </ApolloProvider>,
     );
   });
@@ -35,7 +35,7 @@ describe('<ApolloConsumer /> component', () => {
   it('renders the content in the render prop', () => {
     const wrapper = mount(
       <ApolloProvider client={client}>
-        <ApolloConsumer render={clientRender => <div />} />
+        <ApolloConsumer>{clientRender => <div />}</ApolloConsumer>
       </ApolloProvider>,
     );
 

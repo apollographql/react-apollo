@@ -45,8 +45,8 @@ export function withApollo<TProps, TResult>(
 
     render() {
       return (
-        <ApolloConsumer
-          render={client => (
+        <ApolloConsumer>
+          {client => (
             <WrappedComponent
               {...this.props}
               client={client}
@@ -55,7 +55,7 @@ export function withApollo<TProps, TResult>(
               }
             />
           )}
-        />
+        </ApolloConsumer>
       );
     }
   }

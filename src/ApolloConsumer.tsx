@@ -4,7 +4,7 @@ import ApolloClient from 'apollo-client';
 const invariant = require('invariant');
 
 export interface ApolloConsumerProps {
-  render: (client: ApolloClient<any>) => React.ReactElement<any>;
+  children: (client: ApolloClient<any>) => React.ReactElement<any>;
 }
 
 const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> = (
@@ -16,7 +16,7 @@ const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> = (
     `Could not find "client" in the context of ApolloConsumer. Wrap the root component in an <ApolloProvider>`,
   );
 
-  return props.render(context.client);
+  return props.children(context.client);
 };
 
 ApolloConsumer.contextTypes = {
