@@ -26,10 +26,6 @@ const mocks = [
   },
 ];
 
-const options = {
-  query,
-};
-
 const catchAsyncError = (done, cb) => {
   try {
     cb();
@@ -37,17 +33,6 @@ const catchAsyncError = (done, cb) => {
     done.fail(e);
   }
 };
-
-class ErrorBoundary extends React.Component {
-  componentDidCatch(error, errorInfo) {
-    console.log(error);
-    console.log(errorInfo);
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
 
 describe('Query component', () => {
   it('calls the children prop', done => {
@@ -352,17 +337,17 @@ describe('Query component', () => {
             if (count === 1) {
               // first data
               expect(variables).toEqual({ first: 1 });
-              expect(data).toEqual(data1);
+              expect(data).toMatchSnapshot('refetch prop: first render data');
             }
             if (count === 3) {
               // second data
               expect(variables).toEqual({ first: 1 });
-              expect(data).toEqual(data2);
+              expect(data).toMatchSnapshot('refetch prop: second render data');
             }
             if (count === 5) {
               // third data
               expect(variables).toEqual({ first: 2 });
-              expect(data).toEqual(data3);
+              expect(data).toMatchSnapshot('refetch prop: third render data');
             }
           });
 
@@ -376,11 +361,15 @@ describe('Query component', () => {
             result
               .refetch()
               .then(result1 => {
-                expect(result1.data).toEqual(data2);
+                expect(result1.data).toMatchSnapshot(
+                  'refetch prop: result refetch call 1',
+                );
                 return result.refetch({ first: 2 });
               })
               .then(result2 => {
-                expect(result2.data).toEqual(data3);
+                expect(result2.data).toMatchSnapshot(
+                  'refetch prop: result refetch call 2',
+                );
                 done();
               })
               .catch(done.fail);
@@ -440,21 +429,18 @@ describe('Query component', () => {
                 }),
               })
               .then(result => {
-                expect(result.data).toEqual(data2);
+                expect(result.data).toMatchSnapshot(
+                  'fetchMore render prop: result fetchMore call',
+                );
               })
               .catch(done.fail);
           } else if (count === 1) {
             catchAsyncError(done, () => {
               expect(data.variables).toEqual(variables);
+              expect(data.data).toMatchSnapshot(
+                'fetchMore render prop: render data',
+              );
 
-              expect(data.data).toEqual({
-                allPeople: {
-                  people: [
-                    ...data1.allPeople.people,
-                    ...data2.allPeople.people,
-                  ],
-                },
-              });
               done();
             });
           }
@@ -484,11 +470,11 @@ describe('Query component', () => {
             return null;
           }
           if (count === 0) {
-            expect(result.data).toEqual(data1);
+            expect(result.data).toMatchSnapshot();
           } else if (count === 1) {
-            expect(result.data).toEqual(data2);
+            expect(result.data).toMatchSnapshot();
           } else if (count === 2) {
-            expect(result.data).toEqual(data3);
+            expect(result.data).toMatchSnapshot();
           }
           count++;
           return null;
@@ -547,11 +533,11 @@ describe('Query component', () => {
           }
           catchAsyncError(done, () => {
             if (count === 0) {
-              expect(result.data).toEqual(data1);
+              expect(result.data).toMatchSnapshot();
             } else if (count === 1) {
-              expect(result.data).toEqual(data2);
+              expect(result.data).toMatchSnapshot();
             } else if (count === 2) {
-              expect(result.data).toEqual(data3);
+              expect(result.data).toMatchSnapshot();
             }
           });
 
@@ -607,9 +593,9 @@ describe('Query component', () => {
             return null;
           }
           if (count === 0) {
-            expect(result.data).toEqual(data1);
+            expect(result.data).toMatchSnapshot();
           } else if (count === 1) {
-            expect(result.data).toEqual(data2);
+            expect(result.data).toMatchSnapshot();
             result.stopPolling();
           }
           count++;
@@ -675,7 +661,9 @@ describe('Query component', () => {
           }
           if (isUpdated) {
             catchAsyncError(done, () => {
-              expect(result.data).toEqual(data2);
+              expect(result.data).toMatchSnapshot(
+                'updateQuery render prop: rendered data',
+              );
               done();
             });
 
@@ -685,7 +673,9 @@ describe('Query component', () => {
           setTimeout(() => {
             result.updateQuery((prev, { variables: variablesUpdate }) => {
               catchAsyncError(done, () => {
-                expect(prev).toEqual(data1);
+                expect(prev).toMatchSnapshot(
+                  'updateQuery render prop: result of the updateQuery call',
+                );
                 expect(variablesUpdate).toEqual({ first: 2 });
               });
 
@@ -760,11 +750,11 @@ describe('Query component', () => {
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(result.variables).toEqual({ first: 1 });
-                  expect(result.data).toEqual(data1);
+                  expect(result.data).toMatchSnapshot();
                 }
                 if (count === 1) {
                   expect(result.variables).toEqual({ first: 2 });
-                  expect(result.data).toEqual(data2);
+                  expect(result.data).toMatchSnapshot();
                   done();
                 }
               });
@@ -818,14 +808,6 @@ describe('Query component', () => {
         query: query1,
       };
 
-      componentDidMount() {
-        setTimeout(() => {
-          this.setState({
-            query: query2,
-          });
-        }, 50);
-      }
-
       render() {
         const { query } = this.state;
 
@@ -837,10 +819,15 @@ describe('Query component', () => {
               }
               catchAsyncError(done, () => {
                 if (count === 0) {
-                  expect(result.data).toEqual(data1);
+                  expect(result.data).toMatchSnapshot();
+                  setTimeout(() => {
+                    this.setState({
+                      query: query2,
+                    });
+                  });
                 }
                 if (count === 1) {
-                  expect(result.data).toEqual(data2);
+                  expect(result.data).toMatchSnapshot();
                   done();
                 }
               });
@@ -952,7 +939,7 @@ describe('Query component', () => {
                 }
                 catchAsyncError(done, () => {
                   if (count === 0) {
-                    expect(result.data).toEqual(data1);
+                    expect(result.data).toMatchSnapshot();
                     setTimeout(() => {
                       this.setState({
                         client: client2,
@@ -960,7 +947,7 @@ describe('Query component', () => {
                     }, 0);
                   }
                   if (count === 1) {
-                    expect(result.data).toEqual(data2);
+                    expect(result.data).toMatchSnapshot();
                     done();
                   }
                   count++;
@@ -974,10 +961,6 @@ describe('Query component', () => {
       }
     }
 
-    const wrapper = mount(
-      <ErrorBoundary>
-        <Component />
-      </ErrorBoundary>,
-    );
+    const wrapper = mount(<Component />);
   });
 });
