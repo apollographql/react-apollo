@@ -8,15 +8,13 @@
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "analyze":
-      "npm run compile && webpack -p --config scripts/webpack.inspect.js",
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
     "pretest": "npm run lint",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
-    "filesize": "npm run compile:browser && bundlesize",
+    "filesize": "bundlesize",
     "flow-typed":
       "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
@@ -26,8 +24,6 @@
     "postcompile": "npm run bundle",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
-    "compile:browser":
-      "rm -rf ./dist && mkdir ./dist && NODE_ENV=production webpack -p ./lib/react-apollo.browser.umd.js ./dist/index.min.js --config ./scripts/webpack.config.js",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint-staged": "lint-staged",
@@ -38,7 +34,7 @@
   },
   "bundlesize": [
     {
-      "path": "./dist/index.min.js",
+      "path": "./lib/react-apollo.browser.umd.js",
       "threshold": "10 Kb"
     }
   ],
@@ -139,8 +135,6 @@
     "typescript-require": "0.2.9",
     "typings": "2.1.1",
     "uglify-js": "3.2.2",
-    "webpack": "3.10.0",
-    "webpack-bundle-analyzer": "2.9.1",
     "zen-observable-ts": "0.5.0"
   },
   "dependencies": {
