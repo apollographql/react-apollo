@@ -134,4 +134,5 @@ export interface OperationOption<
     nextProps: TProps & DataProps<TData, TGraphQLVariables>,
   ) => boolean;
   alias?: string;
+  notifyOnLoadingStatusChange?: boolean;
 }

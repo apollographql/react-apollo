@@ -70,6 +70,7 @@ export default function graphql<
     options = defaultMapPropsToOptions,
     skip = defaultMapPropsToSkip,
     alias = 'Apollo',
+    notifyOnLoadingStatusChange = false,
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOpts | MutationOpts;
@@ -141,6 +142,7 @@ export default function graphql<
         this.type = operation.type;
         this.dataForChildViaMutation = this.dataForChildViaMutation.bind(this);
         this.setWrappedInstance = this.setWrappedInstance.bind(this);
+        this.refetch = this.refetch.bind(this);
       }
 
       componentWillMount() {
@@ -517,8 +519,11 @@ export default function graphql<
         }
 
         const opts = this.calculateOptions(this.props);
+        // use the refetch function defined on HOC
         const data = {};
-        assign(data, observableQueryFields(this.queryObservable));
+        assign(data, observableQueryFields(this.queryObservable), {
+          refetch: this.refetch,
+        });
 
         if (this.type === DocumentType.Subscription) {
           assign(
@@ -581,6 +586,19 @@ export default function graphql<
           }
         }
         return data as QueryProps & TData;
+      }
+
+      /**
+       * redefine refetch function, if option.notifyOnLoadingStatusChange is true, we forceUpdate
+       * after calling original refetch to pass the new dataProps to the wrappedComponent.
+       * That can makes WrappedComponent be able to watch on loading status;
+       */
+      refetch(variables?: any) {
+        const response = this.queryObservable.refetch(variables);
+        if (notifyOnLoadingStatusChange === true) {
+          this.forceRenderChildren();
+        }
+        return response;
       }
 
       render() {

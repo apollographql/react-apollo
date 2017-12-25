@@ -6,13 +6,15 @@
 - Typescript - updated `types` for consistency and potential to pass through all types e.g. `TProps, TData, TGraphQLVariables` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
 - Typescript - added `ChildDataProps` and `ChildMutateProps` for optional stronger typed usage version of `ChildProps` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
 - **BREAKING [Typescript usage only]** - `graphql` parameterized types streamlined for 
-a) full typing; and b) ease of use; and c) consistency.  New parameterized is: 
-`graphql<TProps,TData, TGraphQLVariables, TChildProps>` where none are required and full typing only requires the
-first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402) 
+  a) full typing; and b) ease of use; and c) consistency.  New parameterized is: 
+  `graphql<TProps,TData, TGraphQLVariables, TChildProps>` where none are required and full typing only requires the
+  first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402) 
 - Typescript - fix `graphql` HOC inference [#1402](https://github.com/apollographql/react-apollo/pull/1402)
 - **Remove deprecated** `operationOptions.options.skip`, use `operationOptions.skip` instead
+- Feature - add option `notifyOnLoadingStatusChange` to make WrappedComponent be able to watch loading status change  [#1438](https://github.com/apollographql/react-apollo/pull/1438)
 - Added <Query /> component [#1399](https://github.com/apollographql/react-apollo/pull/1398)
 - Made prettier solely responsible for formatting, removed all formatting linting rules from tslint [#1452](https://github.com/apollographql/react-apollo/pull/1452)
+
 
 ### 2.0.4
 - rolled back on the lodash-es changes from
@@ -312,7 +314,7 @@ This release refactors the server side rendering and data access code, hopefully
 ### v0.5.6
 
 - Bug: Passing immutable to ApolloProvider breaks ssr. `renderToStringWithData` fails to reference the right store.
- [#222](https://github.com/apollostack/react-apollo/pull/222)
+   [#222](https://github.com/apollostack/react-apollo/pull/222)
  - Bug: Fixed issue with context in SSR [#218](https://github.com/apollostack/react-apollo/issues/218)
 
 ### v0.5.5
@@ -456,7 +458,7 @@ Return promise from the refetch method
 
 - Bug: Fix bug where state / props weren't accurate when executing mutations.
 - - Improvement: Increase performance by limiting re-renders and re-execution of queries.
-Chore: Split tests to make them easier to maintain.
+    Chore: Split tests to make them easier to maintain.
 
 ### v0.3.2 || v0.3.3 (publish fix)
 
