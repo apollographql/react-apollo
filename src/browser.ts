@@ -1,4 +1,5 @@
 export { default as ApolloProvider } from './ApolloProvider';
+export { default as Query } from './Query';
 export { default as graphql } from './graphql';
 export {
   MutationOpts,

@@ -8,15 +8,13 @@
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "analyze":
-      "npm run compile && webpack -p --config scripts/webpack.inspect.js",
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
     "pretest": "npm run lint",
     "test": "npm run compile && jest",
     "testonly": "jest",
     "test-watch": "jest --watch",
-    "filesize": "npm run compile:browser && bundlesize",
+    "filesize": "bundlesize",
     "flow-typed":
       "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
@@ -26,24 +24,22 @@
     "postcompile": "npm run bundle",
     "bundle":
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
-    "compile:browser":
-      "rm -rf ./dist && mkdir ./dist && NODE_ENV=production webpack -p ./lib/react-apollo.browser.umd.js ./dist/index.min.js --config ./scripts/webpack.config.js",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint-staged": "lint-staged",
     "lint-fix":
       "npm run pretty && tslint 'src/*.ts*' --project tsconfig.json --fix",
-    "pretty": "prettier --config .prettierrc --write \"{src,test}/**/*.ts*\""
+    "pretty":
+      "prettier --config .prettierrc --write \"{src,test}/**/*.{js,ts}*\""
   },
   "bundlesize": [
     {
-      "path": "./dist/index.min.js",
+      "path": "./lib/react-apollo.browser.umd.js",
       "threshold": "10 Kb"
     }
   ],
   "lint-staged": {
-    "*.ts*": ["prettier --config .prettierrc --write", "git add"],
-    "*.js*": ["prettier --config .prettierrc --write", "git add"]
+    "*.{js,ts}*": ["prettier --single-quote --write", "git add"]
   },
   "pre-commit": "lint-staged",
   "repository": {
@@ -105,12 +101,10 @@
     "apollo-cache-inmemory": "1.1.4",
     "apollo-client": "2.1.0",
     "babel-core": "6.26.0",
-    "babel-jest": "21.2.0",
+    "babel-jest": "22.0.4",
     "babel-preset-env": "1.6.1",
     "babel-preset-react-native": "4.0.0",
     "bundlesize": "0.15.3",
-    "cheerio": "1.0.0-rc.2",
-    "colors": "1.1.2",
     "danger": "2.1.6",
     "enzyme": "3.2.0",
     "enzyme-adapter-react-16": "1.1.1",
@@ -118,7 +112,6 @@
     "flow-typed": "2.2.3",
     "graphql": "0.11.7",
     "graphql-tag": "2.6.1",
-    "immutable": "3.8.2",
     "isomorphic-fetch": "2.2.1",
     "jest": "21.2.1",
     "jsdom": "11.5.1",
@@ -127,9 +120,7 @@
     "minimist": "1.2.0",
     "pre-commit": "1.2.2",
     "prettier": "1.9.2",
-    "pretty-bytes": "4.0.2",
     "react": "16.2.0",
-    "react-addons-test-utils": "15.6.2",
     "react-dom": "16.2.0",
     "react-native": "0.51.0",
     "react-test-renderer": "16.2.0",
@@ -137,16 +128,11 @@
     "rimraf": "2.6.2",
     "rollup": "0.52.3",
     "source-map-support": "0.5.0",
-    "swapi-graphql": "0.0.6",
-    "travis-weigh-in": "1.0.2",
-    "ts-jest": "21.2.4",
+    "ts-jest": "22.0.0",
     "tslint": "5.8.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
-    "typings": "2.1.1",
     "uglify-js": "3.2.2",
-    "webpack": "3.10.0",
-    "webpack-bundle-analyzer": "2.9.1",
     "zen-observable-ts": "0.5.0"
   },
   "dependencies": {
