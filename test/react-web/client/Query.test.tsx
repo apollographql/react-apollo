@@ -1,9 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 import { mount } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
 import ApolloProvider from '../../../src/ApolloProvider';
 import Query from '../../../src/Query';
 import { MockedProvider, mockSingleLink } from '../../../src/test-utils';
@@ -59,7 +58,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -105,7 +104,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mockError} removeTypename>
         <Component />
       </MockedProvider>,
@@ -127,7 +126,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -177,7 +176,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -221,7 +220,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mocksWithVariable} removeTypename>
         <Component />
       </MockedProvider>,
@@ -250,7 +249,7 @@ describe('Query component', () => {
     expect(() => {
       mount(
         <MockedProvider>
-          <Query query={mutation}>{() => null} </Query>
+          <Query query={mutation}>{() => null}</Query>
         </MockedProvider>,
       );
     }).toThrowError(
@@ -276,7 +275,7 @@ describe('Query component', () => {
     expect(() => {
       mount(
         <MockedProvider>
-          <Query query={subscription}>{() => null} </Query>
+          <Query query={subscription}>{() => null}</Query>
         </MockedProvider>,
       );
     }).toThrowError(
@@ -384,7 +383,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -455,7 +454,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -656,6 +655,9 @@ describe('Query component', () => {
   it('provides updateQuery render prop', done => {
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const variables = {
+      first: 2,
+    };
     const mocks = [
       {
         request: { query, variables },
@@ -663,9 +665,6 @@ describe('Query component', () => {
       },
     ];
 
-    const variables = {
-      first: 2,
-    };
     let isUpdated;
     expect.assertions(3);
     const Component = () => (
@@ -703,7 +702,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    const wrapper = mount(
+    mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -901,12 +900,7 @@ describe('Query component', () => {
 
       render() {
         const { query } = this.state;
-
-        return (
-          <Query query={query} loading={() => <div />}>
-            {() => null}
-          </Query>
-        );
+        return <Query query={query}>{() => null}</Query>;
       }
     }
 
@@ -976,6 +970,6 @@ describe('Query component', () => {
       }
     }
 
-    const wrapper = mount(<Component />);
+    mount(<Component />);
   });
 });
