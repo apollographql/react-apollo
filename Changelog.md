@@ -1,22 +1,30 @@
 # Change log
 
 ### next
-- Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)
-- Tests are now linted and verified valid typescript [#1402](https://github.com/apollographql/react-apollo/pull/1402)
-- Typescript - updated `types` for consistency and potential to pass through all types e.g. `TProps, TData, TGraphQLVariables` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
-- Typescript - added `ChildDataProps` and `ChildMutateProps` for optional stronger typed usage version of `ChildProps` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
-- **BREAKING [Typescript usage only]** - `graphql` parameterized types streamlined for 
+
+- **BREAKING CHANGES**
+  - typescript - `graphql` parameterized types streamlined for 
 a) full typing; and b) ease of use; and c) consistency.  New parameterized is: 
 `graphql<TProps,TData, TGraphQLVariables, TChildProps>` where none are required and full typing only requires the
 first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402) 
-- Typescript - fix `graphql` HOC inference [#1402](https://github.com/apollographql/react-apollo/pull/1402)
-- **Remove deprecated** `operationOptions.options.skip`, use `operationOptions.skip` instead
-- Added <Query /> component [#1398](https://github.com/apollographql/react-apollo/pull/1398)
-- Made prettier solely responsible for formatting, removed all formatting linting rules from tslint [#1452](https://github.com/apollographql/react-apollo/pull/1452)
-- Add <ApolloConsumer /> component [#1399](https://github.com/apollographql/react-apollo/pull/1399)
-- Convert `Query.test` to `tsx` and parameterize types for `Query` [#1462](https://github.com/apollographql/react-apollo/pull/1462)
-- Remove copied `shallowEqual` code and delegate to `fbjs` [#1465](https://github.com/apollographql/react-apollo/pull/1465)
+  - Remove deprecated `operationOptions.options.skip`, use `operationOptions.skip` instead
+  - Rename type `ProviderProps` to `ApolloProviderProps` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
+  - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
+  - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
 
+- **Other Changes**
+  - Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+  - Tests are now linted and verified valid typescript [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+  - Typescript - updated `types` for consistency and potential to pass through all types e.g. `TProps, TData, TGraphQLVariables` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+  - Typescript - added `ChildDataProps` and `ChildMutateProps` for optional stronger typed usage version of `ChildProps` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+  - Typescript - fix `graphql` HOC inference [#1402](https://github.com/apollographql/react-apollo/pull/1402)
+  - Added <Query /> component [#1398](https://github.com/apollographql/react-apollo/pull/1398)
+  - Made prettier solely responsible for formatting, removed all formatting linting rules from tslint [#1452](https://github.com/apollographql/react-apollo/pull/1452)
+  - Add <ApolloConsumer /> component [#1399](https://github.com/apollographql/react-apollo/pull/1399)
+  - Convert `Query.test` to `tsx` and parameterize types for `Query` [#1462](https://github.com/apollographql/react-apollo/pull/1462)
+  - Remove copied `shallowEqual` code and delegate to `fbjs` [#1465](https://github.com/apollographql/react-apollo/pull/1465)
+  - Update rollup configurations, refine package exports [#1467](https://github.com/apollographql/react-apollo/pull/1467)
+  
 ### 2.0.4
 - rolled back on the lodash-es changes from
   [#1344](https://github.com/apollographql/react-apollo/pull/1344) due to build

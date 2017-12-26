@@ -32,7 +32,7 @@
   },
   "bundlesize": [
     {
-      "path": "./lib/react-apollo.umd.js",
+      "path": "./lib/umd/react-apollo.umd.js",
       "threshold": "1 Kb"
     }
   ],
