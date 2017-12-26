@@ -6,8 +6,10 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import ApolloProvider from '../../../src/ApolloProvider';
 import Query from '../../../src/Query';
 import { MockedProvider, mockSingleLink } from '../../../src/test-utils';
+import catchAsyncError from '../../test-utils/catchAsyncError';
+// import { all } from 'async';
 
-const query = gql`
+const allPeopleQuery = gql`
   query people {
     allPeople(first: 1) {
       people {
@@ -16,22 +18,13 @@ const query = gql`
     }
   }
 `;
-const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-
-const mocks = [
+const allPeopleData = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+const allPeopleMocks = [
   {
-    request: { query },
-    result: { data },
+    request: { query: allPeopleQuery },
+    result: { data: allPeopleData },
   },
 ];
-
-const catchAsyncError = (done, cb) => {
-  try {
-    cb();
-  } catch (e) {
-    done.fail(e);
-  }
-};
 
 describe('Query component', () => {
   beforeEach(() => {
@@ -40,7 +33,7 @@ describe('Query component', () => {
 
   it('calls the children prop', done => {
     const Component = () => (
-      <Query query={query}>
+      <Query query={allPeopleQuery}>
         {result => {
           catchAsyncError(done, () => {
             if (result.loading) {
@@ -59,17 +52,19 @@ describe('Query component', () => {
     );
 
     mount(
-      <MockedProvider mocks={mocks} removeTypename>
+      <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
     );
   });
 
   it('renders using the children prop', done => {
-    const Component = () => <Query query={query}>{result => <div />}</Query>;
+    const Component = () => (
+      <Query query={allPeopleQuery}>{result => <div />}</Query>
+    );
 
     const wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
+      <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
     );
@@ -82,13 +77,13 @@ describe('Query component', () => {
   it('renders the error state', done => {
     const mockError = [
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         error: new Error('error occurred'),
       },
     ];
 
     const Component = () => (
-      <Query query={query}>
+      <Query query={allPeopleQuery}>
         {result => {
           if (result.loading) {
             return null;
@@ -113,7 +108,7 @@ describe('Query component', () => {
 
   it('makes use of a custom fetch-policy', done => {
     const Component = () => (
-      <Query query={query} fetchPolicy={'cache-only'}>
+      <Query query={allPeopleQuery} fetchPolicy={'cache-only'}>
         {result => {
           catchAsyncError(done, () => {
             expect(result.loading).toBeFalsy();
@@ -127,7 +122,7 @@ describe('Query component', () => {
     );
 
     mount(
-      <MockedProvider mocks={mocks} removeTypename>
+      <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
     );
@@ -135,21 +130,9 @@ describe('Query component', () => {
 
   it('sets the notifyOnNetworkStatusChange prop', done => {
     let count = 0;
-
-    let mocks = [
-      {
-        request: { query },
-        result: { data },
-      },
-      {
-        request: { query },
-        result: { data },
-      },
-    ];
-
     expect.assertions(4);
     const Component = () => (
-      <Query query={query} notifyOnNetworkStatusChange>
+      <Query query={allPeopleQuery} notifyOnNetworkStatusChange>
         {result => {
           catchAsyncError(done, () => {
             if (count === 0) {
@@ -177,7 +160,7 @@ describe('Query component', () => {
     );
 
     mount(
-      <MockedProvider mocks={mocks} removeTypename>
+      <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
     );
@@ -204,7 +187,7 @@ describe('Query component', () => {
             first: 1,
           },
         },
-        result: { data },
+        result: { data: allPeopleData },
       },
     ];
 
@@ -245,7 +228,7 @@ describe('Query component', () => {
 
     // Prevent error from being logged in console of test.
     const errorLogger = console.error;
-    console.error = () => {};
+    console.error = () => {}; // tslint:disable-line
     expect(() => {
       mount(
         <MockedProvider>
@@ -271,7 +254,7 @@ describe('Query component', () => {
 
     // Prevent error from being logged in console of test.
     const errorLogger = console.error;
-    console.error = () => {};
+    console.error = () => {}; // tslint:disable-line
     expect(() => {
       mount(
         <MockedProvider>
@@ -300,17 +283,17 @@ describe('Query component', () => {
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
     const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
 
-    const variables = {
+    const refetchVariables = {
       first: 1,
     };
 
     const mocks = [
       {
-        request: { query: queryRefetch, variables },
+        request: { query: queryRefetch, variables: refetchVariables },
         result: { data: data1 },
       },
       {
-        request: { query: queryRefetch, variables },
+        request: { query: queryRefetch, variables: refetchVariables },
         result: { data: data2 },
       },
       {
@@ -327,7 +310,7 @@ describe('Query component', () => {
     const Component = () => (
       <Query
         query={queryRefetch}
-        variables={variables}
+        variables={refetchVariables}
         notifyOnNetworkStatusChange
       >
         {result => {
@@ -400,11 +383,11 @@ describe('Query component', () => {
 
     const mocks = [
       {
-        request: { query, variables: { first: 2 } },
+        request: { query: allPeopleQuery, variables: { first: 2 } },
         result: { data: data1 },
       },
       {
-        request: { query, variables: { first: 1 } },
+        request: { query: allPeopleQuery, variables: { first: 1 } },
         result: { data: data2 },
       },
     ];
@@ -413,7 +396,7 @@ describe('Query component', () => {
     expect.assertions(3);
 
     const Component = () => (
-      <Query query={query} variables={variables}>
+      <Query query={allPeopleQuery} variables={variables}>
         {data => {
           if (data.loading) {
             return null;
@@ -470,7 +453,7 @@ describe('Query component', () => {
     const POLL_INTERVAL = 30;
 
     const Component = () => (
-      <Query query={query} pollInterval={POLL_INTERVAL}>
+      <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
@@ -494,15 +477,15 @@ describe('Query component', () => {
 
     const mocks = [
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data1 },
       },
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data2 },
       },
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data3 },
       },
     ];
@@ -533,7 +516,7 @@ describe('Query component', () => {
     const POLL_COUNT = 3;
 
     const Component = () => (
-      <Query query={query}>
+      <Query query={allPeopleQuery}>
         {result => {
           if (result.loading) {
             return null;
@@ -564,15 +547,15 @@ describe('Query component', () => {
 
     const mocks = [
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data1 },
       },
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data2 },
       },
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data3 },
       },
     ];
@@ -601,7 +584,7 @@ describe('Query component', () => {
     let count = 0;
 
     const Component = () => (
-      <Query query={query} pollInterval={POLL_INTERVAL}>
+      <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
@@ -624,15 +607,15 @@ describe('Query component', () => {
 
     const mocks = [
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data1 },
       },
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data2 },
       },
       {
-        request: { query },
+        request: { query: allPeopleQuery },
         result: { data: data3 },
       },
     ];
@@ -660,7 +643,7 @@ describe('Query component', () => {
     };
     const mocks = [
       {
-        request: { query, variables },
+        request: { query: allPeopleQuery, variables },
         result: { data: data1 },
       },
     ];
@@ -668,7 +651,7 @@ describe('Query component', () => {
     let isUpdated;
     expect.assertions(3);
     const Component = () => (
-      <Query query={query} variables={variables}>
+      <Query query={allPeopleQuery} variables={variables}>
         {result => {
           if (result.loading) {
             return null;
@@ -790,7 +773,7 @@ describe('Query component', () => {
 
   it('should update if the query changes', done => {
     expect.assertions(2);
-    const query1 = query;
+    const query1 = allPeopleQuery;
     const query2 = gql`
       query people {
         allPeople(first: 1) {
@@ -873,17 +856,17 @@ describe('Query component', () => {
 
     // Prevent error from showing up in console.
     const errorLog = console.error;
-    console.error = () => {};
+    console.error = () => {}; // tslint:disable-line
 
     class Component extends React.Component {
-      state = { query };
+      state = { query: allPeopleQuery };
 
       componentDidCatch(error) {
         catchAsyncError(done, () => {
-          const error = new Error(
+          const expectedError = new Error(
             'The <Query /> component requires a graphql query, but got a subscription.',
           );
-          expect(error).toEqual(error);
+          expect(error).toEqual(expectedError);
           console.error = errorLog;
 
           done();
@@ -905,7 +888,7 @@ describe('Query component', () => {
     }
 
     mount(
-      <MockedProvider mocks={mocks} removeTypename>
+      <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
     );
@@ -914,7 +897,7 @@ describe('Query component', () => {
   it('should update if the client changes in the context', done => {
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link1 = mockSingleLink({
-      request: { query },
+      request: { query: allPeopleQuery },
       result: { data: data1 },
     });
     const client1 = new ApolloClient({
@@ -924,7 +907,7 @@ describe('Query component', () => {
 
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
     const link2 = mockSingleLink({
-      request: { query },
+      request: { query: allPeopleQuery },
       result: { data: data2 },
     });
     const client2 = new ApolloClient({
@@ -941,7 +924,7 @@ describe('Query component', () => {
       render() {
         return (
           <ApolloProvider client={this.state.client}>
-            <Query query={query}>
+            <Query query={allPeopleQuery}>
               {result => {
                 if (result.loading) {
                   return null;
