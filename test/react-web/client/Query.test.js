@@ -35,6 +35,10 @@ const catchAsyncError = (done, cb) => {
 };
 
 describe('Query component', () => {
+  beforeEach(() => {
+    jest.useRealTimers();
+  });
+
   it('calls the children prop', done => {
     const Component = () => (
       <Query query={query}>
@@ -515,7 +519,6 @@ describe('Query component', () => {
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
       wrapper.unmount();
-      jest.useRealTimers();
       done();
     });
   });
@@ -586,7 +589,6 @@ describe('Query component', () => {
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
       wrapper.unmount();
-      jest.useRealTimers();
       done();
     });
   });
@@ -647,7 +649,6 @@ describe('Query component', () => {
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
       wrapper.unmount();
-      jest.useRealTimers();
       done();
     });
   });
