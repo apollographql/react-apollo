@@ -33,12 +33,12 @@ describe('App', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(query)(
-      ({ data }: ChildProps<{}, Data>) => {
-        if (data.loading) return <Text>Loading...</Text>;
-        return <Text>{data.allPeople.people.name}</Text>;
-      },
-    );
+    const ContainerWithData = graphql(
+      query,
+    )(({ data }: ChildProps<{}, Data>) => {
+      if (data.loading) return <Text>Loading...</Text>;
+      return <Text>{data.allPeople.people.name}</Text>;
+    });
     const output = renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData />

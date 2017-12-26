@@ -11,7 +11,7 @@
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
     "pretest": "npm run lint",
-    "test": "npm run compile && jest",
+    "test": "npm run compile && jest --maxWorkers=4",
     "testonly": "jest",
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
@@ -130,7 +130,7 @@
     "tslint": "5.8.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
-    "uglify-js": "3.2.2",
+    "uglify-js": "3.3.2",
     "zen-observable-ts": "0.5.0"
   },
   "dependencies": {

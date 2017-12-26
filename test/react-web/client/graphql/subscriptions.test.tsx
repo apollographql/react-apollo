@@ -47,14 +47,14 @@ describe('subscriptions', () => {
       user: { name: string };
     }
 
-    const ContainerWithData = graphql<Props, Data>(query)(
-      ({ data }: ChildProps<Props, Data>) => {
-        expect(data).toBeTruthy();
-        expect(data.user).toBeFalsy();
-        expect(data.loading).toBeTruthy();
-        return null;
-      },
-    );
+    const ContainerWithData = graphql<Props, Data>(
+      query,
+    )(({ data }: ChildProps<Props, Data>) => {
+      expect(data).toBeTruthy();
+      expect(data.user).toBeFalsy();
+      expect(data.loading).toBeTruthy();
+      return null;
+    });
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -84,13 +84,13 @@ describe('subscriptions', () => {
       user: { name: string };
     }
 
-    const ContainerWithData = graphql<Props, Data>(query)(
-      ({ data }: ChildProps<Props, Data>) => {
-        expect(data).toBeTruthy();
-        expect(data.variables).toEqual(variables);
-        return null;
-      },
-    );
+    const ContainerWithData = graphql<Props, Data>(
+      query,
+    )(({ data }: ChildProps<Props, Data>) => {
+      expect(data).toBeTruthy();
+      expect(data.variables).toEqual(variables);
+      return null;
+    });
 
     const output = renderer.create(
       <ApolloProvider client={client}>
