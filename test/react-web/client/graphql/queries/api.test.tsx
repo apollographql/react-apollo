@@ -11,6 +11,7 @@ import {
   OptionProps,
 } from '../../../../../src';
 import '../../../../test-utils/toEqualJson';
+import stripSymbols from '../../../../test-utils/stripSymbols';
 import wrap from '../../../../test-utils/wrap';
 
 describe('[queries] api', () => {
@@ -68,12 +69,12 @@ describe('[queries] api', () => {
           data
             .refetch()
             .then(result => {
-              expect(result.data).toEqualJson(data1);
+              expect(stripSymbols(result.data)).toEqual(data1);
               return data
                 .refetch({ first: 2 }) // new variables
                 .then(response => {
-                  expect(response.data).toEqualJson(data1);
-                  expect(data.allPeople).toEqualJson(data1.allPeople);
+                  expect(stripSymbols(response.data)).toEqual(data1);
+                  expect(stripSymbols(data.allPeople)).toEqual(data1.allPeople);
                   done();
                 });
             })

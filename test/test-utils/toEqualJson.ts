@@ -1,35 +1,31 @@
-/// <reference path="./toEqualJson.d.ts" />
-// @see https://github.com/fluffynuts/polymer-ts-scratch/blob/master/src/specs/test-utils/jasmine-matchers/polymer-matchers.d.ts
-(function() {
-  function failWith(message) {
+declare namespace jest {
+  interface Matchers<R> {
+    toEqualJson(expected: any): R;
+  }
+}
+
+/**
+ * Apollo-client adds Symbols to the data in the store. In order to make
+ * assertions easier the toEqualJson method is used to strip a data object of any
+ * Symbols and then run an equal check on the stripped object.
+ */
+const toEqualJson = (received: any, expected: any) => {
+  try {
+    expect(JSON.parse(JSON.stringify(received))).toEqual(expected);
+    return {
+      pass: true,
+      // TODO: This method fails if we call expect(received).not.toEqualJson(expected)
+      // because there is no message yet.
+      message: () => '',
+    };
+  } catch (e) {
     return {
       pass: false,
-      message: message,
+      message: () => e,
     };
   }
+};
 
-  function doAssertions(logicFunc) {
-    try {
-      logicFunc();
-      return { pass: true };
-    } catch (e) {
-      return failWith(e.toString());
-    }
-  }
-
-  beforeAll(() => {
-    jasmine.addMatchers({
-      toEqualJson: function(): // util: jasmine.MatchersUtil,
-      // customEqualityTesters: Array<jasmine.CustomEqualityTester>,
-      jasmine.CustomMatcher {
-        return {
-          compare: function(actual: any, expected: any) {
-            return doAssertions(() => {
-              expect(JSON.parse(JSON.stringify(actual))).toEqual(expected);
-            });
-          },
-        };
-      },
-    });
-  });
-})();
+expect.extend({
+  toEqualJson,
+});
