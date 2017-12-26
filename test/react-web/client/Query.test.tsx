@@ -191,15 +191,19 @@ describe('Query component', () => {
       },
     ];
 
-    const render = jest.fn(() => null);
-
     const variables = {
       first: 1,
     };
 
     const Component = () => (
       <Query query={queryWithVariables} variables={variables}>
-        {render}
+        {result => {
+          catchAsyncError(done, () => {
+            expect(result.variables).toEqual({ first: 1 });
+            done();
+          });
+          return null;
+        }}
       </Query>
     );
 
@@ -208,13 +212,6 @@ describe('Query component', () => {
         <Component />
       </MockedProvider>,
     );
-
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(render.mock.calls[0][0].variables).toEqual({ first: 1 });
-        done();
-      });
-    }, 0);
   });
 
   it('errors if a Mutation is provided in the query', () => {
