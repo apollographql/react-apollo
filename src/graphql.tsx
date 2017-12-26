@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import shallowEqual = require('fbjs/lib/shallowEqual');
 import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,
@@ -18,6 +17,7 @@ import {
   OptionProps,
 } from './types';
 
+const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 const assign = require('object-assign');
 const pick = require('lodash.pick');

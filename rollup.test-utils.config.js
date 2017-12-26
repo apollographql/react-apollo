@@ -1,7 +1,7 @@
 export default {
   input: 'lib/test-utils.js',
   output: {
-    file: 'lib/test-utils.js',
+    file: 'lib/umd/test-utils.js',
     format: 'umd',
     name: 'react-apollo',
     sourcemap: true,
