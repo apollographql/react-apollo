@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import shallowEqual from './shallowEqual';
+import shallowEqual = require('fbjs/lib/shallowEqual');
 import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,

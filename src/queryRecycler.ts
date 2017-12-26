@@ -1,7 +1,6 @@
 import { ObservableQuery } from 'apollo-client';
 import { ZenObservable } from 'zen-observable-ts';
-
-import shallowEqual from './shallowEqual';
+import shallowEqual = require('fbjs/lib/shallowEqual');
 import { QueryOpts } from './types';
 
 // XXX move this logic to ObservableQuery / QueryManager in apollo-client
