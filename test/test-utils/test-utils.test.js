@@ -44,7 +44,7 @@ it('mocks the data and adds the typename to the query', done => {
   class Container extends Component {
     componentWillReceiveProps(nextProps) {
       try {
-        expect(nextProps.data.user).toEqual(user);
+        expect(nextProps.data.user).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);
@@ -116,7 +116,7 @@ it('mocks the data without adding the typename', done => {
   class Container extends Component {
     componentWillReceiveProps(nextProps) {
       try {
-        expect(nextProps.data.user).toEqual(userWithoutTypeName);
+        expect(nextProps.data.user).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);
@@ -163,7 +163,7 @@ it('allows for passing a custom client', done => {
   class Container extends Component {
     componentWillReceiveProps(nextProps) {
       try {
-        expect(nextProps.data.user).toEqual(user);
+        expect(nextProps.data.user).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);
