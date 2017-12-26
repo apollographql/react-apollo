@@ -16,12 +16,12 @@
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
-    "precompile": "rimraf lib",
+    "precompile": "rimraf lib && rimraf npm",
     "compile":
       "tsc --project tsconfig.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
     "postcompile": "npm run bundle",
     "bundle":
-      "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
+      "rollup -c rollup.config.js && rollup -c rollup.test-utils.config.js",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint:fix":
@@ -32,8 +32,8 @@
   },
   "bundlesize": [
     {
-      "path": "./lib/react-apollo.browser.umd.js",
-      "threshold": "10 Kb"
+      "path": "./lib/umd/react-apollo.umd.js",
+      "threshold": "1 Kb"
     }
   ],
   "lint-staged": {

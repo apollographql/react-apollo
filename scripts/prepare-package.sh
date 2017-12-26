@@ -7,7 +7,7 @@
 #
 
 # Clear the built output
-rm -rf ./lib
+rm -rf ./lib ./npm
 
 # Compile new files
 npm run compile
@@ -18,8 +18,6 @@ mkdir ./npm
 
 # Copy all files from ./lib to /npm
 cd ./lib && cp -r ./ ../npm/
-# Copy also the umd bundle with the source map file
-cp react-apollo.umd.js ../npm/ && cp react-apollo.umd.js.map ../npm/
 
 # Back to the root directory
 cd ../
@@ -34,8 +32,7 @@ node -e "var package = require('./package.json'); \
   delete package[\"pre-commit\"]; \
   delete package.scripts; \
   delete package.options; \
-  package.main = 'react-apollo.umd.js'; \
-  package.browser = 'react-apollo.browser.umd.js'; \
+  package.main = 'umd/react-apollo.umd.js'; \
   package.module = 'index.js'; \
   package['jsnext:main'] = 'index.js'; \
   package.typings = 'index.d.ts'; \

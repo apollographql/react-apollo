@@ -13,7 +13,7 @@ export interface QueryTreeArgument<Cache> {
   rootContext?: Context<Cache>;
 }
 
-export interface QueryResult<Cache> {
+export interface QueryTreeResult<Cache> {
   query: Promise<ApolloQueryResult<any>>;
   element: ReactElement<any>;
   context: Context<Cache>;
@@ -122,7 +122,7 @@ export function walkTree<Cache>(
 function getQueriesFromTree<Cache>(
   { rootElement, rootContext = {} }: QueryTreeArgument<Cache>,
   fetchRoot: boolean = true,
-): QueryResult<Cache>[] {
+): QueryTreeResult<Cache>[] {
   const queries = [];
 
   walkTree(rootElement, rootContext, (element, instance, context) => {
@@ -143,7 +143,7 @@ function getQueriesFromTree<Cache>(
 }
 
 // XXX component Cache
-export function getDataFromTree(
+export default function getDataFromTree(
   rootElement: ReactElement<any>,
   rootContext: any = {},
   fetchRoot: boolean = true,

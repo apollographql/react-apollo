@@ -1,18 +1,17 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Component } from 'react';
-
 import ApolloClient from 'apollo-client';
 import QueryRecyclerProvider from './QueryRecyclerProvider';
 
 const invariant = require('invariant');
 
-export interface ProviderProps<TCache> {
+export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;
 }
 
 export default class ApolloProvider<TCache> extends Component<
-  ProviderProps<TCache>
+  ApolloProviderProps<TCache>
 > {
   static propTypes = {
     client: PropTypes.object.isRequired,
