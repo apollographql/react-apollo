@@ -15,8 +15,6 @@
     "testonly": "jest",
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
-    "flow-typed":
-      "npm install && flow-typed install --ignoreDeps peer --ignoreDeps dev",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
     "precompile": "rimraf lib",
     "compile":
@@ -108,7 +106,6 @@
     "enzyme": "3.2.0",
     "enzyme-adapter-react-16": "1.1.1",
     "flow-bin": "0.61.0",
-    "flow-typed": "2.2.3",
     "graphql": "0.11.7",
     "graphql-tag": "2.6.1",
     "jest": "21.2.1",

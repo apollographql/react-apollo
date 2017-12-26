@@ -39,6 +39,4 @@ npm
 yarn.lock
 package-lock.json
 
-# flow
-/flow-typed/npm 
 
