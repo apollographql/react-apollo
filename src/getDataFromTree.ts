@@ -170,7 +170,9 @@ export function getDataFromTree(
         errors.length === 1
           ? errors[0]
           : new Error(
-              `${errors.length} errors were thrown when executing your GraphQL queries.`,
+              `${
+                errors.length
+              } errors were thrown when executing your GraphQL queries.`,
             );
       error.queryErrors = errors;
       throw error;

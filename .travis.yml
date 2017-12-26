@@ -10,7 +10,6 @@ cache:
 before_install:
   - npm install -g npm@^3 --cache-min 999999999
   - npm install -g coveralls --cache-min 999999999
-  - time npm i -g yarn --cache-min 999999999
 
 install:
   - npm install

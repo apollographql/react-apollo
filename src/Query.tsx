@@ -8,45 +8,16 @@ import ApolloClient, {
   UpdateQueryOptions,
   FetchMoreQueryOptions,
   FetchPolicy,
+  ApolloCurrentResult,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
-
-import shallowEqual from './shallowEqual';
-const invariant = require('invariant');
-const pick = require('lodash.pick');
-
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
+import shallowEqual from './shallowEqual';
 
-export interface QueryResult {
-  error?: ApolloError;
-  networkStatus: number;
-  loading: boolean;
-  variables: OperationVariables;
-  fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
-  ) => Promise<ApolloQueryResult<any>>;
-  refetch: (variables?: OperationVariables) => Promise<ApolloQueryResult<any>>;
-  startPolling: (pollInterval: number) => void;
-  stopPolling: () => void;
-  updateQuery: (
-    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
-  ) => void;
-}
-
-export interface QueryProps {
-  query: DocumentNode;
-  variables?: OperationVariables;
-  fetchPolicy?: FetchPolicy;
-  pollInterval?: number;
-  notifyOnNetworkStatusChange?: boolean;
-  children: (result: QueryResult) => React.ReactNode;
-}
-
-export interface QueryState {
-  result: any;
-}
+const invariant = require('invariant');
+const pick = require('lodash.pick');
 
 function observableQueryFields(observable) {
   const fields = pick(
@@ -68,13 +39,47 @@ function observableQueryFields(observable) {
   return fields;
 }
 
-class Query extends React.Component<QueryProps, QueryState> {
+export interface QueryResult<TData = any> {
+  data: TData;
+  error?: ApolloError;
+  fetchMore: (
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+  ) => Promise<ApolloQueryResult<any>>;
+  loading: boolean;
+  networkStatus: number;
+  refetch: (variables?: OperationVariables) => Promise<ApolloQueryResult<any>>;
+  startPolling: (pollInterval: number) => void;
+  stopPolling: () => void;
+  updateQuery: (
+    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
+  ) => void;
+  variables: OperationVariables;
+}
+
+export interface QueryProps {
+  children: (result: QueryResult) => React.ReactNode;
+  fetchPolicy?: FetchPolicy;
+  notifyOnNetworkStatusChange?: boolean;
+  pollInterval?: number;
+  query: DocumentNode;
+  variables?: OperationVariables;
+}
+
+export interface QueryState<TData = any> {
+  result: ApolloCurrentResult<TData>;
+}
+
+class Query<TData = any> extends React.Component<
+  QueryProps,
+  QueryState<TData>
+> {
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
 
+  state: QueryState<TData>;
   private client: ApolloClient<any>;
-  private queryObservable: ObservableQuery<any>;
+  private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
 
   constructor(props, context) {
@@ -119,8 +124,8 @@ class Query extends React.Component<QueryProps, QueryState> {
 
   render() {
     const { children } = this.props;
-    const result = this.getResult();
-    return children(result);
+    const queryResult = this.getQueryResult();
+    return children(queryResult);
   }
 
   private initializeQueryObservable = props => {
@@ -136,10 +141,9 @@ class Query extends React.Component<QueryProps, QueryState> {
 
     invariant(
       operation.type === DocumentType.Query,
-      `The <Query /> component requires a graphql query, but got a ${operation.type ===
-      DocumentType.Mutation
-        ? 'mutation'
-        : 'subscription'}.`,
+      `The <Query /> component requires a graphql query, but got a ${
+        operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
+      }.`,
     );
 
     const clientOptions = {
@@ -170,7 +174,7 @@ class Query extends React.Component<QueryProps, QueryState> {
     this.setState({ result: this.queryObservable.currentResult() });
   };
 
-  private getResult = () => {
+  private getQueryResult = (): QueryResult<TData> => {
     const { result } = this.state;
 
     const { loading, error, networkStatus, data } = result;

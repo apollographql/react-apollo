@@ -4,10 +4,11 @@ import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import '../../../../test-utils/toEqualJson';
+
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
 import wait from '../../../../test-utils/wait';
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[queries] lifecycle', () => {
   // lifecycle
@@ -49,10 +50,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqualJson(data1.allPeople);
+          expect(stripSymbols(data.allPeople)).toEqual(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqualJson(data2.allPeople);
+          expect(stripSymbols(data.allPeople)).toEqual(data2.allPeople);
           done();
         }
       }
@@ -171,10 +172,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqualJson(data1.allPeople);
+          expect(stripSymbols(data.allPeople)).toEqual(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqualJson(data2.allPeople);
+          expect(stripSymbols(data.allPeople)).toEqual(data2.allPeople);
           done();
         }
       }
@@ -238,10 +239,10 @@ describe('[queries] lifecycle', () => {
       componentWillReceiveProps({ data }) {
         // loading is true, but data still there
         if (count === 1 && data.loading) {
-          expect(data.allPeople).toEqualJson(data1.allPeople);
+          expect(stripSymbols(data.allPeople)).toEqual(data1.allPeople);
         }
         if (count === 1 && !data.loading && this.props.data.loading) {
-          expect(data.allPeople).toEqualJson(data2.allPeople);
+          expect(stripSymbols(data.allPeople)).toEqual(data2.allPeople);
           done();
         }
       }
@@ -306,17 +307,17 @@ describe('[queries] lifecycle', () => {
           if (count === 1) {
             expect(props.foo).toEqual(42);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqualJson(data1.allPeople);
+            expect(stripSymbols(props.data.allPeople)).toEqual(data1.allPeople);
             props.changeState();
           } else if (count === 2) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqualJson(data1.allPeople);
+            expect(stripSymbols(props.data.allPeople)).toEqual(data1.allPeople);
             props.data.refetch();
           } else if (count === 3) {
             expect(props.foo).toEqual(43);
             expect(props.data.loading).toEqual(false);
-            expect(props.data.allPeople).toEqualJson(data2.allPeople);
+            expect(stripSymbols(props.data.allPeople)).toEqual(data2.allPeople);
             done();
           }
         } catch (e) {

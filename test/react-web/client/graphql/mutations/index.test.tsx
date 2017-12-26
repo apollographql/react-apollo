@@ -11,7 +11,8 @@ import {
   MutateProps,
   MutationFunc,
 } from '../../../../../src';
-import '../../../../test-utils/toEqualJson';
+
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[mutations]', () => {
   let error;
@@ -170,7 +171,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqualJson(expectedData);
+          expect(stripSymbols(result.data)).toEqual(expectedData);
           done();
         });
       }
@@ -213,7 +214,7 @@ describe('[mutations]', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqualJson(expectedData);
+          expect(stripSymbols(result.data)).toEqual(expectedData);
           done();
         });
       }

@@ -6,7 +6,7 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '../../../../src/test-utils';
 import { ApolloProvider, ChildProps, graphql } from '../../../../src';
-import '../../../test-utils/toEqualJson';
+import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('subscriptions', () => {
   let error;
@@ -47,14 +47,14 @@ describe('subscriptions', () => {
       user: { name: string };
     }
 
-    const ContainerWithData = graphql<Props, Data>(
-      query,
-    )(({ data }: ChildProps<Props, Data>) => {
-      expect(data).toBeTruthy();
-      expect(data.user).toBeFalsy();
-      expect(data.loading).toBeTruthy();
-      return null;
-    });
+    const ContainerWithData = graphql<Props, Data>(query)(
+      ({ data }: ChildProps<Props, Data>) => {
+        expect(data).toBeTruthy();
+        expect(data.user).toBeFalsy();
+        expect(data.loading).toBeTruthy();
+        return null;
+      },
+    );
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -84,13 +84,13 @@ describe('subscriptions', () => {
       user: { name: string };
     }
 
-    const ContainerWithData = graphql<Props, Data>(
-      query,
-    )(({ data }: ChildProps<Props, Data>) => {
-      expect(data).toBeTruthy();
-      expect(data.variables).toEqual(variables);
-      return null;
-    });
+    const ContainerWithData = graphql<Props, Data>(query)(
+      ({ data }: ChildProps<Props, Data>) => {
+        expect(data).toBeTruthy();
+        expect(data.variables).toEqual(variables);
+        return null;
+      },
+    );
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -164,11 +164,14 @@ describe('subscriptions', () => {
       }
       componentWillReceiveProps({ data: { loading, user } }) {
         expect(loading).toBeFalsy();
-        if (count === 0) expect(user).toEqualJson(results[0].result.data.user);
-        if (count === 1) expect(user).toEqualJson(results[1].result.data.user);
-        if (count === 2) expect(user).toEqualJson(results[2].result.data.user);
+        if (count === 0)
+          expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+        if (count === 1)
+          expect(stripSymbols(user)).toEqual(results[1].result.data.user);
+        if (count === 2)
+          expect(stripSymbols(user)).toEqual(results[2].result.data.user);
         if (count === 3) {
-          expect(user).toEqualJson(results[3].result.data.user);
+          expect(stripSymbols(user)).toEqual(results[3].result.data.user);
           output.unmount();
           done();
         }
@@ -263,17 +266,17 @@ describe('subscriptions', () => {
           // odd counts will be outer wrapper getting subscriptions - ie unchanged
           expect(loading).toBeFalsy();
           if (count === 0)
-            expect(user).toEqualJson(results[0].result.data.user);
+            expect(stripSymbols(user)).toEqual(results[0].result.data.user);
           if (count === 1)
-            expect(user).toEqualJson(results[0].result.data.user);
+            expect(stripSymbols(user)).toEqual(results[0].result.data.user);
           if (count === 2)
-            expect(user).toEqualJson(results[2].result.data.user);
+            expect(stripSymbols(user)).toEqual(results[2].result.data.user);
           if (count === 3)
-            expect(user).toEqualJson(results[2].result.data.user);
+            expect(stripSymbols(user)).toEqual(results[2].result.data.user);
           if (count === 4)
-            expect(user).toEqualJson(results3[2].result.data.user);
+            expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
           if (count === 5) {
-            expect(user).toEqualJson(results3[2].result.data.user);
+            expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
             output.unmount();
 
             done();

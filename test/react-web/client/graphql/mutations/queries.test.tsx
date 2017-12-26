@@ -11,7 +11,8 @@ import {
   ChildProps,
   MutationFunc,
 } from '../../../../../src';
-import '../../../../test-utils/toEqualJson';
+
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
@@ -57,12 +58,12 @@ describe('[mutations] query integration', () => {
           },
         };
         this.props.mutate({ optimisticResponse }).then(result => {
-          expect(result.data).toEqualJson(data);
+          expect(stripSymbols(result.data)).toEqual(data);
           done();
         });
 
         const dataInStore = cache.extract(true);
-        expect(dataInStore['Todo:99']).toEqualJson(
+        expect(stripSymbols(dataInStore['Todo:99'])).toEqual(
           optimisticResponse.createTodo,
         );
       }
@@ -158,23 +159,23 @@ describe('[mutations] query integration', () => {
         if (!props.data.todo_list) return;
         if (!props.data.todo_list.tasks.length) {
           props.mutate().then(result => {
-            expect(result.data).toEqualJson(mutationData);
+            expect(stripSymbols(result.data)).toEqual(mutationData);
           });
 
           const dataInStore = cache.extract(true);
-          expect(dataInStore['$ROOT_MUTATION.createTodo']).toEqualJson(
-            optimisticResponse.createTodo,
-          );
+          expect(
+            stripSymbols(dataInStore['$ROOT_MUTATION.createTodo']),
+          ).toEqual(optimisticResponse.createTodo);
           return;
         }
 
         if (count === 0) {
           count++;
-          expect(props.data.todo_list.tasks).toEqualJson([
+          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([
             optimisticResponse.createTodo,
           ]);
         } else if (count === 1) {
-          expect(props.data.todo_list.tasks).toEqualJson([
+          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([
             mutationData.createTodo,
           ]);
           done();
@@ -255,7 +256,7 @@ describe('[mutations] query integration', () => {
       componentWillReceiveProps(props) {
         if (count === 1) {
           props.mutate().then(result => {
-            expect(result.data).toEqualJson(mutationData);
+            expect(stripSymbols(result.data)).toEqual(mutationData);
           });
         }
       }
@@ -268,10 +269,10 @@ describe('[mutations] query integration', () => {
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
         if (count === 0) {
-          expect(props.data.mini).toEqualJson(queryData.mini);
+          expect(stripSymbols(props.data.mini)).toEqual(queryData.mini);
         }
         if (count === 1) {
-          expect(props.data.mini).toEqualJson(mutationData.mini);
+          expect(stripSymbols(props.data.mini)).toEqual(mutationData.mini);
           done();
         }
         count++;

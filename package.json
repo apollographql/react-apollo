@@ -24,10 +24,10 @@
       "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
+    "lint:fix":
+      "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "lint-staged": "lint-staged",
-    "lint-fix":
-      "npm run pretty && tslint 'src/*.ts*' --project tsconfig.json --fix",
-    "pretty":
+    "prettier":
       "prettier --config .prettierrc --write \"{src,test}/**/*.{js,ts}*\""
   },
   "bundlesize": [
@@ -86,7 +86,6 @@
     "@types/enzyme": "3.1.6",
     "@types/graphql": "0.11.7",
     "@types/invariant": "2.2.29",
-    "@types/jasmine": "2.8.2",
     "@types/jest": "21.1.9",
     "@types/lodash": "4.14.91",
     "@types/object-assign": "4.0.30",

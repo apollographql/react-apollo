@@ -7,7 +7,8 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { ApolloProvider, ChildProps, graphql } from '../../src';
 import { mockSingleLink } from '../../src/test-utils';
-import '../test-utils/toEqualJson';
+
+import stripSymbols from '../test-utils/stripSymbols';
 
 describe('App', () => {
   it('renders correctly', () => {
@@ -33,12 +34,12 @@ describe('App', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const ContainerWithData = graphql(
-      query,
-    )(({ data }: ChildProps<{}, Data>) => {
-      if (data.loading) return <Text>Loading...</Text>;
-      return <Text>{data.allPeople.people.name}</Text>;
-    });
+    const ContainerWithData = graphql(query)(
+      ({ data }: ChildProps<{}, Data>) => {
+        if (data.loading) return <Text>Loading...</Text>;
+        return <Text>{data.allPeople.people.name}</Text>;
+      },
+    );
     const output = renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData />
@@ -74,7 +75,7 @@ describe('App', () => {
     class Container extends React.Component<ChildProps<{}, Data>> {
       componentWillReceiveProps(props) {
         expect(props.data.loading).toBeFalsy();
-        expect(props.data.allPeople.people.name).toEqualJson(
+        expect(stripSymbols(props.data.allPeople.people.name)).toEqual(
           data1.allPeople.people.name,
         );
         done();

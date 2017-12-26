@@ -5,7 +5,8 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualJson';
+
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[mutations] lifecycle', () => {
   it('allows falsy values in the mapped variables from props', done => {
@@ -35,7 +36,7 @@ describe('[mutations] lifecycle', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
-          expect(result.data).toEqualJson(expectedData);
+          expect(stripSymbols(result.data)).toEqual(expectedData);
           done();
         });
       }
@@ -169,7 +170,7 @@ describe('[mutations] lifecycle', () => {
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate({ variables: { id: 1 } }).then(result => {
-          expect(result.data).toEqualJson(expectedData);
+          expect(stripSymbols(result.data)).toEqual(expectedData);
           done();
         });
       }
