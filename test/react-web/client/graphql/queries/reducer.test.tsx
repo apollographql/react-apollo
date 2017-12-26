@@ -5,7 +5,8 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, ChildProps, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualJson';
+
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[queries] reducer', () => {
   // props reducer
@@ -124,7 +125,7 @@ describe('[queries] reducer', () => {
 
     class Container extends React.Component<ChildProps<Props, Data>> {
       componentWillReceiveProps(props: ChildProps<Props, Data>) {
-        expect(props.thingy).toEqualJson(expectedData.getThing);
+        expect(stripSymbols(props.thingy)).toEqual(expectedData.getThing);
         done();
       }
       render() {
