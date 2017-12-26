@@ -7,7 +7,8 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualJson';
+
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[queries] observableQuery', () => {
   // observableQuery
@@ -64,7 +65,9 @@ describe('[queries] observableQuery', () => {
         // be present;
         if (count === 3) {
           expect(this.props.data.loading).toBeFalsy();
-          expect(this.props.data.allPeople).toEqualJson(data.allPeople);
+          expect(stripSymbols(this.props.data.allPeople)).toEqual(
+            data.allPeople,
+          );
         }
       }
 
@@ -79,7 +82,9 @@ describe('[queries] observableQuery', () => {
         if (count === 3) {
           expect(prevProps.data.loading).toBeTruthy();
           expect(this.props.data.loading).toBeFalsy();
-          expect(this.props.data.allPeople).toEqualJson(data.allPeople);
+          expect(stripSymbols(this.props.data.allPeople)).toEqual(
+            data.allPeople,
+          );
 
           // ensure first assertion and umount tree
           assert1();
@@ -512,13 +517,15 @@ describe('[queries] observableQuery', () => {
           // first variable render
           if (variables.first === 1) {
             if (loading) expect(allPeople).toBeUndefined();
-            if (!loading) expect(allPeople).toEqualJson(data.allPeople);
+            if (!loading)
+              expect(stripSymbols(allPeople)).toEqual(data.allPeople);
           }
 
           if (variables.first === 2) {
             // second variables render
             if (loading) expect(allPeople).toBeUndefined();
-            if (!loading) expect(allPeople).toEqualJson(data2.allPeople);
+            if (!loading)
+              expect(stripSymbols(allPeople)).toEqual(data2.allPeople);
           }
         } catch (e) {
           done.fail(e);

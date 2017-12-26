@@ -6,7 +6,8 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualJson';
+
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[queries] skip', () => {
   it('allows you to skip a query without running it', done => {
@@ -148,7 +149,7 @@ describe('[queries] skip', () => {
         count++;
         if (count === 1) expect(props.data.loading).toBeTruthy();
         if (count === 2)
-          expect(props.data.allPeople).toEqualJson(data.allPeople);
+          expect(stripSymbols(props.data.allPeople)).toEqual(data.allPeople);
         if (count === 2) {
           expect(renderCount).toBe(2);
           done();
@@ -461,11 +462,15 @@ describe('[queries] skip', () => {
         } else {
           if (hasSkipped) {
             if (!newProps.data.loading) {
-              expect(newProps.data.allPeople).toEqualJson(dataTwo.allPeople);
+              expect(stripSymbols(newProps.data.allPeople)).toEqual(
+                dataTwo.allPeople,
+              );
               done();
             }
           } else {
-            expect(newProps.data.allPeople).toEqualJson(dataOne.allPeople);
+            expect(stripSymbols(newProps.data.allPeople)).toEqual(
+              dataOne.allPeople,
+            );
             this.props.setState({ skip: true });
           }
         }
@@ -620,10 +625,11 @@ describe('[queries] skip', () => {
       componentWillReceiveProps({ data }) {
         try {
           // loading is true, but data still there
-          if (count === 0) expect(data.allPeople).toEqualJson(data1.allPeople);
+          if (count === 0)
+            expect(stripSymbols(data.allPeople)).toEqual(data1.allPeople);
           if (count === 1) expect(data).toBeUndefined();
           if (count === 2 && !data.loading) {
-            expect(data.allPeople).toEqualJson(data2.allPeople);
+            expect(stripSymbols(data.allPeople)).toEqual(data2.allPeople);
             done();
           }
         } catch (e) {

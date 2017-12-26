@@ -7,7 +7,8 @@ import { mount } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, DataProps, graphql } from '../../../../../src';
-import '../../../../test-utils/toEqualJson';
+
+import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[queries] loading', () => {
   // networkStatus / loading
@@ -167,12 +168,16 @@ describe('[queries] loading', () => {
         // variables changed, new query is loading, but old data is still there
         if (count === 1 && nextProps.data.loading) {
           expect(nextProps.data.networkStatus).toBe(2);
-          expect(nextProps.data.allPeople).toEqualJson(data1.allPeople);
+          expect(stripSymbols(nextProps.data.allPeople)).toEqual(
+            data1.allPeople,
+          );
         }
         // query with new variables is loaded
         if (count === 1 && !nextProps.data.loading && this.props.data.loading) {
           expect(nextProps.data.networkStatus).toBe(7);
-          expect(nextProps.data.allPeople).toEqualJson(data2.allPeople);
+          expect(stripSymbols(nextProps.data.allPeople)).toEqual(
+            data2.allPeople,
+          );
           done();
         }
       }
@@ -238,12 +243,16 @@ describe('[queries] loading', () => {
             case 1:
               expect(props.data.loading).toBeTruthy();
               expect(props.data.networkStatus).toBe(4);
-              expect(props.data.allPeople).toEqualJson(data.allPeople);
+              expect(stripSymbols(props.data.allPeople)).toEqual(
+                data.allPeople,
+              );
               break;
             case 2:
               expect(props.data.loading).toBeFalsy();
               expect(props.data.networkStatus).toBe(7);
-              expect(props.data.allPeople).toEqualJson(data2.allPeople);
+              expect(stripSymbols(props.data.allPeople)).toEqual(
+                data2.allPeople,
+              );
               resolve();
               break;
             default:
