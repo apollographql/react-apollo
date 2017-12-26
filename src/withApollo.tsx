@@ -1,17 +1,16 @@
 import * as React from 'react';
+import { OperationOption } from './types';
+import ApolloConsumer from './ApolloConsumer';
 
 const invariant = require('invariant');
 
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-import { OperationOption } from './types';
-import ApolloConsumer from './ApolloConsumer';
-
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export function withApollo<TProps, TResult>(
+export default function withApollo<TProps, TResult>(
   WrappedComponent,
   operationOptions: OperationOption<TProps, TResult> = {},
 ) {
