@@ -303,9 +303,8 @@ export default function graphql<
             `The operation '${operation.name}' wrapping '${getDisplayName(
               WrappedComponent,
             )}' ` +
-              `is expecting a variable: '${
-                variable.name.value
-              }' but it was not found in the props ` +
+              `is expecting a variable: '${variable.name
+                .value}' but it was not found in the props ` +
               `passed to '${graphQLDisplayName}'`,
           );
         }

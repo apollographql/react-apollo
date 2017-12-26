@@ -11,7 +11,7 @@
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
     "pretest": "npm run lint",
-    "test": "npm run compile && jest",
+    "test": "npm run compile && jest --maxWorkers=4",
     "testonly": "jest",
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
@@ -86,7 +86,6 @@
     "@types/enzyme": "3.1.6",
     "@types/graphql": "0.11.7",
     "@types/invariant": "2.2.29",
-    "@types/isomorphic-fetch": "0.0.34",
     "@types/jasmine": "2.8.2",
     "@types/jest": "21.1.9",
     "@types/lodash": "4.14.91",
@@ -109,7 +108,6 @@
     "flow-bin": "0.61.0",
     "graphql": "0.11.7",
     "graphql-tag": "2.6.1",
-    "isomorphic-fetch": "2.2.1",
     "jest": "21.2.1",
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
@@ -129,7 +127,7 @@
     "tslint": "5.8.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
-    "uglify-js": "3.2.2",
+    "uglify-js": "3.3.2",
     "zen-observable-ts": "0.5.0"
   },
   "dependencies": {
