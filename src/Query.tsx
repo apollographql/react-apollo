@@ -14,7 +14,7 @@ import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
-import shallowEqual from './shallowEqual';
+import shallowEqual = require('fbjs/lib/shallowEqual');
 
 const invariant = require('invariant');
 const pick = require('lodash.pick');

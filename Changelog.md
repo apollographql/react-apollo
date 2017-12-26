@@ -15,6 +15,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
 - Made prettier solely responsible for formatting, removed all formatting linting rules from tslint [#1452](https://github.com/apollographql/react-apollo/pull/1452)
 - Add <ApolloConsumer /> component [#1399](https://github.com/apollographql/react-apollo/pull/1399)
 - Convert `Query.test` to `tsx` and parameterize types for `Query` [#1462](https://github.com/apollographql/react-apollo/pull/1462)
+- Remove copied `shallowEqual` code and delegate to `fbjs` [#1465](https://github.com/apollographql/react-apollo/pull/1465)
 
 ### 2.0.4
 - rolled back on the lodash-es changes from
