@@ -124,8 +124,8 @@ class Query<TData = any> extends React.Component<
 
   render() {
     const { children } = this.props;
-    const result = this.getResult();
-    return children(result);
+    const queryResult = this.getQueryResult();
+    return children(queryResult);
   }
 
   private initializeQueryObservable = props => {
@@ -174,7 +174,7 @@ class Query<TData = any> extends React.Component<
     this.setState({ result: this.queryObservable.currentResult() });
   };
 
-  private getResult = () => {
+  private getQueryResult = (): QueryResult<TData> => {
     const { result } = this.state;
 
     const { loading, error, networkStatus, data } = result;
