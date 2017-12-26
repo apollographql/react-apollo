@@ -44,13 +44,13 @@ describe('queries', () => {
       };
     }
 
-    const ContainerWithData = graphql<any, Data>(query)(
-      ({ data }: DataProps<Data>) => {
-        expect(data).toBeTruthy();
-        expect(data.loading).toBeTruthy();
-        return null;
-      },
-    );
+    const ContainerWithData = graphql<any, Data>(
+      query,
+    )(({ data }: DataProps<Data>) => {
+      expect(data).toBeTruthy();
+      expect(data.loading).toBeTruthy();
+      return null;
+    });
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -95,13 +95,13 @@ describe('queries', () => {
       first: number;
     }
 
-    const ContainerWithData = graphql<any, Data, Variables>(query)(
-      ({ data }: DataProps<Data, Variables>) => {
-        expect(data).toBeTruthy();
-        expect(data.variables).toEqual(variables);
-        return null;
-      },
-    );
+    const ContainerWithData = graphql<any, Data, Variables>(
+      query,
+    )(({ data }: DataProps<Data, Variables>) => {
+      expect(data).toBeTruthy();
+      expect(data.variables).toEqual(variables);
+      return null;
+    });
 
     renderer.create(
       <ApolloProvider client={client}>

@@ -254,11 +254,11 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query)(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
-        ),
-      );
+      const WrappedElement = graphql(
+        query,
+      )(({ data }: ChildProps<Props, Data>) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -381,11 +381,11 @@ describe('SSR', () => {
         };
       }
 
-      const WrappedElement = graphql(query)(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
-        ),
-      );
+      const WrappedElement = graphql(
+        query,
+      )(({ data }: ChildProps<Props, Data>) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       const Page = () => (
         <div>
@@ -494,11 +494,11 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query)(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>{data.loading ? 'loading' : data.error}</div>
-        ),
-      );
+      const WrappedElement = graphql(
+        query,
+      )(({ data }: ChildProps<Props, Data>) => (
+        <div>{data.loading ? 'loading' : data.error}</div>
+      ));
 
       const Page = () => (
         <div>
@@ -551,11 +551,11 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query, { skip: true })(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>{!data ? 'skipped' : 'dang'}</div>
-        ),
-      );
+      const WrappedElement = graphql(query, {
+        skip: true,
+      })(({ data }: ChildProps<Props, Data>) => (
+        <div>{!data ? 'skipped' : 'dang'}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -596,11 +596,11 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const Element = graphql(query, { name: 'user' })(
-        ({ user }: ChildProps<Props, Data> & { user: DataValue<Data> }) => (
-          <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
-        ),
-      );
+      const Element = graphql(query, {
+        name: 'user',
+      })(({ user }: ChildProps<Props, Data> & { user: DataValue<Data> }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -1013,11 +1013,11 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(
-        ({ data }: ChildProps<{}, Data>) => (
-          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
-        ),
-      );
+      const WrappedElement = graphql(
+        query,
+      )(({ data }: ChildProps<{}, Data>) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      ));
 
       class MyRootContainer extends React.Component<any, any> {
         constructor(props) {
