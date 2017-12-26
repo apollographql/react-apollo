@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import { graphql, ApolloProvider, DataValue } from '../../../src';
 import { walkTree, getDataFromTree } from '../../../src';
-import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
