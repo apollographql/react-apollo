@@ -468,10 +468,10 @@ describe('Query component', () => {
 
     let count = 0;
     const POLL_COUNT = 3;
-    const POLL_TIME = 30;
+    const POLL_INTERVAL = 30;
 
     const Component = () => (
-      <Query query={query} pollInterval={POLL_TIME}>
+      <Query query={query} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
@@ -514,7 +514,7 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    jest.runTimersToTime(POLL_TIME * POLL_COUNT);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
@@ -530,7 +530,7 @@ describe('Query component', () => {
     let count = 0;
     let isPolling = false;
 
-    const POLL_TIME = 30;
+    const POLL_INTERVAL = 30;
     const POLL_COUNT = 3;
 
     const Component = () => (
@@ -541,7 +541,7 @@ describe('Query component', () => {
           }
           if (!isPolling) {
             isPolling = true;
-            result.startPolling(POLL_TIME);
+            result.startPolling(POLL_INTERVAL);
           }
           catchAsyncError(done, () => {
             if (count === 0) {
@@ -584,7 +584,7 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    jest.runTimersToTime(POLL_TIME * POLL_COUNT);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
@@ -598,11 +598,11 @@ describe('Query component', () => {
     expect.assertions(3);
 
     const POLL_COUNT = 2;
-    const POLL_TIME = 30;
+    const POLL_INTERVAL = 30;
     let count = 0;
 
     const Component = () => (
-      <Query query={query} pollInterval={POLL_TIME}>
+      <Query query={query} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
@@ -644,7 +644,7 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    jest.runTimersToTime(POLL_TIME * POLL_COUNT);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);

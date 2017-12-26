@@ -20,7 +20,7 @@ describe('[queries] polling', () => {
   it('allows a polling query to be created', done => {
     jest.useFakeTimers();
 
-    const POLL_TIME = 250;
+    const POLL_INTERVAL = 250;
     const POLL_COUNT = 4;
     const query = gql`
       query people {
@@ -46,7 +46,7 @@ describe('[queries] polling', () => {
     let count = 0;
     const Container = graphql(query, {
       options: () => ({
-        pollInterval: POLL_TIME,
+        pollInterval: POLL_INTERVAL,
         notifyOnNetworkStatusChange: false,
       }),
     })(() => {
@@ -60,7 +60,7 @@ describe('[queries] polling', () => {
       </ApolloProvider>,
     );
 
-    jest.runTimersToTime(POLL_TIME * POLL_COUNT);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
 
     try {
       expect(count).toEqual(POLL_COUNT);
