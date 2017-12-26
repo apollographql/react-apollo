@@ -11,7 +11,6 @@ describe('[queries] polling', () => {
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
-    jest.useRealTimers();
   });
   afterEach(() => {
     console.error = error;
@@ -69,6 +68,7 @@ describe('[queries] polling', () => {
       done.fail(e);
     } finally {
       (wrapper as any).unmount();
+      jest.useRealTimers();
     }
   });
 
