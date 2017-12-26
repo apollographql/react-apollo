@@ -1,0 +1,393 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Query component provides startPolling in the render prop 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component provides startPolling in the render prop 2`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component provides startPolling in the render prop 3`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Darth Vader",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component provides stopPolling in the render prop 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component provides stopPolling in the render prop 2`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component sets polling interval using options 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component sets polling interval using options 2`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component sets polling interval using options 3`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Darth Vader",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[
+  `Query component should update if the client changes in the context 1`
+] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[
+  `Query component should update if the client changes in the context 2`
+] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component should update if the options change 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component should update if the options change 2`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":2}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":2})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component should update if the query changes 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`Query component should update if the query changes 2`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "id": "1",
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`fetchMore render prop: render data 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.1",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`fetchMore render prop: result fetchMore call 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+      },
+    ],
+  },
+}
+`;
+
+exports[`refetch prop: first render data 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`refetch prop: result refetch call 1 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`refetch prop: result refetch call 2 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Darth Vader",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":2}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":2})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`refetch prop: second render data 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`refetch prop: third render data 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Darth Vader",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":2}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":2})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`result in render prop 1`] = `
+Object {
+  "data": Object {
+    "allPeople": Object {
+      "people": Array [
+        Object {
+          "name": "Luke Skywalker",
+          Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+        },
+      ],
+      Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+    },
+    Symbol(id): "ROOT_QUERY",
+  },
+  "error": undefined,
+  "fetchMore": [Function],
+  "loading": false,
+  "networkStatus": 7,
+  "refetch": [Function],
+  "startPolling": [Function],
+  "stopPolling": [Function],
+  "updateQuery": [Function],
+  "variables": Object {},
+}
+`;
+
+exports[`result in render prop while loading 1`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "fetchMore": [Function],
+  "loading": true,
+  "networkStatus": 1,
+  "refetch": [Function],
+  "startPolling": [Function],
+  "stopPolling": [Function],
+  "updateQuery": [Function],
+  "variables": Object {},
+}
+`;
+
+exports[`updateQuery render prop: rendered data 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Han Solo",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`updateQuery render prop: result of the updateQuery call 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;

@@ -11,7 +11,6 @@ import {
 } from 'graphql';
 import { graphql, ApolloProvider } from '../../../src';
 import { renderToStringWithData } from '../../../src';
-import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 

@@ -26,10 +26,6 @@ const mocks = [
   },
 ];
 
-const options = {
-  query,
-};
-
 const catchAsyncError = (done, cb) => {
   try {
     cb();
@@ -38,18 +34,11 @@ const catchAsyncError = (done, cb) => {
   }
 };
 
-class ErrorBoundary extends React.Component {
-  componentDidCatch(error, errorInfo) {
-    console.log(error);
-    console.log(errorInfo);
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
-
 describe('Query component', () => {
+  beforeEach(() => {
+    jest.useRealTimers();
+  });
+
   it('calls the children prop', done => {
     const Component = () => (
       <Query query={query}>
@@ -352,17 +341,17 @@ describe('Query component', () => {
             if (count === 1) {
               // first data
               expect(variables).toEqual({ first: 1 });
-              expect(data).toEqual(data1);
+              expect(data).toMatchSnapshot('refetch prop: first render data');
             }
             if (count === 3) {
               // second data
               expect(variables).toEqual({ first: 1 });
-              expect(data).toEqual(data2);
+              expect(data).toMatchSnapshot('refetch prop: second render data');
             }
             if (count === 5) {
               // third data
               expect(variables).toEqual({ first: 2 });
-              expect(data).toEqual(data3);
+              expect(data).toMatchSnapshot('refetch prop: third render data');
             }
           });
 
@@ -376,11 +365,15 @@ describe('Query component', () => {
             result
               .refetch()
               .then(result1 => {
-                expect(result1.data).toEqual(data2);
+                expect(result1.data).toMatchSnapshot(
+                  'refetch prop: result refetch call 1',
+                );
                 return result.refetch({ first: 2 });
               })
               .then(result2 => {
-                expect(result2.data).toEqual(data3);
+                expect(result2.data).toMatchSnapshot(
+                  'refetch prop: result refetch call 2',
+                );
                 done();
               })
               .catch(done.fail);
@@ -440,21 +433,18 @@ describe('Query component', () => {
                 }),
               })
               .then(result => {
-                expect(result.data).toEqual(data2);
+                expect(result.data).toMatchSnapshot(
+                  'fetchMore render prop: result fetchMore call',
+                );
               })
               .catch(done.fail);
           } else if (count === 1) {
             catchAsyncError(done, () => {
               expect(data.variables).toEqual(variables);
+              expect(data.data).toMatchSnapshot(
+                'fetchMore render prop: render data',
+              );
 
-              expect(data.data).toEqual({
-                allPeople: {
-                  people: [
-                    ...data1.allPeople.people,
-                    ...data2.allPeople.people,
-                  ],
-                },
-              });
               done();
             });
           }
@@ -473,22 +463,25 @@ describe('Query component', () => {
   });
 
   it('sets polling interval using options', done => {
+    jest.useFakeTimers();
     expect.assertions(4);
 
     let count = 0;
+    const POLL_COUNT = 3;
+    const POLL_INTERVAL = 30;
 
     const Component = () => (
-      <Query query={query} pollInterval={30}>
+      <Query query={query} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
           }
           if (count === 0) {
-            expect(result.data).toEqual(data1);
+            expect(result.data).toMatchSnapshot();
           } else if (count === 1) {
-            expect(result.data).toEqual(data2);
+            expect(result.data).toMatchSnapshot();
           } else if (count === 2) {
-            expect(result.data).toEqual(data3);
+            expect(result.data).toMatchSnapshot();
           }
           count++;
           return null;
@@ -521,20 +514,25 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(count).toBe(3);
-        wrapper.unmount();
-        done();
-      });
-    }, 80);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      wrapper.unmount();
+      done();
+    });
   });
 
   it('provides startPolling in the render prop', done => {
+    jest.useFakeTimers();
     expect.assertions(4);
 
     let count = 0;
     let isPolling = false;
+
+    const POLL_INTERVAL = 30;
+    const POLL_COUNT = 3;
+
     const Component = () => (
       <Query query={query}>
         {result => {
@@ -543,15 +541,15 @@ describe('Query component', () => {
           }
           if (!isPolling) {
             isPolling = true;
-            result.startPolling(30);
+            result.startPolling(POLL_INTERVAL);
           }
           catchAsyncError(done, () => {
             if (count === 0) {
-              expect(result.data).toEqual(data1);
+              expect(result.data).toMatchSnapshot();
             } else if (count === 1) {
-              expect(result.data).toEqual(data2);
+              expect(result.data).toMatchSnapshot();
             } else if (count === 2) {
-              expect(result.data).toEqual(data3);
+              expect(result.data).toMatchSnapshot();
             }
           });
 
@@ -586,30 +584,33 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(count).toBe(3);
-        wrapper.unmount();
-        done();
-      });
-    }, 80);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      wrapper.unmount();
+      done();
+    });
   });
 
   it('provides stopPolling in the render prop', done => {
+    jest.useFakeTimers();
     expect.assertions(3);
 
+    const POLL_COUNT = 2;
+    const POLL_INTERVAL = 30;
     let count = 0;
 
     const Component = () => (
-      <Query query={query} pollInterval={30}>
+      <Query query={query} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
           }
           if (count === 0) {
-            expect(result.data).toEqual(data1);
+            expect(result.data).toMatchSnapshot();
           } else if (count === 1) {
-            expect(result.data).toEqual(data2);
+            expect(result.data).toMatchSnapshot();
             result.stopPolling();
           }
           count++;
@@ -643,13 +644,13 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(count).toBe(2);
-        wrapper.unmount();
-        done();
-      });
-    }, 100);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      wrapper.unmount();
+      done();
+    });
   });
 
   it('provides updateQuery render prop', done => {
@@ -675,7 +676,9 @@ describe('Query component', () => {
           }
           if (isUpdated) {
             catchAsyncError(done, () => {
-              expect(result.data).toEqual(data2);
+              expect(result.data).toMatchSnapshot(
+                'updateQuery render prop: rendered data',
+              );
               done();
             });
 
@@ -685,7 +688,9 @@ describe('Query component', () => {
           setTimeout(() => {
             result.updateQuery((prev, { variables: variablesUpdate }) => {
               catchAsyncError(done, () => {
-                expect(prev).toEqual(data1);
+                expect(prev).toMatchSnapshot(
+                  'updateQuery render prop: result of the updateQuery call',
+                );
                 expect(variablesUpdate).toEqual({ first: 2 });
               });
 
@@ -760,11 +765,11 @@ describe('Query component', () => {
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(result.variables).toEqual({ first: 1 });
-                  expect(result.data).toEqual(data1);
+                  expect(result.data).toMatchSnapshot();
                 }
                 if (count === 1) {
                   expect(result.variables).toEqual({ first: 2 });
-                  expect(result.data).toEqual(data2);
+                  expect(result.data).toMatchSnapshot();
                   done();
                 }
               });
@@ -818,14 +823,6 @@ describe('Query component', () => {
         query: query1,
       };
 
-      componentDidMount() {
-        setTimeout(() => {
-          this.setState({
-            query: query2,
-          });
-        }, 50);
-      }
-
       render() {
         const { query } = this.state;
 
@@ -837,10 +834,15 @@ describe('Query component', () => {
               }
               catchAsyncError(done, () => {
                 if (count === 0) {
-                  expect(result.data).toEqual(data1);
+                  expect(result.data).toMatchSnapshot();
+                  setTimeout(() => {
+                    this.setState({
+                      query: query2,
+                    });
+                  });
                 }
                 if (count === 1) {
-                  expect(result.data).toEqual(data2);
+                  expect(result.data).toMatchSnapshot();
                   done();
                 }
               });
@@ -952,7 +954,7 @@ describe('Query component', () => {
                 }
                 catchAsyncError(done, () => {
                   if (count === 0) {
-                    expect(result.data).toEqual(data1);
+                    expect(result.data).toMatchSnapshot();
                     setTimeout(() => {
                       this.setState({
                         client: client2,
@@ -960,7 +962,7 @@ describe('Query component', () => {
                     }, 0);
                   }
                   if (count === 1) {
-                    expect(result.data).toEqual(data2);
+                    expect(result.data).toMatchSnapshot();
                     done();
                   }
                   count++;
@@ -974,10 +976,6 @@ describe('Query component', () => {
       }
     }
 
-    const wrapper = mount(
-      <ErrorBoundary>
-        <Component />
-      </ErrorBoundary>,
-    );
+    const wrapper = mount(<Component />);
   });
 });

@@ -11,13 +11,16 @@ describe('[queries] polling', () => {
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
+    jest.useRealTimers();
   });
   afterEach(() => {
     console.error = error;
   });
   // polling
   it('allows a polling query to be created', done => {
-    const POLL_TIME = 250;
+    jest.useFakeTimers();
+
+    const POLL_INTERVAL = 250;
     const POLL_COUNT = 4;
     const query = gql`
       query people {
@@ -33,7 +36,7 @@ describe('[queries] polling', () => {
     const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, result: { data: data2 } },
-      { request: { query }, result: { data: data2 } },
+      { request: { query }, result: { data } },
     );
     const client = new ApolloClient({
       link,
@@ -43,7 +46,7 @@ describe('[queries] polling', () => {
     let count = 0;
     const Container = graphql(query, {
       options: () => ({
-        pollInterval: POLL_TIME,
+        pollInterval: POLL_INTERVAL,
         notifyOnNetworkStatusChange: false,
       }),
     })(() => {
@@ -57,19 +60,16 @@ describe('[queries] polling', () => {
       </ApolloProvider>,
     );
 
-    const totalTime = POLL_TIME * POLL_COUNT;
-    setTimeout(() => {
-      try {
-        // FIXME - understand why this has been incredibly unreliable on travis.
-        expect(count).toBeGreaterThanOrEqual(POLL_COUNT / 2);
-        expect(count).toBeLessThanOrEqual(POLL_COUNT);
-        done();
-      } catch (e) {
-        done.fail(e);
-      } finally {
-        (wrapper as any).unmount();
-      }
-    }, totalTime + POLL_TIME - 50); // leave some extra time for travis to catch up (almost a whole additional interval)
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    try {
+      expect(count).toEqual(POLL_COUNT);
+      done();
+    } catch (e) {
+      done.fail(e);
+    } finally {
+      (wrapper as any).unmount();
+    }
   });
 
   it('exposes stopPolling as part of the props api', done => {

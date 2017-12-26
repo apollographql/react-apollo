@@ -1,14 +1,11 @@
-import { Component, createElement } from 'react';
-import * as PropTypes from 'prop-types';
+import * as React from 'react';
 
 const invariant = require('invariant');
-const assign = require('object-assign');
 
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-import ApolloClient from 'apollo-client';
-
 import { OperationOption } from './types';
+import ApolloConsumer from './ApolloConsumer';
 
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -20,28 +17,16 @@ export function withApollo<TProps, TResult>(
 ) {
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
-  class WithApollo extends Component<any, any> {
+  class WithApollo extends React.Component<any, any> {
     static displayName = withDisplayName;
     static WrappedComponent = WrappedComponent;
-    static contextTypes = { client: PropTypes.object.isRequired };
-
-    // data storage
-    private client: ApolloClient<any>; // apollo client
 
     // wrapped instance
     private wrappedInstance: any;
 
-    constructor(props, context) {
-      super(props, context);
-      this.client = context.client;
+    constructor(props) {
+      super(props);
       this.setWrappedInstance = this.setWrappedInstance.bind(this);
-
-      invariant(
-        !!this.client,
-        `Could not find "client" in the context of ` +
-          `"${withDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`,
-      );
     }
 
     getWrappedInstance() {
@@ -59,10 +44,19 @@ export function withApollo<TProps, TResult>(
     }
 
     render() {
-      const props = assign({}, this.props);
-      props.client = this.client;
-      if (operationOptions.withRef) props.ref = this.setWrappedInstance;
-      return createElement(WrappedComponent, props);
+      return (
+        <ApolloConsumer>
+          {client => (
+            <WrappedComponent
+              {...this.props}
+              client={client}
+              ref={
+                operationOptions.withRef ? this.setWrappedInstance : undefined
+              }
+            />
+          )}
+        </ApolloConsumer>
+      );
     }
   }
 

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`allows for passing a custom client 1`] = `
+Object {
+  "__typename": "User",
+  "id": "user_id",
+  Symbol(id): "User:user_id",
+}
+`;
+
+exports[`mocks the data and adds the typename to the query 1`] = `
+Object {
+  "__typename": "User",
+  "id": "user_id",
+  Symbol(id): "User:user_id",
+}
+`;
+
+exports[`mocks the data without adding the typename 1`] = `
+Object {
+  "id": "user_id",
+  Symbol(id): "$ROOT_QUERY.user({\\"username\\":\\"mock_username\\"})",
+}
+`;

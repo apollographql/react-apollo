@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import { graphql, ApolloProvider, DataValue } from '../../../src';
 import { walkTree, getDataFromTree } from '../../../src';
-import 'isomorphic-fetch';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -551,11 +550,11 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query, { skip: true })(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>{!data ? 'skipped' : 'dang'}</div>
-        ),
-      );
+      const WrappedElement = graphql(query, {
+        skip: true,
+      })(({ data }: ChildProps<Props, Data>) => (
+        <div>{!data ? 'skipped' : 'dang'}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -596,11 +595,11 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const Element = graphql(query, { name: 'user' })(
-        ({ user }: ChildProps<Props, Data> & { user: DataValue<Data> }) => (
-          <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
-        ),
-      );
+      const Element = graphql(query, {
+        name: 'user',
+      })(({ user }: ChildProps<Props, Data> & { user: DataValue<Data> }) => (
+        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
