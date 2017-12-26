@@ -136,9 +136,10 @@ class Query extends React.Component<QueryProps, QueryState> {
 
     invariant(
       operation.type === DocumentType.Query,
-      `The <Query /> component requires a graphql query, but got a ${
-        operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
-      }.`,
+      `The <Query /> component requires a graphql query, but got a ${operation.type ===
+      DocumentType.Mutation
+        ? 'mutation'
+        : 'subscription'}.`,
     );
 
     const clientOptions = {

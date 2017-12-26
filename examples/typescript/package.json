@@ -23,7 +23,9 @@
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "schema": "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
-    "types": "apollo-codegen generate ./src/**/*.tsx --schema ./src/schema.json --target typescript --output ./src/schema.ts --add-typename"
+    "schema":
+      "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
+    "types":
+      "apollo-codegen generate ./src/**/*.tsx --schema ./src/schema.json --target typescript --output ./src/schema.ts --add-typename"
   }
 }

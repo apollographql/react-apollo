@@ -143,22 +143,23 @@ export type InputProps = {
   episode: string,
 };
 
-const withCharacter: OperationComponent<Response, InputProps, Props> = graphql(
-  HERO_QUERY,
-  {
-    options: ({ episode }) => ({
-      // $ExpectError [string] This type cannot be compared to number
-      variables: { episode: episode > 1 },
-    }),
-    props: ({ data, ownProps }) => ({
-      ...data,
-      // $ExpectError [string] This type cannot be compared to number
-      episode: ownProps.episode > 1,
-      // $ExpectError property `isHero`. Property not found on object type
-      isHero: data && data.hero && data.hero.isHero,
-    }),
-  },
-);
+const withCharacter: OperationComponent<
+  Response,
+  InputProps,
+  Props,
+> = graphql(HERO_QUERY, {
+  options: ({ episode }) => ({
+    // $ExpectError [string] This type cannot be compared to number
+    variables: { episode: episode > 1 },
+  }),
+  props: ({ data, ownProps }) => ({
+    ...data,
+    // $ExpectError [string] This type cannot be compared to number
+    episode: ownProps.episode > 1,
+    // $ExpectError property `isHero`. Property not found on object type
+    isHero: data && data.hero && data.hero.isHero,
+  }),
+});
 
 export default withCharacter(({ loading, hero, error }) => {
   if (loading) return <div>Loading</div>;
