@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/server';
-import { getDataFromTree } from './getDataFromTree';
+import getDataFromTree from './getDataFromTree';
 
 export default function renderToStringWithData(
   component: React.ReactElement<any>,

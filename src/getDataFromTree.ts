@@ -143,7 +143,7 @@ function getQueriesFromTree<Cache>(
 }
 
 // XXX component Cache
-export function getDataFromTree(
+export default function getDataFromTree(
   rootElement: ReactElement<any>,
   rootContext: any = {},
   fetchRoot: boolean = true,
