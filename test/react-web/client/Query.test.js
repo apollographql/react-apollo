@@ -35,6 +35,10 @@ const catchAsyncError = (done, cb) => {
 };
 
 describe('Query component', () => {
+  beforeEach(() => {
+    jest.useRealTimers();
+  });
+
   it('calls the children prop', done => {
     const Component = () => (
       <Query query={query}>
@@ -459,12 +463,15 @@ describe('Query component', () => {
   });
 
   it('sets polling interval using options', done => {
+    jest.useFakeTimers();
     expect.assertions(4);
 
     let count = 0;
+    const POLL_COUNT = 3;
+    const POLL_INTERVAL = 30;
 
     const Component = () => (
-      <Query query={query} pollInterval={30}>
+      <Query query={query} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
@@ -507,20 +514,25 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(count).toBe(3);
-        wrapper.unmount();
-        done();
-      });
-    }, 80);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      wrapper.unmount();
+      done();
+    });
   });
 
   it('provides startPolling in the render prop', done => {
+    jest.useFakeTimers();
     expect.assertions(4);
 
     let count = 0;
     let isPolling = false;
+
+    const POLL_INTERVAL = 30;
+    const POLL_COUNT = 3;
+
     const Component = () => (
       <Query query={query}>
         {result => {
@@ -529,7 +541,7 @@ describe('Query component', () => {
           }
           if (!isPolling) {
             isPolling = true;
-            result.startPolling(30);
+            result.startPolling(POLL_INTERVAL);
           }
           catchAsyncError(done, () => {
             if (count === 0) {
@@ -572,22 +584,25 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(count).toBe(3);
-        wrapper.unmount();
-        done();
-      });
-    }, 80);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      wrapper.unmount();
+      done();
+    });
   });
 
   it('provides stopPolling in the render prop', done => {
+    jest.useFakeTimers();
     expect.assertions(3);
 
+    const POLL_COUNT = 2;
+    const POLL_INTERVAL = 30;
     let count = 0;
 
     const Component = () => (
-      <Query query={query} pollInterval={30}>
+      <Query query={query} pollInterval={POLL_INTERVAL}>
         {result => {
           if (result.loading) {
             return null;
@@ -629,13 +644,13 @@ describe('Query component', () => {
       </MockedProvider>,
     );
 
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(count).toBe(2);
-        wrapper.unmount();
-        done();
-      });
-    }, 100);
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      wrapper.unmount();
+      done();
+    });
   });
 
   it('provides updateQuery render prop', done => {
