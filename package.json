@@ -11,7 +11,7 @@
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
     "pretest": "npm run lint",
-    "test": "npm run compile && jest",
+    "test": "npm run compile && jest --maxWorkers=4",
     "testonly": "jest",
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
