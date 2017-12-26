@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Component } from 'react';
-
 import ApolloClient from 'apollo-client';
 import QueryRecyclerProvider from './QueryRecyclerProvider';
 

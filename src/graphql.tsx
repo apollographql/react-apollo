@@ -13,7 +13,7 @@ import {
   ChildProps,
   OperationOption,
   QueryOpts,
-  QueryProps,
+  GraphqlQueryControls,
   MutationFunc,
   OptionProps,
 } from './types';
@@ -313,7 +313,9 @@ export default function graphql<
         return opts;
       }
 
-      calculateResultProps(result: (QueryProps & TData) | MutationFunc<TData>) {
+      calculateResultProps(
+        result: (GraphqlQueryControls & TData) | MutationFunc<TData>,
+      ) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
@@ -573,14 +575,14 @@ export default function graphql<
 
           // handle race condition where refetch is called on child mount
           if (!this.querySubscription) {
-            (data as QueryProps).refetch = args => {
+            (data as GraphqlQueryControls).refetch = args => {
               return new Promise((r, f) => {
                 this.refetcherQueue = { resolve: r, reject: f, args };
               });
             };
           }
         }
-        return data as QueryProps & TData;
+        return data as GraphqlQueryControls & TData;
       }
 
       render() {
