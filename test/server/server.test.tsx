@@ -9,8 +9,7 @@ import {
   GraphQLString,
   GraphQLID,
 } from 'graphql';
-import { graphql, ApolloProvider } from '../../../src';
-import { renderToStringWithData } from '../../../src';
+import { graphql, ApolloProvider, renderToStringWithData } from '../../src';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 

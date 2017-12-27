@@ -4,10 +4,10 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
-import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
+import { mockSingleLink } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
-import stripSymbols from '../../../../test-utils/stripSymbols';
+import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('[queries] errors', () => {
   let error;

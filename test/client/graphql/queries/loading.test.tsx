@@ -5,10 +5,10 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { mount } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, DataProps, graphql } from '../../../../../src';
+import { mockSingleLink } from '../../../../src/test-utils';
+import { ApolloProvider, DataProps, graphql } from '../../../../src';
 
-import stripSymbols from '../../../../test-utils/stripSymbols';
+import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('[queries] loading', () => {
   // networkStatus / loading

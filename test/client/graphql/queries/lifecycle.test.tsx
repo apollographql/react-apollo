@@ -5,10 +5,10 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
-import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
-import wait from '../../../../test-utils/wait';
-import stripSymbols from '../../../../test-utils/stripSymbols';
+import { mockSingleLink } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
+import wait from '../../../test-utils/wait';
+import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('[queries] lifecycle', () => {
   // lifecycle

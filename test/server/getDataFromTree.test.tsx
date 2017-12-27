@@ -2,13 +2,18 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
-import { graphql, ApolloProvider, DataValue } from '../../../src';
-import { walkTree, getDataFromTree } from '../../../src';
+import {
+  graphql,
+  ApolloProvider,
+  DataValue,
+  walkTree,
+  getDataFromTree,
+} from '../../src';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../src/test-utils';
-import { ChildProps } from '../../../src/types';
+import { mockSingleLink } from '../../src/test-utils';
+import { ChildProps } from '../../src/types';
 
 describe('SSR', () => {
   describe('`walkTree`', () => {
