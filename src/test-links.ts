@@ -119,11 +119,11 @@ export class MockSubscriptionLink extends ApolloLink {
     }, result.delay || 0);
   }
 
-  public onSetup(listener): void {
+  public onSetup(listener: any): void {
     this.setups = this.setups.concat([listener]);
   }
 
-  public onUnsubscribe(listener): void {
+  public onUnsubscribe(listener: any): void {
     this.unsubscribers = this.unsubscribers.concat([listener]);
   }
 }

@@ -66,7 +66,7 @@ export class ObservableQueryRecycler {
    * All mutations that occured between the time of recycling and the time of
    * reusing have been applied.
    */
-  public reuse(options: QueryOpts): ObservableQuery<any> {
+  public reuse(options: QueryOpts): null | ObservableQuery<any> {
     if (this.observableQueries.length <= 0) {
       return null;
     }
