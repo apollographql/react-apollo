@@ -4,15 +4,15 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { mockSingleLink } from '../../../../src/test-utils';
+import { mockSingleLink } from '../../../src/test-utils';
 import {
   ApolloProvider,
   ChildProps,
   DataValue,
   graphql,
   withApollo,
-} from '../../../../src';
-import { compose } from '../../../../src/';
+  compose,
+} from '../../../src';
 import * as TestUtils from 'react-dom/test-utils';
 
 describe('shared operations', () => {

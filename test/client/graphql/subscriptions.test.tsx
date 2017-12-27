@@ -4,9 +4,9 @@ import gql from 'graphql-tag';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { MockSubscriptionLink } from '../../../../src/test-utils';
-import { ApolloProvider, ChildProps, graphql } from '../../../../src';
-import stripSymbols from '../../../test-utils/stripSymbols';
+import { MockSubscriptionLink } from '../../../src/test-utils';
+import { ApolloProvider, ChildProps, graphql } from '../../../src';
+import stripSymbols from '../../test-utils/stripSymbols';
 
 describe('subscriptions', () => {
   let error;
