@@ -12,8 +12,12 @@
 // @flow
 import gql from 'graphql-tag';
 import React from 'react';
-import { withApollo, compose, graphql } from '../src';
-import type { OperationComponent, QueryProps, ChildProps } from '../src';
+import { withApollo, graphql } from '../src';
+import type {
+  OperationComponent,
+  GraphqlQueryControls,
+  ChildProps,
+} from '../src';
 
 const query = gql`
   {
@@ -59,7 +63,7 @@ const BasicClassWithData = withData(BasicComponent);
 // A class component with it's own variable
 type CmplxOwnProps = {| faz: string |};
 type CmplxComponentProps = {
-  data: QueryProps & IQuery,
+  data: GraphqlQueryControls & IQuery,
   mutate: any, // The mutation is actually required or we get a error at the withData
 } & CmplxOwnProps;
 class CmplxComponent extends React.Component<CmplxComponentProps> {
@@ -86,7 +90,7 @@ const CmplxWithData = withFancyData(CmplxComponent);
 // since we don't rely on the ChildProps<P, R> we don't need the mutate: any
 type Cmplx2OwnProps = { faz: string }; // We can have exact own props as we don't rely on the TMergedProps
 type Cmplx2ComponentProps = {
-  data: IQuery & QueryProps,
+  data: IQuery & GraphqlQueryControls,
 } & Cmplx2OwnProps;
 class Cmplx2Component extends React.Component<Cmplx2ComponentProps> {
   render() {
@@ -137,7 +141,7 @@ type Response = {
   hero: Hero,
 };
 
-type Props = Response & QueryProps;
+type Props = Response & GraphqlQueryControls;
 
 export type InputProps = {
   episode: string,

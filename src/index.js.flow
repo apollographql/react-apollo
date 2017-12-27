@@ -41,7 +41,7 @@ export type MutationFunc<TResult> = (
 ) => Promise<ApolloQueryResult<TResult>>;
 
 export type ChildProps<P, R> = {
-  data: QueryProps & R,
+  data: GraphqlQueryControls & R,
   mutate: MutationFunc<R>,
 } & P;
 
@@ -64,7 +64,7 @@ export interface QueryOpts {
   skip?: boolean;
 }
 
-export interface QueryProps {
+export interface GraphqlQueryControls {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
@@ -83,7 +83,7 @@ export interface QueryProps {
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps;
-  data: QueryProps & TResult;
+  data: GraphqlQueryControls & TResult;
   mutate: MutationFunc<TResult>;
 }
 
