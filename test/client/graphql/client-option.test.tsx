@@ -4,11 +4,11 @@ import { shallow } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
-import { ObservableQueryRecycler } from '../../../../src/queryRecycler';
+import { mockSingleLink } from '../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../src';
+import { ObservableQueryRecycler } from '../../../src/queryRecycler';
 
-import stripSymbols from '../../../test-utils/stripSymbols';
+import stripSymbols from '../../test-utils/stripSymbols';
 
 describe('client option', () => {
   it('renders with client from options', () => {

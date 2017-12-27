@@ -3,16 +3,16 @@ import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../../src/test-utils';
+import { mockSingleLink } from '../../../../src/test-utils';
 import {
   ApolloProvider,
   graphql,
   compose,
   ChildProps,
   MutationFunc,
-} from '../../../../../src';
+} from '../../../../src';
 
-import stripSymbols from '../../../../test-utils/stripSymbols';
+import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {

@@ -3,8 +3,8 @@ import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
+import { mockSingleLink } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
 describe('[queries] polling', () => {
   let error;

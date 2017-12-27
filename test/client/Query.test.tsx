@@ -3,11 +3,10 @@ import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 import { mount } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import ApolloProvider from '../../../src/ApolloProvider';
-import Query from '../../../src/Query';
-import { MockedProvider, mockSingleLink } from '../../../src/test-utils';
-import catchAsyncError from '../../test-utils/catchAsyncError';
-// import { all } from 'async';
+import ApolloProvider from '../../src/ApolloProvider';
+import Query from '../../src/Query';
+import { MockedProvider, mockSingleLink } from '../../src/test-utils';
+import catchAsyncError from '../test-utils/catchAsyncError';
 
 const allPeopleQuery = gql`
   query people {

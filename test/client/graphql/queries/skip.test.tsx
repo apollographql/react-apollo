@@ -4,10 +4,10 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../../src';
+import { mockSingleLink } from '../../../../src/test-utils';
+import { ApolloProvider, graphql } from '../../../../src';
 
-import stripSymbols from '../../../../test-utils/stripSymbols';
+import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('[queries] skip', () => {
   it('allows you to skip a query without running it', done => {
