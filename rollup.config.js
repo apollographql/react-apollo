@@ -1,11 +1,14 @@
+const minify = require('rollup-plugin-babel-minify');
+
 export default {
   input: 'lib/index.js',
   output: {
-    file: 'lib/umd/react-apollo.umd.js',
+    file: 'lib/umd/react-apollo.js',
     format: 'umd',
     name: 'react-apollo',
     sourcemap: true,
   },
+  plugins: [minify()],
   onwarn,
 };
 

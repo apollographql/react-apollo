@@ -32,7 +32,7 @@ node -e "var package = require('./package.json'); \
   delete package[\"pre-commit\"]; \
   delete package.scripts; \
   delete package.options; \
-  package.main = 'umd/react-apollo.umd.js'; \
+  package.main = 'umd/react-apollo.js'; \
   package.module = 'index.js'; \
   package['jsnext:main'] = 'index.js'; \
   package.typings = 'index.d.ts'; \

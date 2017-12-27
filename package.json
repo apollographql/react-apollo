@@ -19,8 +19,7 @@
     "precompile": "rimraf lib && rimraf npm",
     "compile":
       "tsc --project tsconfig.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
-    "postcompile": "npm run bundle",
-    "bundle":
+    "postcompile":
       "rollup -c rollup.config.js && rollup -c rollup.test-utils.config.js",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
@@ -118,6 +117,7 @@
     "recompose": "0.26.0",
     "rimraf": "2.6.2",
     "rollup": "0.53.0",
+    "rollup-plugin-babel-minify": "^3.1.2",
     "source-map-support": "0.5.0",
     "ts-jest": "22.0.0",
     "tslint": "5.8.0",
