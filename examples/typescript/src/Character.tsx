@@ -3,8 +3,8 @@ import {
   GetCharacter,
   GetCharacter_hero_friends,
 } from './__generated__/GetCharacter';
-// import { Query, QueryResult } from 'react-apollo';
-import Query, { QueryResult } from '../../../src/Query';
+import { Query, QueryResult } from 'react-apollo';
+// import Query, { QueryResult } from '../../../src/Query';
 
 const QUERY = require('./Character.graphql');
 // https://github.com/Microsoft/TypeScript/issues/6395#issuecomment-282133254
