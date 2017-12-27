@@ -47,5 +47,5 @@ cp README.md npm/
 cp LICENSE npm/
 cp src/index.js.flow npm/
 # please keep this in sync with the filename used in package.main
-cp src/index.js.flow npm/react-apollo.umd.js.flow
+cp src/index.js.flow npm/umd/react-apollo.js.flow
 
