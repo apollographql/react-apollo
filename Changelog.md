@@ -24,6 +24,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Convert `Query.test` to `tsx` and parameterize types for `Query` [#1462](https://github.com/apollographql/react-apollo/pull/1462)
   - Remove copied `shallowEqual` code and delegate to `fbjs` [#1465](https://github.com/apollographql/react-apollo/pull/1465)
   - Update rollup configurations, refine package exports [#1467](https://github.com/apollographql/react-apollo/pull/1467)
+  - Removed unused gzip script [#1468](https://github.com/apollographql/react-apollo/pull/1468)
   
 ### 2.0.4
 - rolled back on the lodash-es changes from
