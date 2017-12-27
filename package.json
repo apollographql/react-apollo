@@ -113,12 +113,10 @@
     "rimraf": "2.6.2",
     "rollup": "0.53.0",
     "rollup-plugin-babel-minify": "^3.1.2",
-    "source-map-support": "0.5.0",
     "ts-jest": "22.0.0",
     "tslint": "5.8.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
-    "uglify-js": "3.3.2",
     "zen-observable-ts": "0.5.0"
   },
   "dependencies": {
