@@ -135,6 +135,20 @@ describe('Query component', () => {
   });
 
   it('sets the notifyOnNetworkStatusChange prop', done => {
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+
+    const mocks = [
+      {
+        request: { query: allPeopleQuery },
+        result: { data: data1 },
+      },
+      {
+        request: { query: allPeopleQuery },
+        result: { data: data2 },
+      },
+    ];
+
     let count = 0;
     expect.assertions(4);
     const Component = () => (
@@ -166,7 +180,7 @@ describe('Query component', () => {
     );
 
     wrapper = mount(
-      <MockedProvider mocks={allPeopleMocks} removeTypename>
+      <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
     );
@@ -271,7 +285,7 @@ describe('Query component', () => {
     console.error = errorLogger;
   });
 
-  fit('provides a refetch render prop', done => {
+  it('provides a refetch render prop', done => {
     const queryRefetch = gql`
       query people($first: Int) {
         allPeople(first: $first) {
