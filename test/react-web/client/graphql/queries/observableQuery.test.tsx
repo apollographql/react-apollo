@@ -7,7 +7,7 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../../src';
-
+import catchAsyncError from '../../../../test-utils/catchAsyncError';
 import stripSymbols from '../../../../test-utils/stripSymbols';
 
 describe('[queries] observableQuery', () => {
@@ -217,7 +217,7 @@ describe('[queries] observableQuery', () => {
     expect(queryObservable1).toBe(queryObservable2);
   });
 
-  it('will refetch active `ObservableQuery`s when resetting the client store', () => {
+  it('will refetch active `ObservableQuery`s when resetting the client store', done => {
     const query = gql`
       query people {
         allPeople(first: 1) {
@@ -227,7 +227,7 @@ describe('[queries] observableQuery', () => {
         }
       }
     `;
-    // const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
     let called = 0;
     const link = new ApolloLink((o, f) => {
       called++;
@@ -266,7 +266,10 @@ describe('[queries] observableQuery', () => {
     expect(keys).toEqual(['1']);
     expect(called).toBe(1);
     (client.resetStore() as Promise<null>).then(() => {
-      expect(called).toBe(2);
+      catchAsyncError(done, () => {
+        expect(called).toBe(2);
+        done();
+      });
     });
   });
 
