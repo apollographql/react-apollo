@@ -2,11 +2,6 @@
   "name": "react-apollo",
   "version": "2.0.4",
   "description": "React data container for Apollo Client",
-  "main": "lib/react-apollo.umd.js",
-  "module": "./lib/index.js",
-  "jsnext:main": "./lib/index.js",
-  "browser": "lib/react-apollo.browser.umd.js",
-  "typings": "lib/index.d.ts",
   "scripts": {
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
@@ -31,7 +26,7 @@
   },
   "bundlesize": [
     {
-      "path": "./lib/umd/react-apollo.umd.js",
+      "path": "./lib/umd/react-apollo.js",
       "threshold": "1 Kb"
     }
   ],
