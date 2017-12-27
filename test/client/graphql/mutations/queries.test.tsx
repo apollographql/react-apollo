@@ -12,7 +12,7 @@ import {
 } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 
-const compose = require('lodash/flowright');
+const compose = require('lodash/flowRight');
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {

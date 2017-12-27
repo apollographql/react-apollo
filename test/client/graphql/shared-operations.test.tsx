@@ -14,7 +14,7 @@ import {
 } from '../../../src';
 import * as TestUtils from 'react-dom/test-utils';
 
-const compose = require('lodash/flowright');
+const compose = require('lodash/flowRight');
 
 describe('shared operations', () => {
   describe('withApollo', () => {
