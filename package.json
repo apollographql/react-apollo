@@ -2,11 +2,6 @@
   "name": "react-apollo",
   "version": "2.0.4",
   "description": "React data container for Apollo Client",
-  "main": "lib/react-apollo.umd.js",
-  "module": "./lib/index.js",
-  "jsnext:main": "./lib/index.js",
-  "browser": "lib/react-apollo.browser.umd.js",
-  "typings": "lib/index.d.ts",
   "scripts": {
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
@@ -16,12 +11,11 @@
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
-    "precompile": "rimraf lib",
+    "precompile": "rimraf lib && rimraf npm",
     "compile":
       "tsc --project tsconfig.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
-    "postcompile": "npm run bundle",
-    "bundle":
-      "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
+    "postcompile":
+      "rollup -c rollup.config.js && rollup -c rollup.test-utils.config.js",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint:fix":
@@ -32,8 +26,8 @@
   },
   "bundlesize": [
     {
-      "path": "./lib/react-apollo.browser.umd.js",
-      "threshold": "10 Kb"
+      "path": "./lib/umd/react-apollo.js",
+      "threshold": "1 Kb"
     }
   ],
   "lint-staged": {
@@ -105,7 +99,6 @@
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
     "lodash": "4.17.4",
-    "minimist": "1.2.0",
     "pre-commit": "1.2.2",
     "prettier": "1.9.2",
     "react": "16.2.0",
@@ -113,7 +106,8 @@
     "react-test-renderer": "16.2.0",
     "recompose": "0.26.0",
     "rimraf": "2.6.2",
-    "rollup": "0.52.3",
+    "rollup": "0.53.0",
+    "rollup-plugin-babel-minify": "^3.1.2",
     "source-map-support": "0.5.0",
     "ts-jest": "22.0.0",
     "tslint": "5.8.0",
@@ -124,6 +118,7 @@
   },
   "dependencies": {
     "apollo-link": "^1.0.6",
+    "fbjs": "^0.8.16",
     "hoist-non-react-statics": "^2.3.1",
     "invariant": "^2.2.2",
     "lodash.flowright": "^3.5.0",
