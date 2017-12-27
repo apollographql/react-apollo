@@ -17,7 +17,7 @@ import { parser, DocumentType } from './parser';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
-const pick = require('lodash.pick');
+const pick = require('lodash/pick');
 
 function observableQueryFields(observable) {
   const fields = pick(

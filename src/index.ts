@@ -17,5 +17,5 @@ export { default as withApollo } from './withApollo';
 export * from './types';
 
 // expose easy way to join queries from redux
-import * as compose from 'lodash.flowright';
+const compose = require('lodash/flowright');
 export { compose };
