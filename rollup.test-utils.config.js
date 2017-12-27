@@ -1,3 +1,5 @@
+const minify = require('rollup-plugin-babel-minify');
+
 export default {
   input: 'lib/test-utils.js',
   output: {
@@ -6,6 +8,7 @@ export default {
     name: 'react-apollo',
     sourcemap: true,
   },
+  plugins: [minify()],
   onwarn,
 };
 

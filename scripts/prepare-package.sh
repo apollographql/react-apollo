@@ -32,7 +32,7 @@ node -e "var package = require('./package.json'); \
   delete package[\"pre-commit\"]; \
   delete package.scripts; \
   delete package.options; \
-  package.main = 'umd/react-apollo.umd.js'; \
+  package.main = 'umd/react-apollo.js'; \
   package.module = 'index.js'; \
   package['jsnext:main'] = 'index.js'; \
   package.typings = 'index.d.ts'; \
@@ -47,5 +47,5 @@ cp README.md npm/
 cp LICENSE npm/
 cp src/index.js.flow npm/
 # please keep this in sync with the filename used in package.main
-cp src/index.js.flow npm/react-apollo.umd.js.flow
+cp src/index.js.flow npm/umd/react-apollo.js.flow
 
