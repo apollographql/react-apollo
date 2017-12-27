@@ -1,41 +1,14 @@
 language: node_js
+
 node_js:
   - "8"
-cache:
-  directories:
-    - $HOME/.npm
-    - $HOME/.yarn-cache
-    - node_modules
-
-before_install:
-  - npm install -g npm@^3 --cache-min 999999999
-  - npm install -g coveralls --cache-min 999999999
-
-install:
-  - npm install
-  # XXX I will update these and removes these comments as seperate PR's
-  # to showcase the upgrade process
-  # - cd examples/typescript && npm i && cd ../../
-  # - cd examples/base && npm i && cd ../../
-  # - cd examples/ssr && npm && cd ../../
-  # XXX install meteor
-  # start meteor app for integration testing
+  
+cache: yarn
 
 script:
   - npm run danger
   - npm test
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
-  # XXX I will update these and removes these comments as seperate PR's
-  # to showcase the upgrade process
-  # - cd examples/base && npm test && cd ../../
-  # - cd examples/typescript && npm test && cd ../../
-    # XXX test SSR
   - npm run filesize
-
-# Allow Travis tests to run in containers.
-sudo: false
-
-notifications:
-  email: false
 
