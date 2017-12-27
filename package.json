@@ -6,7 +6,7 @@
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
     "test": "npm run lint && npm run type-check && npm run testonly",
-    "testonly": "jest --maxWorkers=4",
+    "testonly": "jest --maxWorkers=4 --coverage",
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
@@ -60,6 +60,7 @@
     "transformIgnorePatterns": [
       "<rootDir>/node_modules/(?!(lodash-es|react-native)/)"
     ],
+    "mapCoverage": true,
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
