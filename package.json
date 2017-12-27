@@ -57,9 +57,7 @@
       "^.+\\.tsx?$": "ts-jest",
       "^.+\\.jsx?$": "babel-jest"
     },
-    "transformIgnorePatterns": [
-      "<rootDir>/node_modules/(?!(lodash-es|react-native)/)"
-    ],
+    "transformIgnorePatterns": ["<rootDir>/node_modules/(?!(react-native)/)"],
     "mapCoverage": true,
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
