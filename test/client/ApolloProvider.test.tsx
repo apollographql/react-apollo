@@ -132,16 +132,18 @@ describe('<ApolloProvider /> Component', () => {
     expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
-  it('should throw if rendered without a child component', () => {
-    const originalConsoleError = console.error;
-    console.error = () => {
-      /* noop */
-    };
-    expect(() => {
-      shallow(<ApolloProvider client={client} />);
-    }).toThrowError(Error);
-    console.error = originalConsoleError;
-  });
+  // NOTE: now that we added types, this fails directly on type checking - we have no way to runtime check
+  //        something that cannot even be compiled.
+  // it('should throw if rendered without a child component', () => {
+  //   const originalConsoleError = console.error;
+  //   console.error = () => {
+  //     /* noop */
+  //   };
+  //   expect(() => {
+  //     shallow(<ApolloProvider client={client} />);
+  //   }).toThrowError(Error);
+  //   console.error = originalConsoleError;
+  // });
 
   it('should add the client to the child context', () => {
     const tree = TestUtils.renderIntoDocument(

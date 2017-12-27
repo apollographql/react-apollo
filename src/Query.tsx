@@ -82,7 +82,7 @@ class Query<TData = any> extends React.Component<
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
 
-  constructor(props, context) {
+  constructor(props: QueryProps, context: any) {
     super(props, context);
 
     invariant(

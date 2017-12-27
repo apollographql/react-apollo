@@ -28,6 +28,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Removed unused gzip script [#1468](https://github.com/apollographql/react-apollo/pull/1468)
   - Minify umd and ensure umd name consistency [#1469](https://github.com/apollographql/react-apollo/pull/1469)
   - Converted `test/test-utils/test-utils.test.js` to `test/test-utils.test.tsx` [#1475](https://github.com/apollographql/react-apollo/pull/1475)
+  - Updates to `examples/typescript` [#1471](https://github.com/apollographql/react-apollo/pull/1471)
 
 ### 2.0.4
 - rolled back on the lodash-es changes from

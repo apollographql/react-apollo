@@ -92,10 +92,8 @@ export default function graphql<
   ) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    class GraphQL extends React.Component<
-      TOriginalProps & TGraphQLVariables,
-      void
-    > {
+    type GraphqlProps = TOriginalProps & TGraphQLVariables;
+    class GraphQL extends React.Component<GraphqlProps, void> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
@@ -134,7 +132,7 @@ export default function graphql<
       // wrapped instance
       private wrappedInstance: any;
 
-      constructor(props, context) {
+      constructor(props: GraphqlProps, context: any) {
         super(props, context);
 
         this.version = version;

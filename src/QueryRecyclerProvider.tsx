@@ -2,7 +2,13 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { ObservableQueryRecycler } from './queryRecycler';
 
-class QueryRecyclerProvider extends React.Component {
+export interface QueryRecyclerProviderProps {
+  children: React.ReactNode;
+}
+
+class QueryRecyclerProvider extends React.Component<
+  QueryRecyclerProviderProps
+> {
   static propTypes = {
     children: PropTypes.element.isRequired,
   };
@@ -17,19 +23,19 @@ class QueryRecyclerProvider extends React.Component {
 
   private recyclers: WeakMap<React.Component, ObservableQueryRecycler>;
 
-  constructor(props) {
+  constructor(props: QueryRecyclerProviderProps) {
     super(props);
     this.recyclers = new WeakMap();
     this.getQueryRecycler = this.getQueryRecycler.bind(this);
   }
 
-  componentWillReceiveProps(_, nextContext) {
+  componentWillReceiveProps(_: any, nextContext: any) {
     if (this.context.client !== nextContext.client) {
       this.recyclers = new WeakMap();
     }
   }
 
-  getQueryRecycler(component) {
+  getQueryRecycler(component: React.Component) {
     if (!this.recyclers.has(component)) {
       this.recyclers.set(component, new ObservableQueryRecycler());
     }
@@ -43,7 +49,7 @@ class QueryRecyclerProvider extends React.Component {
   }
 
   render() {
-    return React.Children.only(this.props.children);
+    return this.props.children;
   }
 }
 
