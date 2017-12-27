@@ -8,6 +8,7 @@ const invariant = require('invariant');
 
 export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;
+  children: React.ReactNode;
 }
 
 export default class ApolloProvider<TCache> extends Component<
@@ -22,7 +23,7 @@ export default class ApolloProvider<TCache> extends Component<
     client: PropTypes.object.isRequired,
   };
 
-  constructor(props, context) {
+  constructor(props: ApolloProviderProps<TCache>, context: any) {
     super(props, context);
 
     invariant(
