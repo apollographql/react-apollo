@@ -7,7 +7,6 @@ import ApolloProvider from '../../../src/ApolloProvider';
 import Query from '../../../src/Query';
 import { MockedProvider, mockSingleLink } from '../../../src/test-utils';
 import catchAsyncError from '../../test-utils/catchAsyncError';
-// import { all } from 'async';
 
 const allPeopleQuery = gql`
   query people {
@@ -27,10 +26,17 @@ const allPeopleMocks = [
 ];
 
 describe('Query component', () => {
+  let wrapper;
   beforeEach(() => {
     jest.useRealTimers();
   });
 
+  afterEach(() => {
+    if (wrapper) {
+      wrapper.unmount();
+      wrapper = null;
+    }
+  });
   it('calls the children prop', done => {
     const Component = () => (
       <Query query={allPeopleQuery}>
@@ -51,7 +57,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -63,7 +69,7 @@ describe('Query component', () => {
       <Query query={allPeopleQuery}>{result => <div />}</Query>
     );
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -99,7 +105,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mockError} removeTypename>
         <Component />
       </MockedProvider>,
@@ -121,7 +127,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -159,7 +165,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -207,7 +213,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocksWithVariable} removeTypename>
         <Component />
       </MockedProvider>,
@@ -265,7 +271,7 @@ describe('Query component', () => {
     console.error = errorLogger;
   });
 
-  it('provides a refetch render prop', done => {
+  fit('provides a refetch render prop', done => {
     const queryRefetch = gql`
       query people($first: Int) {
         allPeople(first: $first) {
@@ -316,6 +322,7 @@ describe('Query component', () => {
             count++;
             return null;
           }
+
           catchAsyncError(done, () => {
             if (count === 1) {
               // first data
@@ -363,7 +370,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -434,7 +441,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -487,7 +494,7 @@ describe('Query component', () => {
       },
     ];
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -497,7 +504,6 @@ describe('Query component', () => {
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
-      wrapper.unmount();
       done();
     });
   });
@@ -557,7 +563,7 @@ describe('Query component', () => {
       },
     ];
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -567,7 +573,6 @@ describe('Query component', () => {
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
-      wrapper.unmount();
       done();
     });
   });
@@ -617,7 +622,7 @@ describe('Query component', () => {
       },
     ];
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -627,7 +632,6 @@ describe('Query component', () => {
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
-      wrapper.unmount();
       done();
     });
   });
@@ -682,7 +686,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -761,7 +765,7 @@ describe('Query component', () => {
       }
     }
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -834,7 +838,7 @@ describe('Query component', () => {
       }
     }
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -884,7 +888,7 @@ describe('Query component', () => {
       }
     }
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -950,6 +954,6 @@ describe('Query component', () => {
       }
     }
 
-    mount(<Component />);
+    wrapper = mount(<Component />);
   });
 });
