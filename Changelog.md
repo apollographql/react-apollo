@@ -25,6 +25,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Remove copied `shallowEqual` code and delegate to `fbjs` [#1465](https://github.com/apollographql/react-apollo/pull/1465)
   - Update rollup configurations, refine package exports [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Removed unused gzip script [#1468](https://github.com/apollographql/react-apollo/pull/1468)
+  - Minify umd and ensure umd name consistency [#1469](https://github.com/apollographql/react-apollo/pull/1469)
   
 ### 2.0.4
 - rolled back on the lodash-es changes from
