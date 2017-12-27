@@ -20,7 +20,7 @@ import {
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 const assign = require('object-assign');
-const pick = require('lodash.pick');
+const pick = require('lodash/pick');
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
 const defaultMapPropsToOptions = () => ({});

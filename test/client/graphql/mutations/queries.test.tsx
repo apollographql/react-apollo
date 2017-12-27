@@ -7,12 +7,12 @@ import { mockSingleLink } from '../../../../src/test-utils';
 import {
   ApolloProvider,
   graphql,
-  compose,
   ChildProps,
   MutationFunc,
 } from '../../../../src';
-
 import stripSymbols from '../../../test-utils/stripSymbols';
+
+const compose = require('lodash/flowRight');
 
 describe('[mutations] query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {

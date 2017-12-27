@@ -26,7 +26,7 @@
   "bundlesize": [
     {
       "path": "./lib/umd/react-apollo.js",
-      "threshold": "1 Kb"
+      "maxSize": "4.7 KB"
     }
   ],
   "lint-staged": {
@@ -54,17 +54,15 @@
     "preset": "react-native",
     "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js",
+      "^.+\\.tsx?$": "ts-jest",
       "^.+\\.jsx?$": "babel-jest"
     },
-    "transformIgnorePatterns": [
-      "<rootDir>/node_modules/(?!(lodash-es|react-native)/)"
-    ],
+    "transformIgnorePatterns": ["<rootDir>/node_modules/(?!(react-native)/)"],
     "mapCoverage": true,
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
-      "<rootDir>/test/flow.js",
+      "<rootDir>/test/flow-usage.js",
       "<rootDir>/test/typescript-usage.tsx"
     ],
     "projects": ["<rootDir>"],
@@ -103,7 +101,6 @@
     "jest": "21.2.1",
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
-    "lodash": "4.17.4",
     "pre-commit": "1.2.2",
     "prettier": "1.9.2",
     "react": "16.2.0",
@@ -125,8 +122,7 @@
     "fbjs": "^0.8.16",
     "hoist-non-react-statics": "^2.3.1",
     "invariant": "^2.2.2",
-    "lodash.flowright": "^3.5.0",
-    "lodash.pick": "^4.4.0",
+    "lodash": "4.17.4",
     "prop-types": "^15.6.0"
   }
 }

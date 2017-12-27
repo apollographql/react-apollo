@@ -14,11 +14,10 @@ import type {
 } from 'apollo-client';
 import type { DocumentNode, VariableDefinitionNode } from 'graphql';
 import gql from 'graphql-tag';
-import compose from 'lodash.flowright';
 
 // export everything from apollo-client
 export * from 'apollo-client';
-export { gql, compose };
+export { gql };
 
 export interface ProviderProps {
   client: ApolloClient;
@@ -42,7 +41,7 @@ export type MutationFunc<TResult> = (
 ) => Promise<ApolloQueryResult<TResult>>;
 
 export type ChildProps<P, R> = {
-  data: QueryProps & R,
+  data: GraphqlQueryControls & R,
   mutate: MutationFunc<R>,
 } & P;
 
@@ -65,7 +64,7 @@ export interface QueryOpts {
   skip?: boolean;
 }
 
-export interface QueryProps {
+export interface GraphqlQueryControls {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
@@ -84,7 +83,7 @@ export interface QueryProps {
 
 export interface OptionProps<TProps, TResult> {
   ownProps: TProps;
-  data: QueryProps & TResult;
+  data: GraphqlQueryControls & TResult;
   mutate: MutationFunc<TResult>;
 }
 
