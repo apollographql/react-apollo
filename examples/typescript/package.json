@@ -6,7 +6,7 @@
     "apollo-client": "^2.0.4",
     "graphql-tag": "^2.6.1",
     "react": "^16.2.0",
-    "react-apollo": "file:../..",
+    "react-apollo": "rosskevin/react-apollo#examples-update",
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
