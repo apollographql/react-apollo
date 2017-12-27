@@ -15,7 +15,3 @@ export * from './graphql';
 export { default as withApollo } from './withApollo';
 
 export * from './types';
-
-// expose easy way to join queries from redux
-const compose = require('lodash/flowright');
-export { compose };

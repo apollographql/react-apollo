@@ -14,11 +14,10 @@ import type {
 } from 'apollo-client';
 import type { DocumentNode, VariableDefinitionNode } from 'graphql';
 import gql from 'graphql-tag';
-import compose from 'lodash/flowright';
 
 // export everything from apollo-client
 export * from 'apollo-client';
-export { gql, compose };
+export { gql };
 
 export interface ProviderProps {
   client: ApolloClient;
