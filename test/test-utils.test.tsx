@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
-import renderer from 'react-test-renderer';
 
-import { graphql } from '../../src';
-import { MockedProvider, mockSingleLink } from '../../src/test-utils';
+import { graphql } from '../src';
+import { MockedProvider, mockSingleLink } from '../src/test-utils';
 
 const variables = {
   username: 'mock_username',
@@ -41,7 +41,7 @@ const withUser = graphql(queryWithoutTypename, {
 });
 
 it('mocks the data and adds the typename to the query', done => {
-  class Container extends Component {
+  class Container extends React.Component {
     componentWillReceiveProps(nextProps) {
       try {
         expect(nextProps.data.user).toMatchSnapshot();
@@ -76,7 +76,7 @@ it('mocks the data and adds the typename to the query', done => {
 });
 
 it('mocks a network error', done => {
-  class Container extends Component {
+  class Container extends React.Component {
     componentWillReceiveProps(nextProps) {
       try {
         expect(nextProps.data.error).toEqual(
@@ -113,7 +113,7 @@ it('mocks a network error', done => {
 });
 
 it('mocks the data without adding the typename', done => {
-  class Container extends Component {
+  class Container extends React.Component {
     componentWillReceiveProps(nextProps) {
       try {
         expect(nextProps.data.user).toMatchSnapshot();
@@ -160,7 +160,7 @@ it('allows for passing a custom client', done => {
     cache: new InMemoryCache(),
   });
 
-  class Container extends Component {
+  class Container extends React.Component {
     componentWillReceiveProps(nextProps) {
       try {
         expect(nextProps.data.user).toMatchSnapshot();
@@ -176,16 +176,6 @@ it('allows for passing a custom client', done => {
   }
 
   const ContainerWithData = withUser(Container);
-
-  const mocks = [
-    {
-      request: {
-        query,
-        variables,
-      },
-      result: { data: { user } },
-    },
-  ];
 
   renderer.create(
     <MockedProvider client={client}>
