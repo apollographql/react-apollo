@@ -5,7 +5,7 @@
 import * as React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from '../src';
-import { ChildProps, NamedProps, QueryProps } from '../src';
+import { ChildProps, NamedProps, GraphqlQueryControls } from '../src';
 
 const historyQuery = gql`
   query history($solutionId: String) {
@@ -114,7 +114,7 @@ const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
   name: 'organisationData',
   props: ({
     organisationData,
-  }: NamedProps<{ organisationData: QueryProps & Data }, Props>) => ({
+  }: NamedProps<{ organisationData: GraphqlQueryControls & Data }, Props>) => ({
     ...organisationData,
   }),
 });

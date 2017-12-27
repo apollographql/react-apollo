@@ -1,4 +1,21 @@
-export * from './browser';
+export { default as getDataFromTree } from './getDataFromTree';
 export * from './getDataFromTree';
-export { renderToStringWithData } from './server';
+
+export { default as renderToStringWithData } from './renderToStringWithData';
+
+export { default as ApolloProvider } from './ApolloProvider';
+export * from './ApolloProvider';
+
+export { default as Query } from './Query';
+export * from './Query';
+
+export { default as graphql } from './graphql';
+export * from './graphql';
+
+export { default as withApollo } from './withApollo';
+
 export * from './types';
+
+// expose easy way to join queries from redux
+import * as compose from 'lodash.flowright';
+export { compose };

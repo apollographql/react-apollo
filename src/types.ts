@@ -36,7 +36,7 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   notifyOnNetworkStatusChange?: boolean;
 }
 
-export interface QueryProps<TGraphQLVariables = OperationVariables> {
+export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
@@ -63,7 +63,7 @@ export type MutationFunc<
 export type DataValue<
   TData,
   TGraphQLVariables = OperationVariables
-> = QueryProps<TGraphQLVariables> &
+> = GraphqlQueryControls<TGraphQLVariables> &
   // data may not yet be loaded
   Partial<TData>;
 

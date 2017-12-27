@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import shallowEqual = require('fbjs/lib/shallowEqual');
 import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,
@@ -13,11 +12,12 @@ import {
   ChildProps,
   OperationOption,
   QueryOpts,
-  QueryProps,
+  GraphqlQueryControls,
   MutationFunc,
   OptionProps,
 } from './types';
 
+const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 const assign = require('object-assign');
 const pick = require('lodash.pick');
@@ -313,7 +313,9 @@ export default function graphql<
         return opts;
       }
 
-      calculateResultProps(result: (QueryProps & TData) | MutationFunc<TData>) {
+      calculateResultProps(
+        result: (GraphqlQueryControls & TData) | MutationFunc<TData>,
+      ) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
@@ -397,7 +399,7 @@ export default function graphql<
         }
       }
 
-      // For server-side rendering (see server.ts)
+      // For server-side rendering (see renderToStringWithData.ts)
       fetchData(): Promise<ApolloQueryResult<any>> | boolean {
         if (this.shouldSkip()) return false;
         if (
@@ -573,14 +575,14 @@ export default function graphql<
 
           // handle race condition where refetch is called on child mount
           if (!this.querySubscription) {
-            (data as QueryProps).refetch = args => {
+            (data as GraphqlQueryControls).refetch = args => {
               return new Promise((r, f) => {
                 this.refetcherQueue = { resolve: r, reject: f, args };
               });
             };
           }
         }
-        return data as QueryProps & TData;
+        return data as GraphqlQueryControls & TData;
       }
 
       render() {
