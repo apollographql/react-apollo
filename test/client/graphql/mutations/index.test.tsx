@@ -13,6 +13,7 @@ import {
 } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
+import createClient from '../../../test-utils/createClient';
 
 const query = gql`
   mutation addPerson {
@@ -29,19 +30,11 @@ const expectedData = {
 
 describe('graphql(mutation)', () => {
   let error;
-  let link;
   let client;
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
-    link = mockSingleLink({
-      request: { query },
-      result: { data: expectedData },
-    });
-    client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
+    client = createClient(expectedData, query);
   });
   afterEach(() => {
     console.error = error;
@@ -137,16 +130,7 @@ describe('graphql(mutation)', () => {
   });
 
   it('can execute a mutation with variables from props', done => {
-    const variables = { id: 1 };
-    link = mockSingleLink({
-      request: { query, variables },
-      result: { data: expectedData },
-    });
-    client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
+    client = createClient(expectedData, query, { id: 1 });
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
