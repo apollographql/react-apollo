@@ -17,7 +17,7 @@ interface ObservableQueryItem {
  *
  * Recycling observable queries avoids a few unexpected functionalities that
  * may be hit when using the `react-apollo` API. Namely not updating queries
- * when a component unmounts, and calling reducers/`updateQueries` more times
+ * when a component unmounts, and calling reducers/`update` more times
  * then is necessary for old observable queries.
  *
  * We assume that the GraphQL document for every `ObservableQuery` is the same.
