@@ -3,6 +3,9 @@ export * from './getDataFromTree';
 
 export { default as renderToStringWithData } from './renderToStringWithData';
 
+export { default as ApolloConsumer } from './ApolloConsumer';
+export * from './ApolloConsumer';
+
 export { default as ApolloProvider } from './ApolloProvider';
 export * from './ApolloProvider';
 
