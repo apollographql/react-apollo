@@ -466,6 +466,25 @@ describe('Query component', () => {
     jest.useFakeTimers();
     expect.assertions(4);
 
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
+
+    const mocks = [
+      {
+        request: { query: allPeopleQuery },
+        result: { data: data1 },
+      },
+      {
+        request: { query: allPeopleQuery },
+        result: { data: data2 },
+      },
+      {
+        request: { query: allPeopleQuery },
+        result: { data: data3 },
+      },
+    ];
+
     let count = 0;
     const POLL_COUNT = 3;
     const POLL_INTERVAL = 30;
@@ -489,6 +508,24 @@ describe('Query component', () => {
       </Query>
     );
 
+    wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      done();
+    });
+  });
+
+  it('provides startPolling in the render prop', done => {
+    jest.useFakeTimers();
+    expect.assertions(4);
+
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
     const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
@@ -507,24 +544,6 @@ describe('Query component', () => {
         result: { data: data3 },
       },
     ];
-
-    wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-    catchAsyncError(done, () => {
-      expect(count).toBe(POLL_COUNT);
-      done();
-    });
-  });
-
-  it('provides startPolling in the render prop', done => {
-    jest.useFakeTimers();
-    expect.assertions(4);
 
     let count = 0;
     let isPolling = false;
@@ -558,6 +577,24 @@ describe('Query component', () => {
       </Query>
     );
 
+    wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
+        <Component />
+      </MockedProvider>,
+    );
+
+    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
+
+    catchAsyncError(done, () => {
+      expect(count).toBe(POLL_COUNT);
+      done();
+    });
+  });
+
+  it('provides stopPolling in the render prop', done => {
+    jest.useFakeTimers();
+    expect.assertions(3);
+
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
     const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
@@ -576,24 +613,6 @@ describe('Query component', () => {
         result: { data: data3 },
       },
     ];
-
-    wrapper = mount(
-      <MockedProvider mocks={mocks} removeTypename>
-        <Component />
-      </MockedProvider>,
-    );
-
-    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-    catchAsyncError(done, () => {
-      expect(count).toBe(POLL_COUNT);
-      done();
-    });
-  });
-
-  it('provides stopPolling in the render prop', done => {
-    jest.useFakeTimers();
-    expect.assertions(3);
 
     const POLL_COUNT = 2;
     const POLL_INTERVAL = 30;
@@ -616,25 +635,6 @@ describe('Query component', () => {
         }}
       </Query>
     );
-
-    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
-    const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
-
-    const mocks = [
-      {
-        request: { query: allPeopleQuery },
-        result: { data: data1 },
-      },
-      {
-        request: { query: allPeopleQuery },
-        result: { data: data2 },
-      },
-      {
-        request: { query: allPeopleQuery },
-        result: { data: data3 },
-      },
-    ];
 
     wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
