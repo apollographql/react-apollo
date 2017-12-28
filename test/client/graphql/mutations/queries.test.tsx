@@ -11,10 +11,11 @@ import {
   MutationFunc,
 } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
+import createClient from '../../../test-utils/createClient';
 
 const compose = require('lodash/flowRight');
 
-describe('[mutations] query integration', () => {
+describe('graphql(mutation) query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
     const query = gql`
       mutation createTodo {
@@ -37,14 +38,7 @@ describe('[mutations] query integration', () => {
         completed: true,
       },
     };
-
-    const link = mockSingleLink({
-      request: { query },
-      result: { data },
-    });
-    const cache = new Cache({ addTypename: false });
-    const client = new ApolloClient({ link, cache });
-
+    const client = createClient(data, query);
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
@@ -62,7 +56,7 @@ describe('[mutations] query integration', () => {
           done();
         });
 
-        const dataInStore = cache.extract(true);
+        const dataInStore = client.cache.extract(true);
         expect(stripSymbols(dataInStore['Todo:99'])).toEqual(
           optimisticResponse.createTodo,
         );
