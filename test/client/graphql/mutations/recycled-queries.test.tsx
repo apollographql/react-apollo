@@ -7,7 +7,7 @@ import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 
-describe('[mutations] update queries', () => {
+describe('graphql(mutation) update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing
   // whether or not the `updateQueries` reducers will run even when a given
   // container component is unmounted.

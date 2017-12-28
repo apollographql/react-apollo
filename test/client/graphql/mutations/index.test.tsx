@@ -1,9 +1,6 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../src/test-utils';
 import {
   ApolloProvider,
   ChildProps,
@@ -11,38 +8,35 @@ import {
   MutateProps,
   MutationFunc,
 } from '../../../../src';
-
 import stripSymbols from '../../../test-utils/stripSymbols';
+import createClient from '../../../test-utils/createClient';
 
-describe('[mutations]', () => {
+const query = gql`
+  mutation addPerson {
+    allPeople(first: 1) {
+      people {
+        name
+      }
+    }
+  }
+`;
+const expectedData = {
+  allPeople: { people: [{ name: 'Luke Skywalker' }] },
+};
+
+describe('graphql(mutation)', () => {
   let error;
+  let client;
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
+    client = createClient(expectedData, query);
   });
   afterEach(() => {
     console.error = error;
   });
 
   it('binds a mutation to props', () => {
-    const query = gql`
-      mutation addPerson {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const link = mockSingleLink({
-      request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
     const ContainerWithData = graphql(query)(({ mutate }: MutateProps) => {
       expect(mutate).toBeTruthy();
       expect(typeof mutate).toBe('function');
@@ -57,24 +51,6 @@ describe('[mutations]', () => {
   });
 
   it('binds a mutation to custom props', () => {
-    const query = gql`
-      mutation addPerson {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const link = mockSingleLink({
-      request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
     interface Props {
       methodName: string;
     }
@@ -101,23 +77,6 @@ describe('[mutations]', () => {
   });
 
   it('does not swallow children errors', done => {
-    const query = gql`
-      mutation addPerson {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const link = mockSingleLink({
-      request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
     let bar;
     const ContainerWithData = graphql(query)(() => {
       bar(); // this will throw
@@ -146,27 +105,6 @@ describe('[mutations]', () => {
   });
 
   it('can execute a mutation', done => {
-    const query = gql`
-      mutation addPerson {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const expectedData = {
-      allPeople: { people: [{ name: 'Luke Skywalker' }] },
-    };
-    const link = mockSingleLink({
-      request: { query },
-      result: { data: expectedData },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
@@ -188,28 +126,7 @@ describe('[mutations]', () => {
   });
 
   it('can execute a mutation with variables from props', done => {
-    const query = gql`
-      mutation addPerson($id: Int) {
-        allPeople(id: $id) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const expectedData = {
-      allPeople: { people: [{ name: 'Luke Skywalker' }] },
-    };
-    const variables = { id: 1 };
-    const link = mockSingleLink({
-      request: { query, variables },
-      result: { data: expectedData },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
+    client = createClient(expectedData, query, { id: 1 });
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {
