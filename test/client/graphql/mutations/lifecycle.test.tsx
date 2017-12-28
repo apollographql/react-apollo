@@ -1,36 +1,26 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
-
 import stripSymbols from '../../../test-utils/stripSymbols';
+import createClient from '../../../test-utils/createClient';
 
-describe('[mutations] lifecycle', () => {
-  it('allows falsy values in the mapped variables from props', done => {
-    const query = gql`
-      mutation addPerson($id: Int) {
-        allPeople(id: $id) {
-          people {
-            name
-          }
-        }
+const query = gql`
+  mutation addPerson($id: Int) {
+    allPeople(id: $id) {
+      people {
+        name
       }
-    `;
-    const expectedData = {
-      allPeople: { people: [{ name: 'Luke Skywalker' }] },
-    };
-    const variables = { id: null };
-    const link = mockSingleLink({
-      request: { query, variables },
-      result: { data: expectedData },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
+    }
+  }
+`;
+const expectedData = {
+  allPeople: { people: [{ name: 'Luke Skywalker' }] },
+};
+
+describe('graphql(mutation) lifecycle', () => {
+  it('allows falsy values in the mapped variables from props', done => {
+    const client = createClient(expectedData, query, { id: null });
 
     @graphql(query)
     class Container extends React.Component<any, any> {
@@ -40,6 +30,7 @@ describe('[mutations] lifecycle', () => {
           done();
         });
       }
+
       render() {
         return null;
       }
@@ -53,29 +44,8 @@ describe('[mutations] lifecycle', () => {
   });
 
   it("errors if the passed props don't contain the needed variables", () => {
-    const query = gql`
-      mutation addPerson($first: Int) {
-        allPeople(first: $first) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const expectedData = {
-      allPeople: { people: [{ name: 'Luke Skywalker' }] },
-    };
-    const variables = { first: 1 };
-    const link = mockSingleLink({
-      request: { query, variables },
-      result: { data: expectedData },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
+    const client = createClient(expectedData, query, { first: 1 });
     const Container = graphql(query)(() => null);
-
     try {
       renderer.create(
         <ApolloProvider client={client}>
@@ -88,27 +58,7 @@ describe('[mutations] lifecycle', () => {
   });
 
   it('rebuilds the mutation on prop change when using `options`', done => {
-    const query = gql`
-      mutation addPerson {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const expectedData = {
-      allPeople: { people: [{ name: 'Luke Skywalker' }] },
-    };
-    const link = mockSingleLink({
-      request: { query },
-      result: { data: expectedData },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
+    const client = createClient(expectedData, query);
     function options(props) {
       // expect(props.listId).toBe(2);
       return {};
@@ -144,28 +94,7 @@ describe('[mutations] lifecycle', () => {
   });
 
   it('can execute a mutation with custom variables', done => {
-    const query = gql`
-      mutation addPerson($id: Int) {
-        allPeople(id: $id) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const expectedData = {
-      allPeople: { people: [{ name: 'Luke Skywalker' }] },
-    };
-    const variables = { id: 1 };
-    const link = mockSingleLink({
-      request: { query, variables },
-      result: { data: expectedData },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
+    const client = createClient(expectedData, query, { id: 1 });
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentDidMount() {

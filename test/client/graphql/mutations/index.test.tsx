@@ -1,9 +1,6 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink } from '../../../../src/test-utils';
 import {
   ApolloProvider,
   ChildProps,
@@ -11,7 +8,6 @@ import {
   MutateProps,
   MutationFunc,
 } from '../../../../src';
-
 import stripSymbols from '../../../test-utils/stripSymbols';
 import createClient from '../../../test-utils/createClient';
 
