@@ -352,8 +352,8 @@ describe('Query component', () => {
                     },
                   }),
                 })
-                .then(result => {
-                  expect(stripSymbols(result.data)).toEqual(data2);
+                .then(result2 => {
+                  expect(stripSymbols(result2.data)).toEqual(data2);
                 })
                 .catch(done.fail);
             } else if (count === 1) {
