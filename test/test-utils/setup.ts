@@ -1,1 +1,2 @@
+import './shim';
 import './enzyme';

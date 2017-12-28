@@ -7,7 +7,6 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
-
 import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('[queries] observableQuery', () => {
@@ -215,59 +214,6 @@ describe('[queries] observableQuery', () => {
       .observableQuery;
 
     expect(queryObservable1).toBe(queryObservable2);
-  });
-
-  it('will refetch active `ObservableQuery`s when resetting the client store', () => {
-    const query = gql`
-      query people {
-        allPeople(first: 1) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    // const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    let called = 0;
-    const link = new ApolloLink((o, f) => {
-      called++;
-      return f(o);
-    }).concat(
-      mockSingleLink(
-        {
-          request: { query },
-          result: { data: { allPeople: null } },
-        },
-        {
-          request: { query },
-          result: { data: { allPeople: { people: null } } },
-        },
-      ),
-    );
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      render() {
-        return null;
-      }
-    }
-
-    renderer.create(
-      <ApolloProvider client={client}>
-        <Container />
-      </ApolloProvider>,
-    );
-
-    const keys = Array.from((client.queryManager as any).queries.keys());
-    expect(keys).toEqual(['1']);
-    expect(called).toBe(1);
-    (client.resetStore() as Promise<null>).then(() => {
-      expect(called).toBe(2);
-    });
   });
 
   it('will recycle `ObservableQuery`s when re-rendering a portion of the tree', done => {

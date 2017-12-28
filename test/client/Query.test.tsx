@@ -26,10 +26,17 @@ const allPeopleMocks = [
 ];
 
 describe('Query component', () => {
+  let wrapper;
   beforeEach(() => {
     jest.useRealTimers();
   });
 
+  afterEach(() => {
+    if (wrapper) {
+      wrapper.unmount();
+      wrapper = null;
+    }
+  });
   it('calls the children prop', done => {
     const Component = () => (
       <Query query={allPeopleQuery}>
@@ -50,7 +57,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -62,7 +69,7 @@ describe('Query component', () => {
       <Query query={allPeopleQuery}>{result => <div />}</Query>
     );
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -98,7 +105,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mockError} removeTypename>
         <Component />
       </MockedProvider>,
@@ -120,7 +127,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -128,6 +135,20 @@ describe('Query component', () => {
   });
 
   it('sets the notifyOnNetworkStatusChange prop', done => {
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+
+    const mocks = [
+      {
+        request: { query: allPeopleQuery },
+        result: { data: data1 },
+      },
+      {
+        request: { query: allPeopleQuery },
+        result: { data: data2 },
+      },
+    ];
+
     let count = 0;
     expect.assertions(4);
     const Component = () => (
@@ -158,8 +179,8 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
-      <MockedProvider mocks={allPeopleMocks} removeTypename>
+    wrapper = mount(
+      <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
     );
@@ -190,30 +211,27 @@ describe('Query component', () => {
       },
     ];
 
-    const render = jest.fn(() => null);
-
     const variables = {
       first: 1,
     };
 
     const Component = () => (
       <Query query={queryWithVariables} variables={variables}>
-        {render}
+        {result => {
+          catchAsyncError(done, () => {
+            expect(result.variables).toEqual({ first: 1 });
+            done();
+          });
+          return null;
+        }}
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocksWithVariable} removeTypename>
         <Component />
       </MockedProvider>,
     );
-
-    setTimeout(() => {
-      catchAsyncError(done, () => {
-        expect(render.mock.calls[0][0].variables).toEqual({ first: 1 });
-        done();
-      });
-    }, 0);
   });
 
   it('errors if a Mutation is provided in the query', () => {
@@ -318,6 +336,7 @@ describe('Query component', () => {
             count++;
             return null;
           }
+
           catchAsyncError(done, () => {
             if (count === 1) {
               // first data
@@ -365,7 +384,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -436,7 +455,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -489,7 +508,7 @@ describe('Query component', () => {
       },
     ];
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -499,7 +518,6 @@ describe('Query component', () => {
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
-      wrapper.unmount();
       done();
     });
   });
@@ -559,7 +577,7 @@ describe('Query component', () => {
       },
     ];
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -569,7 +587,6 @@ describe('Query component', () => {
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
-      wrapper.unmount();
       done();
     });
   });
@@ -619,7 +636,7 @@ describe('Query component', () => {
       },
     ];
 
-    const wrapper = mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -629,7 +646,6 @@ describe('Query component', () => {
 
     catchAsyncError(done, () => {
       expect(count).toBe(POLL_COUNT);
-      wrapper.unmount();
       done();
     });
   });
@@ -684,7 +700,7 @@ describe('Query component', () => {
       </Query>
     );
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -763,7 +779,7 @@ describe('Query component', () => {
       }
     }
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -836,7 +852,7 @@ describe('Query component', () => {
       }
     }
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -886,7 +902,7 @@ describe('Query component', () => {
       }
     }
 
-    mount(
+    wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
       </MockedProvider>,
@@ -952,6 +968,6 @@ describe('Query component', () => {
       }
     }
 
-    mount(<Component />);
+    wrapper = mount(<Component />);
   });
 });

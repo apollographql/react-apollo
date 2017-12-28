@@ -49,16 +49,14 @@
   ],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
-    "presets": ["react-native"]
+    "presets": ["env"]
   },
   "jest": {
-    "preset": "react-native",
     "testEnvironment": "jsdom",
     "transform": {
       "^.+\\.tsx?$": "ts-jest",
       "^.+\\.jsx?$": "babel-jest"
     },
-    "transformIgnorePatterns": ["<rootDir>/node_modules/(?!(react-native)/)"],
     "mapCoverage": true,
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
@@ -90,7 +88,6 @@
     "babel-core": "6.26.0",
     "babel-jest": "22.0.4",
     "babel-preset-env": "1.6.1",
-    "babel-preset-react-native": "4.0.0",
     "bundlesize": "0.15.3",
     "coveralls": "3.0.0",
     "danger": "2.1.6",
@@ -106,7 +103,6 @@
     "prettier": "1.9.2",
     "react": "16.2.0",
     "react-dom": "16.2.0",
-    "react-native": "0.51.0",
     "react-test-renderer": "16.2.0",
     "recompose": "0.26.0",
     "rimraf": "2.6.2",
