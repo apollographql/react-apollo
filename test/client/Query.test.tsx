@@ -7,6 +7,7 @@ import ApolloProvider from '../../src/ApolloProvider';
 import Query from '../../src/Query';
 import { MockedProvider, mockSingleLink } from '../../src/test-utils';
 import catchAsyncError from '../test-utils/catchAsyncError';
+import stripSymbols from '../test-utils/stripSymbols';
 
 const allPeopleQuery = gql`
   query people {
@@ -341,17 +342,17 @@ describe('Query component', () => {
             if (count === 1) {
               // first data
               expect(variables).toEqual({ first: 1 });
-              expect(data).toMatchSnapshot('refetch prop: first render data');
+              expect(stripSymbols(data)).toEqual(data1);
             }
             if (count === 3) {
               // second data
               expect(variables).toEqual({ first: 1 });
-              expect(data).toMatchSnapshot('refetch prop: second render data');
+              expect(stripSymbols(data)).toEqual(data2);
             }
             if (count === 5) {
               // third data
               expect(variables).toEqual({ first: 2 });
-              expect(data).toMatchSnapshot('refetch prop: third render data');
+              expect(stripSymbols(data)).toEqual(data3);
             }
           });
 
@@ -365,15 +366,11 @@ describe('Query component', () => {
             result
               .refetch()
               .then(result1 => {
-                expect(result1.data).toMatchSnapshot(
-                  'refetch prop: result refetch call 1',
-                );
+                expect(stripSymbols(result1.data)).toEqual(data2);
                 return result.refetch({ first: 2 });
               })
               .then(result2 => {
-                expect(result2.data).toMatchSnapshot(
-                  'refetch prop: result refetch call 2',
-                );
+                expect(stripSymbols(result2.data)).toEqual(data3);
                 done();
               })
               .catch(done.fail);
@@ -433,17 +430,20 @@ describe('Query component', () => {
                 }),
               })
               .then(result => {
-                expect(result.data).toMatchSnapshot(
-                  'fetchMore render prop: result fetchMore call',
-                );
+                expect(stripSymbols(result.data)).toEqual(data2);
               })
               .catch(done.fail);
           } else if (count === 1) {
             catchAsyncError(done, () => {
               expect(data.variables).toEqual(variables);
-              expect(data.data).toMatchSnapshot(
-                'fetchMore render prop: render data',
-              );
+              expect(stripSymbols(data.data)).toEqual({
+                allPeople: {
+                  people: [
+                    ...data1.allPeople.people,
+                    ...data2.allPeople.people,
+                  ],
+                },
+              });
 
               done();
             });
@@ -466,29 +466,6 @@ describe('Query component', () => {
     jest.useFakeTimers();
     expect.assertions(4);
 
-    let count = 0;
-    const POLL_COUNT = 3;
-    const POLL_INTERVAL = 30;
-
-    const Component = () => (
-      <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
-        {result => {
-          if (result.loading) {
-            return null;
-          }
-          if (count === 0) {
-            expect(result.data).toMatchSnapshot();
-          } else if (count === 1) {
-            expect(result.data).toMatchSnapshot();
-          } else if (count === 2) {
-            expect(result.data).toMatchSnapshot();
-          }
-          count++;
-          return null;
-        }}
-      </Query>
-    );
-
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
     const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
@@ -507,6 +484,29 @@ describe('Query component', () => {
         result: { data: data3 },
       },
     ];
+
+    let count = 0;
+    const POLL_COUNT = 3;
+    const POLL_INTERVAL = 30;
+
+    const Component = () => (
+      <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
+        {result => {
+          if (result.loading) {
+            return null;
+          }
+          if (count === 0) {
+            expect(stripSymbols(result.data)).toEqual(data1);
+          } else if (count === 1) {
+            expect(stripSymbols(result.data)).toEqual(data2);
+          } else if (count === 2) {
+            expect(stripSymbols(result.data)).toEqual(data3);
+          }
+          count++;
+          return null;
+        }}
+      </Query>
+    );
 
     wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
@@ -526,38 +526,6 @@ describe('Query component', () => {
     jest.useFakeTimers();
     expect.assertions(4);
 
-    let count = 0;
-    let isPolling = false;
-
-    const POLL_INTERVAL = 30;
-    const POLL_COUNT = 3;
-
-    const Component = () => (
-      <Query query={allPeopleQuery}>
-        {result => {
-          if (result.loading) {
-            return null;
-          }
-          if (!isPolling) {
-            isPolling = true;
-            result.startPolling(POLL_INTERVAL);
-          }
-          catchAsyncError(done, () => {
-            if (count === 0) {
-              expect(result.data).toMatchSnapshot();
-            } else if (count === 1) {
-              expect(result.data).toMatchSnapshot();
-            } else if (count === 2) {
-              expect(result.data).toMatchSnapshot();
-            }
-          });
-
-          count++;
-          return null;
-        }}
-      </Query>
-    );
-
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
     const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
@@ -576,6 +544,38 @@ describe('Query component', () => {
         result: { data: data3 },
       },
     ];
+
+    let count = 0;
+    let isPolling = false;
+
+    const POLL_INTERVAL = 30;
+    const POLL_COUNT = 3;
+
+    const Component = () => (
+      <Query query={allPeopleQuery}>
+        {result => {
+          if (result.loading) {
+            return null;
+          }
+          if (!isPolling) {
+            isPolling = true;
+            result.startPolling(POLL_INTERVAL);
+          }
+          catchAsyncError(done, () => {
+            if (count === 0) {
+              expect(stripSymbols(result.data)).toEqual(data1);
+            } else if (count === 1) {
+              expect(stripSymbols(result.data)).toEqual(data2);
+            } else if (count === 2) {
+              expect(stripSymbols(result.data)).toEqual(data3);
+            }
+          });
+
+          count++;
+          return null;
+        }}
+      </Query>
+    );
 
     wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
@@ -595,28 +595,6 @@ describe('Query component', () => {
     jest.useFakeTimers();
     expect.assertions(3);
 
-    const POLL_COUNT = 2;
-    const POLL_INTERVAL = 30;
-    let count = 0;
-
-    const Component = () => (
-      <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
-        {result => {
-          if (result.loading) {
-            return null;
-          }
-          if (count === 0) {
-            expect(result.data).toMatchSnapshot();
-          } else if (count === 1) {
-            expect(result.data).toMatchSnapshot();
-            result.stopPolling();
-          }
-          count++;
-          return null;
-        }}
-      </Query>
-    );
-
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
     const data3 = { allPeople: { people: [{ name: 'Darth Vader' }] } };
@@ -635,6 +613,28 @@ describe('Query component', () => {
         result: { data: data3 },
       },
     ];
+
+    const POLL_COUNT = 2;
+    const POLL_INTERVAL = 30;
+    let count = 0;
+
+    const Component = () => (
+      <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
+        {result => {
+          if (result.loading) {
+            return null;
+          }
+          if (count === 0) {
+            expect(stripSymbols(result.data)).toEqual(data1);
+          } else if (count === 1) {
+            expect(stripSymbols(result.data)).toEqual(data2);
+            result.stopPolling();
+          }
+          count++;
+          return null;
+        }}
+      </Query>
+    );
 
     wrapper = mount(
       <MockedProvider mocks={mocks} removeTypename>
@@ -673,9 +673,8 @@ describe('Query component', () => {
           }
           if (isUpdated) {
             catchAsyncError(done, () => {
-              expect(result.data).toMatchSnapshot(
-                'updateQuery render prop: rendered data',
-              );
+              expect(stripSymbols(result.data)).toEqual(data2);
+
               done();
             });
 
@@ -685,9 +684,7 @@ describe('Query component', () => {
           setTimeout(() => {
             result.updateQuery((prev, { variables: variablesUpdate }) => {
               catchAsyncError(done, () => {
-                expect(prev).toMatchSnapshot(
-                  'updateQuery render prop: result of the updateQuery call',
-                );
+                expect(stripSymbols(prev)).toEqual(data1);
                 expect(variablesUpdate).toEqual({ first: 2 });
               });
 
@@ -762,11 +759,11 @@ describe('Query component', () => {
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(result.variables).toEqual({ first: 1 });
-                  expect(result.data).toMatchSnapshot();
+                  expect(stripSymbols(result.data)).toEqual(data1);
                 }
                 if (count === 1) {
                   expect(result.variables).toEqual({ first: 2 });
-                  expect(result.data).toMatchSnapshot();
+                  expect(stripSymbols(result.data)).toEqual(data2);
                   done();
                 }
               });
@@ -831,7 +828,7 @@ describe('Query component', () => {
               }
               catchAsyncError(done, () => {
                 if (count === 0) {
-                  expect(result.data).toMatchSnapshot();
+                  expect(stripSymbols(result.data)).toEqual(data1);
                   setTimeout(() => {
                     this.setState({
                       query: query2,
@@ -839,7 +836,7 @@ describe('Query component', () => {
                   });
                 }
                 if (count === 1) {
-                  expect(result.data).toMatchSnapshot();
+                  expect(stripSymbols(result.data)).toEqual(data2);
                   done();
                 }
               });
@@ -946,7 +943,7 @@ describe('Query component', () => {
                 }
                 catchAsyncError(done, () => {
                   if (count === 0) {
-                    expect(result.data).toMatchSnapshot();
+                    expect(stripSymbols(result.data)).toEqual(data1);
                     setTimeout(() => {
                       this.setState({
                         client: client2,
@@ -954,7 +951,7 @@ describe('Query component', () => {
                     }, 0);
                   }
                   if (count === 1) {
-                    expect(result.data).toMatchSnapshot();
+                    expect(stripSymbols(result.data)).toEqual(data2);
                     done();
                   }
                   count++;
