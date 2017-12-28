@@ -7,7 +7,6 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
-import catchAsyncError from '../../../test-utils/catchAsyncError';
 import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('[queries] observableQuery', () => {
