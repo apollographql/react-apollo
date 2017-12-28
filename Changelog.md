@@ -10,7 +10,8 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Remove deprecated `operationOptions.options.skip`, use `operationOptions.skip` instead
   - Rename type `ProviderProps` to `ApolloProviderProps` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
-  - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
+  - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467) [#1478](https://github.com/apollographql/react-apollo/pull/1478)
+  - Remove re-export of `compose` (a.k.a. `lodash/flowright`) as it is loses types (exports as `any`).  Users may choose to use `lodash/flowright` or `recompose/compose` themselves based on their use case.  [#1478](https://github.com/apollographql/react-apollo/pull/1478)
 
 - **Other Changes**
   - Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)
@@ -27,7 +28,9 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Removed unused gzip script [#1468](https://github.com/apollographql/react-apollo/pull/1468)
   - Minify umd and ensure umd name consistency [#1469](https://github.com/apollographql/react-apollo/pull/1469)
   - Converted `test/test-utils/test-utils.test.js` to `test/test-utils.test.tsx` [#1475](https://github.com/apollographql/react-apollo/pull/1475)
-  - - removed react-native from the test suite [#1451](https://github.com/apollographql/react-apollo/pull/1451)
+  - Updates to `examples/typescript` [#1471](https://github.com/apollographql/react-apollo/pull/1471)
+  - Mutation test cleanup [#1480](https://github.com/apollographql/react-apollo/pull/1480)
+  - Removed react-native from the test suite [#1451](https://github.com/apollographql/react-apollo/pull/1451)
 
 ### 2.0.4
 - rolled back on the lodash-es changes from

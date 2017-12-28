@@ -9,7 +9,7 @@ export * from './test-links';
 export class MockedProvider extends React.Component<any, any> {
   private client: any;
 
-  constructor(props, context) {
+  constructor(props: any, context: any) {
     super(props, context);
     if (this.props.client) return;
 

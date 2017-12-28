@@ -1,0 +1,11 @@
+query GetCharacter($episode: Episode!) {
+    hero(episode: $episode) {
+        name
+        id
+        friends {
+            name
+            id
+            appearsIn
+        }
+    }
+}

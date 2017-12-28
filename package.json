@@ -2,12 +2,12 @@
   "name": "react-apollo",
   "version": "2.0.4",
   "description": "React data container for Apollo Client",
+  "module": "src/index.ts",
   "scripts": {
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
-    "pretest": "npm run lint",
-    "test": "npm run compile && jest --maxWorkers=4",
-    "testonly": "jest",
+    "test": "npm run lint && npm run type-check && npm run testonly",
+    "testonly": "jest --maxWorkers=4 --coverage",
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
@@ -27,7 +27,7 @@
   "bundlesize": [
     {
       "path": "./lib/umd/react-apollo.js",
-      "threshold": "1 Kb"
+      "maxSize": "4.7 KB"
     }
   ],
   "lint-staged": {
@@ -54,14 +54,14 @@
   "jest": {
     "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js",
+      "^.+\\.tsx?$": "ts-jest",
       "^.+\\.jsx?$": "babel-jest"
     },
-    "transformIgnorePatterns": ["<rootDir>/node_modules/(?!(lodash-es)/)"],
+    "mapCoverage": true,
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
-      "<rootDir>/test/flow.js",
+      "<rootDir>/test/flow-usage.js",
       "<rootDir>/test/typescript-usage.tsx"
     ],
     "projects": ["<rootDir>"],
@@ -89,6 +89,7 @@
     "babel-jest": "22.0.4",
     "babel-preset-env": "1.6.1",
     "bundlesize": "0.15.3",
+    "coveralls": "3.0.0",
     "danger": "2.1.6",
     "enzyme": "3.2.0",
     "enzyme-adapter-react-16": "1.1.1",
@@ -98,7 +99,6 @@
     "jest": "21.2.1",
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
-    "lodash": "4.17.4",
     "pre-commit": "1.2.2",
     "prettier": "1.9.2",
     "react": "16.2.0",
@@ -107,13 +107,11 @@
     "recompose": "0.26.0",
     "rimraf": "2.6.2",
     "rollup": "0.53.0",
-    "rollup-plugin-babel-minify": "^3.1.2",
-    "source-map-support": "0.5.0",
+    "rollup-plugin-babel-minify": "3.1.2",
     "ts-jest": "22.0.0",
     "tslint": "5.8.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
-    "uglify-js": "3.3.2",
     "zen-observable-ts": "0.5.0"
   },
   "dependencies": {
@@ -121,8 +119,7 @@
     "fbjs": "^0.8.16",
     "hoist-non-react-statics": "^2.3.1",
     "invariant": "^2.2.2",
-    "lodash.flowright": "^3.5.0",
-    "lodash.pick": "^4.4.0",
+    "lodash": "4.17.4",
     "prop-types": "^15.6.0"
   }
 }

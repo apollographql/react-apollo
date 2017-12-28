@@ -12,7 +12,7 @@
 // @flow
 import gql from 'graphql-tag';
 import React from 'react';
-import { withApollo, compose, graphql } from '../src';
+import { withApollo, graphql } from '../src';
 import type {
   OperationComponent,
   GraphqlQueryControls,

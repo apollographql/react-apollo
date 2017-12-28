@@ -35,8 +35,7 @@ dist
 npm
 .reports
 
-# don't track yarn lock but allow contributors to use it for local dev
-yarn.lock
+# don't track package-lock but allow contributors to use it for local dev
 package-lock.json
 
 

@@ -6,6 +6,11 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 
 // XXX move this logic to ObservableQuery / QueryManager in apollo-client
 
+interface ObservableQueryItem {
+  observableQuery: ObservableQuery<any>;
+  subscription: ZenObservable.Subscription;
+}
+
 /**
  * An observable query recycler stores some observable queries that are no
  * longer in use, but that we may someday use again.
@@ -26,10 +31,7 @@ export class ObservableQueryRecycler {
   /**
    * The internal store for our observable queries and temporary subscriptions.
    */
-  private observableQueries: Array<{
-    observableQuery: ObservableQuery<any> | any;
-    subscription: ZenObservable.Subscription;
-  }> = [];
+  private observableQueries: Array<ObservableQueryItem> = [];
 
   /**
    * Recycles an observable query that the recycler is finished with. It is
@@ -53,7 +55,7 @@ export class ObservableQueryRecycler {
 
     this.observableQueries.push({
       observableQuery,
-      subscription: (observableQuery as any).subscribe({}),
+      subscription: observableQuery.subscribe({}),
     });
   }
 
@@ -66,11 +68,16 @@ export class ObservableQueryRecycler {
    * All mutations that occured between the time of recycling and the time of
    * reusing have been applied.
    */
-  public reuse(options: QueryOpts): ObservableQuery<any> {
+  public reuse(options: QueryOpts): null | ObservableQuery<any> {
     if (this.observableQueries.length <= 0) {
       return null;
     }
-    const { observableQuery, subscription } = this.observableQueries.pop();
+
+    const item = this.observableQueries.pop();
+    if (!item) {
+      return null;
+    }
+    const { observableQuery, subscription } = item;
     subscription.unsubscribe();
 
     // strip off react-apollo specific options
@@ -81,7 +88,7 @@ export class ObservableQueryRecycler {
     // calling `refetch` with new variables but not rerendering the child component
     // with no data.
     //
-    // HOWERVER, in routing / recycling this isn't ideal because you navigate to a new page
+    // HOWEVER, in routing / recycling this isn't ideal because you navigate to a new page
     // which provides new variables and get stale data which would require the UI component
     // to check accuracy of data (which it may not know)
     // so if there are new variables when recycling, we don't recyle and make an entirely

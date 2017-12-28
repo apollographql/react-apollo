@@ -17,7 +17,7 @@ import { parser, DocumentType } from './parser';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
-const pick = require('lodash.pick');
+const pick = require('lodash/pick');
 
 function observableQueryFields(observable) {
   const fields = pick(
@@ -82,7 +82,7 @@ class Query<TData = any> extends React.Component<
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
 
-  constructor(props, context) {
+  constructor(props: QueryProps, context: any) {
     super(props, context);
 
     invariant(
