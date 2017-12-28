@@ -31,6 +31,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Updates to `examples/typescript` [#1471](https://github.com/apollographql/react-apollo/pull/1471)
   - Mutation test cleanup [#1480](https://github.com/apollographql/react-apollo/pull/1480)
   - Removed react-native from the test suite [#1451](https://github.com/apollographql/react-apollo/pull/1451)
+  - Add `client` to `Query`'s `QueryResult` [#1488](https://github.com/apollographql/react-apollo/pull/1488)
 
 ### 2.0.4
 - rolled back on the lodash-es changes from
