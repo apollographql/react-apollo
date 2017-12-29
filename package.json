@@ -6,8 +6,8 @@
   "scripts": {
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
-    "test": "npm run lint && npm run type-check && npm run testonly",
-    "testonly": "jest --maxWorkers=4 --coverage",
+    "test": "npm run lint && npm run type-check && npm run jest",
+    "jest": "jest --maxWorkers=4 --coverage",
     "test-watch": "jest --watch",
     "filesize": "bundlesize",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
