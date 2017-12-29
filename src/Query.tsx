@@ -40,6 +40,7 @@ function observableQueryFields(observable) {
 }
 
 export interface QueryResult<TData = any> {
+  client: ApolloClient<any>;
   data: TData;
   error?: ApolloError;
   fetchMore: (
@@ -176,18 +177,15 @@ class Query<TData = any> extends React.Component<
 
   private getQueryResult = (): QueryResult<TData> => {
     const { result } = this.state;
-
     const { loading, error, networkStatus, data } = result;
-
-    const renderProps = {
+    return {
+      client: this.client,
       data,
       loading,
       error,
       networkStatus,
       ...observableQueryFields(this.queryObservable),
     };
-
-    return renderProps;
   };
 }
 
