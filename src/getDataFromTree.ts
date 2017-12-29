@@ -37,7 +37,7 @@ export function walkTree<Cache>(
     return;
   }
 
-  if (element == null) return;
+  if (!element) return;
 
   const Component = element.type;
   // a stateless functional component or a class

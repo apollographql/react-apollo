@@ -3,10 +3,10 @@
 ### next
 
 - **BREAKING CHANGES**
-  - typescript - `graphql` parameterized types streamlined for 
-a) full typing; and b) ease of use; and c) consistency.  New parameterized is: 
+  - typescript - `graphql` parameterized types streamlined for
+a) full typing; and b) ease of use; and c) consistency.  New parameterized is:
 `graphql<TProps,TData, TGraphQLVariables, TChildProps>` where none are required and full typing only requires the
-first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402) 
+first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402)
   - Remove deprecated `operationOptions.options.skip`, use `operationOptions.skip` instead
   - Rename type `ProviderProps` to `ApolloProviderProps` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
@@ -33,6 +33,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Mutation test cleanup [#1480](https://github.com/apollographql/react-apollo/pull/1480)
   - Removed react-native from the test suite [#1451](https://github.com/apollographql/react-apollo/pull/1451)
   - Add `client` to `Query`'s `QueryResult` [#1488](https://github.com/apollographql/react-apollo/pull/1488)
+  - Disregard falsy elements when walking tree in SSR [#1495](https://github.com/apollographql/react-apollo/pull/1495)
 
 ### 2.0.4
 - rolled back on the lodash-es changes from
