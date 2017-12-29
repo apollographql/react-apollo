@@ -9,7 +9,7 @@ import stripSymbols from '../../../test-utils/stripSymbols';
 
 describe('graphql(mutation) update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing
-  // whether or not the `updateQueries` reducers will run even when a given
+  // whether or not the `options.update` reducers will run even when a given
   // container component is unmounted.
   //
   // It does this with the following procedure:
@@ -27,8 +27,22 @@ describe('graphql(mutation) update queries', () => {
   //
   // There are also a lot more assertions on the way to make sure everything is
   // going as smoothly as planned.
-  it('will run `updateQueries` for a previously mounted component', () =>
+  it('will run `update` for a previously mounted component', () =>
     new Promise((resolve, reject) => {
+      const query = gql`
+        query todos {
+          todo_list {
+            id
+            title
+            tasks {
+              id
+              text
+              completed
+            }
+          }
+        }
+      `;
+
       const mutation = gql`
         mutation createTodo {
           createTodo {
@@ -48,47 +62,22 @@ describe('graphql(mutation) update queries', () => {
       };
 
       let todoUpdateQueryCount = 0;
-
-      const updateQueries = {
-        todos: (previousQueryResult, { mutationResult, queryVariables }) => {
-          todoUpdateQueryCount++;
-
-          if (queryVariables.id !== '123') {
-            // this isn't the query we updated, so just return the previous result
-            return previousQueryResult;
-          }
-          // otherwise, create a new object with the same shape as the
-          // previous result with the mutationResult incorporated
-          const originalList = previousQueryResult.todo_list;
-          const newTask = mutationResult.data.createTodo;
-          return {
-            todo_list: Object.assign(originalList, {
-              tasks: [...originalList.tasks, newTask],
-            }),
-          };
-        },
+      const update = (proxy, { data: { createTodo } }) => {
+        todoUpdateQueryCount++;
+        const data = proxy.readQuery({ query }); // read from cache
+        data.todo_list.tasks.push(createTodo); // update value
+        proxy.writeQuery({ query, data }); // write to cache
       };
 
-      const query = gql`
-        query todos($id: ID!) {
-          todo_list(id: $id) {
-            id
-            title
-            tasks {
-              id
-              text
-              completed
-            }
-          }
-        }
-      `;
-
-      const data = {
+      const expectedData = {
         todo_list: { id: '123', title: 'how to apollo', tasks: [] },
       };
 
       const link = mockSingleLink(
-        { request: { query, variables: { id: '123' } }, result: { data } },
+        {
+          request: { query, variables: { id: '123' } },
+          result: { data: expectedData },
+        },
         { request: { query: mutation }, result: { data: mutationData } },
         { request: { query: mutation }, result: { data: mutationData } },
       );
@@ -99,8 +88,8 @@ describe('graphql(mutation) update queries', () => {
 
       let mutate;
 
-      @graphql(mutation, { options: () => ({ updateQueries }) })
-      class Mutation extends React.Component<any, any> {
+      @graphql(mutation, { options: () => ({ update }) })
+      class MyMutation extends React.Component<any, any> {
         componentDidMount() {
           mutate = this.props.mutate;
         }
@@ -115,7 +104,7 @@ describe('graphql(mutation) update queries', () => {
       let queryRenderCount = 0;
 
       @graphql(query)
-      class Query extends React.Component<any, any> {
+      class MyQuery extends React.Component<any, any> {
         componentWillMount() {
           queryMountCount++;
         }
@@ -203,13 +192,13 @@ describe('graphql(mutation) update queries', () => {
 
       const wrapperMutation = renderer.create(
         <ApolloProvider client={client}>
-          <Mutation />
+          <MyMutation />
         </ApolloProvider>,
       );
 
       const wrapperQuery1 = renderer.create(
         <ApolloProvider client={client}>
-          <Query id="123" />
+          <MyQuery id="123" />
         </ApolloProvider>,
       );
 
@@ -232,7 +221,7 @@ describe('graphql(mutation) update queries', () => {
             setTimeout(() => {
               const wrapperQuery2 = renderer.create(
                 <ApolloProvider client={client}>
-                  <Query id="123" />
+                  <MyQuery id="123" />
                 </ApolloProvider>,
               );
 

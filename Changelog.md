@@ -12,6 +12,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467) [#1478](https://github.com/apollographql/react-apollo/pull/1478)
   - Remove re-export of `compose` (a.k.a. `lodash/flowright`) as it is loses types (exports as `any`).  Users may choose to use `lodash/flowright` or `recompose/compose` themselves based on their use case.  [#1478](https://github.com/apollographql/react-apollo/pull/1478)
+  - Remove deprecated [`options.updateQueries`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-updateQueries), use [`options.update`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-update) instead [#1485](https://github.com/apollographql/react-apollo/pull/1485)
 
 - **Other Changes**
   - Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)
@@ -31,6 +32,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Updates to `examples/typescript` [#1471](https://github.com/apollographql/react-apollo/pull/1471)
   - Mutation test cleanup [#1480](https://github.com/apollographql/react-apollo/pull/1480)
   - Removed react-native from the test suite [#1451](https://github.com/apollographql/react-apollo/pull/1451)
+  - Add `client` to `Query`'s `QueryResult` [#1488](https://github.com/apollographql/react-apollo/pull/1488)
   - Disregard falsy elements when walking tree in SSR [#1495](https://github.com/apollographql/react-apollo/pull/1495)
 
 ### 2.0.4

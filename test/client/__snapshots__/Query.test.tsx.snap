@@ -2,6 +2,741 @@
 
 exports[`result in render prop 1`] = `
 Object {
+  "client": ApolloClient {
+    "cache": InMemoryCache {
+      "addTypename": false,
+      "config": Object {
+        "addTypename": false,
+        "dataIdFromObject": [Function],
+        "fragmentMatcher": HeuristicFragmentMatcher {},
+        "storeFactory": [Function],
+      },
+      "data": ObjectCache {
+        "data": Object {
+          "$ROOT_QUERY.allPeople({\\"first\\":1})": Object {
+            "people": Array [
+              Object {
+                "generated": true,
+                "id": "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+                "type": "id",
+              },
+            ],
+          },
+          "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0": Object {
+            "name": "Luke Skywalker",
+          },
+          "ROOT_QUERY": Object {
+            "allPeople({\\"first\\":1})": Object {
+              "generated": true,
+              "id": "$ROOT_QUERY.allPeople({\\"first\\":1})",
+              "type": "id",
+            },
+          },
+        },
+      },
+      "optimistic": Array [],
+      "silenceBroadcast": false,
+      "watches": Array [
+        Object {
+          "callback": [Function],
+          "optimistic": true,
+          "previousResult": [Function],
+          "query": Object {
+            "definitions": Array [
+              Object {
+                "directives": Array [],
+                "kind": "OperationDefinition",
+                "name": Object {
+                  "kind": "Name",
+                  "value": "people",
+                },
+                "operation": "query",
+                "selectionSet": Object {
+                  "kind": "SelectionSet",
+                  "selections": Array [
+                    Object {
+                      "alias": null,
+                      "arguments": Array [
+                        Object {
+                          "kind": "Argument",
+                          "name": Object {
+                            "kind": "Name",
+                            "value": "first",
+                          },
+                          "value": Object {
+                            "kind": "IntValue",
+                            "value": "1",
+                          },
+                        },
+                      ],
+                      "directives": Array [],
+                      "kind": "Field",
+                      "name": Object {
+                        "kind": "Name",
+                        "value": "allPeople",
+                      },
+                      "selectionSet": Object {
+                        "kind": "SelectionSet",
+                        "selections": Array [
+                          Object {
+                            "alias": null,
+                            "arguments": Array [],
+                            "directives": Array [],
+                            "kind": "Field",
+                            "name": Object {
+                              "kind": "Name",
+                              "value": "people",
+                            },
+                            "selectionSet": Object {
+                              "kind": "SelectionSet",
+                              "selections": Array [
+                                Object {
+                                  "alias": null,
+                                  "arguments": Array [],
+                                  "directives": Array [],
+                                  "kind": "Field",
+                                  "name": Object {
+                                    "kind": "Name",
+                                    "value": "name",
+                                  },
+                                  "selectionSet": null,
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+                "variableDefinitions": Array [],
+              },
+            ],
+            "kind": "Document",
+            "loc": Object {
+              "end": 90,
+              "start": 0,
+            },
+          },
+          "variables": undefined,
+        },
+      ],
+    },
+    "defaultOptions": Object {},
+    "disableNetworkFetches": false,
+    "link": ApolloLink {
+      "request": [Function],
+    },
+    "mutate": [Function],
+    "query": [Function],
+    "queryDeduplication": true,
+    "queryManager": QueryManager {
+      "dataStore": DataStore {
+        "cache": InMemoryCache {
+          "addTypename": false,
+          "config": Object {
+            "addTypename": false,
+            "dataIdFromObject": [Function],
+            "fragmentMatcher": HeuristicFragmentMatcher {},
+            "storeFactory": [Function],
+          },
+          "data": ObjectCache {
+            "data": Object {
+              "$ROOT_QUERY.allPeople({\\"first\\":1})": Object {
+                "people": Array [
+                  Object {
+                    "generated": true,
+                    "id": "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+                    "type": "id",
+                  },
+                ],
+              },
+              "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0": Object {
+                "name": "Luke Skywalker",
+              },
+              "ROOT_QUERY": Object {
+                "allPeople({\\"first\\":1})": Object {
+                  "generated": true,
+                  "id": "$ROOT_QUERY.allPeople({\\"first\\":1})",
+                  "type": "id",
+                },
+              },
+            },
+          },
+          "optimistic": Array [],
+          "silenceBroadcast": false,
+          "watches": Array [
+            Object {
+              "callback": [Function],
+              "optimistic": true,
+              "previousResult": [Function],
+              "query": Object {
+                "definitions": Array [
+                  Object {
+                    "directives": Array [],
+                    "kind": "OperationDefinition",
+                    "name": Object {
+                      "kind": "Name",
+                      "value": "people",
+                    },
+                    "operation": "query",
+                    "selectionSet": Object {
+                      "kind": "SelectionSet",
+                      "selections": Array [
+                        Object {
+                          "alias": null,
+                          "arguments": Array [
+                            Object {
+                              "kind": "Argument",
+                              "name": Object {
+                                "kind": "Name",
+                                "value": "first",
+                              },
+                              "value": Object {
+                                "kind": "IntValue",
+                                "value": "1",
+                              },
+                            },
+                          ],
+                          "directives": Array [],
+                          "kind": "Field",
+                          "name": Object {
+                            "kind": "Name",
+                            "value": "allPeople",
+                          },
+                          "selectionSet": Object {
+                            "kind": "SelectionSet",
+                            "selections": Array [
+                              Object {
+                                "alias": null,
+                                "arguments": Array [],
+                                "directives": Array [],
+                                "kind": "Field",
+                                "name": Object {
+                                  "kind": "Name",
+                                  "value": "people",
+                                },
+                                "selectionSet": Object {
+                                  "kind": "SelectionSet",
+                                  "selections": Array [
+                                    Object {
+                                      "alias": null,
+                                      "arguments": Array [],
+                                      "directives": Array [],
+                                      "kind": "Field",
+                                      "name": Object {
+                                        "kind": "Name",
+                                        "value": "name",
+                                      },
+                                      "selectionSet": null,
+                                    },
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                    "variableDefinitions": Array [],
+                  },
+                ],
+                "kind": "Document",
+                "loc": Object {
+                  "end": 90,
+                  "start": 0,
+                },
+              },
+              "variables": undefined,
+            },
+          ],
+        },
+      },
+      "deduplicator": ApolloLink {
+        "request": [Function],
+      },
+      "fetchQueryPromises": Map {
+        "2" => Object {
+          "promise": undefined,
+          "reject": [Function],
+          "resolve": [Function],
+        },
+      },
+      "idCounter": 3,
+      "link": ApolloLink {
+        "request": [Function],
+      },
+      "mutationStore": MutationStore {
+        "store": Object {},
+      },
+      "onBroadcast": [Function],
+      "queries": Map {
+        "1" => Object {
+          "cancel": [Function],
+          "document": Object {
+            "definitions": Array [
+              Object {
+                "directives": Array [],
+                "kind": "OperationDefinition",
+                "name": Object {
+                  "kind": "Name",
+                  "value": "people",
+                },
+                "operation": "query",
+                "selectionSet": Object {
+                  "kind": "SelectionSet",
+                  "selections": Array [
+                    Object {
+                      "alias": null,
+                      "arguments": Array [
+                        Object {
+                          "kind": "Argument",
+                          "name": Object {
+                            "kind": "Name",
+                            "value": "first",
+                          },
+                          "value": Object {
+                            "kind": "IntValue",
+                            "value": "1",
+                          },
+                        },
+                      ],
+                      "directives": Array [],
+                      "kind": "Field",
+                      "name": Object {
+                        "kind": "Name",
+                        "value": "allPeople",
+                      },
+                      "selectionSet": Object {
+                        "kind": "SelectionSet",
+                        "selections": Array [
+                          Object {
+                            "alias": null,
+                            "arguments": Array [],
+                            "directives": Array [],
+                            "kind": "Field",
+                            "name": Object {
+                              "kind": "Name",
+                              "value": "people",
+                            },
+                            "selectionSet": Object {
+                              "kind": "SelectionSet",
+                              "selections": Array [
+                                Object {
+                                  "alias": null,
+                                  "arguments": Array [],
+                                  "directives": Array [],
+                                  "kind": "Field",
+                                  "name": Object {
+                                    "kind": "Name",
+                                    "value": "name",
+                                  },
+                                  "selectionSet": null,
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+                "variableDefinitions": Array [],
+              },
+            ],
+            "kind": "Document",
+            "loc": Object {
+              "end": 90,
+              "start": 0,
+            },
+          },
+          "invalidate": false,
+          "invalidated": false,
+          "lastRequestId": 2,
+          "listeners": Array [
+            [Function],
+          ],
+          "newData": null,
+          "observableQuery": ObservableQuery {
+            "_subscriber": [Function],
+            "isCurrentlyPolling": false,
+            "isTornDown": false,
+            "lastResult": Object {
+              "data": Object {
+                "allPeople": Object {
+                  "people": Array [
+                    Object {
+                      "name": "Luke Skywalker",
+                      Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+                    },
+                  ],
+                  Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+                },
+                Symbol(id): "ROOT_QUERY",
+              },
+              "loading": false,
+              "networkStatus": 7,
+              "stale": false,
+            },
+            "observers": Array [
+              Object {
+                "_subscription": Object {
+                  "_cleanup": [Function],
+                  "_observer": Object {
+                    "error": [Function],
+                    "next": [Function],
+                  },
+                },
+              },
+            ],
+            "options": Object {
+              "fetchPolicy": undefined,
+              "notifyOnNetworkStatusChange": false,
+              "pollInterval": undefined,
+              "query": Object {
+                "definitions": Array [
+                  Object {
+                    "directives": Array [],
+                    "kind": "OperationDefinition",
+                    "name": Object {
+                      "kind": "Name",
+                      "value": "people",
+                    },
+                    "operation": "query",
+                    "selectionSet": Object {
+                      "kind": "SelectionSet",
+                      "selections": Array [
+                        Object {
+                          "alias": null,
+                          "arguments": Array [
+                            Object {
+                              "kind": "Argument",
+                              "name": Object {
+                                "kind": "Name",
+                                "value": "first",
+                              },
+                              "value": Object {
+                                "kind": "IntValue",
+                                "value": "1",
+                              },
+                            },
+                          ],
+                          "directives": Array [],
+                          "kind": "Field",
+                          "name": Object {
+                            "kind": "Name",
+                            "value": "allPeople",
+                          },
+                          "selectionSet": Object {
+                            "kind": "SelectionSet",
+                            "selections": Array [
+                              Object {
+                                "alias": null,
+                                "arguments": Array [],
+                                "directives": Array [],
+                                "kind": "Field",
+                                "name": Object {
+                                  "kind": "Name",
+                                  "value": "people",
+                                },
+                                "selectionSet": Object {
+                                  "kind": "SelectionSet",
+                                  "selections": Array [
+                                    Object {
+                                      "alias": null,
+                                      "arguments": Array [],
+                                      "directives": Array [],
+                                      "kind": "Field",
+                                      "name": Object {
+                                        "kind": "Name",
+                                        "value": "name",
+                                      },
+                                      "selectionSet": null,
+                                    },
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                    "variableDefinitions": Array [],
+                  },
+                ],
+                "kind": "Document",
+                "loc": Object {
+                  "end": 90,
+                  "start": 0,
+                },
+              },
+              "variables": undefined,
+            },
+            "queryId": "1",
+            "queryManager": [Circular],
+            "scheduler": QueryScheduler {
+              "inFlightQueries": Object {},
+              "intervalQueries": Object {},
+              "pollingTimers": Object {},
+              "queryManager": [Circular],
+              "registeredQueries": Object {},
+              "ssrMode": false,
+            },
+            "shouldSubscribe": true,
+            "subscriptionHandles": Array [],
+            "variables": Object {},
+          },
+          "subscriptions": Array [
+            Object {
+              "_cleanup": [Function],
+              "_observer": Object {
+                "complete": [Function],
+                "error": [Function],
+                "next": [Function],
+              },
+            },
+          ],
+        },
+      },
+      "queryDeduplication": true,
+      "queryIdsByName": Object {
+        "people": Array [
+          "1",
+        ],
+      },
+      "queryStore": QueryStore {
+        "store": Object {
+          "1": Object {
+            "document": Object {
+              "definitions": Array [
+                Object {
+                  "directives": Array [],
+                  "kind": "OperationDefinition",
+                  "name": Object {
+                    "kind": "Name",
+                    "value": "people",
+                  },
+                  "operation": "query",
+                  "selectionSet": Object {
+                    "kind": "SelectionSet",
+                    "selections": Array [
+                      Object {
+                        "alias": null,
+                        "arguments": Array [
+                          Object {
+                            "kind": "Argument",
+                            "name": Object {
+                              "kind": "Name",
+                              "value": "first",
+                            },
+                            "value": Object {
+                              "kind": "IntValue",
+                              "value": "1",
+                            },
+                          },
+                        ],
+                        "directives": Array [],
+                        "kind": "Field",
+                        "name": Object {
+                          "kind": "Name",
+                          "value": "allPeople",
+                        },
+                        "selectionSet": Object {
+                          "kind": "SelectionSet",
+                          "selections": Array [
+                            Object {
+                              "alias": null,
+                              "arguments": Array [],
+                              "directives": Array [],
+                              "kind": "Field",
+                              "name": Object {
+                                "kind": "Name",
+                                "value": "people",
+                              },
+                              "selectionSet": Object {
+                                "kind": "SelectionSet",
+                                "selections": Array [
+                                  Object {
+                                    "alias": null,
+                                    "arguments": Array [],
+                                    "directives": Array [],
+                                    "kind": "Field",
+                                    "name": Object {
+                                      "kind": "Name",
+                                      "value": "name",
+                                    },
+                                    "selectionSet": null,
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                  "variableDefinitions": Array [],
+                },
+              ],
+              "kind": "Document",
+              "loc": Object {
+                "end": 90,
+                "start": 0,
+              },
+            },
+            "graphQLErrors": Array [],
+            "metadata": null,
+            "networkError": null,
+            "networkStatus": 7,
+            "previousVariables": null,
+            "queryString": "query people {
+  allPeople(first: 1) {
+    people {
+      name
+    }
+  }
+}
+",
+            "variables": Object {},
+          },
+        },
+      },
+      "scheduler": QueryScheduler {
+        "inFlightQueries": Object {},
+        "intervalQueries": Object {},
+        "pollingTimers": Object {},
+        "queryManager": [Circular],
+        "registeredQueries": Object {},
+        "ssrMode": false,
+      },
+    },
+    "reFetchObservableQueries": [Function],
+    "resetStore": [Function],
+    "ssrMode": false,
+    "store": DataStore {
+      "cache": InMemoryCache {
+        "addTypename": false,
+        "config": Object {
+          "addTypename": false,
+          "dataIdFromObject": [Function],
+          "fragmentMatcher": HeuristicFragmentMatcher {},
+          "storeFactory": [Function],
+        },
+        "data": ObjectCache {
+          "data": Object {
+            "$ROOT_QUERY.allPeople({\\"first\\":1})": Object {
+              "people": Array [
+                Object {
+                  "generated": true,
+                  "id": "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+                  "type": "id",
+                },
+              ],
+            },
+            "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0": Object {
+              "name": "Luke Skywalker",
+            },
+            "ROOT_QUERY": Object {
+              "allPeople({\\"first\\":1})": Object {
+                "generated": true,
+                "id": "$ROOT_QUERY.allPeople({\\"first\\":1})",
+                "type": "id",
+              },
+            },
+          },
+        },
+        "optimistic": Array [],
+        "silenceBroadcast": false,
+        "watches": Array [
+          Object {
+            "callback": [Function],
+            "optimistic": true,
+            "previousResult": [Function],
+            "query": Object {
+              "definitions": Array [
+                Object {
+                  "directives": Array [],
+                  "kind": "OperationDefinition",
+                  "name": Object {
+                    "kind": "Name",
+                    "value": "people",
+                  },
+                  "operation": "query",
+                  "selectionSet": Object {
+                    "kind": "SelectionSet",
+                    "selections": Array [
+                      Object {
+                        "alias": null,
+                        "arguments": Array [
+                          Object {
+                            "kind": "Argument",
+                            "name": Object {
+                              "kind": "Name",
+                              "value": "first",
+                            },
+                            "value": Object {
+                              "kind": "IntValue",
+                              "value": "1",
+                            },
+                          },
+                        ],
+                        "directives": Array [],
+                        "kind": "Field",
+                        "name": Object {
+                          "kind": "Name",
+                          "value": "allPeople",
+                        },
+                        "selectionSet": Object {
+                          "kind": "SelectionSet",
+                          "selections": Array [
+                            Object {
+                              "alias": null,
+                              "arguments": Array [],
+                              "directives": Array [],
+                              "kind": "Field",
+                              "name": Object {
+                                "kind": "Name",
+                                "value": "people",
+                              },
+                              "selectionSet": Object {
+                                "kind": "SelectionSet",
+                                "selections": Array [
+                                  Object {
+                                    "alias": null,
+                                    "arguments": Array [],
+                                    "directives": Array [],
+                                    "kind": "Field",
+                                    "name": Object {
+                                      "kind": "Name",
+                                      "value": "name",
+                                    },
+                                    "selectionSet": null,
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                  "variableDefinitions": Array [],
+                },
+              ],
+              "kind": "Document",
+              "loc": Object {
+                "end": 90,
+                "start": 0,
+              },
+            },
+            "variables": undefined,
+          },
+        ],
+      },
+    },
+    "version": "2.1.0",
+    "watchQuery": [Function],
+  },
   "data": Object {
     "allPeople": Object {
       "people": Array [
@@ -28,6 +763,98 @@ Object {
 
 exports[`result in render prop while loading 1`] = `
 Object {
+  "client": ApolloClient {
+    "cache": InMemoryCache {
+      "addTypename": false,
+      "config": Object {
+        "addTypename": false,
+        "dataIdFromObject": [Function],
+        "fragmentMatcher": HeuristicFragmentMatcher {},
+        "storeFactory": [Function],
+      },
+      "data": ObjectCache {
+        "data": Object {},
+      },
+      "optimistic": Array [],
+      "silenceBroadcast": false,
+      "watches": Array [],
+    },
+    "defaultOptions": Object {},
+    "disableNetworkFetches": false,
+    "link": ApolloLink {
+      "request": [Function],
+    },
+    "mutate": [Function],
+    "query": [Function],
+    "queryDeduplication": true,
+    "queryManager": QueryManager {
+      "dataStore": DataStore {
+        "cache": InMemoryCache {
+          "addTypename": false,
+          "config": Object {
+            "addTypename": false,
+            "dataIdFromObject": [Function],
+            "fragmentMatcher": HeuristicFragmentMatcher {},
+            "storeFactory": [Function],
+          },
+          "data": ObjectCache {
+            "data": Object {},
+          },
+          "optimistic": Array [],
+          "silenceBroadcast": false,
+          "watches": Array [],
+        },
+      },
+      "deduplicator": ApolloLink {
+        "request": [Function],
+      },
+      "fetchQueryPromises": Map {},
+      "idCounter": 2,
+      "link": ApolloLink {
+        "request": [Function],
+      },
+      "mutationStore": MutationStore {
+        "store": Object {},
+      },
+      "onBroadcast": [Function],
+      "queries": Map {},
+      "queryDeduplication": true,
+      "queryIdsByName": Object {},
+      "queryStore": QueryStore {
+        "store": Object {},
+      },
+      "scheduler": QueryScheduler {
+        "inFlightQueries": Object {},
+        "intervalQueries": Object {},
+        "pollingTimers": Object {},
+        "queryManager": [Circular],
+        "registeredQueries": Object {},
+        "ssrMode": false,
+      },
+    },
+    "reFetchObservableQueries": [Function],
+    "resetStore": [Function],
+    "ssrMode": false,
+    "store": DataStore {
+      "cache": InMemoryCache {
+        "addTypename": false,
+        "config": Object {
+          "addTypename": false,
+          "dataIdFromObject": [Function],
+          "fragmentMatcher": HeuristicFragmentMatcher {},
+          "storeFactory": [Function],
+        },
+        "data": ObjectCache {
+          "data": Object {},
+        },
+        "optimistic": Array [],
+        "silenceBroadcast": false,
+        "watches": Array [],
+      },
+    },
+    "version": "2.1.0",
+    "watchQuery": [Function],
+  },
   "data": Object {},
   "error": undefined,
   "fetchMore": [Function],

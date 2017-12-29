@@ -51,7 +51,6 @@ export type DefaultChildProps<P, R> = ChildProps<P, R>;
 export interface MutationOpts {
   variables?: Object;
   optimisticResponse?: Object;
-  updateQueries?: MutationQueryReducersMap<*>;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn<*>;
 }
