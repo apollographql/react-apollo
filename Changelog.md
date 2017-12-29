@@ -12,6 +12,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467) [#1478](https://github.com/apollographql/react-apollo/pull/1478)
   - Remove re-export of `compose` (a.k.a. `lodash/flowright`) as it is loses types (exports as `any`).  Users may choose to use `lodash/flowright` or `recompose/compose` themselves based on their use case.  [#1478](https://github.com/apollographql/react-apollo/pull/1478)
+  - Remove deprecated [`options.updateQueries`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-updateQueries), use [`options.update`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-update) instead [#1485](https://github.com/apollographql/react-apollo/pull/1485)
 
 - **Other Changes**
   - Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)

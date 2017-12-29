@@ -1,5 +1,4 @@
 import ApolloClient, {
-  MutationQueryReducersMap,
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
@@ -20,7 +19,6 @@ export type OperationVariables = {
 export interface MutationOpts<TGraphQLVariables = OperationVariables> {
   variables?: TGraphQLVariables;
   optimisticResponse?: Object;
-  updateQueries?: MutationQueryReducersMap;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
   client?: ApolloClient<any>;

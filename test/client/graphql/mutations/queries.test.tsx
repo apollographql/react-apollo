@@ -74,6 +74,20 @@ describe('graphql(mutation) query integration', () => {
   });
 
   it('allows for updating queries from a mutation', done => {
+    const query = gql`
+      query todos {
+        todo_list {
+          id
+          title
+          tasks {
+            id
+            text
+            completed
+          }
+        }
+      }
+    `;
+
     const mutation = gql`
       mutation createTodo {
         createTodo {
@@ -100,44 +114,21 @@ describe('graphql(mutation) query integration', () => {
       },
     };
 
-    const updateQueries = {
-      todos: (previousQueryResult, { mutationResult, queryVariables }) => {
-        if (queryVariables.id !== '123') {
-          // this isn't the query we updated, so just return the previous result
-          return previousQueryResult;
-        }
-        // otherwise, create a new object with the same shape as the
-        // previous result with the mutationResult incorporated
-        const originalList = previousQueryResult.todo_list;
-        const newTask = mutationResult.data.createTodo;
-        return {
-          todo_list: Object.assign(originalList, {
-            tasks: [...originalList.tasks, newTask],
-          }),
-        };
-      },
+    const update = (proxy, { data: { createTodo } }) => {
+      const data = proxy.readQuery({ query }); // read from cache
+      data.todo_list.tasks.push(createTodo); // update value
+      proxy.writeQuery({ query, data }); // write to cache
     };
 
-    const query = gql`
-      query todos($id: ID!) {
-        todo_list(id: $id) {
-          id
-          title
-          tasks {
-            id
-            text
-            completed
-          }
-        }
-      }
-    `;
-
-    const data = {
+    const expectedData = {
       todo_list: { id: '123', title: 'how to apollo', tasks: [] },
     };
 
     const link = mockSingleLink(
-      { request: { query, variables: { id: '123' } }, result: { data } },
+      {
+        request: { query, variables: { id: '123' } },
+        result: { data: expectedData },
+      },
       { request: { query: mutation }, result: { data: mutationData } },
     );
     const cache = new Cache({ addTypename: false });
@@ -146,7 +137,7 @@ describe('graphql(mutation) query integration', () => {
     let count = 0;
     @graphql(query)
     @graphql(mutation, {
-      options: () => ({ optimisticResponse, updateQueries }),
+      options: () => ({ optimisticResponse, update }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
