@@ -19,8 +19,8 @@ before_deploy:
 deploy:
   provider: npm
   skip_cleanup: true
-  email: **TODO**
-  api_key: **TODO**
+  email: TODO
+  api_key: TODO
   on:
     tags: true
     branch: master
