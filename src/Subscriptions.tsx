@@ -62,6 +62,24 @@ class Subscription extends React.Component {
     this.startSubscription();
   }
 
+  componentWillReceiveProps(nextProps, nextContext) {
+    if (
+      shallowEqual(this.props, nextProps) &&
+      this.client === nextContext.client
+    ) {
+      return;
+    }
+
+    if (this.client !== nextContext.client) {
+      this.client = nextContext.client;
+    }
+
+    this.endSubscription();
+    this.initialize(nextProps);
+    this.startSubscription();
+    this.setState(this.getInitialState(nextProps));
+  }
+
   componentWillUnmount() {
     this.endSubscription();
   }
@@ -84,6 +102,17 @@ class Subscription extends React.Component {
     });
   };
 
+  private getInitialState = props => {
+    return {
+      result: {
+        loading: true,
+        error: undefined,
+        variables: props.variables,
+        data: {},
+      },
+    };
+  };
+
   private updateCurrentData = result => {
     this.setState({ result, loading: false });
   };
@@ -92,6 +121,7 @@ class Subscription extends React.Component {
     this.setState({
       result: {
         error,
+        loading: false,
       },
     });
   };
