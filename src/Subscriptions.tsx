@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, { ApolloError } from 'apollo-client';
+import { Observable } from 'apollo-client/util/Observable';
+
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
@@ -35,8 +37,7 @@ class Subscription<TData = any> extends React.Component<
   };
 
   private client: ApolloClient<any>;
-  //TODO: What is the type here?
-  private queryObservable: any;
+  private queryObservable: Observable<any>;
   private querySubscription: ZenObservable.Subscription;
 
   constructor(props: SubscriptionProps, context: any) {
@@ -48,7 +49,7 @@ class Subscription<TData = any> extends React.Component<
     );
     this.client = context.client;
     this.initialize(props);
-    this.state = this.getInitialState(props);
+    this.state = this.getInitialState();
   }
 
   componentDidMount() {
@@ -70,7 +71,7 @@ class Subscription<TData = any> extends React.Component<
     this.endSubscription();
     this.initialize(nextProps);
     this.startSubscription();
-    this.setState(this.getInitialState(nextProps));
+    this.setState(this.getInitialState());
   }
 
   componentWillUnmount() {
@@ -101,7 +102,7 @@ class Subscription<TData = any> extends React.Component<
     });
   };
 
-  private getInitialState = props => {
+  private getInitialState = () => {
     return {
       loading: true,
       error: undefined,
