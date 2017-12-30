@@ -161,54 +161,6 @@ describe('Query component', () => {
       );
     });
 
-    it('variables', done => {
-      const queryWithVariables = gql`
-        query people($first: Int) {
-          allPeople(first: $first) {
-            people {
-              name
-            }
-          }
-        }
-      `;
-
-      const mocksWithVariable = [
-        {
-          request: {
-            query: queryWithVariables,
-            // TODO: Currently, removing this variables field does not crash the test. We need to verify
-            // that the variables are included in the request.
-            variables: {
-              first: 1,
-            },
-          },
-          result: { data: allPeopleData },
-        },
-      ];
-
-      const variables = {
-        first: 1,
-      };
-
-      const Component = () => (
-        <Query query={queryWithVariables} variables={variables}>
-          {result => {
-            catchAsyncError(done, () => {
-              expect(result.variables).toEqual({ first: 1 });
-              done();
-            });
-            return null;
-          }}
-        </Query>
-      );
-
-      wrapper = mount(
-        <MockedProvider mocks={mocksWithVariable} removeTypename>
-          <Component />
-        </MockedProvider>,
-      );
-    });
-
     it('refetch', done => {
       const queryRefetch = gql`
         query people($first: Int) {
@@ -246,7 +198,7 @@ describe('Query component', () => {
       let count = 0;
       let hasRefetched = false;
 
-      expect.assertions(8);
+      expect.assertions(5);
 
       const Component = () => (
         <Query
@@ -255,7 +207,7 @@ describe('Query component', () => {
           notifyOnNetworkStatusChange
         >
           {result => {
-            const { data, loading, variables } = result;
+            const { data, loading } = result;
             if (loading) {
               count++;
               return null;
@@ -264,17 +216,14 @@ describe('Query component', () => {
             catchAsyncError(done, () => {
               if (count === 1) {
                 // first data
-                expect(variables).toEqual({ first: 1 });
                 expect(stripSymbols(data)).toEqual(data1);
               }
               if (count === 3) {
                 // second data
-                expect(variables).toEqual({ first: 1 });
                 expect(stripSymbols(data)).toEqual(data2);
               }
               if (count === 5) {
                 // third data
-                expect(variables).toEqual({ first: 2 });
                 expect(stripSymbols(data)).toEqual(data3);
               }
             });
@@ -331,7 +280,7 @@ describe('Query component', () => {
       ];
 
       let count = 0;
-      expect.assertions(3);
+      expect.assertions(2);
 
       const Component = () => (
         <Query query={allPeopleQuery} variables={variables}>
@@ -358,7 +307,6 @@ describe('Query component', () => {
                 .catch(done.fail);
             } else if (count === 1) {
               catchAsyncError(done, () => {
-                expect(result.variables).toEqual(variables);
                 expect(stripSymbols(result.data)).toEqual({
                   allPeople: {
                     people: [
@@ -812,11 +760,11 @@ describe('Query component', () => {
                 }
                 catchAsyncError(done, () => {
                   if (count === 0) {
-                    expect(result.variables).toEqual({ first: 1 });
+                    expect(variables).toEqual({ first: 1 });
                     expect(stripSymbols(result.data)).toEqual(data1);
                   }
                   if (count === 1) {
-                    expect(result.variables).toEqual({ first: 2 });
+                    expect(variables).toEqual({ first: 2 });
                     expect(stripSymbols(result.data)).toEqual(data2);
                     done();
                   }
