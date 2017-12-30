@@ -1,19 +1,9 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ApolloClient, {
-  ObservableQuery,
-  ApolloQueryResult,
-  ApolloError,
-  FetchMoreOptions,
-  UpdateQueryOptions,
-  FetchMoreQueryOptions,
-  FetchPolicy,
-  ApolloCurrentResult,
-} from 'apollo-client';
+import ApolloClient from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
-import { parser, DocumentType } from './parser';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -27,7 +17,7 @@ export interface SubscriptionState {
   result: any;
 }
 
-class Subscription extends React.Component {
+class Subscription extends React.Component<SubscriptionProps> {
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
@@ -114,12 +104,20 @@ class Subscription extends React.Component {
   };
 
   private updateCurrentData = result => {
-    this.setState({ result, loading: false });
+    this.setState({
+      result: {
+        ...this.state.result,
+        ...result,
+        loading: false,
+        error: undefined,
+      },
+    });
   };
 
   private updateError = error => {
     this.setState({
       result: {
+        ...this.state.result,
         error,
         loading: false,
       },

@@ -7,11 +7,9 @@ import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { MockSubscriptionLink } from '../../src/test-utils';
-import { ApolloProvider, ChildProps, graphql } from '../../src';
-import stripSymbols from '../test-utils/stripSymbols';
+import { ApolloProvider } from '../../src';
 import catchAsyncError from '../test-utils/catchAsyncError';
 import Subscription from '../../src/Subscriptions';
-import stripSymbols from '../test-utils/stripSymbols';
 
 const results = [
   'Luke Skywalker',
@@ -43,10 +41,11 @@ const subscription = gql`
   }
 `;
 
+const cache = new Cache({ addTypename: false });
 const link = new MockSubscriptionLink();
 const client = new ApolloClient({
   link,
-  cache: new Cache({ addTypename: false }),
+  cache,
 });
 
 it('executes the subscription', done => {
@@ -57,28 +56,30 @@ it('executes the subscription', done => {
   const Component = () => (
     <Subscription subscription={subscription}>
       {result => {
-        const { loading, data } = result;
+        const { loading, data, variables, error } = result;
 
         catchAsyncError(done, () => {
           if (count === 0) {
-            expect(loading).toBeTruthy();
+            expect(loading).toBe(true);
+            expect(variables).toBeUndefined();
+            expect(error).toBeUndefined();
             expect(data).toEqual({});
           }
           if (count === 1) {
-            expect(loading).toBeFalsy();
-            expect(stripSymbols(data)).toEqual(results[0].result.data);
+            expect(loading).toBe(false);
+            expect(data).toEqual(results[0].result.data);
           }
           if (count === 2) {
-            expect(loading).toBeFalsy();
-            expect(stripSymbols(data)).toEqual(results[1].result.data);
+            expect(loading).toBe(false);
+            expect(data).toEqual(results[1].result.data);
           }
           if (count === 3) {
-            expect(loading).toBeFalsy();
-            expect(stripSymbols(data)).toEqual(results[2].result.data);
+            expect(loading).toBe(false);
+            expect(data).toEqual(results[2].result.data);
           }
           if (count === 4) {
-            expect(loading).toBeFalsy();
-            expect(stripSymbols(data)).toEqual(results[3].result.data);
+            expect(loading).toBe(false);
+            expect(data).toEqual(results[3].result.data);
             done();
           }
         });
@@ -104,6 +105,7 @@ it('executes the subscription', done => {
 });
 
 it('includes variables in the props', done => {
+  expect.assertions(7);
   const subscriptionWithVariables = gql`
     subscription UserInfo($name: String) {
       user(name: $name) {
@@ -114,18 +116,45 @@ it('includes variables in the props', done => {
 
   const variables = { name: 'Luke Skywalker' };
 
+  class MockSubscriptionLinkOverride extends MockSubscriptionLink {
+    request(req) {
+      catchAsyncError(done, () => {
+        expect(req.variables).toEqual(variables);
+      });
+      return super.request(req);
+    }
+  }
+
+  const link = new MockSubscriptionLinkOverride();
+
+  const client = new ApolloClient({
+    link,
+    cache,
+  });
+
+  let count = 0;
+
   const Component = () => (
-    <Subscription subscription={subscription} variables={variables}>
+    <Subscription
+      subscription={subscriptionWithVariables}
+      variables={variables}
+    >
       {result => {
-        const { loading, data, error, variables } = result;
+        const { loading, data, variables: variablesResult } = result;
 
         catchAsyncError(done, () => {
-          expect(loading).toBeTruthy();
-          expect(data).toEqual({});
-          expect(variables).toEqual(variables);
-          done();
+          if (count === 0) {
+            expect(loading).toBe(true);
+            expect(data).toEqual({});
+            expect(variablesResult).toEqual(variables);
+          } else if (count === 1) {
+            expect(loading).toBe(false);
+            expect(data).toEqual(results[0].result.data);
+            expect(variablesResult).toEqual(variables);
+            done();
+          }
         });
-
+        count++;
         return null;
       }}
     </Subscription>
@@ -136,25 +165,50 @@ it('includes variables in the props', done => {
       <Component />
     </ApolloProvider>,
   );
+
+  link.simulateResult(results[0]);
 });
 
 it('renders an error', done => {
+  const subscriptionWithVariables = gql`
+    subscription UserInfo($name: String) {
+      user(name: $name) {
+        name
+      }
+    }
+  `;
+
+  const variables = {
+    name: 'Luke Skywalker',
+  };
+
   const subscriptionError = {
     error: new Error('error occurred'),
   };
 
+  let count = 0;
   const Component = () => (
-    <Subscription subscription={subscription}>
+    <Subscription
+      subscription={subscriptionWithVariables}
+      variables={variables}
+    >
       {result => {
-        const { loading, data, error } = result;
-        if (loading) {
-          return null;
-        }
+        const { loading, data, error, variables: variablesResult } = result;
         catchAsyncError(done, () => {
-          expect(loading).toBeFalsy();
-          expect(error).toEqual(new Error('error occurred'));
-          done();
+          if (count === 0) {
+            expect(loading).toBe(true);
+            expect(error).toBeUndefined();
+            expect(variablesResult).toEqual(variables);
+            expect(data).toEqual({});
+          } else if (count === 1) {
+            expect(loading).toBe(false);
+            expect(error).toEqual(new Error('error occurred'));
+            expect(variablesResult).toEqual(variables);
+            expect(data).toEqual({});
+            done();
+          }
         });
+        count++;
 
         return null;
       }}
@@ -319,7 +373,7 @@ describe('should update', () => {
     userLink.simulateResult(results[0]);
   });
 
-  fit('if the variables change', done => {
+  it('if the variables change', done => {
     const subscriptionWithVariables = gql`
       subscription UserInfo($name: String) {
         user(name: $name) {
@@ -328,29 +382,44 @@ describe('should update', () => {
       }
     `;
 
-    const variablesInitial = { name: 'Luke Skywalker' };
-    const variablesUpdate = { name: 'Han Solo' };
+    const variablesLuke = { name: 'Luke Skywalker' };
+    const variablesHan = { name: 'Han Solo' };
 
-    let count = 0;
+    const dataLuke = {
+      user: {
+        name: 'Luke Skywalker',
+      },
+    };
 
-    const linkAlternative = new ApolloLink((o, f) => {
-      console.log(o);
-      console.log(f);
-      // if (count === 0) {
-      //   expe
-      // }
-      //
-      return {
-        data: {
-          test: 'bla',
-        },
-      };
-    });
+    const dataHan = {
+      user: {
+        name: 'Han Solo',
+      },
+    };
 
     class MockSubscriptionLinkOverride extends MockSubscriptionLink {
+      variables: any;
       request(req) {
-        console.log(req);
+        this.variables = req.variables;
         return super.request(req);
+      }
+
+      simulateResult() {
+        if (this.variables.name === 'Luke Skywalker') {
+          return super.simulateResult({
+            result: {
+              data: dataLuke,
+            },
+          });
+        } else if (this.variables.name === 'Han Solo') {
+          return super.simulateResult({
+            result: {
+              data: dataHan,
+            },
+          });
+        } else {
+          done.fail(`Unknown variable ${String(this.variables)}`);
+        }
       }
     }
 
@@ -358,12 +427,14 @@ describe('should update', () => {
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache,
     });
+
+    let count = 0;
 
     class Component extends React.Component {
       state = {
-        variables: variablesInitial,
+        variables: variablesLuke,
       };
 
       render() {
@@ -373,14 +444,34 @@ describe('should update', () => {
             variables={this.state.variables}
           >
             {result => {
-              const { loading, data, error, variables } = result;
+              const { loading, data, variables } = result;
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(loading).toBeTruthy();
+                  expect(variables).toEqual(variablesLuke);
                   expect(data).toEqual({});
                 } else if (count === 1) {
                   expect(loading).toBeFalsy();
-                  expect(data).toEqual(results[0].result.data);
+                  expect(variables).toEqual(variablesLuke);
+                  expect(data).toEqual(dataLuke);
+                  setTimeout(() => {
+                    this.setState(
+                      {
+                        variables: variablesHan,
+                      },
+                      () => {
+                        link.simulateResult();
+                      },
+                    );
+                  });
+                } else if (count === 2) {
+                  expect(loading).toBeTruthy();
+                  expect(variables).toEqual(variablesHan);
+                  expect(data).toEqual({});
+                } else if (count === 3) {
+                  expect(loading).toBeFalsy();
+                  expect(variables).toEqual(variablesHan);
+                  expect(data).toEqual(dataHan);
                   done();
                 }
               });
@@ -399,6 +490,6 @@ describe('should update', () => {
       </ApolloProvider>,
     );
 
-    link.simulateResult(results[0]);
+    link.simulateResult();
   });
 });
