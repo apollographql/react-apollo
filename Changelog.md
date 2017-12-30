@@ -34,6 +34,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Removed react-native from the test suite [#1451](https://github.com/apollographql/react-apollo/pull/1451)
   - Add `client` to `Query`'s `QueryResult` [#1488](https://github.com/apollographql/react-apollo/pull/1488)
   - Disregard falsy elements when walking tree in SSR [#1495](https://github.com/apollographql/react-apollo/pull/1495)
+  - Removed the key `variables` from the render prop result in the `<Query />` [#1497](https://github.com/apollographql/react-apollo/pull/1497)
   - Added `<Subscription />` component [#1483](https://github.com/apollographql/react-apollo/pull/1483)
 
 ### 2.0.4
