@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ApolloClient from 'apollo-client';
+import ApolloClient, { ApolloError } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
@@ -8,23 +8,35 @@ import { OperationVariables } from './types';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 
+export interface SubscriptionResult<TData = any> {
+  loading: boolean;
+  data?: TData;
+  error: ApolloError;
+}
+
 export interface SubscriptionProps {
   subscription: DocumentNode;
   variables?: OperationVariables;
+  children: (result: any) => React.ReactNode;
 }
 
-export interface SubscriptionState {
-  result: any;
+export interface SubscriptionState<TData = any> {
+  loading: boolean;
+  data?: TData;
+  error?: ApolloError;
 }
 
-class Subscription extends React.Component<SubscriptionProps> {
+class Subscription<TData = any> extends React.Component<
+  SubscriptionProps,
+  SubscriptionState<TData>
+> {
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
 
-  state: SubscriptionState;
-
   private client: ApolloClient<any>;
+  //TODO: What is the type here?
+  private queryObservable: any;
   private querySubscription: ZenObservable.Subscription;
 
   constructor(props: SubscriptionProps, context: any) {
@@ -35,17 +47,8 @@ class Subscription extends React.Component<SubscriptionProps> {
       `Could not find "client" in the context of Subscription. Wrap the root component in an <ApolloProvider>`,
     );
     this.client = context.client;
-
     this.initialize(props);
-
-    this.state = {
-      result: {
-        loading: true,
-        error: undefined,
-        variables: props.variables,
-        data: {},
-      },
-    };
+    this.state = this.getInitialState(props);
   }
 
   componentDidMount() {
@@ -75,7 +78,13 @@ class Subscription extends React.Component<SubscriptionProps> {
   }
 
   render() {
-    return this.props.children(this.state.result);
+    const { loading, error, data } = this.state;
+    const result = {
+      loading,
+      error,
+      data,
+    };
+    return this.props.children(result);
   }
 
   private initialize = props => {
@@ -94,33 +103,24 @@ class Subscription extends React.Component<SubscriptionProps> {
 
   private getInitialState = props => {
     return {
-      result: {
-        loading: true,
-        error: undefined,
-        variables: props.variables,
-        data: {},
-      },
+      loading: true,
+      error: undefined,
+      data: undefined,
     };
   };
 
   private updateCurrentData = result => {
     this.setState({
-      result: {
-        ...this.state.result,
-        ...result,
-        loading: false,
-        error: undefined,
-      },
+      data: result.data,
+      loading: false,
+      error: undefined,
     });
   };
 
   private updateError = error => {
     this.setState({
-      result: {
-        ...this.state.result,
-        error,
-        loading: false,
-      },
+      error,
+      loading: false,
     });
   };
 

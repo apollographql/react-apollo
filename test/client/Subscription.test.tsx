@@ -56,14 +56,13 @@ it('executes the subscription', done => {
   const Component = () => (
     <Subscription subscription={subscription}>
       {result => {
-        const { loading, data, variables, error } = result;
+        const { loading, data, error } = result;
 
         catchAsyncError(done, () => {
           if (count === 0) {
             expect(loading).toBe(true);
-            expect(variables).toBeUndefined();
             expect(error).toBeUndefined();
-            expect(data).toEqual({});
+            expect(data).toBeUndefined();
           }
           if (count === 1) {
             expect(loading).toBe(false);
@@ -104,8 +103,8 @@ it('executes the subscription', done => {
   jest.runTimersToTime(40);
 });
 
-it('includes variables in the props', done => {
-  expect.assertions(7);
+it('executes subscription for the variables passed in the props', done => {
+  expect.assertions(4);
   const subscriptionWithVariables = gql`
     subscription UserInfo($name: String) {
       user(name: $name) {
@@ -125,10 +124,10 @@ it('includes variables in the props', done => {
     }
   }
 
-  const link = new MockSubscriptionLinkOverride();
+  const mockLink = new MockSubscriptionLinkOverride();
 
-  const client = new ApolloClient({
-    link,
+  const mockClient = new ApolloClient({
+    link: mockLink,
     cache,
   });
 
@@ -140,17 +139,14 @@ it('includes variables in the props', done => {
       variables={variables}
     >
       {result => {
-        const { loading, data, variables: variablesResult } = result;
+        const { loading, data } = result;
 
         catchAsyncError(done, () => {
           if (count === 0) {
             expect(loading).toBe(true);
-            expect(data).toEqual({});
-            expect(variablesResult).toEqual(variables);
           } else if (count === 1) {
             expect(loading).toBe(false);
             expect(data).toEqual(results[0].result.data);
-            expect(variablesResult).toEqual(variables);
             done();
           }
         });
@@ -161,12 +157,12 @@ it('includes variables in the props', done => {
   );
 
   wrapper = mount(
-    <ApolloProvider client={client}>
+    <ApolloProvider client={mockClient}>
       <Component />
     </ApolloProvider>,
   );
 
-  link.simulateResult(results[0]);
+  mockLink.simulateResult(results[0]);
 });
 
 it('renders an error', done => {
@@ -193,18 +189,15 @@ it('renders an error', done => {
       variables={variables}
     >
       {result => {
-        const { loading, data, error, variables: variablesResult } = result;
+        const { loading, data, error } = result;
         catchAsyncError(done, () => {
           if (count === 0) {
             expect(loading).toBe(true);
             expect(error).toBeUndefined();
-            expect(variablesResult).toEqual(variables);
-            expect(data).toEqual({});
           } else if (count === 1) {
             expect(loading).toBe(false);
             expect(error).toEqual(new Error('error occurred'));
-            expect(variablesResult).toEqual(variables);
-            expect(data).toEqual({});
+            expect(data).toBeUndefined();
             done();
           }
         });
@@ -248,7 +241,7 @@ describe('should update', () => {
                 catchAsyncError(done, () => {
                   if (count === 0) {
                     expect(loading).toBeTruthy();
-                    expect(data).toEqual({});
+                    expect(data).toBeUndefined();
                   } else if (count === 1) {
                     expect(loading).toBeFalsy();
                     expect(data).toEqual(results[0].result.data);
@@ -264,7 +257,7 @@ describe('should update', () => {
                     });
                   } else if (count === 2) {
                     expect(loading).toBeTruthy();
-                    expect(data).toEqual({});
+                    expect(data).toBeUndefined();
                   } else if (count === 3) {
                     expect(loading).toBeFalsy();
                     expect(data).toEqual(results[1].result.data);
@@ -313,7 +306,7 @@ describe('should update', () => {
       userLink,
     );
 
-    const client = new ApolloClient({
+    const mockClient = new ApolloClient({
       link: linkCombined,
       cache: new Cache({ addTypename: false }),
     });
@@ -333,7 +326,7 @@ describe('should update', () => {
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(loading).toBeTruthy();
-                  expect(data).toEqual({});
+                  expect(data).toBeUndefined();
                 } else if (count === 1) {
                   expect(loading).toBeFalsy();
                   expect(data).toEqual(results[0].result.data);
@@ -349,7 +342,7 @@ describe('should update', () => {
                   });
                 } else if (count === 2) {
                   expect(loading).toBeTruthy();
-                  expect(data).toEqual({});
+                  expect(data).toBeUndefined();
                 } else if (count === 3) {
                   expect(loading).toBeFalsy();
                   expect(data).toEqual(heroResult.result.data);
@@ -365,7 +358,7 @@ describe('should update', () => {
     }
 
     wrapper = mount(
-      <ApolloProvider client={client}>
+      <ApolloProvider client={mockClient}>
         <Component />
       </ApolloProvider>,
     );
@@ -423,10 +416,10 @@ describe('should update', () => {
       }
     }
 
-    const link = new MockSubscriptionLinkOverride();
+    const mockLink = new MockSubscriptionLinkOverride();
 
-    const client = new ApolloClient({
-      link,
+    const mockClient = new ApolloClient({
+      link: mockLink,
       cache,
     });
 
@@ -444,15 +437,13 @@ describe('should update', () => {
             variables={this.state.variables}
           >
             {result => {
-              const { loading, data, variables } = result;
+              const { loading, data } = result;
               catchAsyncError(done, () => {
                 if (count === 0) {
                   expect(loading).toBeTruthy();
-                  expect(variables).toEqual(variablesLuke);
-                  expect(data).toEqual({});
+                  expect(data).toBeUndefined();
                 } else if (count === 1) {
                   expect(loading).toBeFalsy();
-                  expect(variables).toEqual(variablesLuke);
                   expect(data).toEqual(dataLuke);
                   setTimeout(() => {
                     this.setState(
@@ -460,17 +451,15 @@ describe('should update', () => {
                         variables: variablesHan,
                       },
                       () => {
-                        link.simulateResult();
+                        mockLink.simulateResult();
                       },
                     );
                   });
                 } else if (count === 2) {
                   expect(loading).toBeTruthy();
-                  expect(variables).toEqual(variablesHan);
-                  expect(data).toEqual({});
+                  expect(data).toBeUndefined();
                 } else if (count === 3) {
                   expect(loading).toBeFalsy();
-                  expect(variables).toEqual(variablesHan);
                   expect(data).toEqual(dataHan);
                   done();
                 }
@@ -485,11 +474,11 @@ describe('should update', () => {
     }
 
     wrapper = mount(
-      <ApolloProvider client={client}>
+      <ApolloProvider client={mockClient}>
         <Component />
       </ApolloProvider>,
     );
 
-    link.simulateResult();
+    mockLink.simulateResult();
   });
 });
