@@ -15,7 +15,7 @@ export interface SubscriptionResult<TData = any> {
 }
 
 export interface SubscriptionProps {
-  subscription: DocumentNode;
+  query: DocumentNode;
   variables?: OperationVariables;
   children: (result: any) => React.ReactNode;
 }
@@ -89,7 +89,7 @@ class Subscription<TData = any> extends React.Component<
 
   private initialize = props => {
     this.queryObservable = this.client.subscribe({
-      query: props.subscription,
+      query: props.query,
       variables: props.variables,
     });
   };
