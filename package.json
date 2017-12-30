@@ -96,7 +96,7 @@
     "flow-bin": "0.62.0",
     "graphql": "0.11.7",
     "graphql-tag": "2.6.1",
-    "jest": "21.2.1",
+    "jest": "22.0.4",
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
     "pre-commit": "1.2.2",
