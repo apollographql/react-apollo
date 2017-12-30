@@ -14,6 +14,7 @@ Here are some ways to contribute to the project, from easiest to most difficult:
 * [Small bug fixes](#small-bug-fixes)
 * [Suggesting features](#suggesting-features)
 * [Big pull requests](#big-prs)
+* [Release on NPM](#npm)
 
 ## Issues
 
@@ -84,3 +85,22 @@ It’s important that every piece of code in Apollo packages is reviewed by at l
 4. **No unnecessary or unrelated changes.** PRs shouldn’t come with random formatting changes, especially in unrelated parts of the code. If there is some refactoring that needs to be done, it should be in a separate PR from a bug fix or feature, if possible.
 5. **Code has appropriate comments.** Code should be commented, or written in a clear “self-documenting” way.
 6. **Idiomatic use of the language.** In TypeScript, make sure the typings are specific and correct. In ES2015, make sure to use imports rather than require and const instead of var, etc. Ideally a linter enforces a lot of this, but use your common sense and follow the style of the surrounding code.
+
+## Release on NPM
+
+*Only core contributors may release to NPM.*
+
+To release a new version on NPM, first ensure all tests pass with `npm test`,
+then use `npm version patch|minor|major` in order to increment the version in
+package.json and tag and commit a release. Then `git push && git push --tags`
+this change so Travis CI can deploy to NPM. *Do not run `npm publish` directly.*
+Once published, add [release notes](https://github.com/apollographql/react-apollo/tags).
+Use [semver](http://semver.org/) to determine which version part to increment.
+
+Example for a patch release:
+
+```sh
+npm test
+npm version patch
+git push --follow-tags
+```
