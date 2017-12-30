@@ -13,11 +13,8 @@ import type {
   MutationUpdaterFn,
 } from 'apollo-client';
 import type { DocumentNode, VariableDefinitionNode } from 'graphql';
-import gql from 'graphql-tag';
 
-// export everything from apollo-client
-export * from 'apollo-client';
-export { gql };
+export type NetworkStatus = 1 | 2 | 3 | 4 | 6 | 7 | 8;
 
 export interface ProviderProps {
   client: ApolloClient;
@@ -65,7 +62,7 @@ export interface QueryOpts {
 
 export interface GraphqlQueryControls {
   error?: ApolloError;
-  networkStatus: number;
+  networkStatus: NetworkStatus;
   loading: boolean;
   variables: Object;
   fetchMore: (
@@ -117,9 +114,14 @@ declare export function graphql<TProps, TResult, TVariables, TChildProps>(
   operationOptions?: OperationOption<TProps, TResult>,
 ): OperationComponent<TResult, TProps, TChildProps>;
 
+declare type WithApolloOptions = {
+  withRef?: boolean,
+};
+
 declare export function withApollo<TProps>(
-  component: React$ComponentType<ApolloClient & TProps>,
-): React$ComponentType<ApolloClient & TProps>;
+  component: React$ComponentType<{ client: ApolloClient } & TProps>,
+  operationOptions?: WithApolloOptions,
+): React$ComponentType<TProps>;
 
 export interface IDocumentDefinition {
   type: DocumentType;
