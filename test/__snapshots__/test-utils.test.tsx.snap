@@ -8,6 +8,16 @@ Object {
 }
 `;
 
+exports[`errors if the variables in the mock and component do not match 1`] = `
+[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+  user(username: $username) {
+    id
+    __typename
+  }
+}
+, variables: {"username":"other_user"}]
+`;
+
 exports[`mocks the data and adds the typename to the query 1`] = `
 Object {
   "__typename": "User",

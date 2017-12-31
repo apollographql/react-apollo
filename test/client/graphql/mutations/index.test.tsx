@@ -126,8 +126,17 @@ describe('graphql(mutation)', () => {
   });
 
   it('can execute a mutation with variables from props', done => {
-    client = createClient(expectedData, query, { id: 1 });
-    @graphql(query)
+    const queryWithVariables = gql`
+      mutation addPerson($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    client = createClient(expectedData, queryWithVariables, { first: 1 });
+    @graphql(queryWithVariables)
     class Container extends React.Component<any, any> {
       componentDidMount() {
         this.props.mutate().then(result => {
@@ -142,7 +151,7 @@ describe('graphql(mutation)', () => {
 
     renderer.create(
       <ApolloProvider client={client}>
-        <Container id={1} />
+        <Container first={1} />
       </ApolloProvider>,
     );
   });

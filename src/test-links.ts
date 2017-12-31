@@ -135,7 +135,8 @@ function requestToKey(request: GraphQLRequest): string {
     variables: request.variables || {},
     query: queryString,
   };
-  return JSON.stringify(requestKey, Object.keys(requestKey).sort());
+
+  return JSON.stringify(requestKey);
 }
 
 // Pass in multiple mocked responses, so that you can test flows that end up
