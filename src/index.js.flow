@@ -45,7 +45,7 @@ export type ChildProps<P, R> = {
 // back compat
 export type DefaultChildProps<P, R> = ChildProps<P, R>;
 
-declare export type ErrorPolicy = 'none' | 'ignore' | 'all';
+export type ErrorPolicy = 'none' | 'ignore' | 'all';
 
 export interface MutationOpts {
   variables?: Object;
