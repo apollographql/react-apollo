@@ -4232,9 +4232,9 @@ rollup-plugin-babel-minify@3.1.2:
     babel-core "^6.21.0"
     babel-preset-minify "^0.2.0"
 
-rollup@0.53.1:
-  version "0.53.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.53.1.tgz#58c3a43c8375385b3f92f0dc36fb4e9dbe872542"
+rollup@0.53.2:
+  version "0.53.2"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.53.2.tgz#0de2e94d1676ccff58f7bb6c6b7ffa5ff5a1907e"
 
 rst-selector-parser@^2.2.3:
   version "2.2.3"
@@ -4748,7 +4748,7 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-"vm2@github:patriksimek/vm2#custom_files":
+vm2@patriksimek/vm2#custom_files:
   version "3.5.0"
   resolved "https://codeload.github.com/patriksimek/vm2/tar.gz/7e82f90ac705fc44fad044147cb0df09b4c79a57"
 
