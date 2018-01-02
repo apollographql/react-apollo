@@ -12,3 +12,15 @@ script:
   - npm run compile
   - npm run filesize
 
+before_deploy:
+  - sh ./scripts/prepare-package.sh
+  - cd npm
+
+deploy:
+  provider: npm
+  skip_cleanup: true
+  email: todo@todo.com
+  api_key: xxxxx
+  on:
+    tags: true
+    branch: master

@@ -2,9 +2,6 @@
 
 # When we publish to npm, the published files are available in the root
 # directory, which allows for a clean include or require of sub-modules.
-#
-#    var language = require('react-apollo/server');
-#
 
 # Clear the built output
 rm -rf ./lib ./npm
@@ -32,6 +29,7 @@ node -e "var package = require('./package.json'); \
   delete package[\"pre-commit\"]; \
   delete package.scripts; \
   delete package.options; \
+  delete package.devDependencies; \
   package.main = 'umd/react-apollo.js'; \
   package.module = 'index.js'; \
   package['jsnext:main'] = 'index.js'; \
