@@ -4,7 +4,6 @@ import gql from 'graphql-tag';
 import { ApolloProvider, graphql } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import createClient from '../../../test-utils/createClient';
-import { MockedProvider } from '../../../../src/test-utils';
 
 const query = gql`
   mutation addPerson($id: Int) {
