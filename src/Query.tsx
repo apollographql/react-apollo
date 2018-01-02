@@ -22,7 +22,6 @@ const pick = require('lodash/pick');
 function observableQueryFields(observable) {
   const fields = pick(
     observable,
-    'variables',
     'refetch',
     'fetchMore',
     'updateQuery',
@@ -54,7 +53,6 @@ export interface QueryResult<TData = any> {
   updateQuery: (
     mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
   ) => void;
-  variables: OperationVariables;
 }
 
 export interface QueryProps {
