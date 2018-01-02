@@ -1394,9 +1394,9 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   dependencies:
     cssom "0.3.x"
 
-danger@2.1.8:
-  version "2.1.8"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-2.1.8.tgz#11cb654831be528e068257846df2141f5b049b79"
+danger@2.1.10:
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-2.1.10.tgz#97a8fcbf0dee72820460dcb6fc4008ef69605be4"
   dependencies:
     babel-polyfill "7.0.0-alpha.19"
     chalk "^2.3.0"
@@ -4089,9 +4089,9 @@ rollup-plugin-babel-minify@3.1.2:
     babel-core "^6.21.0"
     babel-preset-minify "^0.2.0"
 
-rollup@0.53.1:
-  version "0.53.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.53.1.tgz#58c3a43c8375385b3f92f0dc36fb4e9dbe872542"
+rollup@0.53.2:
+  version "0.53.2"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.53.2.tgz#0de2e94d1676ccff58f7bb6c6b7ffa5ff5a1907e"
 
 rst-selector-parser@^2.2.3:
   version "2.2.3"
