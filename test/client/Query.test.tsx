@@ -40,16 +40,28 @@ describe('Query component', () => {
   });
 
   it('calls the children prop', done => {
+    const link = mockSingleLink({
+      request: { query: allPeopleQuery },
+      result: { data: allPeopleData },
+    });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
     const Component = () => (
       <Query query={allPeopleQuery}>
         {result => {
           catchAsyncError(done, () => {
+            const { client: clientResult, ...rest } = result;
+
             if (result.loading) {
-              expect(result).toMatchSnapshot(
+              expect(rest).toMatchSnapshot(
                 'result in render prop while loading',
               );
+              expect(clientResult).toBe(client);
             } else {
-              expect(result).toMatchSnapshot('result in render prop');
+              expect(rest).toMatchSnapshot('result in render prop');
               done();
             }
           });
@@ -60,9 +72,9 @@ describe('Query component', () => {
     );
 
     wrapper = mount(
-      <MockedProvider mocks={allPeopleMocks} removeTypename>
+      <ApolloProvider client={client}>
         <Component />
-      </MockedProvider>,
+      </ApolloProvider>,
     );
   });
 
