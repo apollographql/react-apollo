@@ -10,12 +10,18 @@ import stripSymbols from '../../test-utils/stripSymbols';
 
 describe('subscriptions', () => {
   let error;
+  let wrapper;
   beforeEach(() => {
+    jest.useRealTimers();
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
   });
   afterEach(() => {
     console.error = error;
+    if (wrapper) {
+      wrapper.unmount();
+      wrapper = null;
+    }
   });
 
   const results = [
@@ -56,12 +62,11 @@ describe('subscriptions', () => {
       },
     );
 
-    const output = renderer.create(
+    wrapper = renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData />
       </ApolloProvider>,
     );
-    output.unmount();
   });
 
   it('includes the variables in the props', () => {
@@ -92,12 +97,11 @@ describe('subscriptions', () => {
       },
     );
 
-    const output = renderer.create(
+    wrapper = renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData name={'James Baxley'} />
       </ApolloProvider>,
     );
-    output.unmount();
   });
 
   it('does not swallow children errors', done => {
@@ -132,7 +136,7 @@ describe('subscriptions', () => {
       }
     }
 
-    renderer.create(
+    wrapper = renderer.create(
       <ApolloProvider client={client}>
         <ErrorBoundary>
           <ContainerWithData />
@@ -142,6 +146,8 @@ describe('subscriptions', () => {
   });
 
   it('executes a subscription', done => {
+    jest.useFakeTimers();
+
     const query = gql`
       subscription UserInfo {
         user {
@@ -156,7 +162,6 @@ describe('subscriptions', () => {
     });
 
     let count = 0;
-    let output;
     @graphql(query)
     class Container extends React.Component<any, any> {
       componentWillMount() {
@@ -172,7 +177,6 @@ describe('subscriptions', () => {
           expect(stripSymbols(user)).toEqual(results[2].result.data.user);
         if (count === 3) {
           expect(stripSymbols(user)).toEqual(results[3].result.data.user);
-          output.unmount();
           done();
         }
         count++;
@@ -187,11 +191,13 @@ describe('subscriptions', () => {
       if (count > 3) clearInterval(interval);
     }, 50);
 
-    output = renderer.create(
+    wrapper = renderer.create(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,
     );
+
+    jest.runTimersToTime(230);
   });
   it('resubscribes to a subscription', done => {
     //we make an extra Hoc which will trigger the inner HoC to resubscribe
@@ -250,7 +256,6 @@ describe('subscriptions', () => {
     });
 
     let count = 0;
-    let output;
     @graphql(triggerQuery)
     @graphql<{}, TriggerData>(query, {
       shouldResubscribe: (props, nextProps) => {
@@ -277,8 +282,6 @@ describe('subscriptions', () => {
             expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
           if (count === 5) {
             expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
-            output.unmount();
-
             done();
           }
         } catch (e) {
@@ -307,7 +310,7 @@ describe('subscriptions', () => {
       if (count > 3) clearInterval(interval);
     }, 50);
 
-    output = renderer.create(
+    wrapper = renderer.create(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`result in render prop 1`] = `
+exports[`Query component calls the children prop: result in render prop 1`] = `
 Object {
   "data": Object {
     "allPeople": Object {
@@ -25,7 +25,9 @@ Object {
 }
 `;
 
-exports[`result in render prop while loading 1`] = `
+exports[
+  `Query component calls the children prop: result in render prop while loading 1`
+] = `
 Object {
   "data": Object {},
   "error": undefined,
