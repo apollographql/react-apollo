@@ -11,7 +11,7 @@
 
 // @flow
 import gql from 'graphql-tag';
-import React from 'react';
+import * as React from 'react';
 import { withApollo, graphql } from '../src';
 import type {
   OperationComponent,
@@ -186,3 +186,6 @@ const Manual = withApollo(({ client }) => {
   client.query({ query: HERO_QUERY });
   return null;
 });
+
+// withApollo passes `client` property so that it is no longer required
+(Manual: React.ComponentType<{}>);
