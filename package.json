@@ -80,7 +80,7 @@
     "@types/jest": "22.0.0",
     "@types/lodash": "4.14.91",
     "@types/object-assign": "4.0.30",
-    "@types/react": "16.0.31",
+    "@types/react": "16.0.33",
     "@types/react-dom": "16.0.3",
     "@types/zen-observable": "0.5.3",
     "apollo-cache-inmemory": "1.1.4",
