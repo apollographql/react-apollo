@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@types/jest": "22.0.0",
-    "@types/node": "8.5.2",
+    "@types/node": "8.5.5",
     "@types/prop-types": "15.5.2",
     "@types/react": "16.0.33",
     "@types/react-dom": "16.0.3",
