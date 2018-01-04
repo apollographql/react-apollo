@@ -126,7 +126,7 @@ describe('graphql(mutation) query integration', () => {
 
     const link = mockSingleLink(
       {
-        request: { query, variables: { id: '123' } },
+        request: { query },
         result: { data: expectedData },
       },
       { request: { query: mutation }, result: { data: mutationData } },
@@ -173,7 +173,7 @@ describe('graphql(mutation) query integration', () => {
 
     renderer.create(
       <ApolloProvider client={client}>
-        <Container id={'123'} />
+        <Container />
       </ApolloProvider>,
     );
   });

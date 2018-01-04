@@ -75,7 +75,7 @@ describe('graphql(mutation) update queries', () => {
 
       const link = mockSingleLink(
         {
-          request: { query, variables: { id: '123' } },
+          request: { query },
           result: { data: expectedData },
         },
         { request: { query: mutation }, result: { data: mutationData } },
@@ -198,7 +198,7 @@ describe('graphql(mutation) update queries', () => {
 
       const wrapperQuery1 = renderer.create(
         <ApolloProvider client={client}>
-          <MyQuery id="123" />
+          <MyQuery />
         </ApolloProvider>,
       );
 
