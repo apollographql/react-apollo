@@ -55,8 +55,8 @@ export interface QueryResult<TData = any> {
   ) => void;
 }
 
-export interface QueryProps {
-  children: (result: QueryResult) => React.ReactNode;
+export interface QueryProps<TData = any> {
+  children: (result: QueryResult<TData>) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
   notifyOnNetworkStatusChange?: boolean;
   pollInterval?: number;
@@ -69,7 +69,7 @@ export interface QueryState<TData = any> {
 }
 
 class Query<TData = any> extends React.Component<
-  QueryProps,
+  QueryProps<TData>,
   QueryState<TData>
 > {
   static contextTypes = {
@@ -81,7 +81,7 @@ class Query<TData = any> extends React.Component<
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
 
-  constructor(props: QueryProps, context: any) {
+  constructor(props: QueryProps<TData>, context: any) {
     super(props, context);
 
     invariant(

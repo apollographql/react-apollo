@@ -37,6 +37,7 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Disregard falsy elements when walking tree in SSR [#1495](https://github.com/apollographql/react-apollo/pull/1495)
   - Removed the key `variables` from the render prop result in the `<Query />` [#1497](https://github.com/apollographql/react-apollo/pull/1497)
   - Added `<Subscription />` component [#1483](https://github.com/apollographql/react-apollo/pull/1483)
+  - Render callback should be typed with TData [#1519](https://github.com/apollographql/react-apollo/pull/1519)
 
 ### 2.0.4
 - rolled back on the lodash-es changes from
