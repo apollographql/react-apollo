@@ -56,8 +56,8 @@ export interface QueryResult<TData = any> {
   variables: OperationVariables;
 }
 
-export interface QueryProps {
-  children: (result: QueryResult) => React.ReactNode;
+export interface QueryProps<TData = any> {
+  children: (result: QueryResult<TData>) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
   notifyOnNetworkStatusChange?: boolean;
   pollInterval?: number;
@@ -70,7 +70,7 @@ export interface QueryState<TData = any> {
 }
 
 class Query<TData = any> extends React.Component<
-  QueryProps,
+  QueryProps<TData>,
   QueryState<TData>
 > {
   static contextTypes = {
