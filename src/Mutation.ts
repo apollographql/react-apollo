@@ -31,7 +31,7 @@ class Mutation extends React.Component<MutationProps, MutationState> {
 
     invariant(
       !!context.client,
-      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`,
+      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
     );
     this.client = context.client;
 
