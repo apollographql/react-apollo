@@ -22,7 +22,6 @@ const pick = require('lodash/pick');
 function observableQueryFields(observable) {
   const fields = pick(
     observable,
-    'variables',
     'refetch',
     'fetchMore',
     'updateQuery',
@@ -40,6 +39,7 @@ function observableQueryFields(observable) {
 }
 
 export interface QueryResult<TData = any> {
+  client: ApolloClient<any>;
   data: TData;
   error?: ApolloError;
   fetchMore: (
@@ -53,7 +53,6 @@ export interface QueryResult<TData = any> {
   updateQuery: (
     mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
   ) => void;
-  variables: OperationVariables;
 }
 
 export interface QueryProps<TData = any> {
@@ -176,18 +175,15 @@ class Query<TData = any> extends React.Component<
 
   private getQueryResult = (): QueryResult<TData> => {
     const { result } = this.state;
-
     const { loading, error, networkStatus, data } = result;
-
-    const renderProps = {
+    return {
+      client: this.client,
       data,
       loading,
       error,
       networkStatus,
       ...observableQueryFields(this.queryObservable),
     };
-
-    return renderProps;
   };
 }
 

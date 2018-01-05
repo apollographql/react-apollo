@@ -8,6 +8,7 @@ import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql, DataProps } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
+import catchAsyncError from '../../../test-utils/catchAsyncError';
 
 describe('queries', () => {
   let error;
@@ -271,7 +272,7 @@ describe('queries', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const variables = { first: 1, jedi: true };
+    const variables = { jedi: true, first: 1 };
     const mocks = [
       {
         request: {
@@ -300,9 +301,11 @@ describe('queries', () => {
     @graphql(query, options)
     class Container extends React.Component<any, any> {
       componentWillReceiveProps(props) {
-        expect(props.data.loading).toBeFalsy();
-        expect(stripSymbols(props.data.allPeople)).toEqual(data.allPeople);
-        done();
+        catchAsyncError(done, () => {
+          expect(props.data.loading).toBeFalsy();
+          expect(stripSymbols(props.data.allPeople)).toEqual(data.allPeople);
+          done();
+        });
       }
       render() {
         return null;

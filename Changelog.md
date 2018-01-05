@@ -3,15 +3,17 @@
 ### next
 
 - **BREAKING CHANGES**
-  - typescript - `graphql` parameterized types streamlined for 
-a) full typing; and b) ease of use; and c) consistency.  New parameterized is: 
+  - typescript - `graphql` parameterized types streamlined for
+a) full typing; and b) ease of use; and c) consistency.  New parameterized is:
 `graphql<TProps,TData, TGraphQLVariables, TChildProps>` where none are required and full typing only requires the
-first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402) 
+first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402)
   - Remove deprecated `operationOptions.options.skip`, use `operationOptions.skip` instead
   - Rename type `ProviderProps` to `ApolloProviderProps` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467) [#1478](https://github.com/apollographql/react-apollo/pull/1478)
   - Remove re-export of `compose` (a.k.a. `lodash/flowright`) as it is loses types (exports as `any`).  Users may choose to use `lodash/flowright` or `recompose/compose` themselves based on their use case.  [#1478](https://github.com/apollographql/react-apollo/pull/1478)
+  - Remove deprecated [`options.updateQueries`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-updateQueries), use [`options.update`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-update) instead [#1485](https://github.com/apollographql/react-apollo/pull/1485)
+  - Fixed bug [#1412](https://github.com/apollographql/react-apollo/issues/1412) where the `MockedProvider` ignored variables when doing matching. This is potentially breaking because tests could break for which the variables don't match [#1501](https://github.com/apollographql/react-apollo/pull/1501)
 
 - **Other Changes**
   - Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)
@@ -31,6 +33,10 @@ first three params (`TChildProps` can be derived). [#1402](https://github.com/ap
   - Updates to `examples/typescript` [#1471](https://github.com/apollographql/react-apollo/pull/1471)
   - Mutation test cleanup [#1480](https://github.com/apollographql/react-apollo/pull/1480)
   - Removed react-native from the test suite [#1451](https://github.com/apollographql/react-apollo/pull/1451)
+  - Add `client` to `Query`'s `QueryResult` [#1488](https://github.com/apollographql/react-apollo/pull/1488)
+  - Disregard falsy elements when walking tree in SSR [#1495](https://github.com/apollographql/react-apollo/pull/1495)
+  - Removed the key `variables` from the render prop result in the `<Query />` [#1497](https://github.com/apollographql/react-apollo/pull/1497)
+  - Added `<Subscription />` component [#1483](https://github.com/apollographql/react-apollo/pull/1483)
   - Render callback should be typed with TData [#1519](https://github.com/apollographql/react-apollo/pull/1519)
 
 ### 2.0.4

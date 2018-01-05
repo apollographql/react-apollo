@@ -13,11 +13,8 @@ import type {
   MutationUpdaterFn,
 } from 'apollo-client';
 import type { DocumentNode, VariableDefinitionNode } from 'graphql';
-import gql from 'graphql-tag';
 
-// export everything from apollo-client
-export * from 'apollo-client';
-export { gql };
+export type NetworkStatus = 1 | 2 | 3 | 4 | 6 | 7 | 8;
 
 export interface ProviderProps {
   client: ApolloClient;
@@ -48,12 +45,14 @@ export type ChildProps<P, R> = {
 // back compat
 export type DefaultChildProps<P, R> = ChildProps<P, R>;
 
+export type ErrorPolicy = 'none' | 'ignore' | 'all';
+
 export interface MutationOpts {
   variables?: Object;
   optimisticResponse?: Object;
-  updateQueries?: MutationQueryReducersMap<*>;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn<*>;
+  errorPolicy?: ErrorPolicy;
 }
 
 export interface QueryOpts {
@@ -62,11 +61,12 @@ export interface QueryOpts {
   fetchPolicy?: FetchPolicy;
   pollInterval?: number;
   skip?: boolean;
+  errorPolicy?: ErrorPolicy;
 }
 
 export interface GraphqlQueryControls {
   error?: ApolloError;
-  networkStatus: number;
+  networkStatus: NetworkStatus;
   loading: boolean;
   variables: Object;
   fetchMore: (
@@ -87,14 +87,14 @@ export interface OptionProps<TProps, TResult> {
   mutate: MutationFunc<TResult>;
 }
 
-export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
+export type OptionDescription<P> = QueryOpts | MutationOpts | ((props: P) => QueryOpts | MutationOpts);
 
 export type NamedProps<P, R> = P & {
   ownProps: R,
 };
 
 export interface OperationOption<TProps: {}, TResult: {}> {
-  options?: OptionDescription<TProps>;
+  +options?: OptionDescription<TProps>;
   props?: (props: OptionProps<TProps, TResult>) => any;
   +skip?: boolean | ((props: any) => boolean);
   name?: string;
@@ -118,9 +118,14 @@ declare export function graphql<TProps, TResult, TVariables, TChildProps>(
   operationOptions?: OperationOption<TProps, TResult>,
 ): OperationComponent<TResult, TProps, TChildProps>;
 
+declare type WithApolloOptions = {
+  withRef?: boolean,
+};
+
 declare export function withApollo<TProps>(
-  component: React$ComponentType<ApolloClient & TProps>,
-): React$ComponentType<ApolloClient & TProps>;
+  component: React$ComponentType<{ client: ApolloClient } & TProps>,
+  operationOptions?: WithApolloOptions,
+): React$ComponentType<TProps>;
 
 export interface IDocumentDefinition {
   type: DocumentType;

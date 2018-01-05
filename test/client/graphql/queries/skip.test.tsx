@@ -8,6 +8,7 @@ import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
+import catchAsyncError from '../../../test-utils/catchAsyncError';
 
 describe('[queries] skip', () => {
   it('allows you to skip a query without running it', done => {
@@ -619,22 +620,19 @@ describe('[queries] skip', () => {
 
     @graphql(query, {
       skip: () => count === 1,
-      options: props => ({ variables: props }),
     })
     class Container extends React.Component<any, any> {
       componentWillReceiveProps({ data }) {
-        try {
+        catchAsyncError(done, () => {
           // loading is true, but data still there
           if (count === 0)
             expect(stripSymbols(data.allPeople)).toEqual(data1.allPeople);
           if (count === 1) expect(data).toBeUndefined();
           if (count === 2 && !data.loading) {
-            expect(stripSymbols(data.allPeople)).toEqual(data2.allPeople);
+            expect(stripSymbols(data.allPeople)).toEqual(data3.allPeople);
             done();
           }
-        } catch (e) {
-          console.log({ e }); // tslint:disable-line
-        }
+        });
       }
       render() {
         return null;

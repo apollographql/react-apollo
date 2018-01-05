@@ -58,10 +58,15 @@ describe('graphql(mutation) lifecycle', () => {
   });
 
   it('rebuilds the mutation on prop change when using `options`', done => {
-    const client = createClient(expectedData, query);
+    const client = createClient(expectedData, query, {
+      id: null,
+    });
     function options(props) {
-      // expect(props.listId).toBe(2);
-      return {};
+      return {
+        variables: {
+          id: null,
+        },
+      };
     }
 
     @graphql(query, { options })

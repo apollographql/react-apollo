@@ -37,7 +37,9 @@ const queryWithoutTypename = gql`
 `;
 
 const withUser = graphql(queryWithoutTypename, {
-  options: () => ({ variables }),
+  options: props => ({
+    variables: props,
+  }),
 });
 
 it('mocks the data and adds the typename to the query', done => {
@@ -71,6 +73,46 @@ it('mocks the data and adds the typename to the query', done => {
   renderer.create(
     <MockedProvider mocks={mocks}>
       <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});
+
+it('errors if the variables in the mock and component do not match', done => {
+  class Container extends React.Component {
+    componentWillReceiveProps(nextProps) {
+      try {
+        expect(nextProps.data.user).toBeUndefined();
+        expect(nextProps.data.error).toMatchSnapshot();
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUser(Container);
+
+  const mocks = [
+    {
+      request: {
+        query,
+        variables,
+      },
+      result: { data: { user } },
+    },
+  ];
+
+  const variables2 = {
+    username: 'other_user',
+  };
+
+  renderer.create(
+    <MockedProvider mocks={mocks}>
+      <ContainerWithData {...variables2} />
     </MockedProvider>,
   );
 });

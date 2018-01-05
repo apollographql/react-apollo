@@ -406,8 +406,8 @@ describe('[queries] observableQuery', () => {
         }
       }
     `;
-    const variables1 = { id: 1 };
-    const variables2 = { id: 2 };
+    const variables1 = { first: 1 };
+    const variables2 = { first: 2 };
     const data = {
       allPeople: {
         people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
@@ -451,7 +451,7 @@ describe('[queries] observableQuery', () => {
       render() {
         if (!this.state.showChildren) return null;
         const Thing = this.props.render;
-        return <Thing first={this.state.variables.id} />;
+        return <Thing first={this.state.variables.first} />;
       }
     }
 
@@ -463,8 +463,9 @@ describe('[queries] observableQuery', () => {
           // first variable render
           if (variables.first === 1) {
             if (loading) expect(allPeople).toBeUndefined();
-            if (!loading)
+            if (!loading) {
               expect(stripSymbols(allPeople)).toEqual(data.allPeople);
+            }
           }
 
           if (variables.first === 2) {

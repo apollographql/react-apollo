@@ -41,6 +41,24 @@ describe('SSR', () => {
         expect(elementCount).toEqual(1);
       });
 
+      it('basic element trees with false', () => {
+        let elementCount = 0;
+        const rootElement = <div>{false}</div>;
+        walkTree(rootElement, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(1);
+      });
+
+      it('basic element trees with empty string', () => {
+        let elementCount = 0;
+        const rootElement = <div>{''}</div>;
+        walkTree(rootElement, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(1);
+      });
+
       it('basic element trees with arrays', () => {
         let elementCount = 0;
         const rootElement = [1, 2];
@@ -48,6 +66,15 @@ describe('SSR', () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
+      });
+
+      it('basic element trees with false or null', () => {
+        let elementCount = 0;
+        const rootElement = [1, false, null, ''];
+        walkTree(rootElement, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(1);
       });
 
       it('functional stateless components', () => {
