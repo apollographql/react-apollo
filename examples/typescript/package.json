@@ -12,7 +12,7 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@types/jest": "22.0.0",
+    "@types/jest": "22.0.1",
     "@types/node": "8.5.5",
     "@types/prop-types": "15.5.2",
     "@types/react": "16.0.34",
