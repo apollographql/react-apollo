@@ -108,7 +108,7 @@
     "rimraf": "2.6.2",
     "rollup": "0.53.3",
     "rollup-plugin-babel-minify": "3.1.2",
-    "ts-jest": "22.0.0",
+    "ts-jest": "22.0.1",
     "tslint": "5.8.0",
     "typescript": "2.6.2",
     "typescript-require": "0.2.9",
