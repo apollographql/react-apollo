@@ -1,19 +1,22 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ApolloClient from 'apollo-client';
+import ApolloClient, {
+  PureQueryOptions,
+  MutationUpdaterFn,
+} from 'apollo-client';
 const invariant = require('invariant');
 import { DocumentNode } from 'graphql';
 
 import { OperationVariables } from './types';
 
-// refetchQueries?: string[] | PureQueryOptions[];
-// update?: MutationUpdaterFn;
 // notifyOnNetworkStatusChange?: boolean;
 
 export interface MutationProps {
   mutation: DocumentNode;
   variables?: OperationVariables;
   optimisticResponse?: Object;
+  refetchQueries?: string[] | PureQueryOptions[];
+  update?: MutationUpdaterFn;
   children: (mutateFn: () => void, result?: any) => React.ReactNode;
 }
 
@@ -46,7 +49,13 @@ class Mutation extends React.Component<MutationProps, MutationState> {
   }
 
   private runMutation = async () => {
-    const { mutation, variables, optimisticResponse } = this.props;
+    const {
+      mutation,
+      variables,
+      optimisticResponse,
+      refetchQueries,
+      update,
+    } = this.props;
 
     this.setState({
       loading: true,
@@ -60,6 +69,8 @@ class Mutation extends React.Component<MutationProps, MutationState> {
         mutation,
         variables,
         optimisticResponse,
+        refetchQueries,
+        update,
       });
 
       this.setState({

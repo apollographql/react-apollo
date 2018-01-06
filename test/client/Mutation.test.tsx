@@ -2,9 +2,12 @@ import * as React from 'react';
 import { mount } from 'enzyme';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { ApolloProvider, Mutation } from '../../src';
-import { MockedProvider, mockSingleLink } from '../../src/test-utils';
 import gql from 'graphql-tag';
+
+import { ApolloProvider, Mutation, Query } from '../../src';
+import { MockedProvider, mockSingleLink } from '../../src/test-utils';
+
+import stripSymbols from '../test-utils/stripSymbols';
 
 const mutation = gql`
   mutation createTodo($text: String!) {
@@ -184,5 +187,117 @@ it('returns an optimistic response', done => {
     <ApolloProvider client={client}>
       <Component />
     </ApolloProvider>,
+  );
+});
+
+it('has refetchQueries in the props', done => {
+  const query = gql`
+    query getTodo {
+      todo {
+        id
+        text
+        completed
+        __typename
+      }
+      __typename
+    }
+  `;
+
+  const queryData = {
+    todo: {
+      id: '1',
+      text: 'todo from query',
+      completed: false,
+      __typename: 'Todo',
+    },
+    __typename: 'Query',
+  };
+
+  const mocksWithQuery = [
+    ...mocks,
+    // TODO: Somehow apollo-client makes 3 request
+    // when refetch queries is enabled??
+    {
+      request: { query },
+      result: { data: queryData },
+    },
+    {
+      request: { query },
+      result: { data: queryData },
+    },
+    {
+      request: { query },
+      result: { data: queryData },
+    },
+  ];
+
+  const refetchQueries = [
+    {
+      query,
+    },
+  ];
+
+  let count = 0;
+  const Component = () => (
+    <Mutation
+      mutation={mutation}
+      variables={variables}
+      refetchQueries={refetchQueries}
+    >
+      {(createTodo, resultMutation) => (
+        <Query query={query}>
+          {resultQuery => {
+            if (count === 0) {
+              setTimeout(() => {
+                createTodo();
+              });
+            } else if (count === 1) {
+              expect(resultMutation.loading).toBe(true);
+              expect(resultQuery.loading).toBe(true);
+            } else if (count === 2) {
+              expect(resultMutation.loading).toBe(true);
+              expect(stripSymbols(resultQuery.data)).toEqual(queryData);
+              done();
+            }
+            count++;
+            return null;
+          }}
+        </Query>
+      )}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider mocks={mocksWithQuery}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('has an update prop for updating the store after the mutation', done => {
+  const update = (proxy, response) => {
+    expect(response.data).toEqual(data);
+    done();
+  };
+
+  let count = 0;
+  const Component = () => (
+    <Mutation mutation={mutation} variables={variables} update={update}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          setTimeout(() => {
+            createTodo();
+          });
+        }
+        count++;
+        return null;
+      }}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
   );
 });
