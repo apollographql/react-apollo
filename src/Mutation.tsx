@@ -6,9 +6,14 @@ import { DocumentNode } from 'graphql';
 
 import { OperationVariables } from './types';
 
+// refetchQueries?: string[] | PureQueryOptions[];
+// update?: MutationUpdaterFn;
+// notifyOnNetworkStatusChange?: boolean;
+
 export interface MutationProps {
   mutation: DocumentNode;
   variables?: OperationVariables;
+  optimisticResponse?: Object;
   children: (mutateFn: () => void, result?: any) => React.ReactNode;
 }
 
@@ -41,7 +46,8 @@ class Mutation extends React.Component<MutationProps, MutationState> {
   }
 
   private runMutation = async () => {
-    const { mutation, variables } = this.props;
+    const { mutation, variables, optimisticResponse } = this.props;
+
     this.setState({
       loading: true,
       error: undefined,
@@ -50,14 +56,15 @@ class Mutation extends React.Component<MutationProps, MutationState> {
     });
 
     try {
-      const data = this.client.mutate({
+      const response = await this.client.mutate({
         mutation,
         variables,
+        optimisticResponse,
       });
 
       this.setState({
         loading: false,
-        data,
+        data: response.data,
       });
     } catch (e) {
       this.setState({
