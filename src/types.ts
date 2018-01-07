@@ -2,6 +2,7 @@ import ApolloClient, {
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
+  ErrorPolicy,
   FetchMoreOptions,
   UpdateQueryOptions,
   FetchMoreQueryOptions,
@@ -9,8 +10,6 @@ import ApolloClient, {
   PureQueryOptions,
   MutationUpdaterFn,
 } from 'apollo-client';
-// import { PureQueryOptions } from 'apollo-client/core/types';
-// import { MutationUpdaterFn } from 'apollo-client/core/watchQueryOptions';
 
 export type OperationVariables = {
   [key: string]: any;
@@ -29,6 +28,7 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   ssr?: boolean;
   variables?: TGraphQLVariables;
   fetchPolicy?: FetchPolicy;
+  errorPolicy?: ErrorPolicy;
   pollInterval?: number;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
