@@ -1403,9 +1403,9 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   dependencies:
     cssom "0.3.x"
 
-danger@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-3.0.0.tgz#acbe2134132ab72cbfec3be1c8c4825b7745e202"
+danger@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-3.0.2.tgz#0b1be56b1f7629797205b6a085c4d9d0ab86dbba"
   dependencies:
     babel-polyfill "^6.23.0"
     chalk "^2.3.0"
@@ -4617,7 +4617,7 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vm2@patriksimek/vm2#custom_files:
+"vm2@github:patriksimek/vm2#custom_files":
   version "3.5.0"
   resolved "https://codeload.github.com/patriksimek/vm2/tar.gz/7e82f90ac705fc44fad044147cb0df09b4c79a57"
 
