@@ -3,31 +3,43 @@ import * as PropTypes from 'prop-types';
 import ApolloClient, {
   PureQueryOptions,
   MutationUpdaterFn,
+  ApolloError,
 } from 'apollo-client';
 const invariant = require('invariant');
 import { DocumentNode } from 'graphql';
 
 import { OperationVariables } from './types';
 
-// notifyOnNetworkStatusChange?: boolean;
+export interface MutationResult<TData = any> {
+  data: TData;
+  error?: ApolloError;
+  loading: boolean;
+}
 
-export interface MutationProps {
+export interface MutationProps<TData = any> {
   mutation: DocumentNode;
   variables?: OperationVariables;
   optimisticResponse?: Object;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
-  children: (mutateFn: () => void, result?: any) => React.ReactNode;
+  children: (
+    mutateFn: () => void,
+    result?: MutationResult<TData>,
+  ) => React.ReactNode;
+  // notifyOnNetworkStatusChange?: boolean;
 }
 
-export interface MutationState {
+export interface MutationState<TData = any> {
   notCalled: boolean;
-  error?: string;
-  data?: any;
+  error?: ApolloError;
+  data?: TData;
   loading?: boolean;
 }
 
-class Mutation extends React.Component<MutationProps, MutationState> {
+class Mutation<TData = any> extends React.Component<
+  MutationProps<TData>,
+  MutationState<TData>
+> {
   private client: ApolloClient<any>;
 
   static contextTypes = {
@@ -75,12 +87,12 @@ class Mutation extends React.Component<MutationProps, MutationState> {
 
       this.setState({
         loading: false,
-        data: response.data,
+        data: response.data as TData,
       });
     } catch (e) {
       this.setState({
         loading: false,
-        error: e,
+        error: e as ApolloError,
       });
     }
   };
