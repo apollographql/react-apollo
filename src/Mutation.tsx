@@ -40,11 +40,11 @@ class Mutation<TData = any> extends React.Component<
   MutationProps<TData>,
   MutationState<TData>
 > {
-  private client: ApolloClient<any>;
-
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
+
+  private client: ApolloClient<any>;
 
   constructor(props: any, context: any) {
     super(props, context);
@@ -58,6 +58,21 @@ class Mutation<TData = any> extends React.Component<
     this.state = {
       notCalled: true,
     };
+  }
+
+  render() {
+    const { children } = this.props;
+    const { loading, data, error, notCalled } = this.state;
+
+    const result = notCalled
+      ? undefined
+      : {
+          loading,
+          data,
+          error,
+        };
+
+    return children(this.runMutation, result);
   }
 
   private runMutation = async () => {
@@ -96,21 +111,6 @@ class Mutation<TData = any> extends React.Component<
       });
     }
   };
-
-  render() {
-    const { children } = this.props;
-    const { loading, data, error, notCalled } = this.state;
-
-    const result = notCalled
-      ? undefined
-      : {
-          loading,
-          data,
-          error,
-        };
-
-    return children(this.runMutation, result);
-  }
 }
 
 export default Mutation;
