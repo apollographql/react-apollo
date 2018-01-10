@@ -106,7 +106,7 @@
     "react-test-renderer": "16.2.0",
     "recompose": "0.26.0",
     "rimraf": "2.6.2",
-    "rollup": "0.53.3",
+    "rollup": "0.53.4",
     "rollup-plugin-babel-minify": "3.1.2",
     "ts-jest": "22.0.1",
     "tslint": "5.8.0",
