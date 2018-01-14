@@ -188,3 +188,96 @@ class Query<TData = any> extends React.Component<
 }
 
 export default Query;
+
+export interface QueryResultAPI {
+  client: ApolloClient<any>;
+  fetchMore: (
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+  ) => Promise<ApolloQueryResult<any>>;
+  networkStatus: number;
+  refetch: (variables?: OperationVariables) => Promise<ApolloQueryResult<any>>;
+  startPolling: (pollInterval: number) => void;
+  stopPolling: () => void;
+  updateQuery: (
+    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
+  ) => void;
+}
+
+export interface QueryWith4PropsProps<TData = any> {
+  renderLoading: () => React.ReactNode;
+  renderError: (error: ApolloError, result: QueryResultAPI) => React.ReactNode;
+  renderResult: (data: TData, result: QueryResultAPI) => React.ReactNode;
+  render: (result: QueryResult<TData>) => React.ReactNode;
+  fetchPolicy?: FetchPolicy;
+  notifyOnNetworkStatusChange?: boolean;
+  pollInterval?: number;
+  query: DocumentNode;
+  variables?: OperationVariables;
+}
+
+export function QueryWith4Props<TData = any>({
+  renderLoading,
+  renderError,
+  renderResult,
+  render,
+  ...props
+}: QueryWith4PropsProps<TData>) {
+  const usingSimpleAPI = renderLoading || renderError || renderResult;
+
+  let children = render;
+
+  if (usingSimpleAPI && render) {
+    console.error(
+      '`renderLoading`, `renderError` and `renderResult` should not be combined with `render`. Use either the `render*` props or `render` alone.',
+    );
+  } else if (usingSimpleAPI) {
+    children = result => {
+      const { loading, error, data, ...rest } = result;
+      if (loading) {
+        return renderLoading();
+      } else if (error) {
+        return renderError(error, rest);
+      } else {
+        return renderResult(data, rest);
+      }
+    };
+  }
+
+  return <Query {...props} children={children} />;
+}
+
+export interface QueryWith3PropsProps<TData = any> {
+  renderLoading: () => React.ReactNode;
+  renderError: (error: ApolloError, result: QueryResultAPI) => React.ReactNode;
+  render: (result: QueryResult<TData>) => React.ReactNode;
+  fetchPolicy?: FetchPolicy;
+  notifyOnNetworkStatusChange?: boolean;
+  pollInterval?: number;
+  query: DocumentNode;
+  variables?: OperationVariables;
+}
+
+export function QueryWith3Props<TData = any>({
+  renderLoading,
+  renderError,
+  render,
+  ...props
+}: QueryWith3PropsProps<TData>) {
+  return (
+    <Query {...props}>
+      {result => {
+        const { loading, error, ...rest } = result;
+
+        if (renderLoading && loading) {
+          return renderLoading();
+        }
+
+        if (renderError && error) {
+          return renderError(error, rest);
+        }
+
+        return render(result);
+      }}
+    </Query>
+  );
+}
