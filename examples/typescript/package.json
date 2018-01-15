@@ -19,7 +19,7 @@
     "@types/react-dom": "16.0.3",
     "@types/react-test-renderer": "16.0.0",
     "apollo-codegen": "0.18.3",
-    "react-scripts-ts": "2.8.0",
+    "react-scripts-ts": "2.12.0",
     "react-test-renderer": "16.2.0"
   },
   "scripts": {
