@@ -86,7 +86,7 @@
     "apollo-cache-inmemory": "1.1.5",
     "apollo-client": "2.2.0",
     "babel-core": "6.26.0",
-    "babel-jest": "22.0.6",
+    "babel-jest": "22.1.0",
     "babel-preset-env": "1.6.1",
     "bundlesize": "0.15.3",
     "coveralls": "3.0.0",
