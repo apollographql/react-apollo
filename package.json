@@ -1,5 +1,5 @@
 {
-  "name": "react-apollo",
+  "name": "@shopify/react-apollo",
   "version": "2.0.4",
   "description": "React data container for Apollo Client",
   "module": "src/index.ts",
