@@ -1,0 +1,3 @@
+deploy:
+  override:
+    - npm run deploy

@@ -87,7 +87,10 @@ export interface OptionProps<TProps, TResult> {
   mutate: MutationFunc<TResult>;
 }
 
-export type OptionDescription<P> = QueryOpts | MutationOpts | ((props: P) => QueryOpts | MutationOpts);
+export type OptionDescription<P> =
+  | QueryOpts
+  | MutationOpts
+  | ((props: P) => QueryOpts | MutationOpts);
 
 export type NamedProps<P, R> = P & {
   ownProps: R,
