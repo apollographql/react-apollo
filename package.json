@@ -1,6 +1,6 @@
 {
   "name": "@shopify/react-apollo",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "React data container for Apollo Client",
   "module": "src/index.ts",
   "scripts": {
