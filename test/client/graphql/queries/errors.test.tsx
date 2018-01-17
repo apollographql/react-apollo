@@ -383,7 +383,7 @@ describe('[queries] errors', () => {
               expect(stripSymbols(props.data.allPeople)).toEqual(
                 data.allPeople,
               );
-              props.data.refetch();
+              props.data.refetch().catch(() => null);
               break;
             case 1:
               expect(props.data.loading).toBeTruthy();
@@ -396,6 +396,89 @@ describe('[queries] errors', () => {
               expect(props.data.error).toBeTruthy();
               expect(stripSymbols(props.data.allPeople)).toEqual(
                 data.allPeople,
+              );
+              done();
+              break;
+            default:
+              throw new Error('Unexpected fall through');
+          }
+        } catch (e) {
+          done.fail(e);
+        }
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
+  });
+
+  it('can refetch after there was a network error', done => {
+    const query = gql`
+      query somethingelse {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const dataTwo = { allPeople: { people: [{ name: 'Princess Leia' }] } };
+    const link = mockSingleLink(
+      { request: { query }, result: { data } },
+      { request: { query }, error: new Error('This is an error!') },
+      { request: { query }, result: { data: dataTwo } },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    let count = 0;
+    const noop = () => null;
+    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
+    class Container extends React.Component<any, any> {
+      componentWillReceiveProps(props) {
+        try {
+          switch (count++) {
+            case 0:
+              props.data
+                .refetch()
+                .then(() => {
+                  done.fail('Expected error value on first refetch.');
+                })
+                .catch(noop);
+              break;
+            case 1:
+              expect(props.data.loading).toBeTruthy();
+              break;
+            case 2:
+              expect(props.data.loading).toBeFalsy();
+              expect(props.data.error).toBeTruthy();
+              props.data
+                .refetch()
+                .then(noop)
+                .catch(() => {
+                  done.fail('Expected good data on second refetch.');
+                });
+              break;
+            // Further fix required in QueryManager
+            // case 3:
+            //   expect(props.data.loading).toBeTruthy();
+            //   expect(props.data.error).toBeFalsy();
+            //   break;
+            case 3:
+              expect(props.data.loading).toBeFalsy();
+              expect(props.data.error).toBeFalsy();
+              expect(stripSymbols(props.data.allPeople)).toEqual(
+                dataTwo.allPeople,
               );
               done();
               break;

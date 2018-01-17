@@ -451,6 +451,7 @@ export default function graphql<
         };
 
         const handleError = error => {
+          this.resubscribeToQuery();
           // Quick fix for https://github.com/apollostack/react-apollo/issues/378
           if (error.hasOwnProperty('graphQLErrors')) return next({ error });
           throw error;
@@ -473,6 +474,24 @@ export default function graphql<
         if (this.querySubscription) {
           (this.querySubscription as ZenObservable.Subscription).unsubscribe();
           delete this.querySubscription;
+        }
+      }
+
+      resubscribeToQuery() {
+        const lastSubscription = this.querySubscription;
+        if (lastSubscription) {
+          delete this.querySubscription;
+        }
+        const { lastError, lastResult } = this.queryObservable;
+        // If lastError is set, the observable will immediately
+        // send it, causing the stream to terminate on initialization.
+        // We clear everything here and restore it afterward to
+        // make sure the new subscription sticks.
+        this.queryObservable.resetLastResults();
+        this.subscribeToQuery();
+        Object.assign(this.queryObservable, { lastError, lastResult });
+        if (lastSubscription) {
+          (lastSubscription as ZenObservable.Subscription).unsubscribe();
         }
       }
 
