@@ -90,6 +90,7 @@ describe('SSR', () => {
 
       it('functional stateless components with children', () => {
         let elementCount = 0;
+        let isPreact = false;
         interface Props {
           n: number;
           children?: React.ReactNode;
@@ -106,10 +107,20 @@ describe('SSR', () => {
           </MyComponent>,
           {},
           element => {
+            if (element && element.preactCompatUpgraded) {
+              isPreact = true;
+            }
             elementCount += 1;
           },
         );
-        expect(elementCount).toEqual(9);
+        // preact does a slightly different pass than react does here
+        // fwiw, preact's seems to make sense here (7 nodes vs 9)
+        // XXX verify markup checksums on this
+        if (isPreact) {
+          expect(elementCount).toEqual(7);
+        } else {
+          expect(elementCount).toEqual(9);
+        }
       });
 
       it('functional stateless components with null children', () => {
@@ -706,7 +717,14 @@ describe('SSR', () => {
     it('should correctly initialize an empty state to null', () => {
       class Element extends React.Component<any, any> {
         render() {
-          expect(this.state).toBeNull();
+          // this is a check for how react and preact differ. Preact (nicely)
+          // comes with a default state
+          if (this.__d) {
+            // I'm preact
+            expect(this.state).toEqual({});
+          } else {
+            expect(this.state).toBeNull();
+          }
           return null;
         }
       }

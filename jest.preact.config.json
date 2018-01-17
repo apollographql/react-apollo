@@ -1,0 +1,24 @@
+{
+  "testEnvironment": "jsdom",
+  "transform": {
+    "^.+\\.tsx?$": "ts-jest",
+    "^.+\\.jsx?$": "babel-jest"
+  },
+  "mapCoverage": true,
+  "moduleFileExtensions": ["ts", "tsx", "js", "json"],
+  "modulePathIgnorePatterns": [
+    "<rootDir>/examples",
+    "<rootDir>/test/flow-usage.js",
+    "<rootDir>/test/typescript-usage.tsx",
+    "<rootDir>/test/client/",
+    "<rootDir>/test/parser.test.ts/",
+    "<rootDir>/test/test-utils.test.tsx"
+  ],
+  "projects": ["<rootDir>"],
+  "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
+  "moduleNameMapper": {
+    "^react$": "preact-compat",
+    "react-dom$": "preact-compat",
+    "react-dom/server": "preact-compat/server"
+  }
+}

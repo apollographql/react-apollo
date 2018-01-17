@@ -24,7 +24,10 @@ interface PreactElement {
 }
 
 function getProps(element: ReactElement<any> | PreactElement): any {
-  return element.props || element.attributes;
+  return (
+    (element as ReactElement<any>).props ||
+    (element as PreactElement).attributes
+  );
 }
 
 // Recurse a React Element tree, running visitor on each element.
