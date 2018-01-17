@@ -107,7 +107,7 @@ describe('SSR', () => {
           </MyComponent>,
           {},
           element => {
-            if (element && element.preactCompatUpgraded) {
+            if (element && (element as any).preactCompatUpgraded) {
               isPreact = true;
             }
             elementCount += 1;
@@ -719,7 +719,7 @@ describe('SSR', () => {
         render() {
           // this is a check for how react and preact differ. Preact (nicely)
           // comes with a default state
-          if (this.__d) {
+          if ((this as any).__d) {
             // I'm preact
             expect(this.state).toEqual({});
           } else {
