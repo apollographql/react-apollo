@@ -48,7 +48,7 @@ export function walkTree<Cache>(
 
     // Are we are a react class?
     //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
-    if (Component.prototype && Component.prototype.isReactComponent) {
+    if (Component.prototype && Component.prototype.render) {
       // typescript force casting since typescript doesn't have definitions for class
       // methods
       const _component = Component as any;
