@@ -19,6 +19,14 @@ export interface QueryTreeResult<Cache> {
   context: Context<Cache>;
 }
 
+interface PreactElement {
+  attributes: any;
+}
+
+function getProps(element: ReactElement<any> | PreactElement): any {
+  return element.props || element.attributes;
+}
+
 // Recurse a React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
@@ -42,7 +50,7 @@ export function walkTree<Cache>(
   const Component = element.type;
   // a stateless functional component or a class
   if (typeof Component === 'function') {
-    const props = assign({}, Component.defaultProps, element.props);
+    const props = assign({}, Component.defaultProps, getProps(element));
     let childContext = context;
     let child;
 
@@ -54,7 +62,7 @@ export function walkTree<Cache>(
       const _component = Component as any;
       const instance = new _component(props, context);
       // In case the user doesn't pass these to super in the constructor
-      instance.props = instance.props || props;
+      instance.props = instance.props || instance.attributes || props;
       instance.context = instance.context || context;
       // set the instance state to null (not undefined) if not set, to match React behaviour
       instance.state = instance.state || null;
