@@ -564,9 +564,16 @@ export default function graphql<
           // _feel_ like it was logged ASAP while still tolerating asynchrony.
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
+              let errorMessage = error;
+              if (error.stack) {
+                errorMessage = error.stack.includes(error.message)
+                  ? error.stack
+                  : `${error.message}\n${error.stack}`;
+              }
+
               console.error(
                 `Unhandled (in react-apollo:${graphQLDisplayName})`,
-                error.stack || error,
+                errorMessage,
               );
             }
           }, 10);
