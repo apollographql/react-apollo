@@ -1,29 +1,34 @@
 # Change log
 
-### next
+### @next
 
-- **BREAKING CHANGES**
+- **NEW FEATURES**
+  - Added `<Query />` component [#1398](https://github.com/apollographql/react-apollo/pull/1398)
+  - Add `<ApolloConsumer />` component [#1399](https://github.com/apollographql/react-apollo/pull/1399) [#1484](https://github.com/apollographql/react-apollo/pull/1484)
+  - Added support for Preact when using `getDataFromTree` [#1561](https://github.com/apollographql/react-apollo/pull/1561)
+
+- **BREAKING CHANGES [Removal of deprecated code]**
+  - Remove deprecated `operationOptions.options.skip`, use `operationOptions.skip` instead
+
+- **BREAKING CHANGES [TypeScript and Flow only]**
   - typescript - `graphql` parameterized types streamlined for
 a) full typing; and b) ease of use; and c) consistency.  New parameterized is:
 `graphql<TProps,TData, TGraphQLVariables, TChildProps>` where none are required and full typing only requires the
 first three params (`TChildProps` can be derived). [#1402](https://github.com/apollographql/react-apollo/pull/1402)
-  - Remove deprecated `operationOptions.options.skip`, use `operationOptions.skip` instead
   - Rename type `ProviderProps` to `ApolloProviderProps` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467) [#1478](https://github.com/apollographql/react-apollo/pull/1478)
-  - Remove re-export of `compose` (a.k.a. `lodash/flowright`) as it is loses types (exports as `any`).  Users may choose to use `lodash/flowright` or `recompose/compose` themselves based on their use case.  [#1478](https://github.com/apollographql/react-apollo/pull/1478)
   - Remove deprecated [`options.updateQueries`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-updateQueries), use [`options.update`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-update) instead [#1485](https://github.com/apollographql/react-apollo/pull/1485)
-  - Fixed bug [#1412](https://github.com/apollographql/react-apollo/issues/1412) where the `MockedProvider` ignored variables when doing matching. This is potentially breaking because tests could break for which the variables don't match [#1501](https://github.com/apollographql/react-apollo/pull/1501)
 
-- **Other Changes**
+- **Fixes and Improvements**
+  - Fixed stack traces on non chrome browsers [#1568](https://github.com/apollographql/react-apollo/pull/1568)
+  - Fixed bug [#1412](https://github.com/apollographql/react-apollo/issues/1412) where the `MockedProvider` ignored variables when doing matching. This is potentially breaking because tests could break for which the variables don't match [#1501](https://github.com/apollographql/react-apollo/pull/1501)
   - Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)
   - Tests are now linted and verified valid typescript [#1402](https://github.com/apollographql/react-apollo/pull/1402)
   - Typescript - updated `types` for consistency and potential to pass through all types e.g. `TProps, TData, TGraphQLVariables` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
   - Typescript - added `ChildDataProps` and `ChildMutateProps` for optional stronger typed usage version of `ChildProps` [#1402](https://github.com/apollographql/react-apollo/pull/1402)
   - Typescript - fix `graphql` HOC inference [#1402](https://github.com/apollographql/react-apollo/pull/1402)
-  - Added `<Query />` component [#1398](https://github.com/apollographql/react-apollo/pull/1398)
   - Made prettier solely responsible for formatting, removed all formatting linting rules from tslint [#1452](https://github.com/apollographql/react-apollo/pull/1452)
-  - Add `<ApolloConsumer />` component [#1399](https://github.com/apollographql/react-apollo/pull/1399) [#1484](https://github.com/apollographql/react-apollo/pull/1484)
   - Convert `Query.test` to `tsx` and parameterize types for `Query` [#1462](https://github.com/apollographql/react-apollo/pull/1462)
   - Remove copied `shallowEqual` code and delegate to `fbjs` [#1465](https://github.com/apollographql/react-apollo/pull/1465)
   - Update rollup configurations, refine package exports [#1467](https://github.com/apollographql/react-apollo/pull/1467)
