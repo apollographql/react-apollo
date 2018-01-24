@@ -72,8 +72,8 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "apollo-client": "^2.0.3",
-    "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
+    "apollo-client": "2.2.0",
+    "react": "16.2.0"
   },
   "devDependencies": {
     "@types/enzyme": "3.1.6",
@@ -102,8 +102,8 @@
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
     "pre-commit": "1.2.2",
-    "preact": "^8.2.7",
-    "preact-compat": "^3.17.0",
+    "preact": "8.2.7",
+    "preact-compat": "3.18.0",
     "prettier": "1.10.2",
     "react": "16.2.0",
     "react-dom": "16.2.0",
