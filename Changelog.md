@@ -1,6 +1,8 @@
 # Change log
 
-### @next
+### vNext
+
+### 2.1.0-alpha.0
 
 - **NEW FEATURES**
   - Added `<Query />` component [#1398](https://github.com/apollographql/react-apollo/pull/1398)
