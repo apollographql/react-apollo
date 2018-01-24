@@ -7,7 +7,7 @@
     "graphql": "^0.12.0",
     "graphql-tag": "^2.6.0",
     "react": "^16.2.0",
-    "react-apollo": "file:../..",
+    "react-apollo": "file:../../npm",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.0"
   },
