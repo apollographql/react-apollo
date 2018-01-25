@@ -1,6 +1,7 @@
 # Change log
 
 ### vNext
+- Change package to produce ES2015 as `module` and commonjs for `main` [#1576](https://github.com/apollographql/react-apollo/pull/1576)
 
 ### 2.1.0-alpha.0
 
