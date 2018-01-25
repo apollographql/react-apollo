@@ -19,7 +19,9 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 const pick = require('lodash/pick');
 
-function observableQueryFields(observable) {
+type ObservableQueryFields<TData> = Pick<ObservableQuery<TData>, 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling'>;
+
+function observableQueryFields<TData>(observable: ObservableQuery<TData>): ObservableQueryFields<TData> {
   const fields = pick(
     observable,
     'refetch',
@@ -38,16 +40,20 @@ function observableQueryFields(observable) {
   return fields;
 }
 
-export interface QueryResult<TData = any> {
+function isDataFilled<TData>(data: {} | TData): data is TData {
+  return Object.keys(data).length > 0;
+}
+
+export interface QueryResult<TData = any, TVariables = OperationVariables> {
   client: ApolloClient<any>;
-  data: TData;
+  data?: TData;
   error?: ApolloError;
   fetchMore: (
     fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
   ) => Promise<ApolloQueryResult<any>>;
   loading: boolean;
   networkStatus: number;
-  refetch: (variables?: OperationVariables) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   updateQuery: (
@@ -55,13 +61,13 @@ export interface QueryResult<TData = any> {
   ) => void;
 }
 
-export interface QueryProps<TData = any> {
-  children: (result: QueryResult<TData>) => React.ReactNode;
+export interface QueryProps<TData = any, TVariables = OperationVariables> {
+  children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
   notifyOnNetworkStatusChange?: boolean;
   pollInterval?: number;
   query: DocumentNode;
-  variables?: OperationVariables;
+  variables?: TVariables;
   ssr?: boolean;
 }
 
@@ -69,8 +75,8 @@ export interface QueryState<TData = any> {
   result: ApolloCurrentResult<TData>;
 }
 
-class Query<TData = any> extends React.Component<
-  QueryProps<TData>,
+class Query<TData = any, TVariables = OperationVariables> extends React.Component<
+  QueryProps<TData, TVariables>,
   QueryState<TData>
 > {
   static contextTypes = {
@@ -82,7 +88,7 @@ class Query<TData = any> extends React.Component<
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
 
-  constructor(props: QueryProps<TData>, context: any) {
+  constructor(props: QueryProps<TData, TVariables>, context: any) {
     super(props, context);
 
     invariant(
@@ -217,12 +223,12 @@ class Query<TData = any> extends React.Component<
     this.setState({ result: this.queryObservable.currentResult() });
   };
 
-  private getQueryResult = (): QueryResult<TData> => {
+  private getQueryResult = (): QueryResult<TData, TVariables> => {
     const { result } = this.state;
     const { loading, error, networkStatus, data } = result;
     return {
       client: this.client,
-      data,
+      data: isDataFilled(data) ? data : undefined,
       loading,
       error,
       networkStatus,

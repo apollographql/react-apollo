@@ -535,7 +535,7 @@ describe('Query component', () => {
           {result => {
             catchAsyncError(done, () => {
               expect(result.loading).toBeFalsy();
-              expect(result.data).toEqual({});
+              expect(result.data).toBeUndefined();
               expect(result.networkStatus).toBe(7);
               done();
             });
