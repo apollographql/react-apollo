@@ -6,16 +6,6 @@
 #    var language = require('react-apollo/server');
 #
 
-# Clear the built output
-rm -rf ./lib ./npm
-
-# Compile new files
-npm run compile
-
-# Make sure the ./npm directory is empty
-rm -rf ./npm
-mkdir ./npm
-
 # Copy all files from ./lib to /npm
 cd ./lib && cp -r ./ ../npm/
 
@@ -29,12 +19,11 @@ node -e "var package = require('./package.json'); \
   delete package[\"lint-staged\"]; \
   delete package.jest; \
   delete package.bundlesize; \
-  delete package[\"pre-commit\"]; \
+  delete package[\"husky\"]; \
   delete package.scripts; \
   delete package.options; \
-  package.main = 'umd/react-apollo.js'; \
-  package.module = 'index.js'; \
-  package['jsnext:main'] = 'index.js'; \
+  package.main = 'index.js'; \
+  package.module = 'index.mjs'; \
   package.typings = 'index.d.ts'; \
   var origVersion = 'local';
   var fs = require('fs'); \
