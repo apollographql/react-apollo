@@ -6,6 +6,7 @@
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
   "scripts": {
+    "precommit": "lint-staged",
     "danger": "danger run --verbose",
     "predeploy": "npm run compile",
     "deploy": "cd lib && npm publish --tag=alpha",
@@ -38,13 +39,8 @@
       "maxSize": "5.81 KB"
     }
   ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
-    "*.{ts*}": ["prettier --write", "yarn lint", "git add"],
+    "*.{ts*}": ["prettier --write", "npm run lint", "git add"],
     "*.{js*,json,md}": ["prettier --write", "git add"]
   },
   "repository": {
