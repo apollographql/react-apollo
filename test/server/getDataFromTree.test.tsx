@@ -939,11 +939,11 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
+      const resultData = { currentUser: { firstName: 'James' } };
       const variables = { id: 1 };
       const link = mockSingleLink({
         request: { query, variables },
-        result: { data },
+        result: { data: resultData },
         delay: 50,
       });
 
@@ -959,12 +959,12 @@ describe('SSR', () => {
         };
       }
 
-      class CurrentUserQuery extends Query<Data> {}
+      class CurrentUserQuery extends Query<Data, { id: number }> {}
 
       const Element = (props: { id: number }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
-          {({ data: { currentUser }, loading }) => (
-            <div>{loading ? 'loading' : currentUser.firstName}</div>
+          {({ data, loading }) => (
+            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
           )}
         </CurrentUserQuery>
       );
