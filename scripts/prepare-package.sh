@@ -29,3 +29,4 @@ node -e "var package = require('./package.json'); \
 cp README.md lib/
 cp LICENSE lib/
 cp src/index.js.flow lib/
+cp .npmignore lib/

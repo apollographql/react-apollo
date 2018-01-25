@@ -7,6 +7,7 @@
     "danger": "danger run --verbose",
     "predeploy": "npm run compile",
     "deploy": "cd lib && npm publish --tag=alpha",
+    "filesize": "rollup -c rollup.config.js && bundlesize",
     "test": "npm run lint && npm run type-check && npm run jest",
     "jest": "jest --maxWorkers=4 --coverage",
     "test-watch": "jest --watch",
@@ -23,6 +24,12 @@
     "lint-staged": "lint-staged",
     "prettier": "prettier --write \"{,!(node_modules|lib)/**/}*.{ts*,js*,json,md}\""
   },
+  "bundlesize": [
+    {
+      "path": "./lib/umd/react-apollo.js",
+      "maxSize": "4.81 KB"
+    }
+  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -104,6 +111,7 @@
     "babel-core": "6.26.0",
     "babel-jest": "22.1.0",
     "babel-preset-env": "1.6.1",
+    "bundlesize": "^0.15.3",
     "coveralls": "3.0.0",
     "danger": "3.0.5",
     "enzyme": "3.3.0",
@@ -124,6 +132,8 @@
     "recompose": "0.26.0",
     "recursive-rename": "^2.0.0",
     "rimraf": "2.6.2",
+    "rollup": "^0.55.0",
+    "rollup-plugin-babel-minify": "^3.1.2",
     "ts-jest": "22.0.1",
     "tslint": "5.9.1",
     "typescript": "2.6.2",
