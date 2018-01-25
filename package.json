@@ -21,7 +21,7 @@
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "lint-staged": "lint-staged",
-    "prettier": "prettier --write \"{,!(node_modules|lib|npm)/**/}*.{ts*,js*,json,md}\""
+    "prettier": "prettier --write \"{,!(node_modules|lib)/**/}*.{ts*,js*,json,md}\""
   },
   "husky": {
     "hooks": {
