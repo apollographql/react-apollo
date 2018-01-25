@@ -6,12 +6,6 @@
 #    var language = require('react-apollo/server');
 #
 
-# Copy all files from ./lib to /npm
-cd ./lib && cp -r ./ ../npm/
-
-# Back to the root directory
-cd ../
-
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
 node -e "var package = require('./package.json'); \
@@ -27,14 +21,11 @@ node -e "var package = require('./package.json'); \
   package.typings = 'index.d.ts'; \
   var origVersion = 'local';
   var fs = require('fs'); \
-  fs.writeFileSync('./npm/package.json', JSON.stringify(package, null, 2)); \
+  fs.writeFileSync('./lib/package.json', JSON.stringify(package, null, 2)); \
   "
 
 
-# Copy few more files to ./npm
-cp README.md npm/
-cp LICENSE npm/
-cp src/index.js.flow npm/
-# please keep this in sync with the filename used in package.main
-cp src/index.js.flow npm/umd/react-apollo.js.flow
-
+# Copy few more files to ./lib
+cp README.md lib/
+cp LICENSE lib/
+cp src/index.js.flow lib/
