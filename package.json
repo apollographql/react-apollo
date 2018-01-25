@@ -5,37 +5,47 @@
   "module": "src/index.ts",
   "scripts": {
     "danger": "danger run --verbose",
-    "deploy":
-      "./scripts/prepare-package.sh && cd npm && npm publish --tag=alpha",
+    "predeploy": "npm run compile",
+    "deploy": "cd lib && npm publish --tag=alpha",
+    "filesize": "rollup -c rollup.config.js && bundlesize",
     "test": "npm run lint && npm run type-check && npm run jest",
     "jest": "jest --maxWorkers=4 --coverage",
     "test-watch": "jest --watch",
     "test-preact": "jest --config ./jest.preact.config.json --no-cache",
-    "filesize": "bundlesize",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
-    "precompile": "rimraf lib && rimraf npm",
-    "compile":
-      "tsc --project tsconfig.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
-    "postcompile":
-      "rollup -c rollup.config.js && rollup -c rollup.test-utils.config.js",
+    "precompile": "rimraf lib",
+    "compile": "npm run compile:esm && npm run compile:cjs",
+    "compile:esm": "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
+    "compile:cjs": "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "postcompile": "./scripts/prepare-package.sh",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
-    "lint:fix":
-      "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
+    "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "lint-staged": "lint-staged",
-    "prettier":
-      "prettier --config .prettierrc --write \"{src,test}/**/*.{js,ts}*\""
+    "prettier": "prettier --write \"{,!(node_modules|lib)/**/}*.{ts*,js*,json,md}\""
   },
   "bundlesize": [
     {
-      "path": "./lib/umd/react-apollo.js",
+      "path": "./lib/bundlesize/react-apollo.js",
       "maxSize": "4.81 KB"
     }
   ],
-  "lint-staged": {
-    "*.{js,ts}*": ["prettier --single-quote --write", "git add"]
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
-  "pre-commit": "lint-staged",
+  "lint-staged": {
+    "*.{ts*}": [
+      "prettier --write",
+      "yarn lint",
+      "git add"
+    ],
+    "*.{js*,json,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "apollostack/react-apollo"
@@ -51,7 +61,9 @@
   ],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
-    "presets": ["env"]
+    "presets": [
+      "env"
+    ]
   },
   "jest": {
     "testEnvironment": "jsdom",
@@ -60,15 +72,24 @@
       "^.+\\.jsx?$": "babel-jest"
     },
     "mapCoverage": true,
-    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow-usage.js",
       "<rootDir>/test/typescript-usage.tsx"
     ],
-    "projects": ["<rootDir>"],
+    "projects": [
+      "<rootDir>"
+    ],
     "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "setupFiles": ["<rootDir>/test/test-utils/setup.ts"]
+    "setupFiles": [
+      "<rootDir>/test/test-utils/setup.ts"
+    ]
   },
   "license": "MIT",
   "peerDependencies": {
@@ -90,7 +111,7 @@
     "babel-core": "6.26.0",
     "babel-jest": "22.1.0",
     "babel-preset-env": "1.6.1",
-    "bundlesize": "0.15.3",
+    "bundlesize": "^0.15.3",
     "coveralls": "3.0.0",
     "danger": "3.0.5",
     "enzyme": "3.3.0",
@@ -98,10 +119,10 @@
     "flow-bin": "0.63.1",
     "graphql": "0.11.7",
     "graphql-tag": "2.6.1",
+    "husky": "^0.14.3",
     "jest": "22.1.1",
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
-    "pre-commit": "1.2.2",
     "preact": "^8.2.7",
     "preact-compat": "^3.17.0",
     "prettier": "1.10.2",
@@ -109,9 +130,10 @@
     "react-dom": "16.2.0",
     "react-test-renderer": "16.2.0",
     "recompose": "0.26.0",
+    "recursive-rename": "^2.0.0",
     "rimraf": "2.6.2",
-    "rollup": "0.54.1",
-    "rollup-plugin-babel-minify": "3.1.2",
+    "rollup": "^0.55.0",
+    "rollup-plugin-babel-minify": "^3.1.2",
     "ts-jest": "22.0.1",
     "tslint": "5.9.1",
     "typescript": "2.6.2",

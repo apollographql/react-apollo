@@ -3,10 +3,10 @@ const minify = require('rollup-plugin-babel-minify');
 export default {
   input: 'lib/index.js',
   output: {
-    file: 'lib/umd/react-apollo.js',
-    format: 'umd',
+    file: 'lib/bundlesize/react-apollo.js',
+    format: 'cjs',
     name: 'react-apollo',
-    sourcemap: true,
+    sourcemap: false,
   },
   plugins: [minify()],
   onwarn,
