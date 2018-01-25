@@ -62,6 +62,7 @@ export interface QueryProps<TData = any> {
   pollInterval?: number;
   query: DocumentNode;
   variables?: OperationVariables;
+  ssr?: boolean;
 }
 
 export interface QueryState<TData = any> {
@@ -94,6 +95,29 @@ class Query<TData = any> extends React.Component<
     this.state = {
       result: this.queryObservable.currentResult(),
     };
+  }
+
+  // For server-side rendering (see getDataFromTree.ts)
+  fetchData(): Promise<ApolloQueryResult<any>> | boolean {
+    const { children, ssr, ...opts } = this.props;
+
+    let { fetchPolicy } = opts;
+    if (ssr === false) return false;
+    if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
+      fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
+    }
+
+    const observable = this.client.watchQuery({
+      ...opts,
+      fetchPolicy,
+    });
+    const result = this.queryObservable.currentResult();
+
+    if (result.loading) {
+      return observable.result();
+    } else {
+      return false;
+    }
   }
 
   componentDidMount() {
