@@ -27,24 +27,24 @@ export const Character = withCharacter(({ loading, hero, error }) => {
   if (error) return <h1>ERROR</h1>;
   return (
     <div>
-      {hero &&
+      {hero && (
         <div>
-          <h3>
-            {hero.name}
-          </h3>
+          <h3>{hero.name}</h3>
 
-          {hero.friends.map(friend =>
+          {hero.friends.map(friend => (
             <h6 key={friend.id}>
               {friend.name}:{' '}
               {friend.appearsIn.map(x => x.toLowerCase()).join(', ')}
-            </h6>,
-          )}
-        </div>}
+            </h6>
+          ))}
+        </div>
+      )}
     </div>
   );
 });
 
-export const App = () =>
+export const App = () => (
   <div>
     <Character episode="NEWHOPE" />
-  </div>;
+  </div>
+);

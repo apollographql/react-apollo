@@ -27,7 +27,7 @@ While we will try to be as helpful as we can on any issue reported, please inclu
 2. **Actual outcome:** A description of what actually happened, including a screenshot or copy-paste of any related error messages, logs, or other output that might be related. Places to look for information include your browser console, server console, and network logs. Please avoid non-specific phrases like “didn’t work” or “broke”.
 3. **How to reproduce the issue:** Instructions for how the issue can be reproduced by a maintainer or contributor. Be as specific as possible, and only mention what is necessary to reproduce the bug. If possible, try to isolate the exact circumstances in which the bug occurs and avoid speculation over what the cause might be.
 
-Creating a good reproduction really helps contributors investigate and resolve your issue quickly. In many cases, the act of creating a minimal reproduction illuminates that the source of the bug was somewhere outside the library in question, saving time and effort for everyone. 
+Creating a good reproduction really helps contributors investigate and resolve your issue quickly. In many cases, the act of creating a minimal reproduction illuminates that the source of the bug was somewhere outside the library in question, saving time and effort for everyone.
 
 Include in the issue a link to your reproduction—a couple good options are a small Github repo or a [CodeSandbox](https://codesandbox.io/). Here's a starter CodeSandbox you can use: https://codesandbox.io/s/yrwE7pvJ7
 
@@ -47,7 +47,7 @@ For a small bug fix change (less than 20 lines of code changed), feel free to op
 
 ### Suggesting features
 
-Most of the features in Apollo came from suggestions by you, the community! We welcome any ideas about how to make Apollo  better for your use case. Unless there is overwhelming demand for a feature, it might not get implemented immediately, but please include as much information as possible that will help people have a discussion about your proposal:
+Most of the features in Apollo came from suggestions by you, the community! We welcome any ideas about how to make Apollo better for your use case. Unless there is overwhelming demand for a feature, it might not get implemented immediately, but please include as much information as possible that will help people have a discussion about your proposal:
 
 1. **Use case:** What are you trying to accomplish, in specific terms? Often, there might already be a good way to do what you need and a new feature is unnecessary, but it’s hard to know without information about the specific use case.
 2. **Could this be a plugin?** In many cases, a feature might be too niche to be included in the core of a library, and is better implemented as a companion package. If there isn’t a way to extend the library to do what you want, could we add additional plugin APIs? It’s important to make the case for why a feature should be part of the core functionality of the library.
@@ -61,8 +61,8 @@ Once there is a consensus on the need for a new feature, proceed as listed below
 
 This includes:
 
-- Big bug fixes
-- New features
+* Big bug fixes
+* New features
 
 For significant changes to a repository, it’s important to settle on a design before starting on the implementation. This way, we can make sure that major improvements get the care and attention they deserve. Since big changes can be risky and might not always get merged, it’s good to reduce the amount of possible wasted effort by agreeing on an implementation design/plan first.
 
