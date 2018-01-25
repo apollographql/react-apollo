@@ -1,9 +1,9 @@
-var chromedriver = require("chromedriver");
+var chromedriver = require('chromedriver');
 
-console.log("here");
+console.log('here');
 module.exports = {
   before: function(done) {
-    console.log("before");
+    console.log('before');
     try {
       chromedriver.start();
     } catch (e) {

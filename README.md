@@ -5,17 +5,17 @@ React Apollo allows you to fetch data from your GraphQL server and use it in bui
 React Apollo unlike many other tools in the React ecosystem requires _no_ complex build setup to get up and running. As long as you have a GraphQL server you can get started building out your application with React immediately. React Apollo works out of the box with both [`create-react-app`][] and [React Native][] with a single install and with no extra hassle configuring Babel or other JavaScript tools.
 
 [`create-react-app`]: https://github.com/facebookincubator/create-react-app
-[React Native]: http://facebook.github.io/react-native
+[react native]: http://facebook.github.io/react-native
 
 React Apollo is:
 
 1. **Incrementally adoptable**, so that you can drop it into an existing JavaScript app and start using GraphQL for just part of your UI.
 2. **Universally compatible**, so that Apollo works with any build setup, any GraphQL server, and any GraphQL schema.
-2. **Simple to get started with**, you can start loading data right away and learn about advanced features later.
-3. **Inspectable and understandable**, so that you can have great developer tools to understand exactly what is happening in your app.
-4. **Built for interactive apps**, so your users can make changes and see them reflected in the UI immediately.
-4. **Small and flexible**, so you don't get stuff you don't need. The core is under 25kb compressed.
-5. **Community driven**, Apollo is driven by the community and serves a variety of use cases. Everything is planned and developed in the open.
+3. **Simple to get started with**, you can start loading data right away and learn about advanced features later.
+4. **Inspectable and understandable**, so that you can have great developer tools to understand exactly what is happening in your app.
+5. **Built for interactive apps**, so your users can make changes and see them reflected in the UI immediately.
+6. **Small and flexible**, so you don't get stuff you don't need. The core is under 25kb compressed.
+7. **Community driven**, Apollo is driven by the community and serves a variety of use cases. Everything is planned and developed in the open.
 
 Get started today on the app you’ve been dreaming of, and let React Apollo take you to the moon!
 
@@ -35,7 +35,7 @@ That’s it! You may now use React Apollo in any of your React environments.
 
 For an amazing developer experience you may also install the [Apollo Client Developer tools for Chrome][] which will give you inspectability into your React Apollo data.
 
-[Apollo Client Developer tools for Chrome]: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
+[apollo client developer tools for chrome]: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
 
 ## Usage
 
@@ -54,10 +54,10 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 const client = new ApolloClient({
   // By default, this client will send queries to the
   //  `/graphql` endpoint on the same host
-  // Pass the configuration option { uri: YOUR_GRAPHQL_API_URL } to the `HttpLink` to connect
+  // Pass the configuration option { uri: YOUR_GRAPHQL_API_URL } to the `HttpLink` to connect
   // to a different host
-  link: new HttpLink(),
-  cache: new InMemoryCache()
+  link: new HttpLink(),
+  cache: new InMemoryCache(),
 });
 ```
 
@@ -70,7 +70,7 @@ import { ApolloProvider } from 'react-apollo';
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <MyRootComponent/>
+    <MyRootComponent />
   </ApolloProvider>,
   document.getElementById('root'),
 );
@@ -93,16 +93,8 @@ import gql from 'graphql-tag';
 function TodoApp({ data: { todos, refetch } }) {
   return (
     <div>
-      <button onClick={() => refetch()}>
-        Refresh
-      </button>
-      <ul>
-        {todos && todos.map(todo => (
-          <li key={todo.id}>
-            {todo.text}
-          </li>
-        ))}
-      </ul>
+      <button onClick={() => refetch()}>Refresh</button>
+      <ul>{todos && todos.map(todo => <li key={todo.id}>{todo.text}</li>)}</ul>
     </div>
   );
 }
@@ -123,15 +115,15 @@ To learn more about querying with React Apollo be sure to start reading the [doc
 
 There is also an excellent [**Full-stack React + GraphQL Tutorial**][] on the Apollo developer blog.
 
-[`ApolloClient`]: http://dev.apollodata.com/core/apollo-client-api.html#apollo-client
-[`<ApolloProvider/>`]: http://dev.apollodata.com/react/api.html#ApolloProvider
+[`apolloclient`]: http://dev.apollodata.com/core/apollo-client-api.html#apollo-client
+[`<apolloprovider/>`]: http://dev.apollodata.com/react/api.html#ApolloProvider
 [`graphql()`]: http://dev.apollodata.com/react/api.html#graphql
-[`createNetworkInterface`]: http://dev.apollodata.com/core/network.html
-[`<Provider/>` component in `react-redux`]: https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
-[documentation article on Queries]: http://dev.apollodata.com/react/queries.html
-[complete API reference]: http://dev.apollodata.com/react/api.html
-[**Full-stack React + GraphQL Tutorial**]: https://dev-blog.apollodata.com/full-stack-react-graphql-tutorial-582ac8d24e3b#.w8e9j7jmp
-[Learn Apollo]: https://www.learnapollo.com/
+[`createnetworkinterface`]: http://dev.apollodata.com/core/network.html
+[`<provider/>` component in `react-redux`]: https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
+[documentation article on queries]: http://dev.apollodata.com/react/queries.html
+[complete api reference]: http://dev.apollodata.com/react/api.html
+[**full-stack react + graphql tutorial**]: https://dev-blog.apollodata.com/full-stack-react-graphql-tutorial-582ac8d24e3b#.w8e9j7jmp
+[learn apollo]: https://www.learnapollo.com/
 
 ## Documentation
 
@@ -141,7 +133,7 @@ All of the documentation for React Apollo including usage articles and helpful r
 
 ### Recipes
 
-- [Authentication](http://dev.apollodata.com/react/auth.html)
-- [Pagination](http://dev.apollodata.com/react/pagination.html)
-- [Optimistic UI](http://dev.apollodata.com/react/optimistic-ui.html)
-- [Server Side Rendering](https://www.apollographql.com/docs/react/recipes/server-side-rendering.html)
+* [Authentication](http://dev.apollodata.com/react/auth.html)
+* [Pagination](http://dev.apollodata.com/react/pagination.html)
+* [Optimistic UI](http://dev.apollodata.com/react/optimistic-ui.html)
+* [Server Side Rendering](https://www.apollographql.com/docs/react/recipes/server-side-rendering.html)

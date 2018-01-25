@@ -28,29 +28,30 @@ export const CharacterWithoutData = ({ loading, hero, error }) => {
   if (error) return <h1>ERROR</h1>;
   return (
     <div>
-      {hero &&
+      {hero && (
         <div>
-          <h3>
-            {hero.name}
-          </h3>
+          <h3>{hero.name}</h3>
 
           {hero.friends &&
             hero.friends.map(
               friend =>
-                friend &&
-                <h6 key={friend.id}>
-                  {friend.name}:{' '}
-                  {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
-                </h6>,
+                friend && (
+                  <h6 key={friend.id}>
+                    {friend.name}:{' '}
+                    {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
+                  </h6>
+                ),
             )}
-        </div>}
+        </div>
+      )}
     </div>
   );
 };
 
 export const Character = withCharacter(CharacterWithoutData);
 
-export const App = () =>
+export const App = () => (
   <div>
     <Character episode="NEWHOPE" />
-  </div>;
+  </div>
+);
