@@ -39,7 +39,8 @@ export type GetCharacterQuery = {|
               id: string,
               // The movies this character appears in
               appearsIn: Array<?Episode>,
-            })>,
+            }
+        )>,
       }
     | {
         __typename: 'Droid',
@@ -66,6 +67,8 @@ export type GetCharacterQuery = {|
               id: string,
               // The movies this character appears in
               appearsIn: Array<?Episode>,
-            })>,
-      }),
+            }
+        )>,
+      }
+  ),
 |};

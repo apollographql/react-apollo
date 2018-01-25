@@ -38,4 +38,4 @@ npm
 # don't track package-lock but allow contributors to use it for local dev
 package-lock.json
 
-
+.vscode
