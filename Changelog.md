@@ -2,6 +2,11 @@
 
 ### vNext
 
+### 2.1.0-alpha.2
+
+* Resubscribe after error for Query [#1580](https://github.com/apollographql/react-apollo/pull/1580)
+* Improved TypeScript types of Query Component [#1581](https://github.com/apollographql/react-apollo/pull/1581)
+
 ### 2.1.0-alpha.1
 
 * Change package to produce ES2015 as `module` and commonjs for `main` [#1576](https://github.com/apollographql/react-apollo/pull/1576)
@@ -32,6 +37,7 @@
   * Remove deprecated [`options.updateQueries`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-updateQueries), use [`options.update`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-update) instead [#1485](https://github.com/apollographql/react-apollo/pull/1485)
 
 * **Fixes and Improvements**
+  * Fixed bug where link error prevents future requests
   * Fixed stack traces on non chrome browsers [#1568](https://github.com/apollographql/react-apollo/pull/1568)
   * Fixed bug [#1412](https://github.com/apollographql/react-apollo/issues/1412) where the `MockedProvider` ignored variables when doing matching. This is potentially breaking because tests could break for which the variables don't match [#1501](https://github.com/apollographql/react-apollo/pull/1501)
   * Update all dependencies, scripts' usage, prettier and typescript setup [#1402](https://github.com/apollographql/react-apollo/pull/1402)

@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.1.0-alpha.1",
+  "version": "2.1.0-alpha.2",
   "description": "React data container for Apollo Client",
   "module": "src/index.ts",
   "browser": "lib/react-apollo.browser.umd.js",
@@ -36,7 +36,7 @@
   "bundlesize": [
     {
       "path": "./lib/react-apollo.browser.umd.js",
-      "maxSize": "5.9 KB"
+      "maxSize": "6 KB"
     }
   ],
   "lint-staged": {
