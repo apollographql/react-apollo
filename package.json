@@ -6,7 +6,7 @@
   "scripts": {
     "danger": "danger run --verbose",
     "predeploy": "npm run compile",
-    "deploy": "./scripts/prepare-package.sh && cd npm && npm publish --tag=alpha",
+    "deploy": "cd lib && npm publish --tag=alpha",
     "test": "npm run lint && npm run type-check && npm run jest",
     "jest": "jest --maxWorkers=4 --coverage",
     "test-watch": "jest --watch",
@@ -16,6 +16,7 @@
     "compile": "npm run compile:esm && npm run compile:cjs",
     "compile:esm": "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
     "compile:cjs": "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "postcompile": "./scripts/prepare-package.sh",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
