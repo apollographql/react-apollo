@@ -25,9 +25,7 @@ Object {
 }
 `;
 
-exports[
-  `Query component calls the children prop: result in render prop while loading 1`
-] = `
+exports[`Query component calls the children prop: result in render prop while loading 1`] = `
 Object {
   "data": Object {},
   "error": undefined,
