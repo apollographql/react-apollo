@@ -138,7 +138,12 @@ function getQueriesFromTree<Cache>(
 
   walkTree(rootElement, rootContext, (element, instance, context) => {
     const skipRoot = !fetchRoot && element === rootElement;
-    if (instance && typeof instance.fetchData === 'function' && !skipRoot) {
+    if (
+      instance &&
+      typeof instance.fetchData === 'function' &&
+      instance.constructor.name === 'GraphQL' &&
+      !skipRoot
+    ) {
       const query = instance.fetchData();
       if (query) {
         queries.push({ query, element, context });
