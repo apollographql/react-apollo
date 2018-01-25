@@ -883,6 +883,43 @@ describe('SSR', () => {
       });
     });
 
+    it("shouldn't call `fetchData` on components that are not apollo components", () => {
+      const query = gql`
+        {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+      const link = mockSingleLink({
+        request: { query },
+        result: { data: { currentUser: { firstName: 'James' } } },
+        delay: 50,
+      });
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      const mockFetchData = jest.fn();
+      class WrappedComponent extends React.Component {
+        fetchData = mockFetchData;
+        render() {
+          return null;
+        }
+      }
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <WrappedComponent />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).then(() => {
+        expect(mockFetchData).not.toHaveBeenCalled();
+      });
+    });
+
     it('should correctly handle SSR mutations', () => {
       const query = gql`
         {
