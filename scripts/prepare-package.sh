@@ -16,7 +16,8 @@ node -e "var package = require('./package.json'); \
   delete package[\"husky\"]; \
   delete package.scripts; \
   delete package.options; \
-  package.main = 'index.js'; \
+  package.main = 'react-apollo.umd.js'; \
+  package.browser = 'react-apollo.browser.umd.js'; \
   package.module = 'index.mjs'; \
   package.typings = 'index.d.ts'; \
   var origVersion = 'local';
