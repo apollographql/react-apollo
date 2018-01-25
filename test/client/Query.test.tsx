@@ -982,4 +982,105 @@ describe('Query component', () => {
       </MockedProvider>,
     );
   });
+
+  it('should be able to refetch after there was a network error', done => {
+    const query = gql`
+      query somethingelse {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const dataTwo = { allPeople: { people: [{ name: 'Princess Leia' }] } };
+    const link = mockSingleLink(
+      { request: { query }, result: { data } },
+      { request: { query }, error: new Error('This is an error!') },
+      { request: { query }, result: { data: dataTwo } },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    let count = 0;
+    const noop = () => null;
+
+    function Container() {
+      return (
+        <Query query={query} notifyOnNetworkStatusChange>
+          {(result) => {
+            try {
+              switch (count++) {
+                case 0:
+                  // Waiting for the first result to load
+                  expect(result.loading).toBeTruthy();
+                  break;
+                case 1:
+                  // First result is loaded, run a refetch to get the second result
+                  // which is an error.
+                  expect(stripSymbols(result.data.allPeople)).toEqual(
+                    data.allPeople,
+                  );
+                  setTimeout(() => {
+                    result
+                      .refetch()
+                      .then((val) => {
+                        done.fail('Expected error value on first refetch.');
+                      }, noop);
+                  }, 0);
+                  break;
+                case 2:
+                  // Waiting for the second result to load
+                  expect(result.loading).toBeTruthy();
+                  break;
+                case 3:
+                  // The error arrived, run a refetch to get the third result
+                  // which should now contain valid data.
+                  expect(result.loading).toBeFalsy();
+                  expect(result.error).toBeTruthy();
+                  setTimeout(() => {
+                    result
+                      .refetch()
+                      .catch(() => {
+                        done.fail('Expected good data on second refetch.');
+                      });
+                  }, 0);
+                  break;
+                // Further fix required in QueryManager, we should have an extra
+                // step for the loading status of the third result
+                // case 4:
+                //   expect(result.loading).toBeTruthy();
+                //   expect(result.error).toBeFalsy();
+                //   break;
+                case 4:
+                  // Third result's data is loaded
+                  expect(result.loading).toBeFalsy();
+                  expect(result.error).toBeFalsy();
+                  expect(stripSymbols(result.data.allPeople)).toEqual(
+                    dataTwo.allPeople,
+                  );
+                  done();
+                  break;
+                default:
+                  throw new Error('Unexpected fall through');
+              }
+            } catch (e) {
+              done.fail(e);
+            }
+            return null;
+          }}
+        </Query>
+      )
+    }
+
+    wrapper = mount(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
+  });
 });

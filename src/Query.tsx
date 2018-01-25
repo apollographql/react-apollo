@@ -183,7 +183,13 @@ class Query<TData = any> extends React.Component<
   private startQuerySubscription = () => {
     this.querySubscription = this.queryObservable.subscribe({
       next: this.updateCurrentData,
-      error: this.updateCurrentData,
+      error: error => {
+        this.resubscribeToQuery();
+        // Quick fix for https://github.com/apollostack/react-apollo/issues/378
+        if (!error.hasOwnProperty('graphQLErrors')) throw error;
+
+        this.updateCurrentData();
+      },
     });
   };
 
@@ -192,6 +198,20 @@ class Query<TData = any> extends React.Component<
       this.querySubscription.unsubscribe();
     }
   };
+
+  private resubscribeToQuery() {
+    this.removeQuerySubscription();
+
+    const lastError = this.queryObservable.getLastError();
+    const lastResult = this.queryObservable.getLastResult();
+    // If lastError is set, the observable will immediately
+    // send it, causing the stream to terminate on initialization.
+    // We clear everything here and restore it afterward to
+    // make sure the new subscription sticks.
+    this.queryObservable.resetLastResults();
+    this.startQuerySubscription();
+    Object.assign(this.queryObservable, { lastError, lastResult });
+  }
 
   private updateCurrentData = () => {
     this.setState({ result: this.queryObservable.currentResult() });
