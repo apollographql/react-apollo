@@ -2,6 +2,10 @@
 
 ### vNext
 
+### 2.1.0-beta.0
+
+* Beta release of all 2.1 features!
+
 ### 2.1.0-alpha.2
 
 * Resubscribe after error for Query [#1580](https://github.com/apollographql/react-apollo/pull/1580)
