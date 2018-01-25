@@ -397,7 +397,7 @@ export default function graphql<
         }
       }
 
-      // For server-side rendering (see renderToStringWithData.ts)
+      // For server-side rendering (see getDataFromTree.ts)
       fetchData(): Promise<ApolloQueryResult<any>> | boolean {
         if (this.shouldSkip()) return false;
         if (

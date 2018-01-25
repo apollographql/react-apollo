@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import {
   graphql,
+  Query,
   ApolloProvider,
   DataValue,
   walkTree,
@@ -300,6 +301,53 @@ describe('SSR', () => {
         ({ data }: ChildProps<Props, Data>) => (
           <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
         ),
+      );
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <WrappedElement />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).then(() => {
+        const markup = ReactDOM.renderToString(app);
+        expect(markup).toMatch(/James/);
+      });
+    });
+
+    it('should run through all of the queries (also defined via Query component) that want SSR', () => {
+      const query = gql`
+        {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+      const data1 = { currentUser: { firstName: 'James' } };
+      const link = mockSingleLink({
+        request: { query },
+        result: { data: data1 },
+        delay: 50,
+      });
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
+      class CurrentUserQuery extends Query<Data> {}
+
+      const WrappedElement = () => (
+        <CurrentUserQuery query={query}>
+          {({ data: { currentUser }, loading }) => (
+            <div>{loading ? 'loading' : currentUser.firstName}</div>
+          )}
+        </CurrentUserQuery>
       );
 
       const app = (
@@ -869,6 +917,57 @@ describe('SSR', () => {
       })(({ user }: { user?: DataValue<Data> }) => (
         <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
       ));
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <Element id={1} />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).then(() => {
+        const initialState = cache.extract();
+        expect(initialState).toEqual({});
+        expect(initialState).toEqual({});
+      });
+    });
+
+    it("shouldn't run queries (via Query component) if ssr is turned to off", () => {
+      const query = gql`
+        query user($id: ID) {
+          currentUser(id: $id) {
+            firstName
+          }
+        }
+      `;
+      const data = { currentUser: { firstName: 'James' } };
+      const variables = { id: 1 };
+      const link = mockSingleLink({
+        request: { query, variables },
+        result: { data },
+        delay: 50,
+      });
+
+      const cache = new Cache({ addTypename: false });
+      const apolloClient = new ApolloClient({
+        link,
+        cache,
+      });
+
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
+      class CurrentUserQuery extends Query<Data> {}
+
+      const Element = (props: { id: number }) => (
+        <CurrentUserQuery query={query} ssr={false} variables={props}>
+          {({ data: { currentUser }, loading }) => (
+            <div>{loading ? 'loading' : currentUser.firstName}</div>
+          )}
+        </CurrentUserQuery>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
