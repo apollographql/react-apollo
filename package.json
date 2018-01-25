@@ -36,7 +36,7 @@
   "bundlesize": [
     {
       "path": "./lib/react-apollo.browser.umd.js",
-      "maxSize": "5.81 KB"
+      "maxSize": "5.9 KB"
     }
   ],
   "lint-staged": {
