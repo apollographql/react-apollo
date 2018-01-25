@@ -1,5 +1,13 @@
-import { Children, ReactElement, StatelessComponent } from 'react';
-import ApolloClient, { ApolloQueryResult } from 'apollo-client';
+import {
+  Children,
+  ReactElement,
+  ReactNode,
+  Component,
+  ComponentType,
+  ComponentClass,
+  ChildContextProvider
+} from 'react';
+import ApolloClient from 'apollo-client';
 const assign = require('object-assign');
 
 export interface Context<Cache> {
@@ -14,31 +22,47 @@ export interface QueryTreeArgument<Cache> {
 }
 
 export interface QueryTreeResult<Cache> {
-  query: Promise<ApolloQueryResult<any>>;
+  query: Promise<Object>;
   element: ReactElement<any>;
   context: Context<Cache>;
 }
 
-interface PreactElement {
-  attributes: any;
+interface PreactElement<P> {
+  attributes: P;
 }
 
-function getProps(element: ReactElement<any> | PreactElement): any {
+function getProps<P>(element: ReactElement<P> | PreactElement<P>): P {
   return (
-    (element as ReactElement<any>).props ||
-    (element as PreactElement).attributes
+    (element as ReactElement<P>).props ||
+    (element as PreactElement<P>).attributes
   );
+}
+
+function isReactElement(
+  element: string | number | true | {} | ReactElement<any> | React.ReactPortal,
+): element is ReactElement<any> {
+  return !!(element as any).type;
+}
+
+function isComponentClass(
+  Comp: ComponentType<any>,
+): Comp is ComponentClass<any> {
+  return Comp.prototype && Comp.prototype.render;
+}
+
+function providesChildContext(instance: Component<any>): instance is Component<any> & ChildContextProvider<any> {
+  return !!(instance as any).getChildContext;
 }
 
 // Recurse a React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
 export function walkTree<Cache>(
-  element: ReactElement<any> | any,
+  element: ReactNode,
   context: Context<Cache>,
   visitor: (
-    element: ReactElement<any>,
-    instance: any,
+    element: ReactElement<any> | string | number,
+    instance: Component<any> | null,
     context: Context<Cache>,
   ) => boolean | void,
 ) {
@@ -50,97 +74,113 @@ export function walkTree<Cache>(
 
   if (!element) return;
 
-  const Component = element.type;
   // a stateless functional component or a class
-  if (typeof Component === 'function') {
-    const props = assign({}, Component.defaultProps, getProps(element));
-    let childContext = context;
-    let child;
+  if (isReactElement(element)) {
+    if (typeof element.type === 'function') {
+      const Comp = element.type;
+      const props = assign({}, Comp.defaultProps, getProps(element));
+      let childContext = context;
+      let child;
 
-    // Are we are a react class?
-    //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
-    if (Component.prototype && Component.prototype.render) {
-      // typescript force casting since typescript doesn't have definitions for class
-      // methods
-      const _component = Component as any;
-      const instance = new _component(props, context);
-      // In case the user doesn't pass these to super in the constructor
-      instance.props = instance.props || instance.attributes || props;
-      instance.context = instance.context || context;
-      // set the instance state to null (not undefined) if not set, to match React behaviour
-      instance.state = instance.state || null;
+      // Are we are a react class?
+      //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
+      if (isComponentClass(Comp)) {
+        const instance = new Comp(props, context);
+        // In case the user doesn't pass these to super in the constructor
+        instance.props = instance.props || props;
+        instance.context = instance.context || context;
+        // set the instance state to null (not undefined) if not set, to match React behaviour
+        instance.state = instance.state || null;
 
-      // Override setState to just change the state, not queue up an update.
-      //   (we can't do the default React thing as we aren't mounted "properly"
-      //   however, we don't need to re-render as well only support setState in
-      //   componentWillMount, which happens *before* render).
-      instance.setState = newState => {
-        if (typeof newState === 'function') {
-          newState = newState(instance.state, instance.props, instance.context);
+        // Override setState to just change the state, not queue up an update.
+        //   (we can't do the default React thing as we aren't mounted "properly"
+        //   however, we don't need to re-render as well only support setState in
+        //   componentWillMount, which happens *before* render).
+        instance.setState = newState => {
+          if (typeof newState === 'function') {
+            // React's TS type definitions don't contain context as a third parameter for
+            // setState's updater function.
+            // Remove this cast to `any` when that is fixed.
+            newState = (newState as any)(instance.state, instance.props, instance.context);
+          }
+          instance.state = assign({}, instance.state, newState);
+        };
+
+        // this is a poor man's version of
+        //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
+        if (instance.componentWillMount) {
+          instance.componentWillMount();
         }
-        instance.state = assign({}, instance.state, newState);
-      };
 
-      // this is a poor man's version of
-      //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
-      if (instance.componentWillMount) {
-        instance.componentWillMount();
+        if (providesChildContext(instance)) {
+          childContext = assign({}, context, instance.getChildContext());
+        }
+
+        if (visitor(element, instance, context) === false) {
+          return;
+        }
+
+        child = instance.render();
+      } else {
+        // just a stateless functional
+        if (visitor(element, null, context) === false) {
+          return;
+        }
+
+        child = Comp(props, context);
       }
 
-      if (instance.getChildContext) {
-        childContext = assign({}, context, instance.getChildContext());
+      if (child) {
+        if (Array.isArray(child)) {
+          child.forEach(item => walkTree(item, context, visitor));
+        } else {
+          walkTree(child, childContext, visitor);
+        }
       }
-
-      if (visitor(element, instance, context) === false) {
-        return;
-      }
-
-      child = instance.render();
     } else {
-      // just a stateless functional
+      // a basic string or dom element, just get children
       if (visitor(element, null, context) === false) {
         return;
       }
 
-      // typescript casting for stateless component
-      const _component = Component as StatelessComponent<any>;
-      child = _component(props, context);
-    }
-
-    if (child) {
-      if (Array.isArray(child)) {
-        child.forEach(item => walkTree(item, context, visitor));
-      } else {
-        walkTree(child, childContext, visitor);
+      if (element.props && element.props.children) {
+        Children.forEach(element.props.children, (child: any) => {
+          if (child) {
+            walkTree(child, context, visitor);
+          }
+        });
       }
     }
-  } else {
-    // a basic string or dom element, just get children
-    if (visitor(element, null, context) === false) {
-      return;
-    }
-
-    if (element.props && element.props.children) {
-      Children.forEach(element.props.children, (child: any) => {
-        if (child) {
-          walkTree(child, context, visitor);
-        }
-      });
-    }
+  } else if (typeof element === 'string' || typeof element === 'number') {
+    // Just visit these, they are leaves so we don't keep traversing.
+    visitor(element, null, context);
   }
+  // TODO: Portals?
+}
+
+
+
+function hasFetchDataFunction(instance: Component<any>): instance is Component<any> & { fetchData: () => Object } {
+  return typeof (instance as any).fetchData === 'function'
+}
+
+function isPromise<T>(query: Object): query is Promise<T> {
+  return typeof (query as any).then === 'function';
 }
 
 function getQueriesFromTree<Cache>(
   { rootElement, rootContext = {} }: QueryTreeArgument<Cache>,
   fetchRoot: boolean = true,
 ): QueryTreeResult<Cache>[] {
-  const queries = [];
+  const queries: QueryTreeResult<Cache>[] = [];
 
   walkTree(rootElement, rootContext, (element, instance, context) => {
     const skipRoot = !fetchRoot && element === rootElement;
-    if (instance && typeof instance.fetchData === 'function' && !skipRoot) {
+    if (skipRoot) return;
+
+    if (instance && isReactElement(element) && hasFetchDataFunction(instance)) {
       const query = instance.fetchData();
-      if (query) {
+      if (isPromise<Object>(query)) {
         queries.push({ query, element, context });
 
         // Tell walkTree to not recurse inside this component;  we will
@@ -164,7 +204,7 @@ export default function getDataFromTree(
   // no queries found, nothing to do
   if (!queries.length) return Promise.resolve();
 
-  const errors = [];
+  const errors: any[] = [];
   // wait on each query that we found, re-rendering the subtree when it's done
   const mappedQueries = queries.map(({ query, element, context }) => {
     // we've just grabbed the query for element, so don't try and get it again
