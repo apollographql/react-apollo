@@ -3,11 +3,9 @@ import {
   GetCharacter,
   GetCharacter_hero_friends,
 } from './__generated__/GetCharacter';
+import { GetCharacter as QUERY } from './queries';
 import { Query, QueryResult } from 'react-apollo';
-// import Query, { QueryResult } from '../../../src/Query';
 
-const QUERY = require('./Character.graphql');
-// https://github.com/Microsoft/TypeScript/issues/6395#issuecomment-282133254
 class CharacterQuery extends Query<GetCharacter> {}
 
 export interface CharacterProps {
@@ -21,6 +19,8 @@ export const Character = (props: CharacterProps) => {
       {({ loading, data, error }: QueryResult<GetCharacter>) => {
         if (loading) return <div>Loading</div>;
         if (error) return <h1>ERROR</h1>;
+        if (!data) return <div>no data</div>;
+
         const { hero } = data;
         return (
           <div>

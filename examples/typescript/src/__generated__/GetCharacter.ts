@@ -1,3 +1,5 @@
+
+
 /* tslint:disable */
 // This file was automatically generated and should not be edited.
 
@@ -5,21 +7,23 @@
 // GraphQL query operation: GetCharacter
 // ====================================================
 
-export interface GetCharacter_hero_friends {
-  name: string; // The name of the character
-  id: string; // The ID of the character
-  appearsIn: (Episode | null)[]; // The movies this character appears in
-}
+export type GetCharacter_hero_friends = {
+  __typename: "Human" | "Droid",
+  name: string,            // The name of the character
+  id: string,              // The ID of the character
+  appearsIn: (?Episode)[], // The movies this character appears in
+};
 
-export interface GetCharacter_hero {
-  name: string; // The name of the character
-  id: string; // The ID of the character
-  friends: (GetCharacter_hero_friends | null)[] | null; // The friends of the character, or an empty list if they have none
-}
+export type GetCharacter_hero = {
+  __typename: "Human" | "Droid",
+  name: string,                                          // The name of the character
+  id: string,                                            // The ID of the character
+  friends: GetCharacter_hero_friends | undefined | null, // The friends of the character, or an empty list if they have none
+};
 
-export interface GetCharacter {
-  hero: GetCharacter_hero | null;
-}
+export type GetCharacter = {
+  hero: GetCharacter_hero | undefined | null
+};
 
 //==============================================================
 // START Enums and Input Objects
@@ -30,9 +34,9 @@ export interface GetCharacter {
 
 // The episodes in the Star Wars trilogy
 export enum Episode {
-  NEWHOPE = 'NEWHOPE',
-  EMPIRE = 'EMPIRE',
-  JEDI = 'JEDI',
+  NEWHOPE = "NEWHOPE",
+  EMPIRE = "EMPIRE",
+  JEDI = "JEDI",
 }
 
 //==============================================================
