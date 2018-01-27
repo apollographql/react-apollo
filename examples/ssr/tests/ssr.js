@@ -1,5 +1,5 @@
-const cheerio = require("cheerio");
-const assert = require("assert");
+const cheerio = require('cheerio');
+const assert = require('assert');
 
 /*
  *
@@ -18,7 +18,7 @@ const assert = require("assert");
 */
 
 module.exports = {
-  "Initial State": function(browser) {
+  'Initial State': function(browser) {
     let initialState;
     let SSRMarkup;
     browser
@@ -27,7 +27,7 @@ module.exports = {
         const $ = cheerio.load(result.value);
 
         // verify Initial state
-        const initial = $("script")[0].children[0].data;
+        const initial = $('script')[0].children[0].data;
         const window = {};
 
         // parse SSR data
@@ -35,10 +35,10 @@ module.exports = {
         initialState = window.__APOLLO_STATE__;
 
         // save generated markup for comparision
-        SSRMarkup = $("#app").html();
+        SSRMarkup = $('#app').html();
 
         // assert SSR markup with quick check of data
-        assert.equal($("h3").text(), "R2-D2");
+        assert.equal($('h3').text(), 'R2-D2');
       })
       // ensure the parsed state matches the server state
       .execute(
@@ -47,19 +47,19 @@ module.exports = {
         },
         function(result) {
           assert.deepEqual(result.value, initialState);
-        }
+        },
       )
       // ensure the markup doesn't change once the app starts up
       .execute(
         function() {
-          return document.getElementById("app").innerHTML;
+          return document.getElementById('app').innerHTML;
         },
         function(result) {
           assert.equal(result.value, SSRMarkup);
-        }
+        },
       )
       // ensure h3 value didn't change
-      .expect.element("h3")
-      .text.to.equal("R2-D2");
+      .expect.element('h3')
+      .text.to.equal('R2-D2');
   },
 };

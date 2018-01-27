@@ -397,7 +397,7 @@ export default function graphql<
         }
       }
 
-      // For server-side rendering (see renderToStringWithData.ts)
+      // For server-side rendering (see getDataFromTree.ts)
       fetchData(): Promise<ApolloQueryResult<any>> | boolean {
         if (this.shouldSkip()) return false;
         if (
@@ -451,6 +451,7 @@ export default function graphql<
         };
 
         const handleError = error => {
+          this.resubscribeToQuery();
           // Quick fix for https://github.com/apollostack/react-apollo/issues/378
           if (error.hasOwnProperty('graphQLErrors')) return next({ error });
           throw error;
@@ -473,6 +474,24 @@ export default function graphql<
         if (this.querySubscription) {
           (this.querySubscription as ZenObservable.Subscription).unsubscribe();
           delete this.querySubscription;
+        }
+      }
+
+      resubscribeToQuery() {
+        const lastSubscription = this.querySubscription;
+        if (lastSubscription) {
+          delete this.querySubscription;
+        }
+        const { lastError, lastResult } = this.queryObservable;
+        // If lastError is set, the observable will immediately
+        // send it, causing the stream to terminate on initialization.
+        // We clear everything here and restore it afterward to
+        // make sure the new subscription sticks.
+        this.queryObservable.resetLastResults();
+        this.subscribeToQuery();
+        Object.assign(this.queryObservable, { lastError, lastResult });
+        if (lastSubscription) {
+          (lastSubscription as ZenObservable.Subscription).unsubscribe();
         }
       }
 
@@ -545,9 +564,16 @@ export default function graphql<
           // _feel_ like it was logged ASAP while still tolerating asynchrony.
           let logErrorTimeoutId = setTimeout(() => {
             if (error) {
+              let errorMessage = error;
+              if (error.stack) {
+                errorMessage = error.stack.includes(error.message)
+                  ? error.stack
+                  : `${error.message}\n${error.stack}`;
+              }
+
               console.error(
                 `Unhandled (in react-apollo:${graphQLDisplayName})`,
-                error.stack || error,
+                errorMessage,
               );
             }
           }, 10);

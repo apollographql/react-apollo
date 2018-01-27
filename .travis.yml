@@ -8,6 +8,7 @@ cache: yarn
 script:
   - npm run danger
   - npm test
+  - npm run test-preact
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
   - npm run filesize

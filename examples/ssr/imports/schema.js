@@ -296,7 +296,9 @@ function toCursor(str) {
 }
 
 function fromCursor(str) {
-  return Buffer.from(str, 'base64').toString().slice(6);
+  return Buffer.from(str, 'base64')
+    .toString()
+    .slice(6);
 }
 
 const resolvers = {

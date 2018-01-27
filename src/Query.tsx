@@ -19,7 +19,9 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 const pick = require('lodash/pick');
 
-function observableQueryFields(observable) {
+type ObservableQueryFields<TData> = Pick<ObservableQuery<TData>, 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling'>;
+
+function observableQueryFields<TData>(observable: ObservableQuery<TData>): ObservableQueryFields<TData> {
   const fields = pick(
     observable,
     'refetch',
@@ -38,16 +40,20 @@ function observableQueryFields(observable) {
   return fields;
 }
 
-export interface QueryResult<TData = any> {
+function isDataFilled<TData>(data: {} | TData): data is TData {
+  return Object.keys(data).length > 0;
+}
+
+export interface QueryResult<TData = any, TVariables = OperationVariables> {
   client: ApolloClient<any>;
-  data: TData;
+  data?: TData;
   error?: ApolloError;
   fetchMore: (
     fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
   ) => Promise<ApolloQueryResult<any>>;
   loading: boolean;
   networkStatus: number;
-  refetch: (variables?: OperationVariables) => Promise<ApolloQueryResult<any>>;
+  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   updateQuery: (
@@ -55,21 +61,22 @@ export interface QueryResult<TData = any> {
   ) => void;
 }
 
-export interface QueryProps {
-  children: (result: QueryResult) => React.ReactNode;
+export interface QueryProps<TData = any, TVariables = OperationVariables> {
+  children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
   notifyOnNetworkStatusChange?: boolean;
   pollInterval?: number;
   query: DocumentNode;
-  variables?: OperationVariables;
+  variables?: TVariables;
+  ssr?: boolean;
 }
 
 export interface QueryState<TData = any> {
   result: ApolloCurrentResult<TData>;
 }
 
-class Query<TData = any> extends React.Component<
-  QueryProps,
+class Query<TData = any, TVariables = OperationVariables> extends React.Component<
+  QueryProps<TData, TVariables>,
   QueryState<TData>
 > {
   static contextTypes = {
@@ -81,7 +88,7 @@ class Query<TData = any> extends React.Component<
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
 
-  constructor(props: QueryProps, context: any) {
+  constructor(props: QueryProps<TData, TVariables>, context: any) {
     super(props, context);
 
     invariant(
@@ -94,6 +101,29 @@ class Query<TData = any> extends React.Component<
     this.state = {
       result: this.queryObservable.currentResult(),
     };
+  }
+
+  // For server-side rendering (see getDataFromTree.ts)
+  fetchData(): Promise<ApolloQueryResult<any>> | boolean {
+    const { children, ssr, ...opts } = this.props;
+
+    let { fetchPolicy } = opts;
+    if (ssr === false) return false;
+    if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
+      fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
+    }
+
+    const observable = this.client.watchQuery({
+      ...opts,
+      fetchPolicy,
+    });
+    const result = this.queryObservable.currentResult();
+
+    if (result.loading) {
+      return observable.result();
+    } else {
+      return false;
+    }
   }
 
   componentDidMount() {
@@ -159,7 +189,13 @@ class Query<TData = any> extends React.Component<
   private startQuerySubscription = () => {
     this.querySubscription = this.queryObservable.subscribe({
       next: this.updateCurrentData,
-      error: this.updateCurrentData,
+      error: error => {
+        this.resubscribeToQuery();
+        // Quick fix for https://github.com/apollostack/react-apollo/issues/378
+        if (!error.hasOwnProperty('graphQLErrors')) throw error;
+
+        this.updateCurrentData();
+      },
     });
   };
 
@@ -169,16 +205,30 @@ class Query<TData = any> extends React.Component<
     }
   };
 
+  private resubscribeToQuery() {
+    this.removeQuerySubscription();
+
+    const lastError = this.queryObservable.getLastError();
+    const lastResult = this.queryObservable.getLastResult();
+    // If lastError is set, the observable will immediately
+    // send it, causing the stream to terminate on initialization.
+    // We clear everything here and restore it afterward to
+    // make sure the new subscription sticks.
+    this.queryObservable.resetLastResults();
+    this.startQuerySubscription();
+    Object.assign(this.queryObservable, { lastError, lastResult });
+  }
+
   private updateCurrentData = () => {
     this.setState({ result: this.queryObservable.currentResult() });
   };
 
-  private getQueryResult = (): QueryResult<TData> => {
+  private getQueryResult = (): QueryResult<TData, TVariables> => {
     const { result } = this.state;
     const { loading, error, networkStatus, data } = result;
     return {
       client: this.client,
-      data,
+      data: isDataFilled(data) ? data : undefined,
       loading,
       error,
       networkStatus,

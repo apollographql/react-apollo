@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import {
   graphql,
+  Query,
   ApolloProvider,
   DataValue,
   walkTree,
@@ -90,6 +91,7 @@ describe('SSR', () => {
 
       it('functional stateless components with children', () => {
         let elementCount = 0;
+        let isPreact = false;
         interface Props {
           n: number;
           children?: React.ReactNode;
@@ -106,10 +108,20 @@ describe('SSR', () => {
           </MyComponent>,
           {},
           element => {
+            if (element && (element as any).preactCompatUpgraded) {
+              isPreact = true;
+            }
             elementCount += 1;
           },
         );
-        expect(elementCount).toEqual(9);
+        // preact does a slightly different pass than react does here
+        // fwiw, preact's seems to make sense here (7 nodes vs 9)
+        // XXX verify markup checksums on this
+        if (isPreact) {
+          expect(elementCount).toEqual(7);
+        } else {
+          expect(elementCount).toEqual(9);
+        }
       });
 
       it('functional stateless components with null children', () => {
@@ -289,6 +301,53 @@ describe('SSR', () => {
         ({ data }: ChildProps<Props, Data>) => (
           <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
         ),
+      );
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <WrappedElement />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).then(() => {
+        const markup = ReactDOM.renderToString(app);
+        expect(markup).toMatch(/James/);
+      });
+    });
+
+    it('should run through all of the queries (also defined via Query component) that want SSR', () => {
+      const query = gql`
+        {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+      const data1 = { currentUser: { firstName: 'James' } };
+      const link = mockSingleLink({
+        request: { query },
+        result: { data: data1 },
+        delay: 50,
+      });
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
+      class CurrentUserQuery extends Query<Data> {}
+
+      const WrappedElement = () => (
+        <CurrentUserQuery query={query}>
+          {({ data: { currentUser }, loading }) => (
+            <div>{loading ? 'loading' : currentUser.firstName}</div>
+          )}
+        </CurrentUserQuery>
       );
 
       const app = (
@@ -706,7 +765,14 @@ describe('SSR', () => {
     it('should correctly initialize an empty state to null', () => {
       class Element extends React.Component<any, any> {
         render() {
-          expect(this.state).toBeNull();
+          // this is a check for how react and preact differ. Preact (nicely)
+          // comes with a default state
+          if ((this as any).__d) {
+            // I'm preact
+            expect(this.state).toEqual({});
+          } else {
+            expect(this.state).toBeNull();
+          }
           return null;
         }
       }
@@ -851,6 +917,57 @@ describe('SSR', () => {
       })(({ user }: { user?: DataValue<Data> }) => (
         <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
       ));
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <Element id={1} />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).then(() => {
+        const initialState = cache.extract();
+        expect(initialState).toEqual({});
+        expect(initialState).toEqual({});
+      });
+    });
+
+    it("shouldn't run queries (via Query component) if ssr is turned to off", () => {
+      const query = gql`
+        query user($id: ID) {
+          currentUser(id: $id) {
+            firstName
+          }
+        }
+      `;
+      const resultData = { currentUser: { firstName: 'James' } };
+      const variables = { id: 1 };
+      const link = mockSingleLink({
+        request: { query, variables },
+        result: { data: resultData },
+        delay: 50,
+      });
+
+      const cache = new Cache({ addTypename: false });
+      const apolloClient = new ApolloClient({
+        link,
+        cache,
+      });
+
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
+      class CurrentUserQuery extends Query<Data, { id: number }> {}
+
+      const Element = (props: { id: number }) => (
+        <CurrentUserQuery query={query} ssr={false} variables={props}>
+          {({ data, loading }) => (
+            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+          )}
+        </CurrentUserQuery>
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>

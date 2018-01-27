@@ -1,14 +1,15 @@
 const minify = require('rollup-plugin-babel-minify');
+const commonjs = require('rollup-plugin-commonjs');
 
 export default {
-  input: 'lib/test-utils.js',
+  input: 'lib/browser.js',
   output: {
-    file: 'lib/umd/test-utils.js',
+    file: 'lib/react-apollo.browser.umd.js',
     format: 'umd',
     name: 'react-apollo',
     sourcemap: true,
   },
-  plugins: [minify()],
+  plugins: [commonjs(), minify()],
   onwarn,
 };
 
