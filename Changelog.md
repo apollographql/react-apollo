@@ -2,6 +2,8 @@
 
 ### vNext
 
+* Added `prop-types` validation to the `<Query />`, `<Subscription />` and `<ApolloConsumer />` component [#1587](https://github.com/apollographql/react-apollo/pull/1587)
+
 ### 2.1.0-beta.0
 
 * Beta release of all 2.1 features!

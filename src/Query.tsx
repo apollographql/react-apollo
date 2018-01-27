@@ -82,6 +82,16 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
+  
+  static propTypes = {
+    children: PropTypes.func.isRequired,
+    fetchPolicy: PropTypes.string,
+    notifyOnNetworkStatusChange: PropTypes.bool,
+    pollInterval: PropTypes.number,
+    query: PropTypes.object.isRequired,
+    variables: PropTypes.object,
+    ssr: PropTypes.bool,
+  };
 
   state: QueryState<TData>;
   private client: ApolloClient<any>;
