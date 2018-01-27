@@ -403,6 +403,80 @@ it('has an update prop for updating the store after the mutation', done => {
   );
 });
 
+it('updates if the client changes', done => {
+  const link1 = mockSingleLink({
+    request: { query: mutation, variables },
+    result: { data },
+  });
+  const client1 = new ApolloClient({
+    link: link1,
+    cache: new Cache({ addTypename: false }),
+  });
+
+  const data2 = {
+    createTodo: {
+      __typename: 'Todo',
+      id: '100',
+      text: 'After updating client.',
+      completed: false,
+    },
+    __typename: 'Mutation',
+  };
+
+  const link2 = mockSingleLink({
+    request: { query: mutation, variables },
+    result: { data: data2 },
+  });
+
+  const client2 = new ApolloClient({
+    link: link2,
+    cache: new Cache({ addTypename: false }),
+  });
+
+  let count = 0;
+  class Component extends React.Component {
+    state = {
+      client: client1,
+    };
+
+    render() {
+      return (
+        <ApolloProvider client={this.state.client}>
+          <Mutation mutation={mutation} variables={variables}>
+            {(createTodo, result) => {
+              if (count === 0) {
+                expect(result).toBeUndefined();
+                setTimeout(() => {
+                  createTodo();
+                });
+              } else if (count === 2) {
+                expect(result.data).toEqual(data);
+                setTimeout(() => {
+                  this.setState({
+                    client: client2,
+                  });
+                });
+              } else if (count === 3) {
+                expect(result).toBeUndefined();
+                setTimeout(() => {
+                  createTodo();
+                });
+              } else if (count === 5) {
+                expect(result.data).toEqual(data2);
+                done();
+              }
+              count++;
+              return null;
+            }}
+          </Mutation>
+        </ApolloProvider>
+      );
+    }
+  }
+
+  mount(<Component />);
+});
+
 it('errors if a query is passed instead of a mutation', () => {
   const query = gql`
     query todos {
@@ -429,6 +503,57 @@ it('errors if a query is passed instead of a mutation', () => {
   console.log = errorLogger;
 });
 
+it('errors when changing from mutation to a query', done => {
+  const query = gql`
+    query todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  class Component extends React.Component {
+    state = {
+      query: mutation,
+    };
+
+    componentDidCatch(e) {
+      expect(e).toEqual(
+        new Error(
+          'The <Mutation /> component requires a graphql mutation, but got a query.',
+        ),
+      );
+      done();
+    }
+    render() {
+      return (
+        <Mutation mutation={this.state.query}>
+          {() => {
+            setTimeout(() => {
+              this.setState({
+                query,
+              });
+            });
+            return null;
+          }}
+        </Mutation>
+      );
+    }
+  }
+
+  // Prevent error from being logged in console of test.
+  const errorLogger = console.error;
+  console.error = () => {}; // tslint:disable-line
+
+  mount(
+    <MockedProvider>
+      <Component />
+    </MockedProvider>,
+  );
+
+  console.log = errorLogger;
+});
+
 it('errors if a subscription is passed instead of a mutation', () => {
   const subscription = gql`
     subscription todos {
@@ -450,6 +575,57 @@ it('errors if a subscription is passed instead of a mutation', () => {
     );
   }).toThrowError(
     'The <Mutation /> component requires a graphql mutation, but got a subscription.',
+  );
+
+  console.log = errorLogger;
+});
+
+it('errors when changing from mutation to a subscription', done => {
+  const subscription = gql`
+    subscription todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  class Component extends React.Component {
+    state = {
+      query: mutation,
+    };
+
+    componentDidCatch(e) {
+      expect(e).toEqual(
+        new Error(
+          'The <Mutation /> component requires a graphql mutation, but got a subscription.',
+        ),
+      );
+      done();
+    }
+    render() {
+      return (
+        <Mutation mutation={this.state.query}>
+          {() => {
+            setTimeout(() => {
+              this.setState({
+                query: subscription,
+              });
+            });
+            return null;
+          }}
+        </Mutation>
+      );
+    }
+  }
+
+  // Prevent error from being logged in console of test.
+  const errorLogger = console.error;
+  console.error = () => {}; // tslint:disable-line
+
+  mount(
+    <MockedProvider>
+      <Component />
+    </MockedProvider>,
   );
 
   console.log = errorLogger;

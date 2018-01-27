@@ -7,6 +7,7 @@ import ApolloClient, {
 } from 'apollo-client';
 const invariant = require('invariant');
 import { DocumentNode } from 'graphql';
+const shallowEqual = require('fbjs/lib/shallowEqual');
 
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
@@ -38,6 +39,10 @@ export interface MutationState<TData = any> {
   loading?: boolean;
 }
 
+const initialState = {
+  notCalled: true,
+};
+
 class Mutation<
   TData = any,
   TVariables = OperationVariables
@@ -54,25 +59,28 @@ class Mutation<
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
 
-    invariant(
-      !!context.client,
-      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
-    );
-
+    this.verifyContext(context);
     this.client = context.client;
 
-    const operation = parser(props.mutation);
+    this.verifyDocumentIsMutation(props.mutation);
 
-    invariant(
-      operation.type === DocumentType.Mutation,
-      `The <Mutation /> component requires a graphql mutation, but got a ${
-        operation.type === DocumentType.Query ? 'query' : 'subscription'
-      }.`,
-    );
+    this.state = initialState;
+  }
 
-    this.state = {
-      notCalled: true,
-    };
+  componentWillReceiveProps(nextProps, nextContext) {
+    if (
+      shallowEqual(this.props, nextProps) &&
+      this.client === nextContext.client
+    ) {
+      return;
+    }
+
+    this.verifyDocumentIsMutation(nextProps.mutation);
+
+    if (this.client !== nextContext.client) {
+      this.client = nextContext.client;
+      this.setState(initialState);
+    }
   }
 
   render() {
@@ -91,60 +99,96 @@ class Mutation<
   }
 
   private runMutation = async () => {
+    this.onStartMutation();
+
+    try {
+      const response = await this.mutate();
+      this.onCompletedMutation(response);
+    } catch (e) {
+      this.onMutationError(e);
+    }
+  };
+
+  private mutate = async () => {
     const {
       mutation,
       variables,
       optimisticResponse,
       refetchQueries,
       update,
-      onCompleted,
-      onError,
     } = this.props;
 
+    const response = await this.client.mutate({
+      mutation,
+      variables,
+      optimisticResponse,
+      refetchQueries,
+      update,
+    });
+
+    return response;
+  };
+
+  private onStartMutation = () => {
     this.setState({
       loading: true,
       error: undefined,
       data: undefined,
       notCalled: false,
     });
+  };
 
-    try {
-      const response = await this.client.mutate({
-        mutation,
-        variables,
-        optimisticResponse,
-        refetchQueries,
-        update,
-      });
+  private onCompletedMutation = response => {
+    const { onCompleted } = this.props;
 
-      const data = response.data as TData;
+    const data = response.data as TData;
 
-      this.setState(
-        {
-          loading: false,
-          data,
-        },
-        () => {
-          if (onCompleted) {
-            onCompleted(data);
-          }
-        },
-      );
-    } catch (e) {
-      let error = e as ApolloError;
+    this.setState(
+      {
+        loading: false,
+        data,
+      },
+      () => {
+        if (onCompleted) {
+          onCompleted(data);
+        }
+      },
+    );
+  };
 
-      this.setState(
-        {
-          loading: false,
-          error,
-        },
-        () => {
-          if (onError) {
-            onError(error);
-          }
-        },
-      );
-    }
+  private onMutationError = async error => {
+    const { onError } = this.props;
+
+    let apolloError = error as ApolloError;
+
+    this.setState(
+      {
+        loading: false,
+        error: apolloError,
+      },
+      () => {
+        if (onError) {
+          onError(apolloError);
+        }
+      },
+    );
+  };
+
+  private verifyDocumentIsMutation = mutation => {
+    const operation = parser(mutation);
+    invariant(
+      operation.type === DocumentType.Mutation,
+      `The <Mutation /> component requires a graphql mutation, but got a ${
+        operation.type === DocumentType.Query ? 'query' : 'subscription'
+      }.`,
+    );
+  };
+
+  private verifyContext = context => {
+    invariant(
+      !!context.client,
+      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
+    );
   };
 }
 
