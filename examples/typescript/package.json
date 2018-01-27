@@ -1,5 +1,5 @@
 {
-  "name": "typescript",
+  "name": "typescript-example",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -22,7 +22,8 @@
     "@types/react-test-renderer": "16.0.0",
     "apollo-codegen": "0.18.3",
     "react-scripts-ts": "^2.13.0",
-    "react-test-renderer": "16.2.0"
+    "react-test-renderer": "16.2.0",
+    "typescript": "^2.6.2"
   },
   "scripts": {
     "start": "react-scripts-ts start",
