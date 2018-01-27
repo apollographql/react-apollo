@@ -53,6 +53,20 @@ class Mutation<
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
+  
+  static propTypes = {
+    mutation: PropTypes.object.isRequired,
+    variables: PropTypes.object,
+    optimisticResponse: PropTypes.object,
+    refetchQueries: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.arrayOf(PropTypes.object)
+    ]),
+    update: PropTypes.func,
+    children: PropTypes.func.isRequired,
+    onCompleted: PropTypes.func,
+    onError: PropTypes.func
+  };
 
   private client: ApolloClient<any>;
 
