@@ -1,12 +1,12 @@
 // import * as React from 'react';
 // import * as renderer from 'react-test-renderer';
-//
+
 // // @IMPORTANT this is normally consumed from react-apollo/test-utils
 // // but during development, it needs to be pulled from lib
 // import { MockedProvider } from 'react-apollo/src/test-utils';
-//
+
 // // import { addTypenameToDocument } from 'apollo-client/queries/queryTransform';
-//
+
 // import {
 //   HERO_QUERY,
 //   withCharacter,
@@ -14,10 +14,10 @@
 //   App,
 //   ShapedProps,
 // } from '../Character';
-//
+
 // // const query = addTypenameToDocument(HERO_QUERY);
 // const query = HERO_QUERY;
-//
+
 // import {
 //   empty,
 //   hero_no_friends,
@@ -25,9 +25,9 @@
 //   friend_without_appearsIn,
 //   full,
 // } from '../__mocks__/data';
-//
+
 // const variables = { episode: 'NEWHOPE' };
-//
+
 // describe('withCharacter', () => {
 //   it('shapes the props into variables', done => {
 //     class Container extends React.Component<ShapedProps> {
@@ -39,7 +39,7 @@
 //         return null;
 //       }
 //     }
-//
+
 //     const ContainerWithData = withCharacter(Container);
 //     const mocks = [
 //       { request: { query, variables }, result: { data: { hero: empty } } },
@@ -60,7 +60,7 @@
 //         return null;
 //       }
 //     }
-//
+
 //     const ContainerWithData = withCharacter(Container);
 //     const mocks = [
 //       {
@@ -87,7 +87,7 @@
 //         return null;
 //       }
 //     }
-//
+
 //     const ContainerWithData = withCharacter(Container);
 //     const mocks = [
 //       {
@@ -117,7 +117,7 @@
 //         return null;
 //       }
 //     }
-//
+
 //     const ContainerWithData = withCharacter(Container);
 //     const mocks = [
 //       {
@@ -125,7 +125,7 @@
 //         error: new Error('these are not the droids you are looking for'),
 //       },
 //     ];
-//
+
 //     renderer.create(
 //       <MockedProvider mocks={mocks}>
 //         <ContainerWithData {...variables} />
@@ -133,7 +133,7 @@
 //     );
 //   });
 // });
-//
+
 // describe('CharacterWithoutData', () => {
 //   it('handles a loading state', () => {
 //     const output = renderer.create(<CharacterWithoutData loading />);
@@ -170,7 +170,7 @@
 //     expect(output.toJSON()).toMatchSnapshot();
 //   });
 // });
-//
+
 // describe('App', () => {
 //   it('renders the data from NEWHOPE', () => {
 //     const mocks = [
@@ -181,7 +181,7 @@
 //         <App />
 //       </MockedProvider>,
 //     );
-//
+
 //     expect(output.toJSON()).toMatchSnapshot();
 //   });
 // });

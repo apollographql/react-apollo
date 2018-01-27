@@ -12,7 +12,6 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@babel/types": "^7.0.0-beta.36",
     "@types/graphql": "^0.12.3",
     "@types/jest": "22.1.0",
     "@types/node": "9.4.0",
@@ -30,7 +29,9 @@
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "schema": "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
-    "types": "apollo-codegen generate ./src/**/queries.ts --addTypename --schema ./src/schema.json --target typescript-modern"
+    "schema":
+      "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
+    "types":
+      "apollo-codegen generate ./src/**/queries.ts --addTypename --schema ./src/schema.json --target typescript --output ./src/__generated__/types.ts"
   }
 }
