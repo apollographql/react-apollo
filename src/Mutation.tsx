@@ -9,6 +9,7 @@ const invariant = require('invariant');
 import { DocumentNode } from 'graphql';
 
 import { OperationVariables } from './types';
+import { parser, DocumentType } from './parser';
 
 export interface MutationResult<TData = any> {
   data: TData;
@@ -16,9 +17,9 @@ export interface MutationResult<TData = any> {
   loading: boolean;
 }
 
-export interface MutationProps<TData = any> {
+export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
-  variables?: OperationVariables;
+  variables?: TVariables;
   optimisticResponse?: Object;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
@@ -26,7 +27,8 @@ export interface MutationProps<TData = any> {
     mutateFn: () => void,
     result?: MutationResult<TData>,
   ) => React.ReactNode;
-  // notifyOnNetworkStatusChange?: boolean;
+  onCompleted?: (data: TData) => void;
+  onError?: (error: ApolloError) => void;
 }
 
 export interface MutationState<TData = any> {
@@ -36,8 +38,11 @@ export interface MutationState<TData = any> {
   loading?: boolean;
 }
 
-class Mutation<TData = any> extends React.Component<
-  MutationProps<TData>,
+class Mutation<
+  TData = any,
+  TVariables = OperationVariables
+> extends React.Component<
+  MutationProps<TData, TVariables>,
   MutationState<TData>
 > {
   static contextTypes = {
@@ -46,14 +51,24 @@ class Mutation<TData = any> extends React.Component<
 
   private client: ApolloClient<any>;
 
-  constructor(props: any, context: any) {
+  constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
 
     invariant(
       !!context.client,
       `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
     );
+
     this.client = context.client;
+
+    const operation = parser(props.mutation);
+
+    invariant(
+      operation.type === DocumentType.Mutation,
+      `The <Mutation /> component requires a graphql mutation, but got a ${
+        operation.type === DocumentType.Query ? 'query' : 'subscription'
+      }.`,
+    );
 
     this.state = {
       notCalled: true,
@@ -82,6 +97,8 @@ class Mutation<TData = any> extends React.Component<
       optimisticResponse,
       refetchQueries,
       update,
+      onCompleted,
+      onError,
     } = this.props;
 
     this.setState({
@@ -100,15 +117,33 @@ class Mutation<TData = any> extends React.Component<
         update,
       });
 
-      this.setState({
-        loading: false,
-        data: response.data as TData,
-      });
+      const data = response.data as TData;
+
+      this.setState(
+        {
+          loading: false,
+          data,
+        },
+        () => {
+          if (onCompleted) {
+            onCompleted(data);
+          }
+        },
+      );
     } catch (e) {
-      this.setState({
-        loading: false,
-        error: e as ApolloError,
-      });
+      let error = e as ApolloError;
+
+      this.setState(
+        {
+          loading: false,
+          error,
+        },
+        () => {
+          if (onError) {
+            onError(error);
+          }
+        },
+      );
     }
   };
 }

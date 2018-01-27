@@ -78,6 +78,54 @@ it('performs a mutation', done => {
   );
 });
 
+it('calls the onCompleted prop as soon as the mutation is complete', done => {
+  let onCompletedCalled = false;
+
+  class Component extends React.Component {
+    state = {
+      mutationDone: false,
+    };
+
+    onCompleted = mutationData => {
+      expect(mutationData).toEqual(data);
+      onCompletedCalled = true;
+      this.setState({
+        mutationDone: true,
+      });
+    };
+
+    render() {
+      return (
+        <Mutation
+          mutation={mutation}
+          variables={variables}
+          onCompleted={this.onCompleted}
+        >
+          {(createTodo, result) => {
+            if (!result) {
+              expect(this.state.mutationDone).toBe(false);
+              setTimeout(() => {
+                createTodo();
+              });
+            }
+            if (onCompletedCalled) {
+              expect(this.state.mutationDone).toBe(true);
+              done();
+            }
+            return null;
+          }}
+        </Mutation>
+      );
+    }
+  }
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('renders result of the children render prop', () => {
   const Component = () => (
     <Mutation mutation={mutation} variables={variables}>
@@ -117,6 +165,59 @@ it('renders an error state', done => {
       }}
     </Mutation>
   );
+
+  const mockError = [
+    {
+      request: { query: mutation },
+      error: new Error('error occurred'),
+    },
+  ];
+
+  mount(
+    <MockedProvider mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('calls the onError prop if the mutation encounters an error', done => {
+  let onRenderCalled = false;
+
+  class Component extends React.Component {
+    state = {
+      mutationError: false,
+    };
+
+    onError = error => {
+      expect(error).toEqual(new Error('Network error: error occurred'));
+      onRenderCalled = true;
+      this.setState({
+        mutationError: true,
+      });
+    };
+
+    render() {
+      const { mutationError } = this.state;
+
+      return (
+        <Mutation mutation={mutation} onError={this.onError}>
+          {(createTodo, result) => {
+            if (!result) {
+              expect(mutationError).toBe(false);
+              setTimeout(() => {
+                createTodo();
+              });
+            }
+            if (onRenderCalled) {
+              expect(mutationError).toBe(true);
+              done();
+            }
+            return null;
+          }}
+        </Mutation>
+      );
+    }
+  }
 
   const mockError = [
     {
@@ -300,4 +401,56 @@ it('has an update prop for updating the store after the mutation', done => {
       <Component />
     </MockedProvider>,
   );
+});
+
+it('errors if a query is passed instead of a mutation', () => {
+  const query = gql`
+    query todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  // Prevent error from being logged in console of test.
+  const errorLogger = console.error;
+  console.error = () => {}; // tslint:disable-line
+
+  expect(() => {
+    mount(
+      <MockedProvider>
+        <Mutation mutation={query}>{() => null}</Mutation>
+      </MockedProvider>,
+    );
+  }).toThrowError(
+    'The <Mutation /> component requires a graphql mutation, but got a query.',
+  );
+
+  console.log = errorLogger;
+});
+
+it('errors if a subscription is passed instead of a mutation', () => {
+  const subscription = gql`
+    subscription todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  // Prevent error from being logged in console of test.
+  const errorLogger = console.error;
+  console.error = () => {}; // tslint:disable-line
+
+  expect(() => {
+    mount(
+      <MockedProvider>
+        <Mutation mutation={subscription}>{() => null}</Mutation>
+      </MockedProvider>,
+    );
+  }).toThrowError(
+    'The <Mutation /> component requires a graphql mutation, but got a subscription.',
+  );
+
+  console.log = errorLogger;
 });
