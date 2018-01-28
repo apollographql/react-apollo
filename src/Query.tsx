@@ -4,10 +4,9 @@ import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,
   ApolloError,
-  FetchMoreOptions,
-  FetchMoreQueryOptions,
   FetchPolicy,
   ApolloCurrentResult,
+  NetworkStatus,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
@@ -15,10 +14,29 @@ import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
 import pick from 'lodash/pick';
 import shallowEqual from 'fbjs/lib/shallowEqual';
+import invariant from 'invariant';
 
-const invariant = require('invariant');
+// Improved FetchMoreOptions type, need to port them back to Apollo Client
+interface FetchMoreOptions<TData, TVariables> {
+  updateQuery: (previousQueryResult: TData, options: {
+      fetchMoreResult?: TData;
+      variables: TVariables;
+  }) => TData;
+}
 
-type ObservableQueryFields<TData, TVariables> = Pick<ObservableQuery<TData>, 'refetch' | 'fetchMore' | 'startPolling' | 'stopPolling'> & {
+// Improved FetchMoreQueryOptions type, need to port them back to Apollo Client
+interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
+  variables: Pick<TVariables, K>;
+}
+
+// Improved ObservableQuery field types, need to port them back to Apollo Client
+type ObservableQueryFields<TData, TVariables> = Pick<ObservableQuery<TData>, 'startPolling' | 'stopPolling'> & {
+  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>;
+  fetchMore: (
+    <K extends keyof TVariables>(fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> & FetchMoreOptions<TData, TVariables>) => Promise<ApolloQueryResult<TData>>
+  ) & (
+    <TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<TVariables2, K> & FetchMoreOptions<TData2, TVariables2>) => Promise<ApolloQueryResult<TData2>>
+  );
   updateQuery: (
     mapFn: (previousQueryResult: TData, options: { variables?: TVariables }) => TData,
   ) => void;
@@ -55,17 +73,13 @@ export interface QueryResult<TData = any, TVariables = OperationVariables> {
   client: ApolloClient<any>;
   data?: TData;
   error?: ApolloError;
-  fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
-  ) => Promise<ApolloQueryResult<any>>;
   loading: boolean;
-  networkStatus: number;
-  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
-  startPolling: (pollInterval: number) => void;
-  stopPolling: () => void;
-  updateQuery: (
-    mapFn: (previousQueryResult: TData, options: { variables?: TVariables }) => TData,
-  ) => void;
+  networkStatus: NetworkStatus;
+  fetchMore: ObservableQueryFields<TData, TVariables>['fetchMore'];
+  refetch: ObservableQueryFields<TData, TVariables>['refetch'];
+  startPolling: ObservableQueryFields<TData, TVariables>['startPolling'];
+  stopPolling: ObservableQueryFields<TData, TVariables>['stopPolling'];
+  updateQuery: ObservableQueryFields<TData, TVariables>['updateQuery'];
 }
 
 export interface QueryProps<TData = any, TVariables = OperationVariables> {

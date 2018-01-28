@@ -80,7 +80,7 @@ describe('SSR', () => {
 
       it('functional stateless components', () => {
         let elementCount = 0;
-        const MyComponent = ({ n }) => (
+        const MyComponent = ({ n }: { n: number }) => (
           <div>{_.times(n, i => <span key={i} />)}</div>
         );
         walkTree(<MyComponent n={5} />, {}, element => {
@@ -126,7 +126,7 @@ describe('SSR', () => {
 
       it('functional stateless components with null children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }) => (
+        const MyComponent = ({ n, children = null }: { n: number, children: React.ReactNode }) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
@@ -344,8 +344,8 @@ describe('SSR', () => {
 
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
-          {({ data: { currentUser }, loading }) => (
-            <div>{loading ? 'loading' : currentUser.firstName}</div>
+          {({ data, loading }) => (
+            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
           )}
         </CurrentUserQuery>
       );
