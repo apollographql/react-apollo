@@ -23,16 +23,19 @@ import hoistNonReactStatics from 'hoist-non-react-statics';
 import shallowEqual from 'fbjs/lib/shallowEqual';
 import invariant from 'invariant';
 
-
 const defaultMapPropsToOptions = () => ({});
 const defaultMapResultToProps: <P>(props: P) => P = props => props;
 const defaultMapPropsToSkip = () => false;
 
-
-type ObservableQueryFields<TData> = Pick<ObservableQuery<TData>, 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling'>;
+type ObservableQueryFields<TData> = Pick<
+  ObservableQuery<TData>,
+  'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling'
+>;
 
 // the fields we want to copy over to our data prop
-function observableQueryFields<TData>(observable: ObservableQuery<TData>): ObservableQueryFields<TData> {
+function observableQueryFields<TData>(
+  observable: ObservableQuery<TData>,
+): ObservableQueryFields<TData> {
   const fields = pick(
     observable,
     'variables',
@@ -45,7 +48,12 @@ function observableQueryFields<TData>(observable: ObservableQuery<TData>): Obser
   );
 
   Object.keys(fields).forEach(key => {
-    const k = key as 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling';
+    const k = key as
+      | 'refetch'
+      | 'fetchMore'
+      | 'updateQuery'
+      | 'startPolling'
+      | 'stopPolling';
     if (typeof fields[k] === 'function') {
       fields[k] = fields[k].bind(observable);
     }
@@ -174,7 +182,10 @@ export default function graphql<
         }
       }
 
-      componentWillReceiveProps(nextProps: Readonly<GraphqlProps>, nextContext: GraphqlContext) {
+      componentWillReceiveProps(
+        nextProps: Readonly<GraphqlProps>,
+        nextContext: GraphqlContext,
+      ) {
         if (this.shouldSkip(nextProps)) {
           if (!this.shouldSkip(this.props)) {
             // if this has changed, we better unsubscribe
@@ -651,9 +662,7 @@ export default function graphql<
 
         if (operationOptions.withRef)
           mergedPropsAndData.ref = this.setWrappedInstance;
-        this.renderedElement = (
-          <WrappedComponent {...mergedPropsAndData} />
-        );
+        this.renderedElement = <WrappedComponent {...mergedPropsAndData} />;
         return this.renderedElement;
       }
     }

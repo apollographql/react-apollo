@@ -26,7 +26,9 @@ interface Data {
   };
 }
 
-const allPeopleData: Data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+const allPeopleData: Data = {
+  allPeople: { people: [{ name: 'Luke Skywalker' }] },
+};
 const allPeopleMocks = [
   {
     request: { query: allPeopleQuery },
@@ -222,7 +224,6 @@ describe('Query component', () => {
 
       expect.assertions(5);
 
-
       const Component = () => (
         <AllPeopleQuery
           query={queryRefetch}
@@ -305,7 +306,6 @@ describe('Query component', () => {
       let count = 0;
       expect.assertions(2);
 
-
       const Component = () => (
         <AllPeopleQuery query={allPeopleQuery} variables={variables}>
           {result => {
@@ -316,15 +316,17 @@ describe('Query component', () => {
               result
                 .fetchMore({
                   variables: { first: 1 },
-                  updateQuery: (prev, { fetchMoreResult }) => (
-                    fetchMoreResult ? {
-                      allPeople: {
-                        people: [
-                          ...prev.allPeople.people,
-                          ...fetchMoreResult.allPeople.people,
-                        ],
-                      },
-                    } : prev),
+                  updateQuery: (prev, { fetchMoreResult }) =>
+                    fetchMoreResult
+                      ? {
+                          allPeople: {
+                            people: [
+                              ...prev.allPeople.people,
+                              ...fetchMoreResult.allPeople.people,
+                            ],
+                          },
+                        }
+                      : prev,
                 })
                 .then(result2 => {
                   expect(stripSymbols(result2.data)).toEqual(data2);
@@ -1028,7 +1030,7 @@ describe('Query component', () => {
     function Container() {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
-          {(result) => {
+          {result => {
             try {
               switch (count++) {
                 case 0:
@@ -1046,11 +1048,9 @@ describe('Query component', () => {
                     data.allPeople,
                   );
                   setTimeout(() => {
-                    result
-                      .refetch()
-                      .then(() => {
-                        done.fail('Expected error value on first refetch.');
-                      }, noop);
+                    result.refetch().then(() => {
+                      done.fail('Expected error value on first refetch.');
+                    }, noop);
                   }, 0);
                   break;
                 case 2:
@@ -1063,11 +1063,9 @@ describe('Query component', () => {
                   expect(result.loading).toBeFalsy();
                   expect(result.error).toBeTruthy();
                   setTimeout(() => {
-                    result
-                      .refetch()
-                      .catch(() => {
-                        done.fail('Expected good data on second refetch.');
-                      });
+                    result.refetch().catch(() => {
+                      done.fail('Expected good data on second refetch.');
+                    });
                   }, 0);
                   break;
                 // Further fix required in QueryManager, we should have an extra
@@ -1098,7 +1096,7 @@ describe('Query component', () => {
             return null;
           }}
         </AllPeopleQuery2>
-      )
+      );
     }
 
     wrapper = mount(

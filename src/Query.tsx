@@ -18,10 +18,13 @@ import invariant from 'invariant';
 
 // Improved FetchMoreOptions type, need to port them back to Apollo Client
 interface FetchMoreOptions<TData, TVariables> {
-  updateQuery: (previousQueryResult: TData, options: {
+  updateQuery: (
+    previousQueryResult: TData,
+    options: {
       fetchMoreResult?: TData;
       variables: TVariables;
-  }) => TData;
+    },
+  ) => TData;
 }
 
 // Improved FetchMoreQueryOptions type, need to port them back to Apollo Client
@@ -30,19 +33,33 @@ interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
 }
 
 // Improved ObservableQuery field types, need to port them back to Apollo Client
-type ObservableQueryFields<TData, TVariables> = Pick<ObservableQuery<TData>, 'startPolling' | 'stopPolling'> & {
+type ObservableQueryFields<TData, TVariables> = Pick<
+  ObservableQuery<TData>,
+  'startPolling' | 'stopPolling'
+> & {
   refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>;
-  fetchMore: (
-    <K extends keyof TVariables>(fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> & FetchMoreOptions<TData, TVariables>) => Promise<ApolloQueryResult<TData>>
-  ) & (
-    <TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<TVariables2, K> & FetchMoreOptions<TData2, TVariables2>) => Promise<ApolloQueryResult<TData2>>
-  );
+  fetchMore: (<K extends keyof TVariables>(
+    fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> &
+      FetchMoreOptions<TData, TVariables>,
+  ) => Promise<ApolloQueryResult<TData>>) &
+    (<TData2, TVariables2, K extends keyof TVariables2>(
+      fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<
+        TVariables2,
+        K
+      > &
+        FetchMoreOptions<TData2, TVariables2>,
+    ) => Promise<ApolloQueryResult<TData2>>);
   updateQuery: (
-    mapFn: (previousQueryResult: TData, options: { variables?: TVariables }) => TData,
+    mapFn: (
+      previousQueryResult: TData,
+      options: { variables?: TVariables },
+    ) => TData,
   ) => void;
 };
 
-function observableQueryFields<TData, TVariables>(observable: ObservableQuery<TData>): ObservableQueryFields<TData, TVariables> {
+function observableQueryFields<TData, TVariables>(
+  observable: ObservableQuery<TData>,
+): ObservableQueryFields<TData, TVariables> {
   const fields = pick(
     observable,
     'refetch',
@@ -52,8 +69,13 @@ function observableQueryFields<TData, TVariables>(observable: ObservableQuery<TD
     'stopPolling',
   );
 
-  Object.keys(fields).forEach((key) => {
-    const k = key as 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling';
+  Object.keys(fields).forEach(key => {
+    const k = key as
+      | 'refetch'
+      | 'fetchMore'
+      | 'updateQuery'
+      | 'startPolling'
+      | 'stopPolling';
     if (typeof fields[k] === 'function') {
       fields[k] = fields[k].bind(observable);
     }
@@ -100,10 +122,10 @@ interface QueryContext {
   client: ApolloClient<Object>;
 }
 
-class Query<TData = any, TVariables = OperationVariables> extends React.Component<
-  QueryProps<TData, TVariables>,
-  QueryState<TData>
-> {
+class Query<
+  TData = any,
+  TVariables = OperationVariables
+> extends React.Component<QueryProps<TData, TVariables>, QueryState<TData>> {
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
@@ -155,7 +177,10 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     this.startQuerySubscription();
   }
 
-  componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>, nextContext: QueryContext) {
+  componentWillReceiveProps(
+    nextProps: QueryProps<TData, TVariables>,
+    nextContext: QueryContext,
+  ) {
     if (
       shallowEqual(this.props, nextProps) &&
       this.client === nextContext.client
@@ -182,7 +207,9 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     return children(queryResult);
   }
 
-  private initializeQueryObservable = (props: QueryProps<TData, TVariables>) => {
+  private initializeQueryObservable = (
+    props: QueryProps<TData, TVariables>,
+  ) => {
     const {
       variables,
       pollInterval,

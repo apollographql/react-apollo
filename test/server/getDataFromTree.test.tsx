@@ -126,7 +126,13 @@ describe('SSR', () => {
 
       it('functional stateless components with null children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }: { n: number, children: React.ReactNode }) => (
+        const MyComponent = ({
+          n,
+          children = null,
+        }: {
+          n: number;
+          children: React.ReactNode;
+        }) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
@@ -345,7 +351,9 @@ describe('SSR', () => {
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
           {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+            <div>
+              {loading || !data ? 'loading' : data.currentUser.firstName}
+            </div>
           )}
         </CurrentUserQuery>
       );
@@ -964,7 +972,9 @@ describe('SSR', () => {
       const Element = (props: { id: number }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
           {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+            <div>
+              {loading || !data ? 'loading' : data.currentUser.firstName}
+            </div>
           )}
         </CurrentUserQuery>
       );

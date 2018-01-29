@@ -16,7 +16,10 @@ export interface SubscriptionResult<TData = any> {
   error?: ApolloError;
 }
 
-export interface SubscriptionProps<TData = any, TVariables = OperationVariables> {
+export interface SubscriptionProps<
+  TData = any,
+  TVariables = OperationVariables
+> {
   query: DocumentNode;
   variables?: TVariables;
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
@@ -44,7 +47,10 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   private queryObservable: Observable<any>;
   private querySubscription: ZenObservable.Subscription;
 
-  constructor(props: SubscriptionProps<TData, TVariables>, context: SubscriptionContext) {
+  constructor(
+    props: SubscriptionProps<TData, TVariables>,
+    context: SubscriptionContext,
+  ) {
     super(props, context);
 
     invariant(
@@ -60,7 +66,10 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     this.startSubscription();
   }
 
-  componentWillReceiveProps(nextProps: SubscriptionProps<TData, TVariables>, nextContext: SubscriptionContext) {
+  componentWillReceiveProps(
+    nextProps: SubscriptionProps<TData, TVariables>,
+    nextContext: SubscriptionContext,
+  ) {
     if (
       shallowEqual(this.props, nextProps) &&
       this.client === nextContext.client

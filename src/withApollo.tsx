@@ -11,7 +11,7 @@ function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-type WithApolloClient<P> = P & { client: ApolloClient<any>; };
+type WithApolloClient<P> = P & { client: ApolloClient<any> };
 
 export default function withApollo<TProps, TResult>(
   WrappedComponent: React.ComponentType<WithApolloClient<TProps>>,
@@ -49,13 +49,12 @@ export default function withApollo<TProps, TResult>(
       return (
         <ApolloConsumer>
           {client => {
-            const props = Object.assign({},
-              this.props,
-              {
-                client,
-                ref: operationOptions.withRef ? this.setWrappedInstance : undefined
-              }
-            );
+            const props = Object.assign({}, this.props, {
+              client,
+              ref: operationOptions.withRef
+                ? this.setWrappedInstance
+                : undefined,
+            });
             return <WrappedComponent {...props} />;
           }}
         </ApolloConsumer>

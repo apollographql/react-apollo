@@ -5,7 +5,7 @@ import {
   Component,
   ComponentType,
   ComponentClass,
-  ChildContextProvider
+  ChildContextProvider,
 } from 'react';
 import ApolloClient from 'apollo-client';
 import assign from 'object-assign';
@@ -50,7 +50,9 @@ function isComponentClass(
   return Comp.prototype && Comp.prototype.render;
 }
 
-function providesChildContext(instance: Component<any>): instance is Component<any> & ChildContextProvider<any> {
+function providesChildContext(
+  instance: Component<any>,
+): instance is Component<any> & ChildContextProvider<any> {
   return !!(instance as any).getChildContext;
 }
 
@@ -101,7 +103,11 @@ export function walkTree<Cache>(
             // React's TS type definitions don't contain context as a third parameter for
             // setState's updater function.
             // Remove this cast to `any` when that is fixed.
-            newState = (newState as any)(instance.state, instance.props, instance.context);
+            newState = (newState as any)(
+              instance.state,
+              instance.props,
+              instance.context,
+            );
           }
           instance.state = assign({}, instance.state, newState);
         };
@@ -158,10 +164,10 @@ export function walkTree<Cache>(
   // TODO: Portals?
 }
 
-
-
-function hasFetchDataFunction(instance: Component<any>): instance is Component<any> & { fetchData: () => Object } {
-  return typeof (instance as any).fetchData === 'function'
+function hasFetchDataFunction(
+  instance: Component<any>,
+): instance is Component<any> & { fetchData: () => Object } {
+  return typeof (instance as any).fetchData === 'function';
 }
 
 function isPromise<T>(query: Object): query is Promise<T> {
