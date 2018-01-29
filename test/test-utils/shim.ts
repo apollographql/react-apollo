@@ -4,6 +4,9 @@
 // Prevent typescript from giving error.
 const globalAny: any = global;
 
-globalAny.requestAnimationFrame = callback => {
+const raf: typeof requestAnimationFrame = callback => {
   setTimeout(callback, 0);
+  return 0;
 };
+
+globalAny.requestAnimationFrame = raf;

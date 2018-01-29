@@ -70,7 +70,7 @@ function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
 let nextVersion = 0;
 
 export default function graphql<
-  TProps = {},
+  TProps extends TGraphQLVariables | {} = {},
   TData = {},
   TGraphQLVariables = {},
   TChildProps extends TProps = ChildProps<TProps, TData, TGraphQLVariables>
@@ -105,7 +105,7 @@ export default function graphql<
   ) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    type GraphqlProps = TProps & TGraphQLVariables;
+    type GraphqlProps = TProps;
 
     interface GraphqlContext {
       client: ApolloClient<any>;
@@ -183,7 +183,7 @@ export default function graphql<
       }
 
       componentWillReceiveProps(
-        nextProps: Readonly<GraphqlProps>,
+        nextProps: GraphqlProps,
         nextContext: GraphqlContext,
       ) {
         if (this.shouldSkip(nextProps)) {
@@ -272,7 +272,7 @@ export default function graphql<
         );
       }
 
-      getClient<Cache>(props: Readonly<GraphqlProps>): ApolloClient<Cache> {
+      getClient<Cache>(props: GraphqlProps): ApolloClient<Cache> {
         if (this.client) return this.client;
         const { client } = mapPropsToOptions(props);
 
@@ -341,7 +341,7 @@ export default function graphql<
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult: OptionProps<TProps & TGraphQLVariables, TData> = {
+        const newResult: OptionProps<TProps, TData> = {
           [name]: result,
           ownProps: this.props,
         };

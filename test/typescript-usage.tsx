@@ -121,23 +121,25 @@ class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
 // with custom props
 const withProps = graphql<Props, Data>(historyQuery, {
   props: ({ data }) => ({
-    ...data,
+    organisationData: data,
   }),
 });
 
 // --------------------------
+// It is not recommended to use `name` with Typescript, better to use props and map the property
+// explicitly so it can be type checked.
 // with using name
-const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
-  name: 'organisationData',
-  props: ({
-    organisationData,
-  }: NamedProps<{ organisationData: GraphqlQueryControls & Data }, Props>) => ({
-    ...organisationData,
-  }),
-});
+// const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
+//   name: 'organisationData',
+//   props: ({
+//     organisationData,
+//   }: NamedProps<{ organisationData: GraphqlQueryControls & Data }, Props>) => ({
+//     ...organisationData,
+//   }),
+// });
 
-const HistoryViewUsingName = withHistoryUsingName(HistoryView);
-<HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
+// const HistoryViewUsingName = withHistoryUsingName(HistoryView);
+// <HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
 
 // --------------------------
 // mutation with name

@@ -1,4 +1,4 @@
-const catchAsyncError = (done, cb) => {
+const catchAsyncError = (done: jest.DoneCallback, cb: () => void) => {
   try {
     cb();
   } catch (e) {
