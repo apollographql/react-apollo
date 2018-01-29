@@ -65,7 +65,7 @@ const withHistory = graphql<Props, Data>(historyQuery, {
 
 class HistoryView extends React.Component<ChildProps<Props, Data>> {
   render() {
-    if (this.props.data.history.length > 0) {
+    if (this.props.data && this.props.data.history && this.props.data.history.length > 0) {
       return <div>yay type checking works</div>;
     } else {
       return null;
@@ -85,7 +85,7 @@ const HistoryViewSFC = graphql<Props, Data>(historyQuery, {
     },
   }),
 })(props => {
-  if (this.props.data.history.length > 0) {
+  if (props.data && props.data.history && props.data.history.length > 0) {
     return <div>yay type checking works</div>;
   } else {
     return null;
@@ -98,15 +98,26 @@ const HistoryViewSFC = graphql<Props, Data>(historyQuery, {
 // decorator
 @graphql<Props, Data>(historyQuery)
 class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
-  render() {
-    if (this.props.data.history.length > 0) {
+  render(): React.ReactNode {
+    if (this.props.data && this.props.data.history && this.props.data.history.length > 0) {
       return <div>yay type checking works</div>;
     } else {
       return null;
     }
   }
 }
+
 <DecoratedHistoryView solutionId="foo" />; // tslint:disable-line
+
+// --------------------------
+// with custom props
+const withProps = graphql<Props, Data>(historyQuery, {
+  props: ({
+    data
+  }) => ({
+    ...data,
+  }),
+});
 
 // --------------------------
 // with using name

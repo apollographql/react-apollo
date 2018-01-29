@@ -109,7 +109,7 @@ export interface OptionProps<
 >
   extends Partial<DataProps<TData, TGraphQLVariables>>,
     Partial<MutateProps<TData, TGraphQLVariables>> {
-  ownProps: TProps;
+  ownProps: Readonly<TProps>;
 }
 
 export interface OperationOption<
@@ -121,15 +121,15 @@ export interface OperationOption<
     | QueryOpts<TGraphQLVariables>
     | MutationOpts<TGraphQLVariables>
     | ((
-        props: TProps,
+        props: Readonly<TProps>,
       ) => QueryOpts<TGraphQLVariables> | MutationOpts<TGraphQLVariables>);
   props?: (props: OptionProps<TProps, TData>) => any;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
   shouldResubscribe?: (
-    props: TProps & DataProps<TData, TGraphQLVariables>,
-    nextProps: TProps & DataProps<TData, TGraphQLVariables>,
+    props: Readonly<TProps>,
+    nextProps: Readonly<TProps>,
   ) => boolean;
   alias?: string;
 }

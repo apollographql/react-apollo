@@ -16,19 +16,23 @@ import {
   MutationFunc,
   OptionProps,
 } from './types';
+import { OperationVariables } from './index';
+import pick from 'lodash/pick';
+import assign from 'object-assign';
+import hoistNonReactStatics from 'hoist-non-react-statics';
+import shallowEqual from 'fbjs/lib/shallowEqual';
+import invariant from 'invariant';
 
-const shallowEqual = require('fbjs/lib/shallowEqual');
-const invariant = require('invariant');
-const assign = require('object-assign');
-const pick = require('lodash/pick');
-const hoistNonReactStatics = require('hoist-non-react-statics');
 
 const defaultMapPropsToOptions = () => ({});
-const defaultMapResultToProps = props => props;
+const defaultMapResultToProps: <P>(props: P) => P = props => props;
 const defaultMapPropsToSkip = () => false;
 
+
+type ObservableQueryFields<TData> = Pick<ObservableQuery<TData>, 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling'>;
+
 // the fields we want to copy over to our data prop
-function observableQueryFields(observable) {
+function observableQueryFields<TData>(observable: ObservableQuery<TData>): ObservableQueryFields<TData> {
   const fields = pick(
     observable,
     'variables',
@@ -41,15 +45,16 @@ function observableQueryFields(observable) {
   );
 
   Object.keys(fields).forEach(key => {
-    if (typeof fields[key] === 'function') {
-      fields[key] = fields[key].bind(observable);
+    const k = key as 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling';
+    if (typeof fields[k] === 'function') {
+      fields[k] = fields[k].bind(observable);
     }
   });
 
   return fields;
 }
 
-function getDisplayName(WrappedComponent) {
+function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
@@ -60,7 +65,7 @@ export default function graphql<
   TProps = {},
   TData = {},
   TGraphQLVariables = {},
-  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
+  TChildProps extends TProps = ChildProps<TProps, TData, TGraphQLVariables>
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TData, TGraphQLVariables> = {},
@@ -87,13 +92,19 @@ export default function graphql<
   // Helps track hot reloading.
   const version = nextVersion++;
 
-  function wrapWithApolloComponent<TOriginalProps extends TChildProps>(
-    WrappedComponent: React.ComponentType<TOriginalProps>,
+  function wrapWithApolloComponent(
+    WrappedComponent: React.ComponentType<TChildProps>,
   ) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    type GraphqlProps = TOriginalProps & TGraphQLVariables;
-    class GraphQL extends React.Component<GraphqlProps, void> {
+    type GraphqlProps = TProps & TGraphQLVariables;
+
+    interface GraphqlContext {
+      client: ApolloClient<any>;
+      getQueryRecycler: () => void;
+    }
+
+    class GraphQL extends React.Component<GraphqlProps> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       static contextTypes = {
@@ -102,7 +113,6 @@ export default function graphql<
       };
 
       // react / redux and react dev tools (HMR) needs
-      public props: any; // passed props
       public version: number;
       public hasMounted: boolean;
 
@@ -119,7 +129,7 @@ export default function graphql<
       private lastSubscriptionData: any;
       private refetcherQueue: {
         args: any;
-        resolve: (value?: {} | PromiseLike<{}>) => void;
+        resolve: (value?: any | PromiseLike<any>) => void;
         reject: (reason?: any) => void;
       };
 
@@ -132,7 +142,7 @@ export default function graphql<
       // wrapped instance
       private wrappedInstance: any;
 
-      constructor(props: GraphqlProps, context: any) {
+      constructor(props: GraphqlProps, context: GraphqlContext) {
         super(props, context);
 
         this.version = version;
@@ -164,7 +174,7 @@ export default function graphql<
         }
       }
 
-      componentWillReceiveProps(nextProps, nextContext) {
+      componentWillReceiveProps(nextProps: Readonly<GraphqlProps>, nextContext: GraphqlContext) {
         if (this.shouldSkip(nextProps)) {
           if (!this.shouldSkip(this.props)) {
             // if this has changed, we better unsubscribe
@@ -251,7 +261,7 @@ export default function graphql<
         );
       }
 
-      getClient<Cache>(props): ApolloClient<Cache> {
+      getClient<Cache>(props: Readonly<GraphqlProps>): ApolloClient<Cache> {
         if (this.client) return this.client;
         const { client } = mapPropsToOptions(props);
 
@@ -271,7 +281,7 @@ export default function graphql<
         return this.client;
       }
 
-      calculateOptions(props = this.props, newOpts?) {
+      calculateOptions(props = this.props, newOpts?: QueryOpts | MutationOpts) {
         let opts = mapPropsToOptions(props);
 
         if (newOpts && newOpts.variables) {
@@ -281,23 +291,26 @@ export default function graphql<
 
         if (opts.variables || !operation.variables.length) return opts;
 
-        let variables = {};
+        let variables: OperationVariables = {};
         for (let { variable, type } of operation.variables) {
           if (!variable.name || !variable.name.value) continue;
 
-          if (typeof props[variable.name.value] !== 'undefined') {
-            variables[variable.name.value] = props[variable.name.value];
+          const variableName = variable.name.value;
+          const variableProp = (props as any)[variableName];
+
+          if (typeof variableProp !== 'undefined') {
+            variables[variableName] = variableProp;
             continue;
           }
 
           // allow optional props
           if (type.kind !== 'NonNullType') {
-            variables[variable.name.value] = null;
+            variables[variableName] = null;
             continue;
           }
 
           invariant(
-            typeof props[variable.name.value] !== 'undefined',
+            typeof variableProp !== 'undefined',
             `The operation '${operation.name}' wrapping '${getDisplayName(
               WrappedComponent,
             )}' ` +
@@ -371,7 +384,7 @@ export default function graphql<
         }
       }
 
-      updateQuery(props) {
+      updateQuery(props: Readonly<GraphqlProps>) {
         const opts = this.calculateOptions(props) as QueryOpts;
 
         // if we skipped initially, we may not have yet created the observable
@@ -450,7 +463,7 @@ export default function graphql<
           this.forceRenderChildren();
         };
 
-        const handleError = error => {
+        const handleError = (error: any) => {
           this.resubscribeToQuery();
           // Quick fix for https://github.com/apollostack/react-apollo/issues/378
           if (error.hasOwnProperty('graphQLErrors')) return next({ error });
@@ -515,7 +528,7 @@ export default function graphql<
         return this.wrappedInstance;
       }
 
-      setWrappedInstance(ref) {
+      setWrappedInstance(ref: React.ComponentClass<TChildProps>) {
         this.wrappedInstance = ref;
       }
 
@@ -612,12 +625,13 @@ export default function graphql<
       render() {
         if (this.shouldSkip()) {
           if (operationOptions.withRef) {
-            return React.createElement(
-              WrappedComponent,
-              assign({}, this.props, { ref: this.setWrappedInstance }),
+            return (
+              <WrappedComponent
+                {...assign({}, this.props, { ref: this.setWrappedInstance })}
+              />
             );
           }
-          return React.createElement(WrappedComponent, this.props);
+          return <WrappedComponent {...this.props} />;
         }
 
         const { shouldRerender, renderedElement, props } = this;
@@ -637,9 +651,8 @@ export default function graphql<
 
         if (operationOptions.withRef)
           mergedPropsAndData.ref = this.setWrappedInstance;
-        this.renderedElement = React.createElement(
-          WrappedComponent,
-          mergedPropsAndData,
+        this.renderedElement = (
+          <WrappedComponent {...mergedPropsAndData} />
         );
         return this.renderedElement;
       }

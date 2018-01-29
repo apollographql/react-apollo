@@ -109,7 +109,6 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
   };
   context: QueryContext;
 
-  state: QueryState<TData>;
   private client: ApolloClient<Object>;
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
