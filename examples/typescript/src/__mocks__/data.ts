@@ -1,3 +1,4 @@
+// tslint:disable
 export const empty = null;
 
 export const hero_no_friends = {
