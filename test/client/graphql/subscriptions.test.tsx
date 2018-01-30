@@ -7,10 +7,11 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '../../../src/test-utils';
 import { ApolloProvider, ChildProps, graphql } from '../../../src';
 import stripSymbols from '../../test-utils/stripSymbols';
+import { DocumentNode } from 'graphql';
 
 describe('subscriptions', () => {
-  let error;
-  let wrapper;
+  let error: typeof console.error;
+  let wrapper: renderer.ReactTestRenderer | null;
   beforeEach(() => {
     jest.useRealTimers();
     error = console.error;
@@ -35,7 +36,7 @@ describe('subscriptions', () => {
   }));
 
   it('binds a subscription to props', () => {
-    const query = gql`
+    const query: DocumentNode = gql`
       subscription UserInfo {
         user {
           name
@@ -56,8 +57,8 @@ describe('subscriptions', () => {
     const ContainerWithData = graphql<Props, Data>(query)(
       ({ data }: ChildProps<Props, Data>) => {
         expect(data).toBeTruthy();
-        expect(data.user).toBeFalsy();
-        expect(data.loading).toBeTruthy();
+        expect(data!.user).toBeFalsy();
+        expect(data!.loading).toBeTruthy();
         return null;
       },
     );
@@ -70,7 +71,7 @@ describe('subscriptions', () => {
   });
 
   it('includes the variables in the props', () => {
-    const query = gql`
+    const query: DocumentNode = gql`
       subscription UserInfo($name: String) {
         user(name: $name) {
           name
@@ -84,15 +85,18 @@ describe('subscriptions', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    interface Props {}
+    interface Variables {
+      name: string;
+    }
+
     interface Data {
       user: { name: string };
     }
 
-    const ContainerWithData = graphql<Props, Data>(query)(
-      ({ data }: ChildProps<Props, Data>) => {
+    const ContainerWithData = graphql<Variables, Data>(query)(
+      ({ data }: ChildProps<Variables, Data>) => {
         expect(data).toBeTruthy();
-        expect(data.variables).toEqual(variables);
+        expect(data!.variables).toEqual(variables);
         return null;
       },
     );
@@ -105,7 +109,7 @@ describe('subscriptions', () => {
   });
 
   it('does not swallow children errors', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       subscription UserInfo {
         user {
           name
@@ -118,14 +122,14 @@ describe('subscriptions', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    let bar;
+    let bar: any;
     const ContainerWithData = graphql(query)(() => {
       bar(); // this will throw
       return null;
     });
 
     class ErrorBoundary extends React.Component {
-      componentDidCatch(e, info) {
+      componentDidCatch(e: any) {
         expect(e.name).toMatch(/TypeError/);
         expect(e.message).toMatch(/bar is not a function/);
         done();
@@ -148,13 +152,17 @@ describe('subscriptions', () => {
   it('executes a subscription', done => {
     jest.useFakeTimers();
 
-    const query = gql`
+    const query: DocumentNode = gql`
       subscription UserInfo {
         user {
           name
         }
       }
     `;
+
+    interface Data {
+      user: { name: string };
+    }
     const link = new MockSubscriptionLink();
     const client = new ApolloClient({
       link,
@@ -162,29 +170,32 @@ describe('subscriptions', () => {
     });
 
     let count = 0;
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillMount() {
-        expect(this.props.data.loading).toBeTruthy();
-      }
-      componentWillReceiveProps({ data: { loading, user } }) {
-        expect(loading).toBeFalsy();
-        if (count === 0)
-          expect(stripSymbols(user)).toEqual(results[0].result.data.user);
-        if (count === 1)
-          expect(stripSymbols(user)).toEqual(results[1].result.data.user);
-        if (count === 2)
-          expect(stripSymbols(user)).toEqual(results[2].result.data.user);
-        if (count === 3) {
-          expect(stripSymbols(user)).toEqual(results[3].result.data.user);
-          done();
+    const Container = graphql<{}, Data>(query)(
+      class extends React.Component<ChildProps<{}, Data>> {
+        componentWillMount() {
+          expect(this.props.data!.loading).toBeTruthy();
         }
-        count++;
-      }
-      render() {
-        return null;
-      }
-    }
+        componentWillReceiveProps(props: ChildProps<{}, Data>) {
+          const { loading, user } = props.data!;
+
+          expect(loading).toBeFalsy();
+          if (count === 0)
+            expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+          if (count === 1)
+            expect(stripSymbols(user)).toEqual(results[1].result.data.user);
+          if (count === 2)
+            expect(stripSymbols(user)).toEqual(results[2].result.data.user);
+          if (count === 3) {
+            expect(stripSymbols(user)).toEqual(results[3].result.data.user);
+            done();
+          }
+          count++;
+        }
+        render() {
+          return null;
+        }
+      },
+    );
 
     const interval = setInterval(() => {
       link.simulateResult(results[count]);
@@ -226,25 +237,29 @@ describe('subscriptions', () => {
       delay: 10,
     }));
 
-    const query = gql`
+    const query: DocumentNode = gql`
       subscription UserInfo {
         user {
           name
         }
       }
     `;
-    const triggerQuery = gql`
+    interface QueryData {
+      user: { name: string };
+    }
+
+    const triggerQuery: DocumentNode = gql`
       subscription Trigger {
         trigger
       }
     `;
     interface TriggerData {
-      trigger: any;
+      trigger: string;
     }
 
     const userLink = new MockSubscriptionLink();
     const triggerLink = new MockSubscriptionLink();
-    const link = new ApolloLink((o, f) => f(o)).split(
+    const link = new ApolloLink((o, f) => (f ? f(o) : null)).split(
       ({ operationName }) => operationName === 'UserInfo',
       userLink,
       triggerLink,
@@ -256,44 +271,55 @@ describe('subscriptions', () => {
     });
 
     let count = 0;
-    @graphql(triggerQuery)
-    @graphql<{}, TriggerData>(query, {
-      shouldResubscribe: (props, nextProps) => {
-        return nextProps.data.trigger === 'trigger resubscribe';
-      },
-    })
-    class Container extends React.Component<any, any> {
-      componentWillMount() {
-        expect(this.props.data.loading).toBeTruthy();
-      }
-      componentWillReceiveProps({ data: { loading, user } }) {
-        try {
-          // odd counts will be outer wrapper getting subscriptions - ie unchanged
-          expect(loading).toBeFalsy();
-          if (count === 0)
-            expect(stripSymbols(user)).toEqual(results[0].result.data.user);
-          if (count === 1)
-            expect(stripSymbols(user)).toEqual(results[0].result.data.user);
-          if (count === 2)
-            expect(stripSymbols(user)).toEqual(results[2].result.data.user);
-          if (count === 3)
-            expect(stripSymbols(user)).toEqual(results[2].result.data.user);
-          if (count === 4)
-            expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
-          if (count === 5) {
-            expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
-            done();
-          }
-        } catch (e) {
-          done.fail(e);
-        }
 
-        count++;
-      }
-      render() {
-        return null;
-      }
-    }
+    type TriggerQueryChildProps = ChildProps<{}, TriggerData>;
+    type ComposedProps = ChildProps<TriggerQueryChildProps, QueryData>;
+
+    const Container = graphql<{}, TriggerData>(triggerQuery)(
+      graphql<TriggerQueryChildProps, QueryData>(query, {
+        shouldResubscribe: nextProps => {
+          return nextProps.data!.trigger === 'trigger resubscribe';
+        },
+      })(
+        class extends React.Component<ComposedProps> {
+          componentWillMount() {
+            expect(this.props.data!.loading).toBeTruthy();
+          }
+          componentWillReceiveProps(props: ComposedProps) {
+            const { loading, user } = props.data!;
+            try {
+              // odd counts will be outer wrapper getting subscriptions - ie unchanged
+              expect(loading).toBeFalsy();
+              if (count === 0)
+                expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+              if (count === 1)
+                expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+              if (count === 2)
+                expect(stripSymbols(user)).toEqual(results[2].result.data.user);
+              if (count === 3)
+                expect(stripSymbols(user)).toEqual(results[2].result.data.user);
+              if (count === 4)
+                expect(stripSymbols(user)).toEqual(
+                  results3[2].result.data.user,
+                );
+              if (count === 5) {
+                expect(stripSymbols(user)).toEqual(
+                  results3[2].result.data.user,
+                );
+                done();
+              }
+            } catch (e) {
+              done.fail(e);
+            }
+
+            count++;
+          }
+          render() {
+            return null;
+          }
+        },
+      ),
+    );
 
     const interval = setInterval(() => {
       try {
