@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, graphql, ChildProps } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import createClient from '../../../test-utils/createClient';
 
@@ -22,10 +22,14 @@ describe('graphql(mutation) lifecycle', () => {
   it('allows falsy values in the mapped variables from props', done => {
     const client = createClient(expectedData, query, { id: null });
 
-    @graphql(query)
-    class Container extends React.Component<any, any> {
+    interface Props {
+      id: string | null;
+    }
+
+    @graphql<Props>(query)
+    class Container extends React.Component<ChildProps<Props>> {
       componentDidMount() {
-        this.props.mutate().then(result => {
+        this.props.mutate!().then(result => {
           expect(stripSymbols(result.data)).toEqual(expectedData);
           done();
         });
@@ -45,7 +49,10 @@ describe('graphql(mutation) lifecycle', () => {
 
   it("errors if the passed props don't contain the needed variables", () => {
     const client = createClient(expectedData, query, { first: 1 });
-    const Container = graphql(query)(() => null);
+    interface Props {
+      frst: number;
+    }
+    const Container = graphql<Props>(query)(() => null);
     try {
       renderer.create(
         <ApolloProvider client={client}>
@@ -59,27 +66,33 @@ describe('graphql(mutation) lifecycle', () => {
 
   it('rebuilds the mutation on prop change when using `options`', done => {
     const client = createClient(expectedData, query, {
-      id: null,
+      id: 2,
     });
-    function options(props) {
+
+    interface Props {
+      listId: number;
+    }
+    function options(props: Props) {
       return {
         variables: {
-          id: null,
+          id: props.listId,
         },
       };
     }
 
-    @graphql(query, { options })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
+    class Container extends React.Component<ChildProps<Props>> {
+      componentWillReceiveProps(props: ChildProps<Props>) {
         if (props.listId !== 2) return;
-        props.mutate().then(x => done());
+        props.mutate!().then(() => done());
       }
       render() {
         return null;
       }
     }
-    class ChangingProps extends React.Component<any, any> {
+
+    const ContainerWithMutate = graphql<Props>(query, { options })(Container);
+
+    class ChangingProps extends React.Component<{}, { listId: number }> {
       state = { listId: 1 };
 
       componentDidMount() {
@@ -87,7 +100,7 @@ describe('graphql(mutation) lifecycle', () => {
       }
 
       render() {
-        return <Container listId={this.state.listId} />;
+        return <ContainerWithMutate listId={this.state.listId} />;
       }
     }
 
@@ -100,10 +113,14 @@ describe('graphql(mutation) lifecycle', () => {
 
   it('can execute a mutation with custom variables', done => {
     const client = createClient(expectedData, query, { id: 1 });
-    @graphql(query)
-    class Container extends React.Component<any, any> {
+    interface Variables {
+      id: number;
+    }
+
+    @graphql<{}, {}, Variables>(query)
+    class Container extends React.Component<ChildProps<{}, {}, Variables>> {
       componentDidMount() {
-        this.props.mutate({ variables: { id: 1 } }).then(result => {
+        this.props.mutate!({ variables: { id: 1 } }).then(result => {
           expect(stripSymbols(result.data)).toEqual(expectedData);
           done();
         });

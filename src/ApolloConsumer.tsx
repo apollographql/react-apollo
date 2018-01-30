@@ -4,7 +4,7 @@ import ApolloClient from 'apollo-client';
 import invariant from 'invariant';
 
 export interface ApolloConsumerProps {
-  children: (client: ApolloClient<any>) => React.ReactElement<any>;
+  children: (client: ApolloClient<any>) => React.ReactElement<any> | null;
 }
 
 const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> = (

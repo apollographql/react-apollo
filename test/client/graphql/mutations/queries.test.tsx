@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
+import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import {
@@ -12,12 +12,12 @@ import {
 } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import createClient from '../../../test-utils/createClient';
-
-const compose = require('lodash/flowRight');
+import { DocumentNode } from 'graphql';
+import compose from 'lodash/flowRight';
 
 describe('graphql(mutation) query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       mutation createTodo {
         createTodo {
           id
@@ -38,9 +38,12 @@ describe('graphql(mutation) query integration', () => {
         completed: true,
       },
     };
+
+    type Data = typeof data;
+
     const client = createClient(data, query);
-    @graphql(query)
-    class Container extends React.Component<any, any> {
+    @graphql<{}, Data>(query)
+    class Container extends React.Component<ChildProps<{}, Data>> {
       componentDidMount() {
         const optimisticResponse = {
           __typename: 'Mutation',
@@ -51,7 +54,7 @@ describe('graphql(mutation) query integration', () => {
             completed: true,
           },
         };
-        this.props.mutate({ optimisticResponse }).then(result => {
+        this.props.mutate!({ optimisticResponse }).then(result => {
           expect(stripSymbols(result.data)).toEqual(data);
           done();
         });
@@ -74,7 +77,7 @@ describe('graphql(mutation) query integration', () => {
   });
 
   it('allows for updating queries from a mutation', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query todos {
         todo_list {
           id
@@ -88,7 +91,7 @@ describe('graphql(mutation) query integration', () => {
       }
     `;
 
-    const mutation = gql`
+    const mutation: DocumentNode = gql`
       mutation createTodo {
         createTodo {
           id
@@ -106,6 +109,8 @@ describe('graphql(mutation) query integration', () => {
       },
     };
 
+    type MutationData = typeof mutationData;
+
     const optimisticResponse = {
       createTodo: {
         id: '99',
@@ -113,10 +118,17 @@ describe('graphql(mutation) query integration', () => {
         completed: true,
       },
     };
+    interface QueryData {
+      todo_list: {
+        id: string;
+        title: string;
+        tasks: { id: string; text: string; completed: boolean }[];
+      };
+    }
 
-    const update = (proxy, { data: { createTodo } }) => {
-      const data = proxy.readQuery({ query }); // read from cache
-      data.todo_list.tasks.push(createTodo); // update value
+    const update: MutationUpdaterFn = (proxy, result) => {
+      const data = proxy.readQuery<QueryData>({ query }); // read from cache
+      data!.todo_list.tasks.push(result.data!.createTodo); // update value
       proxy.writeQuery({ query, data }); // write to cache
     };
 
@@ -134,16 +146,21 @@ describe('graphql(mutation) query integration', () => {
     const cache = new Cache({ addTypename: false });
     const client = new ApolloClient({ link, cache });
 
-    let count = 0;
-    @graphql(query)
-    @graphql(mutation, {
+    const withQuery = graphql<{}, QueryData>(query);
+
+    type WithQueryChildProps = ChildProps<{}, QueryData>;
+    const withMutation = graphql<WithQueryChildProps, MutationData>(mutation, {
       options: () => ({ optimisticResponse, update }),
-    })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        if (!props.data.todo_list) return;
+    });
+
+    let count = 0;
+
+    type ContainerProps = ChildProps<WithQueryChildProps, MutationData>;
+    class Container extends React.Component<ContainerProps> {
+      componentWillReceiveProps(props: ContainerProps) {
+        if (!props.data || !props.data.todo_list) return;
         if (!props.data.todo_list.tasks.length) {
-          props.mutate().then(result => {
+          props.mutate!().then(result => {
             expect(stripSymbols(result.data)).toEqual(mutationData);
           });
 
@@ -171,14 +188,16 @@ describe('graphql(mutation) query integration', () => {
       }
     }
 
+    const ContainerWithData = withQuery(withMutation(Container));
+
     renderer.create(
       <ApolloProvider client={client}>
-        <Container />
+        <ContainerWithData />
       </ApolloProvider>,
     );
   });
   it('allows for updating queries from a mutation automatically', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query getMini($id: ID!) {
         mini(id: $id) {
           __typename
@@ -196,9 +215,13 @@ describe('graphql(mutation) query integration', () => {
       },
     };
 
+    type Data = typeof queryData;
+
     const variables = { id: 1 };
 
-    const mutation = gql`
+    type Variables = typeof variables;
+
+    const mutation: DocumentNode = gql`
       mutation($signature: String!) {
         mini: submitMiniCoverS3DirectUpload(signature: $signature) {
           __typename
@@ -216,6 +239,12 @@ describe('graphql(mutation) query integration', () => {
       },
     };
 
+    type MutationData = typeof mutationData;
+
+    interface MutationVariables {
+      signature: string;
+    }
+
     const link = mockSingleLink(
       { request: { query, variables }, result: { data: queryData } },
       {
@@ -227,7 +256,7 @@ describe('graphql(mutation) query integration', () => {
     const client = new ApolloClient({ link, cache });
 
     class Boundary extends React.Component {
-      componentDidCatch(e) {
+      componentDidCatch(e: any) {
         done.fail(e);
       }
       render() {
@@ -236,36 +265,46 @@ describe('graphql(mutation) query integration', () => {
     }
 
     let count = 0;
-    @graphql(mutation)
-    class MutationContainer extends React.Component {
-      componentWillReceiveProps(props) {
-        if (count === 1) {
-          props.mutate().then(result => {
-            expect(stripSymbols(result.data)).toEqual(mutationData);
-          });
+    const MutationContainer = graphql<MutationVariables, MutationData>(
+      mutation,
+    )(
+      class extends React.Component<
+        ChildProps<MutationVariables, MutationData>
+      > {
+        componentWillReceiveProps(
+          props: ChildProps<MutationVariables, MutationData>,
+        ) {
+          if (count === 1) {
+            props.mutate!().then(result => {
+              expect(stripSymbols(result.data)).toEqual(mutationData);
+            });
+          }
         }
-      }
-      render() {
-        return null;
-      }
-    }
+        render() {
+          return null;
+        }
+      },
+    );
 
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        if (count === 0) {
-          expect(stripSymbols(props.data.mini)).toEqual(queryData.mini);
+    const Container = graphql<Variables, Data>(query)(
+      class extends React.Component<ChildProps<Variables, Data>> {
+        componentWillReceiveProps(props: ChildProps<Variables, Data>) {
+          if (count === 0) {
+            expect(stripSymbols(props.data!.mini)).toEqual(queryData.mini);
+          }
+          if (count === 1) {
+            expect(stripSymbols(props.data!.mini)).toEqual(mutationData.mini);
+            done();
+          }
+          count++;
         }
-        if (count === 1) {
-          expect(stripSymbols(props.data.mini)).toEqual(mutationData.mini);
-          done();
+        render() {
+          return (
+            <MutationContainer {...this.props.data!.mini} signature="1233" />
+          );
         }
-        count++;
-      }
-      render() {
-        return <MutationContainer {...this.props.data.mini} signature="1233" />;
-      }
-    }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
@@ -280,7 +319,7 @@ describe('graphql(mutation) query integration', () => {
     // reproduction of query from Apollo Engine
     const accountId = '1234';
 
-    const billingInfoQuery = gql`
+    const billingInfoQuery: DocumentNode = gql`
       query Account__PaymentDetailQuery($accountId: ID!) {
         account(id: $accountId) {
           id
@@ -292,7 +331,7 @@ describe('graphql(mutation) query integration', () => {
       }
     `;
 
-    const overlappingQuery = gql`
+    const overlappingQuery: DocumentNode = gql`
       query Account__PaymentQuery($accountId: ID!) {
         account(id: $accountId) {
           id
@@ -323,7 +362,13 @@ describe('graphql(mutation) query integration', () => {
       },
     };
 
-    const setPlanMutation = gql`
+    type QueryData = typeof data1;
+
+    interface QueryVariables {
+      accountId: string;
+    }
+
+    const setPlanMutation: DocumentNode = gql`
       mutation Account__SetPlanMutation($accountId: ID!, $planId: ID!) {
         accountSetPlan(accountId: $accountId, planId: $planId)
       }
@@ -332,6 +377,13 @@ describe('graphql(mutation) query integration', () => {
     const mutationData = {
       accountSetPlan: true,
     };
+
+    type MutationData = typeof mutationData;
+
+    interface MutationVariables {
+      accountId: string;
+      planId: string;
+    }
 
     const variables = {
       accountId,
@@ -362,7 +414,7 @@ describe('graphql(mutation) query integration', () => {
     const client = new ApolloClient({ link, cache });
 
     class Boundary extends React.Component {
-      componentDidCatch(e) {
+      componentDidCatch(e: any) {
         done.fail(e);
       }
       render() {
@@ -370,11 +422,15 @@ describe('graphql(mutation) query integration', () => {
       }
     }
 
-    let refetched;
-    class RelatedUIComponent extends React.Component {
-      componentWillReceiveProps(props) {
+    let refetched = false;
+    class RelatedUIComponent extends React.Component<
+      ChildProps<{}, QueryData, QueryVariables>
+    > {
+      componentWillReceiveProps(
+        props: ChildProps<{}, QueryData, QueryVariables>,
+      ) {
         if (refetched) {
-          expect(props.billingData.account.currentPlan.name).toBe('Free');
+          expect(props.data!.account!.currentPlan.name).toBe('Free');
           done();
         }
       }
@@ -383,18 +439,34 @@ describe('graphql(mutation) query integration', () => {
       }
     }
 
-    const RelatedUIComponentWithData = graphql(overlappingQuery, {
+    const RelatedUIComponentWithData = graphql<{}, QueryData, QueryVariables>(
+      overlappingQuery,
+      {
+        options: { variables: { accountId } },
+      },
+    )(RelatedUIComponent);
+
+    const withQuery = graphql<{}, QueryData, QueryVariables>(billingInfoQuery, {
       options: { variables: { accountId } },
-      name: 'billingData',
-    })(RelatedUIComponent);
+    });
+    type WithQueryChildProps = ChildProps<{}, QueryData, QueryVariables>;
+
+    const withMutation = graphql<
+      WithQueryChildProps,
+      MutationData,
+      MutationVariables
+    >(setPlanMutation);
+    type WithMutationChildProps = ChildProps<
+      WithQueryChildProps,
+      MutationData,
+      MutationVariables
+    >;
 
     let count = 0;
-    class PaymentDetail extends React.Component<
-      ChildProps & { setPlan: MutationFunc }
-    > {
-      componentWillReceiveProps(props) {
+    class PaymentDetail extends React.Component<WithMutationChildProps> {
+      componentWillReceiveProps(props: WithMutationChildProps) {
         if (count === 1) {
-          expect(props.billingData.account.currentPlan.name).toBe('Free');
+          expect(props.data!.account!.currentPlan.name).toBe('Free');
           done();
         }
         count++;
@@ -402,7 +474,7 @@ describe('graphql(mutation) query integration', () => {
       async onPaymentInfoChanged() {
         try {
           refetched = true;
-          await this.props.setPlan({
+          await this.props.mutate!({
             refetchQueries: [
               {
                 query: billingInfoQuery,
@@ -433,17 +505,7 @@ describe('graphql(mutation) query integration', () => {
       }
     }
 
-    const PaymentDetailWithData = compose(
-      graphql(setPlanMutation, {
-        name: 'setPlan',
-      }),
-      graphql(billingInfoQuery, {
-        options: () => ({
-          variables: { accountId },
-        }),
-        name: 'billingData',
-      }),
-    )(PaymentDetail);
+    const PaymentDetailWithData = withQuery(withMutation(PaymentDetail));
 
     renderer.create(
       <ApolloProvider client={client}>

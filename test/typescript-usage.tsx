@@ -4,8 +4,8 @@
 // that the are handled
 import * as React from 'react';
 import gql from 'graphql-tag';
-import { graphql } from '../src';
-import { ChildProps, NamedProps, GraphqlQueryControls } from '../src';
+import { graphql, DataValue } from '../src';
+import { ChildProps } from '../src';
 
 const historyQuery = gql`
   query history($solutionId: String) {
@@ -119,11 +119,22 @@ class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
 
 // --------------------------
 // with custom props
-const withProps = graphql<Props, Data>(historyQuery, {
+const withProps = graphql<
+  Props,
+  Data,
+  {},
+  { organisationData: DataValue<Data> | undefined }
+>(historyQuery, {
   props: ({ data }) => ({
     organisationData: data,
   }),
 });
+
+const Foo = withProps(props => (
+  <div>Woot {props.organisationData!.history}</div>
+));
+
+<Foo solutionId="foo" />; // tslint:disable-line
 
 // --------------------------
 // It is not recommended to use `name` with Typescript, better to use props and map the property

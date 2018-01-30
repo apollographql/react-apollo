@@ -20,13 +20,13 @@ describe('shared operations', () => {
   describe('withApollo', () => {
     it('passes apollo-client to props', () => {
       const client = new ApolloClient({
-        link: new ApolloLink((o, f) => f(o)),
+        link: new ApolloLink((o, f) => (f ? f(o) : null)),
         cache: new Cache(),
       });
 
       @withApollo
       class ContainerWithData extends React.Component<any> {
-        render() {
+        render(): React.ReactNode {
           expect(this.props.client).toEqual(client);
           return null;
         }
@@ -41,7 +41,7 @@ describe('shared operations', () => {
 
     it('allows a way to access the wrapped component instance', () => {
       const client = new ApolloClient({
-        link: new ApolloLink((o, f) => f(o)),
+        link: new ApolloLink((o, f) => (f ? f(o) : null)),
         cache: new Cache(),
       });
 

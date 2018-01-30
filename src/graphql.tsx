@@ -9,12 +9,13 @@ import { parser, DocumentType } from './parser';
 import { DocumentNode } from 'graphql';
 import {
   MutationOpts,
-  ChildProps,
   OperationOption,
   QueryOpts,
   GraphqlQueryControls,
   MutationFunc,
   OptionProps,
+  DataProps,
+  MutateProps,
 } from './types';
 import { OperationVariables } from './index';
 import pick from 'lodash/pick';
@@ -73,10 +74,16 @@ export default function graphql<
   TProps extends TGraphQLVariables | {} = {},
   TData = {},
   TGraphQLVariables = {},
-  TChildProps extends TProps = ChildProps<TProps, TData, TGraphQLVariables>
+  TChildProps = Partial<DataProps<TData, TGraphQLVariables>> &
+    Partial<MutateProps<TData, TGraphQLVariables>>
 >(
   document: DocumentNode,
-  operationOptions: OperationOption<TProps, TData, TGraphQLVariables> = {},
+  operationOptions: OperationOption<
+    TProps,
+    TData,
+    TGraphQLVariables,
+    TChildProps
+  > = {},
 ) {
   // extract options
   const {
@@ -101,7 +108,7 @@ export default function graphql<
   const version = nextVersion++;
 
   function wrapWithApolloComponent(
-    WrappedComponent: React.ComponentType<TChildProps>,
+    WrappedComponent: React.ComponentType<TChildProps & TProps>,
   ) {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
@@ -543,7 +550,7 @@ export default function graphql<
         this.wrappedInstance = ref;
       }
 
-      dataForChildViaMutation(mutationOpts: MutationOpts) {
+      dataForChildViaMutation(mutationOpts?: MutationOpts) {
         const opts = this.calculateOptions(this.props, mutationOpts);
 
         if (typeof opts.variables === 'undefined') delete opts.variables;
@@ -661,7 +668,7 @@ export default function graphql<
         const mergedPropsAndData = assign({}, props, clientProps);
 
         if (operationOptions.withRef)
-          mergedPropsAndData.ref = this.setWrappedInstance;
+          (mergedPropsAndData as any).ref = this.setWrappedInstance;
         this.renderedElement = <WrappedComponent {...mergedPropsAndData} />;
         return this.renderedElement;
       }

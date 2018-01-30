@@ -8,6 +8,7 @@ import {
   ApolloProvider,
   walkTree,
   getDataFromTree,
+  DataValue,
 } from '../../src';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
@@ -27,7 +28,7 @@ describe('SSR', () => {
             <span>Bar</span>
           </div>
         );
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(5);
@@ -36,7 +37,7 @@ describe('SSR', () => {
       it('basic element trees with nulls', () => {
         let elementCount = 0;
         const rootElement = <div>{null}</div>;
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -45,7 +46,7 @@ describe('SSR', () => {
       it('basic element trees with false', () => {
         let elementCount = 0;
         const rootElement = <div>{false}</div>;
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -54,7 +55,7 @@ describe('SSR', () => {
       it('basic element trees with empty string', () => {
         let elementCount = 0;
         const rootElement = <div>{''}</div>;
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -63,7 +64,7 @@ describe('SSR', () => {
       it('basic element trees with arrays', () => {
         let elementCount = 0;
         const rootElement = [1, 2];
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -72,7 +73,7 @@ describe('SSR', () => {
       it('basic element trees with false or null', () => {
         let elementCount = 0;
         const rootElement = [1, false, null, ''];
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -83,7 +84,7 @@ describe('SSR', () => {
         const MyComponent = ({ n }: { n: number }) => (
           <div>{_.times(n, i => <span key={i} />)}</div>
         );
-        walkTree(<MyComponent n={5} />, {}, element => {
+        walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -138,7 +139,7 @@ describe('SSR', () => {
             {children}
           </div>
         );
-        walkTree(<MyComponent n={5}>{null}</MyComponent>, {}, element => {
+        walkTree(<MyComponent n={5}>{null}</MyComponent>, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -147,7 +148,7 @@ describe('SSR', () => {
       it('functional stateless components that render null', () => {
         let elementCount = 0;
         const MyComponent = () => null;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -156,7 +157,7 @@ describe('SSR', () => {
       it('functional stateless components that render an array', () => {
         let elementCount = 0;
         const MyComponent = () => [1, 2] as any;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(3);
@@ -166,7 +167,7 @@ describe('SSR', () => {
         let elementCount = 0;
 
         const MyComponent = () => [null, <div />] as any;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -176,7 +177,7 @@ describe('SSR', () => {
         let elementCount = 0;
 
         const MyComponent = () => [undefined, <div />] as any;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -189,7 +190,7 @@ describe('SSR', () => {
             return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
-        walkTree(<MyComponent n={5} />, {}, element => {
+        walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -202,7 +203,7 @@ describe('SSR', () => {
             return null;
           }
         }
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -215,7 +216,7 @@ describe('SSR', () => {
             return [1, 2];
           }
         }
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(3);
@@ -229,7 +230,7 @@ describe('SSR', () => {
             return [null, <div />];
           }
         }
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -245,7 +246,7 @@ describe('SSR', () => {
             return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
-        walkTree(<MyComponent n={5} />, {}, element => {
+        walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -268,7 +269,7 @@ describe('SSR', () => {
             <span>Foo</span>
           </MyComponent>,
           {},
-          element => {
+          () => {
             elementCount += 1;
           },
         );
@@ -1132,23 +1133,28 @@ describe('SSR', () => {
         };
       }
       interface QueryProps {}
-      interface MutationProps {
+      interface QueryChildProps {
         refetchQuery: Function;
-        data: Data;
+        data: DataValue<Data>;
       }
 
-      const withQuery = graphql<QueryProps, Data, {}, MutationProps>(query, {
+      const withQuery = graphql<QueryProps, Data, {}, QueryChildProps>(query, {
         options: () => ({ ssr: true }),
         props: ({ data }) => {
           expect(data!.refetch).toBeTruthy();
           return {
             refetchQuery: data!.refetch,
-            data,
+            data: data!,
           };
         },
       });
 
-      const withMutation = graphql<MutationProps>(mutation, {
+      const withMutation = graphql<
+        QueryChildProps,
+        {},
+        {},
+        { action: (variables: {}) => Promise<any> }
+      >(mutation, {
         props: ({ ownProps, mutate }) => {
           expect(ownProps.refetchQuery).toBeTruthy();
           return {
@@ -1159,9 +1165,9 @@ describe('SSR', () => {
         },
       });
 
-      const Element: React.StatelessComponent<ChildProps<MutationProps>> = ({
-        data,
-      }) => (
+      const Element: React.StatelessComponent<
+        QueryChildProps & { action: (variables: {}) => Promise<any> }
+      > = ({ data }) => (
         <div>
           {data.loading || !data.currentUser
             ? 'loading'

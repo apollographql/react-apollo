@@ -2,10 +2,9 @@ import * as React from 'react';
 import { OperationOption } from './types';
 import ApolloConsumer from './ApolloConsumer';
 import { ApolloClient } from 'apollo-client';
-
-const invariant = require('invariant');
-
-const hoistNonReactStatics = require('hoist-non-react-statics');
+import assign from 'object-assign';
+import invariant from 'invariant';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -19,14 +18,14 @@ export default function withApollo<TProps, TResult>(
 ): React.ComponentClass<TProps> {
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
-  class WithApollo extends React.Component<WithApolloClient<TProps>> {
+  class WithApollo extends React.Component<TProps> {
     static displayName = withDisplayName;
     static WrappedComponent = WrappedComponent;
 
     // wrapped instance
     private wrappedInstance: any;
 
-    constructor(props: WithApolloClient<TProps>) {
+    constructor(props: TProps) {
       super(props);
       this.setWrappedInstance = this.setWrappedInstance.bind(this);
     }
@@ -49,7 +48,7 @@ export default function withApollo<TProps, TResult>(
       return (
         <ApolloConsumer>
           {client => {
-            const props = Object.assign({}, this.props, {
+            const props = assign({}, this.props, {
               client,
               ref: operationOptions.withRef
                 ? this.setWrappedInstance

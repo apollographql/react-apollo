@@ -15,9 +15,12 @@ export type OperationVariables = {
   [key: string]: any;
 };
 
-export interface MutationOpts<TGraphQLVariables = OperationVariables> {
+export interface MutationOpts<
+  TData = any,
+  TGraphQLVariables = OperationVariables
+> {
   variables?: TGraphQLVariables;
-  optimisticResponse?: Object;
+  optimisticResponse?: TData;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
   client?: ApolloClient<any>;
@@ -55,7 +58,7 @@ export type MutationFunc<
   TData = any,
   TGraphQLVariables = OperationVariables
 > = (
-  opts: MutationOpts<TGraphQLVariables>,
+  opts?: MutationOpts<TData, TGraphQLVariables>,
 ) => Promise<ApolloQueryResult<TData>>;
 
 export type DataValue<
@@ -115,15 +118,18 @@ export interface OptionProps<
 export interface OperationOption<
   TProps,
   TData,
-  TGraphQLVariables = OperationVariables
+  TGraphQLVariables = OperationVariables,
+  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
 > {
   options?:
     | QueryOpts<TGraphQLVariables>
-    | MutationOpts<TGraphQLVariables>
+    | MutationOpts<TData, TGraphQLVariables>
     | ((
         props: TProps,
-      ) => QueryOpts<TGraphQLVariables> | MutationOpts<TGraphQLVariables>);
-  props?: (props: OptionProps<TProps, TData>) => any;
+      ) =>
+        | QueryOpts<TGraphQLVariables>
+        | MutationOpts<TData, TGraphQLVariables>);
+  props?: (props: OptionProps<TProps, TData>) => TChildProps;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
