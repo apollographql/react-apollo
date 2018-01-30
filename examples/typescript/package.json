@@ -12,7 +12,7 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@types/graphql": "^0.12.3",
+    "@types/graphql": "0.12.3",
     "@types/jest": "22.1.0",
     "@types/node": "9.4.0",
     "@types/prop-types": "15.5.2",
@@ -20,9 +20,9 @@
     "@types/react-dom": "16.0.3",
     "@types/react-test-renderer": "16.0.0",
     "apollo-codegen": "0.18.3",
-    "react-scripts-ts": "^2.13.0",
+    "react-scripts-ts": "2.13.0",
     "react-test-renderer": "16.2.0",
-    "typescript": "^2.6.2"
+    "typescript": "2.6.2"
   },
   "scripts": {
     "start": "react-scripts-ts start",
