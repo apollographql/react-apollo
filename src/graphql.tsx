@@ -109,7 +109,7 @@ export default function graphql<
 
   function wrapWithApolloComponent(
     WrappedComponent: React.ComponentType<TChildProps & TProps>,
-  ) {
+  ): React.ComponentClass<TProps> {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
     type GraphqlProps = TProps;
