@@ -1,5 +1,5 @@
 {
-  "name": "typescript",
+  "name": "typescript-example",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,19 +8,21 @@
     "apollo-link-http": "^1.3.2",
     "graphql-tag": "^2.6.1",
     "react": "^16.2.0",
-    "react-apollo": "rosskevin/react-apollo#examples-update",
+    "react-apollo": "2.1.0-beta.0",
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@types/jest": "22.0.1",
-    "@types/node": "8.5.8",
+    "@types/graphql": "0.12.3",
+    "@types/jest": "22.1.0",
+    "@types/node": "9.4.0",
     "@types/prop-types": "15.5.2",
-    "@types/react": "16.0.34",
+    "@types/react": "16.0.35",
     "@types/react-dom": "16.0.3",
     "@types/react-test-renderer": "16.0.0",
     "apollo-codegen": "0.18.3",
-    "react-scripts-ts": "2.12.0",
-    "react-test-renderer": "16.2.0"
+    "react-scripts-ts": "2.13.0",
+    "react-test-renderer": "16.2.0",
+    "typescript": "2.6.2"
   },
   "scripts": {
     "start": "react-scripts-ts start",
@@ -30,6 +32,6 @@
     "schema":
       "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
     "types":
-      "apollo-codegen generate --schema schema.json --target typescript-modern `find ./src -name *.graphql`"
+      "apollo-codegen generate ./src/**/queries.ts --addTypename --schema ./src/schema.json --target typescript --output ./src/__generated__/types.ts"
   }
 }

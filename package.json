@@ -19,14 +19,19 @@
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
     "precompile": "rimraf lib",
     "compile": "npm run compile:esm && npm run compile:cjs",
-    "compile:esm": "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
-    "compile:cjs": "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
-    "postcompile": "rollup -c rollup.config.js && rollup -c rollup.browser.config.js && ./scripts/prepare-package.sh",
+    "compile:esm":
+      "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
+    "compile:cjs":
+      "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "postcompile":
+      "rollup -c rollup.config.js && rollup -c rollup.browser.config.js && ./scripts/prepare-package.sh",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
-    "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
+    "lint:fix":
+      "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "lint-staged": "lint-staged",
-    "prettier": "prettier --write \"{,!(node_modules|lib|coverage|npm)/**/}*.{ts*,js*,json,md}\""
+    "prettier":
+      "prettier --write \"{,!(node_modules|lib|coverage|npm)/**/}*.{ts*,js*,json,md}\""
   },
   "bundlesize": [
     {
@@ -35,15 +40,8 @@
     }
   ],
   "lint-staged": {
-    "*.{ts*}": [
-      "prettier --write",
-      "npm run lint",
-      "git add"
-    ],
-    "*.{js*,json,md}": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.{ts*}": ["prettier --write", "npm run lint", "git add"],
+    "*.{js*,json,md}": ["prettier --write", "git add"]
   },
   "repository": {
     "type": "git",
@@ -60,9 +58,7 @@
   ],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
-    "presets": [
-      "env"
-    ]
+    "presets": ["env"]
   },
   "jest": {
     "testEnvironment": "jsdom",
@@ -71,24 +67,15 @@
       "^.+\\.jsx?$": "babel-jest"
     },
     "mapCoverage": true,
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ],
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow-usage.js",
       "<rootDir>/test/typescript-usage.tsx"
     ],
-    "projects": [
-      "<rootDir>"
-    ],
+    "projects": ["<rootDir>"],
     "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "setupFiles": [
-      "<rootDir>/test/test-utils/setup.ts"
-    ]
+    "setupFiles": ["<rootDir>/test/test-utils/setup.ts"]
   },
   "license": "MIT",
   "peerDependencies": {
@@ -114,7 +101,7 @@
     "babel-core": "6.26.0",
     "babel-jest": "22.1.0",
     "babel-preset-env": "1.6.1",
-    "bundlesize": "^0.15.3",
+    "bundlesize": "0.15.3",
     "coveralls": "3.0.0",
     "danger": "3.0.5",
     "enzyme": "3.3.0",
@@ -122,22 +109,22 @@
     "flow-bin": "0.63.1",
     "graphql": "0.11.7",
     "graphql-tag": "2.6.1",
-    "husky": "^0.14.3",
+    "husky": "0.14.3",
     "jest": "22.1.1",
     "jsdom": "11.5.1",
     "lint-staged": "6.0.0",
-    "preact": "^8.2.7",
-    "preact-compat": "^3.17.0",
+    "preact": "8.2.7",
+    "preact-compat": "3.18.0",
     "prettier": "1.10.2",
     "react": "16.2.0",
     "react-dom": "16.2.0",
     "react-test-renderer": "16.2.0",
     "recompose": "0.26.0",
-    "recursive-rename": "^2.0.0",
+    "recursive-rename": "2.0.0",
     "rimraf": "2.6.2",
-    "rollup": "^0.55.0",
-    "rollup-plugin-babel-minify": "^3.1.2",
-    "rollup-plugin-commonjs": "^8.2.6",
+    "rollup": "0.55.0",
+    "rollup-plugin-babel-minify": "3.1.2",
+    "rollup-plugin-commonjs": "8.3.0",
     "ts-jest": "22.0.1",
     "tslint": "5.9.1",
     "typescript": "2.6.2",

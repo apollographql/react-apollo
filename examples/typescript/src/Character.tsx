@@ -1,26 +1,30 @@
 import * as React from 'react';
 import {
-  GetCharacter,
-  GetCharacter_hero_friends,
-} from './__generated__/GetCharacter';
+  GetCharacterQuery,
+  GetCharacterQueryVariables,
+  Episode,
+} from './__generated__/types';
+import { GetCharacter as QUERY } from './queries';
 import { Query, QueryResult } from 'react-apollo';
-// import Query, { QueryResult } from '../../../src/Query';
 
-const QUERY = require('./Character.graphql');
-// https://github.com/Microsoft/TypeScript/issues/6395#issuecomment-282133254
-class CharacterQuery extends Query<GetCharacter> {}
+class CharacterQuery extends Query<
+  GetCharacterQuery,
+  GetCharacterQueryVariables
+> {}
 
 export interface CharacterProps {
-  episode: string;
+  episode: Episode;
 }
 
-export const Character = (props: CharacterProps) => {
+export const Character: React.SFC<CharacterProps> = (props) => {
   const { episode } = props;
   return (
     <CharacterQuery query={QUERY} variables={{ episode }}>
-      {({ loading, data, error }: QueryResult<GetCharacter>) => {
+      {({ loading, data, error }: QueryResult<GetCharacterQuery>) => {
         if (loading) return <div>Loading</div>;
         if (error) return <h1>ERROR</h1>;
+        if (!data) return <div>no data</div>;
+
         const { hero } = data;
         return (
           <div>
@@ -29,7 +33,7 @@ export const Character = (props: CharacterProps) => {
                 <h3>{hero.name}</h3>
                 {hero.friends &&
                   hero.friends.map(
-                    (friend: GetCharacter_hero_friends) =>
+                    friend =>
                       friend && (
                         <h6 key={friend.id}>
                           {friend.name}:{' '}
