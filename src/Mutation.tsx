@@ -91,7 +91,9 @@ class Mutation<
       return;
     }
 
-    this.verifyDocumentIsMutation(nextProps.mutation);
+    if (this.props.mutation !== nextProps.mutation) {
+      this.verifyDocumentIsMutation(nextProps.mutation);
+    }
 
     if (this.client !== nextContext.client) {
       this.client = nextContext.client;
