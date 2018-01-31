@@ -31,6 +31,16 @@ const data = {
   __typename: 'Mutation',
 };
 
+const data2 = {
+  createTodo: {
+    __typename: 'Todo',
+    id: '100',
+    text: 'This one was created with a mutation.',
+    completed: true,
+  },
+  __typename: 'Mutation',
+};
+
 const variables = {
   text: 'play tennis',
 };
@@ -40,6 +50,10 @@ const mocks = [
     request: { query: mutation, variables },
     result: { data },
   },
+  {
+    request: { query: mutation, variables },
+    result: { data: data2 },
+  }
 ];
 
 const cache = new Cache({ addTypename: false });
@@ -77,6 +91,107 @@ it('performs a mutation', done => {
     </MockedProvider>,
   );
 });
+
+it('only shows result for the latest mutation that is in flight', done => {
+  let count = 0;
+  
+  const onCompleted = dataMutation => {
+    if (count === 1) {
+      expect(dataMutation).toEqual(data);
+    }
+    else if (count === 3) {
+      expect(dataMutation).toEqual(data2);
+      done();
+    }
+  }
+  const Component = () => (
+    <Mutation mutation={mutation} variables={variables} onCompleted={onCompleted}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          expect(result).toBeUndefined();
+          setTimeout(() => {
+            createTodo();
+            createTodo();
+          });
+        } else if (count === 1) {
+          expect(result).toEqual({
+            loading: true,
+          });
+        } else if (count === 2) {
+          expect(result).toEqual({
+            loading: false,
+            data: data2,
+          });
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it("only shows the error for the latest mutation in flight", done => {
+  let count = 0;
+  
+  const onError = error => {
+    if (count === 1) {
+      expect(error).toEqual(new Error("Network error: Error 1"));
+    }
+    else if (count === 3) {
+      expect(error).toEqual(new Error("Network error: Error 2"));
+      done();
+    }
+  }
+  const Component = () => (
+    <Mutation mutation={mutation} onError={onError}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          expect(result).toBeUndefined();
+          setTimeout(() => {
+            createTodo();
+            createTodo();
+          });
+        } else if (count === 1) {
+          expect(result).toEqual({
+            loading: true,
+          });
+        } else if (count === 2) {
+          expect(result).toEqual({
+            loading: false,
+            data: undefined,
+            error: new Error("Network error: Error 2")
+          });
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+  
+  const mocksWithErrors = [
+    {
+      request: { query: mutation },
+      error: new Error('Error 2'),
+    },
+    {
+      request: { query: mutation },
+      error: new Error('Error 2'),
+    },
+  ];
+
+  mount(
+    <MockedProvider mocks={mocksWithErrors}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 
 it('calls the onCompleted prop as soon as the mutation is complete', done => {
   let onCompletedCalled = false;

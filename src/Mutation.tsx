@@ -69,7 +69,8 @@ class Mutation<
   };
 
   private client: ApolloClient<any>;
-
+  private mostRecentMutationId: number;
+  
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
 
@@ -77,7 +78,8 @@ class Mutation<
     this.client = context.client;
 
     this.verifyDocumentIsMutation(props.mutation);
-
+    
+    this.mostRecentMutationId = 0;
     this.state = initialState;
   }
 
@@ -114,16 +116,20 @@ class Mutation<
 
   private runMutation = async () => {
     this.onStartMutation();
-
+    
+    this.mostRecentMutationId = this.mostRecentMutationId + 1;
+    const mutationId = this.mostRecentMutationId;
+    
     try {
       const response = await this.mutate();
-      this.onCompletedMutation(response);
+      this.onCompletedMutation(response, mutationId);
     } catch (e) {
-      this.onMutationError(e);
+      this.onMutationError(e, mutationId);
     }
   };
 
   private mutate = async () => {
+    
     const {
       mutation,
       variables,
@@ -144,48 +150,68 @@ class Mutation<
   };
 
   private onStartMutation = () => {
-    this.setState({
-      loading: true,
-      error: undefined,
-      data: undefined,
-      notCalled: false,
-    });
+    if (!this.state.loading) {
+      this.setState({
+        loading: true,
+        error: undefined,
+        data: undefined,
+        notCalled: false,
+      });
+    }
   };
 
-  private onCompletedMutation = response => {
+  private onCompletedMutation = (response, mutationId) => {
+    
     const { onCompleted } = this.props;
 
     const data = response.data as TData;
-
-    this.setState(
-      {
-        loading: false,
-        data,
-      },
-      () => {
-        if (onCompleted) {
-          onCompleted(data);
-        }
-      },
-    );
+    
+    const callOncomplete = () => {
+      if (onCompleted) {
+        onCompleted(data);
+      }
+    }
+    
+    if (this.mostRecentMutationId === mutationId) {
+      this.setState(
+        {
+          loading: false,
+          data,
+        },
+        () => {
+          callOncomplete();
+        },
+      );
+    } else {
+      callOncomplete();
+    }
   };
 
-  private onMutationError = async error => {
+  private onMutationError = (error, mutationId) => {
     const { onError } = this.props;
 
     let apolloError = error as ApolloError;
+    
+    const callOnError = () => {
+      if (onError) {
+        onError(apolloError);
+      }
+    }
 
-    this.setState(
-      {
-        loading: false,
-        error: apolloError,
-      },
-      () => {
-        if (onError) {
-          onError(apolloError);
-        }
-      },
-    );
+    if (this.mostRecentMutationId === mutationId) {
+      this.setState(
+        {
+          loading: false,
+          error: apolloError,
+        },
+        () => {
+          callOnError();
+        },
+      );
+    }
+    else {
+      callOnError();
+    }
   };
 
   private verifyDocumentIsMutation = mutation => {
