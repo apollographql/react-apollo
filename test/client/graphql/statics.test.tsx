@@ -31,10 +31,11 @@ describe('statics', () => {
   });
 
   it('honors custom display names', () => {
-    @graphql(sampleOperation)
-    class ApolloContainer extends React.Component<any, any> {
-      static displayName = 'Foo';
-    }
+    const ApolloContainer = graphql(sampleOperation)(
+      class extends React.Component<any, any> {
+        static displayName = 'Foo';
+      },
+    );
 
     expect((ApolloContainer as any).displayName).toBe('Apollo(Foo)');
   });

@@ -4,10 +4,11 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, graphql, ChildProps } from '../../../../src';
+import { DocumentNode } from 'graphql';
 
 describe('[queries] polling', () => {
-  let error;
+  let error: typeof console.error;
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
@@ -22,7 +23,7 @@ describe('[queries] polling', () => {
 
     const POLL_INTERVAL = 250;
     const POLL_COUNT = 4;
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -73,7 +74,7 @@ describe('[queries] polling', () => {
   });
 
   it('exposes stopPolling as part of the props api', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -91,20 +92,19 @@ describe('[queries] polling', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
-        // tslint:disable-line
-        expect(data.stopPolling).toBeTruthy();
-        expect(data.stopPolling instanceof Function).toBeTruthy();
-        expect(data.stopPolling).not.toThrow();
-        done();
-      }
-      render() {
-        return null;
-      }
-    }
-
+    const Container = graphql(query)(
+      class extends React.Component<ChildProps> {
+        componentWillReceiveProps({ data }: ChildProps) {
+          expect(data!.stopPolling).toBeTruthy();
+          expect(data!.stopPolling instanceof Function).toBeTruthy();
+          expect(data!.stopPolling).not.toThrow();
+          done();
+        }
+        render() {
+          return null;
+        }
+      },
+    );
     renderer.create(
       <ApolloProvider client={client}>
         <Container />
@@ -113,7 +113,7 @@ describe('[queries] polling', () => {
   });
 
   it('exposes startPolling as part of the props api', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -130,24 +130,24 @@ describe('[queries] polling', () => {
       link,
       cache: new Cache({ addTypename: false }),
     });
-    let wrapper;
-    @graphql(query, { options: { pollInterval: 10 } })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
-        // tslint:disable-line
-        expect(data.startPolling).toBeTruthy();
-        expect(data.startPolling instanceof Function).toBeTruthy();
-        // XXX this does throw because of no pollInterval
-        // expect(data.startPolling).not.toThrow();
-        setTimeout(() => {
-          wrapper.unmount();
-          done();
-        }, 0);
-      }
-      render() {
-        return null;
-      }
-    }
+    let wrapper: renderer.ReactTestRenderer;
+    const Container = graphql(query, { options: { pollInterval: 10 } })(
+      class extends React.Component<ChildProps> {
+        componentWillReceiveProps({ data }: ChildProps) {
+          expect(data!.startPolling).toBeTruthy();
+          expect(data!.startPolling instanceof Function).toBeTruthy();
+          // XXX this does throw because of no pollInterval
+          // expect(data.startPolling).not.toThrow();
+          setTimeout(() => {
+            wrapper.unmount();
+            done();
+          }, 0);
+        }
+        render() {
+          return null;
+        }
+      },
+    );
 
     wrapper = renderer.create(
       <ApolloProvider client={client}>

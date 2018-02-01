@@ -305,18 +305,20 @@ describe('shared operations', () => {
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withPeopleMutation = graphql(peopleMutation, { name: 'addPerson' });
 
-    @withPeople
-    @withPeopleMutation
-    class ContainerWithData extends React.Component<any> {
-      render() {
-        const { people, addPerson } = this.props;
-        expect(people).toBeTruthy();
-        expect(people.loading).toBeTruthy();
+    const ContainerWithData = withPeople(
+      withPeopleMutation(
+        class extends React.Component<any> {
+          render() {
+            const { people, addPerson } = this.props;
+            expect(people).toBeTruthy();
+            expect(people.loading).toBeTruthy();
 
-        expect(addPerson).toBeTruthy();
-        return null;
-      }
-    }
+            expect(addPerson).toBeTruthy();
+            return null;
+          }
+        },
+      ),
+    );
 
     const wrapper = renderer.create(
       <ApolloProvider client={client}>

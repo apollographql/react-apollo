@@ -26,19 +26,20 @@ describe('graphql(mutation) lifecycle', () => {
       id: string | null;
     }
 
-    @graphql<Props>(query)
-    class Container extends React.Component<ChildProps<Props>> {
-      componentDidMount() {
-        this.props.mutate!().then(result => {
-          expect(stripSymbols(result.data)).toEqual(expectedData);
-          done();
-        });
-      }
+    const Container = graphql<Props>(query)(
+      class extends React.Component<ChildProps<Props>> {
+        componentDidMount() {
+          this.props.mutate!().then(result => {
+            expect(stripSymbols(result.data)).toEqual(expectedData);
+            done();
+          });
+        }
 
-      render() {
-        return null;
-      }
-    }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
@@ -117,18 +118,19 @@ describe('graphql(mutation) lifecycle', () => {
       id: number;
     }
 
-    @graphql<{}, {}, Variables>(query)
-    class Container extends React.Component<ChildProps<{}, {}, Variables>> {
-      componentDidMount() {
-        this.props.mutate!({ variables: { id: 1 } }).then(result => {
-          expect(stripSymbols(result.data)).toEqual(expectedData);
-          done();
-        });
-      }
-      render() {
-        return null;
-      }
-    }
+    const Container = graphql<{}, {}, Variables>(query)(
+      class extends React.Component<ChildProps<{}, {}, Variables>> {
+        componentDidMount() {
+          this.props.mutate!({ variables: { id: 1 } }).then(result => {
+            expect(stripSymbols(result.data)).toEqual(expectedData);
+            done();
+          });
+        }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>

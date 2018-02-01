@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { mount, ReactWrapper } from 'enzyme';
 
 import { ApolloClient } from 'apollo-client';
-import { ApolloLink, RequestHandler, Operation, Observable } from 'apollo-link';
+import { ApolloLink, Operation } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { MockSubscriptionLink } from '../../src/test-utils';

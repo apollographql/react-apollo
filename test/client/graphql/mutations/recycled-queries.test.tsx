@@ -103,107 +103,111 @@ describe('graphql(mutation) update queries', () => {
 
       let mutate: MutationFunc<MutationData>;
 
-      @graphql<{}, MutationData>(mutation, { options: () => ({ update }) })
-      class MyMutation extends React.Component<ChildProps<{}, MutationData>> {
-        componentDidMount() {
-          mutate = this.props.mutate!;
-        }
+      const MyMutation = graphql<{}, MutationData>(mutation, {
+        options: () => ({ update }),
+      })(
+        class extends React.Component<ChildProps<{}, MutationData>> {
+          componentDidMount() {
+            mutate = this.props.mutate!;
+          }
 
-        render() {
-          return null;
-        }
-      }
+          render() {
+            return null;
+          }
+        },
+      );
 
       let queryMountCount = 0;
       let queryUnmountCount = 0;
       let queryRenderCount = 0;
 
-      @graphql<{}, QueryData>(query)
-      class MyQuery extends React.Component<ChildProps<{}, QueryData>> {
-        componentWillMount() {
-          queryMountCount++;
-        }
-
-        componentWillUnmount() {
-          queryUnmountCount++;
-        }
-
-        render() {
-          try {
-            switch (queryRenderCount++) {
-              case 0:
-                expect(this.props.data!.loading).toBeTruthy();
-                expect(this.props.data!.todo_list).toBeFalsy();
-                break;
-              case 1:
-                expect(stripSymbols(this.props.data!.todo_list)).toEqual({
-                  id: '123',
-                  title: 'how to apollo',
-                  tasks: [],
-                });
-                break;
-              case 2:
-                expect(queryMountCount).toBe(1);
-                expect(queryUnmountCount).toBe(0);
-                expect(stripSymbols(this.props.data!.todo_list)).toEqual({
-                  id: '123',
-                  title: 'how to apollo',
-                  tasks: [
-                    {
-                      id: '99',
-                      text: 'This one was created with a mutation.',
-                      completed: true,
-                    },
-                  ],
-                });
-                break;
-              case 3:
-                expect(queryMountCount).toBe(2);
-                expect(queryUnmountCount).toBe(1);
-                expect(stripSymbols(this.props.data!.todo_list)).toEqual({
-                  id: '123',
-                  title: 'how to apollo',
-                  tasks: [
-                    {
-                      id: '99',
-                      text: 'This one was created with a mutation.',
-                      completed: true,
-                    },
-                    {
-                      id: '99',
-                      text: 'This one was created with a mutation.',
-                      completed: true,
-                    },
-                  ],
-                });
-                break;
-              case 4:
-                expect(stripSymbols(this.props.data!.todo_list)).toEqual({
-                  id: '123',
-                  title: 'how to apollo',
-                  tasks: [
-                    {
-                      id: '99',
-                      text: 'This one was created with a mutation.',
-                      completed: true,
-                    },
-                    {
-                      id: '99',
-                      text: 'This one was created with a mutation.',
-                      completed: true,
-                    },
-                  ],
-                });
-                break;
-              default:
-                throw new Error('Rendered too many times');
-            }
-          } catch (error) {
-            reject(error);
+      const MyQuery = graphql<{}, QueryData>(query)(
+        class extends React.Component<ChildProps<{}, QueryData>> {
+          componentWillMount() {
+            queryMountCount++;
           }
-          return null;
-        }
-      }
+
+          componentWillUnmount() {
+            queryUnmountCount++;
+          }
+
+          render() {
+            try {
+              switch (queryRenderCount++) {
+                case 0:
+                  expect(this.props.data!.loading).toBeTruthy();
+                  expect(this.props.data!.todo_list).toBeFalsy();
+                  break;
+                case 1:
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual({
+                    id: '123',
+                    title: 'how to apollo',
+                    tasks: [],
+                  });
+                  break;
+                case 2:
+                  expect(queryMountCount).toBe(1);
+                  expect(queryUnmountCount).toBe(0);
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual({
+                    id: '123',
+                    title: 'how to apollo',
+                    tasks: [
+                      {
+                        id: '99',
+                        text: 'This one was created with a mutation.',
+                        completed: true,
+                      },
+                    ],
+                  });
+                  break;
+                case 3:
+                  expect(queryMountCount).toBe(2);
+                  expect(queryUnmountCount).toBe(1);
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual({
+                    id: '123',
+                    title: 'how to apollo',
+                    tasks: [
+                      {
+                        id: '99',
+                        text: 'This one was created with a mutation.',
+                        completed: true,
+                      },
+                      {
+                        id: '99',
+                        text: 'This one was created with a mutation.',
+                        completed: true,
+                      },
+                    ],
+                  });
+                  break;
+                case 4:
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual({
+                    id: '123',
+                    title: 'how to apollo',
+                    tasks: [
+                      {
+                        id: '99',
+                        text: 'This one was created with a mutation.',
+                        completed: true,
+                      },
+                      {
+                        id: '99',
+                        text: 'This one was created with a mutation.',
+                        completed: true,
+                      },
+                    ],
+                  });
+                  break;
+                default:
+                  throw new Error('Rendered too many times');
+              }
+            } catch (error) {
+              reject(error);
+            }
+            return null;
+          }
+        },
+      );
 
       const wrapperMutation = renderer.create(
         <ApolloProvider client={client}>
@@ -336,71 +340,73 @@ describe('graphql(mutation) update queries', () => {
 
       let mutate: MutationFunc<MutationData>;
 
-      @graphql<{}, MutationData>(mutation)
-      class Mutation extends React.Component<ChildProps<{}, MutationData>> {
-        componentDidMount() {
-          mutate = this.props.mutate!;
-        }
+      const Mutation = graphql<{}, MutationData>(mutation)(
+        class extends React.Component<ChildProps<{}, MutationData>> {
+          componentDidMount() {
+            mutate = this.props.mutate!;
+          }
 
-        render() {
-          return null;
-        }
-      }
+          render() {
+            return null;
+          }
+        },
+      );
 
       let queryMountCount = 0;
       let queryUnmountCount = 0;
       let queryRenderCount = 0;
 
-      @graphql<QueryVariables, QueryData, QueryVariables>(query)
-      class Query extends React.Component<
-        ChildProps<QueryVariables, QueryData, QueryVariables>
-      > {
-        componentWillMount() {
-          queryMountCount++;
-        }
-
-        componentWillUnmount() {
-          queryUnmountCount++;
-        }
-
-        render() {
-          try {
-            switch (queryRenderCount++) {
-              case 0:
-                expect(this.props.data!.loading).toBeTruthy();
-                expect(this.props.data!.todo_list).toBeFalsy();
-                break;
-              case 1:
-                expect(this.props.data!.loading).toBeFalsy();
-                expect(stripSymbols(this.props.data!.todo_list)).toEqual({
-                  id: '123',
-                  title: 'how to apollo',
-                  tasks: [],
-                });
-                break;
-              case 2:
-                expect(queryMountCount).toBe(2);
-                expect(queryUnmountCount).toBe(1);
-                expect(stripSymbols(this.props.data!.todo_list)).toEqual(
-                  updatedData.todo_list,
-                );
-                break;
-              case 3:
-                expect(queryMountCount).toBe(2);
-                expect(queryUnmountCount).toBe(1);
-                expect(stripSymbols(this.props.data!.todo_list)).toEqual(
-                  updatedData.todo_list,
-                );
-                break;
-              default:
-                throw new Error('Rendered too many times');
-            }
-          } catch (error) {
-            reject(error);
+      const Query = graphql<QueryVariables, QueryData, QueryVariables>(query)(
+        class extends React.Component<
+          ChildProps<QueryVariables, QueryData, QueryVariables>
+        > {
+          componentWillMount() {
+            queryMountCount++;
           }
-          return null;
-        }
-      }
+
+          componentWillUnmount() {
+            queryUnmountCount++;
+          }
+
+          render() {
+            try {
+              switch (queryRenderCount++) {
+                case 0:
+                  expect(this.props.data!.loading).toBeTruthy();
+                  expect(this.props.data!.todo_list).toBeFalsy();
+                  break;
+                case 1:
+                  expect(this.props.data!.loading).toBeFalsy();
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual({
+                    id: '123',
+                    title: 'how to apollo',
+                    tasks: [],
+                  });
+                  break;
+                case 2:
+                  expect(queryMountCount).toBe(2);
+                  expect(queryUnmountCount).toBe(1);
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual(
+                    updatedData.todo_list,
+                  );
+                  break;
+                case 3:
+                  expect(queryMountCount).toBe(2);
+                  expect(queryUnmountCount).toBe(1);
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual(
+                    updatedData.todo_list,
+                  );
+                  break;
+                default:
+                  throw new Error('Rendered too many times');
+              }
+            } catch (error) {
+              reject(error);
+            }
+            return null;
+          }
+        },
+      );
 
       renderer.create(
         <ApolloProvider client={client}>

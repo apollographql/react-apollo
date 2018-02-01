@@ -4,16 +4,10 @@ import gql from 'graphql-tag';
 import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
-import {
-  ApolloProvider,
-  graphql,
-  ChildProps,
-  MutationFunc,
-} from '../../../../src';
+import { ApolloProvider, graphql, ChildProps } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import createClient from '../../../test-utils/createClient';
 import { DocumentNode } from 'graphql';
-import compose from 'lodash/flowRight';
 
 describe('graphql(mutation) query integration', () => {
   it('allows for passing optimisticResponse for a mutation', done => {
@@ -42,32 +36,33 @@ describe('graphql(mutation) query integration', () => {
     type Data = typeof data;
 
     const client = createClient(data, query);
-    @graphql<{}, Data>(query)
-    class Container extends React.Component<ChildProps<{}, Data>> {
-      componentDidMount() {
-        const optimisticResponse = {
-          __typename: 'Mutation',
-          createTodo: {
-            __typename: 'Todo',
-            id: '99',
-            text: 'Optimistically generated',
-            completed: true,
-          },
-        };
-        this.props.mutate!({ optimisticResponse }).then(result => {
-          expect(stripSymbols(result.data)).toEqual(data);
-          done();
-        });
+    const Container = graphql<{}, Data>(query)(
+      class extends React.Component<ChildProps<{}, Data>> {
+        componentDidMount() {
+          const optimisticResponse = {
+            __typename: 'Mutation',
+            createTodo: {
+              __typename: 'Todo',
+              id: '99',
+              text: 'Optimistically generated',
+              completed: true,
+            },
+          };
+          this.props.mutate!({ optimisticResponse }).then(result => {
+            expect(stripSymbols(result.data)).toEqual(data);
+            done();
+          });
 
-        const dataInStore = client.cache.extract(true);
-        expect(stripSymbols(dataInStore['Todo:99'])).toEqual(
-          optimisticResponse.createTodo,
-        );
-      }
-      render() {
-        return null;
-      }
-    }
+          const dataInStore = client.cache.extract(true);
+          expect(stripSymbols(dataInStore['Todo:99'])).toEqual(
+            optimisticResponse.createTodo,
+          );
+        }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
