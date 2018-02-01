@@ -443,6 +443,34 @@ describe('[queries] observableQuery', () => {
     });
     let remount: any;
 
+    const Container = graphql<Vars, Data, Vars>(query)(
+      class extends React.Component<ChildProps<Vars, Data, Vars>> {
+        render() {
+          try {
+            const { variables, loading, allPeople } = this.props.data!;
+            // first variable render
+            if (variables.first === 1) {
+              if (loading) expect(allPeople).toBeUndefined();
+              if (!loading) {
+                expect(stripSymbols(allPeople)).toEqual(data.allPeople);
+              }
+            }
+
+            if (variables.first === 2) {
+              // second variables render
+              if (loading) expect(allPeople).toBeUndefined();
+              if (!loading)
+                expect(stripSymbols(allPeople)).toEqual(data2.allPeople);
+            }
+          } catch (e) {
+            done.fail(e);
+          }
+
+          return null;
+        }
+      },
+    );
+
     class Remounter extends React.Component<
       { render: typeof Container },
       { showChildren: boolean; variables: Vars }
@@ -471,34 +499,6 @@ describe('[queries] observableQuery', () => {
         return <Thing first={this.state.variables.first} />;
       }
     }
-
-    const Container = graphql<Vars, Data, Vars>(query)(
-      class extends React.Component<ChildProps<Vars, Data, Vars>> {
-        render() {
-          try {
-            const { variables, loading, allPeople } = this.props.data!;
-            // first variable render
-            if (variables.first === 1) {
-              if (loading) expect(allPeople).toBeUndefined();
-              if (!loading) {
-                expect(stripSymbols(allPeople)).toEqual(data.allPeople);
-              }
-            }
-
-            if (variables.first === 2) {
-              // second variables render
-              if (loading) expect(allPeople).toBeUndefined();
-              if (!loading)
-                expect(stripSymbols(allPeople)).toEqual(data2.allPeople);
-            }
-          } catch (e) {
-            done.fail(e);
-          }
-
-          return null;
-        }
-      },
-    );
 
     // the initial mount fires off the query
     // the same as episode id = 1
