@@ -268,6 +268,20 @@ describe('SSR', () => {
         );
         expect(elementCount).toEqual(9);
       });
+
+      it('basic classes with render on instance', () => {
+        let elementCount = 0;
+        class MyComponent extends (React.Component as any) {
+          render = () => {
+            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+          }
+        }
+        const MyCompAsAny = MyComponent as any;
+        walkTree(<MyCompAsAny n={5} />, {}, element => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(7);
+      });
     });
   });
 
