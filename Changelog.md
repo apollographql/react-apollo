@@ -2,6 +2,8 @@
 
 ### vNext
 
+* Fix React Component detection bug in `getDataFromTree` [#1604](https://github.com/apollographql/react-apollo/pull/1604)
+
 ### 2.1.0-beta.0
 
 * Beta release of all 2.1 features!
