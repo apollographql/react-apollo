@@ -4,15 +4,17 @@
     "target": "es2015",
     "lib": ["es2015", "dom"],
     "moduleResolution": "node",
-    "noImplicitAny": false,
+    // "noImplicitAny": false,
+    "strict": true,
     "outDir": "lib",
-    "allowSyntheticDefaultImports": false,
+    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "pretty": true,
     "removeComments": true,
     "jsx": "react",
     "skipLibCheck": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "include": ["./typings/**/*", "./src/**/*", "./test/**/*"],
   "exclude": ["./node_modules", "./dist", "./lib"]

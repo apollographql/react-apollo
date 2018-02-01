@@ -10,7 +10,7 @@ import ApolloProvider from '../../src/ApolloProvider';
 describe('<ApolloProvider /> Component', () => {
   const client = new ApolloClient({
     cache: new Cache(),
-    link: new ApolloLink((o, f) => f(o)),
+    link: new ApolloLink((o, f) => (f ? f(o) : null)),
   });
 
   interface ChildContext {
@@ -33,8 +33,12 @@ describe('<ApolloProvider /> Component', () => {
     }
   }
 
-  class Container extends React.Component<any, any> {
-    constructor(props) {
+  interface Props {
+    client: ApolloClient<any>;
+  }
+
+  class Container extends React.Component<Props, any> {
+    constructor(props: Props) {
       super(props);
       this.state = {};
     }
@@ -111,7 +115,7 @@ describe('<ApolloProvider /> Component', () => {
     };
     expect(() => {
       shallow(
-        <ApolloProvider client={undefined}>
+        <ApolloProvider client={undefined as any}>
           <div className="unique" />
         </ApolloProvider>,
       );
@@ -162,7 +166,7 @@ describe('<ApolloProvider /> Component', () => {
 
     const newClient = new ApolloClient({
       cache: new Cache(),
-      link: new ApolloLink((o, f) => f(o)),
+      link: new ApolloLink((o, f) => (f ? f(o) : null)),
     });
     container.setState({ client: newClient });
     expect(container.find(ApolloProvider).props().client).toEqual(newClient);
@@ -179,7 +183,7 @@ describe('<ApolloProvider /> Component', () => {
 
     const newClient = new ApolloClient({
       cache: new Cache(),
-      link: new ApolloLink((o, f) => f(o)),
+      link: new ApolloLink((o, f) => (f ? f(o) : null)),
     });
 
     container.setState({ client: newClient });

@@ -4,24 +4,62 @@ import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,
   ApolloError,
-  FetchMoreOptions,
-  UpdateQueryOptions,
-  FetchMoreQueryOptions,
   FetchPolicy,
   ApolloCurrentResult,
+  NetworkStatus,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
+import pick from 'lodash/pick';
+import shallowEqual from 'fbjs/lib/shallowEqual';
+import invariant from 'invariant';
 
-const shallowEqual = require('fbjs/lib/shallowEqual');
-const invariant = require('invariant');
-const pick = require('lodash/pick');
+// Improved FetchMoreOptions type, need to port them back to Apollo Client
+export interface FetchMoreOptions<TData, TVariables> {
+  updateQuery: (
+    previousQueryResult: TData,
+    options: {
+      fetchMoreResult?: TData;
+      variables: TVariables;
+    },
+  ) => TData;
+}
 
-type ObservableQueryFields<TData> = Pick<ObservableQuery<TData>, 'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling'>;
+// Improved FetchMoreQueryOptions type, need to port them back to Apollo Client
+export interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
+  variables: Pick<TVariables, K>;
+}
 
-function observableQueryFields<TData>(observable: ObservableQuery<TData>): ObservableQueryFields<TData> {
+// Improved ObservableQuery field types, need to port them back to Apollo Client
+export type ObservableQueryFields<TData, TVariables> = Pick<
+  ObservableQuery<TData>,
+  'startPolling' | 'stopPolling'
+> & {
+  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>;
+  fetchMore: (<K extends keyof TVariables>(
+    fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> &
+      FetchMoreOptions<TData, TVariables>,
+  ) => Promise<ApolloQueryResult<TData>>) &
+    (<TData2, TVariables2, K extends keyof TVariables2>(
+      fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<
+        TVariables2,
+        K
+      > &
+        FetchMoreOptions<TData2, TVariables2>,
+    ) => Promise<ApolloQueryResult<TData2>>);
+  updateQuery: (
+    mapFn: (
+      previousQueryResult: TData,
+      options: { variables?: TVariables },
+    ) => TData,
+  ) => void;
+};
+
+function observableQueryFields<TData, TVariables>(
+  observable: ObservableQuery<TData>,
+): ObservableQueryFields<TData, TVariables> {
   const fields = pick(
     observable,
     'refetch',
@@ -32,33 +70,34 @@ function observableQueryFields<TData>(observable: ObservableQuery<TData>): Obser
   );
 
   Object.keys(fields).forEach(key => {
-    if (typeof fields[key] === 'function') {
-      fields[key] = fields[key].bind(observable);
+    const k = key as
+      | 'refetch'
+      | 'fetchMore'
+      | 'updateQuery'
+      | 'startPolling'
+      | 'stopPolling';
+    if (typeof fields[k] === 'function') {
+      fields[k] = fields[k].bind(observable);
     }
   });
 
-  return fields;
+  // TODO: Need to cast this because we improved the type of `updateQuery` to be parametric
+  // on variables, while the type in Apollo client just has object.
+  // Consider removing this when that is properly typed
+  return fields as ObservableQueryFields<TData, TVariables>;
 }
 
 function isDataFilled<TData>(data: {} | TData): data is TData {
   return Object.keys(data).length > 0;
 }
 
-export interface QueryResult<TData = any, TVariables = OperationVariables> {
+export interface QueryResult<TData = any, TVariables = OperationVariables>
+  extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
   data?: TData;
   error?: ApolloError;
-  fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
-  ) => Promise<ApolloQueryResult<any>>;
   loading: boolean;
-  networkStatus: number;
-  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>;
-  startPolling: (pollInterval: number) => void;
-  stopPolling: () => void;
-  updateQuery: (
-    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
-  ) => void;
+  networkStatus: NetworkStatus;
 }
 
 export interface QueryProps<TData = any, TVariables = OperationVariables> {
@@ -75,20 +114,24 @@ export interface QueryState<TData = any> {
   result: ApolloCurrentResult<TData>;
 }
 
-class Query<TData = any, TVariables = OperationVariables> extends React.Component<
-  QueryProps<TData, TVariables>,
-  QueryState<TData>
-> {
+export interface QueryContext {
+  client: ApolloClient<Object>;
+}
+
+class Query<
+  TData = any,
+  TVariables = OperationVariables
+> extends React.Component<QueryProps<TData, TVariables>, QueryState<TData>> {
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
+  context: QueryContext;
 
-  state: QueryState<TData>;
-  private client: ApolloClient<any>;
+  private client: ApolloClient<Object>;
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
 
-  constructor(props: QueryProps<TData, TVariables>, context: any) {
+  constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
 
     invariant(
@@ -130,7 +173,10 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     this.startQuerySubscription();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(
+    nextProps: QueryProps<TData, TVariables>,
+    nextContext: QueryContext,
+  ) {
     if (
       shallowEqual(this.props, nextProps) &&
       this.client === nextContext.client
@@ -157,7 +203,9 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     return children(queryResult);
   }
 
-  private initializeQueryObservable = props => {
+  private initializeQueryObservable = (
+    props: QueryProps<TData, TVariables>,
+  ) => {
     const {
       variables,
       pollInterval,

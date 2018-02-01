@@ -8,9 +8,11 @@ import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
+import { ChildProps } from '../../../../src/browser';
+import { DocumentNode } from 'graphql';
 
 describe('[queries] errors', () => {
-  let error;
+  let error: typeof console.error;
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {}); // tslint:disable-line
@@ -21,7 +23,7 @@ describe('[queries] errors', () => {
 
   // errors
   it('does not swallow children errors', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -41,7 +43,7 @@ describe('[queries] errors', () => {
     });
 
     class ErrorBoundary extends React.Component {
-      componentDidCatch(e) {
+      componentDidCatch(e: Error) {
         expect(e.message).toMatch(/bar is not a function/);
         done();
       }
@@ -50,7 +52,7 @@ describe('[queries] errors', () => {
         return this.props.children;
       }
     }
-    let bar;
+    let bar: any;
     const ContainerWithData = graphql(query)(() => {
       bar(); // this will throw
       return null;
@@ -66,7 +68,7 @@ describe('[queries] errors', () => {
   });
 
   it('can unmount without error', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -102,7 +104,7 @@ describe('[queries] errors', () => {
   });
 
   it('passes any GraphQL errors in props', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -120,19 +122,19 @@ describe('[queries] errors', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    @graphql(query)
-    class ErrorContainer extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
-        // tslint:disable-line
-        expect(data.error).toBeTruthy();
-        expect(data.error.networkError).toBeTruthy();
-        // expect(data.error instanceof ApolloError).toBeTruthy();
-        done();
-      }
-      render() {
-        return null;
-      }
-    }
+    const ErrorContainer = graphql(query)(
+      class extends React.Component<ChildProps> {
+        componentWillReceiveProps({ data }: ChildProps) {
+          expect(data!.error).toBeTruthy();
+          expect(data!.error!.networkError).toBeTruthy();
+          // expect(data.error instanceof ApolloError).toBeTruthy();
+          done();
+        }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
@@ -142,8 +144,8 @@ describe('[queries] errors', () => {
   });
 
   describe('uncaught exceptions', () => {
-    let unhandled = [];
-    function handle(reason) {
+    let unhandled: any[] = [];
+    function handle(reason: any) {
       unhandled.push(reason);
     }
     beforeEach(() => {
@@ -155,7 +157,7 @@ describe('[queries] errors', () => {
     });
 
     it('does not log when you change variables resulting in an error', done => {
-      const query = gql`
+      const query: DocumentNode = gql`
         query people($var: Int) {
           allPeople(first: $var) {
             people {
@@ -182,32 +184,44 @@ describe('[queries] errors', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      let iteration = 0;
-      @withState('var', 'setVar', 1)
-      @graphql(query)
-      class ErrorContainer extends React.Component<any, any> {
-        componentWillReceiveProps(props) {
-          // tslint:disable-line
-          iteration += 1;
-          if (iteration === 1) {
-            expect(stripSymbols(props.data.allPeople)).toEqual(data.allPeople);
-            props.setVar(2);
-          } else if (iteration === 2) {
-            expect(props.data.loading).toBeTruthy();
-          } else if (iteration === 3) {
-            expect(props.data.error).toBeTruthy();
-            expect(props.data.error.networkError).toBeTruthy();
-            // We need to set a timeout to ensure the unhandled rejection is swept up
-            setTimeout(() => {
-              expect(unhandled.length).toEqual(0);
-              done();
-            }, 0);
-          }
-        }
-        render() {
-          return null;
-        }
+      type Data = typeof data;
+      type Vars = typeof var1;
+
+      interface Props extends Vars {
+        var: number;
+        setVar: (val: number) => number;
       }
+
+      let iteration = 0;
+      const ErrorContainer = withState('var', 'setVar', 1)(
+        graphql<Props, Data, Vars>(query)(
+          class extends React.Component<ChildProps<Props, Data, Vars>> {
+            componentWillReceiveProps(props: ChildProps<Props, Data, Vars>) {
+              // tslint:disable-line
+              iteration += 1;
+              if (iteration === 1) {
+                expect(stripSymbols(props.data!.allPeople)).toEqual(
+                  data.allPeople,
+                );
+                props.setVar(2);
+              } else if (iteration === 2) {
+                expect(props.data!.loading).toBeTruthy();
+              } else if (iteration === 3) {
+                expect(props.data!.error).toBeTruthy();
+                expect(props.data!.error!.networkError).toBeTruthy();
+                // We need to set a timeout to ensure the unhandled rejection is swept up
+                setTimeout(() => {
+                  expect(unhandled.length).toEqual(0);
+                  done();
+                }, 0);
+              }
+            }
+            render() {
+              return null;
+            }
+          },
+        ),
+      );
 
       renderer.create(
         <ApolloProvider client={client}>
@@ -219,7 +233,7 @@ describe('[queries] errors', () => {
 
   it('will not log a warning when there is an error that is caught in the render method', () =>
     new Promise((resolve, reject) => {
-      const query = gql`
+      const query: DocumentNode = gql`
         query people {
           allPeople(first: 1) {
             people {
@@ -228,6 +242,12 @@ describe('[queries] errors', () => {
           }
         }
       `;
+
+      interface Data {
+        allPeople: {
+          people: { name: string }[];
+        };
+      }
       const link = mockSingleLink({
         request: { query },
         error: new Error('oops'),
@@ -242,16 +262,18 @@ describe('[queries] errors', () => {
       console.error = errorMock;
 
       let renderCount = 0;
-      @graphql(query)
-      class HandledErrorComponent extends React.Component<any, any> {
-        render() {
+      @graphql<{}, Data>(query)
+      class HandledErrorComponent extends React.Component<
+        ChildProps<{}, Data>
+      > {
+        render(): React.ReactNode {
           try {
             switch (renderCount++) {
               case 0:
-                expect(this.props.data.loading).toEqual(true);
+                expect(this.props.data!.loading).toEqual(true);
                 break;
               case 1:
-                expect(this.props.data.error.message).toEqual(
+                expect(this.props.data!.error!.message).toEqual(
                   'Network error: oops',
                 );
                 break;
@@ -286,7 +308,7 @@ describe('[queries] errors', () => {
 
   it('will log a warning when there is an error that is not caught in the render method', () =>
     new Promise((resolve, reject) => {
-      const query = gql`
+      const query: DocumentNode = gql`
         query people {
           allPeople(first: 1) {
             people {
@@ -295,6 +317,13 @@ describe('[queries] errors', () => {
           }
         }
       `;
+
+      interface Data {
+        allPeople: {
+          people: { name: string }[];
+        };
+      }
+
       const link = mockSingleLink({
         request: { query },
         error: new Error('oops'),
@@ -309,13 +338,15 @@ describe('[queries] errors', () => {
       console.error = errorMock;
 
       let renderCount = 0;
-      @graphql(query)
-      class UnhandledErrorComponent extends React.Component<any, any> {
-        render() {
+      @graphql<{}, Data>(query)
+      class UnhandledErrorComponent extends React.Component<
+        ChildProps<{}, Data>
+      > {
+        render(): React.ReactNode {
           try {
             switch (renderCount++) {
               case 0:
-                expect(this.props.data.loading).toEqual(true);
+                expect(this.props.data!.loading).toEqual(true);
                 break;
               case 1:
                 // Noop. Don’t handle the error so a warning will be logged to the console.
@@ -354,7 +385,7 @@ describe('[queries] errors', () => {
     }));
 
   it('passes any cached data when there is a GraphQL error', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -364,6 +395,7 @@ describe('[queries] errors', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    type Data = typeof data;
     const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, error: new Error('No Network Connection') },
@@ -374,43 +406,46 @@ describe('[queries] errors', () => {
     });
 
     let count = 0;
-    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        try {
-          switch (count++) {
-            case 0:
-              expect(stripSymbols(props.data.allPeople)).toEqual(
-                data.allPeople,
-              );
-              props.data.refetch().catch(() => null);
-              break;
-            case 1:
-              expect(props.data.loading).toBeTruthy();
-              expect(stripSymbols(props.data.allPeople)).toEqual(
-                data.allPeople,
-              );
-              break;
-            case 2:
-              expect(props.data.loading).toBeFalsy();
-              expect(props.data.error).toBeTruthy();
-              expect(stripSymbols(props.data.allPeople)).toEqual(
-                data.allPeople,
-              );
-              done();
-              break;
-            default:
-              throw new Error('Unexpected fall through');
+    const Container = graphql<{}, Data>(query, {
+      options: { notifyOnNetworkStatusChange: true },
+    })(
+      class extends React.Component<ChildProps<{}, Data>> {
+        componentWillReceiveProps(props: ChildProps<{}, Data>) {
+          try {
+            switch (count++) {
+              case 0:
+                expect(stripSymbols(props.data!.allPeople)).toEqual(
+                  data.allPeople,
+                );
+                props.data!.refetch().catch(() => null);
+                break;
+              case 1:
+                expect(props.data!.loading).toBeTruthy();
+                expect(stripSymbols(props.data!.allPeople)).toEqual(
+                  data.allPeople,
+                );
+                break;
+              case 2:
+                expect(props.data!.loading).toBeFalsy();
+                expect(props.data!.error).toBeTruthy();
+                expect(stripSymbols(props.data!.allPeople)).toEqual(
+                  data.allPeople,
+                );
+                done();
+                break;
+              default:
+                throw new Error('Unexpected fall through');
+            }
+          } catch (e) {
+            done.fail(e);
           }
-        } catch (e) {
-          done.fail(e);
         }
-      }
 
-      render() {
-        return null;
-      }
-    }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
@@ -420,7 +455,7 @@ describe('[queries] errors', () => {
   });
 
   it('can refetch after there was a network error', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query somethingelse {
         allPeople(first: 1) {
           people {
@@ -431,6 +466,8 @@ describe('[queries] errors', () => {
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const dataTwo = { allPeople: { people: [{ name: 'Princess Leia' }] } };
+
+    type Data = typeof data;
     const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, error: new Error('This is an error!') },
@@ -443,57 +480,60 @@ describe('[queries] errors', () => {
 
     let count = 0;
     const noop = () => null;
-    @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        try {
-          switch (count++) {
-            case 0:
-              props.data
-                .refetch()
-                .then(() => {
-                  done.fail('Expected error value on first refetch.');
-                })
-                .catch(noop);
-              break;
-            case 1:
-              expect(props.data.loading).toBeTruthy();
-              break;
-            case 2:
-              expect(props.data.loading).toBeFalsy();
-              expect(props.data.error).toBeTruthy();
-              props.data
-                .refetch()
-                .then(noop)
-                .catch(() => {
-                  done.fail('Expected good data on second refetch.');
-                });
-              break;
-            // Further fix required in QueryManager
-            // case 3:
-            //   expect(props.data.loading).toBeTruthy();
-            //   expect(props.data.error).toBeFalsy();
-            //   break;
-            case 3:
-              expect(props.data.loading).toBeFalsy();
-              expect(props.data.error).toBeFalsy();
-              expect(stripSymbols(props.data.allPeople)).toEqual(
-                dataTwo.allPeople,
-              );
-              done();
-              break;
-            default:
-              throw new Error('Unexpected fall through');
+    const Container = graphql<{}, Data>(query, {
+      options: { notifyOnNetworkStatusChange: true },
+    })(
+      class extends React.Component<ChildProps<{}, Data>> {
+        componentWillReceiveProps(props: ChildProps<{}, Data>) {
+          try {
+            switch (count++) {
+              case 0:
+                props.data!
+                  .refetch()
+                  .then(() => {
+                    done.fail('Expected error value on first refetch.');
+                  })
+                  .catch(noop);
+                break;
+              case 1:
+                expect(props.data!.loading).toBeTruthy();
+                break;
+              case 2:
+                expect(props.data!.loading).toBeFalsy();
+                expect(props.data!.error).toBeTruthy();
+                props.data!
+                  .refetch()
+                  .then(noop)
+                  .catch(() => {
+                    done.fail('Expected good data on second refetch.');
+                  });
+                break;
+              // Further fix required in QueryManager
+              // case 3:
+              //   expect(props.data.loading).toBeTruthy();
+              //   expect(props.data.error).toBeFalsy();
+              //   break;
+              case 3:
+                expect(props.data!.loading).toBeFalsy();
+                expect(props.data!.error).toBeFalsy();
+                expect(stripSymbols(props.data!.allPeople)).toEqual(
+                  dataTwo.allPeople,
+                );
+                done();
+                break;
+              default:
+                throw new Error('Unexpected fall through');
+            }
+          } catch (e) {
+            done.fail(e);
           }
-        } catch (e) {
-          done.fail(e);
         }
-      }
 
-      render() {
-        return null;
-      }
-    }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>

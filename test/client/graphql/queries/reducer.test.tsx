@@ -4,14 +4,15 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, ChildProps, graphql } from '../../../../src';
+import { ApolloProvider, graphql } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
+import { DocumentNode } from 'graphql';
 
 describe('[queries] reducer', () => {
   // props reducer
   it('allows custom mapping of a result to props', () => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query thing {
         getThing {
           thing
@@ -28,18 +29,19 @@ describe('[queries] reducer', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    interface Props {
-      showSpinner: boolean;
-    }
     interface Data {
       getThing: { thing: boolean };
     }
 
-    const ContainerWithData = graphql<Props, Data>(query, {
+    interface FinalProps {
+      showSpinner: boolean | undefined;
+    }
+
+    const ContainerWithData = graphql<{}, Data, {}, FinalProps>(query, {
       props: result => ({
         showSpinner: result.data && result.data.loading,
       }),
-    })(({ showSpinner }) => {
+    })(({ showSpinner }: FinalProps) => {
       expect(showSpinner).toBeTruthy();
       return null;
     });
@@ -53,7 +55,7 @@ describe('[queries] reducer', () => {
   });
 
   it('allows custom mapping of a result to props that includes the passed props', () => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query thing {
         getThing {
           thing
@@ -72,16 +74,20 @@ describe('[queries] reducer', () => {
     interface Data {
       getThing: { thing: boolean };
     }
-    type Props = {
-      showSpinner: boolean;
+    interface Props {
       sample: number;
+    }
+
+    type FinalProps = {
+      showSpinner: boolean;
     };
-    const ContainerWithData = graphql<Props, Data>(query, {
+
+    const ContainerWithData = graphql<Props, Data, {}, FinalProps>(query, {
       props: ({ data, ownProps }) => {
         expect(ownProps.sample).toBe(1);
-        return { showSpinner: data.loading };
+        return { showSpinner: data!.loading };
       },
-    })(({ showSpinner }) => {
+    })(({ showSpinner }: FinalProps) => {
       expect(showSpinner).toBeTruthy();
       return null;
     });
@@ -95,7 +101,7 @@ describe('[queries] reducer', () => {
   });
 
   it('allows custom mapping of a result to props 2', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query thing {
         getThing {
           thing
@@ -112,19 +118,20 @@ describe('[queries] reducer', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    interface Props {
-      thingy: boolean;
-    }
     interface Data {
-      getThing?: { thing: boolean };
+      getThing: { thing: boolean };
     }
 
-    const withData = graphql<Props, Data>(query, {
-      props: ({ data }) => ({ thingy: data.getThing }),
+    interface FinalProps {
+      thingy: { thing: boolean };
+    }
+
+    const withData = graphql<{}, Data, {}, FinalProps>(query, {
+      props: ({ data }) => ({ thingy: data!.getThing! }),
     });
 
-    class Container extends React.Component<ChildProps<Props, Data>> {
-      componentWillReceiveProps(props: ChildProps<Props, Data>) {
+    class Container extends React.Component<FinalProps> {
+      componentWillReceiveProps(props: FinalProps) {
         expect(stripSymbols(props.thingy)).toEqual(expectedData.getThing);
         done();
       }

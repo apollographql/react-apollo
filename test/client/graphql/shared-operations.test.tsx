@@ -13,20 +13,20 @@ import {
   withApollo,
 } from '../../../src';
 import * as TestUtils from 'react-dom/test-utils';
-
-const compose = require('lodash/flowRight');
+import { DocumentNode } from 'graphql';
+import compose from 'lodash/flowRight';
 
 describe('shared operations', () => {
   describe('withApollo', () => {
     it('passes apollo-client to props', () => {
       const client = new ApolloClient({
-        link: new ApolloLink((o, f) => f(o)),
+        link: new ApolloLink((o, f) => (f ? f(o) : null)),
         cache: new Cache(),
       });
 
       @withApollo
       class ContainerWithData extends React.Component<any> {
-        render() {
+        render(): React.ReactNode {
           expect(this.props.client).toEqual(client);
           return null;
         }
@@ -41,7 +41,7 @@ describe('shared operations', () => {
 
     it('allows a way to access the wrapped component instance', () => {
       const client = new ApolloClient({
-        link: new ApolloLink((o, f) => f(o)),
+        link: new ApolloLink((o, f) => (f ? f(o) : null)),
         cache: new Cache(),
       });
 
@@ -103,7 +103,7 @@ describe('shared operations', () => {
   });
 
   it('binds two queries to props', () => {
-    const peopleQuery = gql`
+    const peopleQuery: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -117,7 +117,7 @@ describe('shared operations', () => {
       allPeople: { people: [{ name: string }] };
     }
 
-    const shipsQuery = gql`
+    const shipsQuery: DocumentNode = gql`
       query ships {
         allships(first: 1) {
           ships {
@@ -140,21 +140,32 @@ describe('shared operations', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const withPeople = graphql<{}, PeopleData>(peopleQuery, {
-      name: 'people',
-    });
-    const withShips = graphql<{}, ShipsData>(shipsQuery, { name: 'ships' });
-
-    interface ComposedProps {
-      people?: DataValue<PeopleData>;
-      ships?: DataValue<ShipsData>;
+    interface PeopleChildProps {
+      people: DataValue<PeopleData>;
     }
+
+    // Since we want to test decorators usage, and this does not play well with Typescript,
+    // we resort to setting everything as any to avoid type checking.
+    const withPeople: any = graphql<{}, PeopleData, {}, PeopleChildProps>(
+      peopleQuery,
+      {
+        name: 'people',
+      },
+    );
+
+    interface ShipsChildProps {
+      ships: DataValue<PeopleData>;
+    }
+    const withShips: any = graphql<{}, ShipsData, {}, ShipsChildProps>(
+      shipsQuery,
+      {
+        name: 'ships',
+      },
+    );
 
     @withPeople
     @withShips
-    class ContainerWithData extends React.Component<
-      ChildProps<ComposedProps, ShipsData & PeopleData>
-    > {
+    class ContainerWithData extends React.Component<any> {
       render() {
         const { people, ships } = this.props;
         expect(people).toBeTruthy();
@@ -175,7 +186,7 @@ describe('shared operations', () => {
   });
 
   it('binds two queries to props with different syntax', () => {
-    const peopleQuery = gql`
+    const peopleQuery: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -188,7 +199,7 @@ describe('shared operations', () => {
     interface PeopleData {
       allPeople: { people: [{ name: string }] };
     }
-    const shipsQuery = gql`
+    const shipsQuery: DocumentNode = gql`
       query ships {
         allships(first: 1) {
           ships {
@@ -211,17 +222,31 @@ describe('shared operations', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    const withPeople = graphql<any, PeopleData>(peopleQuery, {
-      name: 'people',
-    });
-    const withShips = graphql<any, ShipsData>(shipsQuery, { name: 'ships' });
-
-    interface ComposedProps {
-      people?: DataValue<PeopleData>;
-      ships?: DataValue<ShipsData>;
+    interface PeopleChildProps {
+      people: DataValue<PeopleData>;
     }
+
+    const withPeople = graphql<{}, PeopleData, {}, PeopleChildProps>(
+      peopleQuery,
+      {
+        name: 'people',
+      },
+    );
+
+    interface ShipsAndPeopleChildProps extends PeopleChildProps {
+      ships: DataValue<PeopleData>;
+    }
+    const withShips = graphql<
+      PeopleChildProps,
+      ShipsData,
+      {},
+      ShipsAndPeopleChildProps
+    >(shipsQuery, {
+      name: 'ships',
+    });
+
     const ContainerWithData = withPeople(
-      withShips((props: ComposedProps) => {
+      withShips((props: ShipsAndPeopleChildProps) => {
         const { people, ships } = props;
         expect(people).toBeTruthy();
         expect(people.loading).toBeTruthy();
@@ -241,7 +266,7 @@ describe('shared operations', () => {
   });
 
   it('binds two operations to props', () => {
-    const peopleQuery = gql`
+    const peopleQuery: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -252,7 +277,7 @@ describe('shared operations', () => {
     `;
     const peopleData = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
 
-    const peopleMutation = gql`
+    const peopleMutation: DocumentNode = gql`
       mutation addPerson {
         allPeople(first: 1) {
           people {
@@ -280,18 +305,20 @@ describe('shared operations', () => {
     const withPeople = graphql(peopleQuery, { name: 'people' });
     const withPeopleMutation = graphql(peopleMutation, { name: 'addPerson' });
 
-    @withPeople
-    @withPeopleMutation
-    class ContainerWithData extends React.Component<any> {
-      render() {
-        const { people, addPerson } = this.props;
-        expect(people).toBeTruthy();
-        expect(people.loading).toBeTruthy();
+    const ContainerWithData = withPeople(
+      withPeopleMutation(
+        class extends React.Component<any> {
+          render() {
+            const { people, addPerson } = this.props;
+            expect(people).toBeTruthy();
+            expect(people.loading).toBeTruthy();
 
-        expect(addPerson).toBeTruthy();
-        return null;
-      }
-    }
+            expect(addPerson).toBeTruthy();
+            return null;
+          }
+        },
+      ),
+    );
 
     const wrapper = renderer.create(
       <ApolloProvider client={client}>
@@ -302,7 +329,7 @@ describe('shared operations', () => {
   });
 
   it('allows a way to access the wrapped component instance', () => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -374,7 +401,7 @@ describe('shared operations', () => {
   });
 
   it('allows options to take an object', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -384,6 +411,8 @@ describe('shared operations', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    type Data = typeof data;
+
     const link = mockSingleLink({
       request: { query },
       result: { data },
@@ -393,17 +422,18 @@ describe('shared operations', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    let queryExecuted;
-    @graphql(query, { skip: true })
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        queryExecuted = true;
-      }
-      render() {
-        expect(this.props.data).toBeUndefined();
-        return null;
-      }
-    }
+    let queryExecuted = false;
+    const Container = graphql<{}, Data>(query, { skip: true })(
+      class extends React.Component<ChildProps<{}, Data>> {
+        componentWillReceiveProps() {
+          queryExecuted = true;
+        }
+        render() {
+          expect(this.props.data).toBeUndefined();
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>
@@ -422,7 +452,7 @@ describe('shared operations', () => {
 
   describe('compose', () => {
     it('binds two queries to props with different syntax', () => {
-      const peopleQuery = gql`
+      const peopleQuery: DocumentNode = gql`
         query people {
           allPeople(first: 1) {
             people {
@@ -435,7 +465,9 @@ describe('shared operations', () => {
         allPeople: { people: [{ name: 'Luke Skywalker' }] },
       };
 
-      const shipsQuery = gql`
+      type PeopleData = typeof peopleData;
+
+      const shipsQuery: DocumentNode = gql`
         query ships {
           allships(first: 1) {
             ships {
@@ -446,6 +478,8 @@ describe('shared operations', () => {
       `;
       const shipsData = { allships: { ships: [{ name: 'Tie Fighter' }] } };
 
+      type ShipsData = typeof shipsData;
+
       const link = mockSingleLink(
         { request: { query: peopleQuery }, result: { data: peopleData } },
         { request: { query: shipsQuery }, result: { data: shipsData } },
@@ -455,9 +489,23 @@ describe('shared operations', () => {
         cache: new Cache({ addTypename: false }),
       });
 
+      interface PeopleChildProps {
+        people: DataValue<PeopleData>;
+      }
+
+      interface ShipsAndPeopleChildProps {
+        people: DataValue<PeopleData>;
+        ships: DataValue<PeopleData>;
+      }
+
       const enhanced = compose(
-        graphql(peopleQuery, { name: 'people' }),
-        graphql(shipsQuery, { name: 'ships' }),
+        graphql<{}, PeopleData, {}, PeopleChildProps>(peopleQuery, {
+          name: 'people',
+        }),
+        graphql<PeopleChildProps, ShipsData, {}, ShipsAndPeopleChildProps>(
+          shipsQuery,
+          { name: 'ships' },
+        ),
       );
 
       const ContainerWithData = enhanced(props => {

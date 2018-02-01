@@ -36,7 +36,7 @@
   "bundlesize": [
     {
       "path": "./lib/react-apollo.browser.umd.js",
-      "maxSize": "6 KB"
+      "maxSize": "6.5 KB"
     }
   ],
   "lint-staged": {
@@ -84,13 +84,17 @@
   },
   "devDependencies": {
     "@types/enzyme": "3.1.8",
+    "@types/enzyme-adapter-react-16": "^1.0.1",
     "@types/graphql": "0.11.7",
     "@types/invariant": "2.2.29",
     "@types/jest": "22.0.1",
     "@types/lodash": "4.14.99",
     "@types/object-assign": "4.0.30",
-    "@types/react": "16.0.34",
+    "@types/prop-types": "15.5.2",
+    "@types/react": "16.0.35",
     "@types/react-dom": "16.0.3",
+    "@types/react-test-renderer": "16.0.0",
+    "@types/recompose": "0.24.4",
     "@types/zen-observable": "0.5.3",
     "apollo-cache-inmemory": "1.1.5",
     "apollo-client": "2.2.1",

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import gql from 'graphql-tag';
-import { mount } from 'enzyme';
+import { mount, ReactWrapper } from 'enzyme';
 
 import { ApolloClient } from 'apollo-client';
-import { ApolloLink } from 'apollo-link';
+import { ApolloLink, Operation } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { MockSubscriptionLink } from '../../src/test-utils';
@@ -20,7 +20,7 @@ const results = [
   result: { data: { user: { name } } },
 }));
 
-let wrapper;
+let wrapper: ReactWrapper<any, any> | null;
 
 beforeEach(() => {
   jest.useRealTimers();
@@ -116,7 +116,7 @@ it('executes subscription for the variables passed in the props', done => {
   const variables = { name: 'Luke Skywalker' };
 
   class MockSubscriptionLinkOverride extends MockSubscriptionLink {
-    request(req) {
+    request(req: Operation) {
       catchAsyncError(done, () => {
         expect(req.variables).toEqual(variables);
       });
@@ -294,7 +294,7 @@ describe('should update', () => {
 
     const userLink = new MockSubscriptionLink();
     const heroLink = new MockSubscriptionLink();
-    const linkCombined = new ApolloLink((o, f) => f(o)).split(
+    const linkCombined = new ApolloLink((o, f) => (f ? f(o) : null)).split(
       ({ operationName }) => operationName === 'HeroInfo',
       heroLink,
       userLink,
@@ -386,7 +386,7 @@ describe('should update', () => {
 
     class MockSubscriptionLinkOverride extends MockSubscriptionLink {
       variables: any;
-      request(req) {
+      request(req: Operation) {
         this.variables = req.variables;
         return super.request(req);
       }
