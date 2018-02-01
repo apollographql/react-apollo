@@ -17,7 +17,7 @@ import shallowEqual from 'fbjs/lib/shallowEqual';
 import invariant from 'invariant';
 
 // Improved FetchMoreOptions type, need to port them back to Apollo Client
-interface FetchMoreOptions<TData, TVariables> {
+export interface FetchMoreOptions<TData, TVariables> {
   updateQuery: (
     previousQueryResult: TData,
     options: {
@@ -28,12 +28,12 @@ interface FetchMoreOptions<TData, TVariables> {
 }
 
 // Improved FetchMoreQueryOptions type, need to port them back to Apollo Client
-interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
+export interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
   variables: Pick<TVariables, K>;
 }
 
 // Improved ObservableQuery field types, need to port them back to Apollo Client
-type ObservableQueryFields<TData, TVariables> = Pick<
+export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData>,
   'startPolling' | 'stopPolling'
 > & {
@@ -91,17 +91,13 @@ function isDataFilled<TData>(data: {} | TData): data is TData {
   return Object.keys(data).length > 0;
 }
 
-export interface QueryResult<TData = any, TVariables = OperationVariables> {
+export interface QueryResult<TData = any, TVariables = OperationVariables>
+  extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
   data?: TData;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
-  fetchMore: ObservableQueryFields<TData, TVariables>['fetchMore'];
-  refetch: ObservableQueryFields<TData, TVariables>['refetch'];
-  startPolling: ObservableQueryFields<TData, TVariables>['startPolling'];
-  stopPolling: ObservableQueryFields<TData, TVariables>['stopPolling'];
-  updateQuery: ObservableQueryFields<TData, TVariables>['updateQuery'];
 }
 
 export interface QueryProps<TData = any, TVariables = OperationVariables> {
@@ -118,7 +114,7 @@ export interface QueryState<TData = any> {
   result: ApolloCurrentResult<TData>;
 }
 
-interface QueryContext {
+export interface QueryContext {
   client: ApolloClient<Object>;
 }
 

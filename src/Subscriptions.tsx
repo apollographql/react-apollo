@@ -31,7 +31,7 @@ export interface SubscriptionState<TData = any> {
   error?: ApolloError;
 }
 
-interface SubscriptionContext {
+export interface SubscriptionContext {
   client: ApolloClient<Object>;
 }
 
