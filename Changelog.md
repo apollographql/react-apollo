@@ -2,6 +2,9 @@
 
 ### vNext
 
+* Stricter type checking in the codebase. [#1617]
+* Improved TS types (even more) in both `Query` component and `graphql` HoC. [#1617]
+
 ### 2.1.0-beta.0
 
 * Beta release of all 2.1 features!
