@@ -47,7 +47,9 @@ function isReactElement(
 function isComponentClass(
   Comp: ComponentType<any>,
 ): Comp is ComponentClass<any> {
-  return Comp.prototype && Comp.prototype.render;
+  return (
+    Comp.prototype && (Comp.prototype.render || Comp.prototype.isReactComponent)
+  );
 }
 
 function providesChildContext(
