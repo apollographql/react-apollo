@@ -118,7 +118,7 @@
     "recompose": "0.26.0",
     "recursive-rename": "2.0.0",
     "rimraf": "2.6.2",
-    "rollup": "0.55.1",
+    "rollup": "0.55.3",
     "rollup-plugin-babel-minify": "3.1.2",
     "rollup-plugin-commonjs": "8.3.0",
     "ts-jest": "22.0.2",
