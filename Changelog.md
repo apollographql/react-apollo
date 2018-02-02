@@ -2,6 +2,8 @@
 
 ### vNext
 
+### 2.1.0-beta.1
+
 * Stricter type checking in the codebase. [#1617](https://github.com/apollographql/react-apollo/pull/1617)
 * Improved TS types (even more) in both `Query` component and `graphql` HoC. [#1617](https://github.com/apollographql/react-apollo/pull/1617)
 * Fix React Component detection bug in `getDataFromTree` [#1604](https://github.com/apollographql/react-apollo/pull/1604)
