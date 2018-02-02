@@ -2,6 +2,8 @@
 
 ### vNext
 
+* Rollback importing non esm packages. Fixes the previous broken version [#1621](https://github.com/apollographql/react-apollo/pull/1621)
+
 ### 2.1.0-beta.1
 
 * Stricter type checking in the codebase. [#1617](https://github.com/apollographql/react-apollo/pull/1617)
