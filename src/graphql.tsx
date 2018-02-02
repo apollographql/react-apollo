@@ -158,6 +158,9 @@ export default function graphql<
       // wrapped instance
       private wrappedInstance: any;
 
+      // last props returned from mapResultsToProps
+      private lastResultProps: TChildProps;
+
       constructor(props: GraphqlProps, context: GraphqlContext) {
         super(props, context);
 
@@ -353,7 +356,10 @@ export default function graphql<
           [name]: result,
           ownProps: this.props,
         };
-        if (mapResultToProps) return mapResultToProps(newResult);
+        if (mapResultToProps) {
+          this.lastResultProps = mapResultToProps(newResult, this.lastResultProps);
+          return this.lastResultProps;
+        }
 
         return { [name]: defaultMapResultToProps(result) };
       }

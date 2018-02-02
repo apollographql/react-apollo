@@ -2,6 +2,8 @@
 
 ### vNext
 
+* HoC `props` result-mapping function now receives prior return value as second argument.
+
 ### 2.1.0-beta.2
 
 * Rollback importing non esm packages. Fixes the previous broken version [#1621](https://github.com/apollographql/react-apollo/pull/1621)
