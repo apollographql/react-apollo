@@ -18,11 +18,12 @@ import {
   MutateProps,
 } from './types';
 import { OperationVariables } from './index';
-import pick from 'lodash/pick';
-import assign from 'object-assign';
-import hoistNonReactStatics from 'hoist-non-react-statics';
-import shallowEqual from 'fbjs/lib/shallowEqual';
-import invariant from 'invariant';
+
+const pick = require('lodash/pick');
+const assign = require('object-assign');
+const hoistNonReactStatics = require('hoist-non-react-statics');
+const shallowEqual = require('fbjs/lib/shallowEqual');
+const invariant = require('invariant');
 
 const defaultMapPropsToOptions = () => ({});
 const defaultMapResultToProps: <P>(props: P) => P = props => props;

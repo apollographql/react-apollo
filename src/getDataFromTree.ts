@@ -8,7 +8,8 @@ import {
   ChildContextProvider,
 } from 'react';
 import ApolloClient from 'apollo-client';
-import assign from 'object-assign';
+
+const assign = require('object-assign');
 
 export interface Context<Cache> {
   client?: ApolloClient<Cache>;
