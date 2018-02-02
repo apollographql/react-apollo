@@ -5,7 +5,7 @@ import {
   Episode,
 } from './__generated__/types';
 import { GetCharacter as QUERY } from './queries';
-import { Query, QueryResult } from 'react-apollo';
+import { Query } from 'react-apollo';
 
 class CharacterQuery extends Query<
   GetCharacterQuery,
@@ -16,11 +16,12 @@ export interface CharacterProps {
   episode: Episode;
 }
 
-export const Character: React.SFC<CharacterProps> = (props) => {
+export const Character: React.SFC<CharacterProps> = props => {
   const { episode } = props;
+
   return (
     <CharacterQuery query={QUERY} variables={{ episode }}>
-      {({ loading, data, error }: QueryResult<GetCharacterQuery>) => {
+      {({ loading, data, error }) => {
         if (loading) return <div>Loading</div>;
         if (error) return <h1>ERROR</h1>;
         if (!data) return <div>no data</div>;

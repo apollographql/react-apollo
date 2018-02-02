@@ -3,7 +3,8 @@ import * as PropTypes from 'prop-types';
 import { Component } from 'react';
 import ApolloClient from 'apollo-client';
 import QueryRecyclerProvider from './QueryRecyclerProvider';
-import invariant from 'invariant';
+
+const invariant = require('invariant');
 
 export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;

@@ -2,9 +2,10 @@ import * as React from 'react';
 import { OperationOption } from './types';
 import ApolloConsumer from './ApolloConsumer';
 import { ApolloClient } from 'apollo-client';
-import assign from 'object-assign';
-import invariant from 'invariant';
-import hoistNonReactStatics from 'hoist-non-react-statics';
+
+const assign = require('object-assign');
+const invariant = require('invariant');
+const hoistNonReactStatics = require('hoist-non-react-statics');
 
 function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';

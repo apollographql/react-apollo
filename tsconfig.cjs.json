@@ -8,7 +8,7 @@
     // "noImplicitAny": false,
     "strict": true,
     "outDir": "lib",
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": false,
     "experimentalDecorators": true,
     "pretty": true,
     "removeComments": true,

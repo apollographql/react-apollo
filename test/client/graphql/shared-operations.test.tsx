@@ -14,7 +14,8 @@ import {
 } from '../../../src';
 import * as TestUtils from 'react-dom/test-utils';
 import { DocumentNode } from 'graphql';
-import compose from 'lodash/flowRight';
+
+const compose = require('lodash/flowRight');
 
 describe('shared operations', () => {
   describe('withApollo', () => {
@@ -508,7 +509,7 @@ describe('shared operations', () => {
         ),
       );
 
-      const ContainerWithData = enhanced(props => {
+      const ContainerWithData = enhanced((props: ShipsAndPeopleChildProps) => {
         const { people, ships } = props;
         expect(people).toBeTruthy();
         expect(people.loading).toBeTruthy();

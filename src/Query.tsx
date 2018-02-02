@@ -12,9 +12,10 @@ import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
-import pick from 'lodash/pick';
-import shallowEqual from 'fbjs/lib/shallowEqual';
-import invariant from 'invariant';
+
+const pick = require('lodash/pick');
+const shallowEqual = require('fbjs/lib/shallowEqual');
+const invariant = require('invariant');
 
 // Improved FetchMoreOptions type, need to port them back to Apollo Client
 export interface FetchMoreOptions<TData, TVariables> {
