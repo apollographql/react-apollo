@@ -96,7 +96,7 @@
     "@types/react-test-renderer": "16.0.0",
     "@types/recompose": "0.24.4",
     "@types/zen-observable": "0.5.3",
-    "apollo-cache-inmemory": "1.1.5",
+    "apollo-cache-inmemory": "1.1.7",
     "apollo-client": "2.2.1",
     "babel-core": "6.26.0",
     "babel-jest": "22.1.0",
