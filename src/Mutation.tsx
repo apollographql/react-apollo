@@ -2,11 +2,11 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, {
   PureQueryOptions,
-  ApolloError,
-  MutationUpdaterFn
+  ApolloError
 } from 'apollo-client';
+import { DataProxy } from "apollo-cache";
 const invariant = require('invariant');
-import { DocumentNode } from 'graphql';
+import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
 import { OperationVariables } from './types';
@@ -18,12 +18,27 @@ export interface MutationResult<TData = any> {
   loading: boolean;
 }
 
+export interface ExecutionResult<T = {[key: string]: any }> {
+    data?: T;
+    extensions?: { [key: string]: any };
+    errors?: GraphQLError[];
+}
+
+export declare type MutationUpdaterFn<T = {
+    [key: string]: any;
+}> = (proxy: DataProxy, mutationResult: FetchResult<T>) => void;
+
+export declare type FetchResult<C = Record<string, any>, E = Record<string, any>> = ExecutionResult<C> & {
+    extensions?: E;
+    context?: C;
+};
+
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
   variables?: TVariables;
   optimisticResponse?: Object;
   refetchQueries?: string[] | PureQueryOptions[];
-  update?: MutationUpdaterFn;
+  update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: () => void,
     result?: MutationResult<TData>,
