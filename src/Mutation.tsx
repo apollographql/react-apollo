@@ -2,8 +2,8 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, {
   PureQueryOptions,
-  MutationUpdaterFn,
   ApolloError,
+  MutationUpdaterFn
 } from 'apollo-client';
 const invariant = require('invariant');
 import { DocumentNode } from 'graphql';
@@ -122,12 +122,16 @@ class Mutation<
     this.mostRecentMutationId = this.mostRecentMutationId + 1;
     const mutationId = this.mostRecentMutationId;
     
+    let response;
+    
     try {
-      const response = await this.mutate();
-      this.onCompletedMutation(response, mutationId);
+      response = await this.mutate();
     } catch (e) {
       this.onMutationError(e, mutationId);
+      return;
     }
+    
+    this.onCompletedMutation(response, mutationId);
   };
 
   private mutate = async () => {
