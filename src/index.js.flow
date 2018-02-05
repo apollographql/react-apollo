@@ -33,36 +33,44 @@ declare export class ApolloProvider extends React$Component<ProviderProps> {
   render(): React$Element<*>;
 }
 
-export type MutationFunc<TResult> = (
-  opts: MutationOpts,
+export type MutationFunc<TResult, TVariables> = (
+  opts: MutationOpts<TVariables>,
 ) => Promise<ApolloQueryResult<TResult>>;
 
-export type ChildProps<P, R> = {
-  data: GraphqlQueryControls & R,
-  mutate: MutationFunc<R>,
-} & P;
+export type GraphqlData<TResult, TVariables> = GraphqlQueryControls &
+  TResult & {
+    variables: TVariables,
+    refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>,
+  };
+
+export type ChildProps<TOwnProps, TResult, TVariables: Object = {}> = {
+  data: GraphqlData<TResult, TVariables>,
+  mutate: MutationFunc<TResult, TVariables>,
+} & TOwnProps;
 
 // back compat
-export type DefaultChildProps<P, R> = ChildProps<P, R>;
+export type DefaultChildProps<P, R> = ChildProps<P, R, {}>;
 
 export type ErrorPolicy = 'none' | 'ignore' | 'all';
 
-export interface MutationOpts {
-  variables?: Object;
-  optimisticResponse?: Object;
-  refetchQueries?: string[] | PureQueryOptions[];
-  update?: MutationUpdaterFn<*>;
-  errorPolicy?: ErrorPolicy;
-}
+export type MutationOpts<TVariables> = {
+  variables?: TVariables,
+  optimisticResponse?: Object,
+  refetchQueries?: string[] | PureQueryOptions[],
+  update?: MutationUpdaterFn<*>,
+  errorPolicy?: ErrorPolicy,
+  $call?: empty, // Not function
+};
 
-export interface QueryOpts {
-  ssr?: boolean;
-  variables?: Object;
-  fetchPolicy?: FetchPolicy;
-  pollInterval?: number;
-  skip?: boolean;
-  errorPolicy?: ErrorPolicy;
-}
+export type QueryOpts<TVariables> = {
+  ssr?: boolean,
+  variables?: TVariables,
+  fetchPolicy?: FetchPolicy,
+  pollInterval?: number,
+  skip?: boolean,
+  errorPolicy?: ErrorPolicy,
+  $call?: empty, // Not function
+};
 
 export interface GraphqlQueryControls {
   error?: ApolloError;
@@ -81,24 +89,31 @@ export interface GraphqlQueryControls {
   ) => void;
 }
 
-export interface OptionProps<TProps, TResult> {
+export interface OptionProps<TProps, TResult, TVariables> {
   ownProps: TProps;
-  data: GraphqlQueryControls & TResult;
-  mutate: MutationFunc<TResult>;
+  data: GraphqlData<TResult, TVariables>;
+  mutate: MutationFunc<TResult, TVariables>;
 }
 
-export type OptionDescription<P> =
-  | QueryOpts
-  | MutationOpts
-  | ((props: P) => QueryOpts | MutationOpts);
+export type OptionDescription<TProps, TVariables> =
+  | QueryOpts<TVariables>
+  | MutationOpts<TVariables>
+  | ((props: TProps) => QueryOpts<TVariables> | MutationOpts<TVariables>);
 
 export type NamedProps<P, R> = P & {
   ownProps: R,
 };
 
-export interface OperationOption<TProps: {}, TResult: {}> {
-  +options?: OptionDescription<TProps>;
-  props?: (props: OptionProps<TProps, TResult>) => any;
+export interface OperationOption<
+  TResult: {},
+  TProps: {},
+  TChildProps: {},
+  TVariables: {},
+> {
+  +options?: OptionDescription<TProps, TVariables>;
+  props?: (
+    props: OptionProps<TProps, TResult, TVariables>,
+  ) => TChildProps | ChildProps<TProps, TResult, TVariables>;
   +skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
@@ -106,20 +121,23 @@ export interface OperationOption<TProps: {}, TResult: {}> {
   alias?: string;
 }
 
+// Third argument of TMergedProps should be TVariables, but generics order
+// is preserved for backward compatibility.
 export interface OperationComponent<
   TResult: Object = {},
   TOwnProps: Object = {},
-  TMergedProps: Object = ChildProps<TOwnProps, TResult>,
+  TMergedProps: Object = ChildProps<TOwnProps, TResult, {}>,
+  TVariables: Object = {},
 > {
   (
     component: React$ComponentType<TMergedProps>,
   ): React$ComponentType<TOwnProps>;
 }
 
-declare export function graphql<TProps, TResult, TVariables, TChildProps>(
+declare export function graphql<TResult, TProps, TChildProps, TVariables>(
   document: DocumentNode,
-  operationOptions?: OperationOption<TProps, TResult>,
-): OperationComponent<TResult, TProps, TChildProps>;
+  operationOptions?: OperationOption<TResult, TProps, TChildProps, TVariables>,
+): OperationComponent<TResult, TProps, TChildProps, TVariables>;
 
 declare type WithApolloOptions = {
   withRef?: boolean,
