@@ -583,7 +583,12 @@ export default function graphql<
         } else {
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
-          const { loading, error, networkStatus } = currentResult;
+
+          // GraphQL's server response returns a "errors" (plural) property,
+          // whereas the Apollo client reports them under a "error" (singular)
+          // property.  We rename it here.
+          const { loading, errors: error, networkStatus } = currentResult;
+
           assign(data, { loading, networkStatus });
 
           // Define the error property on the data object. If the user does
