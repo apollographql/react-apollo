@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, {
+  ApolloError,
   ObservableQuery,
   ApolloQueryResult,
 } from 'apollo-client';
@@ -349,13 +350,26 @@ export default function graphql<
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult: OptionProps<TProps, TData> = {
+        const newResult: OptionProps<TProps, TData> & {errors?: [ApolloError]} = {
           [name]: result,
           ownProps: this.props,
         };
+
+        const { errors } = this.queryObservable.currentResult();
+        const hasErrors = errors && errors.length > 0;
+        if (hasErrors) {
+          newResult.errors = errors;
+        }
+
+
         if (mapResultToProps) return mapResultToProps(newResult);
 
-        return { [name]: defaultMapResultToProps(result) };
+        const resultProps = { [name]: defaultMapResultToProps(result) };
+        if (hasErrors) {
+          resultProps.errors = errors;
+        }
+
+        return resultProps;
       }
 
       setInitialProps() {
