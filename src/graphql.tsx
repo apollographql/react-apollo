@@ -355,12 +355,15 @@ export default function graphql<
           ownProps: this.props,
         };
 
-        const { errors } = this.queryObservable.currentResult();
-        const hasErrors = errors && errors.length > 0;
-        if (hasErrors) {
-          newResult.errors = errors;
-        }
+        let hasErrors = false;
+        if (this.queryObservable) {
+          const { errors } = this.queryObservable.currentResult();
+          hasErrors = errors && errors.length > 0;
 
+          if (hasErrors) {
+            newResult.errors = errors;
+          }
+        }
 
         if (mapResultToProps) return mapResultToProps(newResult);
 
