@@ -369,7 +369,7 @@ export default function graphql<
 
         const resultProps = { [name]: defaultMapResultToProps(result) };
         if (hasErrors) {
-          resultProps.errors = errors;
+          resultProps.errors = newResult.errors;
         }
 
         return resultProps;
