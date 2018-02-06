@@ -367,7 +367,9 @@ export default function graphql<
 
         if (mapResultToProps) return mapResultToProps(newResult);
 
-        const resultProps = { [name]: defaultMapResultToProps(result) };
+        const resultProps: any = {
+          [name]: defaultMapResultToProps(result)
+        };
         if (hasErrors) {
           resultProps.errors = newResult.errors;
         }
