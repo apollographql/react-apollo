@@ -276,14 +276,14 @@ class Query<
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     const { result } = this.state;
     const { loading, error, networkStatus } = result;
-    const data = {} as any;
+    let data = {} as any;
 
     if (loading) {
       Object.assign(data, this.previousData, result.data);
     } else if (error) {
       Object.assign(data, (this.queryObservable.getLastResult() || {}).data);
     } else {
-      Object.assign(data, result.data);
+      data = result.data
       this.previousData = result.data;
     }
 
