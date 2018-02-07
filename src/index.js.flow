@@ -175,3 +175,30 @@ declare export function renderToStringWithData(
 ): Promise<string>;
 
 declare export function cleanupApolloState(apolloState: any): void;
+
+declare export type QueryResult = {
+  client: ApolloClient,
+  data: ?Object,
+  error: ?ApolloError,
+  loading: boolean,
+  networkStatus: NetworkStatus,
+  fetchMore: (
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+  ) => Promise<ApolloQueryResult<any>>,
+  refetch: (variables?: Object) => Promise<ApolloQueryResult<any>>,
+  startPolling: (pollInterval: number) => void,
+  stopPolling: () => void,
+  updateQuery: (
+    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
+  ) => void
+}
+
+declare export class Query extends React$Component<{
+  query: DocumentNode,
+  variables?: Object,
+  children: (result: QueryResult) => React$Node,
+  fetchPolicy?: FetchPolicy,
+  notifyOnNetworkStatusChange?: boolean,
+  pollInterval: number,
+  ssr?: boolean
+}>;
