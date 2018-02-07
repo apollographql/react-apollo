@@ -108,7 +108,7 @@
     "enzyme-adapter-react-16": "1.1.1",
     "flow-bin": "0.65.0",
     "graphql": "0.11.7",
-    "graphql-tag": "2.6.1",
+    "graphql-tag": "2.7.0",
     "husky": "0.14.3",
     "jest": "22.1.1",
     "jsdom": "11.6.2",
