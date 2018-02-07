@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "apollo-codegen": "0.18.3",
-    "flow-bin": "0.64.0",
+    "flow-bin": "0.65.0",
     "react-test-renderer": "16.2.0"
   }
 }
