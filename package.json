@@ -88,7 +88,7 @@
     "@types/graphql": "0.11.7",
     "@types/invariant": "2.2.29",
     "@types/jest": "22.0.1",
-    "@types/lodash": "4.14.101",
+    "@types/lodash": "4.14.102",
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.5.2",
     "@types/react": "16.0.35",
