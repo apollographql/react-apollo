@@ -1,0 +1,42 @@
+// @flow
+
+import type { GraphQLError, DocumentNode } from 'graphql';
+
+export type NetworkStatus = 1 | 2 | 3 | 4 | 6 | 7 | 8;
+
+export type FetchPolicy =
+  | 'cache-first'
+  | 'cache-and-network'
+  | 'network-only'
+  | 'cache-only'
+  | 'no-cache'
+  | 'standby';
+
+export type ApolloQueryResult<TData> = {
+  data: TData,
+  errors?: GraphQLError[],
+  loading: boolean,
+  networkStatus: NetworkStatus,
+  stale: boolean,
+};
+
+export type OperationVariables = { [key: string]: any };
+
+export type FetchMoreQueryOptions = {
+  query?: DocumentNode,
+  variables?: { [key: string]: any },
+};
+
+export type FetchMoreOptions<TData, TVariables> = {
+  updateQuery: (
+    previousQueryResult: TData,
+    options: {
+      fetchMoreResult?: TData,
+      variables: TVariables,
+    },
+  ) => TData,
+};
+
+export type ApolloClient = any;
+
+export type ApolloError = Error;
