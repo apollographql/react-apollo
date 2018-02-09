@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, {
+  ApolloError,
   ObservableQuery,
   ApolloQueryResult,
 } from 'apollo-client';
@@ -583,7 +584,12 @@ export default function graphql<
         } else {
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
-          const { loading, error, networkStatus } = currentResult;
+          const { loading, networkStatus, errors } = currentResult;
+          let { error } = currentResult;
+          // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
+          if (errors && errors.length > 0) {
+            error = new ApolloError({ graphQLErrors: errors });
+          }
           assign(data, { loading, networkStatus });
 
           // Define the error property on the data object. If the user does

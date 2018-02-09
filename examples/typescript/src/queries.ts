@@ -1,15 +1,15 @@
-import gql from 'graphql-tag'
+import gql from 'graphql-tag';
 
 export const GetCharacter = gql`
-query GetCharacter($episode: Episode!) {
+  query GetCharacter($episode: Episode!) {
     hero(episode: $episode) {
+      name
+      id
+      friends {
         name
         id
-        friends {
-            name
-            id
-            appearsIn
-        }
+        appearsIn
+      }
     }
-}
-`
+  }
+`;
