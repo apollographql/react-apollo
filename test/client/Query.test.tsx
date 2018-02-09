@@ -947,6 +947,81 @@ describe('Query component', () => {
 
       wrapper = mount(<Component />);
     });
+
+    it('with data while loading', done => {
+      const query = gql`
+        query people($first: Int) {
+          allPeople(first: $first) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+      const mocks = [
+        {
+          request: { query, variables: { first: 1 } },
+          result: { data: data1 },
+        },
+        {
+          request: { query, variables: { first: 2 } },
+          result: { data: data2 },
+        },
+      ];
+
+      let count = 0;
+
+      class Component extends React.Component {
+        state = {
+          variables: {
+            first: 1,
+          },
+        };
+
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({
+              variables: {
+                first: 2,
+              },
+            });
+          }, 50);
+        }
+
+        render() {
+          const { variables } = this.state;
+
+          return (
+            <AllPeopleQuery query={query} variables={variables}>
+              {result => {
+                
+                catchAsyncError(done, () => {
+                  if (result.loading && count === 2) {
+                    expect(stripSymbols(result.data)).toEqual(data1);
+                    done();
+                    
+                  }
+
+                  return null;
+                });
+
+                count++;
+                return null;
+              }}
+            </AllPeopleQuery>
+          );
+        }
+      }
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks} removeTypename>
+          <Component />
+        </MockedProvider>,
+      );
+    });
   });
 
   it('should error if the query changes type to a subscription', done => {

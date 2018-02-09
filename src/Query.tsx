@@ -131,6 +131,7 @@ class Query<
   private client: ApolloClient<Object>;
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
+  private previousData: any = {};
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -274,7 +275,18 @@ class Query<
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     const { result } = this.state;
-    const { loading, error, networkStatus, data } = result;
+    const { loading, error, networkStatus } = result;
+    let data = {} as any;
+
+    if (loading) {
+      Object.assign(data, this.previousData, result.data);
+    } else if (error) {
+      Object.assign(data, (this.queryObservable.getLastResult() || {}).data);
+    } else {
+      data = result.data
+      this.previousData = result.data;
+    }
+
     return {
       client: this.client,
       data: isDataFilled(data) ? data : undefined,
