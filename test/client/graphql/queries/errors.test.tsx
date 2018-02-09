@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, graphql, Query, QueryResult } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { ChildProps } from '../../../../src/browser';
@@ -63,7 +63,7 @@ describe('[queries] errors', () => {
         <ErrorBoundary>
           <ContainerWithData />
         </ErrorBoundary>
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -92,7 +92,7 @@ describe('[queries] errors', () => {
     const wrapper = renderer.create(
       <ApolloProvider client={client}>
         <ContainerWithData />
-      </ApolloProvider>,
+      </ApolloProvider>
     ) as any;
 
     try {
@@ -133,13 +133,13 @@ describe('[queries] errors', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
     renderer.create(
       <ApolloProvider client={client}>
         <ErrorContainer />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -177,7 +177,7 @@ describe('[queries] errors', () => {
         {
           request: { query, variables: var2 },
           error: new Error('boo'),
-        },
+        }
       );
       const client = new ApolloClient({
         link,
@@ -201,7 +201,7 @@ describe('[queries] errors', () => {
               iteration += 1;
               if (iteration === 1) {
                 expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
+                  data.allPeople
                 );
                 props.setVar(2);
               } else if (iteration === 2) {
@@ -219,14 +219,14 @@ describe('[queries] errors', () => {
             render() {
               return null;
             }
-          },
-        ),
+          }
+        )
       );
 
       renderer.create(
         <ApolloProvider client={client}>
           <ErrorContainer />
-        </ApolloProvider>,
+        </ApolloProvider>
       );
     });
   });
@@ -274,7 +274,7 @@ describe('[queries] errors', () => {
                 break;
               case 1:
                 expect(this.props.data!.error!.message).toEqual(
-                  'Network error: oops',
+                  'Network error: oops'
                 );
                 break;
               default:
@@ -291,7 +291,7 @@ describe('[queries] errors', () => {
       renderer.create(
         <ApolloProvider client={client}>
           <HandledErrorComponent />
-        </ApolloProvider>,
+        </ApolloProvider>
       );
 
       setTimeout(() => {
@@ -365,7 +365,7 @@ describe('[queries] errors', () => {
       renderer.create(
         <ApolloProvider client={client}>
           <UnhandledErrorComponent />
-        </ApolloProvider>,
+        </ApolloProvider>
       );
 
       setTimeout(() => {
@@ -373,7 +373,7 @@ describe('[queries] errors', () => {
           expect(renderCount).toBe(2);
           expect(errorMock.mock.calls.length).toBe(1);
           expect(errorMock.mock.calls[0][0]).toEqual(
-            'Unhandled (in react-apollo:Apollo(UnhandledErrorComponent))',
+            'Unhandled (in react-apollo:Apollo(UnhandledErrorComponent))'
           );
           resolve();
         } catch (error) {
@@ -398,7 +398,7 @@ describe('[queries] errors', () => {
     type Data = typeof data;
     const link = mockSingleLink(
       { request: { query }, result: { data } },
-      { request: { query }, error: new Error('No Network Connection') },
+      { request: { query }, error: new Error('No Network Connection') }
     );
     const client = new ApolloClient({
       link,
@@ -415,21 +415,21 @@ describe('[queries] errors', () => {
             switch (count++) {
               case 0:
                 expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
+                  data.allPeople
                 );
                 props.data!.refetch().catch(() => null);
                 break;
               case 1:
                 expect(props.data!.loading).toBeTruthy();
                 expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
+                  data.allPeople
                 );
                 break;
               case 2:
                 expect(props.data!.loading).toBeFalsy();
                 expect(props.data!.error).toBeTruthy();
                 expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
+                  data.allPeople
                 );
                 done();
                 break;
@@ -444,13 +444,13 @@ describe('[queries] errors', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
     renderer.create(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -471,7 +471,7 @@ describe('[queries] errors', () => {
     const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, error: new Error('This is an error!') },
-      { request: { query }, result: { data: dataTwo } },
+      { request: { query }, result: { data: dataTwo } }
     );
     const client = new ApolloClient({
       link,
@@ -517,7 +517,7 @@ describe('[queries] errors', () => {
                 expect(props.data!.loading).toBeFalsy();
                 expect(props.data!.error).toBeFalsy();
                 expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  dataTwo.allPeople,
+                  dataTwo.allPeople
                 );
                 done();
                 break;
@@ -532,13 +532,115 @@ describe('[queries] errors', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
     renderer.create(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
+  });
+  describe('errorPolicy', () => {
+    it('passes any GraphQL errors in props along with data', done => {
+      const query: DocumentNode = gql`
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+      const link = mockSingleLink({
+        request: { query },
+        result: {
+          data: {
+            allPeople: {
+              people: null,
+            },
+          },
+          errors: [new Error('this is an error')],
+        },
+      });
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      const ErrorContainer = graphql(query, {
+        options: { errorPolicy: 'all' },
+      })(
+        class extends React.Component<ChildProps> {
+          componentWillReceiveProps({ data }: ChildProps) {
+            expect(data!.error).toBeTruthy();
+            expect(data!.error!.graphQLErrors[0].message).toEqual(
+              'this is an error'
+            );
+            expect(data).toMatchObject({ allPeople: { people: null } });
+            done();
+          }
+          render() {
+            return null;
+          }
+        }
+      );
+
+      renderer.create(
+        <ApolloProvider client={client}>
+          <ErrorContainer />
+        </ApolloProvider>
+      );
+    });
+    it('passes any GraphQL errors in props along with data [component]', done => {
+      const query: DocumentNode = gql`
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+      const link = mockSingleLink({
+        request: { query },
+        result: {
+          data: {
+            allPeople: {
+              people: null,
+            },
+          },
+          errors: [new Error('this is an error')],
+        },
+      });
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      class ErrorContainer extends React.Component<QueryResult> {
+        componentWillReceiveProps(props: QueryResult) {
+          expect(props.error).toBeTruthy();
+          expect(props.error!.graphQLErrors[0].message).toEqual(
+            'this is an error'
+          );
+          expect(props.data!.allPeople!).toMatchObject({ people: null });
+          done();
+        }
+        render() {
+          return null;
+        }
+      }
+
+      renderer.create(
+        <ApolloProvider client={client}>
+          <Query query={query} errorPolicy="all">
+            {props => <ErrorContainer {...props} />}
+          </Query>
+        </ApolloProvider>
+      );
+    });
   });
 });

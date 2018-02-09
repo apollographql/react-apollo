@@ -5,6 +5,7 @@ import ApolloClient, {
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
+  ErrorPolicy,
   ApolloCurrentResult,
   NetworkStatus,
 } from 'apollo-client';
@@ -24,7 +25,7 @@ export interface FetchMoreOptions<TData, TVariables> {
     options: {
       fetchMoreResult?: TData;
       variables: TVariables;
-    },
+    }
   ) => TData;
 }
 
@@ -33,6 +34,7 @@ export interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
   variables: Pick<TVariables, K>;
 }
 
+// XXX open types improvement PR to AC
 // Improved ObservableQuery field types, need to port them back to Apollo Client
 export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData>,
@@ -41,25 +43,25 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
   refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>;
   fetchMore: (<K extends keyof TVariables>(
     fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> &
-      FetchMoreOptions<TData, TVariables>,
+      FetchMoreOptions<TData, TVariables>
   ) => Promise<ApolloQueryResult<TData>>) &
     (<TData2, TVariables2, K extends keyof TVariables2>(
       fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<
         TVariables2,
         K
       > &
-        FetchMoreOptions<TData2, TVariables2>,
+        FetchMoreOptions<TData2, TVariables2>
     ) => Promise<ApolloQueryResult<TData2>>);
   updateQuery: (
     mapFn: (
       previousQueryResult: TData,
-      options: { variables?: TVariables },
-    ) => TData,
+      options: { variables?: TVariables }
+    ) => TData
   ) => void;
 };
 
 function observableQueryFields<TData, TVariables>(
-  observable: ObservableQuery<TData>,
+  observable: ObservableQuery<TData>
 ): ObservableQueryFields<TData, TVariables> {
   const fields = pick(
     observable,
@@ -67,7 +69,7 @@ function observableQueryFields<TData, TVariables>(
     'fetchMore',
     'updateQuery',
     'startPolling',
-    'stopPolling',
+    'stopPolling'
   );
 
   Object.keys(fields).forEach(key => {
@@ -104,6 +106,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
 export interface QueryProps<TData = any, TVariables = OperationVariables> {
   children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
+  errorPolicy?: ErrorPolicy;
   notifyOnNetworkStatusChange?: boolean;
   pollInterval?: number;
   query: DocumentNode;
@@ -138,7 +141,7 @@ class Query<
 
     invariant(
       !!context.client,
-      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`,
+      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`
     );
     this.client = context.client;
 
@@ -177,7 +180,7 @@ class Query<
 
   componentWillReceiveProps(
     nextProps: QueryProps<TData, TVariables>,
-    nextContext: QueryContext,
+    nextContext: QueryContext
   ) {
     if (
       shallowEqual(this.props, nextProps) &&
@@ -206,12 +209,13 @@ class Query<
   }
 
   private initializeQueryObservable = (
-    props: QueryProps<TData, TVariables>,
+    props: QueryProps<TData, TVariables>
   ) => {
     const {
       variables,
       pollInterval,
       fetchPolicy,
+      errorPolicy,
       notifyOnNetworkStatusChange,
       query,
     } = props;
@@ -222,7 +226,7 @@ class Query<
       operation.type === DocumentType.Query,
       `The <Query /> component requires a graphql query, but got a ${
         operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
-      }.`,
+      }.`
     );
 
     const clientOptions = {
@@ -230,6 +234,7 @@ class Query<
       pollInterval,
       query,
       fetchPolicy,
+      errorPolicy,
       notifyOnNetworkStatusChange,
     };
 
@@ -275,7 +280,12 @@ class Query<
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     const { result } = this.state;
-    const { loading, error, networkStatus } = result;
+    const { loading, networkStatus, errors } = result;
+    let { error } = result;
+    // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
+    if (errors && errors.length > 0) {
+      error = new ApolloError({ graphQLErrors: errors });
+    }
     let data = {} as any;
 
     if (loading) {
@@ -283,7 +293,7 @@ class Query<
     } else if (error) {
       Object.assign(data, (this.queryObservable.getLastResult() || {}).data);
     } else {
-      data = result.data
+      data = result.data;
       this.previousData = result.data;
     }
 

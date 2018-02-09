@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, {
+  ApolloError,
   ObservableQuery,
   ApolloQueryResult,
 } from 'apollo-client';
@@ -36,7 +37,7 @@ type ObservableQueryFields<TData> = Pick<
 
 // the fields we want to copy over to our data prop
 function observableQueryFields<TData>(
-  observable: ObservableQuery<TData>,
+  observable: ObservableQuery<TData>
 ): ObservableQueryFields<TData> {
   const fields = pick(
     observable,
@@ -46,7 +47,7 @@ function observableQueryFields<TData>(
     'updateQuery',
     'startPolling',
     'stopPolling',
-    'subscribeToMore',
+    'subscribeToMore'
   );
 
   Object.keys(fields).forEach(key => {
@@ -84,7 +85,7 @@ export default function graphql<
     TData,
     TGraphQLVariables,
     TChildProps
-  > = {},
+  > = {}
 ) {
   // extract options
   const {
@@ -109,7 +110,7 @@ export default function graphql<
   const version = nextVersion++;
 
   function wrapWithApolloComponent(
-    WrappedComponent: React.ComponentType<TChildProps & TProps>,
+    WrappedComponent: React.ComponentType<TChildProps & TProps>
   ): React.ComponentClass<TProps> {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
@@ -192,7 +193,7 @@ export default function graphql<
 
       componentWillReceiveProps(
         nextProps: GraphqlProps,
-        nextContext: GraphqlContext,
+        nextContext: GraphqlContext
       ) {
         if (this.shouldSkip(nextProps)) {
           if (!this.shouldSkip(this.props)) {
@@ -294,7 +295,7 @@ export default function graphql<
           !!this.client,
           `Could not find "client" in the context of ` +
             `"${graphQLDisplayName}". ` +
-            `Wrap the root component in an <ApolloProvider>`,
+            `Wrap the root component in an <ApolloProvider>`
         );
 
         return this.client;
@@ -331,12 +332,12 @@ export default function graphql<
           invariant(
             typeof variableProp !== 'undefined',
             `The operation '${operation.name}' wrapping '${getDisplayName(
-              WrappedComponent,
+              WrappedComponent
             )}' ` +
               `is expecting a variable: '${
                 variable.name.value
               }' but it was not found in the props ` +
-              `passed to '${graphQLDisplayName}'`,
+              `passed to '${graphQLDisplayName}'`
           );
         }
         opts = { ...opts, variables };
@@ -344,7 +345,7 @@ export default function graphql<
       }
 
       calculateResultProps(
-        result: (GraphqlQueryControls & TData) | MutationFunc<TData>,
+        result: (GraphqlQueryControls & TData) | MutationFunc<TData>
       ) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
@@ -373,7 +374,7 @@ export default function graphql<
       createQuery(opts: QueryOpts, props: any = this.props) {
         if (this.type === DocumentType.Subscription) {
           this.queryObservable = this.getClient(props).subscribe(
-            assign({ query: document }, opts),
+            assign({ query: document }, opts)
           );
         } else {
           // Try to reuse an `ObservableQuery` instance from our recycler. If
@@ -394,8 +395,8 @@ export default function graphql<
                     },
                   },
                 },
-                opts,
-              ),
+                opts
+              )
             );
           } else {
             this.queryObservable = queryObservable;
@@ -448,7 +449,7 @@ export default function graphql<
         }
 
         const observable = this.getClient(this.props).watchQuery(
-          assign({ query: document }, opts),
+          assign({ query: document }, opts)
         );
         const result = observable.currentResult();
 
@@ -476,7 +477,7 @@ export default function graphql<
             `the result of the '${graphQLDisplayName}' operation contains ` +
               `keys that conflict with the return object.` +
               clashingKeys.map(k => `'${k}'`).join(', ') +
-              ` not allowed.`,
+              ` not allowed.`
           );
 
           this.forceRenderChildren();
@@ -541,7 +542,7 @@ export default function graphql<
         invariant(
           operationOptions.withRef,
           `To access the wrapped instance, you need to specify ` +
-            `{ withRef: true } in the options`,
+            `{ withRef: true } in the options`
         );
 
         return this.wrappedInstance;
@@ -578,12 +579,17 @@ export default function graphql<
               loading: !this.lastSubscriptionData,
               variables: opts.variables,
             },
-            this.lastSubscriptionData && this.lastSubscriptionData.data,
+            this.lastSubscriptionData && this.lastSubscriptionData.data
           );
         } else {
           // fetch the current result (if any) from the store
           const currentResult = this.queryObservable.currentResult();
-          const { loading, error, networkStatus } = currentResult;
+          const { loading, networkStatus, errors } = currentResult;
+          let { error } = currentResult;
+          // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
+          if (errors && errors.length > 0) {
+            error = new ApolloError({ graphQLErrors: errors });
+          }
           assign(data, { loading, networkStatus });
 
           // Define the error property on the data object. If the user does
@@ -605,7 +611,7 @@ export default function graphql<
 
               console.error(
                 `Unhandled (in react-apollo:${graphQLDisplayName})`,
-                errorMessage,
+                errorMessage
               );
             }
           }, 10);
