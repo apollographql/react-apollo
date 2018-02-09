@@ -1,10 +1,9 @@
 import * as React from 'react';
 import ApolloClient, { NetworkStatus } from 'apollo-client';
-import gql from 'graphql-tag';
 import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import ApolloProvider from '../../src/ApolloProvider';
-import Query from '../../src/Query';
+import { Query, gql } from '../../src';
 import { MockedProvider, mockSingleLink } from '../../src/test-utils';
 import catchAsyncError from '../test-utils/catchAsyncError';
 import stripSymbols from '../test-utils/stripSymbols';
@@ -997,12 +996,10 @@ describe('Query component', () => {
           return (
             <AllPeopleQuery query={query} variables={variables}>
               {result => {
-                
                 catchAsyncError(done, () => {
                   if (result.loading && count === 2) {
                     expect(stripSymbols(result.data)).toEqual(data1);
                     done();
-                    
                   }
 
                   return null;

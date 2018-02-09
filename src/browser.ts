@@ -20,3 +20,7 @@ export * from './types';
 // XXX remove in the next breaking semver change (3.0)
 const compose = require('lodash/flowRight');
 export { compose };
+
+// make it easy to use gql when creating components
+// NOTE this should tree shake away if it isn't used
+export { default as gql } from 'graphql-tag';
