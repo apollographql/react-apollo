@@ -2,6 +2,8 @@
 
 ### vNext
 
+* Fix errorPolicy when 'all' not passing data and errors
+
 ### 2.1.0-beta.2
 
 * Rollback importing non esm packages. Fixes the previous broken version [#1621](https://github.com/apollographql/react-apollo/pull/1621)

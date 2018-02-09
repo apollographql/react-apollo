@@ -997,12 +997,10 @@ describe('Query component', () => {
           return (
             <AllPeopleQuery query={query} variables={variables}>
               {result => {
-                
                 catchAsyncError(done, () => {
                   if (result.loading && count === 2) {
                     expect(stripSymbols(result.data)).toEqual(data1);
                     done();
-                    
                   }
 
                   return null;
