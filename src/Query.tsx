@@ -25,7 +25,7 @@ export interface FetchMoreOptions<TData, TVariables> {
     options: {
       fetchMoreResult?: TData;
       variables: TVariables;
-    }
+    },
   ) => TData;
 }
 
@@ -43,25 +43,25 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
   refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>;
   fetchMore: (<K extends keyof TVariables>(
     fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> &
-      FetchMoreOptions<TData, TVariables>
+      FetchMoreOptions<TData, TVariables>,
   ) => Promise<ApolloQueryResult<TData>>) &
     (<TData2, TVariables2, K extends keyof TVariables2>(
       fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<
         TVariables2,
         K
       > &
-        FetchMoreOptions<TData2, TVariables2>
+        FetchMoreOptions<TData2, TVariables2>,
     ) => Promise<ApolloQueryResult<TData2>>);
   updateQuery: (
     mapFn: (
       previousQueryResult: TData,
-      options: { variables?: TVariables }
-    ) => TData
+      options: { variables?: TVariables },
+    ) => TData,
   ) => void;
 };
 
 function observableQueryFields<TData, TVariables>(
-  observable: ObservableQuery<TData>
+  observable: ObservableQuery<TData>,
 ): ObservableQueryFields<TData, TVariables> {
   const fields = pick(
     observable,
@@ -69,7 +69,7 @@ function observableQueryFields<TData, TVariables>(
     'fetchMore',
     'updateQuery',
     'startPolling',
-    'stopPolling'
+    'stopPolling',
   );
 
   Object.keys(fields).forEach(key => {
@@ -141,7 +141,7 @@ class Query<
 
     invariant(
       !!context.client,
-      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`
+      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`,
     );
     this.client = context.client;
 
@@ -180,7 +180,7 @@ class Query<
 
   componentWillReceiveProps(
     nextProps: QueryProps<TData, TVariables>,
-    nextContext: QueryContext
+    nextContext: QueryContext,
   ) {
     if (
       shallowEqual(this.props, nextProps) &&
@@ -209,7 +209,7 @@ class Query<
   }
 
   private initializeQueryObservable = (
-    props: QueryProps<TData, TVariables>
+    props: QueryProps<TData, TVariables>,
   ) => {
     const {
       variables,
@@ -226,7 +226,7 @@ class Query<
       operation.type === DocumentType.Query,
       `The <Query /> component requires a graphql query, but got a ${
         operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
-      }.`
+      }.`,
     );
 
     const clientOptions = {
