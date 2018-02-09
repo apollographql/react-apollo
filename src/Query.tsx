@@ -5,6 +5,7 @@ import ApolloClient, {
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
+  ErrorPolicy,
   ApolloCurrentResult,
   NetworkStatus,
 } from 'apollo-client';
@@ -32,6 +33,7 @@ export interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
   variables: Pick<TVariables, K>;
 }
 
+// XXX open types improvement PR to AC
 // Improved ObservableQuery field types, need to port them back to Apollo Client
 export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData>,
@@ -89,6 +91,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
 export interface QueryProps<TData = any, TVariables = OperationVariables> {
   children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
+  errorPolicy?: ErrorPolicy;
   notifyOnNetworkStatusChange?: boolean;
   pollInterval?: number;
   query: DocumentNode;
@@ -116,6 +119,7 @@ class Query<
   private client: ApolloClient<Object>;
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
+  private previousData: any = {};
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -196,6 +200,7 @@ class Query<
       variables,
       pollInterval,
       fetchPolicy,
+      errorPolicy,
       notifyOnNetworkStatusChange,
       query,
     } = props;
@@ -214,6 +219,7 @@ class Query<
       pollInterval,
       query,
       fetchPolicy,
+      errorPolicy,
       notifyOnNetworkStatusChange,
     };
 
@@ -259,7 +265,23 @@ class Query<
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     const { result } = this.state;
-    const { loading, error, networkStatus, data } = result;
+    const { loading, networkStatus, errors } = result;
+    let { error } = result;
+    // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
+    if (errors && errors.length > 0) {
+      error = new ApolloError({ graphQLErrors: errors });
+    }
+    let data = {} as any;
+
+    if (loading) {
+      Object.assign(data, this.previousData, result.data);
+    } else if (error) {
+      Object.assign(data, (this.queryObservable.getLastResult() || {}).data);
+    } else {
+      data = result.data;
+      this.previousData = result.data;
+    }
+
     return {
       client: this.client,
       data: isDataFilled(data) ? data : undefined,
