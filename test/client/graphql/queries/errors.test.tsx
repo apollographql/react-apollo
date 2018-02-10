@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, graphql, Query, QueryResult } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { ChildProps } from '../../../../src/browser';
@@ -540,5 +540,107 @@ describe('[queries] errors', () => {
         <Container />
       </ApolloProvider>,
     );
+  });
+  describe('errorPolicy', () => {
+    it('passes any GraphQL errors in props along with data', done => {
+      const query: DocumentNode = gql`
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+      const link = mockSingleLink({
+        request: { query },
+        result: {
+          data: {
+            allPeople: {
+              people: null,
+            },
+          },
+          errors: [new Error('this is an error')],
+        },
+      });
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      const ErrorContainer = graphql(query, {
+        options: { errorPolicy: 'all' },
+      })(
+        class extends React.Component<ChildProps> {
+          componentWillReceiveProps({ data }: ChildProps) {
+            expect(data!.error).toBeTruthy();
+            expect(data!.error!.graphQLErrors[0].message).toEqual(
+              'this is an error',
+            );
+            expect(data).toMatchObject({ allPeople: { people: null } });
+            done();
+          }
+          render() {
+            return null;
+          }
+        },
+      );
+
+      renderer.create(
+        <ApolloProvider client={client}>
+          <ErrorContainer />
+        </ApolloProvider>,
+      );
+    });
+    it('passes any GraphQL errors in props along with data [component]', done => {
+      const query: DocumentNode = gql`
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+      const link = mockSingleLink({
+        request: { query },
+        result: {
+          data: {
+            allPeople: {
+              people: null,
+            },
+          },
+          errors: [new Error('this is an error')],
+        },
+      });
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      class ErrorContainer extends React.Component<QueryResult> {
+        componentWillReceiveProps(props: QueryResult) {
+          expect(props.error).toBeTruthy();
+          expect(props.error!.graphQLErrors[0].message).toEqual(
+            'this is an error',
+          );
+          expect(props.data!.allPeople!).toMatchObject({ people: null });
+          done();
+        }
+        render() {
+          return null;
+        }
+      }
+
+      renderer.create(
+        <ApolloProvider client={client}>
+          <Query query={query} errorPolicy="all">
+            {props => <ErrorContainer {...props} />}
+          </Query>
+        </ApolloProvider>,
+      );
+    });
   });
 });
