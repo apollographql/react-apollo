@@ -26,7 +26,7 @@ describe('statics', () => {
     class ApolloContainer extends React.Component<any, any> {}
 
     expect((ApolloContainer as any).displayName).toBe(
-      'withApollo(Apollo(ApolloContainer))',
+      'Apollo(ApolloContainer)',
     );
   });
 
@@ -37,6 +37,6 @@ describe('statics', () => {
       },
     );
 
-    expect((ApolloContainer as any).displayName).toBe('withApollo(Apollo(Foo))');
+    expect((ApolloContainer as any).displayName).toBe('Apollo(Foo)');
   });
 });

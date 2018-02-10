@@ -375,7 +375,6 @@ describe('shared operations', () => {
     expect((decorated as any).getWrappedInstance().someMethod()).toEqual(
       testData,
     );
-    expect((decorated as any).wrappedInstance.someMethod()).toEqual(testData);
 
     const DecoratedWithSkip = graphql(query, { withRef: true, skip: true })(
       Container,
@@ -396,9 +395,6 @@ describe('shared operations', () => {
     expect(
       (decoratedWithSkip as any).getWrappedInstance().someMethod(),
     ).toEqual(testData);
-    expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(
-      testData,
-    );
   });
 
   it('allows options to take an object', done => {

@@ -640,6 +640,6 @@ describe('queries', () => {
     }
 
     // Not sure why I have to cast Container to any
-    expect((Container as any).displayName).toEqual('withApollo(withFoo(Container))');
+    expect((Container as any).displayName).toEqual('withFoo(Container)');
   });
 });

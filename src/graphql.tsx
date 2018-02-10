@@ -19,7 +19,7 @@ import {
   MutateProps,
 } from './types';
 import { OperationVariables } from './index';
-import withApollo from './withApollo';
+import ApolloConsumer from './ApolloConsumer';
 
 const pick = require('lodash/pick');
 const assign = require('object-assign');
@@ -115,8 +115,9 @@ export default function graphql<
   ): React.ComponentClass<TProps> {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
 
-    type GraphqlProps = TProps & { client: ApolloClient<any> };
-
+    type ApolloContext = { client: ApolloClient<any> };
+    type GraphqlProps = TProps & ApolloContext;
+    
     class GraphQL extends React.Component<GraphqlProps> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
@@ -186,7 +187,7 @@ export default function graphql<
         }
       }
 
-      componentWillReceiveProps(nextProps: Readonly<GraphqlProps>) {
+      componentWillReceiveProps(nextProps: GraphqlProps) {
         if (this.shouldSkip(nextProps)) {
           if (!this.shouldSkip(this.props)) {
             // if this has changed, we better unsubscribe
@@ -385,9 +386,10 @@ export default function graphql<
         }
       }
 
-      updateQuery(props: Readonly<GraphqlProps>) {
+      updateQuery(props: GraphqlProps) {
         const opts = this.calculateOptions(props) as QueryOpts;
-
+        
+        console.log(opts);
         // if we skipped initially, we may not have yet created the observable
         if (!this.queryObservable) {
           this.createQuery(opts, props);
@@ -662,12 +664,37 @@ export default function graphql<
       }
     }
 
+    class GraphQLWrapper extends React.Component<TProps> {
+      static displayName = graphQLDisplayName;
+      private graphql: GraphQL;
+
+      getWrappedInstance() {
+        return this.graphql.getWrappedInstance();
+      }
+
+      setWrappedInstance(ref: React.ComponentClass<TChildProps>) {
+        return this.graphql.setWrappedInstance(ref);
+      }
+
+      render() {
+        return (
+          <ApolloConsumer>
+            {client => (
+              <GraphQL
+                {...this.props}
+                client={client}
+                ref={graphql => {
+                  this.graphql = graphql;
+                }}
+              />
+            )}
+          </ApolloConsumer>
+        );
+      }
+    }
+
     // Make sure we preserve any custom statics on the original component.
-    return hoistNonReactStatics(
-      withApollo(GraphQL, operationOptions),
-      WrappedComponent,
-      {},
-    );
+    return hoistNonReactStatics(GraphQLWrapper, WrappedComponent, {});
   }
 
   return wrapWithApolloComponent;
