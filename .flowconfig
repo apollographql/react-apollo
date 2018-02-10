@@ -1,8 +1,6 @@
 [ignore]
 .*/npm/**/.*
 .*/examples/**/.*
-.*/node_modules/art/.*
-.*/node_modules/react-native/**/.*
 
 [include]
 
