@@ -187,7 +187,7 @@ export default function graphql<
         }
       }
 
-      componentWillReceiveProps(nextProps: GraphqlProps) {
+      componentWillReceiveProps(nextProps: Readonly<GraphqlProps>) {        
         if (this.shouldSkip(nextProps)) {
           if (!this.shouldSkip(this.props)) {
             // if this has changed, we better unsubscribe
@@ -271,7 +271,7 @@ export default function graphql<
         );
       }
 
-      getClient<Cache>(props: GraphqlProps): ApolloClient<Cache> {
+      getClient<Cache>(props: Readonly<GraphqlProps>): ApolloClient<Cache> {
         if (this.client) return this.client;
         const { client } = mapPropsToOptions(props);
 
@@ -386,10 +386,9 @@ export default function graphql<
         }
       }
 
-      updateQuery(props: GraphqlProps) {
+      updateQuery(props: Readonly<GraphqlProps>) {
         const opts = this.calculateOptions(props) as QueryOpts;
         
-        console.log(opts);
         // if we skipped initially, we may not have yet created the observable
         if (!this.queryObservable) {
           this.createQuery(opts, props);
@@ -666,14 +665,18 @@ export default function graphql<
 
     class GraphQLWrapper extends React.Component<TProps> {
       static displayName = graphQLDisplayName;
-      private graphql: GraphQL;
+      private graphql: GraphQL | null;
 
       getWrappedInstance() {
-        return this.graphql.getWrappedInstance();
+        if (this.graphql) {
+          return this.graphql.getWrappedInstance();
+        }
       }
 
       setWrappedInstance(ref: React.ComponentClass<TChildProps>) {
-        return this.graphql.setWrappedInstance(ref);
+        if (this.graphql) {
+          return this.graphql.setWrappedInstance(ref);
+        }
       }
 
       render() {
