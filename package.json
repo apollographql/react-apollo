@@ -93,7 +93,7 @@
     "@types/prop-types": "15.5.2",
     "@types/react": "16.0.35",
     "@types/react-dom": "16.0.3",
-    "@types/react-test-renderer": "16.0.0",
+    "@types/react-test-renderer": "16.0.1",
     "@types/recompose": "0.24.4",
     "@types/zen-observable": "0.5.3",
     "apollo-cache-inmemory": "1.1.7",
