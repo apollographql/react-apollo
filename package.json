@@ -94,7 +94,7 @@
     "@types/react": "16.0.35",
     "@types/react-dom": "16.0.3",
     "@types/react-test-renderer": "16.0.1",
-    "@types/recompose": "0.24.4",
+    "@types/recompose": "0.24.5",
     "@types/zen-observable": "0.5.3",
     "apollo-cache-inmemory": "1.1.7",
     "apollo-client": "2.2.3",
