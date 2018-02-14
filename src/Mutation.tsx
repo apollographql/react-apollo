@@ -24,6 +24,7 @@ export interface ExecutionResult<T = {[key: string]: any }> {
     errors?: GraphQLError[];
 }
 
+// Improved MutationUpdaterFn type, need to port them back to Apollo Client
 export declare type MutationUpdaterFn<T = {
     [key: string]: any;
 }> = (proxy: DataProxy, mutationResult: FetchResult<T>) => void;
@@ -33,14 +34,17 @@ export declare type FetchResult<C = Record<string, any>, E = Record<string, any>
     context?: C;
 };
 
+export declare type MutationOptions<TVariables = OperationVariables> = {
+  variables?: TVariables 
+};
+
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
-  variables?: TVariables;
   optimisticResponse?: Object;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn<TData>;
   children: (
-    mutateFn: () => void,
+    mutateFn: (options?: MutationOptions<TVariables>) => void,
     result?: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
@@ -131,16 +135,14 @@ class Mutation<
     return children(this.runMutation, result);
   }
 
-  private runMutation = async () => {
+  private runMutation = async (options: MutationOptions<TVariables> = {}) => {
     this.onStartMutation();
     
-    this.mostRecentMutationId = this.mostRecentMutationId + 1;
-    const mutationId = this.mostRecentMutationId;
+    const mutationId = this.generateNewMutationId();
     
     let response;
-    
     try {
-      response = await this.mutate();
+      response = await this.mutate(options);
     } catch (e) {
       this.onMutationError(e, mutationId);
       return;
@@ -149,25 +151,24 @@ class Mutation<
     this.onCompletedMutation(response, mutationId);
   };
 
-  private mutate = async () => {
+  private mutate = (options: MutationOptions<TVariables>) => {
     
     const {
       mutation,
-      variables,
       optimisticResponse,
       refetchQueries,
       update,
     } = this.props;
-
-    const response = await this.client.mutate({
+    
+    const { variables } = options;
+    
+    return this.client.mutate({
       mutation,
       variables,
       optimisticResponse,
       refetchQueries,
       update,
     });
-
-    return response;
   };
 
   private onStartMutation = () => {
@@ -193,7 +194,7 @@ class Mutation<
       }
     }
     
-    if (this.mostRecentMutationId === mutationId) {
+    if (this.isMostRecentMutation(mutationId)) {
       this.setState(
         {
           loading: false,
@@ -219,7 +220,7 @@ class Mutation<
       }
     }
 
-    if (this.mostRecentMutationId === mutationId) {
+    if (this.isMostRecentMutation(mutationId)) {
       this.setState(
         {
           loading: false,
@@ -234,6 +235,15 @@ class Mutation<
       callOnError();
     }
   };
+  
+  private generateNewMutationId = () => {
+    this.mostRecentMutationId = this.mostRecentMutationId + 1;
+    return this.mostRecentMutationId;
+  }
+  
+  private isMostRecentMutation = mutationId => {
+    return this.mostRecentMutationId === mutationId;
+  }
 
   private verifyDocumentIsMutation = mutation => {
     const operation = parser(mutation);

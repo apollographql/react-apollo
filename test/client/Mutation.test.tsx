@@ -41,17 +41,13 @@ const data2 = {
   __typename: 'Mutation',
 };
 
-const variables = {
-  text: 'play tennis',
-};
-
 const mocks = [
   {
-    request: { query: mutation, variables },
+    request: { query: mutation },
     result: { data },
   },
   {
-    request: { query: mutation, variables },
+    request: { query: mutation },
     result: { data: data2 },
   }
 ];
@@ -61,7 +57,7 @@ const cache = new Cache({ addTypename: false });
 it('performs a mutation', done => {
   let count = 0;
   const Component = () => (
-    <Mutation mutation={mutation} variables={variables}>
+    <Mutation mutation={mutation}>
       {(createTodo, result) => {
         if (count === 0) {
           expect(result).toBeUndefined();
@@ -92,6 +88,51 @@ it('performs a mutation', done => {
   );
 });
 
+it("performs a mutation with variables passed as an option", done => {
+  const variables = {
+    text: 'play tennis',
+  };
+  
+  let count = 0;
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          expect(result).toBeUndefined();
+          setTimeout(() => {
+            createTodo({ variables });
+          });
+        } else if (count === 1) {
+          expect(result).toEqual({
+            loading: true,
+          });
+        } else if (count === 2) {
+          expect(result).toEqual({
+            loading: false,
+            data,
+          });
+          done();
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+  
+  const mocks = [
+    {
+      request: { query: mutation, variables },
+      result: { data },
+    }
+  ];
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('only shows result for the latest mutation that is in flight', done => {
   let count = 0;
   
@@ -105,7 +146,7 @@ it('only shows result for the latest mutation that is in flight', done => {
     }
   }
   const Component = () => (
-    <Mutation mutation={mutation} variables={variables} onCompleted={onCompleted}>
+    <Mutation mutation={mutation} onCompleted={onCompleted}>
       {(createTodo, result) => {
         if (count === 0) {
           expect(result).toBeUndefined();
@@ -213,7 +254,6 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
       return (
         <Mutation
           mutation={mutation}
-          variables={variables}
           onCompleted={this.onCompleted}
         >
           {(createTodo, result) => {
@@ -243,7 +283,7 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
 
 it('renders result of the children render prop', () => {
   const Component = () => (
-    <Mutation mutation={mutation} variables={variables}>
+    <Mutation mutation={mutation} >
       {(createTodo, result) => {
         return <div />;
       }}
@@ -369,7 +409,6 @@ it('returns an optimistic response', done => {
   const Component = () => (
     <Mutation
       mutation={mutation}
-      variables={variables}
       optimisticResponse={optimisticResponse}
     >
       {(createTodo, result) => {
@@ -457,7 +496,6 @@ it('has refetchQueries in the props', done => {
   const Component = () => (
     <Mutation
       mutation={mutation}
-      variables={variables}
       refetchQueries={refetchQueries}
     >
       {(createTodo, resultMutation) => (
@@ -498,7 +536,7 @@ it('has an update prop for updating the store after the mutation', done => {
 
   let count = 0;
   const Component = () => (
-    <Mutation mutation={mutation} variables={variables} update={update}>
+    <Mutation mutation={mutation} update={update}>
       {(createTodo, result) => {
         if (count === 0) {
           setTimeout(() => {
@@ -520,7 +558,7 @@ it('has an update prop for updating the store after the mutation', done => {
 
 it('updates if the client changes', done => {
   const link1 = mockSingleLink({
-    request: { query: mutation, variables },
+    request: { query: mutation },
     result: { data },
   });
   const client1 = new ApolloClient({
@@ -539,7 +577,7 @@ it('updates if the client changes', done => {
   };
 
   const link2 = mockSingleLink({
-    request: { query: mutation, variables },
+    request: { query: mutation },
     result: { data: data2 },
   });
 
@@ -557,7 +595,7 @@ it('updates if the client changes', done => {
     render() {
       return (
         <ApolloProvider client={this.state.client}>
-          <Mutation mutation={mutation} variables={variables}>
+          <Mutation mutation={mutation}>
             {(createTodo, result) => {
               if (count === 0) {
                 expect(result).toBeUndefined();
