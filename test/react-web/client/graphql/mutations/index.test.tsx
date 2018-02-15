@@ -55,6 +55,48 @@ describe('[mutations]', () => {
     );
   });
 
+  it('binds a mutation to props when client option is specified', () => {
+    const query = gql`
+      mutation addPerson {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Darth Wader' }] } };
+    const link = mockSingleLink({
+      request: { query },
+      result: { data },
+    });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    const anotherClient = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    const ContainerWithData = graphql(query, {
+      options: () => ({
+        client: anotherClient
+      })
+    })(({ mutate }) => {
+      expect(mutate).toBeTruthy();
+      expect(typeof mutate).toBe('function');
+      return null;
+    });
+
+    renderer.create(
+      <ApolloProvider client={client}>
+          <ContainerWithData />
+      </ApolloProvider>,
+    );
+  });
+
   it('binds a mutation to custom props', () => {
     const query = gql`
       mutation addPerson {

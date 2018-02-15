@@ -189,6 +189,10 @@ export default function graphql<
           this.queryObservable = null;
           this.previousData = {};
 
+          if (this.type === DocumentType.Mutation) {
+            return;
+          }
+
           this.updateQuery(nextProps);
           if (!this.shouldSkip(nextProps)) {
             this.subscribeToQuery();
