@@ -350,13 +350,31 @@ export default function graphql<
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
-        const newResult: OptionProps<TProps, TData> = {
+        const newResult: OptionProps<TProps, TData> & {errors?: [ApolloError]} = {
           [name]: result,
           ownProps: this.props,
         };
+
+        let hasErrors = false;
+        if (this.queryObservable) {
+          const { errors } = this.queryObservable.currentResult();
+          hasErrors = errors && errors.length > 0;
+
+          if (hasErrors) {
+            newResult.errors = errors;
+          }
+        }
+
         if (mapResultToProps) return mapResultToProps(newResult);
 
-        return { [name]: defaultMapResultToProps(result) };
+        const resultProps: any = {
+          [name]: defaultMapResultToProps(result)
+        };
+        if (hasErrors) {
+          resultProps.errors = newResult.errors;
+        }
+
+        return resultProps;
       }
 
       setInitialProps() {
