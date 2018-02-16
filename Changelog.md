@@ -1,8 +1,8 @@
 # Change log
 
 ### vNext
-
 * HoC `props` result-mapping function now receives prior return value as second argument.
+* Fix errorPolicy when 'all' not passing data and errors
 
 ### 2.1.0-beta.2
 
