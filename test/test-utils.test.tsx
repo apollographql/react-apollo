@@ -4,8 +4,9 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 
-import { graphql } from '../src';
+import { graphql, ChildProps } from '../src';
 import { MockedProvider, mockSingleLink } from '../src/test-utils';
+import { DocumentNode } from 'graphql';
 
 const variables = {
   username: 'mock_username',
@@ -20,7 +21,7 @@ const user = {
   ...userWithoutTypeName,
 };
 
-const query = gql`
+const query: DocumentNode = gql`
   query GetUser($username: String!) {
     user(username: $username) {
       id
@@ -28,7 +29,7 @@ const query = gql`
     }
   }
 `;
-const queryWithoutTypename = gql`
+const queryWithoutTypename: DocumentNode = gql`
   query GetUser($username: String!) {
     user(username: $username) {
       id
@@ -36,17 +37,31 @@ const queryWithoutTypename = gql`
   }
 `;
 
-const withUser = graphql(queryWithoutTypename, {
+interface Data {
+  user: {
+    id: string;
+  };
+}
+
+interface Variables {
+  username: string;
+}
+
+const withUser = graphql<Variables, Data, Variables>(queryWithoutTypename, {
   options: props => ({
     variables: props,
   }),
 });
 
 it('mocks the data and adds the typename to the query', done => {
-  class Container extends React.Component {
-    componentWillReceiveProps(nextProps) {
+  class Container extends React.Component<
+    ChildProps<Variables, Data, Variables>
+  > {
+    componentWillReceiveProps(
+      nextProps: ChildProps<Variables, Data, Variables>,
+    ) {
       try {
-        expect(nextProps.data.user).toMatchSnapshot();
+        expect(nextProps.data!.user).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);
@@ -78,11 +93,15 @@ it('mocks the data and adds the typename to the query', done => {
 });
 
 it('errors if the variables in the mock and component do not match', done => {
-  class Container extends React.Component {
-    componentWillReceiveProps(nextProps) {
+  class Container extends React.Component<
+    ChildProps<Variables, Data, Variables>
+  > {
+    componentWillReceiveProps(
+      nextProps: ChildProps<Variables, Data, Variables>,
+    ) {
       try {
-        expect(nextProps.data.user).toBeUndefined();
-        expect(nextProps.data.error).toMatchSnapshot();
+        expect(nextProps.data!.user).toBeUndefined();
+        expect(nextProps.data!.error).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);
@@ -118,10 +137,14 @@ it('errors if the variables in the mock and component do not match', done => {
 });
 
 it('mocks a network error', done => {
-  class Container extends React.Component {
-    componentWillReceiveProps(nextProps) {
+  class Container extends React.Component<
+    ChildProps<Variables, Data, Variables>
+  > {
+    componentWillReceiveProps(
+      nextProps: ChildProps<Variables, Data, Variables>,
+    ) {
       try {
-        expect(nextProps.data.error).toEqual(
+        expect(nextProps.data!.error).toEqual(
           new Error('Network error: something went wrong'),
         );
         done();
@@ -155,10 +178,14 @@ it('mocks a network error', done => {
 });
 
 it('mocks the data without adding the typename', done => {
-  class Container extends React.Component {
-    componentWillReceiveProps(nextProps) {
+  class Container extends React.Component<
+    ChildProps<Variables, Data, Variables>
+  > {
+    componentWillReceiveProps(
+      nextProps: ChildProps<Variables, Data, Variables>,
+    ) {
       try {
-        expect(nextProps.data.user).toMatchSnapshot();
+        expect(nextProps.data!.user).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);
@@ -202,10 +229,14 @@ it('allows for passing a custom client', done => {
     cache: new InMemoryCache(),
   });
 
-  class Container extends React.Component {
-    componentWillReceiveProps(nextProps) {
+  class Container extends React.Component<
+    ChildProps<Variables, Data, Variables>
+  > {
+    componentWillReceiveProps(
+      nextProps: ChildProps<Variables, Data, Variables>,
+    ) {
       try {
-        expect(nextProps.data.user).toMatchSnapshot();
+        expect(nextProps.data!.user).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);

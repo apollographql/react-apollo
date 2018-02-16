@@ -5,11 +5,14 @@ declare module 'hoist-non-react-statics' {
    *
    * Returns the target component.
    */
-  function hoistNonReactStatics(
-    targetComponent: any,
-    sourceComponent: any,
+  function hoistNonReactStatics<
+    TTargetComponent extends React.ComponentType<any>,
+    TSourceComponent extends React.ComponentType<any>
+  >(
+    targetComponent: TTargetComponent,
+    sourceComponent: TSourceComponent,
     customStatics: { [name: string]: boolean },
-  ): any;
+  ): TTargetComponent;
   namespace hoistNonReactStatics {
 
   }

@@ -1,8 +1,18 @@
 # Change log
 
 ### vNext
-
 * Added `<Mutation />` component [#1520](https://github.com/apollographql/react-apollo/pull/1520)
+* Fix errorPolicy when 'all' not passing data and errors
+
+### 2.1.0-beta.2
+
+* Rollback importing non esm packages. Fixes the previous broken version [#1621](https://github.com/apollographql/react-apollo/pull/1621)
+
+### 2.1.0-beta.1
+
+* Stricter type checking in the codebase. [#1617](https://github.com/apollographql/react-apollo/pull/1617)
+* Improved TS types (even more) in both `Query` component and `graphql` HoC. [#1617](https://github.com/apollographql/react-apollo/pull/1617)
+* Fix React Component detection bug in `getDataFromTree` [#1604](https://github.com/apollographql/react-apollo/pull/1604)
 
 ### 2.1.0-beta.0
 

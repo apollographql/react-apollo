@@ -4,8 +4,8 @@
 // that the are handled
 import * as React from 'react';
 import gql from 'graphql-tag';
-import { graphql } from '../src';
-import { ChildProps, NamedProps, GraphqlQueryControls } from '../src';
+import { graphql, DataValue } from '../src';
+import { ChildProps } from '../src';
 
 const historyQuery = gql`
   query history($solutionId: String) {
@@ -65,7 +65,11 @@ const withHistory = graphql<Props, Data>(historyQuery, {
 
 class HistoryView extends React.Component<ChildProps<Props, Data>> {
   render() {
-    if (this.props.data.history.length > 0) {
+    if (
+      this.props.data &&
+      this.props.data.history &&
+      this.props.data.history.length > 0
+    ) {
       return <div>yay type checking works</div>;
     } else {
       return null;
@@ -85,7 +89,7 @@ const HistoryViewSFC = graphql<Props, Data>(historyQuery, {
     },
   }),
 })(props => {
-  if (this.props.data.history.length > 0) {
+  if (props.data && props.data.history && props.data.history.length > 0) {
     return <div>yay type checking works</div>;
   } else {
     return null;
@@ -98,29 +102,55 @@ const HistoryViewSFC = graphql<Props, Data>(historyQuery, {
 // decorator
 @graphql<Props, Data>(historyQuery)
 class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
-  render() {
-    if (this.props.data.history.length > 0) {
+  render(): React.ReactNode {
+    if (
+      this.props.data &&
+      this.props.data.history &&
+      this.props.data.history.length > 0
+    ) {
       return <div>yay type checking works</div>;
     } else {
       return null;
     }
   }
 }
+
 <DecoratedHistoryView solutionId="foo" />; // tslint:disable-line
 
 // --------------------------
-// with using name
-const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
-  name: 'organisationData',
-  props: ({
-    organisationData,
-  }: NamedProps<{ organisationData: GraphqlQueryControls & Data }, Props>) => ({
-    ...organisationData,
+// with custom props
+const withProps = graphql<
+  Props,
+  Data,
+  {},
+  { organisationData: DataValue<Data> | undefined }
+>(historyQuery, {
+  props: ({ data }) => ({
+    organisationData: data,
   }),
 });
 
-const HistoryViewUsingName = withHistoryUsingName(HistoryView);
-<HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
+const Foo = withProps(props => (
+  <div>Woot {props.organisationData!.history}</div>
+));
+
+<Foo solutionId="foo" />; // tslint:disable-line
+
+// --------------------------
+// It is not recommended to use `name` with Typescript, better to use props and map the property
+// explicitly so it can be type checked.
+// with using name
+// const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
+//   name: 'organisationData',
+//   props: ({
+//     organisationData,
+//   }: NamedProps<{ organisationData: GraphqlQueryControls & Data }, Props>) => ({
+//     ...organisationData,
+//   }),
+// });
+
+// const HistoryViewUsingName = withHistoryUsingName(HistoryView);
+// <HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
 
 // --------------------------
 // mutation with name

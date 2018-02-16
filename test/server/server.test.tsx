@@ -8,8 +8,14 @@ import {
   GraphQLList,
   GraphQLString,
   GraphQLID,
+  DocumentNode,
 } from 'graphql';
-import { graphql, ApolloProvider, renderToStringWithData } from '../../src';
+import {
+  graphql,
+  ApolloProvider,
+  renderToStringWithData,
+  ChildProps,
+} from '../../src';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
@@ -93,7 +99,7 @@ describe('SSR', () => {
           name: { type: GraphQLString },
           films: {
             type: new GraphQLList(FilmType),
-            resolve: ({ films }) => films.map(id => filmMap.get(id)),
+            resolve: ({ films }) => films.map((id: string) => filmMap.get(id)),
           },
         },
       });
@@ -153,9 +159,9 @@ describe('SSR', () => {
             title
           }
         }
-      `)
+      ` as DocumentNode)
       class Film extends React.Component<any, any> {
-        render() {
+        render(): React.ReactNode {
           const { data } = this.props;
           if (data.loading) return null;
           const { film } = data;
@@ -163,7 +169,18 @@ describe('SSR', () => {
         }
       }
 
-      @graphql(gql`
+      interface ShipData {
+        ship: {
+          name: string;
+          films: { id: string }[];
+        };
+      }
+
+      interface ShipVariables {
+        id: string;
+      }
+
+      @graphql<ShipVariables, ShipData, ShipVariables>(gql`
         query data($id: ID!) {
           ship(id: $id) {
             name
@@ -172,15 +189,17 @@ describe('SSR', () => {
             }
           }
         }
-      `)
-      class Starship extends React.Component<any, any> {
-        render() {
+      ` as DocumentNode)
+      class Starship extends React.Component<
+        ChildProps<ShipVariables, ShipData, ShipVariables>
+      > {
+        render(): React.ReactNode {
           const { data } = this.props;
-          if (data.loading) return null;
+          if (!data || data.loading || !data.ship) return null;
           const { ship } = data;
           return (
             <div>
-              <h4>{ship.name} appeared in the following flims:</h4>
+              <h4>{ship.name} appeared in the following films:</h4>
               <br />
               <ul>
                 {ship.films.map((film, key) => (
@@ -194,21 +213,25 @@ describe('SSR', () => {
         }
       }
 
-      @graphql(
-        gql`
-          query data {
-            allShips {
-              id
-            }
+      interface AllShipsData {
+        allShips: { id: string }[];
+      }
+
+      @graphql<{}, AllShipsData>(gql`
+        query data {
+          allShips {
+            id
           }
-        `,
-      )
-      class AllShips extends React.Component<any, any> {
-        render() {
+        }
+      ` as DocumentNode)
+      class AllShips extends React.Component<ChildProps<{}, AllShipsData>> {
+        render(): React.ReactNode {
           const { data } = this.props;
           return (
             <ul>
-              {!data.loading &&
+              {data &&
+                !data.loading &&
+                data.allShips &&
                 data.allShips.map((ship, key) => (
                   <li key={key}>
                     <Starship id={ship.id} />
@@ -219,23 +242,25 @@ describe('SSR', () => {
         }
       }
 
-      @graphql(
-        gql`
-          query data {
-            allPlanets {
-              name
-            }
+      interface AllPlanetsData {
+        allPlanets: { name: string }[];
+      }
+
+      @graphql<{}, AllPlanetsData>(gql`
+        query data {
+          allPlanets {
+            name
           }
-        `,
-      )
-      class AllPlanets extends React.Component<any, any> {
-        render() {
+        }
+      ` as DocumentNode)
+      class AllPlanets extends React.Component<ChildProps<{}, AllPlanetsData>> {
+        render(): React.ReactNode {
           const { data } = this.props;
-          if (data.loading) return null;
+          if (!data || data.loading) return null;
           return (
             <div>
               <h1>Planets</h1>
-              {data.allPlanets.map((planet, key) => (
+              {(data.allPlanets || []).map((planet, key) => (
                 <div key={key}>{planet.name}</div>
               ))}
             </div>

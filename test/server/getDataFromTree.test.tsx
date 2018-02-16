@@ -6,15 +6,16 @@ import {
   graphql,
   Query,
   ApolloProvider,
-  DataValue,
   walkTree,
   getDataFromTree,
+  DataValue,
 } from '../../src';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../src/test-utils';
 import { ChildProps } from '../../src/types';
+import { DocumentNode } from 'graphql';
 
 describe('SSR', () => {
   describe('`walkTree`', () => {
@@ -27,7 +28,7 @@ describe('SSR', () => {
             <span>Bar</span>
           </div>
         );
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(5);
@@ -36,7 +37,7 @@ describe('SSR', () => {
       it('basic element trees with nulls', () => {
         let elementCount = 0;
         const rootElement = <div>{null}</div>;
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -45,7 +46,7 @@ describe('SSR', () => {
       it('basic element trees with false', () => {
         let elementCount = 0;
         const rootElement = <div>{false}</div>;
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -54,7 +55,7 @@ describe('SSR', () => {
       it('basic element trees with empty string', () => {
         let elementCount = 0;
         const rootElement = <div>{''}</div>;
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -63,7 +64,7 @@ describe('SSR', () => {
       it('basic element trees with arrays', () => {
         let elementCount = 0;
         const rootElement = [1, 2];
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -72,7 +73,7 @@ describe('SSR', () => {
       it('basic element trees with false or null', () => {
         let elementCount = 0;
         const rootElement = [1, false, null, ''];
-        walkTree(rootElement, {}, element => {
+        walkTree(rootElement, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -80,10 +81,10 @@ describe('SSR', () => {
 
       it('functional stateless components', () => {
         let elementCount = 0;
-        const MyComponent = ({ n }) => (
+        const MyComponent = ({ n }: { n: number }) => (
           <div>{_.times(n, i => <span key={i} />)}</div>
         );
-        walkTree(<MyComponent n={5} />, {}, element => {
+        walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -126,13 +127,19 @@ describe('SSR', () => {
 
       it('functional stateless components with null children', () => {
         let elementCount = 0;
-        const MyComponent = ({ n, children = null }) => (
+        const MyComponent = ({
+          n,
+          children = null,
+        }: {
+          n: number;
+          children: React.ReactNode;
+        }) => (
           <div>
             {_.times(n, i => <span key={i} />)}
             {children}
           </div>
         );
-        walkTree(<MyComponent n={5}>{null}</MyComponent>, {}, element => {
+        walkTree(<MyComponent n={5}>{null}</MyComponent>, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -141,7 +148,7 @@ describe('SSR', () => {
       it('functional stateless components that render null', () => {
         let elementCount = 0;
         const MyComponent = () => null;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -150,7 +157,7 @@ describe('SSR', () => {
       it('functional stateless components that render an array', () => {
         let elementCount = 0;
         const MyComponent = () => [1, 2] as any;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(3);
@@ -160,7 +167,7 @@ describe('SSR', () => {
         let elementCount = 0;
 
         const MyComponent = () => [null, <div />] as any;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -170,7 +177,7 @@ describe('SSR', () => {
         let elementCount = 0;
 
         const MyComponent = () => [undefined, <div />] as any;
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -183,7 +190,7 @@ describe('SSR', () => {
             return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
-        walkTree(<MyComponent n={5} />, {}, element => {
+        walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -196,7 +203,7 @@ describe('SSR', () => {
             return null;
           }
         }
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -209,7 +216,7 @@ describe('SSR', () => {
             return [1, 2];
           }
         }
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(3);
@@ -223,7 +230,7 @@ describe('SSR', () => {
             return [null, <div />];
           }
         }
-        walkTree(<MyComponent />, {}, element => {
+        walkTree(<MyComponent />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -239,7 +246,7 @@ describe('SSR', () => {
             return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
-        walkTree(<MyComponent n={5} />, {}, element => {
+        walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -262,11 +269,25 @@ describe('SSR', () => {
             <span>Foo</span>
           </MyComponent>,
           {},
-          element => {
+          () => {
             elementCount += 1;
           },
         );
         expect(elementCount).toEqual(9);
+      });
+
+      it('basic classes with render on instance', () => {
+        let elementCount = 0;
+        class MyComponent extends (React.Component as any) {
+          render = () => {
+            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+          };
+        }
+        const MyCompAsAny = MyComponent as any;
+        walkTree(<MyCompAsAny n={5} />, {}, () => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(7);
       });
     });
   });
@@ -297,9 +318,13 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query)(
+      const WrappedElement = graphql<Props, Data>(query)(
         ({ data }: ChildProps<Props, Data>) => (
-          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+          <div>
+            {!data || data.loading || !data.currentUser
+              ? 'loading'
+              : data.currentUser.firstName}
+          </div>
         ),
       );
 
@@ -344,8 +369,10 @@ describe('SSR', () => {
 
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
-          {({ data: { currentUser }, loading }) => (
-            <div>{loading ? 'loading' : currentUser.firstName}</div>
+          {({ data, loading }) => (
+            <div>
+              {loading || !data ? 'loading' : data.currentUser.firstName}
+            </div>
           )}
         </CurrentUserQuery>
       );
@@ -386,10 +413,14 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query, {
+      const WrappedElement = graphql<Props, Data>(query, {
         options: { fetchPolicy: 'network-only' },
       })(({ data }: ChildProps<Props, Data>) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
       ));
 
       const app = (
@@ -428,10 +459,14 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query, {
+      const WrappedElement = graphql<Props, Data>(query, {
         options: { fetchPolicy: 'cache-and-network' },
       })(({ data }: ChildProps<Props, Data>) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
       ));
 
       const app = (
@@ -471,9 +506,13 @@ describe('SSR', () => {
         };
       }
 
-      const WrappedElement = graphql(query)(
+      const WrappedElement = graphql<Props, Data>(query)(
         ({ data }: ChildProps<Props, Data>) => (
-          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+          <div>
+            {!data || data.loading || !data.currentUser
+              ? 'loading'
+              : data.currentUser.firstName}
+          </div>
         ),
       );
 
@@ -499,7 +538,7 @@ describe('SSR', () => {
     });
 
     it('should handle nested queries that depend on each other', () => {
-      const idQuery = gql`
+      const idQuery: DocumentNode = gql`
         {
           currentUser {
             id
@@ -507,7 +546,7 @@ describe('SSR', () => {
         }
       `;
       const idData = { currentUser: { id: '1234' } };
-      const userQuery = gql`
+      const userQuery: DocumentNode = gql`
         query getUser($id: String) {
           user(id: $id) {
             firstName
@@ -530,22 +569,50 @@ describe('SSR', () => {
       });
 
       interface Props {}
-      interface Data {
+      interface IdQueryData {
         currentUser: {
           id: string;
         };
       }
 
-      const withId = graphql(idQuery);
-      const withUser = graphql(userQuery, {
+      interface UserQueryData {
+        user: {
+          firstName: string;
+        };
+      }
+
+      interface UserQueryVariables {
+        id: string;
+      }
+
+      type WithIdChildProps = ChildProps<Props, IdQueryData>;
+      const withId = graphql<Props, IdQueryData>(idQuery);
+
+      type WithUserChildProps = ChildProps<
+        Props,
+        UserQueryData,
+        UserQueryVariables
+      >;
+      const withUser = graphql<
+        WithIdChildProps,
+        UserQueryData,
+        UserQueryVariables
+      >(userQuery, {
         skip: ({ data: { loading } }) => loading,
-        options: ({ data }: ChildProps<Props, Data>) => ({
-          variables: { id: data.currentUser.id },
+        options: ({ data }) => ({
+          variables: { id: data!.currentUser!.id },
         }),
       });
-      const Component = ({ data }) => (
-        <div>{data.loading ? 'loading' : data.user.firstName}</div>
+      const Component: React.StatelessComponent<WithUserChildProps> = ({
+        data,
+      }) => (
+        <div>
+          {!data || data.loading || !data.user
+            ? 'loading'
+            : data.user.firstName}
+        </div>
       );
+
       const WrappedComponent = withId(withUser(Component));
 
       const app = (
@@ -584,9 +651,9 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query)(
+      const WrappedElement = graphql<Props, Data>(query)(
         ({ data }: ChildProps<Props, Data>) => (
-          <div>{data.loading ? 'loading' : data.error}</div>
+          <div>{!data || data.loading ? 'loading' : data.error}</div>
         ),
       );
 
@@ -617,6 +684,71 @@ describe('SSR', () => {
       });
     });
 
+    it('should merge multiple errors thrown by queries', () => {
+      const idQuery = gql`
+        {
+          currentUser {
+            id
+          }
+        }
+      `;
+      const nameQuery = gql`
+        {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+      const link = mockSingleLink(
+        {
+          request: { query: idQuery },
+          error: new Error('Failed to fetch ID'),
+          delay: 40,
+        },
+        {
+          request: { query: nameQuery },
+          error: new Error('Failed to fetch name'),
+          delay: 60,
+        }
+      );
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      const withId = graphql(idQuery);
+      const withName = graphql(nameQuery);
+
+      const IdComponent = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.id}</div>
+      );
+      const NameComponent = ({ data }) => (
+        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      );
+      const WrappedIdComponent = withId(IdComponent);
+      const WrappedNameComponent = withName(NameComponent);
+
+      const Page = () => (
+        <div>
+          <WrappedIdComponent />
+          <WrappedNameComponent />
+        </div>
+      );
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <Page />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).catch(e => {
+        expect(e).toBeTruthy();
+        expect(e.queryErrors.length).toEqual(2);
+        expect(e.queryErrors[0].message).toEqual('Network error: Failed to fetch ID');
+        expect(e.queryErrors[1].message).toEqual('Network error: Failed to fetch name');
+      });
+    });
+
     it('should correctly skip queries (deprecated)', () => {
       const query = gql`
         {
@@ -641,7 +773,7 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql(query, {
+      const WrappedElement = graphql<Props, Data>(query, {
         skip: true,
       })(({ data }: ChildProps<Props, Data>) => (
         <div>{!data ? 'skipped' : 'dang'}</div>
@@ -667,11 +799,11 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
-      const variables = { id: 1 };
+      const resultData = { currentUser: { firstName: 'James' } };
+      const variables = { id: '1' };
       const link = mockSingleLink({
         request: { query, variables },
-        result: { data },
+        result: { data: resultData },
         delay: 50,
       });
       const cache = new Cache({ addTypename: false });
@@ -680,28 +812,39 @@ describe('SSR', () => {
         cache,
       });
 
-      interface Props {}
+      interface Props {
+        id: string;
+      }
       interface Data {
         currentUser: {
           firstName: string;
         };
       }
-      const Element = graphql(query, {
-        name: 'user',
-      })(({ user }: ChildProps<Props, Data> & { user: DataValue<Data> }) => (
-        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
-      ));
+      interface Variables {
+        id: string;
+      }
+      const Element = graphql<Props, Data, Variables>(query)(
+        ({ data }: ChildProps<Props, Data, Variables>) => (
+          <div>
+            {!data || data.loading || !data.currentUser
+              ? 'loading'
+              : data.currentUser.firstName}
+          </div>
+        ),
+      );
 
       const app = (
         <ApolloProvider client={apolloClient}>
-          <Element id={1} />
+          <Element id={'1'} />
         </ApolloProvider>
       );
 
       return getDataFromTree(app).then(() => {
         const initialState = cache.extract();
         expect(initialState).toBeTruthy();
-        expect(initialState['$ROOT_QUERY.currentUser({"id":1})']).toBeTruthy();
+        expect(
+          initialState['$ROOT_QUERY.currentUser({"id":"1"})'],
+        ).toBeTruthy();
       });
     });
 
@@ -713,11 +856,11 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
-      const variables = { id: 1 };
+      const resultData = { currentUser: { firstName: 'James' } };
+      const variables = { id: '1' };
       const link = mockSingleLink({
         request: { query, variables },
-        result: { data },
+        result: { data: resultData },
         delay: 50,
       });
 
@@ -727,8 +870,22 @@ describe('SSR', () => {
         cache,
       });
 
-      @graphql(query, { name: 'user' })
-      class Element extends React.Component<any, any> {
+      interface Props {
+        id: string;
+      }
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      interface Variables {
+        id: string;
+      }
+
+      class Element extends React.Component<
+        ChildProps<Props, Data, Variables>,
+        { thing: number }
+      > {
         state = { thing: 1 };
 
         componentWillMount() {
@@ -736,17 +893,23 @@ describe('SSR', () => {
         }
 
         render() {
-          const { user } = this.props;
+          const { data } = this.props;
           expect(this.state.thing).toBe(2);
           return (
-            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+            <div>
+              {!data || data.loading || !data.currentUser
+                ? 'loading'
+                : data.currentUser.firstName}
+            </div>
           );
         }
       }
 
+      const ElementWithData = graphql<Props, Data, Variables>(query)(Element);
+
       const app = (
         <ApolloProvider client={apolloClient}>
-          <Element id={1} />
+          <ElementWithData id={'1'} />
         </ApolloProvider>
       );
 
@@ -755,7 +918,7 @@ describe('SSR', () => {
           const initialState = cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":1})'],
+            initialState['$ROOT_QUERY.currentUser({"id":"1"})'],
           ).toBeTruthy();
           done();
         })
@@ -781,9 +944,8 @@ describe('SSR', () => {
     });
 
     it('should maintain any state set in the element constructor', () => {
-      class Element extends React.Component<any, any> {
-        s;
-        constructor(props) {
+      class Element extends React.Component<{}, { foo: string }> {
+        constructor(props: {}) {
           super(props);
           this.state = { foo: 'bar' };
         }
@@ -805,11 +967,11 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
-      const variables = { id: 1 };
+      const resultData = { currentUser: { firstName: 'James' } };
+      const variables = { id: '1' };
       const link = mockSingleLink({
         request: { query, variables },
-        result: { data },
+        result: { data: resultData },
         delay: 50,
       });
       const apolloClient = new ApolloClient({
@@ -819,22 +981,25 @@ describe('SSR', () => {
         }),
       });
       interface Props {
-        id: number;
+        id: string;
       }
       interface Data {
         currentUser: {
           firstName: string;
         };
       }
-      interface State {
-        thing: number;
-        userId: number;
-        client: null | any;
+      interface Variables {
+        id: string;
       }
 
-      @graphql(query, { name: 'user' })
+      interface State {
+        thing: number;
+        userId: null | number;
+        client: null | ApolloClient<any>;
+      }
+
       class Element extends React.Component<
-        ChildProps<Props, Data> & { user?: DataValue<Data> },
+        ChildProps<Props, Data, Variables>,
         State
       > {
         state: State = {
@@ -845,7 +1010,11 @@ describe('SSR', () => {
 
         componentWillMount() {
           this.setState(
-            (state, props, context) =>
+            (
+              state: State,
+              props: Props,
+              context: { client: ApolloClient<any> },
+            ) =>
               ({
                 thing: state.thing + 1,
                 userId: props.id,
@@ -855,19 +1024,25 @@ describe('SSR', () => {
         }
 
         render() {
-          const { user, id } = this.props;
+          const { data, id } = this.props;
           expect(this.state.thing).toBe(2);
           expect(this.state.userId).toBe(id);
           expect(this.state.client).toBe(apolloClient);
           return (
-            <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+            <div>
+              {!data || data.loading || !data.currentUser
+                ? 'loading'
+                : data.currentUser.firstName}
+            </div>
           );
         }
       }
 
+      const ElementWithData = graphql<Props, Data, Variables>(query)(Element);
+
       const app = (
         <ApolloProvider client={apolloClient}>
-          <Element id={1} />
+          <ElementWithData id={'1'} />
         </ApolloProvider>
       );
 
@@ -876,7 +1051,7 @@ describe('SSR', () => {
           const initialState = apolloClient.cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":1})'],
+            initialState['$ROOT_QUERY.currentUser({"id":"1"})'],
           ).toBeTruthy();
           done();
         })
@@ -891,11 +1066,11 @@ describe('SSR', () => {
           }
         }
       `;
-      const data = { currentUser: { firstName: 'James' } };
-      const variables = { id: 1 };
+      const resultData = { currentUser: { firstName: 'James' } };
+      const variables = { id: '1' };
       const link = mockSingleLink({
         request: { query, variables },
-        result: { data },
+        result: { data: resultData },
         delay: 50,
       });
 
@@ -911,16 +1086,31 @@ describe('SSR', () => {
         };
       }
 
-      const Element = graphql(query, {
-        name: 'user',
+      interface Props {
+        id: string;
+      }
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      interface Variables {
+        id: string;
+      }
+
+      const Element = graphql<Props, Data, Variables>(query, {
         options: props => ({ variables: props, ssr: false }),
-      })(({ user }: { user?: DataValue<Data> }) => (
-        <div>{user.loading ? 'loading' : user.currentUser.firstName}</div>
+      })(({ data }) => (
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
       ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
-          <Element id={1} />
+          <Element id={'1'} />
         </ApolloProvider>
       );
 
@@ -940,7 +1130,7 @@ describe('SSR', () => {
         }
       `;
       const resultData = { currentUser: { firstName: 'James' } };
-      const variables = { id: 1 };
+      const variables = { id: '1' };
       const link = mockSingleLink({
         request: { query, variables },
         result: { data: resultData },
@@ -959,19 +1149,21 @@ describe('SSR', () => {
         };
       }
 
-      class CurrentUserQuery extends Query<Data, { id: number }> {}
+      class CurrentUserQuery extends Query<Data, { id: string }> {}
 
-      const Element = (props: { id: number }) => (
+      const Element = (props: { id: string }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
           {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+            <div>
+              {loading || !data ? 'loading' : data.currentUser.firstName}
+            </div>
           )}
         </CurrentUserQuery>
       );
 
       const app = (
         <ApolloProvider client={apolloClient}>
-          <Element id={1} />
+          <Element id={'1'} />
         </ApolloProvider>
       );
 
@@ -1014,36 +1206,52 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      interface Data {}
+      interface Data {
+        currentUser: {
+          firstName: string;
+        };
+      }
       interface QueryProps {}
-      const withQuery = graphql<QueryProps>(query, {
-        options: ownProps => ({ ssr: true }),
+      interface QueryChildProps {
+        refetchQuery: Function;
+        data: DataValue<Data>;
+      }
+
+      const withQuery = graphql<QueryProps, Data, {}, QueryChildProps>(query, {
+        options: () => ({ ssr: true }),
         props: ({ data }) => {
-          expect(data.refetch).toBeTruthy();
+          expect(data!.refetch).toBeTruthy();
           return {
-            refetchQuery: data.refetch,
-            data,
+            refetchQuery: data!.refetch,
+            data: data!,
           };
         },
       });
 
-      interface MutationProps {
-        refetchQuery: Function;
-        data: Data;
-      }
-      const withMutation = graphql<MutationProps>(mutation, {
+      const withMutation = graphql<
+        QueryChildProps,
+        {},
+        {},
+        { action: (variables: {}) => Promise<any> }
+      >(mutation, {
         props: ({ ownProps, mutate }) => {
           expect(ownProps.refetchQuery).toBeTruthy();
           return {
-            action(variables) {
-              return mutate({ variables }).then(() => ownProps.refetchQuery());
+            action(variables: {}) {
+              return mutate!({ variables }).then(() => ownProps.refetchQuery());
             },
           };
         },
       });
 
-      const Element = ({ data }) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      const Element: React.StatelessComponent<
+        QueryChildProps & { action: (variables: {}) => Promise<any> }
+      > = ({ data }) => (
+        <div>
+          {data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
       );
 
       const WrappedElement = withQuery(withMutation(Element));
@@ -1119,8 +1327,14 @@ describe('SSR', () => {
         },
       });
 
-      const Element = ({ data }) => (
-        <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+      const Element: React.StatelessComponent<
+        ChildProps<ChildProps<Props, MutationData>, QueryData, {}>
+      > = ({ data }) => (
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
       );
 
       const WrappedElement = withMutation(withQuery(Element));
@@ -1161,14 +1375,18 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false }),
       });
 
-      const WrappedElement = graphql(query)(
+      const WrappedElement = graphql<{}, Data>(query)(
         ({ data }: ChildProps<{}, Data>) => (
-          <div>{data.loading ? 'loading' : data.currentUser.firstName}</div>
+          <div>
+            {!data || data.loading || !data.currentUser
+              ? 'loading'
+              : data.currentUser.firstName}
+          </div>
         ),
       );
 
-      class MyRootContainer extends React.Component<any, any> {
-        constructor(props) {
+      class MyRootContainer extends React.Component<{}, { color: string }> {
+        constructor(props: {}) {
           super(props);
           this.state = { color: 'purple' };
         }

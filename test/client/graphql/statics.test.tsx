@@ -12,12 +12,13 @@ let sampleOperation = gql`
 
 describe('statics', () => {
   it('should be preserved', () => {
-    @graphql(sampleOperation)
-    class ApolloContainer extends React.Component<any, any> {
-      static veryStatic = 'such global';
-    }
+    const ApolloContainer = graphql(sampleOperation)(
+      class extends React.Component<any, any> {
+        static veryStatic = 'such global';
+      },
+    );
 
-    expect(ApolloContainer.veryStatic).toBe('such global');
+    expect((ApolloContainer as any).veryStatic).toBe('such global');
   });
 
   it('exposes a debuggable displayName', () => {
@@ -30,10 +31,11 @@ describe('statics', () => {
   });
 
   it('honors custom display names', () => {
-    @graphql(sampleOperation)
-    class ApolloContainer extends React.Component<any, any> {
-      static displayName = 'Foo';
-    }
+    const ApolloContainer = graphql(sampleOperation)(
+      class extends React.Component<any, any> {
+        static displayName = 'Foo';
+      },
+    );
 
     expect((ApolloContainer as any).displayName).toBe('Apollo(Foo)');
   });
