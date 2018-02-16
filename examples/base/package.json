@@ -8,7 +8,7 @@
     "react": "^15.6.1",
     "react-apollo": "file:../..",
     "react-dom": "^15.6.1",
-    "react-scripts": "1.1.0"
+    "react-scripts": "1.1.1"
   },
   "scripts": {
     "start": "react-scripts start",
