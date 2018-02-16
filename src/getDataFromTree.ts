@@ -218,10 +218,8 @@ export default function getDataFromTree(
   const mappedQueries = queries.map(({ query, element, context }) => {
     // we've just grabbed the query for element, so don't try and get it again
     return query
-      .then(
-        _ => getDataFromTree(element, context, false),
-        e => errors.push(e)
-      );
+      .then(_ => getDataFromTree(element, context, false))
+      .catch(e => errors.push(e));
   });
 
   // Run all queries. If there are errors, still wait for all queries to execute
