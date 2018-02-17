@@ -364,7 +364,10 @@ export default function graphql<
           ownProps: this.props,
         };
         if (mapResultToProps) {
-          this.lastResultProps = mapResultToProps(newResult, this.lastResultProps);
+          this.lastResultProps = mapResultToProps(
+            newResult,
+            this.lastResultProps,
+          );
           return this.lastResultProps;
         }
 

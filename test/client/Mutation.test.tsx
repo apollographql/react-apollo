@@ -96,7 +96,7 @@ it('performs a mutation', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -141,7 +141,7 @@ it('performs a mutation with variables passed as an option', done => {
   mount(
     <MockedProvider mocks={mocks1}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -184,7 +184,7 @@ it('only shows result for the latest mutation that is in flight', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -239,7 +239,7 @@ it('only shows the error for the latest mutation in flight', done => {
   mount(
     <MockedProvider mocks={mocksWithErrors}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -283,7 +283,7 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -295,7 +295,7 @@ it('renders result of the children render prop', () => {
   const wrapper = mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
   expect(wrapper.find('div').exists()).toBe(true);
 });
@@ -313,7 +313,7 @@ it('renders an error state', done => {
           expect(result.loading).toBeTruthy();
         } else if (count === 2 && result) {
           expect(result.error).toEqual(
-            new Error('Network error: error occurred')
+            new Error('Network error: error occurred'),
           );
           done();
         }
@@ -333,7 +333,7 @@ it('renders an error state', done => {
   mount(
     <MockedProvider mocks={mockError}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -386,7 +386,7 @@ it('calls the onError prop if the mutation encounters an error', done => {
   mount(
     <MockedProvider mocks={mockError}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -417,7 +417,7 @@ it('returns an optimistic response', done => {
             createTodo();
             const dataInStore = client.cache.extract(true);
             expect(dataInStore['Todo:99']).toEqual(
-              optimisticResponse.createTodo
+              optimisticResponse.createTodo,
             );
           });
         } else if (count === 1) {
@@ -440,7 +440,7 @@ it('returns an optimistic response', done => {
   mount(
     <ApolloProvider client={client}>
       <Component />
-    </ApolloProvider>
+    </ApolloProvider>,
   );
 });
 
@@ -520,7 +520,7 @@ it('has refetchQueries in the props', done => {
   mount(
     <MockedProvider mocks={mocksWithQuery}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -550,7 +550,7 @@ it('has an update prop for updating the store after the mutation', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 });
 
@@ -645,10 +645,10 @@ it('errors if a query is passed instead of a mutation', () => {
     mount(
       <MockedProvider>
         <Mutation mutation={query}>{() => null}</Mutation>
-      </MockedProvider>
+      </MockedProvider>,
     );
   }).toThrowError(
-    'The <Mutation /> component requires a graphql mutation, but got a query.'
+    'The <Mutation /> component requires a graphql mutation, but got a query.',
   );
 
   console.log = errorLogger;
@@ -671,8 +671,8 @@ it('errors when changing from mutation to a query', done => {
     componentDidCatch(e: Error) {
       expect(e).toEqual(
         new Error(
-          'The <Mutation /> component requires a graphql mutation, but got a query.'
-        )
+          'The <Mutation /> component requires a graphql mutation, but got a query.',
+        ),
       );
       done();
     }
@@ -699,7 +699,7 @@ it('errors when changing from mutation to a query', done => {
   mount(
     <MockedProvider>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 
   console.log = errorLogger;
@@ -722,10 +722,10 @@ it('errors if a subscription is passed instead of a mutation', () => {
     mount(
       <MockedProvider>
         <Mutation mutation={subscription}>{() => null}</Mutation>
-      </MockedProvider>
+      </MockedProvider>,
     );
   }).toThrowError(
-    'The <Mutation /> component requires a graphql mutation, but got a subscription.'
+    'The <Mutation /> component requires a graphql mutation, but got a subscription.',
   );
 
   console.log = errorLogger;
@@ -748,8 +748,8 @@ it('errors when changing from mutation to a subscription', done => {
     componentDidCatch(e: Error) {
       expect(e).toEqual(
         new Error(
-          'The <Mutation /> component requires a graphql mutation, but got a subscription.'
-        )
+          'The <Mutation /> component requires a graphql mutation, but got a subscription.',
+        ),
       );
       done();
     }
@@ -776,7 +776,7 @@ it('errors when changing from mutation to a subscription', done => {
   mount(
     <MockedProvider>
       <Component />
-    </MockedProvider>
+    </MockedProvider>,
   );
 
   console.log = errorLogger;

@@ -50,9 +50,9 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: (
-      options?: MutationOptions<TVariables>
+      options?: MutationOptions<TVariables>,
     ) => Promise<void | FetchResult>,
-    result?: MutationResult<TData>
+    result?: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
@@ -111,7 +111,7 @@ class Mutation<
 
   componentWillReceiveProps(
     nextProps: MutationProps<TData, TVariables>,
-    nextContext: MutationContext
+    nextContext: MutationContext,
   ) {
     if (
       shallowEqual(this.props, nextProps) &&
@@ -187,7 +187,7 @@ class Mutation<
 
   private onCompletedMutation = (
     response: ExecutionResult<TData>,
-    mutationId: number
+    mutationId: number,
   ) => {
     const { onCompleted } = this.props;
 
@@ -207,7 +207,7 @@ class Mutation<
         },
         () => {
           callOncomplete();
-        }
+        },
       );
     } else {
       callOncomplete();
@@ -233,7 +233,7 @@ class Mutation<
         },
         () => {
           callOnError();
-        }
+        },
       );
     } else {
       callOnError();
@@ -255,14 +255,14 @@ class Mutation<
       operation.type === DocumentType.Mutation,
       `The <Mutation /> component requires a graphql mutation, but got a ${
         operation.type === DocumentType.Query ? 'query' : 'subscription'
-      }.`
+      }.`,
     );
   };
 
   private verifyContext = (context: MutationContext) => {
     invariant(
       !!context.client,
-      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`
+      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
     );
   };
 }

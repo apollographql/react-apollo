@@ -5,6 +5,7 @@
   "module": "src/index.ts",
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
+  "main": "lib/react-apollo.umd.js",
   "scripts": {
     "precommit": "lint-staged",
     "danger": "danger run --verbose",

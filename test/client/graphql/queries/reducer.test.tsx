@@ -172,8 +172,8 @@ describe('[queries] reducer', () => {
     }
 
     interface FinalProps {
-      wrapper: { thingy: { thing: boolean } },
-      refetch: () => any,
+      wrapper: { thingy: { thing: boolean } };
+      refetch: () => any;
     }
 
     const withData = graphql<{}, Data, {}, FinalProps>(query, {
@@ -194,7 +194,9 @@ describe('[queries] reducer', () => {
     let counter = 0;
     class Container extends React.Component<FinalProps> {
       componentWillReceiveProps(nextProps: FinalProps) {
-        expect(stripSymbols(nextProps.wrapper.thingy)).toEqual(expectedData.getThing);
+        expect(stripSymbols(nextProps.wrapper.thingy)).toEqual(
+          expectedData.getThing,
+        );
         if (counter === 1) {
           expect(nextProps.wrapper).toEqual(this.props.wrapper);
           done();
