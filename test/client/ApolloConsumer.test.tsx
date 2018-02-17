@@ -2,13 +2,12 @@ import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import ApolloProvider from '../../src/ApolloProvider';
-import ApolloConsumer from '../../src/ApolloConsumer';
+import { ApolloProvider, ApolloConsumer } from '../../src';
 import { mount } from 'enzyme';
 
 const client = new ApolloClient({
   cache: new Cache(),
-  link: new ApolloLink((o, f) => f(o)),
+  link: new ApolloLink((o, f) => (f ? f(o) : null)),
 });
 
 describe('<ApolloConsumer /> component', () => {
@@ -33,7 +32,7 @@ describe('<ApolloConsumer /> component', () => {
   it('renders the content in the children prop', () => {
     const wrapper = mount(
       <ApolloProvider client={client}>
-        <ApolloConsumer>{clientRender => <div />}</ApolloConsumer>
+        <ApolloConsumer>{() => <div />}</ApolloConsumer>
       </ApolloProvider>,
     );
 

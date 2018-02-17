@@ -1,15 +1,15 @@
 import * as React from 'react';
-import ApolloClient from 'apollo-client';
-import gql from 'graphql-tag';
-import { mount } from 'enzyme';
+import ApolloClient, { NetworkStatus } from 'apollo-client';
+import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import ApolloProvider from '../../src/ApolloProvider';
-import Query from '../../src/Query';
+import { ApolloProvider, Query } from '../../src';
 import { MockedProvider, mockSingleLink } from '../../src/test-utils';
 import catchAsyncError from '../test-utils/catchAsyncError';
 import stripSymbols from '../test-utils/stripSymbols';
+import { DocumentNode } from 'graphql';
+import gql from 'graphql-tag';
 
-const allPeopleQuery = gql`
+const allPeopleQuery: DocumentNode = gql`
   query people {
     allPeople(first: 1) {
       people {
@@ -18,7 +18,16 @@ const allPeopleQuery = gql`
     }
   }
 `;
-const allPeopleData = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+interface Data {
+  allPeople: {
+    people: Array<{ name: string }>;
+  };
+}
+
+const allPeopleData: Data = {
+  allPeople: { people: [{ name: 'Luke Skywalker' }] },
+};
 const allPeopleMocks = [
   {
     request: { query: allPeopleQuery },
@@ -26,8 +35,10 @@ const allPeopleMocks = [
   },
 ];
 
+class AllPeopleQuery extends Query<Data, { first: number }> {}
+
 describe('Query component', () => {
-  let wrapper;
+  let wrapper: ReactWrapper<any, any> | null;
   beforeEach(() => {
     jest.useRealTimers();
   });
@@ -57,7 +68,7 @@ describe('Query component', () => {
 
             if (result.loading) {
               expect(rest).toMatchSnapshot(
-                'result in render prop while loading',
+                'result in render prop while loading'
               );
               expect(clientResult).toBe(client);
             } else {
@@ -74,29 +85,29 @@ describe('Query component', () => {
     wrapper = mount(
       <ApolloProvider client={client}>
         <Component />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
   it('renders using the children prop', done => {
     const Component = () => (
-      <Query query={allPeopleQuery}>{result => <div />}</Query>
+      <Query query={allPeopleQuery}>{_ => <div />}</Query>
     );
 
     wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
-      </MockedProvider>,
+      </MockedProvider>
     );
     catchAsyncError(done, () => {
-      expect(wrapper.find('div').exists()).toBeTruthy();
+      expect(wrapper!.find('div').exists()).toBeTruthy();
       done();
     });
   });
 
   describe('result provides', () => {
     it('client', done => {
-      const queryWithVariables = gql`
+      const queryWithVariables: DocumentNode = gql`
         query people($first: Int) {
           allPeople(first: $first) {
             people {
@@ -137,7 +148,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocksWithVariable} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
@@ -157,7 +168,7 @@ describe('Query component', () => {
             }
             catchAsyncError(done, () => {
               expect(result.error).toEqual(
-                new Error('Network error: error occurred'),
+                new Error('Network error: error occurred')
               );
               done();
             });
@@ -169,12 +180,12 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mockError} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
     it('refetch', done => {
-      const queryRefetch = gql`
+      const queryRefetch: DocumentNode = gql`
         query people($first: Int) {
           allPeople(first: $first) {
             people {
@@ -213,7 +224,7 @@ describe('Query component', () => {
       expect.assertions(5);
 
       const Component = () => (
-        <Query
+        <AllPeopleQuery
           query={queryRefetch}
           variables={refetchVariables}
           notifyOnNetworkStatusChange
@@ -262,13 +273,13 @@ describe('Query component', () => {
 
             return null;
           }}
-        </Query>
+        </AllPeopleQuery>
       );
 
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
@@ -295,7 +306,7 @@ describe('Query component', () => {
       expect.assertions(2);
 
       const Component = () => (
-        <Query query={allPeopleQuery} variables={variables}>
+        <AllPeopleQuery query={allPeopleQuery} variables={variables}>
           {result => {
             if (result.loading) {
               return null;
@@ -304,14 +315,17 @@ describe('Query component', () => {
               result
                 .fetchMore({
                   variables: { first: 1 },
-                  updateQuery: (prev, { fetchMoreResult }) => ({
-                    allPeople: {
-                      people: [
-                        ...prev.allPeople.people,
-                        ...fetchMoreResult.allPeople.people,
-                      ],
-                    },
-                  }),
+                  updateQuery: (prev, { fetchMoreResult }) =>
+                    fetchMoreResult
+                      ? {
+                          allPeople: {
+                            people: [
+                              ...prev.allPeople.people,
+                              ...fetchMoreResult.allPeople.people,
+                            ],
+                          },
+                        }
+                      : prev,
                 })
                 .then(result2 => {
                   expect(stripSymbols(result2.data)).toEqual(data2);
@@ -335,13 +349,13 @@ describe('Query component', () => {
             count++;
             return null;
           }}
-        </Query>
+        </AllPeopleQuery>
       );
 
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
@@ -403,7 +417,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
 
       jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
@@ -462,7 +476,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
 
       jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
@@ -486,10 +500,11 @@ describe('Query component', () => {
         },
       ];
 
-      let isUpdated;
+      let isUpdated = false;
       expect.assertions(3);
+
       const Component = () => (
-        <Query query={allPeopleQuery} variables={variables}>
+        <AllPeopleQuery query={allPeopleQuery} variables={variables}>
           {result => {
             if (result.loading) {
               return null;
@@ -517,13 +532,13 @@ describe('Query component', () => {
 
             return null;
           }}
-        </Query>
+        </AllPeopleQuery>
       );
 
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
   });
@@ -536,7 +551,7 @@ describe('Query component', () => {
             catchAsyncError(done, () => {
               expect(result.loading).toBeFalsy();
               expect(result.data).toBeUndefined();
-              expect(result.networkStatus).toBe(7);
+              expect(result.networkStatus).toBe(NetworkStatus.ready);
               done();
             });
             return null;
@@ -547,7 +562,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={allPeopleMocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
@@ -599,7 +614,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
@@ -652,7 +667,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
 
       jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
@@ -681,10 +696,10 @@ describe('Query component', () => {
         mount(
           <MockedProvider>
             <Query query={mutation}>{() => null}</Query>
-          </MockedProvider>,
+          </MockedProvider>
         );
       }).toThrowError(
-        'The <Query /> component requires a graphql query, but got a mutation.',
+        'The <Query /> component requires a graphql query, but got a mutation.'
       );
 
       console.error = errorLogger;
@@ -707,10 +722,10 @@ describe('Query component', () => {
         mount(
           <MockedProvider>
             <Query query={subscription}>{() => null}</Query>
-          </MockedProvider>,
+          </MockedProvider>
         );
       }).toThrowError(
-        'The <Query /> component requires a graphql query, but got a subscription.',
+        'The <Query /> component requires a graphql query, but got a subscription.'
       );
 
       console.error = errorLogger;
@@ -765,7 +780,7 @@ describe('Query component', () => {
           const { variables } = this.state;
 
           return (
-            <Query query={query} variables={variables}>
+            <AllPeopleQuery query={query} variables={variables}>
               {result => {
                 if (result.loading) {
                   return null;
@@ -785,7 +800,7 @@ describe('Query component', () => {
                 count++;
                 return null;
               }}
-            </Query>
+            </AllPeopleQuery>
           );
         }
       }
@@ -793,7 +808,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
@@ -866,7 +881,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>,
+        </MockedProvider>
       );
     });
 
@@ -931,6 +946,79 @@ describe('Query component', () => {
 
       wrapper = mount(<Component />);
     });
+
+    it('with data while loading', done => {
+      const query = gql`
+        query people($first: Int) {
+          allPeople(first: $first) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+      const mocks = [
+        {
+          request: { query, variables: { first: 1 } },
+          result: { data: data1 },
+        },
+        {
+          request: { query, variables: { first: 2 } },
+          result: { data: data2 },
+        },
+      ];
+
+      let count = 0;
+
+      class Component extends React.Component {
+        state = {
+          variables: {
+            first: 1,
+          },
+        };
+
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({
+              variables: {
+                first: 2,
+              },
+            });
+          }, 50);
+        }
+
+        render() {
+          const { variables } = this.state;
+
+          return (
+            <AllPeopleQuery query={query} variables={variables}>
+              {result => {
+                catchAsyncError(done, () => {
+                  if (result.loading && count === 2) {
+                    expect(stripSymbols(result.data)).toEqual(data1);
+                    done();
+                  }
+
+                  return null;
+                });
+
+                count++;
+                return null;
+              }}
+            </AllPeopleQuery>
+          );
+        }
+      }
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks} removeTypename>
+          <Component />
+        </MockedProvider>
+      );
+    });
   });
 
   it('should error if the query changes type to a subscription', done => {
@@ -950,10 +1038,10 @@ describe('Query component', () => {
     class Component extends React.Component {
       state = { query: allPeopleQuery };
 
-      componentDidCatch(error) {
+      componentDidCatch(error: any) {
         catchAsyncError(done, () => {
           const expectedError = new Error(
-            'The <Query /> component requires a graphql query, but got a subscription.',
+            'The <Query /> component requires a graphql query, but got a subscription.'
           );
           expect(error).toEqual(expectedError);
           console.error = errorLog;
@@ -979,12 +1067,12 @@ describe('Query component', () => {
     wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
-      </MockedProvider>,
+      </MockedProvider>
     );
   });
 
   it('should be able to refetch after there was a network error', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query somethingelse {
         allPeople(first: 1) {
           people {
@@ -999,7 +1087,7 @@ describe('Query component', () => {
     const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, error: new Error('This is an error!') },
-      { request: { query }, result: { data: dataTwo } },
+      { request: { query }, result: { data: dataTwo } }
     );
     const client = new ApolloClient({
       link,
@@ -1009,10 +1097,12 @@ describe('Query component', () => {
     let count = 0;
     const noop = () => null;
 
+    class AllPeopleQuery2 extends Query<Data> {}
+
     function Container() {
       return (
-        <Query query={query} notifyOnNetworkStatusChange>
-          {(result) => {
+        <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
+          {result => {
             try {
               switch (count++) {
                 case 0:
@@ -1020,17 +1110,19 @@ describe('Query component', () => {
                   expect(result.loading).toBeTruthy();
                   break;
                 case 1:
+                  if (!result.data) {
+                    done.fail('Should have data by this point');
+                    break;
+                  }
                   // First result is loaded, run a refetch to get the second result
                   // which is an error.
                   expect(stripSymbols(result.data.allPeople)).toEqual(
-                    data.allPeople,
+                    data.allPeople
                   );
                   setTimeout(() => {
-                    result
-                      .refetch()
-                      .then((val) => {
-                        done.fail('Expected error value on first refetch.');
-                      }, noop);
+                    result.refetch().then(() => {
+                      done.fail('Expected error value on first refetch.');
+                    }, noop);
                   }, 0);
                   break;
                 case 2:
@@ -1043,11 +1135,9 @@ describe('Query component', () => {
                   expect(result.loading).toBeFalsy();
                   expect(result.error).toBeTruthy();
                   setTimeout(() => {
-                    result
-                      .refetch()
-                      .catch(() => {
-                        done.fail('Expected good data on second refetch.');
-                      });
+                    result.refetch().catch(() => {
+                      done.fail('Expected good data on second refetch.');
+                    });
                   }, 0);
                   break;
                 // Further fix required in QueryManager, we should have an extra
@@ -1060,8 +1150,12 @@ describe('Query component', () => {
                   // Third result's data is loaded
                   expect(result.loading).toBeFalsy();
                   expect(result.error).toBeFalsy();
+                  if (!result.data) {
+                    done.fail('Should have data by this point');
+                    break;
+                  }
                   expect(stripSymbols(result.data.allPeople)).toEqual(
-                    dataTwo.allPeople,
+                    dataTwo.allPeople
                   );
                   done();
                   break;
@@ -1073,14 +1167,14 @@ describe('Query component', () => {
             }
             return null;
           }}
-        </Query>
-      )
+        </AllPeopleQuery2>
+      );
     }
 
     wrapper = mount(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

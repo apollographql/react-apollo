@@ -89,7 +89,12 @@ export function parser(document: DocumentNode): IDocumentDefinition {
 
   const definition = definitions[0] as OperationDefinitionNode;
   variables = definition.variableDefinitions || [];
-  let hasName = definition.name && definition.name.kind === 'Name';
-  name = hasName ? definition.name.value : 'data'; // fallback to using data if no name
+
+  if (definition.name && definition.name.kind === 'Name') {
+    name = definition.name.value;
+  } else {
+    name = 'data'; // fallback to using data if no name
+  }
+
   return { name, type, variables };
 }

@@ -4,14 +4,15 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../src';
+import { ApolloProvider, graphql, ChildProps } from '../../../src';
 
 import stripSymbols from '../../test-utils/stripSymbols';
+import { DocumentNode } from 'graphql';
 
 describe('fragments', () => {
   // XXX in a later version, we should support this for composition
   it('throws if you only pass a fragment', () => {
-    const query = gql`
+    const query: DocumentNode = gql`
       fragment Failure on PeopleConnection {
         people {
           name
@@ -21,6 +22,8 @@ describe('fragments', () => {
     const expectedData = {
       allPeople: { people: [{ name: 'Luke Skywalker' }] },
     };
+    type Data = typeof expectedData;
+
     const link = mockSingleLink({
       request: { query },
       result: { data: expectedData },
@@ -31,18 +34,19 @@ describe('fragments', () => {
     });
 
     try {
-      @graphql(query)
-      class Container extends React.Component<any, any> {
-        componentWillReceiveProps(props) {
-          expect(props.data.loading).toBeFalsy();
-          expect(stripSymbols(props.data.allPeople)).toEqual(
-            expectedData.allPeople,
-          );
-        }
-        render() {
-          return null;
-        }
-      }
+      const Container = graphql<{}, Data>(query)(
+        class extends React.Component<ChildProps<{}, Data>> {
+          componentWillReceiveProps(props: ChildProps<{}, Data>) {
+            expect(props.data!.loading).toBeFalsy();
+            expect(stripSymbols(props.data!.allPeople)).toEqual(
+              expectedData.allPeople,
+            );
+          }
+          render() {
+            return null;
+          }
+        },
+      );
 
       renderer.create(
         <ApolloProvider client={client}>
@@ -56,7 +60,7 @@ describe('fragments', () => {
   });
 
   it('correctly fetches a query with inline fragments', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           __typename
@@ -76,6 +80,9 @@ describe('fragments', () => {
         people: [{ name: 'Luke Skywalker' }],
       },
     };
+
+    type Data = typeof data;
+
     const link = mockSingleLink({
       request: { query },
       result: { data },
@@ -85,17 +92,18 @@ describe('fragments', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps(props) {
-        expect(props.data.loading).toBeFalsy();
-        expect(stripSymbols(props.data.allPeople)).toEqual(data.allPeople);
-        done();
-      }
-      render() {
-        return null;
-      }
-    }
+    const Container = graphql<{}, Data>(query)(
+      class extends React.Component<ChildProps<{}, Data>> {
+        componentWillReceiveProps(props: ChildProps<{}, Data>) {
+          expect(props.data!.loading).toBeFalsy();
+          expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
+          done();
+        }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>

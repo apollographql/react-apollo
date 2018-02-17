@@ -5,14 +5,14 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../src';
-import { ObservableQueryRecycler } from '../../../src/queryRecycler';
+import { ApolloProvider, graphql, ChildProps } from '../../../src';
 
 import stripSymbols from '../../test-utils/stripSymbols';
+import { DocumentNode } from 'graphql';
 
 describe('client option', () => {
   it('renders with client from options', () => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -22,6 +22,9 @@ describe('client option', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+    type Data = typeof data;
+
     const link = mockSingleLink({
       request: { query },
       result: { data },
@@ -35,10 +38,19 @@ describe('client option', () => {
         client,
       },
     };
-    const ContainerWithData = graphql(query, config)(props => null);
-    shallow(<ContainerWithData />, {
-      context: { getQueryRecycler: () => new ObservableQueryRecycler() },
-    });
+    const ContainerWithData = graphql<{}, Data>(query, config)(() => null);
+    renderer.create(
+      <ApolloProvider
+        client={
+          new ApolloClient({
+            link,
+            cache: new Cache({ addTypename: false }),
+          })
+        }
+      >
+        <ContainerWithData />
+      </ApolloProvider>,
+    );
   });
   it('doesnt require a recycler', () => {
     const query = gql`
@@ -51,6 +63,8 @@ describe('client option', () => {
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    type Data = typeof data;
+
     const link = mockSingleLink({
       request: { query },
       result: { data },
@@ -64,12 +78,12 @@ describe('client option', () => {
         client,
       },
     };
-    const ContainerWithData = graphql(query, config)(props => null);
+    const ContainerWithData = graphql<{}, Data>(query, config)(() => null);
     shallow(<ContainerWithData />);
   });
 
   it('ignores client from context if client from options is present', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
           people {
@@ -81,6 +95,8 @@ describe('client option', () => {
     const dataProvider = {
       allPeople: { people: [{ name: 'Leia Organa Solo' }] },
     };
+
+    type Data = typeof dataProvider;
     const linkProvider = mockSingleLink({
       request: { query },
       result: { data: dataProvider },
@@ -105,11 +121,10 @@ describe('client option', () => {
       },
     };
 
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
-        // tslint:disable-line
-        expect(data.loading).toBeFalsy(); // first data
-        expect(stripSymbols(data.allPeople)).toEqual({
+    class Container extends React.Component<ChildProps<{}, Data>> {
+      componentWillReceiveProps({ data }: ChildProps<{}, Data>) {
+        expect(data!.loading).toBeFalsy(); // first data
+        expect(stripSymbols(data!.allPeople)).toEqual({
           people: [{ name: 'Luke Skywalker' }],
         });
         done();
@@ -118,7 +133,7 @@ describe('client option', () => {
         return null;
       }
     }
-    const ContainerWithData = graphql(query, config)(Container);
+    const ContainerWithData = graphql<{}, Data>(query, config)(Container);
     renderer.create(
       <ApolloProvider client={clientProvider}>
         <ContainerWithData />
@@ -126,7 +141,7 @@ describe('client option', () => {
     );
   });
   it('exposes refetch as part of the props api', done => {
-    const query = gql`
+    const query: DocumentNode = gql`
       query people($first: Int) {
         allPeople(first: $first) {
           people {
@@ -136,7 +151,11 @@ describe('client option', () => {
       }
     `;
     const variables = { first: 1 };
+    type Variables = typeof variables;
+
     const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    type Data = typeof data1;
+
     const link = mockSingleLink({
       request: { query, variables },
       result: { data: data1 },
@@ -146,17 +165,19 @@ describe('client option', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    @graphql(query)
-    class Container extends React.Component<any, any> {
-      componentWillReceiveProps({ data }) {
-        // tslint:disable-line
-        expect(data.loading).toBeFalsy(); // first data
-        done();
-      }
-      render() {
-        return null;
-      }
-    }
+    const Container = graphql<Variables, Data, Variables>(query)(
+      class extends React.Component<ChildProps<Variables, Data, Variables>> {
+        componentWillReceiveProps({
+          data,
+        }: ChildProps<Variables, Data, Variables>) {
+          expect(data!.loading).toBeFalsy(); // first data
+          done();
+        }
+        render() {
+          return null;
+        }
+      },
+    );
 
     renderer.create(
       <ApolloProvider client={client}>

@@ -100,7 +100,7 @@ export class MockSubscriptionLink extends ApolloLink {
     super();
   }
 
-  public request(req: any) {
+  public request(_req: any) {
     return new Observable<FetchResult>(observer => {
       this.setups.forEach(x => x());
       this.observer = observer;
