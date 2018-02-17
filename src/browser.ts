@@ -1,4 +1,4 @@
-export { default as getDataFromTree } from './getDataFromTree';
+export { default as getDataFromTree, walkTree } from './getDataFromTree';
 export * from './getDataFromTree';
 
 export { default as ApolloConsumer } from './ApolloConsumer';

@@ -20,8 +20,6 @@ import {
 } from './types';
 import { OperationVariables } from './index';
 
-const pick = require('lodash/pick');
-const assign = require('object-assign');
 const hoistNonReactStatics = require('hoist-non-react-statics');
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -30,39 +28,43 @@ const defaultMapPropsToOptions = () => ({});
 const defaultMapResultToProps: <P>(props: P) => P = props => props;
 const defaultMapPropsToSkip = () => false;
 
-type ObservableQueryFields<TData> = Pick<
-  ObservableQuery<TData>,
-  'refetch' | 'fetchMore' | 'updateQuery' | 'startPolling' | 'stopPolling'
->;
+type ObservableQueryKeys =
+  | 'variables'
+  | 'refetch'
+  | 'fetchMore'
+  | 'updateQuery'
+  | 'startPolling'
+  | 'stopPolling'
+  | 'subscribeToMore';
+
+const observableQueryKeys: ObservableQueryKeys[] = [
+  'variables',
+  'refetch',
+  'fetchMore',
+  'updateQuery',
+  'startPolling',
+  'stopPolling',
+  'subscribeToMore',
+];
 
 // the fields we want to copy over to our data prop
-function observableQueryFields<TData>(
-  observable: ObservableQuery<TData>,
-): ObservableQueryFields<TData> {
-  const fields = pick(
-    observable,
-    'variables',
-    'refetch',
-    'fetchMore',
-    'updateQuery',
-    'startPolling',
-    'stopPolling',
-    'subscribeToMore',
-  );
+function observableQueryFields<T extends { [K in ObservableQueryKeys]: any }>(
+  observable: T,
+): Pick<T, ObservableQueryKeys> {
+  let obj: { [K in ObservableQueryKeys]?: T[K] } = {};
 
-  Object.keys(fields).forEach(key => {
-    const k = key as
-      | 'refetch'
-      | 'fetchMore'
-      | 'updateQuery'
-      | 'startPolling'
-      | 'stopPolling';
-    if (typeof fields[k] === 'function') {
-      fields[k] = fields[k].bind(observable);
+  observableQueryKeys.forEach(key => {
+    if (!(key in observable)) return;
+
+    const val = observable[key];
+    if (typeof val === 'function') {
+      obj[key] = val.bind(observable);
+    } else {
+      obj[key] = val;
     }
   });
 
-  return fields;
+  return obj as Pick<T, ObservableQueryKeys>;
 }
 
 function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
@@ -308,9 +310,13 @@ export default function graphql<
         let opts = mapPropsToOptions(props);
 
         if (newOpts && newOpts.variables) {
-          newOpts.variables = assign({}, opts.variables, newOpts.variables);
+          newOpts.variables = Object.assign(
+            {},
+            opts.variables,
+            newOpts.variables,
+          );
         }
-        if (newOpts) opts = assign({}, opts, newOpts);
+        if (newOpts) opts = Object.assign({}, opts, newOpts);
 
         if (opts.variables || !operation.variables.length) return opts;
 
@@ -358,7 +364,10 @@ export default function graphql<
           ownProps: this.props,
         };
         if (mapResultToProps) {
-          this.lastResultProps = mapResultToProps(newResult, this.lastResultProps);
+          this.lastResultProps = mapResultToProps(
+            newResult,
+            this.lastResultProps,
+          );
           return this.lastResultProps;
         }
 
@@ -380,7 +389,7 @@ export default function graphql<
       createQuery(opts: QueryOpts, props: any = this.props) {
         if (this.type === DocumentType.Subscription) {
           this.queryObservable = this.getClient(props).subscribe(
-            assign({ query: document }, opts),
+            Object.assign({ query: document }, opts),
           );
         } else {
           // Try to reuse an `ObservableQuery` instance from our recycler. If
@@ -392,7 +401,7 @@ export default function graphql<
 
           if (queryObservable === null) {
             this.queryObservable = this.getClient(props).watchQuery(
-              assign(
+              Object.assign(
                 {
                   query: document,
                   metadata: {
@@ -455,7 +464,7 @@ export default function graphql<
         }
 
         const observable = this.getClient(this.props).watchQuery(
-          assign({ query: document }, opts),
+          Object.assign({ query: document }, opts),
         );
         const result = observable.currentResult();
 
@@ -477,14 +486,19 @@ export default function graphql<
             // need to do this ourselves
             this.lastSubscriptionData = results;
           }
-          const clashingKeys = Object.keys(observableQueryFields(results.data));
-          invariant(
-            clashingKeys.length === 0,
-            `the result of the '${graphQLDisplayName}' operation contains ` +
-              `keys that conflict with the return object.` +
-              clashingKeys.map(k => `'${k}'`).join(', ') +
-              ` not allowed.`,
-          );
+
+          if (results.data) {
+            const clashingKeys = Object.keys(
+              observableQueryFields(results.data),
+            );
+            invariant(
+              clashingKeys.length === 0,
+              `the result of the '${graphQLDisplayName}' operation contains ` +
+                `keys that conflict with the return object.` +
+                clashingKeys.map(k => `'${k}'`).join(', ') +
+                ` not allowed.`,
+            );
+          }
 
           this.forceRenderChildren();
         };
@@ -576,10 +590,10 @@ export default function graphql<
 
         const opts = this.calculateOptions(this.props);
         const data = {};
-        assign(data, observableQueryFields(this.queryObservable));
+        Object.assign(data, observableQueryFields(this.queryObservable));
 
         if (this.type === DocumentType.Subscription) {
-          assign(
+          Object.assign(
             data,
             {
               loading: !this.lastSubscriptionData,
@@ -596,7 +610,7 @@ export default function graphql<
           if (errors && errors.length > 0) {
             error = new ApolloError({ graphQLErrors: errors });
           }
-          assign(data, { loading, networkStatus });
+          Object.assign(data, { loading, networkStatus });
 
           // Define the error property on the data object. If the user does
           // not get the error object from `data` within 10 milliseconds
@@ -632,12 +646,15 @@ export default function graphql<
 
           if (loading) {
             // while loading, we should use any previous data we have
-            assign(data, this.previousData, currentResult.data);
+            Object.assign(data, this.previousData, currentResult.data);
           } else if (error) {
             // if there is error, use any previously cached data
-            assign(data, (this.queryObservable.getLastResult() || {}).data);
+            Object.assign(
+              data,
+              (this.queryObservable.getLastResult() || {}).data,
+            );
           } else {
-            assign(data, currentResult.data);
+            Object.assign(data, currentResult.data);
             this.previousData = currentResult.data;
           }
 
@@ -658,7 +675,9 @@ export default function graphql<
           if (operationOptions.withRef) {
             return (
               <WrappedComponent
-                {...assign({}, this.props, { ref: this.setWrappedInstance })}
+                {...Object.assign({}, this.props, {
+                  ref: this.setWrappedInstance,
+                })}
               />
             );
           }
@@ -678,7 +697,7 @@ export default function graphql<
 
         const data = this.dataForChild();
         const clientProps = this.calculateResultProps(data);
-        const mergedPropsAndData = assign({}, props, clientProps);
+        const mergedPropsAndData = Object.assign({}, props, clientProps);
 
         if (operationOptions.withRef)
           (mergedPropsAndData as any).ref = this.setWrappedInstance;

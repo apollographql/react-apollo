@@ -5,6 +5,7 @@
   "module": "src/index.ts",
   "browser": "lib/react-apollo.browser.umd.js",
   "typings": "lib/index.d.ts",
+  "main": "lib/react-apollo.umd.js",
   "scripts": {
     "precommit": "lint-staged",
     "danger": "danger run --verbose",
@@ -17,6 +18,11 @@
     "test-watch": "jest --watch",
     "test-preact": "jest --config ./jest.preact.config.json --no-cache",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
+    "test:compiled":
+      "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
+    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js",
+    "test:compiled:server:umd": "jest --config jest.server.umd.config.js",
+    "test:compiled:cjs": "jest --config jest.cjs.config.js",
     "precompile": "rimraf lib",
     "compile": "npm run compile:esm && npm run compile:cjs",
     "compile:esm":
@@ -24,7 +30,7 @@
     "compile:cjs":
       "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
     "postcompile":
-      "rollup -c rollup.config.js && rollup -c rollup.browser.config.js && ./scripts/prepare-package.sh",
+      "rollup -c rollup.config.js && rollup -c  && ./scripts/prepare-package.sh && npm run test:compiled",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint:fix":
@@ -71,7 +77,8 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow-usage.js",
-      "<rootDir>/test/typescript-usage.tsx"
+      "<rootDir>/test/typescript-usage.tsx",
+      "<rootDir>/test/fail-no-entry-point.js"
     ],
     "projects": ["<rootDir>"],
     "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
@@ -122,7 +129,7 @@
     "recompose": "0.26.0",
     "recursive-rename": "2.0.0",
     "rimraf": "2.6.2",
-    "rollup": "0.56.1",
+    "rollup": "^0.56.1",
     "rollup-plugin-babel-minify": "4.0.0",
     "rollup-plugin-commonjs": "8.3.0",
     "ts-jest": "22.0.4",

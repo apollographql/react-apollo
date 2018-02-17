@@ -6,7 +6,6 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../src/test-utils';
 import { ApolloProvider, graphql, ChildProps } from '../../../src';
-import { ObservableQueryRecycler } from '../../../src/queryRecycler';
 
 import stripSymbols from '../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
@@ -40,9 +39,18 @@ describe('client option', () => {
       },
     };
     const ContainerWithData = graphql<{}, Data>(query, config)(() => null);
-    shallow(<ContainerWithData />, {
-      context: { getQueryRecycler: () => new ObservableQueryRecycler() },
-    });
+    renderer.create(
+      <ApolloProvider
+        client={
+          new ApolloClient({
+            link,
+            cache: new Cache({ addTypename: false }),
+          })
+        }
+      >
+        <ContainerWithData />
+      </ApolloProvider>,
+    );
   });
   it('doesnt require a recycler', () => {
     const query = gql`

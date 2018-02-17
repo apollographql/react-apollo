@@ -3,7 +3,6 @@ import { OperationOption } from './types';
 import ApolloConsumer from './ApolloConsumer';
 import { ApolloClient } from 'apollo-client';
 
-const assign = require('object-assign');
 const invariant = require('invariant');
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
@@ -49,7 +48,7 @@ export default function withApollo<TProps, TResult>(
       return (
         <ApolloConsumer>
           {client => {
-            const props = assign({}, this.props, {
+            const props = Object.assign({}, this.props, {
               client,
               ref: operationOptions.withRef
                 ? this.setWrappedInstance
