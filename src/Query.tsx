@@ -114,6 +114,17 @@ class Query<
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
+
+  static propTypes = {
+    children: PropTypes.func.isRequired,
+    fetchPolicy: PropTypes.string,
+    notifyOnNetworkStatusChange: PropTypes.bool,
+    pollInterval: PropTypes.number,
+    query: PropTypes.object.isRequired,
+    variables: PropTypes.object,
+    ssr: PropTypes.bool,
+  };
+
   context: QueryContext;
 
   private client: ApolloClient<Object>;

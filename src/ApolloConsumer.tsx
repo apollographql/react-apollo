@@ -24,4 +24,8 @@ ApolloConsumer.contextTypes = {
   client: PropTypes.object.isRequired,
 };
 
+ApolloConsumer.propTypes = {
+  children: PropTypes.func.isRequired,
+};
+
 export default ApolloConsumer;
