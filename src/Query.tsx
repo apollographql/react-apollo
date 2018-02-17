@@ -106,7 +106,7 @@ export interface QueryState<TData = any> {
   result: ApolloCurrentResult<TData>;
 }
 
-class Query<
+class InnerQuery<
   TData = any,
   TVariables = OperationVariables
 > extends React.Component<QueryPropsWithClient<TData, TVariables>, QueryState<TData>> {
@@ -287,16 +287,16 @@ class Query<
   };
 }
 
-class QueryWithClient<TData = any, TVariables = OperationVariables> extends React.Component<QueryProps<TData, TVariables>> {
+class Query<TData = any, TVariables = OperationVariables> extends React.Component<QueryProps<TData, TVariables>> {
   render() {
     return (
       <ApolloConsumer>
         {client => (
-          <Query {...this.props} client={client} />
+          <InnerQuery {...this.props} client={client} />
         )}
       </ApolloConsumer>
     )
   }
 };
 
-export default QueryWithClient;
+export default Query;
