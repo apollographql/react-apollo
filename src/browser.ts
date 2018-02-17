@@ -10,6 +10,9 @@ export * from './ApolloProvider';
 export { default as Query } from './Query';
 export * from './Query';
 
+export { default as Mutation } from './Mutation';
+export * from './Mutation';
+
 export { default as graphql } from './graphql';
 export * from './graphql';
 
