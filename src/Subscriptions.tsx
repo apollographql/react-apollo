@@ -43,6 +43,12 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     client: PropTypes.object.isRequired,
   };
 
+  static propTypes = {
+    query: PropTypes.object.isRequired,
+    variables: PropTypes.object,
+    children: PropTypes.func.isRequired,
+  };
+
   private client: ApolloClient<any>;
   private queryObservable: Observable<any>;
   private querySubscription: ZenObservable.Subscription;

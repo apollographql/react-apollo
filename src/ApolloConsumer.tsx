@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as PropTypes from "prop-types";
 import ApolloClient from 'apollo-client';
 const invariant = require('invariant');
 
@@ -20,6 +21,10 @@ const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> = props => {
       }}
     </ApolloContext.Consumer>
   );
+};
+
+ApolloConsumer.propTypes = {
+  children: PropTypes.func.isRequired,
 };
 
 export default ApolloConsumer;

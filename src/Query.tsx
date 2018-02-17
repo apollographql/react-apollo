@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
   ApolloQueryResult,
@@ -14,7 +15,6 @@ import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
 import ApolloConsumer from "./ApolloConsumer";
 
-const pick = require('lodash/pick');
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 
@@ -63,27 +63,13 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
 function observableQueryFields<TData, TVariables>(
   observable: ObservableQuery<TData>,
 ): ObservableQueryFields<TData, TVariables> {
-  const fields = pick(
-    observable,
-    'refetch',
-    'fetchMore',
-    'updateQuery',
-    'startPolling',
-    'stopPolling',
-  );
-
-  Object.keys(fields).forEach(key => {
-    const k = key as
-      | 'refetch'
-      | 'fetchMore'
-      | 'updateQuery'
-      | 'startPolling'
-      | 'stopPolling';
-    if (typeof fields[k] === 'function') {
-      fields[k] = fields[k].bind(observable);
-    }
-  });
-
+  const fields = {
+    refetch: observable.refetch.bind(observable),
+    fetchMore: observable.fetchMore.bind(observable),
+    updateQuery: observable.updateQuery.bind(observable),
+    startPolling: observable.startPolling.bind(observable),
+    stopPolling: observable.stopPolling.bind(observable),
+  };
   // TODO: Need to cast this because we improved the type of `updateQuery` to be parametric
   // on variables, while the type in Apollo client just has object.
   // Consider removing this when that is properly typed
@@ -125,6 +111,16 @@ class Query<
   TVariables = OperationVariables
 > extends React.Component<QueryPropsWithClient<TData, TVariables>, QueryState<TData>> {
   
+  static propTypes = {
+    children: PropTypes.func.isRequired,
+    fetchPolicy: PropTypes.string,
+    notifyOnNetworkStatusChange: PropTypes.bool,
+    pollInterval: PropTypes.number,
+    query: PropTypes.object.isRequired,
+    variables: PropTypes.object,
+    ssr: PropTypes.bool,
+  };
+
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
   private previousData: any = {};
