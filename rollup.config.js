@@ -1,3 +1,8 @@
+import commonjs from 'rollup-plugin-commonjs';
+import node from 'rollup-plugin-node-resolve';
+import uglify from 'rollup-plugin-uglify';
+import replace from 'rollup-plugin-replace';
+
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
 
@@ -7,6 +12,7 @@ function onwarn(message) {
 }
 
 export default [
+  // for browser
   {
     input: 'lib/browser.js',
     output: {
@@ -18,6 +24,7 @@ export default [
     },
     onwarn,
   },
+  // for server
   {
     input: 'lib/index.js',
     output: {
@@ -27,6 +34,26 @@ export default [
       sourcemap: false,
       exports: 'named',
     },
+    onwarn,
+  },
+  // for filesize
+  {
+    input: 'lib/react-apollo.browser.umd.js',
+    output: {
+      file: 'dist/bundlesize.js',
+      format: 'cjs',
+      exports: 'named',
+    },
+    plugins: [
+      node(),
+      commonjs({
+        ignore: ['react', 'apollo-client', 'graphql', 'graphql-tag'],
+      }),
+      replace({
+        'process.env.NODE_ENV': JSON.stringify('production'),
+      }),
+      uglify(),
+    ],
     onwarn,
   },
 ];

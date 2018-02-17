@@ -5,6 +5,7 @@
 * Added `<Mutation />` component [#1520](https://github.com/apollographql/react-apollo/pull/1520)
 * HoC `props` result-mapping function now receives prior return value as second argument.
 * Fix errorPolicy when 'all' not passing data and errors
+* Fix bundles and run test suite on all shippable code
 
 ### 2.1.0-beta.2
 

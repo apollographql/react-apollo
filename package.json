@@ -17,7 +17,7 @@
     "jest": "jest --maxWorkers=4 --coverage",
     "test-watch": "jest --watch",
     "test-preact": "jest --config ./jest.preact.config.json --no-cache",
-    "type-check": "tsc --project tsconfig.json --noEmit && flow check",
+    "type-check": "tsc --project tsconfig.json --noEmit ",
     "test:compiled":
       "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
     "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js",
@@ -29,8 +29,7 @@
       "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
     "compile:cjs":
       "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
-    "postcompile":
-      "rollup -c rollup.config.js && rollup -c  && ./scripts/prepare-package.sh && npm run test:compiled",
+    "postcompile": "rollup -c  && ./scripts/prepare-package.sh",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint:fix":
@@ -41,8 +40,8 @@
   },
   "bundlesize": [
     {
-      "path": "./lib/react-apollo.browser.umd.js",
-      "maxSize": "7 KB"
+      "path": "./dist/bundlesize.js",
+      "maxSize": "11 KB"
     }
   ],
   "lint-staged": {
@@ -115,7 +114,6 @@
     "enzyme-adapter-react-16": "1.1.1",
     "flow-bin": "0.65.0",
     "graphql": "0.11.7",
-    "graphql-tag": "2.7.3",
     "husky": "0.14.3",
     "jest": "22.3.0",
     "jsdom": "11.6.2",
@@ -132,6 +130,9 @@
     "rollup": "^0.56.1",
     "rollup-plugin-babel-minify": "4.0.0",
     "rollup-plugin-commonjs": "8.3.0",
+    "rollup-plugin-node-resolve": "^3.0.3",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-uglify": "^3.0.0",
     "ts-jest": "22.0.4",
     "tslint": "5.9.1",
     "typescript": "2.6.2",
@@ -141,6 +142,7 @@
   "dependencies": {
     "apollo-link": "^1.0.6",
     "fbjs": "^0.8.16",
+    "graphql-tag": "^2.7.0",
     "hoist-non-react-statics": "^2.3.1",
     "invariant": "^2.2.2",
     "lodash": "4.17.5",
