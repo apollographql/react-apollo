@@ -9,8 +9,6 @@ import {
 } from 'react';
 import ApolloClient from 'apollo-client';
 
-const assign = require('object-assign');
-
 export interface Context<Cache> {
   client?: ApolloClient<Cache>;
   store?: any;
@@ -83,7 +81,7 @@ export function walkTree<Cache>(
   if (isReactElement(element)) {
     if (typeof element.type === 'function') {
       const Comp = element.type;
-      const props = assign({}, Comp.defaultProps, getProps(element));
+      const props = Object.assign({}, Comp.defaultProps, getProps(element));
       let childContext = context;
       let child;
 
@@ -112,7 +110,7 @@ export function walkTree<Cache>(
               instance.context,
             );
           }
-          instance.state = assign({}, instance.state, newState);
+          instance.state = Object.assign({}, instance.state, newState);
         };
 
         // this is a poor man's version of
@@ -122,7 +120,7 @@ export function walkTree<Cache>(
         }
 
         if (providesChildContext(instance)) {
-          childContext = assign({}, context, instance.getChildContext());
+          childContext = Object.assign({}, context, instance.getChildContext());
         }
 
         if (visitor(element, instance, context) === false) {

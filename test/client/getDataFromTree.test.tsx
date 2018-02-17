@@ -9,12 +9,12 @@ import {
   walkTree,
   getDataFromTree,
   DataValue,
+  ChildProps,
 } from '../../src';
 import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../src/test-utils';
-import { ChildProps } from '../../src/types';
 import { DocumentNode } from 'graphql';
 
 describe('SSR', () => {

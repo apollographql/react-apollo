@@ -1,4 +1,4 @@
-export { default as getDataFromTree } from './getDataFromTree';
+export { default as getDataFromTree, walkTree } from './getDataFromTree';
 export * from './getDataFromTree';
 
 export { default as ApolloConsumer } from './ApolloConsumer';
@@ -9,6 +9,9 @@ export * from './ApolloProvider';
 
 export { default as Query } from './Query';
 export * from './Query';
+
+export { default as Mutation } from './Mutation';
+export * from './Mutation';
 
 export { default as graphql } from './graphql';
 export * from './graphql';

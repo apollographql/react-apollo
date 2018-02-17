@@ -1,18 +1,3 @@
-const minify = require('rollup-plugin-babel-minify');
-const commonjs = require('rollup-plugin-commonjs');
-
-export default {
-  input: 'lib/index.js',
-  output: {
-    file: 'lib/react-apollo.umd.js',
-    format: 'umd',
-    name: 'react-apollo',
-    sourcemap: false,
-  },
-  plugins: [commonjs(), minify()],
-  onwarn,
-};
-
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
 
@@ -20,3 +5,28 @@ function onwarn(message) {
     return console.warn(message.message);
   }
 }
+
+export default [
+  {
+    input: 'lib/browser.js',
+    output: {
+      file: 'lib/react-apollo.browser.umd.js',
+      format: 'umd',
+      name: 'react-apollo',
+      sourcemap: true,
+      exports: 'named',
+    },
+    onwarn,
+  },
+  {
+    input: 'lib/index.js',
+    output: {
+      file: 'lib/react-apollo.umd.js',
+      format: 'umd',
+      name: 'react-apollo',
+      sourcemap: false,
+      exports: 'named',
+    },
+    onwarn,
+  },
+];
