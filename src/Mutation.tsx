@@ -50,7 +50,9 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn<TData>;
   children: (
-    mutateFn: (options?: MutationOptions<TVariables>) => void,
+    mutateFn: (
+      options?: MutationOptions<TVariables>
+    ) => Promise<void | FetchResult>,
     result?: MutationResult<TData>
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
@@ -144,20 +146,19 @@ class Mutation<
     return children(this.runMutation, result);
   }
 
-  private runMutation = async (options: MutationOptions<TVariables> = {}) => {
+  private runMutation = (options: MutationOptions<TVariables> = {}) => {
     this.onStartMutation();
 
     const mutationId = this.generateNewMutationId();
 
-    let response;
-    try {
-      response = await this.mutate(options);
-    } catch (e) {
-      this.onMutationError(e, mutationId);
-      return;
-    }
-
-    this.onCompletedMutation(response, mutationId);
+    return this.mutate(options)
+      .then(response => {
+        this.onCompletedMutation(response, mutationId);
+        return response;
+      })
+      .catch(e => {
+        this.onMutationError(e, mutationId);
+      });
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {

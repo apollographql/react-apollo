@@ -527,7 +527,6 @@ it('has refetchQueries in the props', done => {
 it('has an update prop for updating the store after the mutation', done => {
   const update = (_proxy: DataProxy, response: ExecutionResult) => {
     expect(response.data).toEqual(data);
-    done();
   };
 
   let count = 0;
@@ -536,7 +535,10 @@ it('has an update prop for updating the store after the mutation', done => {
       {createTodo => {
         if (count === 0) {
           setTimeout(() => {
-            createTodo();
+            createTodo().then(response => {
+              expect(response!.data).toEqual(data);
+              done();
+            });
           });
         }
         count++;
