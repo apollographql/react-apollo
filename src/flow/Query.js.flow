@@ -1,0 +1,47 @@
+// @flow
+
+import type { DocumentNode, VariableDefinitionNode } from 'graphql';
+
+import type {
+  ApolloClient,
+  ApolloError,
+  NetworkStatus,
+  FetchPolicy,
+  ApolloQueryResult,
+  FetchMoreQueryOptions,
+  FetchMoreOptions,
+  OperationVariables
+} from './apollo-client-types.js.flow';
+
+type QueryResult<TData, TVariables> = {
+  client: ApolloClient,
+  data: ?TData,
+  error: ?ApolloError,
+  loading: boolean,
+  networkStatus: NetworkStatus,
+  fetchMore: (
+    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions<TData, TVariables>,
+  ) => Promise<ApolloQueryResult<TData>>,
+  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>,
+  startPolling: (pollInterval: number) => void,
+  stopPolling: () => void,
+  updateQuery: (
+    mapFn: (
+      previousQueryResult: TData,
+      options: { variables?: TVariables },
+    ) => TData,
+  ) => void,
+};
+
+declare export class Query<
+  TData = Object,
+  TVariables = OperationVariables,
+> extends React$Component<{
+  query: DocumentNode,
+  variables?: TVariables,
+  children: (result: QueryResult<TData, TVariables>) => React$Node,
+  fetchPolicy?: FetchPolicy,
+  notifyOnNetworkStatusChange?: boolean,
+  pollInterval?: number,
+  ssr?: boolean,
+}> {}
