@@ -8,6 +8,7 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
+import ApolloConsumer from "./ApolloConsumer";
 
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
@@ -58,6 +59,10 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   onError?: (error: ApolloError) => void;
 }
 
+export interface InnerMutationProps<TData = any, TVariables = OperationVariables> extends MutationProps<TData, TVariables> {
+  client: ApolloClient<any>
+};
+
 export interface MutationState<TData = any> {
   notCalled: boolean;
   error?: ApolloError;
@@ -69,16 +74,13 @@ const initialState = {
   notCalled: true,
 };
 
-class Mutation<
+class InnerMutation<
   TData = any,
   TVariables = OperationVariables
 > extends React.Component<
-  MutationProps<TData, TVariables>,
+  InnerMutationProps<TData, TVariables>,
   MutationState<TData>
 > {
-  static contextTypes = {
-    client: PropTypes.object.isRequired,
-  };
 
   static propTypes = {
     mutation: PropTypes.object.isRequired,
@@ -92,16 +94,13 @@ class Mutation<
     children: PropTypes.func.isRequired,
     onCompleted: PropTypes.func,
     onError: PropTypes.func,
+    client: PropTypes.object.isRequired
   };
 
-  private client: ApolloClient<any>;
   private mostRecentMutationId: number;
 
-  constructor(props: MutationProps<TData, TVariables>, context: any) {
-    super(props, context);
-
-    this.verifyContext(context);
-    this.client = context.client;
+  constructor(props: InnerMutationProps<TData, TVariables>) {
+    super(props);
 
     this.verifyDocumentIsMutation(props.mutation);
 
@@ -110,13 +109,9 @@ class Mutation<
   }
 
   componentWillReceiveProps(
-    nextProps: MutationProps<TData, TVariables>,
-    nextContext: MutationContext,
+    nextProps: InnerMutationProps<TData, TVariables>
   ) {
-    if (
-      shallowEqual(this.props, nextProps) &&
-      this.client === nextContext.client
-    ) {
+    if (shallowEqual(this.props, nextProps)) {
       return;
     }
 
@@ -124,8 +119,7 @@ class Mutation<
       this.verifyDocumentIsMutation(nextProps.mutation);
     }
 
-    if (this.client !== nextContext.client) {
-      this.client = nextContext.client;
+    if (this.props.client !== nextProps.client) {
       this.setState(initialState);
     }
   }
@@ -161,11 +155,11 @@ class Mutation<
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const { mutation, optimisticResponse, refetchQueries, update } = this.props;
+    const { mutation, optimisticResponse, refetchQueries, update, client } = this.props;
 
     const { variables } = options;
 
-    return this.client.mutate({
+    return client.mutate({
       mutation,
       variables,
       optimisticResponse,
@@ -258,13 +252,18 @@ class Mutation<
       }.`,
     );
   };
-
-  private verifyContext = (context: MutationContext) => {
-    invariant(
-      !!context.client,
-      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
-    );
-  };
 }
+
+class Mutation<TData = any, TVariables = OperationVariables> extends React.Component<MutationProps<TData, TVariables>> {
+  render() {
+    return (
+      <ApolloConsumer>
+        {client => (
+          <InnerMutation {...this.props} client={client} />
+        )}
+      </ApolloConsumer>
+    )
+  }
+};
 
 export default Mutation;
