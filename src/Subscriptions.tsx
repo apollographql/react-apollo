@@ -6,9 +6,9 @@ import { Observable } from 'apollo-client/util/Observable';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
+import ApolloConsumer from "./ApolloConsumer";
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
-const invariant = require('invariant');
 
 export interface SubscriptionResult<TData = any> {
   loading: boolean;
@@ -25,45 +25,35 @@ export interface SubscriptionProps<
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
 
+export interface InnerSubscriptionProps<TData = any, TVariables = OperationVariables> extends SubscriptionProps<TData, TVariables> {
+  client: ApolloClient<any>
+};
+
 export interface SubscriptionState<TData = any> {
   loading: boolean;
   data?: TData;
   error?: ApolloError;
 }
 
-export interface SubscriptionContext {
-  client: ApolloClient<Object>;
-}
-
-class Subscription<TData = any, TVariables = any> extends React.Component<
-  SubscriptionProps<TData, TVariables>,
+class InnerSubscription<TData = any, TVariables = any> extends React.Component<
+  InnerSubscriptionProps<TData, TVariables>,
   SubscriptionState<TData>
 > {
-  static contextTypes = {
-    client: PropTypes.object.isRequired,
-  };
-
   static propTypes = {
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
     children: PropTypes.func.isRequired,
+    client: PropTypes.object.isRequired
   };
 
-  private client: ApolloClient<any>;
   private queryObservable: Observable<any>;
   private querySubscription: ZenObservable.Subscription;
 
   constructor(
-    props: SubscriptionProps<TData, TVariables>,
-    context: SubscriptionContext,
+    props: InnerSubscriptionProps<TData, TVariables>,
   ) {
-    super(props, context);
+    super(props);
 
-    invariant(
-      !!context.client,
-      `Could not find "client" in the context of Subscription. Wrap the root component in an <ApolloProvider>`,
-    );
-    this.client = context.client;
     this.initialize(props);
     this.state = this.getInitialState();
   }
@@ -73,18 +63,12 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   }
 
   componentWillReceiveProps(
-    nextProps: SubscriptionProps<TData, TVariables>,
-    nextContext: SubscriptionContext,
+    nextProps: InnerSubscriptionProps<TData, TVariables>,
   ) {
     if (
-      shallowEqual(this.props, nextProps) &&
-      this.client === nextContext.client
+      shallowEqual(this.props, nextProps)
     ) {
       return;
-    }
-
-    if (this.client !== nextContext.client) {
-      this.client = nextContext.client;
     }
 
     this.endSubscription();
@@ -107,10 +91,11 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     return this.props.children(result);
   }
 
-  private initialize = (props: SubscriptionProps<TData, TVariables>) => {
-    this.queryObservable = this.client.subscribe({
-      query: props.query,
-      variables: props.variables,
+  private initialize = (props: InnerSubscriptionProps<TData, TVariables>) => {
+    const { query, variables, client } = props;
+    this.queryObservable = client.subscribe({
+      query,
+      variables,
     });
   };
 
@@ -149,6 +134,18 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
       this.querySubscription.unsubscribe();
     }
   };
+}
+
+class Subscription<TData = any, TVariables = OperationVariables> extends React.Component<SubscriptionProps<TData, TVariables>> {
+  render() {
+    return (
+      <ApolloConsumer>
+        {client => (
+          <InnerSubscription {...this.props} client={client} />
+        )}
+      </ApolloConsumer>
+    )
+  }
 }
 
 export default Subscription;

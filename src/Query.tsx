@@ -13,6 +13,7 @@ import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
+import ApolloConsumer from "./ApolloConsumer";
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -99,22 +100,19 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   ssr?: boolean;
 }
 
+export interface InnerQueryProps<TData = any, TVariables = OperationVariables> extends QueryProps<TData, TVariables> {
+  client: ApolloClient<any>
+};
+
 export interface QueryState<TData = any> {
   result: ApolloCurrentResult<TData>;
 }
 
-export interface QueryContext {
-  client: ApolloClient<Object>;
-}
-
-class Query<
+class InnerQuery<
   TData = any,
   TVariables = OperationVariables
-> extends React.Component<QueryProps<TData, TVariables>, QueryState<TData>> {
-  static contextTypes = {
-    client: PropTypes.object.isRequired,
-  };
-
+> extends React.Component<InnerQueryProps<TData, TVariables>, QueryState<TData>> {
+  
   static propTypes = {
     children: PropTypes.func.isRequired,
     fetchPolicy: PropTypes.string,
@@ -125,21 +123,12 @@ class Query<
     ssr: PropTypes.bool,
   };
 
-  context: QueryContext;
-
-  private client: ApolloClient<Object>;
   private queryObservable: ObservableQuery<TData>;
   private querySubscription: ZenObservable.Subscription;
   private previousData: any = {};
 
-  constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
-    super(props, context);
-
-    invariant(
-      !!context.client,
-      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`,
-    );
-    this.client = context.client;
+  constructor(props: InnerQueryProps<TData, TVariables>) {
+    super(props);
 
     this.initializeQueryObservable(props);
     this.state = {
@@ -149,7 +138,7 @@ class Query<
 
   // For server-side rendering (see getDataFromTree.ts)
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
-    const { children, ssr, ...opts } = this.props;
+    const { client, children, ssr, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -157,7 +146,7 @@ class Query<
       fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
     }
 
-    const observable = this.client.watchQuery({
+    const observable = client.watchQuery({
       ...opts,
       fetchPolicy,
     });
@@ -174,20 +163,13 @@ class Query<
     this.startQuerySubscription();
   }
 
-  componentWillReceiveProps(
-    nextProps: QueryProps<TData, TVariables>,
-    nextContext: QueryContext,
-  ) {
+  componentWillReceiveProps(nextProps: InnerQueryProps<TData, TVariables>) {
     if (
-      shallowEqual(this.props, nextProps) &&
-      this.client === nextContext.client
+      shallowEqual(this.props, nextProps)
     ) {
       return;
     }
 
-    if (this.client !== nextContext.client) {
-      this.client = nextContext.client;
-    }
     this.removeQuerySubscription();
     this.initializeQueryObservable(nextProps);
     this.startQuerySubscription();
@@ -205,7 +187,7 @@ class Query<
   }
 
   private initializeQueryObservable = (
-    props: QueryProps<TData, TVariables>,
+    props: InnerQueryProps<TData, TVariables>,
   ) => {
     const {
       variables,
@@ -214,6 +196,7 @@ class Query<
       errorPolicy,
       notifyOnNetworkStatusChange,
       query,
+      client
     } = props;
 
     const operation = parser(query);
@@ -234,7 +217,7 @@ class Query<
       notifyOnNetworkStatusChange,
     };
 
-    this.queryObservable = this.client.watchQuery(clientOptions);
+    this.queryObservable = client.watchQuery(clientOptions);
   };
 
   private startQuerySubscription = () => {
@@ -276,6 +259,8 @@ class Query<
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     const { result } = this.state;
+    const { client } = this.props;
+    
     const { loading, networkStatus, errors } = result;
     let { error } = result;
     // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
@@ -294,7 +279,7 @@ class Query<
     }
 
     return {
-      client: this.client,
+      client,
       data: isDataFilled(data) ? data : undefined,
       loading,
       error,
@@ -303,5 +288,17 @@ class Query<
     };
   };
 }
+
+class Query<TData = any, TVariables = OperationVariables> extends React.Component<QueryProps<TData, TVariables>> {
+  render() {
+    return (
+      <ApolloConsumer>
+        {client => (
+          <InnerQuery {...this.props} client={client} />
+        )}
+      </ApolloConsumer>
+    )
+  }
+};
 
 export default Query;
