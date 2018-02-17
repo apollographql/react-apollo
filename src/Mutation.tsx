@@ -9,8 +9,7 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
 
-type DefaultData = Record<string, any>;
-export interface MutationResult<TData = DefaultData> {
+export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
   error?: ApolloError;
   loading?: boolean;
@@ -19,9 +18,9 @@ export interface MutationContext {
   client: ApolloClient<Object>;
 }
 
-export interface ExecutionResult<T = DefaultData> {
+export interface ExecutionResult<T = Record<string, any>> {
   data?: T;
-  extensions?: DefaultData;
+  extensions?: Record<string, any>;
   errors?: GraphQLError[];
 }
 
