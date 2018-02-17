@@ -1,21 +1,8 @@
 {
+  "extends": "./tsconfig",
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "lib": ["es2015", "dom"],
-    "moduleResolution": "node",
-    "sourceMap": true,
-    // "noImplicitAny": false,
-    "strict": true,
-    "outDir": "lib",
-    "allowSyntheticDefaultImports": false,
-    "experimentalDecorators": true,
-    "pretty": true,
-    "removeComments": true,
-    "jsx": "react",
-    "skipLibCheck": true,
-    "noUnusedLocals": true
-  },
-  "include": ["./typings/**/*", "./src/**/*", "./test/**/*"],
-  "exclude": ["./node_modules", "./dist", "./lib"]
+    "sourceMap": true
+  }
 }

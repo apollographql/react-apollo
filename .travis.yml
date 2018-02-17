@@ -11,5 +11,6 @@ script:
   - npm run test-preact
   - coveralls < ./coverage/lcov.info || true # ignore coveralls error
   - npm run compile
+  - npm run test:compiled
   - npm run filesize
 

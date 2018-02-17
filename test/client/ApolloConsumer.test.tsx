@@ -2,8 +2,7 @@ import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import ApolloProvider from '../../src/ApolloProvider';
-import ApolloConsumer from '../../src/ApolloConsumer';
+import { ApolloProvider, ApolloConsumer } from '../../src';
 import { mount } from 'enzyme';
 
 const client = new ApolloClient({
