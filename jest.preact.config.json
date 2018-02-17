@@ -14,6 +14,7 @@
     "<rootDir>/test/client/ApolloConsumer.test.tsx",
     "<rootDir>/test/client/ApolloProvider.test.tsx",
     "<rootDir>/test/client/Query.test.tsx",
+    "<rootDir>/test/client/Mutation.test.tsx",
     "<rootDir>/test/internal-api/",
     "<rootDir>/test/test-utils.test.tsx"
   ],
