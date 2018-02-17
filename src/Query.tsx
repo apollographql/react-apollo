@@ -100,7 +100,9 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   ssr?: boolean;
 }
 
-export type QueryPropsWithClient<TData = any, TVariables = OperationVariables> = QueryProps<TData, TVariables> & { client: ApolloClient<any> };
+export interface InnerQueryProps<TData = any, TVariables = OperationVariables> extends QueryProps<TData, TVariables> {
+  client: ApolloClient<any>
+};
 
 export interface QueryState<TData = any> {
   result: ApolloCurrentResult<TData>;
@@ -109,7 +111,7 @@ export interface QueryState<TData = any> {
 class InnerQuery<
   TData = any,
   TVariables = OperationVariables
-> extends React.Component<QueryPropsWithClient<TData, TVariables>, QueryState<TData>> {
+> extends React.Component<InnerQueryProps<TData, TVariables>, QueryState<TData>> {
   
   static propTypes = {
     children: PropTypes.func.isRequired,
@@ -125,7 +127,7 @@ class InnerQuery<
   private querySubscription: ZenObservable.Subscription;
   private previousData: any = {};
 
-  constructor(props: QueryPropsWithClient<TData, TVariables>) {
+  constructor(props: InnerQueryProps<TData, TVariables>) {
     super(props);
 
     this.initializeQueryObservable(props);
@@ -161,7 +163,7 @@ class InnerQuery<
     this.startQuerySubscription();
   }
 
-  componentWillReceiveProps(nextProps: QueryPropsWithClient<TData, TVariables>) {
+  componentWillReceiveProps(nextProps: InnerQueryProps<TData, TVariables>) {
     if (
       shallowEqual(this.props, nextProps)
     ) {
@@ -185,7 +187,7 @@ class InnerQuery<
   }
 
   private initializeQueryObservable = (
-    props: QueryPropsWithClient<TData, TVariables>,
+    props: InnerQueryProps<TData, TVariables>,
   ) => {
     const {
       variables,
