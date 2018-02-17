@@ -145,6 +145,71 @@ it('performs a mutation with variables passed as an option', done => {
   );
 });
 
+it("returns a resolved promise when calling the mutation function", done => {  
+  
+  let called = false;
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo) => {
+        
+        if (!called) {
+          setTimeout(() => {
+            createTodo().then(result => {
+              expect(result!.data).toEqual(data);
+              done();
+            });
+          })
+        }
+        called = true;
+        
+        return null;
+      }}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it("returns rejected promise when calling the mutation function", done => {
+  
+  let called = false;
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo) => {
+        if (!called) {
+          setTimeout(() => {
+            createTodo().catch(error => {
+              expect(error).toEqual(new Error("Network error: Error 1"));
+              done();
+            });
+          })
+        }
+        
+        called = true;
+        
+        return null;
+      }}
+    </Mutation>
+  );
+  
+  const mocksWithErrors = [
+    {
+      request: { query: mutation },
+      error: new Error('Error 1'),
+    }
+  ];
+
+  mount(
+    <MockedProvider mocks={mocksWithErrors}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('only shows result for the latest mutation that is in flight', done => {
   let count = 0;
 

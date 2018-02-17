@@ -157,6 +157,7 @@ class Mutation<
       })
       .catch(e => {
         this.onMutationError(e, mutationId);
+        throw e;
       });
   };
 
