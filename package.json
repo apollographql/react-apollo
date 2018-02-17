@@ -17,6 +17,11 @@
     "test-watch": "jest --watch",
     "test-preact": "jest --config ./jest.preact.config.json --no-cache",
     "type-check": "tsc --project tsconfig.json --noEmit && flow check",
+    "test:compiled":
+      "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
+    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js",
+    "test:compiled:server:umd": "jest --config jest.server.umd.config.js",
+    "test:compiled:cjs": "jest --config jest.cjs.config.js",
     "precompile": "rimraf lib",
     "compile": "npm run compile:esm && npm run compile:cjs",
     "compile:esm":
@@ -24,7 +29,7 @@
     "compile:cjs":
       "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
     "postcompile":
-      "rollup -c rollup.config.js && rollup -c rollup.browser.config.js && ./scripts/prepare-package.sh",
+      "rollup -c rollup.config.js && rollup -c rollup.browser.config.js && ./scripts/prepare-package.sh && npm run test:compiled",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint:fix":
@@ -71,7 +76,8 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow-usage.js",
-      "<rootDir>/test/typescript-usage.tsx"
+      "<rootDir>/test/typescript-usage.tsx",
+      "<rootDir>/test/fail-no-entry-point.js"
     ],
     "projects": ["<rootDir>"],
     "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",

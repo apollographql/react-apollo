@@ -5,7 +5,7 @@ import * as TestUtils from 'react-dom/test-utils';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import ApolloProvider from '../../src/ApolloProvider';
+import { ApolloProvider } from '../../src';
 
 describe('<ApolloProvider /> Component', () => {
   const client = new ApolloClient({
