@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { mount } from 'enzyme';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { DataProxy } from 'apollo-cache';
+import { ExecutionResult } from 'graphql';
 
 import { ApolloProvider, Mutation, Query } from '../../src';
 import { MockedProvider, mockSingleLink } from '../../src/test-utils';
@@ -21,7 +23,17 @@ const mutation = gql`
   }
 `;
 
-const data = {
+type Data = {
+  createTodo: {
+    __typename: string;
+    id: string;
+    text: string;
+    completed: boolean;
+  };
+  __typename: string;
+};
+
+const data: Data = {
   createTodo: {
     __typename: 'Todo',
     id: '99',
@@ -31,7 +43,7 @@ const data = {
   __typename: 'Mutation',
 };
 
-const data2 = {
+const data2: Data = {
   createTodo: {
     __typename: 'Todo',
     id: '100',
@@ -49,7 +61,7 @@ const mocks = [
   {
     request: { query: mutation },
     result: { data: data2 },
-  }
+  },
 ];
 
 const cache = new Cache({ addTypename: false });
@@ -84,15 +96,15 @@ it('performs a mutation', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
-it("performs a mutation with variables passed as an option", done => {
+it('performs a mutation with variables passed as an option', done => {
   const variables = {
     text: 'play tennis',
   };
-  
+
   let count = 0;
   const Component = () => (
     <Mutation mutation={mutation}>
@@ -118,33 +130,32 @@ it("performs a mutation with variables passed as an option", done => {
       }}
     </Mutation>
   );
-  
-  const mocks = [
+
+  const mocks1 = [
     {
       request: { query: mutation, variables },
       result: { data },
-    }
+    },
   ];
 
   mount(
-    <MockedProvider mocks={mocks}>
+    <MockedProvider mocks={mocks1}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
 it('only shows result for the latest mutation that is in flight', done => {
   let count = 0;
-  
-  const onCompleted = dataMutation => {
+
+  const onCompleted = (dataMutation: Data) => {
     if (count === 1) {
       expect(dataMutation).toEqual(data);
-    }
-    else if (count === 3) {
+    } else if (count === 3) {
       expect(dataMutation).toEqual(data2);
       done();
     }
-  }
+  };
   const Component = () => (
     <Mutation mutation={mutation} onCompleted={onCompleted}>
       {(createTodo, result) => {
@@ -173,22 +184,21 @@ it('only shows result for the latest mutation that is in flight', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
-it("only shows the error for the latest mutation in flight", done => {
+it('only shows the error for the latest mutation in flight', done => {
   let count = 0;
-  
-  const onError = error => {
+
+  const onError = (error: Error) => {
     if (count === 1) {
-      expect(error).toEqual(new Error("Network error: Error 1"));
-    }
-    else if (count === 3) {
-      expect(error).toEqual(new Error("Network error: Error 2"));
+      expect(error).toEqual(new Error('Network error: Error 1'));
+    } else if (count === 3) {
+      expect(error).toEqual(new Error('Network error: Error 2'));
       done();
     }
-  }
+  };
   const Component = () => (
     <Mutation mutation={mutation} onError={onError}>
       {(createTodo, result) => {
@@ -206,7 +216,7 @@ it("only shows the error for the latest mutation in flight", done => {
           expect(result).toEqual({
             loading: false,
             data: undefined,
-            error: new Error("Network error: Error 2")
+            error: new Error('Network error: Error 2'),
           });
         }
         count++;
@@ -214,7 +224,7 @@ it("only shows the error for the latest mutation in flight", done => {
       }}
     </Mutation>
   );
-  
+
   const mocksWithErrors = [
     {
       request: { query: mutation },
@@ -229,10 +239,9 @@ it("only shows the error for the latest mutation in flight", done => {
   mount(
     <MockedProvider mocks={mocksWithErrors}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
-
 
 it('calls the onCompleted prop as soon as the mutation is complete', done => {
   let onCompletedCalled = false;
@@ -242,7 +251,7 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
       mutationDone: false,
     };
 
-    onCompleted = mutationData => {
+    onCompleted = (mutationData: Data) => {
       expect(mutationData).toEqual(data);
       onCompletedCalled = true;
       this.setState({
@@ -252,10 +261,7 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
 
     render() {
       return (
-        <Mutation
-          mutation={mutation}
-          onCompleted={this.onCompleted}
-        >
+        <Mutation mutation={mutation} onCompleted={this.onCompleted}>
           {(createTodo, result) => {
             if (!result) {
               expect(this.state.mutationDone).toBe(false);
@@ -277,23 +283,19 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
 it('renders result of the children render prop', () => {
   const Component = () => (
-    <Mutation mutation={mutation} >
-      {(createTodo, result) => {
-        return <div />;
-      }}
-    </Mutation>
+    <Mutation mutation={mutation}>{() => <div />}</Mutation>
   );
 
   const wrapper = mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
   expect(wrapper.find('div').exists()).toBe(true);
 });
@@ -307,11 +309,11 @@ it('renders an error state', done => {
           setTimeout(() => {
             createTodo();
           });
-        } else if (count === 1) {
+        } else if (count === 1 && result) {
           expect(result.loading).toBeTruthy();
-        } else if (count === 2) {
+        } else if (count === 2 && result) {
           expect(result.error).toEqual(
-            new Error('Network error: error occurred'),
+            new Error('Network error: error occurred')
           );
           done();
         }
@@ -331,7 +333,7 @@ it('renders an error state', done => {
   mount(
     <MockedProvider mocks={mockError}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
@@ -343,7 +345,7 @@ it('calls the onError prop if the mutation encounters an error', done => {
       mutationError: false,
     };
 
-    onError = error => {
+    onError = (error: Error) => {
       expect(error).toEqual(new Error('Network error: error occurred'));
       onRenderCalled = true;
       this.setState({
@@ -384,7 +386,7 @@ it('calls the onError prop if the mutation encounters an error', done => {
   mount(
     <MockedProvider mocks={mockError}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
@@ -407,10 +409,7 @@ it('returns an optimistic response', done => {
 
   let count = 0;
   const Component = () => (
-    <Mutation
-      mutation={mutation}
-      optimisticResponse={optimisticResponse}
-    >
+    <Mutation mutation={mutation} optimisticResponse={optimisticResponse}>
       {(createTodo, result) => {
         if (count === 0) {
           expect(result).toBeUndefined();
@@ -418,7 +417,7 @@ it('returns an optimistic response', done => {
             createTodo();
             const dataInStore = client.cache.extract(true);
             expect(dataInStore['Todo:99']).toEqual(
-              optimisticResponse.createTodo,
+              optimisticResponse.createTodo
             );
           });
         } else if (count === 1) {
@@ -441,7 +440,7 @@ it('returns an optimistic response', done => {
   mount(
     <ApolloProvider client={client}>
       <Component />
-    </ApolloProvider>,
+    </ApolloProvider>
   );
 });
 
@@ -494,10 +493,7 @@ it('has refetchQueries in the props', done => {
 
   let count = 0;
   const Component = () => (
-    <Mutation
-      mutation={mutation}
-      refetchQueries={refetchQueries}
-    >
+    <Mutation mutation={mutation} refetchQueries={refetchQueries}>
       {(createTodo, resultMutation) => (
         <Query query={query}>
           {resultQuery => {
@@ -505,10 +501,10 @@ it('has refetchQueries in the props', done => {
               setTimeout(() => {
                 createTodo();
               });
-            } else if (count === 1) {
+            } else if (count === 1 && resultMutation) {
               expect(resultMutation.loading).toBe(true);
               expect(resultQuery.loading).toBe(true);
-            } else if (count === 2) {
+            } else if (count === 2 && resultMutation) {
               expect(resultMutation.loading).toBe(true);
               expect(stripSymbols(resultQuery.data)).toEqual(queryData);
               done();
@@ -524,12 +520,12 @@ it('has refetchQueries in the props', done => {
   mount(
     <MockedProvider mocks={mocksWithQuery}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
 it('has an update prop for updating the store after the mutation', done => {
-  const update = (proxy, response) => {
+  const update = (_proxy: DataProxy, response: ExecutionResult) => {
     expect(response.data).toEqual(data);
     done();
   };
@@ -537,7 +533,7 @@ it('has an update prop for updating the store after the mutation', done => {
   let count = 0;
   const Component = () => (
     <Mutation mutation={mutation} update={update}>
-      {(createTodo, result) => {
+      {createTodo => {
         if (count === 0) {
           setTimeout(() => {
             createTodo();
@@ -552,7 +548,7 @@ it('has an update prop for updating the store after the mutation', done => {
   mount(
     <MockedProvider mocks={mocks}>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 });
 
@@ -566,7 +562,7 @@ it('updates if the client changes', done => {
     cache: new Cache({ addTypename: false }),
   });
 
-  const data2 = {
+  const data3 = {
     createTodo: {
       __typename: 'Todo',
       id: '100',
@@ -578,7 +574,7 @@ it('updates if the client changes', done => {
 
   const link2 = mockSingleLink({
     request: { query: mutation },
-    result: { data: data2 },
+    result: { data: data3 },
   });
 
   const client2 = new ApolloClient({
@@ -602,7 +598,7 @@ it('updates if the client changes', done => {
                 setTimeout(() => {
                   createTodo();
                 });
-              } else if (count === 2) {
+              } else if (count === 2 && result) {
                 expect(result.data).toEqual(data);
                 setTimeout(() => {
                   this.setState({
@@ -614,8 +610,8 @@ it('updates if the client changes', done => {
                 setTimeout(() => {
                   createTodo();
                 });
-              } else if (count === 5) {
-                expect(result.data).toEqual(data2);
+              } else if (count === 5 && result) {
+                expect(result.data).toEqual(data3);
                 done();
               }
               count++;
@@ -647,10 +643,10 @@ it('errors if a query is passed instead of a mutation', () => {
     mount(
       <MockedProvider>
         <Mutation mutation={query}>{() => null}</Mutation>
-      </MockedProvider>,
+      </MockedProvider>
     );
   }).toThrowError(
-    'The <Mutation /> component requires a graphql mutation, but got a query.',
+    'The <Mutation /> component requires a graphql mutation, but got a query.'
   );
 
   console.log = errorLogger;
@@ -670,11 +666,11 @@ it('errors when changing from mutation to a query', done => {
       query: mutation,
     };
 
-    componentDidCatch(e) {
+    componentDidCatch(e: Error) {
       expect(e).toEqual(
         new Error(
-          'The <Mutation /> component requires a graphql mutation, but got a query.',
-        ),
+          'The <Mutation /> component requires a graphql mutation, but got a query.'
+        )
       );
       done();
     }
@@ -701,7 +697,7 @@ it('errors when changing from mutation to a query', done => {
   mount(
     <MockedProvider>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 
   console.log = errorLogger;
@@ -724,10 +720,10 @@ it('errors if a subscription is passed instead of a mutation', () => {
     mount(
       <MockedProvider>
         <Mutation mutation={subscription}>{() => null}</Mutation>
-      </MockedProvider>,
+      </MockedProvider>
     );
   }).toThrowError(
-    'The <Mutation /> component requires a graphql mutation, but got a subscription.',
+    'The <Mutation /> component requires a graphql mutation, but got a subscription.'
   );
 
   console.log = errorLogger;
@@ -747,11 +743,11 @@ it('errors when changing from mutation to a subscription', done => {
       query: mutation,
     };
 
-    componentDidCatch(e) {
+    componentDidCatch(e: Error) {
       expect(e).toEqual(
         new Error(
-          'The <Mutation /> component requires a graphql mutation, but got a subscription.',
-        ),
+          'The <Mutation /> component requires a graphql mutation, but got a subscription.'
+        )
       );
       done();
     }
@@ -778,7 +774,7 @@ it('errors when changing from mutation to a subscription', done => {
   mount(
     <MockedProvider>
       <Component />
-    </MockedProvider>,
+    </MockedProvider>
   );
 
   console.log = errorLogger;

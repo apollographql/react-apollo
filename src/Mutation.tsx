@@ -1,10 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ApolloClient, {
-  PureQueryOptions,
-  ApolloError
-} from 'apollo-client';
-import { DataProxy } from "apollo-cache";
+import ApolloClient, { PureQueryOptions, ApolloError } from 'apollo-client';
+import { DataProxy } from 'apollo-cache';
 const invariant = require('invariant');
 import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
@@ -12,30 +9,39 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 import { OperationVariables } from './types';
 import { parser, DocumentType } from './parser';
 
-export interface MutationResult<TData = any> {
-  data: TData;
+type DefaultData = Record<string, any>;
+export interface MutationResult<TData = DefaultData> {
+  data?: TData;
   error?: ApolloError;
-  loading: boolean;
+  loading?: boolean;
+}
+export interface MutationContext {
+  client: ApolloClient<Object>;
 }
 
-export interface ExecutionResult<T = {[key: string]: any }> {
-    data?: T;
-    extensions?: { [key: string]: any };
-    errors?: GraphQLError[];
+export interface ExecutionResult<T = DefaultData> {
+  data?: T;
+  extensions?: DefaultData;
+  errors?: GraphQLError[];
 }
 
 // Improved MutationUpdaterFn type, need to port them back to Apollo Client
-export declare type MutationUpdaterFn<T = {
+export declare type MutationUpdaterFn<
+  T = {
     [key: string]: any;
-}> = (proxy: DataProxy, mutationResult: FetchResult<T>) => void;
+  }
+> = (proxy: DataProxy, mutationResult: FetchResult<T>) => void;
 
-export declare type FetchResult<C = Record<string, any>, E = Record<string, any>> = ExecutionResult<C> & {
-    extensions?: E;
-    context?: C;
+export declare type FetchResult<
+  C = Record<string, any>,
+  E = Record<string, any>
+> = ExecutionResult<C> & {
+  extensions?: E;
+  context?: C;
 };
 
 export declare type MutationOptions<TVariables = OperationVariables> = {
-  variables?: TVariables 
+  variables?: TVariables;
 };
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
@@ -45,7 +51,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: (options?: MutationOptions<TVariables>) => void,
-    result?: MutationResult<TData>,
+    result?: MutationResult<TData>
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
@@ -72,24 +78,24 @@ class Mutation<
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
-  
+
   static propTypes = {
     mutation: PropTypes.object.isRequired,
     variables: PropTypes.object,
     optimisticResponse: PropTypes.object,
     refetchQueries: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.string),
-      PropTypes.arrayOf(PropTypes.object)
+      PropTypes.arrayOf(PropTypes.object),
     ]),
     update: PropTypes.func,
     children: PropTypes.func.isRequired,
     onCompleted: PropTypes.func,
-    onError: PropTypes.func
+    onError: PropTypes.func,
   };
 
   private client: ApolloClient<any>;
   private mostRecentMutationId: number;
-  
+
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
 
@@ -97,12 +103,15 @@ class Mutation<
     this.client = context.client;
 
     this.verifyDocumentIsMutation(props.mutation);
-    
+
     this.mostRecentMutationId = 0;
     this.state = initialState;
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(
+    nextProps: MutationProps<TData, TVariables>,
+    nextContext: MutationContext
+  ) {
     if (
       shallowEqual(this.props, nextProps) &&
       this.client === nextContext.client
@@ -137,9 +146,9 @@ class Mutation<
 
   private runMutation = async (options: MutationOptions<TVariables> = {}) => {
     this.onStartMutation();
-    
+
     const mutationId = this.generateNewMutationId();
-    
+
     let response;
     try {
       response = await this.mutate(options);
@@ -147,21 +156,15 @@ class Mutation<
       this.onMutationError(e, mutationId);
       return;
     }
-    
+
     this.onCompletedMutation(response, mutationId);
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    
-    const {
-      mutation,
-      optimisticResponse,
-      refetchQueries,
-      update,
-    } = this.props;
-    
+    const { mutation, optimisticResponse, refetchQueries, update } = this.props;
+
     const { variables } = options;
-    
+
     return this.client.mutate({
       mutation,
       variables,
@@ -182,18 +185,20 @@ class Mutation<
     }
   };
 
-  private onCompletedMutation = (response, mutationId) => {
-    
+  private onCompletedMutation = (
+    response: ExecutionResult<TData>,
+    mutationId: number
+  ) => {
     const { onCompleted } = this.props;
 
     const data = response.data as TData;
-    
+
     const callOncomplete = () => {
       if (onCompleted) {
         onCompleted(data);
       }
-    }
-    
+    };
+
     if (this.isMostRecentMutation(mutationId)) {
       this.setState(
         {
@@ -202,23 +207,23 @@ class Mutation<
         },
         () => {
           callOncomplete();
-        },
+        }
       );
     } else {
       callOncomplete();
     }
   };
 
-  private onMutationError = (error, mutationId) => {
+  private onMutationError = (error: ApolloError, mutationId: number) => {
     const { onError } = this.props;
 
     let apolloError = error as ApolloError;
-    
+
     const callOnError = () => {
       if (onError) {
         onError(apolloError);
       }
-    }
+    };
 
     if (this.isMostRecentMutation(mutationId)) {
       this.setState(
@@ -228,37 +233,36 @@ class Mutation<
         },
         () => {
           callOnError();
-        },
+        }
       );
-    }
-    else {
+    } else {
       callOnError();
     }
   };
-  
-  private generateNewMutationId = () => {
+
+  private generateNewMutationId = (): number => {
     this.mostRecentMutationId = this.mostRecentMutationId + 1;
     return this.mostRecentMutationId;
-  }
-  
-  private isMostRecentMutation = mutationId => {
-    return this.mostRecentMutationId === mutationId;
-  }
+  };
 
-  private verifyDocumentIsMutation = mutation => {
+  private isMostRecentMutation = (mutationId: number) => {
+    return this.mostRecentMutationId === mutationId;
+  };
+
+  private verifyDocumentIsMutation = (mutation: DocumentNode) => {
     const operation = parser(mutation);
     invariant(
       operation.type === DocumentType.Mutation,
       `The <Mutation /> component requires a graphql mutation, but got a ${
         operation.type === DocumentType.Query ? 'query' : 'subscription'
-      }.`,
+      }.`
     );
   };
 
-  private verifyContext = context => {
+  private verifyContext = (context: MutationContext) => {
     invariant(
       !!context.client,
-      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
+      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`
     );
   };
 }
