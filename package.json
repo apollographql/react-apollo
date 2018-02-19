@@ -32,9 +32,11 @@
     "postcompile": "rollup -c  && ./scripts/prepare-package.sh",
     "watch": "tsc -w",
     "lint": "tslint --project tsconfig.json --config tslint.json",
-    "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
+    "lint:fix":
+      "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "lint-staged": "lint-staged",
-    "prettier": "prettier --write \"{,!(node_modules|lib|coverage|npm)/**/}*.{ts*,js*,json,md}\""
+    "prettier":
+      "prettier --write \"{,!(node_modules|lib|coverage|npm)/**/}*.{ts*,js*,json,md}\""
   },
   "bundlesize": [
     {
@@ -43,15 +45,8 @@
     }
   ],
   "lint-staged": {
-    "*.{ts*}": [
-      "prettier --write",
-      "npm run lint",
-      "git add"
-    ],
-    "*.{js*,json,md}": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.{ts*}": ["prettier --write", "npm run lint", "git add"],
+    "*.{js*,json,md}": ["prettier --write", "git add"]
   },
   "repository": {
     "type": "git",
@@ -68,9 +63,7 @@
   ],
   "author": "James Baxley <james@meteor.com>",
   "babel": {
-    "presets": [
-      "env"
-    ]
+    "presets": ["env"]
   },
   "jest": {
     "testEnvironment": "jsdom",
@@ -79,25 +72,16 @@
       "^.+\\.jsx?$": "babel-jest"
     },
     "mapCoverage": true,
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ],
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
       "<rootDir>/test/flow-usage.js",
       "<rootDir>/test/typescript-usage.tsx",
       "<rootDir>/test/fail-no-entry-point.js"
     ],
-    "projects": [
-      "<rootDir>"
-    ],
+    "projects": ["<rootDir>"],
     "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "setupFiles": [
-      "<rootDir>/test/test-utils/setup.ts"
-    ]
+    "setupFiles": ["<rootDir>/test/test-utils/setup.ts"]
   },
   "license": "MIT",
   "peerDependencies": {
@@ -158,7 +142,6 @@
   "dependencies": {
     "apollo-link": "^1.0.6",
     "fbjs": "^0.8.16",
-    "graphql-tag": "^2.7.0",
     "hoist-non-react-statics": "^2.3.1",
     "invariant": "^2.2.2",
     "lodash": "4.17.5",
