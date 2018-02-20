@@ -89,7 +89,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
 }
 
 export interface QueryProps<TData = any, TVariables = OperationVariables> {
-  children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
+  children: (result: QueryResult<TData, TVariables> | void) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
   errorPolicy?: ErrorPolicy;
   notifyOnNetworkStatusChange?: boolean;
@@ -97,6 +97,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   query: DocumentNode;
   variables?: TVariables;
   ssr?: boolean;
+  skip?: (props: any) => boolean;
 }
 
 export interface QueryState<TData = any> {
@@ -149,10 +150,10 @@ class Query<
 
   // For server-side rendering (see getDataFromTree.ts)
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
-    const { children, ssr, ...opts } = this.props;
+    const { children, ssr, skip, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
-    if (ssr === false) return false;
+    if (ssr === false || this.shouldSkip()) return false;
     if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
       fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
     }
@@ -171,13 +172,21 @@ class Query<
   }
 
   componentDidMount() {
-    this.startQuerySubscription();
+    if (!this.shouldSkip()) {
+      this.startQuerySubscription();
+    }
   }
 
   componentWillReceiveProps(
     nextProps: QueryProps<TData, TVariables>,
     nextContext: QueryContext,
   ) {
+    if (this.shouldSkip(nextProps) && !this.shouldSkip(this.props)) {
+      // if this has changed, we better unsubscribe
+      this.querySubscription.unsubscribe();
+      return;
+    }
+
     if (
       shallowEqual(this.props, nextProps) &&
       this.client === nextContext.client
@@ -188,6 +197,11 @@ class Query<
     if (this.client !== nextContext.client) {
       this.client = nextContext.client;
     }
+
+    if (this.shouldSkip()) {
+      return;
+    }
+
     this.removeQuerySubscription();
     this.initializeQueryObservable(nextProps);
     this.startQuerySubscription();
@@ -201,8 +215,13 @@ class Query<
   render() {
     const { children } = this.props;
     const queryResult = this.getQueryResult();
-    return children(queryResult);
+    return children(this.shouldSkip() ? undefined : queryResult);
   }
+
+  private shouldSkip = (props = this.props) => {
+    const { skip = () => false } = this.props;
+    return skip(props);
+  };
 
   private initializeQueryObservable = (
     props: QueryProps<TData, TVariables>,
