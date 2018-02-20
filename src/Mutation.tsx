@@ -87,6 +87,7 @@ class Mutation<
     refetchQueries: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.string),
       PropTypes.arrayOf(PropTypes.object),
+      PropTypes.func,
     ]),
     update: PropTypes.func,
     children: PropTypes.func.isRequired,
