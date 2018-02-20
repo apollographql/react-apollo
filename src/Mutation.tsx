@@ -6,7 +6,7 @@ const invariant = require('invariant');
 import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
-import { OperationVariables } from './types';
+import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';
 
 export interface MutationResult<TData = Record<string, any>> {
@@ -46,7 +46,7 @@ export declare type MutationOptions<TVariables = OperationVariables> = {
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
   optimisticResponse?: Object;
-  refetchQueries?: string[] | PureQueryOptions[];
+  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: (
