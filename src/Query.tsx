@@ -181,9 +181,9 @@ class Query<
     nextProps: QueryProps<TData, TVariables>,
     nextContext: QueryContext,
   ) {
-    if (this.shouldSkip(nextProps) && !this.shouldSkip(this.props)) {
+    if (this.shouldSkip(nextProps)) {
       // if this has changed, we better unsubscribe
-      this.querySubscription.unsubscribe();
+      this.removeQuerySubscription();
       return;
     }
 
@@ -198,7 +198,7 @@ class Query<
       this.client = nextContext.client;
     }
 
-    if (this.shouldSkip()) {
+    if (this.shouldSkip(nextProps)) {
       return;
     }
 
@@ -219,7 +219,7 @@ class Query<
   }
 
   private shouldSkip = (props = this.props) => {
-    const { skip = () => false } = this.props;
+    const { skip = () => false } = props;
     return skip(props);
   };
 
