@@ -21,6 +21,7 @@ export interface MutationOpts<
 > {
   variables?: TGraphQLVariables;
   optimisticResponse?: TData;
+  errorPolicy?: ErrorPolicy;
   refetchQueries?: string[] | PureQueryOptions[];
   update?: MutationUpdaterFn;
   client?: ApolloClient<any>;
