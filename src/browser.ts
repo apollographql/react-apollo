@@ -13,6 +13,9 @@ export * from './Query';
 export { default as Mutation } from './Mutation';
 export * from './Mutation';
 
+export { default as withMutation } from "./withMutation";
+export * from "./withMutation";
+
 export { default as graphql } from './graphql';
 export * from './graphql';
 

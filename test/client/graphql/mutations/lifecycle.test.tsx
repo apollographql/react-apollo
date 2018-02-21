@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import { ApolloProvider, graphql, ChildProps } from '../../../../src';
+import { ApolloProvider, graphql, ChildProps, withMutation } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import createClient from '../../../test-utils/createClient';
 
@@ -26,7 +26,7 @@ describe('graphql(mutation) lifecycle', () => {
       id: string | null;
     }
 
-    const Container = graphql<Props>(query)(
+    const Container = withMutation<Props>(query)(
       class extends React.Component<ChildProps<Props>> {
         componentDidMount() {
           this.props.mutate!().then(result => {
@@ -53,7 +53,7 @@ describe('graphql(mutation) lifecycle', () => {
     interface Props {
       frst: number;
     }
-    const Container = graphql<Props>(query)(() => null);
+    const Container = withMutation<Props>(query)(() => null);
     try {
       renderer.create(
         <ApolloProvider client={client}>
@@ -91,7 +91,7 @@ describe('graphql(mutation) lifecycle', () => {
       }
     }
 
-    const ContainerWithMutate = graphql<Props>(query, { options })(Container);
+    const ContainerWithMutate = withMutation<Props>(query, { options })(Container);
 
     class ChangingProps extends React.Component<{}, { listId: number }> {
       state = { listId: 1 };
@@ -118,7 +118,7 @@ describe('graphql(mutation) lifecycle', () => {
       id: number;
     }
 
-    const Container = graphql<{}, {}, Variables>(query)(
+    const Container = withMutation<{}, {}, Variables>(query)(
       class extends React.Component<ChildProps<{}, {}, Variables>> {
         componentDidMount() {
           this.props.mutate!({ variables: { id: 1 } }).then(result => {

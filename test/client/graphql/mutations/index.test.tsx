@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
-import { ApolloProvider, ChildProps, graphql } from '../../../../src';
+import { ApolloProvider, ChildProps, graphql, withMutation } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import createClient from '../../../test-utils/createClient';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
@@ -45,7 +45,7 @@ describe('graphql(mutation)', () => {
   });
 
   it('binds a mutation to props', () => {
-    const ContainerWithData = graphql(query)(({ mutate }) => {
+    const ContainerWithData = withMutation(query)(({ mutate }) => {
       expect(mutate).toBeTruthy();
       expect(typeof mutate).toBe('function');
       return null;
@@ -65,7 +65,7 @@ describe('graphql(mutation)', () => {
     type InjectedProps = {
       [name: string]: (name: string) => void;
     };
-    const ContainerWithData = graphql<Props, Data, Variables, InjectedProps>(
+    const ContainerWithData = withMutation<Props, Data, Variables, InjectedProps>(
       query,
       {
         props: ({ ownProps, mutate: addPerson }) => ({
