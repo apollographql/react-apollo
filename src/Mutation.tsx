@@ -39,18 +39,22 @@ export declare type FetchResult<
   context?: C;
 };
 
-export declare type MutationOptions<TVariables = OperationVariables> = {
+export declare type MutationOptions<TData = any, TVariables = OperationVariables> = {
   variables?: TVariables;
+  optimisticResponse?: Object;
+  refetchQueries?: string[] | PureQueryOptions[];
+  update?: MutationUpdaterFn<TData>;
 };
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
   optimisticResponse?: Object;
+  variables?: TVariables;
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: (
-      options?: MutationOptions<TVariables>,
+      options?: MutationOptions<TData, TVariables>,
     ) => Promise<void | FetchResult>,
     result?: MutationResult<TData>,
   ) => React.ReactNode;
@@ -162,16 +166,15 @@ class Mutation<
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const { mutation, optimisticResponse, refetchQueries, update } = this.props;
-
-    const { variables } = options;
-
+    const { mutation, variables, optimisticResponse, refetchQueries, update } = this.props;
+    
     return this.client.mutate({
       mutation,
       variables,
       optimisticResponse,
       refetchQueries,
       update,
+      ...options
     });
   };
 
