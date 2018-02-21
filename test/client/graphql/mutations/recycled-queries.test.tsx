@@ -4,12 +4,7 @@ import gql from 'graphql-tag';
 import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
-import {
-  ApolloProvider,
-  graphql,
-  ChildProps,
-  MutationFunc,
-} from '../../../../src';
+import { ApolloProvider, graphql, ChildProps, MutationFunc } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
@@ -357,9 +352,7 @@ describe('graphql(mutation) update queries', () => {
       let queryRenderCount = 0;
 
       const Query = graphql<QueryVariables, QueryData, QueryVariables>(query)(
-        class extends React.Component<
-          ChildProps<QueryVariables, QueryData, QueryVariables>
-        > {
+        class extends React.Component<ChildProps<QueryVariables, QueryData, QueryVariables>> {
           componentWillMount() {
             queryMountCount++;
           }
@@ -386,16 +379,12 @@ describe('graphql(mutation) update queries', () => {
                 case 2:
                   expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(1);
-                  expect(stripSymbols(this.props.data!.todo_list)).toEqual(
-                    updatedData.todo_list,
-                  );
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual(updatedData.todo_list);
                   break;
                 case 3:
                   expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(1);
-                  expect(stripSymbols(this.props.data!.todo_list)).toEqual(
-                    updatedData.todo_list,
-                  );
+                  expect(stripSymbols(this.props.data!.todo_list)).toEqual(updatedData.todo_list);
                   break;
                 default:
                   throw new Error('Rendered too many times');

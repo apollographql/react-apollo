@@ -38,9 +38,7 @@ describe('fragments', () => {
         class extends React.Component<ChildProps<{}, Data>> {
           componentWillReceiveProps(props: ChildProps<{}, Data>) {
             expect(props.data!.loading).toBeFalsy();
-            expect(stripSymbols(props.data!.allPeople)).toEqual(
-              expectedData.allPeople,
-            );
+            expect(stripSymbols(props.data!.allPeople)).toEqual(expectedData.allPeople);
           }
           render() {
             return null;

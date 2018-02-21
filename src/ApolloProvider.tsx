@@ -11,9 +11,7 @@ export interface ApolloProviderProps<TCache> {
   children: React.ReactNode;
 }
 
-export default class ApolloProvider<TCache> extends Component<
-  ApolloProviderProps<TCache>
-> {
+export default class ApolloProvider<TCache> extends Component<ApolloProviderProps<TCache>> {
   static propTypes = {
     client: PropTypes.object.isRequired,
     children: PropTypes.element.isRequired,
@@ -41,9 +39,7 @@ export default class ApolloProvider<TCache> extends Component<
 
   render() {
     return (
-      <QueryRecyclerProvider>
-        {React.Children.only(this.props.children)}
-      </QueryRecyclerProvider>
+      <QueryRecyclerProvider>{React.Children.only(this.props.children)}</QueryRecyclerProvider>
     );
   }
 }

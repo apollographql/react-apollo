@@ -1,10 +1,6 @@
 import { render } from 'react-dom';
 import { onPageLoad } from 'meteor/server-render';
-import {
-  ApolloProvider,
-  ApolloClient,
-  createNetworkInterface,
-} from 'react-apollo';
+import { ApolloProvider, ApolloClient, createNetworkInterface } from 'react-apollo';
 
 import { App } from '/imports/app';
 

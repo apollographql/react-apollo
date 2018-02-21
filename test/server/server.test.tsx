@@ -10,12 +10,7 @@ import {
   GraphQLID,
   DocumentNode,
 } from 'graphql';
-import {
-  graphql,
-  ApolloProvider,
-  renderToStringWithData,
-  ChildProps,
-} from '../../src';
+import { graphql, ApolloProvider, renderToStringWithData, ChildProps } from '../../src';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
@@ -46,9 +41,7 @@ describe('SSR', () => {
     // XXX break into smaller tests
     // XXX mock all queries
     it('should work on a non trivial example', function() {
-      const planetMap = new Map([
-        ['Planet:1', { id: 'Planet:1', name: 'Tatooine' }],
-      ]);
+      const planetMap = new Map([['Planet:1', { id: 'Planet:1', name: 'Tatooine' }]]);
 
       const shipMap = new Map([
         [
@@ -133,14 +126,7 @@ describe('SSR', () => {
       const apolloClient = new ApolloClient({
         link: new ApolloLink(config => {
           return new Observable(observer => {
-            execute(
-              Schema,
-              config.query,
-              null,
-              null,
-              config.variables,
-              config.operationName,
-            )
+            execute(Schema, config.query, null, null, config.variables, config.operationName)
               .then(result => {
                 observer.next(result);
                 observer.complete();
@@ -190,9 +176,7 @@ describe('SSR', () => {
           }
         }
       ` as DocumentNode)
-      class Starship extends React.Component<
-        ChildProps<ShipVariables, ShipData, ShipVariables>
-      > {
+      class Starship extends React.Component<ChildProps<ShipVariables, ShipData, ShipVariables>> {
         render(): React.ReactNode {
           const { data } = this.props;
           if (!data || data.loading || !data.ship) return null;
@@ -260,9 +244,7 @@ describe('SSR', () => {
           return (
             <div>
               <h1>Planets</h1>
-              {(data.allPlanets || []).map((planet, key) => (
-                <div key={key}>{planet.name}</div>
-              ))}
+              {(data.allPlanets || []).map((planet, key) => <div key={key}>{planet.name}</div>)}
             </div>
           );
         }

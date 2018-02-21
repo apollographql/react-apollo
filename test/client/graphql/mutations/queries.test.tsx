@@ -54,9 +54,7 @@ describe('graphql(mutation) query integration', () => {
           });
 
           const dataInStore = client.cache.extract(true);
-          expect(stripSymbols(dataInStore['Todo:99'])).toEqual(
-            optimisticResponse.createTodo,
-          );
+          expect(stripSymbols(dataInStore['Todo:99'])).toEqual(optimisticResponse.createTodo);
         }
         render() {
           return null;
@@ -160,21 +158,17 @@ describe('graphql(mutation) query integration', () => {
           });
 
           const dataInStore = cache.extract(true);
-          expect(
-            stripSymbols(dataInStore['$ROOT_MUTATION.createTodo']),
-          ).toEqual(optimisticResponse.createTodo);
+          expect(stripSymbols(dataInStore['$ROOT_MUTATION.createTodo'])).toEqual(
+            optimisticResponse.createTodo,
+          );
           return;
         }
 
         if (count === 0) {
           count++;
-          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([
-            optimisticResponse.createTodo,
-          ]);
+          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([optimisticResponse.createTodo]);
         } else if (count === 1) {
-          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([
-            mutationData.createTodo,
-          ]);
+          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([mutationData.createTodo]);
           done();
         }
       }
@@ -260,15 +254,9 @@ describe('graphql(mutation) query integration', () => {
     }
 
     let count = 0;
-    const MutationContainer = graphql<MutationVariables, MutationData>(
-      mutation,
-    )(
-      class extends React.Component<
-        ChildProps<MutationVariables, MutationData>
-      > {
-        componentWillReceiveProps(
-          props: ChildProps<MutationVariables, MutationData>,
-        ) {
+    const MutationContainer = graphql<MutationVariables, MutationData>(mutation)(
+      class extends React.Component<ChildProps<MutationVariables, MutationData>> {
+        componentWillReceiveProps(props: ChildProps<MutationVariables, MutationData>) {
           if (count === 1) {
             props.mutate!().then(result => {
               expect(stripSymbols(result.data)).toEqual(mutationData);
@@ -294,9 +282,7 @@ describe('graphql(mutation) query integration', () => {
           count++;
         }
         render() {
-          return (
-            <MutationContainer {...this.props.data!.mini} signature="1233" />
-          );
+          return <MutationContainer {...this.props.data!.mini} signature="1233" />;
         }
       },
     );
@@ -418,12 +404,8 @@ describe('graphql(mutation) query integration', () => {
     }
 
     let refetched = false;
-    class RelatedUIComponent extends React.Component<
-      ChildProps<{}, QueryData, QueryVariables>
-    > {
-      componentWillReceiveProps(
-        props: ChildProps<{}, QueryData, QueryVariables>,
-      ) {
+    class RelatedUIComponent extends React.Component<ChildProps<{}, QueryData, QueryVariables>> {
+      componentWillReceiveProps(props: ChildProps<{}, QueryData, QueryVariables>) {
         if (refetched) {
           expect(props.data!.account!.currentPlan.name).toBe('Free');
           done();
@@ -434,28 +416,19 @@ describe('graphql(mutation) query integration', () => {
       }
     }
 
-    const RelatedUIComponentWithData = graphql<{}, QueryData, QueryVariables>(
-      overlappingQuery,
-      {
-        options: { variables: { accountId } },
-      },
-    )(RelatedUIComponent);
+    const RelatedUIComponentWithData = graphql<{}, QueryData, QueryVariables>(overlappingQuery, {
+      options: { variables: { accountId } },
+    })(RelatedUIComponent);
 
     const withQuery = graphql<{}, QueryData, QueryVariables>(billingInfoQuery, {
       options: { variables: { accountId } },
     });
     type WithQueryChildProps = ChildProps<{}, QueryData, QueryVariables>;
 
-    const withMutation = graphql<
-      WithQueryChildProps,
-      MutationData,
-      MutationVariables
-    >(setPlanMutation);
-    type WithMutationChildProps = ChildProps<
-      WithQueryChildProps,
-      MutationData,
-      MutationVariables
-    >;
+    const withMutation = graphql<WithQueryChildProps, MutationData, MutationVariables>(
+      setPlanMutation,
+    );
+    type WithMutationChildProps = ChildProps<WithQueryChildProps, MutationData, MutationVariables>;
 
     let count = 0;
     class PaymentDetail extends React.Component<WithMutationChildProps> {

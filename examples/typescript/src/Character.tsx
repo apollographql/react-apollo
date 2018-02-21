@@ -1,16 +1,9 @@
 import * as React from 'react';
-import {
-  GetCharacterQuery,
-  GetCharacterQueryVariables,
-  Episode,
-} from './__generated__/types';
+import { GetCharacterQuery, GetCharacterQueryVariables, Episode } from './__generated__/types';
 import { GetCharacter as QUERY } from './queries';
 import { Query } from 'react-apollo';
 
-class CharacterQuery extends Query<
-  GetCharacterQuery,
-  GetCharacterQueryVariables
-> {}
+class CharacterQuery extends Query<GetCharacterQuery, GetCharacterQueryVariables> {}
 
 export interface CharacterProps {
   episode: Episode;
@@ -38,9 +31,7 @@ export const Character: React.SFC<CharacterProps> = props => {
                       friend && (
                         <h6 key={friend.id}>
                           {friend.name}:{' '}
-                          {friend.appearsIn
-                            .map(x => x && x.toLowerCase())
-                            .join(', ')}
+                          {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
                         </h6>
                       ),
                   )}

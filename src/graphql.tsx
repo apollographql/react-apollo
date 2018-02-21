@@ -1,10 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ApolloClient, {
-  ApolloError,
-  ObservableQuery,
-  ApolloQueryResult,
-} from 'apollo-client';
+import ApolloClient, { ApolloError, ObservableQuery, ApolloQueryResult } from 'apollo-client';
 import { ZenObservable } from 'zen-observable-ts';
 import { parser, DocumentType } from './parser';
 import { DocumentNode } from 'graphql';
@@ -82,12 +78,7 @@ export default function graphql<
     Partial<MutateProps<TData, TGraphQLVariables>>
 >(
   document: DocumentNode,
-  operationOptions: OperationOption<
-    TProps,
-    TData,
-    TGraphQLVariables,
-    TChildProps
-  > = {},
+  operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
 ) {
   // extract options
   const {
@@ -196,10 +187,7 @@ export default function graphql<
         }
       }
 
-      componentWillReceiveProps(
-        nextProps: GraphqlProps,
-        nextContext: GraphqlContext,
-      ) {
+      componentWillReceiveProps(nextProps: GraphqlProps, nextContext: GraphqlContext) {
         if (this.shouldSkip(nextProps)) {
           if (!this.shouldSkip(this.props)) {
             // if this has changed, we better unsubscribe
@@ -273,17 +261,13 @@ export default function graphql<
           this.unsubscribeFromQuery();
         }
 
-        if (this.type === DocumentType.Subscription)
-          this.unsubscribeFromQuery();
+        if (this.type === DocumentType.Subscription) this.unsubscribeFromQuery();
 
         this.hasMounted = false;
       }
 
       getQueryRecycler() {
-        return (
-          this.context.getQueryRecycler &&
-          this.context.getQueryRecycler(GraphQL)
-        );
+        return this.context.getQueryRecycler && this.context.getQueryRecycler(GraphQL);
       }
 
       getClient<Cache>(props: GraphqlProps): ApolloClient<Cache> {
@@ -310,11 +294,7 @@ export default function graphql<
         let opts = mapPropsToOptions(props);
 
         if (newOpts && newOpts.variables) {
-          newOpts.variables = Object.assign(
-            {},
-            opts.variables,
-            newOpts.variables,
-          );
+          newOpts.variables = Object.assign({}, opts.variables, newOpts.variables);
         }
         if (newOpts) opts = Object.assign({}, opts, newOpts);
 
@@ -340,9 +320,7 @@ export default function graphql<
 
           invariant(
             typeof variableProp !== 'undefined',
-            `The operation '${operation.name}' wrapping '${getDisplayName(
-              WrappedComponent,
-            )}' ` +
+            `The operation '${operation.name}' wrapping '${getDisplayName(WrappedComponent)}' ` +
               `is expecting a variable: '${
                 variable.name.value
               }' but it was not found in the props ` +
@@ -353,9 +331,7 @@ export default function graphql<
         return opts;
       }
 
-      calculateResultProps(
-        result: (GraphqlQueryControls & TData) | MutationFunc<TData>,
-      ) {
+      calculateResultProps(result: (GraphqlQueryControls & TData) | MutationFunc<TData>) {
         let name = this.type === DocumentType.Mutation ? 'mutate' : 'data';
         if (operationOptions.name) name = operationOptions.name;
 
@@ -364,10 +340,7 @@ export default function graphql<
           ownProps: this.props,
         };
         if (mapResultToProps) {
-          this.lastResultProps = mapResultToProps(
-            newResult,
-            this.lastResultProps,
-          );
+          this.lastResultProps = mapResultToProps(newResult, this.lastResultProps);
           return this.lastResultProps;
         }
 
@@ -456,10 +429,7 @@ export default function graphql<
 
         const opts = this.calculateOptions() as any;
         if (opts.ssr === false) return false;
-        if (
-          opts.fetchPolicy === 'network-only' ||
-          opts.fetchPolicy === 'cache-and-network'
-        ) {
+        if (opts.fetchPolicy === 'network-only' || opts.fetchPolicy === 'cache-and-network') {
           opts.fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
         }
 
@@ -488,9 +458,7 @@ export default function graphql<
           }
 
           if (results.data) {
-            const clashingKeys = Object.keys(
-              observableQueryFields(results.data),
-            );
+            const clashingKeys = Object.keys(observableQueryFields(results.data));
             invariant(
               clashingKeys.length === 0,
               `the result of the '${graphQLDisplayName}' operation contains ` +
@@ -578,9 +546,7 @@ export default function graphql<
         if (typeof opts.variables === 'undefined') delete opts.variables;
 
         (opts as any).mutation = document;
-        return this.getClient(this.props).mutate(opts as any) as Promise<
-          ApolloQueryResult<TData>
-        >;
+        return this.getClient(this.props).mutate(opts as any) as Promise<ApolloQueryResult<TData>>;
       }
 
       dataForChild() {
@@ -629,10 +595,7 @@ export default function graphql<
                   : `${error.message}\n${error.stack}`;
               }
 
-              console.error(
-                `Unhandled (in react-apollo:${graphQLDisplayName})`,
-                errorMessage,
-              );
+              console.error(`Unhandled (in react-apollo:${graphQLDisplayName})`, errorMessage);
             }
           }, 10);
           Object.defineProperty(data, 'error', {
@@ -649,10 +612,7 @@ export default function graphql<
             Object.assign(data, this.previousData, currentResult.data);
           } else if (error) {
             // if there is error, use any previously cached data
-            Object.assign(
-              data,
-              (this.queryObservable.getLastResult() || {}).data,
-            );
+            Object.assign(data, (this.queryObservable.getLastResult() || {}).data);
           } else {
             Object.assign(data, currentResult.data);
             this.previousData = currentResult.data;
@@ -687,11 +647,7 @@ export default function graphql<
         const { shouldRerender, renderedElement, props } = this;
         this.shouldRerender = false;
 
-        if (
-          !shouldRerender &&
-          renderedElement &&
-          renderedElement.type === WrappedComponent
-        ) {
+        if (!shouldRerender && renderedElement && renderedElement.type === WrappedComponent) {
           return renderedElement;
         }
 
@@ -699,8 +655,7 @@ export default function graphql<
         const clientProps = this.calculateResultProps(data);
         const mergedPropsAndData = Object.assign({}, props, clientProps);
 
-        if (operationOptions.withRef)
-          (mergedPropsAndData as any).ref = this.setWrappedInstance;
+        if (operationOptions.withRef) (mergedPropsAndData as any).ref = this.setWrappedInstance;
         this.renderedElement = <WrappedComponent {...mergedPropsAndData} />;
         return this.renderedElement;
       }

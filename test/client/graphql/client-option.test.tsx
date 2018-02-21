@@ -167,9 +167,7 @@ describe('client option', () => {
 
     const Container = graphql<Variables, Data, Variables>(query)(
       class extends React.Component<ChildProps<Variables, Data, Variables>> {
-        componentWillReceiveProps({
-          data,
-        }: ChildProps<Variables, Data, Variables>) {
+        componentWillReceiveProps({ data }: ChildProps<Variables, Data, Variables>) {
           expect(data!.loading).toBeFalsy(); // first data
           done();
         }

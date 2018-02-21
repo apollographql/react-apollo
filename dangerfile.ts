@@ -13,8 +13,7 @@ const trivialPR = bodyAndTitle.includes('trivial');
 const acceptedNoTests = bodyAndTitle.includes('skip new tests');
 
 const typescriptOnly = (file: string) => includes(file, '.ts');
-const filesOnly = (file: string) =>
-  fs.existsSync(file) && fs.lstatSync(file).isFile();
+const filesOnly = (file: string) => fs.existsSync(file) && fs.lstatSync(file).isFile();
 
 // Custom subsets of known files
 const modifiedAppFiles = modified
@@ -42,15 +41,10 @@ const toSentence = (array: Array<string>): string => {
 };
 
 // ("/href/thing", "name") to "<a href="/href/thing">name</a>"
-const createLink = (href: string, text: string): string =>
-  `<a href='${href}'>${text}</a>`;
+const createLink = (href: string, text: string): string => `<a href='${href}'>${text}</a>`;
 
 // Raise about missing code inside files
-const raiseIssueAboutPaths = (
-  type: Function,
-  paths: string[],
-  codeToInclude: string,
-) => {
+const raiseIssueAboutPaths = (type: Function, paths: string[], codeToInclude: string) => {
   if (paths.length > 0) {
     const files = linkableFiles(paths);
     const strict = '<code>' + codeToInclude + '</code>';
@@ -81,10 +75,7 @@ if (!isBot) {
 
   // Warn when there is a big PR
   const bigPRThreshold = 500;
-  if (
-    danger.github.pr.additions + danger.github.pr.deletions >
-    bigPRThreshold
-  ) {
+  if (danger.github.pr.additions + danger.github.pr.deletions > bigPRThreshold) {
     warn(':exclamation: Big PR');
   }
 

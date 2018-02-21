@@ -65,15 +65,11 @@ describe('graphql(mutation)', () => {
     type InjectedProps = {
       [name: string]: (name: string) => void;
     };
-    const ContainerWithData = graphql<Props, Data, Variables, InjectedProps>(
-      query,
-      {
-        props: ({ ownProps, mutate: addPerson }) => ({
-          [ownProps.methodName]: (name: string) =>
-            addPerson!({ variables: { name } }),
-        }),
-      },
-    )(({ myInjectedMutationMethod }) => {
+    const ContainerWithData = graphql<Props, Data, Variables, InjectedProps>(query, {
+      props: ({ ownProps, mutate: addPerson }) => ({
+        [ownProps.methodName]: (name: string) => addPerson!({ variables: { name } }),
+      }),
+    })(({ myInjectedMutationMethod }) => {
       expect(myInjectedMutationMethod).toBeTruthy();
       expect(typeof myInjectedMutationMethod).toBe('function');
       return null;

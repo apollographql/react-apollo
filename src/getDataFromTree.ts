@@ -31,10 +31,7 @@ interface PreactElement<P> {
 }
 
 function getProps<P>(element: ReactElement<P> | PreactElement<P>): P {
-  return (
-    (element as ReactElement<P>).props ||
-    (element as PreactElement<P>).attributes
-  );
+  return (element as ReactElement<P>).props || (element as PreactElement<P>).attributes;
 }
 
 function isReactElement(
@@ -43,12 +40,8 @@ function isReactElement(
   return !!(element as any).type;
 }
 
-function isComponentClass(
-  Comp: ComponentType<any>,
-): Comp is ComponentClass<any> {
-  return (
-    Comp.prototype && (Comp.prototype.render || Comp.prototype.isReactComponent)
-  );
+function isComponentClass(Comp: ComponentType<any>): Comp is ComponentClass<any> {
+  return Comp.prototype && (Comp.prototype.render || Comp.prototype.isReactComponent);
 }
 
 function providesChildContext(
@@ -104,11 +97,7 @@ export function walkTree<Cache>(
             // React's TS type definitions don't contain context as a third parameter for
             // setState's updater function.
             // Remove this cast to `any` when that is fixed.
-            newState = (newState as any)(
-              instance.state,
-              instance.props,
-              instance.context,
-            );
+            newState = (newState as any)(instance.state, instance.props, instance.context);
           }
           instance.state = Object.assign({}, instance.state, newState);
         };
@@ -215,9 +204,7 @@ export default function getDataFromTree(
   // wait on each query that we found, re-rendering the subtree when it's done
   const mappedQueries = queries.map(({ query, element, context }) => {
     // we've just grabbed the query for element, so don't try and get it again
-    return query
-      .then(_ => getDataFromTree(element, context, false))
-      .catch(e => errors.push(e));
+    return query.then(_ => getDataFromTree(element, context, false)).catch(e => errors.push(e));
   });
 
   // Run all queries. If there are errors, still wait for all queries to execute
@@ -227,11 +214,7 @@ export default function getDataFromTree(
       const error =
         errors.length === 1
           ? errors[0]
-          : new Error(
-              `${
-                errors.length
-              } errors were thrown when executing your GraphQL queries.`,
-            );
+          : new Error(`${errors.length} errors were thrown when executing your GraphQL queries.`);
       error.queryErrors = errors;
       throw error;
     }

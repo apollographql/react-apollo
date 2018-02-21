@@ -88,11 +88,7 @@ A new way to interact with Apollo and React, the `Query` component will allow us
 Like the `Query` component, the `Mutation` component will allow using Apollo without an HOC but still get all of the benefits of Apollo. The rough draft looks something like this:
 
 ```js
-<Mutation
-  stateUpdater={this.setState}
-  options={MutationOptions}
-  render={result => Component}
-/>
+<Mutation stateUpdater={this.setState} options={MutationOptions} render={result => Component} />
 ```
 
 The stateUpdater prop allows for setting local component state based on the state of the _latest_ mutation fired or potentially allow a Map of results and statues. This API is still early and may change.

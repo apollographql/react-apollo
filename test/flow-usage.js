@@ -13,12 +13,7 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { withApollo, graphql } from '../src';
-import type {
-  OperationComponent,
-  GraphqlQueryControls,
-  ChildProps,
-  GraphqlData,
-} from '../src';
+import type { OperationComponent, GraphqlQueryControls, ChildProps, GraphqlData } from '../src';
 
 const query = gql`
   {
@@ -110,11 +105,9 @@ class Cmplx2Component extends React.Component<Cmplx2ComponentProps> {
     );
   }
 }
-const withFancyData2: OperationComponent<
-  IQuery,
-  Cmplx2OwnProps,
-  Cmplx2ComponentProps,
-> = graphql(query);
+const withFancyData2: OperationComponent<IQuery, Cmplx2OwnProps, Cmplx2ComponentProps> = graphql(
+  query,
+);
 const Cmplx2WithData = withFancyData2(Cmplx2Component);
 
 const HERO_QUERY = gql`
@@ -154,30 +147,28 @@ type Props = GraphqlData<Response, Variables> & {
   someProp: string,
 };
 
-const withCharacter: OperationComponent<
-  Response,
-  InputProps,
-  Props,
-  Variables,
-> = graphql(HERO_QUERY, {
-  options: ({ episode }) => {
-    // $ExpectError [string] The operand of an arithmetic operation must be a number
-    episode * 10;
-    return {
-      // $ExpectError [number] This type is incompatible with string
-      variables: { episode: 10 },
-    };
+const withCharacter: OperationComponent<Response, InputProps, Props, Variables> = graphql(
+  HERO_QUERY,
+  {
+    options: ({ episode }) => {
+      // $ExpectError [string] The operand of an arithmetic operation must be a number
+      episode * 10;
+      return {
+        // $ExpectError [number] This type is incompatible with string
+        variables: { episode: 10 },
+      };
+    },
+    props: ({ data, ownProps }) => ({
+      ...data,
+      // $ExpectError [string] This type cannot be compared to number
+      episode: ownProps.episode > 1,
+      // $ExpectError property `isHero`. Property not found on object type
+      isHero: data && data.hero && data.hero.isHero,
+      // $ExpectError Property `someProp`. This type is incompatible with string
+      someProp: 1,
+    }),
   },
-  props: ({ data, ownProps }) => ({
-    ...data,
-    // $ExpectError [string] This type cannot be compared to number
-    episode: ownProps.episode > 1,
-    // $ExpectError property `isHero`. Property not found on object type
-    isHero: data && data.hero && data.hero.isHero,
-    // $ExpectError Property `someProp`. This type is incompatible with string
-    someProp: 1,
-  }),
-});
+);
 
 export default withCharacter(({ loading, hero, error }) => {
   if (loading) return <div>Loading</div>;

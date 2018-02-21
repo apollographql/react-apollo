@@ -70,9 +70,7 @@ describe('[queries] api', () => {
                   .refetch({ first: 2 }) // new variables
                   .then(response => {
                     expect(stripSymbols(response.data)).toEqual(data1);
-                    expect(stripSymbols(data!.allPeople)).toEqual(
-                      data1.allPeople,
-                    );
+                    expect(stripSymbols(data!.allPeople)).toEqual(data1.allPeople);
                     done();
                   });
               })
@@ -182,9 +180,7 @@ describe('[queries] api', () => {
                 variables: { skip: 2 },
                 updateQuery: (prev, { fetchMoreResult }) => ({
                   allPeople: {
-                    people: prev.allPeople.people.concat(
-                      fetchMoreResult!.allPeople.people,
-                    ),
+                    people: prev.allPeople.people.concat(fetchMoreResult!.allPeople.people),
                   },
                 }),
               })

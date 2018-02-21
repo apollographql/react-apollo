@@ -178,20 +178,12 @@ describe('[queries] loading', () => {
           // variables changed, new query is loading, but old data is still there
           if (count === 1 && nextProps.data!.loading) {
             expect(nextProps.data!.networkStatus).toBe(2);
-            expect(stripSymbols(nextProps.data!.allPeople)).toEqual(
-              data1.allPeople,
-            );
+            expect(stripSymbols(nextProps.data!.allPeople)).toEqual(data1.allPeople);
           }
           // query with new variables is loaded
-          if (
-            count === 1 &&
-            !nextProps.data!.loading &&
-            this.props.data!.loading
-          ) {
+          if (count === 1 && !nextProps.data!.loading && this.props.data!.loading) {
             expect(nextProps.data!.networkStatus).toBe(7);
-            expect(stripSymbols(nextProps.data!.allPeople)).toEqual(
-              data2.allPeople,
-            );
+            expect(stripSymbols(nextProps.data!.allPeople)).toEqual(data2.allPeople);
             done();
           }
         }
@@ -263,16 +255,12 @@ describe('[queries] loading', () => {
               case 1:
                 expect(props.data!.loading).toBeTruthy();
                 expect(props.data!.networkStatus).toBe(4);
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
-                );
+                expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
                 break;
               case 2:
                 expect(props.data!.loading).toBeFalsy();
                 expect(props.data!.networkStatus).toBe(7);
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data2.allPeople,
-                );
+                expect(stripSymbols(props.data!.allPeople)).toEqual(data2.allPeople);
                 resolve();
                 break;
               default:
@@ -348,9 +336,7 @@ describe('[queries] loading', () => {
             if (count === 3) {
               // remounted data after fetch
               expect(props.data!.loading).toBeFalsy();
-              expect(props.data!.allPeople!.people[0].name).toMatch(
-                /Darth Skywalker - /,
-              );
+              expect(props.data!.allPeople!.people[0].name).toMatch(/Darth Skywalker - /);
               done();
             }
           } catch (e) {
@@ -566,9 +552,7 @@ describe('[queries] loading', () => {
       setFirst: (first: number) => void;
     }
 
-    const connect = (
-      component: React.ComponentType<Props>,
-    ): React.ComponentType<{}> => {
+    const connect = (component: React.ComponentType<Props>): React.ComponentType<{}> => {
       return class extends React.Component<{}, { first: number }> {
         constructor(props: {}) {
           super(props);

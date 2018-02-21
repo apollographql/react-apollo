@@ -5,12 +5,7 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
-import {
-  ApolloProvider,
-  graphql,
-  DataProps,
-  ChildProps,
-} from '../../../../src';
+import { ApolloProvider, graphql, DataProps, ChildProps } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import catchAsyncError from '../../../test-utils/catchAsyncError';
@@ -52,13 +47,11 @@ describe('queries', () => {
       };
     }
 
-    const ContainerWithData = graphql<any, Data>(query)(
-      ({ data }: DataProps<Data>) => {
-        expect(data).toBeTruthy();
-        expect(data.loading).toBeTruthy();
-        return null;
-      },
-    );
+    const ContainerWithData = graphql<any, Data>(query)(({ data }: DataProps<Data>) => {
+      expect(data).toBeTruthy();
+      expect(data.loading).toBeTruthy();
+      return null;
+    });
 
     const output = renderer.create(
       <ApolloProvider client={client}>
@@ -214,9 +207,7 @@ describe('queries', () => {
         componentWillReceiveProps(props: ChildProps<{}, Data>) {
           expect(props.data!.loading).toBeFalsy();
           expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
-          expect(stripSymbols(props.data!.otherPeople)).toEqual(
-            data.otherPeople,
-          );
+          expect(stripSymbols(props.data!.otherPeople)).toEqual(data.otherPeople);
           done();
         }
         render() {
@@ -262,9 +253,7 @@ describe('queries', () => {
         componentWillReceiveProps(props: ChildProps<Vars, Data, Vars>) {
           expect(props.data!.loading).toBeFalsy();
           expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
-          expect(stripSymbols(props.data!.variables)).toEqual(
-            this.props.data!.variables,
-          );
+          expect(stripSymbols(props.data!.variables)).toEqual(this.props.data!.variables);
           done();
         }
         render() {
@@ -369,9 +358,7 @@ describe('queries', () => {
 
     const Container = graphql<Partial<Vars>, Data, Vars>(query)(
       class extends React.Component<ChildProps<Partial<Vars>, Data, Vars>> {
-        componentWillReceiveProps(
-          props: ChildProps<Partial<Vars>, Data, Vars>,
-        ) {
+        componentWillReceiveProps(props: ChildProps<Partial<Vars>, Data, Vars>) {
           expect(props.data!.loading).toBeFalsy();
           expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
           done();

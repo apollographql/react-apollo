@@ -167,8 +167,7 @@ describe('[queries] skip', () => {
         componentWillReceiveProps(props: ChildProps<Props, Data, Vars>) {
           count++;
           if (count === 1) expect(props.data!.loading).toBeTruthy();
-          if (count === 2)
-            expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
+          if (count === 2) expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
           if (count === 2) {
             expect(renderCount).toBe(2);
             done();
@@ -181,10 +180,7 @@ describe('[queries] skip', () => {
       },
     );
 
-    class Parent extends React.Component<
-      {},
-      { person: { id: number } | null }
-    > {
+    class Parent extends React.Component<{}, { person: { id: number } | null }> {
       state = { person: null };
 
       componentDidMount() {
@@ -443,12 +439,7 @@ describe('[queries] skip', () => {
     class Parent extends React.Component<any, any> {
       state = { skip: false };
       render() {
-        return (
-          <Container
-            skip={this.state.skip}
-            setSkip={skip => this.setState({ skip })}
-          />
-        );
+        return <Container skip={this.state.skip} setSkip={skip => this.setState({ skip })} />;
       }
     }
 
@@ -515,15 +506,11 @@ describe('[queries] skip', () => {
           } else {
             if (hasSkipped) {
               if (!newProps.data!.loading) {
-                expect(stripSymbols(newProps.data!.allPeople)).toEqual(
-                  dataTwo.allPeople,
-                );
+                expect(stripSymbols(newProps.data!.allPeople)).toEqual(dataTwo.allPeople);
                 done();
               }
             } else {
-              expect(stripSymbols(newProps.data!.allPeople)).toEqual(
-                dataOne.allPeople,
-              );
+              expect(stripSymbols(newProps.data!.allPeople)).toEqual(dataOne.allPeople);
               this.props.setState({ skip: true });
             }
           }
@@ -625,12 +612,7 @@ describe('[queries] skip', () => {
     class Parent extends React.Component<{}, { skip: boolean }> {
       state = { skip: false };
       render() {
-        return (
-          <Container
-            skip={this.state.skip}
-            setSkip={skip => this.setState({ skip })}
-          />
-        );
+        return <Container skip={this.state.skip} setSkip={skip => this.setState({ skip })} />;
       }
     }
 
@@ -683,8 +665,7 @@ describe('[queries] skip', () => {
         componentWillReceiveProps({ data }: ChildProps<Vars, Data>) {
           catchAsyncError(done, () => {
             // loading is true, but data still there
-            if (count === 0)
-              expect(stripSymbols(data!.allPeople)).toEqual(data1.allPeople);
+            if (count === 0) expect(stripSymbols(data!.allPeople)).toEqual(data1.allPeople);
             if (count === 1) expect(data).toBeUndefined();
             if (count === 2 && !data!.loading) {
               expect(stripSymbols(data!.allPeople)).toEqual(data3.allPeople);

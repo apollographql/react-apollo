@@ -194,9 +194,7 @@ describe('[queries] reducer', () => {
     let counter = 0;
     class Container extends React.Component<FinalProps> {
       componentWillReceiveProps(nextProps: FinalProps) {
-        expect(stripSymbols(nextProps.wrapper.thingy)).toEqual(
-          expectedData.getThing,
-        );
+        expect(stripSymbols(nextProps.wrapper.thingy)).toEqual(expectedData.getThing);
         if (counter === 1) {
           expect(nextProps.wrapper).toEqual(this.props.wrapper);
           done();

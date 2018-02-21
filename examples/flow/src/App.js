@@ -1,17 +1,10 @@
 // @flow
 
 import React from 'react';
-import {
-  graphql,
-  type OperationComponent,
-  type QueryProps,
-} from 'react-apollo';
+import { graphql, type OperationComponent, type QueryProps } from 'react-apollo';
 import gql from 'graphql-tag';
 
-import type {
-  GetCharacterQuery,
-  GetCharacterQueryVariables,
-} from './schema.flow.js';
+import type { GetCharacterQuery, GetCharacterQueryVariables } from './schema.flow.js';
 
 export const HERO_QUERY = gql`
   query GetCharacter($episode: Episode!) {
@@ -55,9 +48,7 @@ export const CharacterWithoutData = ({ loading, hero, error }: Props) => {
                 friend && (
                   <h6 key={friend.id}>
                     {friend.name}:{' '}
-                    {friend.appearsIn
-                      .map(epis => epis && epis.toLowerCase())
-                      .join(', ')}
+                    {friend.appearsIn.map(epis => epis && epis.toLowerCase()).join(', ')}
                   </h6>
                 ),
             )}
