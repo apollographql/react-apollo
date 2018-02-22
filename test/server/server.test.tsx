@@ -2,7 +2,8 @@ import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { ApolloLink, Observable } from 'apollo-link';
 import {
-  execute,
+  print,
+  graphql as execute,
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLList,
@@ -15,28 +16,6 @@ import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 describe('SSR', () => {
-  // it('should render the expected markup', (done) => {
-
-  //   const query = gql`query ssr { allPeople(first: 1) { people { name } } }`;
-  //   const data = { allPeople: { people: [ { name: 'Luke Skywalker' } ] } };
-  //   const link = mockSingleLink({ request: { query }, result: { data } });
-  //   const client = new ApolloClient({ link });
-
-  //   const Element = ({ ssr }) => (<div>{ssr.loading ? 'loading' : 'loaded'}</div>);
-  //   const WrappedElement = graphql(query)(Element);
-  //   const component = (<ApolloProvider client={client}><WrappedElement /></ApolloProvider>);
-
-  //   try {
-  //     const markup = ReactDOM.renderToString(component);
-  //     expect(markup).to.match(/loading/);
-  //     // We do a timeout to ensure the rest of the application does not fail
-  //     // after the render
-  //     setTimeout(() => done(), 10);
-  //   } catch (e) {
-  //     done(e);
-  //   }
-  // });
-
   describe('`renderToStringWithData`', () => {
     // XXX break into smaller tests
     // XXX mock all queries
@@ -126,7 +105,7 @@ describe('SSR', () => {
       const apolloClient = new ApolloClient({
         link: new ApolloLink(config => {
           return new Observable(observer => {
-            execute(Schema, config.query, null, null, config.variables, config.operationName)
+            execute(Schema, print(config.query), null, null, config.variables, config.operationName)
               .then(result => {
                 observer.next(result);
                 observer.complete();
