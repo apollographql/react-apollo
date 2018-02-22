@@ -97,6 +97,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   query: DocumentNode;
   variables?: TVariables;
   ssr?: boolean;
+  skip?: boolean;
 }
 
 export interface QueryState<TData = any> {
@@ -149,10 +150,10 @@ class Query<
 
   // For server-side rendering (see getDataFromTree.ts)
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
-    const { children, ssr, ...opts } = this.props;
+    const { children, ssr, skip, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
-    if (ssr === false) return false;
+    if (ssr === false || skip) return false;
     if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
       fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
     }
@@ -171,13 +172,21 @@ class Query<
   }
 
   componentDidMount() {
-    this.startQuerySubscription();
+    if (!this.props.skip) {
+      this.startQuerySubscription();
+    }
   }
 
   componentWillReceiveProps(
     nextProps: QueryProps<TData, TVariables>,
     nextContext: QueryContext,
   ) {
+    if (nextProps.skip) {
+      // if this has changed, we better unsubscribe
+      this.removeQuerySubscription();
+      return;
+    }
+
     if (
       shallowEqual(this.props, nextProps) &&
       this.client === nextContext.client
@@ -188,6 +197,11 @@ class Query<
     if (this.client !== nextContext.client) {
       this.client = nextContext.client;
     }
+
+    if (nextProps.skip) {
+      return;
+    }
+
     this.removeQuerySubscription();
     this.initializeQueryObservable(nextProps);
     this.startQuerySubscription();
@@ -201,6 +215,18 @@ class Query<
   render() {
     const { children } = this.props;
     const queryResult = this.getQueryResult();
+
+    if (this.props.skip) {
+      const result = {
+        ...queryResult,
+        data: undefined,
+        error: undefined,
+        loading: false,
+      };
+
+      return children(result);
+    }
+
     return children(queryResult);
   }
 

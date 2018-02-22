@@ -597,6 +597,9 @@ it('allows a refetchQueries prop', done => {
       {(createTodo, resultMutation) => (
         <Query query={query}>
           {resultQuery => {
+            if (!resultQuery) {
+              return
+            }
             if (count === 0) {
               setTimeout(() => {
                 createTodo();

@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Query component allows you to skip then unskip a query 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
 exports[`Query component calls the children prop: result in render prop 1`] = `
 Object {
   "data": Object {
@@ -25,9 +40,7 @@ Object {
 }
 `;
 
-exports[
-  `Query component calls the children prop: result in render prop while loading 1`
-] = `
+exports[`Query component calls the children prop: result in render prop while loading 1`] = `
 Object {
   "data": undefined,
   "error": undefined,

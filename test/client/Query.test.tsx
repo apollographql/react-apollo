@@ -1,5 +1,6 @@
 import * as React from 'react';
 import ApolloClient, { NetworkStatus } from 'apollo-client';
+import { ApolloLink } from 'apollo-link';
 import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloProvider, Query } from '../../src';
@@ -63,12 +64,16 @@ describe('Query component', () => {
     const Component = () => (
       <Query query={allPeopleQuery}>
         {result => {
+          if (!result) {
+            return null;
+          }
+
           catchAsyncError(done, () => {
             const { client: clientResult, ...rest } = result;
 
             if (result.loading) {
               expect(rest).toMatchSnapshot(
-                'result in render prop while loading'
+                'result in render prop while loading',
               );
               expect(clientResult).toBe(client);
             } else {
@@ -85,7 +90,7 @@ describe('Query component', () => {
     wrapper = mount(
       <ApolloProvider client={client}>
         <Component />
-      </ApolloProvider>
+      </ApolloProvider>,
     );
   });
 
@@ -97,7 +102,7 @@ describe('Query component', () => {
     wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
-      </MockedProvider>
+      </MockedProvider>,
     );
     catchAsyncError(done, () => {
       expect(wrapper!.find('div').exists()).toBeTruthy();
@@ -136,6 +141,9 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={queryWithVariables} variables={variables}>
           {result => {
+            if (!result) {
+              return null;
+            }
             catchAsyncError(done, () => {
               expect(result.client).toBeInstanceOf(ApolloClient);
               done();
@@ -148,7 +156,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocksWithVariable} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -168,7 +176,7 @@ describe('Query component', () => {
             }
             catchAsyncError(done, () => {
               expect(result.error).toEqual(
-                new Error('Network error: error occurred')
+                new Error('Network error: error occurred'),
               );
               done();
             });
@@ -180,7 +188,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mockError} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -230,6 +238,10 @@ describe('Query component', () => {
           notifyOnNetworkStatusChange
         >
           {result => {
+            if (!result) {
+              return null;
+            }
+
             const { data, loading } = result;
             if (loading) {
               count++;
@@ -279,7 +291,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -355,7 +367,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -417,7 +429,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
 
       jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
@@ -476,7 +488,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
 
       jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
@@ -538,7 +550,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
   });
@@ -548,6 +560,10 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery} fetchPolicy={'cache-only'}>
           {result => {
+            if (!result) {
+              return null;
+            }
+
             catchAsyncError(done, () => {
               expect(result.loading).toBeFalsy();
               expect(result.data).toBeUndefined();
@@ -562,7 +578,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={allPeopleMocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -586,6 +602,9 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery} notifyOnNetworkStatusChange>
           {result => {
+            if (!result) {
+              return null;
+            }
             catchAsyncError(done, () => {
               if (count === 0) {
                 expect(result.loading).toBeTruthy();
@@ -614,7 +633,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -667,7 +686,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
 
       jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
@@ -696,10 +715,10 @@ describe('Query component', () => {
         mount(
           <MockedProvider>
             <Query query={mutation}>{() => null}</Query>
-          </MockedProvider>
+          </MockedProvider>,
         );
       }).toThrowError(
-        'The <Query /> component requires a graphql query, but got a mutation.'
+        'The <Query /> component requires a graphql query, but got a mutation.',
       );
 
       console.error = errorLogger;
@@ -722,10 +741,10 @@ describe('Query component', () => {
         mount(
           <MockedProvider>
             <Query query={subscription}>{() => null}</Query>
-          </MockedProvider>
+          </MockedProvider>,
         );
       }).toThrowError(
-        'The <Query /> component requires a graphql query, but got a subscription.'
+        'The <Query /> component requires a graphql query, but got a subscription.',
       );
 
       console.error = errorLogger;
@@ -808,7 +827,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -881,7 +900,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
 
@@ -996,6 +1015,9 @@ describe('Query component', () => {
           return (
             <AllPeopleQuery query={query} variables={variables}>
               {result => {
+                if (!result) {
+                  return null;
+                }
                 catchAsyncError(done, () => {
                   if (result.loading && count === 2) {
                     expect(stripSymbols(result.data)).toEqual(data1);
@@ -1016,7 +1038,7 @@ describe('Query component', () => {
       wrapper = mount(
         <MockedProvider mocks={mocks} removeTypename>
           <Component />
-        </MockedProvider>
+        </MockedProvider>,
       );
     });
   });
@@ -1041,7 +1063,7 @@ describe('Query component', () => {
       componentDidCatch(error: any) {
         catchAsyncError(done, () => {
           const expectedError = new Error(
-            'The <Query /> component requires a graphql query, but got a subscription.'
+            'The <Query /> component requires a graphql query, but got a subscription.',
           );
           expect(error).toEqual(expectedError);
           console.error = errorLog;
@@ -1067,7 +1089,7 @@ describe('Query component', () => {
     wrapper = mount(
       <MockedProvider mocks={allPeopleMocks} removeTypename>
         <Component />
-      </MockedProvider>
+      </MockedProvider>,
     );
   });
 
@@ -1087,7 +1109,7 @@ describe('Query component', () => {
     const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, error: new Error('This is an error!') },
-      { request: { query }, result: { data: dataTwo } }
+      { request: { query }, result: { data: dataTwo } },
     );
     const client = new ApolloClient({
       link,
@@ -1103,6 +1125,10 @@ describe('Query component', () => {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
           {result => {
+            if (!result) {
+              return null;
+            }
+
             try {
               switch (count++) {
                 case 0:
@@ -1117,7 +1143,7 @@ describe('Query component', () => {
                   // First result is loaded, run a refetch to get the second result
                   // which is an error.
                   expect(stripSymbols(result.data.allPeople)).toEqual(
-                    data.allPeople
+                    data.allPeople,
                   );
                   setTimeout(() => {
                     result.refetch().then(() => {
@@ -1155,7 +1181,7 @@ describe('Query component', () => {
                     break;
                   }
                   expect(stripSymbols(result.data.allPeople)).toEqual(
-                    dataTwo.allPeople
+                    dataTwo.allPeople,
                   );
                   done();
                   break;
@@ -1174,7 +1200,163 @@ describe('Query component', () => {
     wrapper = mount(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>
+      </ApolloProvider>,
+    );
+  });
+
+  it('allows you to skip a query without running it', done => {
+    const query: DocumentNode = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const link = new ApolloLink((o, f) => {
+      done.fail(new Error('query ran even though skip present'));
+      return f ? f(o) : null;
+    }).concat(mockSingleLink());
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    wrapper = mount(
+      <ApolloProvider client={client}>
+        <Query query={query} skip={true}>
+          {result => {
+            expect(result.data).toBeUndefined();
+            expect(result.loading).toEqual(false);
+            expect(result.error).toBe(undefined);
+            done();
+
+            return null;
+          }}
+        </Query>
+      </ApolloProvider>,
+    );
+  });
+
+  it('continues to not subscribe to a skipped query when props change', done => {
+    const query: DocumentNode = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const link = new ApolloLink((o, f) => {
+      done.fail(new Error('query ran even though skip present'));
+      return f ? f(o) : null;
+    }).concat(mockSingleLink());
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    class Container extends React.Component<
+      {},
+      { variables: { number: number } }
+    > {
+      state = {
+        variables: {
+          number: 123,
+        },
+      };
+
+      componentDidMount() {
+        this.setState({ variables: { number: 999 } });
+      }
+
+      render() {
+        return (
+          <Query query={query} skip={true} variables={this.state.variables}>
+            {result => {
+              expect(result.data).toBeUndefined();
+              expect(result.client).toBeInstanceOf(ApolloClient);
+
+              if (this.state.variables.number === 999) {
+                done();
+              }
+
+              return null;
+            }}
+          </Query>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
+  });
+
+  it('allows you to skip then unskip a query', done => {
+    const query: DocumentNode = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const link = mockSingleLink({
+      request: { query },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+    let count = 0;
+    class Container extends React.Component<{}, { skip: boolean }> {
+      state = {
+        skip: true,
+      };
+
+      componentDidMount() {
+        this.setState({ skip: false });
+      }
+
+      render() {
+        return (
+          <Query query={query} skip={this.state.skip}>
+            {result => {
+              if (result.loading) {
+                count++;
+                return null;
+              }
+
+              catchAsyncError(done, () => {
+                if (count === 1) {
+                  expect(result.data).toMatchSnapshot();
+                  done();
+                }
+              });
+
+              return null;
+            }}
+          </Query>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
     );
   });
 });
