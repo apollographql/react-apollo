@@ -31,10 +31,9 @@ export declare type MutationUpdaterFn<
   }
 > = (proxy: DataProxy, mutationResult: FetchResult<T>) => void;
 
-export declare type FetchResult<
-  C = Record<string, any>,
-  E = Record<string, any>
-> = ExecutionResult<C> & {
+export declare type FetchResult<C = Record<string, any>, E = Record<string, any>> = ExecutionResult<
+  C
+> & {
   extensions?: E;
   context?: C;
 };
@@ -53,9 +52,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
-    mutateFn: (
-      options?: MutationOptions<TData, TVariables>,
-    ) => Promise<void | FetchResult>,
+    mutateFn: (options?: MutationOptions<TData, TVariables>) => Promise<void | FetchResult>,
     result?: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
@@ -73,10 +70,7 @@ const initialState = {
   notCalled: true,
 };
 
-class Mutation<
-  TData = any,
-  TVariables = OperationVariables
-> extends React.Component<
+class Mutation<TData = any, TVariables = OperationVariables> extends React.Component<
   MutationProps<TData, TVariables>,
   MutationState<TData>
 > {
@@ -118,10 +112,7 @@ class Mutation<
     nextProps: MutationProps<TData, TVariables>,
     nextContext: MutationContext,
   ) {
-    if (
-      shallowEqual(this.props, nextProps) &&
-      this.client === nextContext.client
-    ) {
+    if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
       return;
     }
 
@@ -167,14 +158,14 @@ class Mutation<
 
   private mutate = (options: MutationOptions<TVariables>) => {
     const { mutation, variables, optimisticResponse, refetchQueries, update } = this.props;
-    
+
     return this.client.mutate({
       mutation,
       variables,
       optimisticResponse,
       refetchQueries,
       update,
-      ...options
+      ...options,
     });
   };
 
@@ -189,10 +180,7 @@ class Mutation<
     }
   };
 
-  private onCompletedMutation = (
-    response: ExecutionResult<TData>,
-    mutationId: number,
-  ) => {
+  private onCompletedMutation = (response: ExecutionResult<TData>, mutationId: number) => {
     const { onCompleted } = this.props;
 
     const data = response.data as TData;

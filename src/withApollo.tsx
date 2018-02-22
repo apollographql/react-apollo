@@ -33,8 +33,7 @@ export default function withApollo<TProps, TResult>(
     getWrappedInstance() {
       invariant(
         operationOptions.withRef,
-        `To access the wrapped instance, you need to specify ` +
-          `{ withRef: true } in the options`,
+        `To access the wrapped instance, you need to specify ` + `{ withRef: true } in the options`,
       );
 
       return this.wrappedInstance;
@@ -50,9 +49,7 @@ export default function withApollo<TProps, TResult>(
           {client => {
             const props = Object.assign({}, this.props, {
               client,
-              ref: operationOptions.withRef
-                ? this.setWrappedInstance
-                : undefined,
+              ref: operationOptions.withRef ? this.setWrappedInstance : undefined,
             });
             return <WrappedComponent {...props} />;
           }}

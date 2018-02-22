@@ -121,9 +121,7 @@ describe('[queries] updateQuery', () => {
             this.props.data!.updateQuery(p => p);
             done();
           } catch (e) {
-            expect(e.toString()).toMatch(
-              /ObservableQuery with this id doesn't exist:/,
-            );
+            expect(e.toString()).toMatch(/ObservableQuery with this id doesn't exist:/);
             done();
           }
         }
@@ -171,9 +169,7 @@ describe('[queries] updateQuery', () => {
         }
         componentWillReceiveProps(props: ChildProps<{}, Data>) {
           if (isUpdated) {
-            expect(stripSymbols(props.data!.allPeople)).toEqual(
-              data2.allPeople,
-            );
+            expect(stripSymbols(props.data!.allPeople)).toEqual(data2.allPeople);
             done();
             return;
           } else {
@@ -224,9 +220,7 @@ describe('[queries] updateQuery', () => {
       class extends React.Component<ChildProps<{}, Data>> {
         componentWillReceiveProps(props: ChildProps<{}, Data>) {
           if (isUpdated) {
-            expect(stripSymbols(props.data!.allPeople)).toEqual(
-              data2.allPeople,
-            );
+            expect(stripSymbols(props.data!.allPeople)).toEqual(data2.allPeople);
             done();
             return;
           } else {

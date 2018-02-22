@@ -25,12 +25,7 @@ describe('subscriptions', () => {
     }
   });
 
-  const results = [
-    'James Baxley',
-    'John Pinkerton',
-    'Sam Claridge',
-    'Ben Coleman',
-  ].map(name => ({
+  const results = ['James Baxley', 'John Pinkerton', 'Sam Claridge', 'Ben Coleman'].map(name => ({
     result: { data: { user: { name } } },
     delay: 10,
   }));
@@ -54,14 +49,12 @@ describe('subscriptions', () => {
       user: { name: string };
     }
 
-    const ContainerWithData = graphql<Props, Data>(query)(
-      ({ data }: ChildProps<Props, Data>) => {
-        expect(data).toBeTruthy();
-        expect(data!.user).toBeFalsy();
-        expect(data!.loading).toBeTruthy();
-        return null;
-      },
-    );
+    const ContainerWithData = graphql<Props, Data>(query)(({ data }: ChildProps<Props, Data>) => {
+      expect(data).toBeTruthy();
+      expect(data!.user).toBeFalsy();
+      expect(data!.loading).toBeTruthy();
+      return null;
+    });
 
     wrapper = renderer.create(
       <ApolloProvider client={client}>
@@ -179,12 +172,9 @@ describe('subscriptions', () => {
           const { loading, user } = props.data!;
 
           expect(loading).toBeFalsy();
-          if (count === 0)
-            expect(stripSymbols(user)).toEqual(results[0].result.data.user);
-          if (count === 1)
-            expect(stripSymbols(user)).toEqual(results[1].result.data.user);
-          if (count === 2)
-            expect(stripSymbols(user)).toEqual(results[2].result.data.user);
+          if (count === 0) expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+          if (count === 1) expect(stripSymbols(user)).toEqual(results[1].result.data.user);
+          if (count === 2) expect(stripSymbols(user)).toEqual(results[2].result.data.user);
           if (count === 3) {
             expect(stripSymbols(user)).toEqual(results[3].result.data.user);
             done();
@@ -213,26 +203,13 @@ describe('subscriptions', () => {
   it('resubscribes to a subscription', done => {
     //we make an extra Hoc which will trigger the inner HoC to resubscribe
     //these are the results for the outer subscription
-    const triggerResults = [
-      '0',
-      'trigger resubscribe',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-    ].map(trigger => ({
+    const triggerResults = ['0', 'trigger resubscribe', '3', '4', '5', '6', '7'].map(trigger => ({
       result: { data: { trigger } },
       delay: 10,
     }));
 
     //These are the results from the resubscription
-    const results3 = [
-      'NewUser: 1',
-      'NewUser: 2',
-      'NewUser: 3',
-      'NewUser: 4',
-    ].map(name => ({
+    const results3 = ['NewUser: 1', 'NewUser: 2', 'NewUser: 3', 'NewUser: 4'].map(name => ({
       result: { data: { user: { name } } },
       delay: 10,
     }));
@@ -290,22 +267,13 @@ describe('subscriptions', () => {
             try {
               // odd counts will be outer wrapper getting subscriptions - ie unchanged
               expect(loading).toBeFalsy();
-              if (count === 0)
-                expect(stripSymbols(user)).toEqual(results[0].result.data.user);
-              if (count === 1)
-                expect(stripSymbols(user)).toEqual(results[0].result.data.user);
-              if (count === 2)
-                expect(stripSymbols(user)).toEqual(results[2].result.data.user);
-              if (count === 3)
-                expect(stripSymbols(user)).toEqual(results[2].result.data.user);
-              if (count === 4)
-                expect(stripSymbols(user)).toEqual(
-                  results3[2].result.data.user,
-                );
+              if (count === 0) expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+              if (count === 1) expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+              if (count === 2) expect(stripSymbols(user)).toEqual(results[2].result.data.user);
+              if (count === 3) expect(stripSymbols(user)).toEqual(results[2].result.data.user);
+              if (count === 4) expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
               if (count === 5) {
-                expect(stripSymbols(user)).toEqual(
-                  results3[2].result.data.user,
-                );
+                expect(stripSymbols(user)).toEqual(results3[2].result.data.user);
                 done();
               }
             } catch (e) {

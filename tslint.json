@@ -48,11 +48,6 @@
       "variable-declaration",
       "member-variable-declaration"
     ],
-    "variable-name": [
-      false,
-      "check-format",
-      "allow-leading-underscore",
-      "ban-keywords"
-    ]
+    "variable-name": [false, "check-format", "allow-leading-underscore", "ban-keywords"]
   }
 }

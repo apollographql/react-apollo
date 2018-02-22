@@ -8,10 +8,7 @@ export interface ApolloConsumerProps {
   children: (client: ApolloClient<any>) => React.ReactElement<any> | null;
 }
 
-const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> = (
-  props,
-  context,
-) => {
+const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> = (props, context) => {
   invariant(
     !!context.client,
     `Could not find "client" in the context of ApolloConsumer. Wrap the root component in an <ApolloProvider>`,

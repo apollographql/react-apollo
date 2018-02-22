@@ -12,8 +12,7 @@
         {
           "kind": "OBJECT",
           "name": "Query",
-          "description":
-            "The query type, represents all of the entry points into our object graph",
+          "description": "The query type, represents all of the entry points into our object graph",
           "fields": [
             {
               "name": "hero",
@@ -220,22 +219,19 @@
           "enumValues": [
             {
               "name": "NEWHOPE",
-              "description":
-                "Star Wars Episode IV: A New Hope, released in 1977.",
+              "description": "Star Wars Episode IV: A New Hope, released in 1977.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "EMPIRE",
-              "description":
-                "Star Wars Episode V: The Empire Strikes Back, released in 1980.",
+              "description": "Star Wars Episode V: The Empire Strikes Back, released in 1980.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "JEDI",
-              "description":
-                "Star Wars Episode VI: Return of the Jedi, released in 1983.",
+              "description": "Star Wars Episode VI: Return of the Jedi, released in 1983.",
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -281,8 +277,7 @@
             },
             {
               "name": "friends",
-              "description":
-                "The friends of the character, or an empty list if they have none",
+              "description": "The friends of the character, or an empty list if they have none",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -298,8 +293,7 @@
             },
             {
               "name": "friendsConnection",
-              "description":
-                "The friends of the character exposed as a connection with edges",
+              "description": "The friends of the character exposed as a connection with edges",
               "args": [
                 {
                   "name": "first",
@@ -439,8 +433,7 @@
             },
             {
               "name": "friends",
-              "description":
-                "A list of the friends, as a convenience when edges are not needed.",
+              "description": "A list of the friends, as a convenience when edges are not needed.",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -499,8 +492,7 @@
             },
             {
               "name": "node",
-              "description":
-                "The character represented by this friendship edge",
+              "description": "The character represented by this friendship edge",
               "args": [],
               "type": {
                 "kind": "INTERFACE",
@@ -570,8 +562,7 @@
         {
           "kind": "SCALAR",
           "name": "Boolean",
-          "description":
-            "The `Boolean` scalar type represents `true` or `false`.",
+          "description": "The `Boolean` scalar type represents `true` or `false`.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -717,8 +708,7 @@
             },
             {
               "name": "friends",
-              "description":
-                "This human's friends, or an empty list if they have none",
+              "description": "This human's friends, or an empty list if they have none",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -734,8 +724,7 @@
             },
             {
               "name": "friendsConnection",
-              "description":
-                "The friends of the human exposed as a connection with edges",
+              "description": "The friends of the human exposed as a connection with edges",
               "args": [
                 {
                   "name": "first",
@@ -922,8 +911,7 @@
         {
           "kind": "OBJECT",
           "name": "Droid",
-          "description":
-            "An autonomous mechanical character in the Star Wars universe",
+          "description": "An autonomous mechanical character in the Star Wars universe",
           "fields": [
             {
               "name": "id",
@@ -959,8 +947,7 @@
             },
             {
               "name": "friends",
-              "description":
-                "This droid's friends, or an empty list if they have none",
+              "description": "This droid's friends, or an empty list if they have none",
               "args": [],
               "type": {
                 "kind": "LIST",
@@ -976,8 +963,7 @@
             },
             {
               "name": "friendsConnection",
-              "description":
-                "The friends of the droid exposed as a connection with edges",
+              "description": "The friends of the droid exposed as a connection with edges",
               "args": [
                 {
                   "name": "first",
@@ -1059,8 +1045,7 @@
         {
           "kind": "OBJECT",
           "name": "Mutation",
-          "description":
-            "The mutation type, represents all updates we can make to our data",
+          "description": "The mutation type, represents all updates we can make to our data",
           "fields": [
             {
               "name": "createReview",
@@ -1108,8 +1093,7 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "ReviewInput",
-          "description":
-            "The input object sent when someone is creating a new review",
+          "description": "The input object sent when someone is creating a new review",
           "fields": null,
           "inputFields": [
             {
@@ -1173,8 +1157,7 @@
             },
             {
               "name": "queryType",
-              "description":
-                "The type that query operations will be rooted at.",
+              "description": "The type that query operations will be rooted at.",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -1216,8 +1199,7 @@
             },
             {
               "name": "directives",
-              "description":
-                "A list of all directives supported by this server.",
+              "description": "A list of all directives supported by this server.",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -1434,8 +1416,7 @@
         {
           "kind": "ENUM",
           "name": "__TypeKind",
-          "description":
-            "An enum describing what kind of type a given `__Type` is.",
+          "description": "An enum describing what kind of type a given `__Type` is.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -1462,15 +1443,13 @@
             },
             {
               "name": "UNION",
-              "description":
-                "Indicates this type is a union. `possibleTypes` is a valid field.",
+              "description": "Indicates this type is a union. `possibleTypes` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "ENUM",
-              "description":
-                "Indicates this type is an enum. `enumValues` is a valid field.",
+              "description": "Indicates this type is an enum. `enumValues` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             },
@@ -1483,15 +1462,13 @@
             },
             {
               "name": "LIST",
-              "description":
-                "Indicates this type is a list. `ofType` is a valid field.",
+              "description": "Indicates this type is a list. `ofType` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "NON_NULL",
-              "description":
-                "Indicates this type is a non-null. `ofType` is a valid field.",
+              "description": "Indicates this type is a non-null. `ofType` is a valid field.",
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -1986,15 +1963,13 @@
             },
             {
               "name": "INPUT_OBJECT",
-              "description":
-                "Location adjacent to an input object type definition.",
+              "description": "Location adjacent to an input object type definition.",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "INPUT_FIELD_DEFINITION",
-              "description":
-                "Location adjacent to an input object field definition.",
+              "description": "Location adjacent to an input object field definition.",
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -2049,8 +2024,7 @@
         },
         {
           "name": "deprecated",
-          "description":
-            "Marks an element of a GraphQL schema as no longer supported.",
+          "description": "Marks an element of a GraphQL schema as no longer supported.",
           "locations": ["FIELD_DEFINITION", "ENUM_VALUE"],
           "args": [
             {

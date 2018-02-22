@@ -33,8 +33,7 @@ export const Character = withCharacter(({ loading, hero, error }) => {
 
           {hero.friends.map(friend => (
             <h6 key={friend.id}>
-              {friend.name}:{' '}
-              {friend.appearsIn.map(x => x.toLowerCase()).join(', ')}
+              {friend.name}: {friend.appearsIn.map(x => x.toLowerCase()).join(', ')}
             </h6>
           ))}
         </div>

@@ -7,13 +7,7 @@ import { MockedProvider } from 'react-apollo/lib/test-utils';
 
 import { addTypenameToDocument } from 'apollo-client';
 
-import {
-  HERO_QUERY,
-  withCharacter,
-  CharacterWithoutData,
-  App,
-  ShapedProps,
-} from '../App';
+import { HERO_QUERY, withCharacter, CharacterWithoutData, App, ShapedProps } from '../App';
 
 const query = addTypenameToDocument(HERO_QUERY);
 
@@ -40,9 +34,7 @@ describe('withCharacter', () => {
     }
 
     const ContainerWithData = withCharacter(Container);
-    const mocks = [
-      { request: { query, variables }, result: { data: { hero: empty } } },
-    ];
+    const mocks = [{ request: { query, variables }, result: { data: { hero: empty } } }];
     renderer.create(
       <MockedProvider mocks={mocks}>
         <ContainerWithData {...variables} />
@@ -107,9 +99,7 @@ describe('withCharacter', () => {
       }
       componentWillReceiveProps(next: ShapedProps) {
         expect(next.loading).toBe(false);
-        expect(next.error.message).toMatch(
-          /these are not the droids you are looking for/,
-        );
+        expect(next.error.message).toMatch(/these are not the droids you are looking for/);
         done();
       }
       render() {
@@ -182,21 +172,15 @@ describe('CharacterWithoutData', () => {
     expect(output.toJSON()).toMatchSnapshot();
   });
   it('returns markup for a hero with no friends', () => {
-    const output = renderer.create(
-      <CharacterWithoutData hero={hero_no_friends} />,
-    );
+    const output = renderer.create(<CharacterWithoutData hero={hero_no_friends} />);
     expect(output.toJSON()).toMatchSnapshot();
   });
   it('returns markup for empty array of friends', () => {
-    const output = renderer.create(
-      <CharacterWithoutData hero={empty_array_friends} />,
-    );
+    const output = renderer.create(<CharacterWithoutData hero={empty_array_friends} />);
     expect(output.toJSON()).toMatchSnapshot();
   });
   it('returns markup for a friend without an appearsIn', () => {
-    const output = renderer.create(
-      <CharacterWithoutData hero={friend_without_appearsIn} />,
-    );
+    const output = renderer.create(<CharacterWithoutData hero={friend_without_appearsIn} />);
     expect(output.toJSON()).toMatchSnapshot();
   });
   it('renders a full data result', () => {
@@ -207,9 +191,7 @@ describe('CharacterWithoutData', () => {
 
 describe('App', () => {
   it('renders the data from NEWHOPE', () => {
-    const mocks = [
-      { request: { query, variables }, result: { data: { hero: empty } } },
-    ];
+    const mocks = [{ request: { query, variables }, result: { data: { hero: empty } } }];
     const output = renderer.create(
       <MockedProvider mocks={mocks}>
         <App />

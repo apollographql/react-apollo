@@ -65,11 +65,7 @@ const withHistory = graphql<Props, Data>(historyQuery, {
 
 class HistoryView extends React.Component<ChildProps<Props, Data>> {
   render() {
-    if (
-      this.props.data &&
-      this.props.data.history &&
-      this.props.data.history.length > 0
-    ) {
+    if (this.props.data && this.props.data.history && this.props.data.history.length > 0) {
       return <div>yay type checking works</div>;
     } else {
       return null;
@@ -103,11 +99,7 @@ const HistoryViewSFC = graphql<Props, Data>(historyQuery, {
 @graphql<Props, Data>(historyQuery)
 class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
   render(): React.ReactNode {
-    if (
-      this.props.data &&
-      this.props.data.history &&
-      this.props.data.history.length > 0
-    ) {
+    if (this.props.data && this.props.data.history && this.props.data.history.length > 0) {
       return <div>yay type checking works</div>;
     } else {
       return null;
@@ -119,20 +111,16 @@ class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
 
 // --------------------------
 // with custom props
-const withProps = graphql<
-  Props,
-  Data,
-  {},
-  { organisationData: DataValue<Data> | undefined }
->(historyQuery, {
-  props: ({ data }) => ({
-    organisationData: data,
-  }),
-});
+const withProps = graphql<Props, Data, {}, { organisationData: DataValue<Data> | undefined }>(
+  historyQuery,
+  {
+    props: ({ data }) => ({
+      organisationData: data,
+    }),
+  },
+);
 
-const Foo = withProps(props => (
-  <div>Woot {props.organisationData!.history}</div>
-));
+const Foo = withProps(props => <div>Woot {props.organisationData!.history}</div>);
 
 <Foo solutionId="foo" />; // tslint:disable-line
 

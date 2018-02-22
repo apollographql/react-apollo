@@ -243,9 +243,7 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
 });
 
 it('renders result of the children render prop', () => {
-  const Component = () => (
-    <Mutation mutation={mutation}>{() => <div />}</Mutation>
-  );
+  const Component = () => <Mutation mutation={mutation}>{() => <div />}</Mutation>;
 
   const wrapper = mount(
     <MockedProvider mocks={mocks}>
@@ -267,9 +265,7 @@ it('renders an error state', done => {
         } else if (count === 1 && result) {
           expect(result.loading).toBeTruthy();
         } else if (count === 2 && result) {
-          expect(result.error).toEqual(
-            new Error('Network error: error occurred'),
-          );
+          expect(result.error).toEqual(new Error('Network error: error occurred'));
           done();
         }
         count++;
@@ -461,9 +457,7 @@ it('allows an optimistic response prop', done => {
           setTimeout(() => {
             createTodo();
             const dataInStore = client.cache.extract(true);
-            expect(dataInStore['Todo:99']).toEqual(
-              optimisticResponse.createTodo,
-            );
+            expect(dataInStore['Todo:99']).toEqual(optimisticResponse.createTodo);
           });
         } else if (count === 1) {
           expect(result).toEqual({
@@ -515,9 +509,7 @@ it('allows passing an optimistic response to the mutate function', done => {
           setTimeout(() => {
             createTodo({ optimisticResponse });
             const dataInStore = client.cache.extract(true);
-            expect(dataInStore['Todo:99']).toEqual(
-              optimisticResponse.createTodo,
-            );
+            expect(dataInStore['Todo:99']).toEqual(optimisticResponse.createTodo);
           });
         } else if (count === 1) {
           expect(result).toEqual({
@@ -542,7 +534,6 @@ it('allows passing an optimistic response to the mutate function', done => {
     </ApolloProvider>,
   );
 });
-
 
 it('allows a refetchQueries prop', done => {
   const query = gql`
@@ -623,7 +614,6 @@ it('allows a refetchQueries prop', done => {
     </MockedProvider>,
   );
 });
-
 
 it('allows refetchQueries to be passed to the mutate function', done => {
   const query = gql`
@@ -769,9 +759,9 @@ it('allows for overriding the options passed in the props by passing them in the
   const variablesProp = {
     text: 'play tennis',
   };
-  
+
   const variablesMutateFn = {
-    text: "go swimming"
+    text: 'go swimming',
   };
 
   let count = 0;
@@ -808,7 +798,7 @@ it('allows for overriding the options passed in the props by passing them in the
     {
       request: { query: mutation, variables: variablesMutateFn },
       result: { data: data2 },
-    }
+    },
   ];
 
   mount(
@@ -911,9 +901,7 @@ it('errors if a query is passed instead of a mutation', () => {
         <Mutation mutation={query}>{() => null}</Mutation>
       </MockedProvider>,
     );
-  }).toThrowError(
-    'The <Mutation /> component requires a graphql mutation, but got a query.',
-  );
+  }).toThrowError('The <Mutation /> component requires a graphql mutation, but got a query.');
 
   console.log = errorLogger;
 });
@@ -934,9 +922,7 @@ it('errors when changing from mutation to a query', done => {
 
     componentDidCatch(e: Error) {
       expect(e).toEqual(
-        new Error(
-          'The <Mutation /> component requires a graphql mutation, but got a query.',
-        ),
+        new Error('The <Mutation /> component requires a graphql mutation, but got a query.'),
       );
       done();
     }

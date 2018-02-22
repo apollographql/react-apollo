@@ -5,13 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import { mockSingleLink } from '../../../src/test-utils';
-import {
-  ApolloProvider,
-  ChildProps,
-  DataValue,
-  graphql,
-  withApollo,
-} from '../../../src';
+import { ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
 import * as TestUtils from 'react-dom/test-utils';
 import { DocumentNode } from 'graphql';
 
@@ -66,15 +60,10 @@ describe('shared operations', () => {
         </ApolloProvider>,
       ) as any;
 
-      const decorated = TestUtils.findRenderedComponentWithType(
-        tree,
-        Decorated,
-      );
+      const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
 
       expect(() => (decorated as any).someMethod()).toThrow();
-      expect((decorated as any).getWrappedInstance().someMethod()).toEqual(
-        testData,
-      );
+      expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
       expect((decorated as any).wrappedInstance.someMethod()).toEqual(testData);
 
       const DecoratedWithSkip = withApollo(Container, {
@@ -94,12 +83,8 @@ describe('shared operations', () => {
       );
 
       expect(() => (decoratedWithSkip as any).someMethod()).toThrow();
-      expect(
-        (decoratedWithSkip as any).getWrappedInstance().someMethod(),
-      ).toEqual(testData);
-      expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(
-        testData,
-      );
+      expect((decoratedWithSkip as any).getWrappedInstance().someMethod()).toEqual(testData);
+      expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(testData);
     });
   });
 
@@ -147,22 +132,16 @@ describe('shared operations', () => {
 
     // Since we want to test decorators usage, and this does not play well with Typescript,
     // we resort to setting everything as any to avoid type checking.
-    const withPeople: any = graphql<{}, PeopleData, {}, PeopleChildProps>(
-      peopleQuery,
-      {
-        name: 'people',
-      },
-    );
+    const withPeople: any = graphql<{}, PeopleData, {}, PeopleChildProps>(peopleQuery, {
+      name: 'people',
+    });
 
     interface ShipsChildProps {
       ships: DataValue<PeopleData>;
     }
-    const withShips: any = graphql<{}, ShipsData, {}, ShipsChildProps>(
-      shipsQuery,
-      {
-        name: 'ships',
-      },
-    );
+    const withShips: any = graphql<{}, ShipsData, {}, ShipsChildProps>(shipsQuery, {
+      name: 'ships',
+    });
 
     @withPeople
     @withShips
@@ -227,24 +206,19 @@ describe('shared operations', () => {
       people: DataValue<PeopleData>;
     }
 
-    const withPeople = graphql<{}, PeopleData, {}, PeopleChildProps>(
-      peopleQuery,
-      {
-        name: 'people',
-      },
-    );
+    const withPeople = graphql<{}, PeopleData, {}, PeopleChildProps>(peopleQuery, {
+      name: 'people',
+    });
 
     interface ShipsAndPeopleChildProps extends PeopleChildProps {
       ships: DataValue<PeopleData>;
     }
-    const withShips = graphql<
-      PeopleChildProps,
-      ShipsData,
-      {},
-      ShipsAndPeopleChildProps
-    >(shipsQuery, {
-      name: 'ships',
-    });
+    const withShips = graphql<PeopleChildProps, ShipsData, {}, ShipsAndPeopleChildProps>(
+      shipsQuery,
+      {
+        name: 'ships',
+      },
+    );
 
     const ContainerWithData = withPeople(
       withShips((props: ShipsAndPeopleChildProps) => {
@@ -372,14 +346,10 @@ describe('shared operations', () => {
     const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
 
     expect(() => (decorated as any).someMethod()).toThrow();
-    expect((decorated as any).getWrappedInstance().someMethod()).toEqual(
-      testData,
-    );
+    expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
     expect((decorated as any).wrappedInstance.someMethod()).toEqual(testData);
 
-    const DecoratedWithSkip = graphql(query, { withRef: true, skip: true })(
-      Container,
-    );
+    const DecoratedWithSkip = graphql(query, { withRef: true, skip: true })(Container);
 
     const treeWithSkip = TestUtils.renderIntoDocument(
       <ApolloProvider client={client}>
@@ -393,12 +363,8 @@ describe('shared operations', () => {
     );
 
     expect(() => (decoratedWithSkip as any).someMethod()).toThrow();
-    expect(
-      (decoratedWithSkip as any).getWrappedInstance().someMethod(),
-    ).toEqual(testData);
-    expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(
-      testData,
-    );
+    expect((decoratedWithSkip as any).getWrappedInstance().someMethod()).toEqual(testData);
+    expect((decoratedWithSkip as any).wrappedInstance.someMethod()).toEqual(testData);
   });
 
   it('allows options to take an object', done => {
@@ -503,10 +469,9 @@ describe('shared operations', () => {
         graphql<{}, PeopleData, {}, PeopleChildProps>(peopleQuery, {
           name: 'people',
         }),
-        graphql<PeopleChildProps, ShipsData, {}, ShipsAndPeopleChildProps>(
-          shipsQuery,
-          { name: 'ships' },
-        ),
+        graphql<PeopleChildProps, ShipsData, {}, ShipsAndPeopleChildProps>(shipsQuery, {
+          name: 'ships',
+        }),
       );
 
       const ContainerWithData = enhanced((props: ShipsAndPeopleChildProps) => {

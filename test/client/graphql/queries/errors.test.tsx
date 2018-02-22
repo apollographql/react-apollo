@@ -5,13 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../src/test-utils';
-import {
-  ApolloProvider,
-  graphql,
-  ChildProps,
-  Query,
-  QueryResult,
-} from '../../../../src';
+import { ApolloProvider, graphql, ChildProps, Query, QueryResult } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
@@ -205,9 +199,7 @@ describe('[queries] errors', () => {
               // tslint:disable-line
               iteration += 1;
               if (iteration === 1) {
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
-                );
+                expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
                 props.setVar(2);
               } else if (iteration === 2) {
                 expect(props.data!.loading).toBeTruthy();
@@ -268,9 +260,7 @@ describe('[queries] errors', () => {
 
       let renderCount = 0;
       @graphql<{}, Data>(query)
-      class HandledErrorComponent extends React.Component<
-        ChildProps<{}, Data>
-      > {
+      class HandledErrorComponent extends React.Component<ChildProps<{}, Data>> {
         render(): React.ReactNode {
           try {
             switch (renderCount++) {
@@ -278,9 +268,7 @@ describe('[queries] errors', () => {
                 expect(this.props.data!.loading).toEqual(true);
                 break;
               case 1:
-                expect(this.props.data!.error!.message).toEqual(
-                  'Network error: oops',
-                );
+                expect(this.props.data!.error!.message).toEqual('Network error: oops');
                 break;
               default:
                 throw new Error('Too many renders.');
@@ -344,9 +332,7 @@ describe('[queries] errors', () => {
 
       let renderCount = 0;
       @graphql<{}, Data>(query)
-      class UnhandledErrorComponent extends React.Component<
-        ChildProps<{}, Data>
-      > {
+      class UnhandledErrorComponent extends React.Component<ChildProps<{}, Data>> {
         render(): React.ReactNode {
           try {
             switch (renderCount++) {
@@ -419,23 +405,17 @@ describe('[queries] errors', () => {
           try {
             switch (count++) {
               case 0:
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
-                );
+                expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
                 props.data!.refetch().catch(() => null);
                 break;
               case 1:
                 expect(props.data!.loading).toBeTruthy();
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
-                );
+                expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
                 break;
               case 2:
                 expect(props.data!.loading).toBeFalsy();
                 expect(props.data!.error).toBeTruthy();
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
-                );
+                expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
                 done();
                 break;
               default:
@@ -521,9 +501,7 @@ describe('[queries] errors', () => {
               case 3:
                 expect(props.data!.loading).toBeFalsy();
                 expect(props.data!.error).toBeFalsy();
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  dataTwo.allPeople,
-                );
+                expect(stripSymbols(props.data!.allPeople)).toEqual(dataTwo.allPeople);
                 done();
                 break;
               default:
@@ -580,9 +558,7 @@ describe('[queries] errors', () => {
         class extends React.Component<ChildProps> {
           componentWillReceiveProps({ data }: ChildProps) {
             expect(data!.error).toBeTruthy();
-            expect(data!.error!.graphQLErrors[0].message).toEqual(
-              'this is an error',
-            );
+            expect(data!.error!.graphQLErrors[0].message).toEqual('this is an error');
             expect(data).toMatchObject({ allPeople: { people: null } });
             done();
           }
@@ -628,9 +604,7 @@ describe('[queries] errors', () => {
       class ErrorContainer extends React.Component<QueryResult> {
         componentWillReceiveProps(props: QueryResult) {
           expect(props.error).toBeTruthy();
-          expect(props.error!.graphQLErrors[0].message).toEqual(
-            'this is an error',
-          );
+          expect(props.error!.graphQLErrors[0].message).toEqual('this is an error');
           expect(props.data!.allPeople!).toMatchObject({ people: null });
           done();
         }

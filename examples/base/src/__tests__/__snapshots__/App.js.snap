@@ -36,9 +36,7 @@ exports[`CharacterWithoutData renders a full data result 1`] = `
 </div>
 `;
 
-exports[
-  `CharacterWithoutData returns markup for a friend without an appearsIn 1`
-] = `
+exports[`CharacterWithoutData returns markup for a friend without an appearsIn 1`] = `
 <div>
   <div>
     <h3>

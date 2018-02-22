@@ -1,40 +1,53 @@
 {
   "name": "react-apollo",
   "version": "2.1.0-beta.2",
-  "description": "React data container for Apollo Client",
-  "module": "src/index.ts",
+  "author": "opensource@apollographql.com",
   "browser": "lib/react-apollo.browser.umd.js",
-  "typings": "lib/index.d.ts",
+  "description": "React data container for Apollo Client",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "react"
+  ],
+  "license": "MIT",
   "main": "lib/react-apollo.umd.js",
+  "module": "src/index.ts",
+  "typings": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "apollostack/react-apollo"
+  },
   "scripts": {
-    "precommit": "lint-staged",
-    "danger": "danger run --verbose",
-    "predeploy": "npm run compile",
-    "deploy": "cd lib && npm publish --tag=beta",
-    "prefilesize": "npm run compile",
-    "filesize": "bundlesize",
-    "test": "npm run lint && npm run type-check && npm run jest",
-    "jest": "jest --maxWorkers=4 --coverage",
-    "test-watch": "jest --watch",
-    "test-preact": "jest --config ./jest.preact.config.json --no-cache",
-    "type-check": "tsc --project tsconfig.json --noEmit ",
-    "test:compiled":
-      "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
-    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js",
-    "test:compiled:server:umd": "jest --config jest.server.umd.config.js",
-    "test:compiled:cjs": "jest --config jest.cjs.config.js",
-    "precompile": "rimraf lib",
     "compile": "npm run compile:esm && npm run compile:cjs",
-    "compile:esm":
-      "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
-    "compile:cjs":
-      "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
-    "postcompile": "rollup -c  && ./scripts/prepare-package.sh",
-    "watch": "tsc -w",
+    "compile:cjs": "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "compile:esm": "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
+    "danger": "danger run --verbose",
+    "deploy": "cd lib && npm publish --tag=beta",
+    "filesize": "bundlesize",
+    "jest": "jest --maxWorkers=4 --coverage",
     "lint": "tslint --project tsconfig.json --config tslint.json",
-    "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
     "lint-staged": "lint-staged",
-    "prettier": "prettier --write \"{,!(node_modules|lib|coverage|npm)/**/}*.{ts*,js*,json,md}\""
+    "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
+    "postcompile": "rollup -c  && ./scripts/prepare-package.sh",
+    "precommit": "pretty-quick --staged",
+    "precompile": "rimraf lib",
+    "predeploy": "npm run compile",
+    "prefilesize": "npm run compile",
+    "prettier": "prettier --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
+    "test": "npm run lint && npm run type-check && npm run jest",
+    "test-preact": "jest --config ./jest.preact.config.json --no-cache",
+    "test-watch": "jest --watch",
+    "test:compiled": "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
+    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js",
+    "test:compiled:cjs": "jest --config jest.cjs.config.js",
+    "test:compiled:server:umd": "jest --config jest.server.umd.config.js",
+    "type-check": "tsc --project tsconfig.json --noEmit ",
+    "watch": "tsc -w"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
   },
   "bundlesize": [
     {
@@ -42,36 +55,6 @@
       "maxSize": "11 KB"
     }
   ],
-  "lint-staged": {
-    "*.{ts*}": [
-      "prettier --write",
-      "npm run lint",
-      "git add"
-    ],
-    "*.{js*,json,md}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "apollostack/react-apollo"
-  },
-  "keywords": [
-    "ecmascript",
-    "es2015",
-    "jsnext",
-    "javascript",
-    "relay",
-    "npm",
-    "react"
-  ],
-  "author": "James Baxley <james@meteor.com>",
-  "babel": {
-    "presets": [
-      "env"
-    ]
-  },
   "jest": {
     "testEnvironment": "jsdom",
     "transform": {
@@ -99,7 +82,12 @@
       "<rootDir>/test/test-utils/setup.ts"
     ]
   },
-  "license": "MIT",
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "all"
+  },
   "peerDependencies": {
     "apollo-client": "^2.2.3",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
@@ -120,6 +108,7 @@
     "@types/zen-observable": "0.5.3",
     "apollo-cache-inmemory": "1.1.9",
     "apollo-client": "2.2.5",
+    "apollo-link": "^1.0.6",
     "babel-core": "6.26.0",
     "babel-jest": "22.4.0",
     "babel-preset-env": "1.6.1",
@@ -129,14 +118,15 @@
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.1.1",
     "flow-bin": "0.66.0",
-    "graphql": "0.11.7",
+    "graphql": "0.13.1",
+    "graphql-tag": "^2.7.0",
     "husky": "0.14.3",
     "jest": "22.3.0",
     "jsdom": "11.6.2",
-    "lint-staged": "6.1.0",
     "preact": "8.2.7",
     "preact-compat": "3.18.0",
     "prettier": "1.10.2",
+    "pretty-quick": "^1.4.1",
     "react": "16.2.0",
     "react-dom": "16.2.0",
     "react-test-renderer": "16.2.0",
@@ -156,9 +146,7 @@
     "zen-observable-ts": "0.5.0"
   },
   "dependencies": {
-    "apollo-link": "^1.0.6",
     "fbjs": "^0.8.16",
-    "graphql-tag": "^2.7.0",
     "hoist-non-react-statics": "^2.3.1",
     "invariant": "^2.2.2",
     "lodash": "4.17.5",

@@ -21,10 +21,7 @@ export type OperationVariables = {
  */
 export type RefetchQueriesProviderFn = (...args: any[]) => string[] | PureQueryOptions[];
 
-export interface MutationOpts<
-  TData = any,
-  TGraphQLVariables = OperationVariables
-> {
+export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariables> {
   variables?: TGraphQLVariables;
   optimisticResponse?: TData;
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
@@ -56,22 +53,16 @@ export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-  updateQuery: (
-    mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any,
-  ) => void;
+  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
 }
 
-export type MutationFunc<
-  TData = any,
-  TGraphQLVariables = OperationVariables
-> = (
+export type MutationFunc<TData = any, TGraphQLVariables = OperationVariables> = (
   opts?: MutationOpts<TData, TGraphQLVariables>,
 ) => Promise<ApolloQueryResult<TData>>;
 
-export type DataValue<
-  TData,
-  TGraphQLVariables = OperationVariables
-> = GraphqlQueryControls<TGraphQLVariables> &
+export type DataValue<TData, TGraphQLVariables = OperationVariables> = GraphqlQueryControls<
+  TGraphQLVariables
+> &
   // data may not yet be loaded
   Partial<TData>;
 
@@ -81,18 +72,11 @@ export interface DataProps<TData, TGraphQLVariables = OperationVariables> {
 }
 
 // export to allow usage individually for simple components
-export interface MutateProps<
-  TData = any,
-  TGraphQLVariables = OperationVariables
-> {
+export interface MutateProps<TData = any, TGraphQLVariables = OperationVariables> {
   mutate: MutationFunc<TData, TGraphQLVariables>;
 }
 
-export type ChildProps<
-  TProps = {},
-  TData = {},
-  TGraphQLVariables = OperationVariables
-> = TProps &
+export type ChildProps<TProps = {}, TData = {}, TGraphQLVariables = OperationVariables> = TProps &
   Partial<DataProps<TData, TGraphQLVariables>> &
   Partial<MutateProps<TData, TGraphQLVariables>>;
 
@@ -112,11 +96,7 @@ export type NamedProps<TProps, R> = TProps & {
   ownProps: R;
 };
 
-export interface OptionProps<
-  TProps = any,
-  TData = any,
-  TGraphQLVariables = OperationVariables
->
+export interface OptionProps<TProps = any, TData = any, TGraphQLVariables = OperationVariables>
   extends Partial<DataProps<TData, TGraphQLVariables>>,
     Partial<MutateProps<TData, TGraphQLVariables>> {
   ownProps: TProps;
@@ -131,15 +111,8 @@ export interface OperationOption<
   options?:
     | QueryOpts<TGraphQLVariables>
     | MutationOpts<TData, TGraphQLVariables>
-    | ((
-        props: TProps,
-      ) =>
-        | QueryOpts<TGraphQLVariables>
-        | MutationOpts<TData, TGraphQLVariables>);
-  props?: (
-    props: OptionProps<TProps, TData>,
-    lastProps: TChildProps,
-  ) => TChildProps;
+    | ((props: TProps) => QueryOpts<TGraphQLVariables> | MutationOpts<TData, TGraphQLVariables>);
+  props?: (props: OptionProps<TProps, TData>, lastProps: TChildProps) => TChildProps;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;

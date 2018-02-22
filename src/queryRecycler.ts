@@ -93,10 +93,7 @@ export class ObservableQueryRecycler {
     // to check accuracy of data (which it may not know)
     // so if there are new variables when recycling, we don't recyle and make an entirely
     // new observable after cleaning up the old one
-    if (
-      !shallowEqual(modifiableOpts.variables || {}, observableQuery.variables)
-    )
-      return null;
+    if (!shallowEqual(modifiableOpts.variables || {}, observableQuery.variables)) return null;
 
     // When we reuse an `ObservableQuery` then the document and component
     // GraphQL display name should be the same. Only the options may be

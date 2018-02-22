@@ -333,23 +333,17 @@ describe('[queries] lifecycle', () => {
             if (count === 1) {
               expect(props.foo).toEqual(42);
               expect(props.data!.loading).toEqual(false);
-              expect(stripSymbols(props.data!.allPeople)).toEqual(
-                data1.allPeople,
-              );
+              expect(stripSymbols(props.data!.allPeople)).toEqual(data1.allPeople);
               props.changeState();
             } else if (count === 2) {
               expect(props.foo).toEqual(43);
               expect(props.data!.loading).toEqual(false);
-              expect(stripSymbols(props.data!.allPeople)).toEqual(
-                data1.allPeople,
-              );
+              expect(stripSymbols(props.data!.allPeople)).toEqual(data1.allPeople);
               props.data!.refetch();
             } else if (count === 3) {
               expect(props.foo).toEqual(43);
               expect(props.data!.loading).toEqual(false);
-              expect(stripSymbols(props.data!.allPeople)).toEqual(
-                data2.allPeople,
-              );
+              expect(stripSymbols(props.data!.allPeople)).toEqual(data2.allPeople);
               done();
             }
           } catch (e) {
@@ -365,12 +359,7 @@ describe('[queries] lifecycle', () => {
     class Parent extends React.Component<any, any> {
       state = { foo: 42 };
       render() {
-        return (
-          <Container
-            foo={this.state.foo}
-            changeState={() => this.setState({ foo: 43 })}
-          />
-        );
+        return <Container foo={this.state.foo} changeState={() => this.setState({ foo: 43 })} />;
       }
     }
 

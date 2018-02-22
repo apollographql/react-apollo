@@ -11,12 +11,7 @@ import { ApolloProvider } from '../../src';
 import catchAsyncError from '../test-utils/catchAsyncError';
 import Subscription from '../../src/Subscriptions';
 
-const results = [
-  'Luke Skywalker',
-  'Han Solo',
-  'Darth Vader',
-  'Leia Skywalker',
-].map(name => ({
+const results = ['Luke Skywalker', 'Han Solo', 'Darth Vader', 'Leia Skywalker'].map(name => ({
   result: { data: { user: { name } } },
 }));
 
@@ -426,10 +421,7 @@ describe('should update', () => {
 
       render() {
         return (
-          <Subscription
-            query={subscriptionWithVariables}
-            variables={this.state.variables}
-          >
+          <Subscription query={subscriptionWithVariables} variables={this.state.variables}>
             {result => {
               const { loading, data } = result;
               catchAsyncError(done, () => {

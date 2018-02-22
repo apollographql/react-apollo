@@ -69,9 +69,7 @@ describe('[queries] observableQuery', () => {
           // be present;
           if (count === 3) {
             expect(this.props.data!.loading).toBeFalsy();
-            expect(stripSymbols(this.props.data!.allPeople)).toEqual(
-              data.allPeople,
-            );
+            expect(stripSymbols(this.props.data!.allPeople)).toEqual(data.allPeople);
           }
         }
 
@@ -86,9 +84,7 @@ describe('[queries] observableQuery', () => {
           if (count === 3) {
             expect(prevProps.data!.loading).toBeTruthy();
             expect(this.props.data!.loading).toBeFalsy();
-            expect(stripSymbols(this.props.data!.allPeople)).toEqual(
-              data.allPeople,
-            );
+            expect(stripSymbols(this.props.data!.allPeople)).toEqual(data.allPeople);
 
             // ensure first assertion and umount tree
             assert1();
@@ -208,8 +204,7 @@ describe('[queries] observableQuery', () => {
 
     let keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable1 = (client.queryManager as any).queries.get('1')
-      .observableQuery;
+    const queryObservable1 = (client.queryManager as any).queries.get('1').observableQuery;
 
     // The query should only have been invoked when first mounting and not when resetting store
     expect(called).toBe(1);
@@ -218,8 +213,7 @@ describe('[queries] observableQuery', () => {
 
     keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable2 = (client.queryManager as any).queries.get('1')
-      .observableQuery;
+    const queryObservable2 = (client.queryManager as any).queries.get('1').observableQuery;
 
     expect(queryObservable1).toBe(queryObservable2);
   });
@@ -284,16 +278,14 @@ describe('[queries] observableQuery', () => {
 
     let keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1']);
-    const queryObservable1 = (client.queryManager as any).queries.get('1')
-      .observableQuery;
+    const queryObservable1 = (client.queryManager as any).queries.get('1').observableQuery;
 
     remount();
 
     setTimeout(() => {
       keys = Array.from((client.queryManager as any).queries.keys());
       expect(keys).toEqual(['1']);
-      const queryObservable2 = (client.queryManager as any).queries.get('1')
-        .observableQuery;
+      const queryObservable2 = (client.queryManager as any).queries.get('1').observableQuery;
       expect(queryObservable1).toBe(queryObservable2);
 
       remount();
@@ -301,8 +293,7 @@ describe('[queries] observableQuery', () => {
       setTimeout(() => {
         keys = Array.from((client.queryManager as any).queries.keys());
         expect(keys).toEqual(['1']);
-        const queryObservable3 = (client.queryManager as any).queries.get('1')
-          .observableQuery;
+        const queryObservable3 = (client.queryManager as any).queries.get('1').observableQuery;
         expect(queryObservable1).toBe(queryObservable3);
 
         wrapper.unmount();
@@ -373,10 +364,8 @@ describe('[queries] observableQuery', () => {
 
     let keys = Array.from((client.queryManager as any).queries.keys());
     expect(keys).toEqual(['1', '2']);
-    const queryObservable1 = (client.queryManager as any).queries.get('1')
-      .observableQuery;
-    const queryObservable2 = (client.queryManager as any).queries.get('2')
-      .observableQuery;
+    const queryObservable1 = (client.queryManager as any).queries.get('1').observableQuery;
+    const queryObservable2 = (client.queryManager as any).queries.get('2').observableQuery;
     expect(queryObservable1).not.toBe(queryObservable2);
 
     remount();
@@ -384,10 +373,8 @@ describe('[queries] observableQuery', () => {
     setTimeout(() => {
       keys = Array.from((client.queryManager as any).queries.keys());
       expect(keys).toEqual(['1', '2']);
-      const queryObservable3 = (client.queryManager as any).queries.get('1')
-        .observableQuery;
-      const queryObservable4 = (client.queryManager as any).queries.get('2')
-        .observableQuery;
+      const queryObservable3 = (client.queryManager as any).queries.get('1').observableQuery;
+      const queryObservable4 = (client.queryManager as any).queries.get('2').observableQuery;
       expect(queryObservable1).not.toBe(queryObservable2);
 
       // What we really want to test here is if the `queryObservable` on
@@ -459,8 +446,7 @@ describe('[queries] observableQuery', () => {
             if (variables.first === 2) {
               // second variables render
               if (loading) expect(allPeople).toBeUndefined();
-              if (!loading)
-                expect(stripSymbols(allPeople)).toEqual(data2.allPeople);
+              if (!loading) expect(stripSymbols(allPeople)).toEqual(data2.allPeople);
             }
           } catch (e) {
             done.fail(e);

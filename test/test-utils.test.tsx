@@ -54,12 +54,8 @@ const withUser = graphql<Variables, Data, Variables>(queryWithoutTypename, {
 });
 
 it('mocks the data and adds the typename to the query', done => {
-  class Container extends React.Component<
-    ChildProps<Variables, Data, Variables>
-  > {
-    componentWillReceiveProps(
-      nextProps: ChildProps<Variables, Data, Variables>,
-    ) {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
       try {
         expect(nextProps.data!.user).toMatchSnapshot();
         done();
@@ -93,12 +89,8 @@ it('mocks the data and adds the typename to the query', done => {
 });
 
 it('errors if the variables in the mock and component do not match', done => {
-  class Container extends React.Component<
-    ChildProps<Variables, Data, Variables>
-  > {
-    componentWillReceiveProps(
-      nextProps: ChildProps<Variables, Data, Variables>,
-    ) {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
       try {
         expect(nextProps.data!.user).toBeUndefined();
         expect(nextProps.data!.error).toMatchSnapshot();
@@ -137,16 +129,10 @@ it('errors if the variables in the mock and component do not match', done => {
 });
 
 it('mocks a network error', done => {
-  class Container extends React.Component<
-    ChildProps<Variables, Data, Variables>
-  > {
-    componentWillReceiveProps(
-      nextProps: ChildProps<Variables, Data, Variables>,
-    ) {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
       try {
-        expect(nextProps.data!.error).toEqual(
-          new Error('Network error: something went wrong'),
-        );
+        expect(nextProps.data!.error).toEqual(new Error('Network error: something went wrong'));
         done();
       } catch (e) {
         done.fail(e);
@@ -178,12 +164,8 @@ it('mocks a network error', done => {
 });
 
 it('mocks the data without adding the typename', done => {
-  class Container extends React.Component<
-    ChildProps<Variables, Data, Variables>
-  > {
-    componentWillReceiveProps(
-      nextProps: ChildProps<Variables, Data, Variables>,
-    ) {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
       try {
         expect(nextProps.data!.user).toMatchSnapshot();
         done();
@@ -229,12 +211,8 @@ it('allows for passing a custom client', done => {
     cache: new InMemoryCache(),
   });
 
-  class Container extends React.Component<
-    ChildProps<Variables, Data, Variables>
-  > {
-    componentWillReceiveProps(
-      nextProps: ChildProps<Variables, Data, Variables>,
-    ) {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
       try {
         expect(nextProps.data!.user).toMatchSnapshot();
         done();

@@ -6,9 +6,7 @@ export interface QueryRecyclerProviderProps {
   children: React.ReactNode;
 }
 
-class QueryRecyclerProvider extends React.Component<
-  QueryRecyclerProviderProps
-> {
+class QueryRecyclerProvider extends React.Component<QueryRecyclerProviderProps> {
   static propTypes = {
     children: PropTypes.element.isRequired,
   };

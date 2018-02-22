@@ -42,23 +42,19 @@ export function parser(document: DocumentNode): IDocumentDefinition {
   );
 
   const queries = document.definitions.filter(
-    (x: DefinitionNode) =>
-      x.kind === 'OperationDefinition' && x.operation === 'query',
+    (x: DefinitionNode) => x.kind === 'OperationDefinition' && x.operation === 'query',
   );
 
   const mutations = document.definitions.filter(
-    (x: DefinitionNode) =>
-      x.kind === 'OperationDefinition' && x.operation === 'mutation',
+    (x: DefinitionNode) => x.kind === 'OperationDefinition' && x.operation === 'mutation',
   );
 
   const subscriptions = document.definitions.filter(
-    (x: DefinitionNode) =>
-      x.kind === 'OperationDefinition' && x.operation === 'subscription',
+    (x: DefinitionNode) => x.kind === 'OperationDefinition' && x.operation === 'subscription',
   );
 
   invariant(
-    !fragments.length ||
-      (queries.length || mutations.length || subscriptions.length),
+    !fragments.length || (queries.length || mutations.length || subscriptions.length),
     `Passing only a fragment to 'graphql' is not yet supported. ` +
       `You must include a query, subscription or mutation as well`,
   );
@@ -75,9 +71,7 @@ export function parser(document: DocumentNode): IDocumentDefinition {
   type = queries.length ? DocumentType.Query : DocumentType.Mutation;
   if (!queries.length && !mutations.length) type = DocumentType.Subscription;
 
-  const definitions = queries.length
-    ? queries
-    : mutations.length ? mutations : subscriptions;
+  const definitions = queries.length ? queries : mutations.length ? mutations : subscriptions;
 
   invariant(
     definitions.length === 1,

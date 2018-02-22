@@ -39,10 +39,7 @@ const Character = ({ episode }) => (
                   friend =>
                     friend && (
                       <h6 key={friend.id}>
-                        {friend.name}:{' '}
-                        {friend.appearsIn
-                          .map(x => x && x.toLowerCase())
-                          .join(', ')}
+                        {friend.name}: {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
                       </h6>
                     ),
                 )}
