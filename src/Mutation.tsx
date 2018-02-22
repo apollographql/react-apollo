@@ -6,7 +6,7 @@ const invariant = require('invariant');
 import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
-import { OperationVariables } from './types';
+import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';
 
 export interface MutationResult<TData = Record<string, any>> {
@@ -39,18 +39,22 @@ export declare type FetchResult<
   context?: C;
 };
 
-export declare type MutationOptions<TVariables = OperationVariables> = {
+export declare type MutationOptions<TData = any, TVariables = OperationVariables> = {
   variables?: TVariables;
+  optimisticResponse?: Object;
+  refetchQueries?: string[] | PureQueryOptions[];
+  update?: MutationUpdaterFn<TData>;
 };
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
   optimisticResponse?: Object;
-  refetchQueries?: string[] | PureQueryOptions[];
+  variables?: TVariables;
+  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: (
-      options?: MutationOptions<TVariables>,
+      options?: MutationOptions<TData, TVariables>,
     ) => Promise<void | FetchResult>,
     result?: MutationResult<TData>,
   ) => React.ReactNode;
@@ -87,6 +91,7 @@ class Mutation<
     refetchQueries: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.string),
       PropTypes.arrayOf(PropTypes.object),
+      PropTypes.func,
     ]),
     update: PropTypes.func,
     children: PropTypes.func.isRequired,
@@ -161,16 +166,15 @@ class Mutation<
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const { mutation, optimisticResponse, refetchQueries, update } = this.props;
-
-    const { variables } = options;
-
+    const { mutation, variables, optimisticResponse, refetchQueries, update } = this.props;
+    
     return this.client.mutate({
       mutation,
       variables,
       optimisticResponse,
       refetchQueries,
       update,
+      ...options
     });
   };
 

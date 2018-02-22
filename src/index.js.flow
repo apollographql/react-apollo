@@ -53,10 +53,14 @@ export type DefaultChildProps<P, R> = ChildProps<P, R, {}>;
 
 export type ErrorPolicy = 'none' | 'ignore' | 'all';
 
+export type RefetchQueriesProviderFn = (
+  ...args: any[]
+) => string[] | PureQueryOptions[];
+
 export type MutationOpts<TVariables> = {
   variables?: TVariables,
   optimisticResponse?: Object,
-  refetchQueries?: string[] | PureQueryOptions[],
+  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn,
   update?: MutationUpdaterFn<*>,
   errorPolicy?: ErrorPolicy,
   $call?: empty, // Not function
