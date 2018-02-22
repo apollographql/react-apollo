@@ -68,9 +68,9 @@
   version "22.1.2"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-22.1.2.tgz#813a79ec98221633845627636dbc606f31220dbc"
 
-"@types/lodash@4.14.103":
-  version "4.14.103"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.103.tgz#56ac640f029f67655f0721f479f1faa982bd8122"
+"@types/lodash@4.14.104":
+  version "4.14.104"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.104.tgz#53ee2357fa2e6e68379341d92eb2ecea4b11bb80"
 
 "@types/node@*":
   version "8.5.2"
@@ -556,7 +556,14 @@ babel-helpers@^6.24.1:
     babel-runtime "^6.22.0"
     babel-template "^6.24.1"
 
-babel-jest@22.2.2, babel-jest@^22.2.2:
+babel-jest@22.4.0:
+  version "22.4.0"
+  resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-22.4.0.tgz#79479739c87a39327383bb944a0a8a2deb5c9b4d"
+  dependencies:
+    babel-plugin-istanbul "^4.1.5"
+    babel-preset-jest "^22.2.0"
+
+babel-jest@^22.2.2:
   version "22.2.2"
   resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-22.2.2.tgz#eda38dca284e32cc5257f96a9b51351975de4e04"
   dependencies:
@@ -1491,9 +1498,9 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   dependencies:
     cssom "0.3.x"
 
-danger@3.1.6:
-  version "3.1.6"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-3.1.6.tgz#3d9f3c063104a2cfec56acbf7e09cf3feb2d9abe"
+danger@3.1.7:
+  version "3.1.7"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-3.1.7.tgz#11814753e9a2a666f5719e6a8b9b0b3c11ed01bd"
   dependencies:
     "@octokit/rest" "^14.0.4"
     babel-polyfill "^6.23.0"
@@ -2006,9 +2013,9 @@ find-up@^2.0.0, find-up@^2.1.0:
   dependencies:
     locate-path "^2.0.0"
 
-flow-bin@0.65.0:
-  version "0.65.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.65.0.tgz#64ffeca27211c786e2d68508c65686ba1b8a2169"
+flow-bin@0.66.0:
+  version "0.66.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.66.0.tgz#a96dde7015dc3343fd552a7b4963c02be705ca26"
 
 follow-redirects@1.0.0:
   version "1.0.0"
