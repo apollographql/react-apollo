@@ -143,83 +143,114 @@ export function query<
     WrappedComponent: React.ComponentType<TChildProps & TProps>,
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
-    const GraphQL = props => {
-      const skip = mapPropsToSkip(props);
-      const opts = skip ? Object.create(null) : mapPropsToOptions(props);
+    class GraphQL extends React.Component<GraphQLProps> {
+      // wrapped instance
+      private wrappedInstance: any;
 
-      if (!skip && !Boolean(opts.variables || !operation.variables.length)) {
-        opts.variables = calculateVariablesFromProps(
-          operation,
-          props,
-          graphQLDisplayName,
-          getDisplayName(WrappedComponent),
+      static displayName = graphQLDisplayName;
+      static WrappedComponent = WrappedComponent;
+
+      constructor(props) {
+        super(props);
+        this.setWrappedInstance = this.setWrappedInstance.bind(this);
+      }
+
+      render() {
+        const props = this.props;
+        const skip = mapPropsToSkip(props);
+        const opts = skip ? Object.create(null) : mapPropsToOptions(props);
+
+        if (!skip && !Boolean(opts.variables || !operation.variables.length)) {
+          opts.variables = calculateVariablesFromProps(
+            operation,
+            props,
+            graphQLDisplayName,
+            getDisplayName(WrappedComponent),
+          );
+        }
+        return (
+          <Query
+            {...opts}
+            displayName={graphQLDisplayName}
+            skip={skip}
+            query={document}
+            warnUnhandledError
+          >
+            {({ client, ...r }) => {
+              if (r.error) {
+                const error = r.error;
+
+                // Define the error property on the data object. If the user does
+                // not get the error object from `data` within 10 milliseconds
+                // then we will log the error to the console.
+                //
+                // 10 milliseconds is an arbitrary number picked to work around any
+                // potential asynchrony in React rendering. It is not super important
+                // that the error be logged ASAP, but 10 ms is enough to make it
+                // _feel_ like it was logged ASAP while still tolerating asynchrony.
+                let logErrorTimeoutId = setTimeout(() => {
+                  if (error) {
+                    let errorMessage = error;
+                    if (error.stack) {
+                      errorMessage = error.stack.includes(error.message)
+                        ? error.stack
+                        : `${error.message}\n${error.stack}`;
+                    }
+
+                    console.error(
+                      `Unhandled (in react-apollo:${graphQLDisplayName})`,
+                      errorMessage,
+                    );
+                  }
+                }, 10);
+                Object.defineProperty(r, 'error', {
+                  configurable: true,
+                  enumerable: true,
+                  get: () => {
+                    clearTimeout(logErrorTimeoutId);
+                    return error;
+                  },
+                });
+              }
+              let ref;
+              if (operationOptions.withRef) ref = this.setWrappedInstance;
+              // if we have skipped, no reason to manage any reshaping
+              if (skip) return <WrappedComponent {...props} ref={ref} />;
+              // the HOC's historically hoisted the data from the execution result
+              // up onto the result since it was passed as a nested prop
+              // we massage the Query components shape here to replicate that
+              const result = Object.assign(r, r.data || {});
+              const name = operationOptions.name || 'data';
+              let childProps = { [name]: result };
+              if (operationOptions.props) {
+                const newResult: OptionProps<TProps, TData> = {
+                  [name]: result,
+                  ownProps: props,
+                };
+                lastResultProps = operationOptions.props(newResult, lastResultProps);
+                childProps = lastResultProps;
+              }
+
+              return <WrappedComponent {...props} {...childProps} ref={ref} />;
+            }}
+          </Query>
         );
       }
-      return (
-        <Query
-          {...opts}
-          displayName={graphQLDisplayName}
-          skip={skip}
-          query={document}
-          warnUnhandledError
-        >
-          {({ client, ...r }) => {
-            if (r.error) {
-              const error = r.error;
+      getWrappedInstance() {
+        invariant(
+          operationOptions.withRef,
+          `To access the wrapped instance, you need to specify ` +
+            `{ withRef: true } in the options`,
+        );
 
-              // Define the error property on the data object. If the user does
-              // not get the error object from `data` within 10 milliseconds
-              // then we will log the error to the console.
-              //
-              // 10 milliseconds is an arbitrary number picked to work around any
-              // potential asynchrony in React rendering. It is not super important
-              // that the error be logged ASAP, but 10 ms is enough to make it
-              // _feel_ like it was logged ASAP while still tolerating asynchrony.
-              let logErrorTimeoutId = setTimeout(() => {
-                if (error) {
-                  let errorMessage = error;
-                  if (error.stack) {
-                    errorMessage = error.stack.includes(error.message)
-                      ? error.stack
-                      : `${error.message}\n${error.stack}`;
-                  }
+        return this.wrappedInstance;
+      }
 
-                  console.error(`Unhandled (in react-apollo:${graphQLDisplayName})`, errorMessage);
-                }
-              }, 10);
-              Object.defineProperty(r, 'error', {
-                configurable: true,
-                enumerable: true,
-                get: () => {
-                  clearTimeout(logErrorTimeoutId);
-                  return error;
-                },
-              });
-            }
-            // if we have skipped, no reason to manage any reshaping
-            if (skip) return <WrappedComponent {...props} />;
-            // the HOC's historically hoisted the data from the execution result
-            // up onto the result since it was passed as a nested prop
-            // we massage the Query components shape here to replicate that
-            const result = Object.assign(r, r.data || {});
-            const name = operationOptions.name || 'data';
-            let childProps = { [name]: result };
-            if (operationOptions.props) {
-              const newResult: OptionProps<TProps, TData> = {
-                [name]: result,
-                ownProps: props,
-              };
-              lastResultProps = operationOptions.props(newResult, lastResultProps);
-              childProps = lastResultProps;
-            }
+      setWrappedInstance(ref: React.ComponentClass<TChildProps>) {
+        this.wrappedInstance = ref;
+      }
+    }
 
-            return <WrappedComponent {...props} {...childProps} />;
-          }}
-        </Query>
-      );
-    };
-    GraphQL.displayName = graphQLDisplayName;
-    GraphQL.WrappedComponent = WrappedComponent;
     // Make sure we preserve any custom statics on the original component.
     return hoistNonReactStatics(GraphQL, WrappedComponent, {});
   };

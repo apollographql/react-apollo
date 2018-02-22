@@ -140,7 +140,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
       !!context.client,
       `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`,
     );
-    this.client = context.client;
+    this.client = props.client || context.client;
 
     this.initializeQueryObservable(props);
   }
@@ -320,7 +320,6 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     Object.assign(data, observableQueryFields(this.queryObservable));
     // fetch the current result (if any) from the store
     const currentResult = this.queryObservable.currentResult();
-    console.log(this.queryObservable.options.fetchPolicy);
     const { loading, networkStatus, errors } = currentResult;
     let { error } = currentResult;
     // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
@@ -330,7 +329,6 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
 
     Object.assign(data, { loading, networkStatus, error });
 
-    console.log(loading);
     if (loading) {
       Object.assign(data.data, this.previousData, currentResult.data);
     } else if (error) {

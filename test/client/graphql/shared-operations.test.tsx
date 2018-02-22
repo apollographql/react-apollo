@@ -11,7 +11,7 @@ import { DocumentNode } from 'graphql';
 
 const compose = require('lodash/flowRight');
 
-xdescribe('shared operations', () => {
+describe('shared operations', () => {
   describe('withApollo', () => {
     it('passes apollo-client to props', () => {
       const client = new ApolloClient({

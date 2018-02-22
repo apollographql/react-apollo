@@ -10,7 +10,7 @@ import { ApolloProvider, graphql, ChildProps } from '../../../src';
 import stripSymbols from '../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
-xdescribe('client option', () => {
+describe('client option', () => {
   it('renders with client from options', () => {
     const query: DocumentNode = gql`
       query people {

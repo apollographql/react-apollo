@@ -377,7 +377,7 @@ describe('SSR', () => {
       });
     });
 
-    fit('should allow network-only fetchPolicy as an option and still render prefetched data', () => {
+    it('should allow network-only fetchPolicy as an option and still render prefetched data', () => {
       const query = gql`
         {
           currentUser {
@@ -393,6 +393,7 @@ describe('SSR', () => {
       const apolloClient = new ApolloClient({
         link,
         cache: new Cache({ addTypename: false }),
+        ssrMode: true,
       });
 
       interface Props {}
@@ -403,14 +404,11 @@ describe('SSR', () => {
       }
       const WrappedElement = graphql<Props, Data>(query, {
         options: { fetchPolicy: 'network-only' },
-      })(({ data }: ChildProps<Props, Data>) => {
-        console.log(data);
-        return (
-          <div>
-            {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.firstName}
-          </div>
-        );
-      });
+      })(({ data }: ChildProps<Props, Data>) => (
+        <div>
+          {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.firstName}
+        </div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
