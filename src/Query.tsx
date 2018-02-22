@@ -89,7 +89,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
 }
 
 export interface QueryProps<TData = any, TVariables = OperationVariables> {
-  children: (result: QueryResult<TData, TVariables> | void) => React.ReactNode;
+  children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
   fetchPolicy?: FetchPolicy;
   errorPolicy?: ErrorPolicy;
   notifyOnNetworkStatusChange?: boolean;
@@ -97,7 +97,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   query: DocumentNode;
   variables?: TVariables;
   ssr?: boolean;
-  skip?: (props: any) => boolean;
+  skip?: boolean;
 }
 
 export interface QueryState<TData = any> {
@@ -153,7 +153,7 @@ class Query<
     const { children, ssr, skip, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
-    if (ssr === false || this.shouldSkip()) return false;
+    if (ssr === false || skip) return false;
     if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
       fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
     }
@@ -172,7 +172,7 @@ class Query<
   }
 
   componentDidMount() {
-    if (!this.shouldSkip()) {
+    if (!this.props.skip) {
       this.startQuerySubscription();
     }
   }
@@ -181,7 +181,7 @@ class Query<
     nextProps: QueryProps<TData, TVariables>,
     nextContext: QueryContext,
   ) {
-    if (this.shouldSkip(nextProps)) {
+    if (nextProps.skip) {
       // if this has changed, we better unsubscribe
       this.removeQuerySubscription();
       return;
@@ -198,7 +198,7 @@ class Query<
       this.client = nextContext.client;
     }
 
-    if (this.shouldSkip(nextProps)) {
+    if (nextProps.skip) {
       return;
     }
 
@@ -215,13 +215,20 @@ class Query<
   render() {
     const { children } = this.props;
     const queryResult = this.getQueryResult();
-    return children(this.shouldSkip() ? undefined : queryResult);
-  }
 
-  private shouldSkip = (props = this.props) => {
-    const { skip = () => false } = props;
-    return skip(props);
-  };
+    if (this.props.skip) {
+      const result = {
+        ...queryResult,
+        data: undefined,
+        error: undefined,
+        loading: false,
+      };
+
+      return children(result);
+    }
+
+    return children(queryResult);
+  }
 
   private initializeQueryObservable = (
     props: QueryProps<TData, TVariables>,

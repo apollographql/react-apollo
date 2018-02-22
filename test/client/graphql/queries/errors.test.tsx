@@ -642,7 +642,7 @@ describe('[queries] errors', () => {
       renderer.create(
         <ApolloProvider client={client}>
           <Query query={query} errorPolicy="all">
-            {props => (props ? <ErrorContainer {...props} /> : null)}
+            {props => <ErrorContainer {...props} />}
           </Query>
         </ApolloProvider>,
       );

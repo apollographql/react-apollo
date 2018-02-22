@@ -1,8 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[
-  `Query component allows you to skip then unskip a query with top-level syntax 1`
-] = `
+exports[`Query component allows you to skip then unskip a query 1`] = `
 Object {
   "allPeople": Object {
     "people": Array [
@@ -42,9 +40,7 @@ Object {
 }
 `;
 
-exports[
-  `Query component calls the children prop: result in render prop while loading 1`
-] = `
+exports[`Query component calls the children prop: result in render prop while loading 1`] = `
 Object {
   "data": undefined,
   "error": undefined,

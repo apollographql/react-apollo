@@ -51,7 +51,7 @@ describe('Query component', () => {
     }
   });
 
-  fit('calls the children prop', done => {
+  it('calls the children prop', done => {
     const link = mockSingleLink({
       request: { query: allPeopleQuery },
       result: { data: allPeopleData },
@@ -171,7 +171,7 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery}>
           {result => {
-            if (!result || result.loading) {
+            if (result.loading) {
               return null;
             }
             catchAsyncError(done, () => {
@@ -320,7 +320,7 @@ describe('Query component', () => {
       const Component = () => (
         <AllPeopleQuery query={allPeopleQuery} variables={variables}>
           {result => {
-            if (!result || result.loading) {
+            if (result.loading) {
               return null;
             }
             if (count === 0) {
@@ -403,7 +403,7 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery}>
           {result => {
-            if (!result || result.loading) {
+            if (result.loading) {
               return null;
             }
             if (!isPolling) {
@@ -470,7 +470,7 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
           {result => {
-            if (!result || result.loading) {
+            if (result.loading) {
               return null;
             }
             if (count === 0) {
@@ -518,7 +518,7 @@ describe('Query component', () => {
       const Component = () => (
         <AllPeopleQuery query={allPeopleQuery} variables={variables}>
           {result => {
-            if (!result || result.loading) {
+            if (result.loading) {
               return null;
             }
             if (isUpdated) {
@@ -667,7 +667,7 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery} pollInterval={POLL_INTERVAL}>
           {result => {
-            if (!result || result.loading) {
+            if (result.loading) {
               return null;
             }
             if (count === 0) {
@@ -801,7 +801,7 @@ describe('Query component', () => {
           return (
             <AllPeopleQuery query={query} variables={variables}>
               {result => {
-                if (!result || result.loading) {
+                if (result.loading) {
                   return null;
                 }
                 catchAsyncError(done, () => {
@@ -871,7 +871,7 @@ describe('Query component', () => {
           return (
             <Query query={query}>
               {result => {
-                if (!result || result.loading) {
+                if (result.loading) {
                   return null;
                 }
                 catchAsyncError(done, () => {
@@ -936,7 +936,7 @@ describe('Query component', () => {
             <ApolloProvider client={this.state.client}>
               <Query query={allPeopleQuery}>
                 {result => {
-                  if (!result || result.loading) {
+                  if (result.loading) {
                     return null;
                   }
                   catchAsyncError(done, () => {
@@ -1226,9 +1226,11 @@ describe('Query component', () => {
 
     wrapper = mount(
       <ApolloProvider client={client}>
-        <Query query={query} skip={() => true}>
+        <Query query={query} skip={true}>
           {result => {
-            expect(result).toEqual(undefined);
+            expect(result.data).toBeUndefined();
+            expect(result.loading).toEqual(false);
+            expect(result.error).toBe(undefined);
             done();
 
             return null;
@@ -1275,13 +1277,10 @@ describe('Query component', () => {
 
       render() {
         return (
-          <Query
-            query={query}
-            skip={() => true}
-            variables={this.state.variables}
-          >
+          <Query query={query} skip={true} variables={this.state.variables}>
             {result => {
-              expect(result).toBeUndefined();
+              expect(result.data).toBeUndefined();
+              expect(result.client).toBeInstanceOf(ApolloClient);
 
               if (this.state.variables.number === 999) {
                 done();
@@ -1301,7 +1300,7 @@ describe('Query component', () => {
     );
   });
 
-  fit('allows you to skip then unskip a query with top-level syntax', done => {
+  it('allows you to skip then unskip a query', done => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -1321,7 +1320,7 @@ describe('Query component', () => {
       link,
       cache: new Cache({ addTypename: false }),
     });
-
+    let count = 0;
     class Container extends React.Component<{}, { skip: boolean }> {
       state = {
         skip: true,
@@ -1333,15 +1332,18 @@ describe('Query component', () => {
 
       render() {
         return (
-          <Query query={query} skip={() => this.state.skip}>
+          <Query query={query} skip={this.state.skip}>
             {result => {
-              if (!result || result.loading) {
+              if (result.loading) {
+                count++;
                 return null;
               }
 
               catchAsyncError(done, () => {
-                expect(result.data).toMatchSnapshot();
-                done();
+                if (count === 1) {
+                  expect(result.data).toMatchSnapshot();
+                  done();
+                }
               });
 
               return null;

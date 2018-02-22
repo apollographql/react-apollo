@@ -369,15 +369,13 @@ describe('SSR', () => {
 
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
-          {result =>
-            result ? (
-              <div>
-                {result.loading || !result.data
-                  ? 'loading'
-                  : result.data.currentUser.firstName}
-              </div>
-            ) : null
-          }
+          {result => (
+            <div>
+              {!result.data || result.loading
+                ? 'loading'
+                : result.data.currentUser.firstName}
+            </div>
+          )}
         </CurrentUserQuery>
       );
 
@@ -1092,15 +1090,13 @@ describe('SSR', () => {
 
       const Element = (props: { id: string }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
-          {result =>
-            result ? (
-              <div>
-                {result.loading || !result.data
-                  ? 'loading'
-                  : result.data.currentUser.firstName}
-              </div>
-            ) : null
-          }
+          {result => (
+            <div>
+              {!result.data || result.loading
+                ? 'loading'
+                : result.data.currentUser.firstName}
+            </div>
+          )}
         </CurrentUserQuery>
       );
 
