@@ -68,9 +68,9 @@
   version "22.1.2"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-22.1.2.tgz#813a79ec98221633845627636dbc606f31220dbc"
 
-"@types/lodash@4.14.103":
-  version "4.14.103"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.103.tgz#56ac640f029f67655f0721f479f1faa982bd8122"
+"@types/lodash@4.14.104":
+  version "4.14.104"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.104.tgz#53ee2357fa2e6e68379341d92eb2ecea4b11bb80"
 
 "@types/node@*":
   version "8.5.2"
