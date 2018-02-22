@@ -13,8 +13,9 @@ export * from './Query';
 export { default as Mutation } from './Mutation';
 export * from './Mutation';
 
-export { default as graphql } from './graphql';
-export * from './graphql';
+// export { default as graphql } from './graphql';
+// export * from './graphql';
+export * from './graphql-next';
 
 export { default as withApollo } from './withApollo';
 

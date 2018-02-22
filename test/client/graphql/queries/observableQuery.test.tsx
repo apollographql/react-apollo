@@ -10,7 +10,7 @@ import { ApolloProvider, graphql, ChildProps } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
-describe('[queries] observableQuery', () => {
+xdescribe('[queries] observableQuery', () => {
   // observableQuery
   it('will recycle `ObservableQuery`s when re-rendering the entire tree', done => {
     const query: DocumentNode = gql`

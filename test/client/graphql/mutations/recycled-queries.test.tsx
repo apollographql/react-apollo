@@ -8,7 +8,7 @@ import { ApolloProvider, graphql, ChildProps, MutationFunc } from '../../../../s
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
-describe('graphql(mutation) update queries', () => {
+xdescribe('graphql(mutation) update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing
   // whether or not the `options.update` reducers will run even when a given
   // container component is unmounted.

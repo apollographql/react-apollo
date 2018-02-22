@@ -67,10 +67,10 @@ describe('Query component', () => {
             const { client: clientResult, ...rest } = result;
 
             if (result.loading) {
-              expect(rest).toMatchSnapshot('result in render prop while loading');
+              expect(stripSymbols(rest)).toMatchSnapshot('result in render prop while loading');
               expect(clientResult).toBe(client);
             } else {
-              expect(rest).toMatchSnapshot('result in render prop');
+              expect(stripSymbols(rest)).toMatchSnapshot('result in render prop');
               done();
             }
           });
@@ -538,7 +538,6 @@ describe('Query component', () => {
           {result => {
             catchAsyncError(done, () => {
               expect(result.loading).toBeFalsy();
-              expect(result.data).toBeUndefined();
               expect(result.networkStatus).toBe(NetworkStatus.ready);
               done();
             });
@@ -836,16 +835,12 @@ describe('Query component', () => {
           return (
             <Query query={query}>
               {result => {
-                if (result.loading) {
-                  return null;
-                }
+                if (result.loading) return null;
                 catchAsyncError(done, () => {
                   if (count === 0) {
                     expect(stripSymbols(result.data)).toEqual(data1);
                     setTimeout(() => {
-                      this.setState({
-                        query: query2,
-                      });
+                      this.setState({ query: query2 });
                     });
                   }
                   if (count === 1) {
@@ -1094,7 +1089,7 @@ describe('Query component', () => {
                   expect(result.loading).toBeTruthy();
                   break;
                 case 1:
-                  if (!result.data) {
+                  if (!result.data.allPeople) {
                     done.fail('Should have data by this point');
                     break;
                   }

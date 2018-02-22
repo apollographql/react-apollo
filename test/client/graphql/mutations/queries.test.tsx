@@ -185,6 +185,7 @@ describe('graphql(mutation) query integration', () => {
       </ApolloProvider>,
     );
   });
+
   it('allows for updating queries from a mutation automatically', done => {
     const query: DocumentNode = gql`
       query getMini($id: ID!) {
@@ -258,9 +259,11 @@ describe('graphql(mutation) query integration', () => {
       class extends React.Component<ChildProps<MutationVariables, MutationData>> {
         componentWillReceiveProps(props: ChildProps<MutationVariables, MutationData>) {
           if (count === 1) {
-            props.mutate!().then(result => {
-              expect(stripSymbols(result.data)).toEqual(mutationData);
-            });
+            props.mutate!()
+              .then(result => {
+                expect(stripSymbols(result.data)).toEqual(mutationData);
+              })
+              .catch(done.fail);
           }
         }
         render() {

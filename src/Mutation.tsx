@@ -47,6 +47,7 @@ export declare type MutationOptions<TData = any, TVariables = OperationVariables
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
+  ignoreResults?: boolean;
   optimisticResponse?: Object;
   variables?: TVariables;
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
@@ -170,7 +171,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onStartMutation = () => {
-    if (!this.state.loading) {
+    if (!this.state.loading && !this.props.ignoreResults) {
       this.setState({
         loading: true,
         error: undefined,
@@ -181,7 +182,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onCompletedMutation = (response: ExecutionResult<TData>, mutationId: number) => {
-    const { onCompleted } = this.props;
+    const { onCompleted, ignoreResults } = this.props;
 
     const data = response.data as TData;
 
@@ -191,7 +192,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       }
     };
 
-    if (this.isMostRecentMutation(mutationId)) {
+    if (this.isMostRecentMutation(mutationId) && !ignoreResults) {
       this.setState(
         {
           loading: false,
