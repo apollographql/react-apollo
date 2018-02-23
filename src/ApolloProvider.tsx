@@ -49,6 +49,6 @@ export default class ApolloProvider<TCache> extends Component<ApolloProviderProp
   }
 
   render() {
-    return React.Children.only(this.props.children);
+    return this.props.children;
   }
 }
