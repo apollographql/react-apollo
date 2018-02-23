@@ -1,6 +1,8 @@
 import * as React from 'react';
 const invariant = require('invariant');
-const hoistNonReactStatics = require('hoist-non-react-statics');
+
+import { OperationVariables } from './types';
+import { DocumentType, IDocumentDefinition } from './parser';
 
 export const defaultMapPropsToOptions = () => ({});
 export const defaultMapResultToProps: <P>(props: P) => P = props => props;
@@ -10,7 +12,12 @@ export function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export function calculateVariablesFromProps(operation, props, graphQLDisplayName, wrapperName) {
+export function calculateVariablesFromProps<TProps>(
+  operation: IDocumentDefinition,
+  props: TProps,
+  graphQLDisplayName: string,
+  wrapperName: string,
+) {
   let variables: OperationVariables = {};
   for (let { variable, type } of operation.variables) {
     if (!variable.name || !variable.name.value) continue;
@@ -40,13 +47,15 @@ export function calculateVariablesFromProps(operation, props, graphQLDisplayName
   return variables;
 }
 
-// base class for hocs to easily manage refs
-export class GraphQLBase extends React.Component<GraphQLProps> {
-  // wrapped instance
-  private wrappedInstance: any;
-  private withRef: boolean;
+export type RefSetter<TChildProps> = (ref: React.ComponentClass<TChildProps>) => void | void;
 
-  constructor(props) {
+// base class for hocs to easily manage refs
+export class GraphQLBase<TProps, TChildProps> extends React.Component<TProps> {
+  // wrapped instance
+  private wrappedInstance: React.ComponentClass<TChildProps>;
+  public withRef: boolean;
+
+  constructor(props: TProps) {
     super(props);
     this.setWrappedInstance = this.setWrappedInstance.bind(this);
   }

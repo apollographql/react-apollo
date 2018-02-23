@@ -61,7 +61,6 @@
       "^.+\\.tsx?$": "ts-jest",
       "^.+\\.jsx?$": "babel-jest"
     },
-    "mapCoverage": true,
     "moduleFileExtensions": [
       "ts",
       "tsx",

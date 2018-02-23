@@ -2,16 +2,15 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
-  ApolloQueryResult,
   ApolloError,
   FetchPolicy,
   ErrorPolicy,
-  ApolloCurrentResult,
+  ApolloQueryResult,
   NetworkStatus,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
-import { OperationVariables } from './types';
+import { OperationVariables, GraphqlQueryControls } from './types';
 import { parser, DocumentType } from './parser';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
@@ -74,7 +73,7 @@ function observableQueryFields<TData, TVariables>(
 export interface QueryResult<TData = any, TVariables = OperationVariables>
   extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
-  data: TData | Object;
+  data: TData | undefined;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
@@ -90,16 +89,16 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   variables?: TVariables;
   ssr?: boolean;
   displayName?: string;
-  warnUnhandledError?: boolean;
+  skip?: boolean;
+  client?: ApolloClient<Object>;
 }
 
 export interface QueryContext {
   client: ApolloClient<Object>;
 }
 
-class Query<TData = any, TVariables = OperationVariables> extends React.Component<
-  QueryProps<TData, TVariables>,
-  void
+export default class Query<TData = any, TVariables = OperationVariables> extends React.Component<
+  QueryProps<TData, TVariables>
 > {
   static contextTypes = {
     client: PropTypes.object.isRequired,
@@ -122,7 +121,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
   // request / action storage. Note that we delete querySubscription if we
   // unsubscribe but never delete queryObservable once it is created. We
   // only delete queryObservable when we unmount the component.
-  private queryObservable: ObservableQuery<TData>;
+  private queryObservable: ObservableQuery<TData> | null;
   private querySubscription: ZenObservable.Subscription;
   private previousData: any = {};
   private refetcherQueue: {
@@ -136,19 +135,19 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
 
-    invariant(
-      !!context.client,
-      `Could not find "client" in the context of Query. Wrap the root component in an <ApolloProvider>`,
-    );
     this.client = props.client || context.client;
-
+    invariant(
+      !!this.client,
+      `Could not find "client" in the context of Query or as passed props. Wrap the root component in an <ApolloProvider>`,
+    );
     this.initializeQueryObservable(props);
   }
 
   // For server-side rendering (see getDataFromTree.ts)
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.props.skip) return false;
-    const { children, ssr, ...opts } = this.props;
+    // pull off react options
+    const { children, ssr, displayName, skip, client, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -160,7 +159,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
       ...opts,
       fetchPolicy,
     });
-    const result = this.queryObservable.currentResult();
+    const result = this.queryObservable!.currentResult();
 
     return result.loading ? observable.result() : false;
   }
@@ -171,7 +170,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
-      this.queryObservable
+      this.queryObservable!
         .refetch(args)
         .then(resolve)
         .catch(reject);
@@ -208,10 +207,10 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     if (this.props.query !== nextProps.query) {
       this.removeQuerySubscription();
     }
+
     this.updateQuery(nextProps);
     if (nextProps.skip) return;
     this.startQuerySubscription();
-    this.updateCurrentData();
   }
 
   componentWillUnmount() {
@@ -264,7 +263,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     // if we skipped initially, we may not have yet created the observable
     if (!this.queryObservable) this.initializeQueryObservable(props);
 
-    this.queryObservable
+    this.queryObservable!
       .setOptions(this.extractOptsFromProps(props))
       // The error will be passed to the child container, so we don't
       // need to log it here. We could conceivably log something if
@@ -275,7 +274,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
 
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
-    this.querySubscription = this.queryObservable.subscribe({
+    this.querySubscription = this.queryObservable!.subscribe({
       next: this.updateCurrentData,
       error: error => {
         this.resubscribeToQuery();
@@ -297,29 +296,28 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
   private resubscribeToQuery() {
     this.removeQuerySubscription();
 
-    const lastError = this.queryObservable.getLastError();
-    const lastResult = this.queryObservable.getLastResult();
+    const lastError = this.queryObservable!.getLastError();
+    const lastResult = this.queryObservable!.getLastResult();
     // If lastError is set, the observable will immediately
     // send it, causing the stream to terminate on initialization.
     // We clear everything here and restore it afterward to
     // make sure the new subscription sticks.
-    this.queryObservable.resetLastResults();
+    this.queryObservable!.resetLastResults();
     this.startQuerySubscription();
-    Object.assign(this.queryObservable, { lastError, lastResult });
+    Object.assign(this.queryObservable!, { lastError, lastResult });
   }
 
   private updateCurrentData = () => {
     // force a rerender that goes through shouldComponentUpdate
-    // this.shouldRerender = true;
     if (this.hasMounted) this.forceUpdate();
   };
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
-    let data = { data: Object.create(null) } as any;
+    let data = { data: Object.create(null) as TData } as any;
     // attach bound methods
-    Object.assign(data, observableQueryFields(this.queryObservable));
+    Object.assign(data, observableQueryFields(this.queryObservable!));
     // fetch the current result (if any) from the store
-    const currentResult = this.queryObservable.currentResult();
+    const currentResult = this.queryObservable!.currentResult();
     const { loading, networkStatus, errors } = currentResult;
     let { error } = currentResult;
     // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
@@ -333,7 +331,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
       Object.assign(data.data, this.previousData, currentResult.data);
     } else if (error) {
       Object.assign(data, {
-        data: (this.queryObservable.getLastResult() || {}).data,
+        data: (this.queryObservable!.getLastResult() || {}).data,
       });
     } else {
       Object.assign(data.data, currentResult.data);
@@ -353,5 +351,3 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     return data;
   };
 }
-
-export default Query;

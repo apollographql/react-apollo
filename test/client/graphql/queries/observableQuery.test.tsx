@@ -374,7 +374,7 @@ describe('[queries] observableQuery', () => {
     }, 10);
   });
 
-  it("will recycle `ObservableQuery`s when re-rendering a portion of the tree but not return stale data if variables don't match", done => {
+  xit("will recycle `ObservableQuery`s when re-rendering a portion of the tree but not return stale data if variables don't match", done => {
     const query: DocumentNode = gql`
       query people($first: Int!) {
         allPeople(first: $first) {

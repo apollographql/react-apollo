@@ -1,17 +1,10 @@
 import * as React from 'react';
+import { ApolloError } from 'apollo-client';
+import { DocumentNode } from 'graphql';
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-import { parser, DocumentType } from './parser';
-import {
-  MutationOpts,
-  OperationOption,
-  QueryOpts,
-  GraphqlQueryControls,
-  MutationFunc,
-  OptionProps,
-  DataProps,
-  MutateProps,
-} from './types';
+import { parser } from './parser';
+import { OperationOption, QueryOpts, OptionProps, DataProps } from './types';
 import { default as Query } from './Query';
 import {
   getDisplayName,
@@ -46,21 +39,21 @@ export function query<
   if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = () => skip as any;
 
   // allow for advanced referential equality checks
-  let lastResultProps;
+  let lastResultProps: TChildProps | void;
   return (
     WrappedComponent: React.ComponentType<TChildProps & TProps>,
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
-    class GraphQL extends GraphQLBase {
+    class GraphQL extends GraphQLBase<TProps, TChildProps> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
 
       render() {
-        const props = this.props;
-        const skip = mapPropsToSkip(props);
-        const opts = skip ? Object.create(null) : mapPropsToOptions(props);
+        let props = this.props;
+        const shouldSkip = mapPropsToSkip(props);
+        const opts = shouldSkip ? Object.create(null) : mapPropsToOptions(props);
 
-        if (!skip && !Boolean(opts.variables || !operation.variables.length)) {
+        if (!shouldSkip && !Boolean(opts.variables || !operation.variables.length)) {
           opts.variables = calculateVariablesFromProps(
             operation,
             props,
@@ -72,11 +65,11 @@ export function query<
           <Query
             {...opts}
             displayName={graphQLDisplayName}
-            skip={skip}
+            skip={shouldSkip}
             query={document}
             warnUnhandledError
           >
-            {({ client, ...r }) => {
+            {({ client: _, data, ...r }) => {
               if (r.error) {
                 const error = r.error;
 
@@ -90,7 +83,7 @@ export function query<
                 // _feel_ like it was logged ASAP while still tolerating asynchrony.
                 let logErrorTimeoutId = setTimeout(() => {
                   if (error) {
-                    let errorMessage = error;
+                    let errorMessage: string | ApolloError = error;
                     if (error.stack) {
                       errorMessage = error.stack.includes(error.message)
                         ? error.stack
@@ -112,29 +105,30 @@ export function query<
                   },
                 });
               }
-              let ref;
               if (operationOptions.withRef) {
                 this.withRef = true;
-                ref = this.setWrappedInstance;
+                props = Object.assign({}, props, {
+                  ref: this.setWrappedInstance,
+                });
               }
               // if we have skipped, no reason to manage any reshaping
-              if (skip) return <WrappedComponent {...props} ref={ref} />;
+              if (shouldSkip) return <WrappedComponent {...props} />;
               // the HOC's historically hoisted the data from the execution result
               // up onto the result since it was passed as a nested prop
               // we massage the Query components shape here to replicate that
-              const result = Object.assign(r, r.data || {});
+              const result = Object.assign(r, data || {});
               const name = operationOptions.name || 'data';
               let childProps = { [name]: result };
               if (operationOptions.props) {
                 const newResult: OptionProps<TProps, TData> = {
                   [name]: result,
-                  ownProps: props,
+                  ownProps: props as TProps,
                 };
                 lastResultProps = operationOptions.props(newResult, lastResultProps);
                 childProps = lastResultProps;
               }
 
-              return <WrappedComponent {...props} {...childProps} ref={ref} />;
+              return <WrappedComponent {...props} {...childProps} />;
             }}
           </Query>
         );

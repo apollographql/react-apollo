@@ -57,6 +57,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
     result?: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
+  displayName?: string;
   onError?: (error: ApolloError) => void;
 }
 

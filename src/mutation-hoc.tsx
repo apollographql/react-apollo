@@ -1,19 +1,9 @@
 import * as React from 'react';
+import { DocumentNode } from 'graphql';
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-const invariant = require('invariant');
-
-import { parser, DocumentType } from './parser';
-import {
-  MutationOpts,
-  OperationOption,
-  QueryOpts,
-  GraphqlQueryControls,
-  MutationFunc,
-  OptionProps,
-  DataProps,
-  MutateProps,
-} from './types';
+import { parser } from './parser';
+import { MutationOpts, OperationOption, OptionProps, MutateProps } from './types';
 import { default as Mutation } from './Mutation';
 import {
   defaultMapPropsToOptions,
@@ -44,16 +34,18 @@ export function mutation<
     WrappedComponent: React.ComponentType<TChildProps & TProps>,
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
-    class GraphQL extends GraphQLBase {
+    class GraphQL extends GraphQLBase<TProps, TChildProps> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       render() {
-        const props = this.props;
+        let props = this.props;
         const opts = mapPropsToOptions(props);
-        let ref;
+
         if (operationOptions.withRef) {
           this.withRef = true;
-          ref = this.setWrappedInstance;
+          props = Object.assign({}, props, {
+            ref: this.setWrappedInstance,
+          });
         }
         if (!Boolean(opts.variables || !operation.variables.length)) {
           opts.variables = calculateVariablesFromProps(
@@ -74,10 +66,10 @@ export function mutation<
                   [name]: mutate,
                   ownProps: props,
                 };
-                childProps = operationOptions.props(newResult);
+                childProps = operationOptions.props(newResult) as any;
               }
 
-              return <WrappedComponent {...props} {...childProps} ref={ref} />;
+              return <WrappedComponent {...props} {...childProps} />;
             }}
           </Mutation>
         );

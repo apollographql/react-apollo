@@ -182,7 +182,7 @@ describe('[queries] reducer', () => {
     }
 
     const withData = graphql<{}, Data, {}, FinalProps>(query, {
-      props: ({ data }, lastProps: FinalProps) => {
+      props: ({ data }, lastProps) => {
         const refetch = data!.refetch!;
         let wrapper = { thingy: data!.getThing! };
 

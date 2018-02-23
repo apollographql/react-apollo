@@ -1089,13 +1089,13 @@ describe('Query component', () => {
                   expect(result.loading).toBeTruthy();
                   break;
                 case 1:
-                  if (!result.data.allPeople) {
+                  if (!result.data!.allPeople) {
                     done.fail('Should have data by this point');
                     break;
                   }
                   // First result is loaded, run a refetch to get the second result
                   // which is an error.
-                  expect(stripSymbols(result.data.allPeople)).toEqual(data.allPeople);
+                  expect(stripSymbols(result.data!.allPeople)).toEqual(data.allPeople);
                   setTimeout(() => {
                     result.refetch().then(() => {
                       done.fail('Expected error value on first refetch.');
