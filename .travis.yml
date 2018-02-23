@@ -3,8 +3,6 @@ language: node_js
 node_js:
   - "8"
   
-cache: yarn
-
 script:
   - npm run danger
   - npm test
