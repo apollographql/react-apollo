@@ -2,6 +2,12 @@
 
 ### vNext
 
+### 2.1.0-beta.3
+
+* Refactored and removed old `graphql` implementation in favor of new components
+* Removed QueryRecycler!! :yay:
+* Added `query`, `mutation`, and `subscription` higher order components
+* Aded `<Subscription />` to the public API
 * Added `prop-types` validation to the `<Query />`, `<Subscription />` and `<ApolloConsumer />` component [#1587](https://github.com/apollographql/react-apollo/pull/1587)
 * Added `<Mutation />` component [#1520](https://github.com/apollographql/react-apollo/pull/1520)
 * HoC `props` result-mapping function now receives prior return value as second argument.
