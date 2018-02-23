@@ -433,7 +433,7 @@ describe('[queries] lifecycle', () => {
     wrapper = mount(app);
   });
 
-  xit('will re-execute a query when the client changes', async () => {
+  it('will re-execute a query when the client changes', async () => {
     const query: DocumentNode = gql`
       {
         a
@@ -559,7 +559,6 @@ describe('[queries] lifecycle', () => {
     switchClient!(client3);
     await wait(1);
 
-    console.log(renders);
     expect(renders).toEqual([
       { loading: true },
       { loading: false, a: 1, b: 2, c: 3 },

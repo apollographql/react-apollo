@@ -9,7 +9,7 @@ import { ApolloProvider, ChildProps, graphql } from '../../../src';
 import stripSymbols from '../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
-xdescribe('subscriptions', () => {
+describe('subscriptions', () => {
   let error: typeof console.error;
   let wrapper: renderer.ReactTestRenderer | null;
   beforeEach(() => {

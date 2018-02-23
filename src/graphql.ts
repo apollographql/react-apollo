@@ -4,7 +4,7 @@ import { OperationOption, DataProps, MutateProps } from './types';
 
 import { query } from './query-hoc';
 import { mutation } from './mutation-hoc';
-// import { subscribe } from './subscribe-hoc';
+import { subscribe } from './subscription-hoc';
 
 export function graphql<
   TProps extends TGraphQLVariables | {} = {},
@@ -19,8 +19,8 @@ export function graphql<
   switch (parser(document).type) {
     case DocumentType.Mutation:
       return mutation(document, operationOptions);
-    // case DocumentType.Subscription:
-    //   return subscribe(document, operationOptions);
+    case DocumentType.Subscription:
+      return subscribe(document, operationOptions);
     // case DocumentType.Fragment:
     //   throw new Error('fragments cannont currently be used on their own');
     case DocumentType.Query:

@@ -155,7 +155,7 @@ describe('[queries] errors', () => {
       process.removeListener('unhandledRejection', handle);
     });
 
-    xit('does not log when you change variables resulting in an error', done => {
+    it('does not log when you change variables resulting in an error', done => {
       const query: DocumentNode = gql`
         query people($var: Int) {
           allPeople(first: $var) {

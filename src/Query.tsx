@@ -11,7 +11,7 @@ import ApolloClient, {
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables, GraphqlQueryControls } from './types';
-import { parser, DocumentType } from './parser';
+import { parser, DocumentType, IDocumentDefinition } from './parser';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -95,6 +95,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
 
 export interface QueryContext {
   client: ApolloClient<Object>;
+  operations?: Map<string, { query: DocumentNode; variables: any }>;
 }
 
 export default class Query<TData = any, TVariables = OperationVariables> extends React.Component<
@@ -102,6 +103,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 > {
   static contextTypes = {
     client: PropTypes.object.isRequired,
+    operations: PropTypes.object,
   };
 
   static propTypes = {
@@ -131,6 +133,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   };
 
   private hasMounted: boolean;
+  private operation: IDocumentDefinition;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -235,12 +238,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       displayName = 'Query',
     } = props;
 
-    const operation = parser(query);
+    this.operation = parser(query);
 
     invariant(
-      operation.type === DocumentType.Query,
+      this.operation.type === DocumentType.Query,
       `The <Query /> component requires a graphql query, but got a ${
-        operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
+        this.operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
       }.`,
     );
 
@@ -256,7 +259,15 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {
-    this.queryObservable = this.client.watchQuery(this.extractOptsFromProps(props));
+    const opts = this.extractOptsFromProps(props);
+    // save for backwards compat of refetcherQueries without a recycler
+    if (this.context.operations) {
+      this.context.operations.set(this.operation.name, {
+        query: opts.query,
+        variables: opts.variables,
+      });
+    }
+    this.queryObservable = this.client.watchQuery(opts);
   }
 
   private updateQuery(props: QueryProps<TData, TVariables>) {

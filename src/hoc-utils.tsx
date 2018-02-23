@@ -50,10 +50,13 @@ export function calculateVariablesFromProps<TProps>(
 export type RefSetter<TChildProps> = (ref: React.ComponentClass<TChildProps>) => void | void;
 
 // base class for hocs to easily manage refs
-export class GraphQLBase<TProps, TChildProps> extends React.Component<TProps> {
+export class GraphQLBase<TProps, TChildProps, TState = any> extends React.Component<
+  TProps,
+  TState
+> {
+  public withRef: boolean;
   // wrapped instance
   private wrappedInstance: React.ComponentClass<TChildProps>;
-  public withRef: boolean;
 
   constructor(props: TProps) {
     super(props);

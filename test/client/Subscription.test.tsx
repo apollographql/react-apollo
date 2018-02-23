@@ -9,7 +9,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '../../src/test-utils';
 import { ApolloProvider } from '../../src';
 import catchAsyncError from '../test-utils/catchAsyncError';
-import Subscription from '../../src/Subscriptions';
+import { Subscription } from '../../src';
 
 const results = ['Luke Skywalker', 'Han Solo', 'Darth Vader', 'Leia Skywalker'].map(name => ({
   result: { data: { user: { name } } },
