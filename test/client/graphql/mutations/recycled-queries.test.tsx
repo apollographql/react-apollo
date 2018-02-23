@@ -8,7 +8,7 @@ import { ApolloProvider, graphql, ChildProps, MutationFunc } from '../../../../s
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
-xdescribe('graphql(mutation) update queries', () => {
+describe('graphql(mutation) update queries', () => {
   // This is a long test that keeps track of a lot of stuff. It is testing
   // whether or not the `options.update` reducers will run even when a given
   // container component is unmounted.
@@ -260,6 +260,7 @@ xdescribe('graphql(mutation) update queries', () => {
       }, 5);
     }));
 
+  // XXX figure out how to drop recycler while still supporting string refetches
   it('will run `refetchQueries` for a recycled queries', () =>
     new Promise((resolve, reject) => {
       const mutation: DocumentNode = gql`
@@ -412,7 +413,7 @@ xdescribe('graphql(mutation) update queries', () => {
       setTimeout(() => {
         wrapperQuery1.unmount();
 
-        mutate({ refetchQueries: ['todos'] })
+        mutate({ refetchQueries: [{ query, variables: { id: '123' } }] })
           .then(() => {
             setTimeout(() => {
               // This re-renders the recycled query that should have been refetched while recycled.

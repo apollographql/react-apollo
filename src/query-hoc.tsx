@@ -1,8 +1,6 @@
 import * as React from 'react';
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-const invariant = require('invariant');
-
 import { parser, DocumentType } from './parser';
 import {
   MutationOpts,
@@ -15,103 +13,13 @@ import {
   MutateProps,
 } from './types';
 import { default as Query } from './Query';
-import { default as Mutation } from './Mutation';
-
-const defaultMapPropsToOptions = () => ({});
-const defaultMapResultToProps: <P>(props: P) => P = props => props;
-const defaultMapPropsToSkip = () => false;
-
-function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
-  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
-}
-
-export function graphql<
-  TProps extends TGraphQLVariables | {} = {},
-  TData = {},
-  TGraphQLVariables = {},
-  TChildProps = Partial<DataProps<TData, TGraphQLVariables>> &
-    Partial<MutateProps<TData, TGraphQLVariables>>
->(
-  document: DocumentNode,
-  operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
-) {
-  // safety check on the operation
-  const operation = parser(document);
-
-  switch (operation.type) {
-    case DocumentType.Mutation:
-      return mutation(document, operationOptions);
-      break;
-    case DocumentType.Subscription:
-      console.log('subscription');
-    case DocumentType.Fragment:
-      throw new Error('fragments cannont currently be used on their own');
-    case DocumentType.Query:
-    default:
-      return query(document, operationOptions);
-      break;
-  }
-}
-
-export function mutation<
-  TProps extends TGraphQLVariables | {} = {},
-  TData = {},
-  TGraphQLVariables = {},
-  TChildProps = Partial<MutateProps<TData, TGraphQLVariables>>
->(
-  document: DocumentNode,
-  operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
-) {
-  // this is memozied so if coming from `graphql` there is nearly no extra cost
-  const operation = parser(document);
-  // extract options
-
-  const { options = defaultMapPropsToOptions, alias = 'Apollo' } = operationOptions;
-
-  let mapPropsToOptions = options as (props: any) => MutationOpts;
-  if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options as MutationOpts;
-
-  return (
-    WrappedComponent: React.ComponentType<TChildProps & TProps>,
-  ): React.ComponentClass<TProps> => {
-    const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
-    const GraphQL = props => {
-      const opts = mapPropsToOptions(props);
-
-      if (!Boolean(opts.variables || !operation.variables.length)) {
-        opts.variables = calculateVariablesFromProps(
-          operation,
-          props,
-          graphQLDisplayName,
-          getDisplayName(WrappedComponent),
-        );
-      }
-
-      return (
-        <Mutation {...opts} displayName={graphQLDisplayName} mutation={document} ignoreResults>
-          {(mutate, _result) => {
-            const name = operationOptions.name || 'mutate';
-            let childProps = { [name]: mutate };
-            if (operationOptions.props) {
-              const newResult: OptionProps<TProps, TData> = {
-                [name]: mutate,
-                ownProps: props,
-              };
-              childProps = operationOptions.props(newResult);
-            }
-
-            return <WrappedComponent {...props} {...childProps} />;
-          }}
-        </Mutation>
-      );
-    };
-
-    GraphQL.displayName = graphQLDisplayName;
-    GraphQL.WrappedComponent = WrappedComponent;
-    // Make sure we preserve any custom statics on the original component.
-    return hoistNonReactStatics(GraphQL, WrappedComponent, {});
-  };
-}
+import {
+  getDisplayName,
+  GraphQLBase,
+  calculateVariablesFromProps,
+  defaultMapPropsToOptions,
+  defaultMapPropsToSkip,
+} from './hoc-utils';
 
 export function query<
   TProps extends TGraphQLVariables | {} = {},
@@ -143,17 +51,9 @@ export function query<
     WrappedComponent: React.ComponentType<TChildProps & TProps>,
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
-    class GraphQL extends React.Component<GraphQLProps> {
-      // wrapped instance
-      private wrappedInstance: any;
-
+    class GraphQL extends GraphQLBase {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
-
-      constructor(props) {
-        super(props);
-        this.setWrappedInstance = this.setWrappedInstance.bind(this);
-      }
 
       render() {
         const props = this.props;
@@ -213,7 +113,10 @@ export function query<
                 });
               }
               let ref;
-              if (operationOptions.withRef) ref = this.setWrappedInstance;
+              if (operationOptions.withRef) {
+                this.withRef = true;
+                ref = this.setWrappedInstance;
+              }
               // if we have skipped, no reason to manage any reshaping
               if (skip) return <WrappedComponent {...props} ref={ref} />;
               // the HOC's historically hoisted the data from the execution result
@@ -236,52 +139,9 @@ export function query<
           </Query>
         );
       }
-      getWrappedInstance() {
-        invariant(
-          operationOptions.withRef,
-          `To access the wrapped instance, you need to specify ` +
-            `{ withRef: true } in the options`,
-        );
-
-        return this.wrappedInstance;
-      }
-
-      setWrappedInstance(ref: React.ComponentClass<TChildProps>) {
-        this.wrappedInstance = ref;
-      }
     }
 
     // Make sure we preserve any custom statics on the original component.
     return hoistNonReactStatics(GraphQL, WrappedComponent, {});
   };
-}
-
-function calculateVariablesFromProps(operation, props, graphQLDisplayName, wrapperName) {
-  let variables: OperationVariables = {};
-  for (let { variable, type } of operation.variables) {
-    if (!variable.name || !variable.name.value) continue;
-
-    const variableName = variable.name.value;
-    const variableProp = (props as any)[variableName];
-
-    if (typeof variableProp !== 'undefined') {
-      variables[variableName] = variableProp;
-      continue;
-    }
-
-    // allow optional props
-    if (type.kind !== 'NonNullType') {
-      variables[variableName] = null;
-      continue;
-    }
-
-    if (operation.type === DocumentType.Mutation) return;
-    invariant(
-      typeof variableProp !== 'undefined',
-      `The operation '${operation.name}' wrapping '${wrapperName}' ` +
-        `is expecting a variable: '${variable.name.value}' but it was not found in the props ` +
-        `passed to '${graphQLDisplayName}'`,
-    );
-  }
-  return variables;
 }
