@@ -535,20 +535,18 @@ describe('[queries] errors', () => {
     const query: DocumentNode = gql`
       query somethingelse {
         allPeople(first: 1) {
-          perople {
+          people {
             name
           }
         }
       }
     `;
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const dataTwo = { allPeople: { people: [{ name: 'Princess Leia' }] } };
 
     type Data = typeof data;
     const link = mockSingleLink(
       { request: { query }, result: { data } },
       { request: { query }, error: new Error('This is an error!') },
-      { request: { query }, result: { data: dataTwo } },
     );
 
     const client = new ApolloClient({
