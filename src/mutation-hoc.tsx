@@ -57,7 +57,7 @@ export function mutation<
         }
 
         return (
-          <Mutation {...opts} displayName={graphQLDisplayName} mutation={document} ignoreResults>
+          <Mutation {...opts} mutation={document} ignoreResults>
             {(mutate, _result) => {
               const name = operationOptions.name || 'mutate';
               let childProps = { [name]: mutate };
