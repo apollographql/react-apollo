@@ -393,6 +393,7 @@ describe('SSR', () => {
       const apolloClient = new ApolloClient({
         link,
         cache: new Cache({ addTypename: false }),
+        ssrMode: true,
       });
 
       interface Props {}

@@ -19,8 +19,12 @@ export interface IDocumentDefinition {
   variables: VariableDefinitionNode[];
 }
 
+const cache = new Map();
+
 // the parser is mainly a safety check for the HOC
 export function parser(document: DocumentNode): IDocumentDefinition {
+  const cached = cache.get(document);
+  if (cached) return cached;
   // variables
   let variables, type, name;
 
@@ -90,5 +94,7 @@ export function parser(document: DocumentNode): IDocumentDefinition {
     name = 'data'; // fallback to using data if no name
   }
 
-  return { name, type, variables };
+  const payload = { name, type, variables };
+  cache.set(document, payload);
+  return payload;
 }

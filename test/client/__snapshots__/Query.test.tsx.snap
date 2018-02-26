@@ -7,27 +7,19 @@ Object {
       "people": Array [
         Object {
           "name": "Luke Skywalker",
-          Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
         },
       ],
-      Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
     },
-    Symbol(id): "ROOT_QUERY",
   },
-  "error": undefined,
-  "fetchMore": [Function],
   "loading": false,
   "networkStatus": 7,
-  "refetch": [Function],
-  "startPolling": [Function],
-  "stopPolling": [Function],
-  "updateQuery": [Function],
+  "variables": Object {},
 }
 `;
 
 exports[`Query component calls the children prop: result in render prop while loading 1`] = `
 Object {
-  "data": undefined,
+  "data": Object {},
   "error": undefined,
   "fetchMore": [Function],
   "loading": true,
@@ -35,6 +27,8 @@ Object {
   "refetch": [Function],
   "startPolling": [Function],
   "stopPolling": [Function],
+  "subscribeToMore": [Function],
   "updateQuery": [Function],
+  "variables": Object {},
 }
 `;

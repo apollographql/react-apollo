@@ -100,6 +100,96 @@ it('performs a mutation', done => {
   );
 });
 
+it('can bind only the mutation and not rerender by props', done => {
+  let count = 0;
+  const Component = () => (
+    <Mutation mutation={mutation} ignoreResults>
+      {(createTodo, result) => {
+        if (count === 0) {
+          expect(result).toBeUndefined();
+          setTimeout(() => {
+            createTodo().then(r => {
+              expect(r!.data).toEqual(data);
+              done();
+            });
+          });
+        } else if (count === 1) {
+          done.fail('rerender happened with ignoreResults turned on');
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('returns a resolved promise when calling the mutation function', done => {
+  let called = false;
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {createTodo => {
+        if (!called) {
+          setTimeout(() => {
+            createTodo().then(result => {
+              expect(result!.data).toEqual(data);
+              done();
+            });
+          });
+        }
+        called = true;
+
+        return null;
+      }}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('returns rejected promise when calling the mutation function', done => {
+  let called = false;
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {createTodo => {
+        if (!called) {
+          setTimeout(() => {
+            createTodo().catch(error => {
+              expect(error).toEqual(new Error('Network error: Error 1'));
+              done();
+            });
+          });
+        }
+
+        called = true;
+
+        return null;
+      }}
+    </Mutation>
+  );
+
+  const mocksWithErrors = [
+    {
+      request: { query: mutation },
+      error: new Error('Error 1'),
+    },
+  ];
+
+  mount(
+    <MockedProvider mocks={mocksWithErrors}>
+      <Component />
+    </MockedProvider>,
+  );
+});
 it('only shows result for the latest mutation that is in flight', done => {
   let count = 0;
 
@@ -259,9 +349,11 @@ it('renders an error state', done => {
     <Mutation mutation={mutation}>
       {(createTodo, result) => {
         if (count === 0) {
-          setTimeout(() => {
-            createTodo();
-          });
+          setTimeout(() =>
+            createTodo().catch(err => {
+              expect(err).toEqual(new Error('Network error: error occurred'));
+            }),
+          );
         } else if (count === 1 && result) {
           expect(result.loading).toBeTruthy();
         } else if (count === 2 && result) {
@@ -297,11 +389,9 @@ it('calls the onError prop if the mutation encounters an error', done => {
     };
 
     onError = (error: Error) => {
-      expect(error).toEqual(new Error('Network error: error occurred'));
+      expect(error.message).toMatch('Network error: error occurred');
       onRenderCalled = true;
-      this.setState({
-        mutationError: true,
-      });
+      this.setState({ mutationError: true });
     };
 
     render() {
@@ -312,9 +402,7 @@ it('calls the onError prop if the mutation encounters an error', done => {
           {(createTodo, result) => {
             if (!result) {
               expect(mutationError).toBe(false);
-              setTimeout(() => {
-                createTodo();
-              });
+              setTimeout(() => createTodo());
             }
             if (onRenderCalled) {
               expect(mutationError).toBe(true);

@@ -155,29 +155,34 @@ describe('[queries] reducer', () => {
         getThing {
           thing
         }
+        other
       }
     `;
-    const expectedData = { getThing: { thing: true } };
-    const link = mockSingleLink({
-      request: { query },
-      result: { data: expectedData },
-    });
+    const expectedData = { getThing: { thing: true }, other: false };
+    const expectedDataAfterRefetch = { getThing: { thing: true }, other: true };
+    const link = mockSingleLink(
+      {
+        request: { query },
+        result: { data: expectedData },
+      },
+      {
+        request: { query },
+        result: { data: expectedDataAfterRefetch },
+      },
+    );
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
-    interface Data {
-      getThing: { thing: boolean };
-    }
-
+    type Data = typeof expectedData;
     interface FinalProps {
       wrapper: { thingy: { thing: boolean } };
       refetch: () => any;
     }
 
     const withData = graphql<{}, Data, {}, FinalProps>(query, {
-      props: ({ data }, lastProps: FinalProps) => {
+      props: ({ data }, lastProps) => {
         const refetch = data!.refetch!;
         let wrapper = { thingy: data!.getThing! };
 

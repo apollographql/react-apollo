@@ -16,6 +16,7 @@ export interface MutationResult<TData = Record<string, any>> {
 }
 export interface MutationContext {
   client: ApolloClient<Object>;
+  operations: Map<string, { query: DocumentNode; variables: any }>;
 }
 
 export interface ExecutionResult<T = Record<string, any>> {
@@ -41,12 +42,13 @@ export declare type FetchResult<C = Record<string, any>, E = Record<string, any>
 export declare type MutationOptions<TData = any, TVariables = OperationVariables> = {
   variables?: TVariables;
   optimisticResponse?: Object;
-  refetchQueries?: string[] | PureQueryOptions[];
+  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
 };
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
+  ignoreResults?: boolean;
   optimisticResponse?: Object;
   variables?: TVariables;
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
@@ -76,6 +78,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 > {
   static contextTypes = {
     client: PropTypes.object.isRequired,
+    operations: PropTypes.object,
   };
 
   static propTypes = {
@@ -153,11 +156,28 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       })
       .catch(e => {
         this.onMutationError(e, mutationId);
+        if (!this.props.onError) throw e;
       });
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const { mutation, variables, optimisticResponse, refetchQueries, update } = this.props;
+    const { mutation, variables, optimisticResponse, update } = this.props;
+    let refetchQueries = options.refetchQueries || this.props.refetchQueries;
+    // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
+    // support refectching of named queries which just pulls the latest
+    // variables to match. This forces us to either a) keep all queries around
+    // to be able to iterate over and refetch, or b) [new in 2.1] keep a map of
+    // operations on the client where operation name => { query, variables }
+    //
+    // Going forward, we should only allow using the full operation + variables to
+    // refetch.
+    if (refetchQueries && refetchQueries.length && Array.isArray(refetchQueries)) {
+      refetchQueries = (refetchQueries as any).map((x: string | PureQueryOptions) => {
+        if (typeof x === 'string' && this.context.operations) return this.context.operations.get(x);
+        return x;
+      });
+      delete options.refetchQueries;
+    }
 
     return this.client.mutate({
       mutation,
@@ -170,7 +190,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onStartMutation = () => {
-    if (!this.state.loading) {
+    if (!this.state.loading && !this.props.ignoreResults) {
       this.setState({
         loading: true,
         error: undefined,
@@ -181,26 +201,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onCompletedMutation = (response: ExecutionResult<TData>, mutationId: number) => {
-    const { onCompleted } = this.props;
+    const { onCompleted, ignoreResults } = this.props;
 
     const data = response.data as TData;
 
-    const callOncomplete = () => {
-      if (onCompleted) {
-        onCompleted(data);
-      }
-    };
+    const callOncomplete = () => (onCompleted ? onCompleted(data) : null);
 
-    if (this.isMostRecentMutation(mutationId)) {
-      this.setState(
-        {
-          loading: false,
-          data,
-        },
-        () => {
-          callOncomplete();
-        },
-      );
+    if (this.isMostRecentMutation(mutationId) && !ignoreResults) {
+      this.setState({ loading: false, data }, callOncomplete);
     } else {
       callOncomplete();
     }
@@ -209,24 +217,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   private onMutationError = (error: ApolloError, mutationId: number) => {
     const { onError } = this.props;
 
-    let apolloError = error as ApolloError;
-
-    const callOnError = () => {
-      if (onError) {
-        onError(apolloError);
-      }
-    };
+    const callOnError = () => (onError ? onError(error) : null);
 
     if (this.isMostRecentMutation(mutationId)) {
-      this.setState(
-        {
-          loading: false,
-          error: apolloError,
-        },
-        () => {
-          callOnError();
-        },
-      );
+      this.setState({ loading: false, error }, callOnError);
     } else {
       callOnError();
     }

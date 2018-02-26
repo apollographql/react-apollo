@@ -5,7 +5,14 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql, ChildProps, Query, QueryResult } from '../../../../src';
+import {
+  ApolloProvider,
+  graphql,
+  ChildProps,
+  Query,
+  QueryResult,
+  DataValue,
+} from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
@@ -199,14 +206,17 @@ describe('[queries] errors', () => {
               // tslint:disable-line
               iteration += 1;
               if (iteration === 1) {
+                // initial loading state is done, we have data
                 expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
                 props.setVar(2);
               } else if (iteration === 2) {
+                // variables have changed, wee are loading again but also have data
                 expect(props.data!.loading).toBeTruthy();
               } else if (iteration === 3) {
+                // the second request had an error!
                 expect(props.data!.error).toBeTruthy();
                 expect(props.data!.error!.networkError).toBeTruthy();
-                // We need to set a timeout to ensure the unhandled rejection is swept up
+                // // We need to set a timeout to ensure the unhandled rejection is swept up
                 setTimeout(() => {
                   expect(unhandled.length).toEqual(0);
                   done();
@@ -521,6 +531,111 @@ describe('[queries] errors', () => {
     renderer.create(
       <ApolloProvider client={client}>
         <Container />
+      </ApolloProvider>,
+    );
+  });
+  it('does not throw/console.err an error after a component that received a network error is unmounted', done => {
+    const query: DocumentNode = gql`
+      query somethingelse {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+    type Data = typeof data;
+    const link = mockSingleLink(
+      { request: { query }, result: { data } },
+      { request: { query }, error: new Error('This is an error!') },
+    );
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+    let count = 0;
+    const noop = () => null;
+
+    interface ContainerOwnProps {
+      hideContainer: Function;
+    }
+
+    interface QueryChildProps {
+      data: DataValue<Data>;
+      hideContainer: Function;
+    }
+
+    const Container = graphql<ContainerOwnProps, Data, {}, QueryChildProps>(query, {
+      options: { notifyOnNetworkStatusChange: true },
+      props: something => {
+        return {
+          data: something.data!,
+          hideContainer: something!.ownProps.hideContainer,
+        };
+      },
+    })(
+      class extends React.Component<ChildProps<QueryChildProps, Data>> {
+        componentWillReceiveProps(props: ChildProps<QueryChildProps, Data>) {
+          try {
+            switch (count++) {
+              case 0:
+                props.data!
+                  .refetch()
+                  .then(() => {
+                    done.fail('Expected error value on first refetch.');
+                  })
+                  .catch(noop);
+                break;
+              case 2:
+                expect(props.data!.loading).toBeFalsy();
+                expect(props.data!.error).toBeTruthy();
+                const origError = console.error;
+                const errorMock = jest.fn();
+                console.error = errorMock;
+                props.hideContainer();
+                setTimeout(() => {
+                  expect(errorMock.mock.calls.length).toEqual(0);
+                  console.error = origError;
+                  done();
+                }, 100);
+                break;
+              default:
+                if (count < 2) {
+                  throw new Error('Unexpected fall through');
+                }
+            }
+          } catch (err) {
+            done.fail(err);
+          }
+        }
+        render() {
+          return null;
+        }
+      },
+    );
+
+    class Switcher extends React.Component<any, any> {
+      constructor(props: any) {
+        super(props);
+        this.state = {
+          showContainer: true,
+        };
+      }
+      render() {
+        const { state: { showContainer } } = this;
+        if (showContainer) {
+          return <Container hideContainer={() => this.setState({ showContainer: false })} />;
+        }
+        return null;
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Switcher />
       </ApolloProvider>,
     );
   });

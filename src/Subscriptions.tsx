@@ -19,6 +19,7 @@ export interface SubscriptionResult<TData = any> {
 export interface SubscriptionProps<TData = any, TVariables = OperationVariables> {
   query: DocumentNode;
   variables?: TVariables;
+  shouldResubscribe?: boolean;
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
 
@@ -73,15 +74,21 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
       return;
     }
-
+    const shouldNotResubscribe = this.props.shouldResubscribe === false;
     if (this.client !== nextContext.client) {
       this.client = nextContext.client;
     }
 
-    this.endSubscription();
+    if (!shouldNotResubscribe) {
+      this.endSubscription();
+      delete this.queryObservable;
+      this.initialize(nextProps);
+      this.startSubscription();
+      this.setState(this.getInitialState());
+      return;
+    }
     this.initialize(nextProps);
     this.startSubscription();
-    this.setState(this.getInitialState());
   }
 
   componentWillUnmount() {
@@ -89,16 +96,14 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   }
 
   render() {
-    const { loading, error, data } = this.state;
-    const result = {
-      loading,
-      error,
-      data,
-    };
+    const result = Object.assign({}, this.state, {
+      variables: this.props.variables,
+    });
     return this.props.children(result);
   }
 
   private initialize = (props: SubscriptionProps<TData, TVariables>) => {
+    if (this.queryObservable) return;
     this.queryObservable = this.client.subscribe({
       query: props.query,
       variables: props.variables,
@@ -106,19 +111,18 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   };
 
   private startSubscription = () => {
+    if (this.querySubscription) return;
     this.querySubscription = this.queryObservable.subscribe({
       next: this.updateCurrentData,
       error: this.updateError,
     });
   };
 
-  private getInitialState = () => {
-    return {
-      loading: true,
-      error: undefined,
-      data: undefined,
-    };
-  };
+  private getInitialState = () => ({
+    loading: true,
+    error: undefined,
+    data: undefined,
+  });
 
   private updateCurrentData = (result: SubscriptionResult<TData>) => {
     this.setState({
@@ -138,6 +142,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   private endSubscription = () => {
     if (this.querySubscription) {
       this.querySubscription.unsubscribe();
+      delete this.querySubscription;
     }
   };
 }
