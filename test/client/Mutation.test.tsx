@@ -100,6 +100,35 @@ it('performs a mutation', done => {
   );
 });
 
+it('can bind only the mutation and not rerender by props', done => {
+  let count = 0;
+  const Component = () => (
+    <Mutation mutation={mutation} ignoreResults>
+      {(createTodo, result) => {
+        if (count === 0) {
+          expect(result).toBeUndefined();
+          setTimeout(() => {
+            createTodo().then(result => {
+              expect(result.data).toEqual(data);
+              done();
+            });
+          });
+        } else if (count === 1) {
+          done.fail('rerender happened with ignoreResults turned on');
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('only shows result for the latest mutation that is in flight', done => {
   let count = 0;
 

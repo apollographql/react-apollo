@@ -23,7 +23,7 @@ export function query<
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
 ) {
-  // this is memozied so if coming from `graphql` there is nearly no extra cost
+  // this is memoized so if coming from `graphql` there is nearly no extra cost
   const operation = parser(document);
   // extract options
   const {
@@ -70,41 +70,8 @@ export function query<
             warnUnhandledError
           >
             {({ client: _, data, ...r }) => {
-              if (r.error) {
-                const error = r.error;
-
-                // Define the error property on the data object. If the user does
-                // not get the error object from `data` within 10 milliseconds
-                // then we will log the error to the console.
-                //
-                // 10 milliseconds is an arbitrary number picked to work around any
-                // potential asynchrony in React rendering. It is not super important
-                // that the error be logged ASAP, but 10 ms is enough to make it
-                // _feel_ like it was logged ASAP while still tolerating asynchrony.
-                let logErrorTimeoutId = setTimeout(() => {
-                  if (error) {
-                    let errorMessage: string | ApolloError = error;
-                    if (error.stack) {
-                      errorMessage = error.stack.includes(error.message)
-                        ? error.stack
-                        : `${error.message}\n${error.stack}`;
-                    }
-
-                    console.error(
-                      `Unhandled (in react-apollo:${graphQLDisplayName})`,
-                      errorMessage,
-                    );
-                  }
-                }, 10);
-                Object.defineProperty(r, 'error', {
-                  configurable: true,
-                  enumerable: true,
-                  get: () => {
-                    clearTimeout(logErrorTimeoutId);
-                    return error;
-                  },
-                });
-              }
+              // XXX remove in 3.0
+              logUnhandledError(r, graphQLDisplayName);
               if (operationOptions.withRef) {
                 this.withRef = true;
                 props = Object.assign({}, props, {
@@ -139,3 +106,39 @@ export function query<
     return hoistNonReactStatics(GraphQL, WrappedComponent, {});
   };
 }
+
+// XXX lets remove this in 3.0 now that React has proper error boundaries
+const logUnhandledError = (r: any, graphQLDisplayName: string) => {
+  if (r.error) {
+    const error = r.error;
+
+    // Define the error property on the data object. If the user does
+    // not get the error object from `data` within 10 milliseconds
+    // then we will log the error to the console.
+    //
+    // 10 milliseconds is an arbitrary number picked to work around any
+    // potential asynchrony in React rendering. It is not super important
+    // that the error be logged ASAP, but 10 ms is enough to make it
+    // _feel_ like it was logged ASAP while still tolerating asynchrony.
+    let logErrorTimeoutId = setTimeout(() => {
+      if (error) {
+        let errorMessage: string | ApolloError = error;
+        if (error.stack) {
+          errorMessage = error.stack.includes(error.message)
+            ? error.stack
+            : `${error.message}\n${error.stack}`;
+        }
+
+        console.error(`Unhandled (in react-apollo:${graphQLDisplayName})`, errorMessage);
+      }
+    }, 10);
+    Object.defineProperty(r, 'error', {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        clearTimeout(logErrorTimeoutId);
+        return error;
+      },
+    });
+  }
+};

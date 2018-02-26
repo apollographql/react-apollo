@@ -22,7 +22,7 @@ export function subscribe<
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
 ) {
-  // this is memozied so if coming from `graphql` there is nearly no extra cost
+  // this is memoized so if coming from `graphql` there is nearly no extra cost
   const operation = parser(document);
   // extract options
   const {

@@ -67,7 +67,7 @@ describe('Query component', () => {
             const { client: clientResult, ...rest } = result;
 
             if (result.loading) {
-              expect(stripSymbols(rest)).toMatchSnapshot('result in render prop while loading');
+              expect(rest).toMatchSnapshot('result in render prop while loading');
               expect(clientResult).toBe(client);
             } else {
               expect(stripSymbols(rest)).toMatchSnapshot('result in render prop');

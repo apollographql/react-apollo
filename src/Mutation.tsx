@@ -58,7 +58,6 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
     result?: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
-  displayName?: string;
   onError?: (error: ApolloError) => void;
 }
 
@@ -163,6 +162,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   private mutate = (options: MutationOptions<TVariables>) => {
     const { mutation, variables, optimisticResponse, update } = this.props;
     let refetchQueries = options.refetchQueries || this.props.refetchQueries;
+    // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
+    // support refectching of named queries which just pulls the latest
+    // variables to match. This forces us to either a) keep all queries around
+    // to be able to iterate over and refetch, or b) [new in 2.1] keep a map of
+    // operations on the client where operation name => { query, variables }
+    //
+    // Going forward, we should only allow using the full operation + variables to
+    // refetch.
     if (refetchQueries && refetchQueries.length && Array.isArray(refetchQueries)) {
       refetchQueries = (refetchQueries as any).map((x: string | PureQueryOptions) => {
         if (typeof x === 'string' && this.context.operations) return this.context.operations.get(x);

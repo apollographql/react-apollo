@@ -20,8 +20,15 @@ Object {
 exports[`Query component calls the children prop: result in render prop while loading 1`] = `
 Object {
   "data": Object {},
+  "error": undefined,
+  "fetchMore": [Function],
   "loading": true,
   "networkStatus": 1,
+  "refetch": [Function],
+  "startPolling": [Function],
+  "stopPolling": [Function],
+  "subscribeToMore": [Function],
+  "updateQuery": [Function],
   "variables": Object {},
 }
 `;
