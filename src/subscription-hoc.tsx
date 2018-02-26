@@ -63,7 +63,7 @@ export function subscribe<
         const shouldSkip = mapPropsToSkip(props);
         const opts = shouldSkip ? Object.create(null) : mapPropsToOptions(props);
 
-        if (!shouldSkip && !Boolean(opts.variables || !operation.variables.length)) {
+        if (!shouldSkip && !opts.variables && operation.variables.length > 0) {
           opts.variables = calculateVariablesFromProps(
             operation,
             props,
