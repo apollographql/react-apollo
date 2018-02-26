@@ -108,8 +108,8 @@ it('can bind only the mutation and not rerender by props', done => {
         if (count === 0) {
           expect(result).toBeUndefined();
           setTimeout(() => {
-            createTodo().then(result => {
-              expect(result!.data).toEqual(data);
+            createTodo().then(r => {
+              expect(r!.data).toEqual(data);
               done();
             });
           });
@@ -128,6 +128,7 @@ it('can bind only the mutation and not rerender by props', done => {
     </MockedProvider>,
   );
 });
+
 it('returns a resolved promise when calling the mutation function', done => {
   let called = false;
   const Component = () => (
@@ -348,7 +349,11 @@ it('renders an error state', done => {
     <Mutation mutation={mutation}>
       {(createTodo, result) => {
         if (count === 0) {
-          setTimeout(() => createTodo().catch(() => {}));
+          setTimeout(() =>
+            createTodo().catch(err => {
+              expect(err).toEqual(new Error('Network error: error occurred'));
+            }),
+          );
         } else if (count === 1 && result) {
           expect(result.loading).toBeTruthy();
         } else if (count === 2 && result) {
