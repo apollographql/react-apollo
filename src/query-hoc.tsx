@@ -58,6 +58,7 @@ export function query<
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
+  logUnhandled: boolean = false,
 ) {
   // this is memoized so if coming from `graphql` there is nearly no extra cost
   const operation = parser(document);
@@ -107,7 +108,7 @@ export function query<
           >
             {({ client: _, data, ...r }) => {
               // XXX remove in 3.0
-              logUnhandledError(r, graphQLDisplayName);
+              if (logUnhandled) logUnhandledError(r, graphQLDisplayName);
               if (operationOptions.withRef) {
                 this.withRef = true;
                 props = Object.assign({}, props, {

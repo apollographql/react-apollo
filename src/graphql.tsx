@@ -27,6 +27,9 @@ export function graphql<
     //   throw new Error('fragments cannont currently be used on their own');
     case DocumentType.Query:
     default:
-      return query(document, operationOptions);
+      // the last argument being true is to keep full backwards compat of an old action for console
+      // logging errors when they were unhandled. Usage of `query` or `<Query />`
+      // shouldn't have this easily turned on
+      return query(document, operationOptions, true);
   }
 }
