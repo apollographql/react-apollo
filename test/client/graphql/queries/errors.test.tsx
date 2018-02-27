@@ -639,6 +639,88 @@ describe('[queries] errors', () => {
       </ApolloProvider>,
     );
   });
+  it('correctly sets loading state on remount after a network error', done => {
+    const query: DocumentNode = gql`
+      query somethingelse {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const dataTwo = { allPeople: { people: [{ name: 'Princess Leia' }] } };
+
+    type Data = typeof data;
+    const link = mockSingleLink(
+      { request: { query }, error: new Error('This is an error!') },
+      { request: { query }, result: { data: dataTwo } },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    let count = 0;
+    const noop = () => null;
+    type ContainerOwnProps = { toggle: () => void };
+    const Container = graphql<ContainerOwnProps, Data>(query, {
+      options: { notifyOnNetworkStatusChange: true },
+    })(
+      class extends React.Component<ChildProps<ContainerOwnProps, Data>> {
+        componentWillReceiveProps(props: ChildProps<ContainerOwnProps, Data>) {
+          // first payload with error has arrived from server
+          switch (count++) {
+            case 0:
+              expect(props.data!.error!.networkError!.message).toMatch(/This is an error/);
+              // unmount this component
+              this.props.toggle();
+              setTimeout(() => {
+                // remount after 50 ms
+                this.props.toggle();
+              }, 50);
+              break;
+            case 1:
+              // data has arrived
+              expect(props.data!.loading).toBe(false);
+              done();
+              break;
+            default:
+              throw new Error('Too many renders.');
+          }
+        }
+
+        componentWillUnmount() {
+          // unmount after first error
+          expect(count).toBe(1);
+        }
+
+        render() {
+          return null;
+        }
+      },
+    );
+
+    type Toggle = () => void;
+    type OwnProps = { children: (toggle: Toggle) => any };
+    class Manager extends React.Component<OwnProps, { show: boolean }> {
+      constructor(props: any) {
+        super(props);
+        this.state = { show: true };
+      }
+      render() {
+        if (!this.state.show) return null;
+        return this.props.children(() => this.setState(({ show }) => ({ show: !show })));
+      }
+    }
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Manager>{(toggle: Toggle) => <Container toggle={toggle} />}</Manager>
+      </ApolloProvider>,
+    );
+  });
   describe('errorPolicy', () => {
     it('passes any GraphQL errors in props along with data', done => {
       const query: DocumentNode = gql`
