@@ -664,11 +664,12 @@ describe('[queries] errors', () => {
 
     let count = 0;
     const noop = () => null;
-    const Container = graphql<{}, Data>(query, {
+    type ContainerOwnProps = { toggle: () => void };
+    const Container = graphql<ContainerOwnProps, Data>(query, {
       options: { notifyOnNetworkStatusChange: true },
     })(
-      class extends React.Component<ChildProps<{}, Data>> {
-        componentWillReceiveProps(props: ChildProps<{}, Data>) {
+      class extends React.Component<ChildProps<ContainerOwnProps, Data>> {
+        componentWillReceiveProps(props: ChildProps<ContainerOwnProps, Data>) {
           // first payload with error has arrived from server
           switch (count++) {
             case 0:
@@ -701,8 +702,10 @@ describe('[queries] errors', () => {
       },
     );
 
-    class Manager extends React.Component<any> {
-      constructor(props) {
+    type Toggle = () => void;
+    type OwnProps = { children: (toggle: Toggle) => any };
+    class Manager extends React.Component<OwnProps, { show: boolean }> {
+      constructor(props: any) {
         super(props);
         this.state = { show: true };
       }
@@ -714,7 +717,7 @@ describe('[queries] errors', () => {
 
     renderer.create(
       <ApolloProvider client={client}>
-        <Manager>{toggle => <Container toggle={toggle} />}</Manager>
+        <Manager>{(toggle: Toggle) => <Container toggle={toggle} />}</Manager>
       </ApolloProvider>,
     );
   });
