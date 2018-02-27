@@ -241,7 +241,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private extractOptsFromProps(props: QueryProps<TData, TVariables>) {
-    console;
     const {
       variables,
       pollInterval,
