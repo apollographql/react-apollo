@@ -12,6 +12,7 @@ import {
   Query,
   QueryResult,
   DataValue,
+  query as queryHoc,
 } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
@@ -376,6 +377,78 @@ describe('[queries] errors', () => {
           expect(errorMock.mock.calls[0][0]).toEqual(
             'Unhandled (in react-apollo:Apollo(UnhandledErrorComponent))',
           );
+          resolve();
+        } catch (error) {
+          reject(error);
+        } finally {
+          console.error = origError;
+        }
+      }, 250);
+    }));
+  it('will not log a warning when there is an error that is not caught in the render method when using query', () =>
+    new Promise((resolve, reject) => {
+      const query: DocumentNode = gql`
+        query people {
+          allPeople(first: 1) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      interface Data {
+        allPeople: {
+          people: { name: string }[];
+        };
+      }
+
+      const link = mockSingleLink({
+        request: { query },
+        error: new Error('oops'),
+      });
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      const origError = console.error;
+      const errorMock = jest.fn();
+      console.error = errorMock;
+
+      let renderCount = 0;
+      @queryHoc<{}, Data>(query)
+      class UnhandledErrorComponent extends React.Component<ChildProps<{}, Data>> {
+        render(): React.ReactNode {
+          try {
+            switch (renderCount++) {
+              case 0:
+                expect(this.props.data!.loading).toEqual(true);
+                break;
+              case 1:
+                // Noop. Don’t handle the error so a warning will be logged to the console.
+                break;
+              default:
+                throw new Error('Too many renders.');
+            }
+          } catch (error) {
+            console.error = origError;
+            reject(error);
+          }
+          return null;
+        }
+      }
+
+      renderer.create(
+        <ApolloProvider client={client}>
+          <UnhandledErrorComponent />
+        </ApolloProvider>,
+      );
+
+      setTimeout(() => {
+        try {
+          expect(renderCount).toBe(2);
+          expect(errorMock.mock.calls.length).toBe(0);
           resolve();
         } catch (error) {
           reject(error);
