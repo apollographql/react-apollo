@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "apollo-client-preset": "^1.0.5",
-    "graphql": "^0.12.0",
+    "graphql": "^0.13.0",
     "graphql-tag": "^2.6.0",
     "react": "^16.2.0",
     "react-apollo": "file:../..",
