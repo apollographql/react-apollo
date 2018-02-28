@@ -2,8 +2,7 @@
 
 ### vNext
 
-### 2.1.0-beta.4
-
+* Fix default values being set as falsy in options merging
 * Remove console.error call for unhandled errors for query-hoc (but keep in place for graphql hoc for backwards compat)
 
 ### 2.1.0-beta.3
