@@ -553,6 +553,31 @@ describe('Query component', () => {
       );
     });
 
+    it('default fetch-policy', done => {
+      const Component = () => (
+        <Query query={allPeopleQuery}>
+          {result => {
+            catchAsyncError(done, () => {
+              expect(result.loading).toBeFalsy();
+              expect(result.networkStatus).toBe(NetworkStatus.ready);
+              done();
+            });
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider
+          defaultOptions={{ watchQuery: { fetchPolicy: 'cache-only' } }}
+          mocks={allPeopleMocks}
+          removeTypename
+        >
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
     it('notifyOnNetworkStatusChange', done => {
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
       const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };

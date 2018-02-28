@@ -52,6 +52,19 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
   ) => void;
 };
 
+function compact(obj: any) {
+  return Object.keys(obj).reduce(
+    (acc, key) => {
+      if (obj[key] !== undefined) {
+        acc[key] = obj[key];
+      }
+
+      return acc;
+    },
+    {} as any,
+  );
+}
+
 function observableQueryFields<TData, TVariables>(
   observable: ObservableQuery<TData>,
 ): ObservableQueryFields<TData, TVariables> {
@@ -247,7 +260,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       }.`,
     );
 
-    return {
+    return compact({
       variables,
       pollInterval,
       query,
@@ -255,7 +268,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       errorPolicy,
       notifyOnNetworkStatusChange,
       metadata: { reactComponent: { displayName } },
-    };
+    });
   }
 
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {
