@@ -111,7 +111,12 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   context?: Record<string, any>;
 }
 
-const extractOptsFromProps = (props: QueryProps<TData, TVariables>) => {
+export interface InnerQueryProps<TData = any, TVariables = OperationVariables>
+  extends QueryProps<TData, TVariables> {
+  client: ApolloClient<any>;
+}
+
+const extractOptsFromProps = (props: QueryProps<any, any>) => {
   const {
     variables,
     pollInterval,
@@ -144,10 +149,13 @@ const extractOptsFromProps = (props: QueryProps<TData, TVariables>) => {
   });
 };
 
-const initializeQueryObservable = (props: QueryProps<TData, TVariables>) =>
+const initializeQueryObservable = (props: InnerQueryProps<any, any>) =>
   props.client.watchQuery(extractOptsFromProps(props));
 
-const updateQuery = (props: QueryProps<TData, TVariables>, state) => {
+const updateQuery = (
+  props: InnerQueryProps<any, any>,
+  state: QueryState<any>
+) => {
   // if we skipped initially, we may not have yet created the observable
   let queryObservable = state.queryObservable;
   if (!queryObservable) queryObservable = initializeQueryObservable(props);
@@ -163,16 +171,24 @@ const updateQuery = (props: QueryProps<TData, TVariables>, state) => {
   return queryObservable;
 };
 
+export interface QueryState<TData> {
+  queryObservable: ObservableQuery<TData> | null;
+  evictData?: boolean;
+  // XXX pass through typings here
+  props?: any;
+}
 class Query<
   TData = any,
   TVariables = OperationVariables
-> extends React.Component<QueryProps<TData, TVariables>> {
+> extends React.Component<
+  InnerQueryProps<TData, TVariables>,
+  QueryState<TData>
+> {
   private client: ApolloClient<Object>;
 
   // request / action storage. Note that we delete querySubscription if we
   // unsubscribe but never delete queryObservable once it is created. We
   // only delete queryObservable when we unmount the component.
-  private queryObservable: ObservableQuery<TData> | null;
   private querySubscription: ZenObservable.Subscription;
   private previousData: any = {};
   private refetcherQueue: {
@@ -183,10 +199,40 @@ class Query<
 
   private hasMounted: boolean;
   private operation: IDocumentDefinition;
+  static getDerivedStateFromProps(
+    nextProps: InnerQueryProps<any, any>,
+    prevState: QueryState<any>
+  ) {
+    // if we aren't working from a live query, we can just ignore props changes
+    if (!prevState.queryObservable) return null;
 
-  constructor(props: QueryProps<TData, TVariables>) {
+    // if there are no changes to the props, don't do anything state wise
+    if (shallowEqual(nextProps, prevState.props)) return null;
+
+    if (nextProps.skip) return null;
+
+    prevState.evictData = false;
+
+    // remove the queryObservable so cDU will have to create a new one
+    if (
+      nextProps.client !== prevState.props.client ||
+      nextProps.query !== prevState.props.query
+    ) {
+      prevState.evictData = true;
+      prevState.queryObservable = null;
+    }
+
+    // update the ObservableQuery
+    prevState.queryObservable = updateQuery(nextProps, prevState);
+
+    return prevState;
+  }
+  constructor(props: InnerQueryProps<TData, TVariables>) {
     super(props);
-    this.state = { queryObservable: initializeQueryObservable(props), props };
+    this.state = {
+      queryObservable: initializeQueryObservable(props),
+      props,
+    } as any;
   }
 
   // For server-side rendering (see getDataFromTree.ts)
@@ -241,14 +287,6 @@ class Query<
       prevState.queryObservable = null;
     }
 
-    // update the ObservableQuery
-    prevState.queryObservable = updateQuery(nextProps, prevState);
-
-    if (nextProps.skip) return null;
-    return prevState;
-  }
-
-  componentDidUpdate(prevProps, prevState) {
     // if there are no changes to the props, don't do anything state wise
     if (shallowEqual(this.props, prevProps)) return null;
 
@@ -261,6 +299,7 @@ class Query<
       this.removeQuerySubscription();
     }
 
+    if (this.props.skip) return;
     // start a new subscription if we don't have one already
     this.startQuerySubscription(this.state.queryObservable);
   }
@@ -274,8 +313,10 @@ class Query<
     return this.props.children(this.getQueryResult(this.state));
   }
 
-  private startQuerySubscription = queryObservable => {
-    if (this.querySubscription) return;
+  private startQuerySubscription = (
+    queryObservable: ObservableQuery<TData> | null
+  ) => {
+    if (this.querySubscription || !queryObservable) return;
     this.querySubscription = queryObservable.subscribe({
       next: this.updateCurrentData,
       error: error => {
@@ -311,13 +352,14 @@ class Query<
     Object.assign(queryObservable!, { lastError, lastResult });
   }
 
-  private updateCurrentData = result => {
+  private updateCurrentData = () => {
     if (this.hasMounted) this.forceUpdate();
   };
 
   private getQueryResult = ({
     queryObservable,
-  }): QueryResult<TData, TVariables> => {
+    evictData,
+  }: QueryState<TData>): QueryResult<TData, TVariables> => {
     let data = { data: Object.create(null) as TData } as any;
     // attach bound methods
     Object.assign(data, observableQueryFields(queryObservable!));
@@ -332,6 +374,7 @@ class Query<
 
     Object.assign(data, { loading, networkStatus, error });
 
+    if (evictData) this.previousData = {};
     if (loading) {
       Object.assign(data.data, this.previousData, currentResult.data);
     } else if (error) {
@@ -357,7 +400,10 @@ class Query<
   };
 }
 
-export default class ApolloQuery extends React.Component {
+export default class ApolloQuery<
+  TData = any,
+  TVariables = any
+> extends React.Component<QueryProps<TData, any>> {
   render() {
     return (
       <Consumer>{client => <Query client={client} {...this.props} />}</Consumer>

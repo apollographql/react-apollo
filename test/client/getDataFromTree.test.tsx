@@ -880,7 +880,6 @@ describe('SSR', () => {
       interface State {
         thing: number;
         userId: null | number;
-        client: null | ApolloClient<any>;
       }
 
       class Element extends React.Component<ChildProps<Props, Data, Variables>, State> {
