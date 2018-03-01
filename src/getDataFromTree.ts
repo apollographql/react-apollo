@@ -145,7 +145,7 @@ function hasFetchDataFunction(instance: React.Component<any>): instance is Fetch
 }
                
 function isPromise<T>(promise: Object): promise is Promise<T> {
-  return typeof (query as any).then === 'function';
+  return typeof (promise as any).then === 'function';
 }
                          
 function getPromisesFromTree({rootElement, rootContext = {}}: PromiseTreeArgument): PromiseTreeResult[] {
