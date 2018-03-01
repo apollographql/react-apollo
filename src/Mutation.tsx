@@ -94,7 +94,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     this.verifyDocumentIsMutation(props.mutation);
 
     this.mostRecentMutationId = 0;
-    this.state = { notCalled: true, client: props.client };
+    this.state = { called: false, client: props.client };
   }
 
   componentDidMount() {
@@ -108,14 +108,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   static getDerivedStateFromProps = (nextProps, prevState) => {
     if (nextProps.client !== prevState.client) {
       return {
-        notCalled: true,
+        called: false,
         client: nextProps.client,
       };
     }
     return null;
   };
 
-  componentDidUpdate(prevProps: MutationProps<TData, TVariables>) {
+  componentDidUpdate(prevProps: InnerMutationProps<TData, TVariables>) {
     if (shallowEqual(this.props, prevProps)) return;
 
     if (this.props.mutation !== prevProps.mutation) {
@@ -229,7 +229,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 }
 
-export default class ApolloMutation extends React.Component {
+export default class ApolloMutation<
+  TData = any,
+  TVariables = OperationVariables
+> extends React.Component<MutationProps<TData, TVariables>> {
   render() {
     return <Consumer>{client => <Mutation client={client} {...this.props} />}</Consumer>;
   }
