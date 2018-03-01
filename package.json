@@ -33,8 +33,11 @@
     "prefilesize": "npm run compile",
     "prettier": "prettier --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
     "test": "npm run lint && npm run type-check && npm run jest",
+<<<<<<< HEAD
     "test-examples": ". ./test-examples.sh",
     "test-preact": "jest --config ./jest.preact.config.json --runInBand",
+=======
+>>>>>>> make some breaking changes
     "test-watch": "jest --watch",
     "test:compiled": "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
     "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js --runInBand",
@@ -118,12 +121,19 @@
     "graphql": "0.13.2",
     "graphql-tag": "2.8.0",
     "husky": "0.14.3",
+<<<<<<< HEAD
     "jest": "22.4.3",
     "jest-junit": "3.6.0",
     "jsdom": "11.7.0",
     "preact": "8.2.7",
     "preact-compat": "3.18.0",
     "prettier": "1.11.1",
+=======
+    "jest": "22.4.2",
+    "jest-junit": "^3.6.0",
+    "jsdom": "11.6.2",
+   "prettier": "1.11.1",
+>>>>>>> make some breaking changes
     "pretty-quick": "1.4.1",
     "react": "^16.4.0-alpha.0911da3",
     "react-dom": "^16.4.0-alpha.0911da3",
@@ -145,9 +155,14 @@
   },
   "dependencies": {
     "fbjs": "^0.8.16",
+<<<<<<< HEAD
     "hoist-non-react-statics": "^2.5.0",
     "invariant": "^2.2.2",
     "lodash": "4.17.5",
     "prop-types": "^15.6.0"
+=======
+    "hoist-non-react-statics": "^2.3.1",
+    "invariant": "^2.2.2"
+>>>>>>> make some breaking changes
   }
 }

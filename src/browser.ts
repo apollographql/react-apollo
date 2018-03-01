@@ -18,7 +18,3 @@ export { default as withApollo } from './withApollo';
 export * from './withApollo'
 
 export * from './types';
-
-// XXX remove in the next breaking semver change (3.0)
-const compose = require('lodash/flowRight');
-export { compose };
