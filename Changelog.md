@@ -1,6 +1,6 @@
 # Change log
 
-### vNext
+### vNext (@latest)
 
 * Fix regression on refetchQueries [#1794](https://github.com/apollographql/react-apollo/pull/1794)
 * Added a new `called` prop for mutations [#1775](https://github.com/apollographql/react-apollo/pull/1775)
@@ -23,6 +23,16 @@
 ### 2.1.0-rc.0
 
 * bad build
+
+### vNext (@canary)
+
+* Remove compose and proptypes
+* Drop support for Preact
+
+### 3.0.0-alpha.0
+
+* Refactor to use react 16.3 methods for strict mode compat
+* Add initial support for async on <Query /> via asyncMode prop
 
 ### 2.1.0-beta.3
 
