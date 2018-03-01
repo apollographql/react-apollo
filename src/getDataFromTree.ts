@@ -14,7 +14,6 @@ interface FetchComponent extends React.Component<any> {
 
 interface PromiseTreeResult {
     promise: Promise<any>;
-    element: React.ReactNode;
     context: Context;
     instance: FetchComponent;
 }
@@ -153,7 +152,7 @@ function getPromisesFromTree({rootElement, rootContext = {}}: PromiseTreeArgumen
         if (instance && hasFetchDataFunction(instance)) {
             const promise = instance.fetchData();
 
-            promises.push({promise, element, context: childContext || context, instance});
+            promises.push({promise, context: childContext || context, instance});
             return false;
         }
     });
@@ -170,7 +169,7 @@ export default function getDataFromTree(rootElement: React.ReactNode, rootContex
 
     const errors: any[] = [];
 
-    const mappedPromises = promises.map(({promise, element, context, instance}) => {
+    const mappedPromises = promises.map(({promise, context, instance}) => {
         return promise
             .then(_ => getDataFromTree(instance.render(), context))
             .catch(e => errors.push(e));
