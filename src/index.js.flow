@@ -12,71 +12,73 @@ import type {
   PureQueryOptions,
   MutationUpdaterFn,
 } from 'apollo-client';
-import type { Store } from 'redux';
 import type { DocumentNode, VariableDefinitionNode } from 'graphql';
 
-import type { Component } from 'react';
-
-import { compose } from 'redux';
-import gql from 'graphql-tag';
-
-// export everything from apollo-client
-export * from 'apollo-client';
-export { gql, compose };
-
-declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
+export type NetworkStatus = 1 | 2 | 3 | 4 | 6 | 7 | 8;
 
 export interface ProviderProps {
-  store?: Store<*, *>;
   client: ApolloClient;
 }
 
 declare export class ApolloProvider extends React$Component<ProviderProps> {
   childContextTypes: {
-    store: Store<*, *>,
     client: ApolloClient,
   };
   contextTypes: {
-    store: Store<*, *>,
+    client: ApolloClient,
   };
   getChildContext(): {
-    store: Store<*, *>,
     client: ApolloClient,
   };
   render(): React$Element<*>;
 }
 
-export type MutationFunc<TResult> = (
-  opts: MutationOpts,
+export type MutationFunc<TResult, TVariables> = (
+  opts: MutationOpts<TVariables>,
 ) => Promise<ApolloQueryResult<TResult>>;
 
-export type ChildProps<P, R> = {
-  data: QueryProps & R,
-  mutate: MutationFunc<R>,
-} & P;
+export type GraphqlData<TResult, TVariables> = GraphqlQueryControls &
+  TResult & {
+    variables: TVariables,
+    refetch: (variables?: TVariables) => Promise<ApolloQueryResult<any>>,
+  };
+
+export type ChildProps<TOwnProps, TResult, TVariables: Object = {}> = {
+  data: GraphqlData<TResult, TVariables>,
+  mutate: MutationFunc<TResult, TVariables>,
+} & TOwnProps;
 
 // back compat
-export type DefaultChildProps<P, R> = ChildProps<P, R>;
+export type DefaultChildProps<P, R> = ChildProps<P, R, {}>;
 
-export interface MutationOpts {
-  variables?: Object;
-  optimisticResponse?: Object;
-  updateQueries?: MutationQueryReducersMap<*>;
-  refetchQueries?: string[] | PureQueryOptions[];
-  update?: MutationUpdaterFn<*>;
-}
+export type ErrorPolicy = 'none' | 'ignore' | 'all';
 
-export interface QueryOpts {
-  ssr?: boolean;
-  variables?: Object;
-  fetchPolicy?: FetchPolicy;
-  pollInterval?: number;
-  skip?: boolean;
-}
+export type RefetchQueriesProviderFn = (
+  ...args: any[]
+) => string[] | PureQueryOptions[];
 
-export interface QueryProps {
+export type MutationOpts<TVariables> = {
+  variables?: TVariables,
+  optimisticResponse?: Object,
+  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn,
+  update?: MutationUpdaterFn<*>,
+  errorPolicy?: ErrorPolicy,
+  $call?: empty, // Not function
+};
+
+export type QueryOpts<TVariables> = {
+  ssr?: boolean,
+  variables?: TVariables,
+  fetchPolicy?: FetchPolicy,
+  pollInterval?: number,
+  skip?: boolean,
+  errorPolicy?: ErrorPolicy,
+  $call?: empty, // Not function
+};
+
+export interface GraphqlQueryControls {
   error?: ApolloError;
-  networkStatus: number;
+  networkStatus: NetworkStatus;
   loading: boolean;
   variables: Object;
   fetchMore: (
@@ -91,21 +93,31 @@ export interface QueryProps {
   ) => void;
 }
 
-export interface OptionProps<TProps, TResult> {
+export interface OptionProps<TProps, TResult, TVariables> {
   ownProps: TProps;
-  data: QueryProps & TResult;
-  mutate: MutationFunc<TResult>;
+  data: GraphqlData<TResult, TVariables>;
+  mutate: MutationFunc<TResult, TVariables>;
 }
 
-export type OptionDescription<P> = (props: P) => QueryOpts | MutationOpts;
+export type OptionDescription<TProps, TVariables> =
+  | QueryOpts<TVariables>
+  | MutationOpts<TVariables>
+  | ((props: TProps) => QueryOpts<TVariables> | MutationOpts<TVariables>);
 
 export type NamedProps<P, R> = P & {
   ownProps: R,
 };
 
-export interface OperationOption<TProps: {}, TResult: {}> {
-  options?: OptionDescription<TProps>;
-  props?: (props: OptionProps<TProps, TResult>) => any;
+export interface OperationOption<
+  TResult: {},
+  TProps: {},
+  TChildProps: {},
+  TVariables: {},
+> {
+  +options?: OptionDescription<TProps, TVariables>;
+  props?: (
+    props: OptionProps<TProps, TResult, TVariables>,
+  ) => TChildProps | ChildProps<TProps, TResult, TVariables>;
   +skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
@@ -113,24 +125,32 @@ export interface OperationOption<TProps: {}, TResult: {}> {
   alias?: string;
 }
 
+// Third argument of TMergedProps should be TVariables, but generics order
+// is preserved for backward compatibility.
 export interface OperationComponent<
   TResult: Object = {},
   TOwnProps: Object = {},
-  TMergedProps: Object = ChildProps<TOwnProps, TResult>,
+  TMergedProps: Object = ChildProps<TOwnProps, TResult, {}>,
+  TVariables: Object = {},
 > {
   (
     component: React$ComponentType<TMergedProps>,
   ): React$ComponentType<TOwnProps>;
 }
 
-declare export function graphql<TResult, TProps, TChildProps>(
+declare export function graphql<TResult, TProps, TChildProps, TVariables>(
   document: DocumentNode,
-  operationOptions?: OperationOption<TProps, TResult>,
-): OperationComponent<TResult, TProps, TChildProps>;
+  operationOptions?: OperationOption<TResult, TProps, TChildProps, TVariables>,
+): OperationComponent<TResult, TProps, TChildProps, TVariables>;
+
+declare type WithApolloOptions = {
+  withRef?: boolean,
+};
 
 declare export function withApollo<TProps>(
-  component: React$ComponentType<ApolloClient & TProps>,
-): React$ComponentType<ApolloClient & TProps>;
+  component: React$ComponentType<{ client: ApolloClient } & TProps>,
+  operationOptions?: WithApolloOptions,
+): React$ComponentType<TProps>;
 
 export interface IDocumentDefinition {
   type: DocumentType;
@@ -142,7 +162,6 @@ declare export function parser(document: DocumentNode): IDocumentDefinition;
 
 export interface Context {
   client?: ApolloClient;
-  store?: Store<*, *>;
   [key: string]: any;
 }
 

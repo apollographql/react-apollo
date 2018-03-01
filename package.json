@@ -1,164 +1,155 @@
 {
   "name": "react-apollo",
-  "version": "2.0.1",
-  "description": "React data container for Apollo Client",
-  "main": "lib/react-apollo.umd.js",
-  "module": "./lib/index.js",
-  "jsnext:main": "./lib/index.js",
+  "version": "2.1.0-beta.3",
+  "author": "opensource@apollographql.com",
   "browser": "lib/react-apollo.browser.umd.js",
-  "typings": "lib/index.d.ts",
-  "scripts": {
-    "deploy": "./scripts/deploy.sh",
-    "danger": "danger run --verbose",
-    "test": "npm run compile && jest",
-    "testonly": "jest",
-    "test-watch": "jest --watch",
-    "posttest": "npm run lint && npm run type-check",
-    "filesize": "npm run compile:browser && bundlesize",
-    "type-check":
-      "tsc ./test/typescript.ts --noEmit --jsx react --noEmitOnError --lib es6,dom --experimentalDecorators",
-    "compile": "tsc",
-    "bundle":
-      "rollup -c && rollup -c rollup.browser.config.js && rollup -c rollup.test-utils.config.js",
-    "compile:browser":
-      "rm -rf ./dist && mkdir ./dist && NODE_ENV=production browserify ./lib/react-apollo.browser.umd.js --i graphql-tag --i react --i apollo-client -o=./dist/index.js && npm run minify:browser && npm run compress:browser",
-    "minify:browser":
-      "uglifyjs --compress dead_code=true,unused=true -m -o ./dist/index.min.js -- ./dist/index.js",
-    "compress:browser": "./scripts/gzip.js --file=./dist/index.min.js",
-    "watch": "tsc -w",
-    "lint": "tslint 'src/*.ts*' --type-check -p tsconfig.json",
-    "lint-staged": "lint-staged",
-    "lint-fix":
-      "prettier --trailing-comma all --single-quote --write \"{src,test}/**/*.ts*\"",
-    "postcompile": "npm run bundle",
-    "prepublishOnly": "npm run compile"
-  },
-  "bundlesize": [
-    {
-      "path": "./dist/index.min.js",
-      "threshold": "8.6 Kb"
-    }
+  "description": "React data container for Apollo Client",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "react"
   ],
-  "lint-staged": {
-    "*.ts*": [
-      "prettier --trailing-comma all --single-quote --write",
-      "git add"
-    ],
-    "*.js*": ["prettier --trailing-comma all --single-quote --write", "git add"]
-  },
-  "pre-commit": "lint-staged",
+  "license": "MIT",
+  "main": "lib/react-apollo.umd.js",
+  "module": "src/index.ts",
+  "typings": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "apollostack/react-apollo"
   },
-  "keywords": [
-    "ecmascript",
-    "es2015",
-    "jsnext",
-    "javascript",
-    "relay",
-    "npm",
-    "react"
-  ],
-  "author": "James Baxley <james@meteor.com>",
-  "babel": {
-    "presets": ["react-native"]
+  "scripts": {
+    "compile": "npm run compile:esm && npm run compile:cjs",
+    "compile:cjs": "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "compile:esm": "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
+    "danger": "danger run --verbose",
+    "deploy": "cd lib && npm publish --tag=beta",
+    "filesize": "bundlesize",
+    "jest": "jest --maxWorkers=4 --coverage",
+    "lint": "tslint --project tsconfig.json --config tslint.json",
+    "lint-staged": "lint-staged",
+    "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
+    "postcompile": "rollup -c  && ./scripts/prepare-package.sh",
+    "precommit": "pretty-quick --staged",
+    "precompile": "rimraf lib",
+    "predeploy": "npm run compile",
+    "prefilesize": "npm run compile",
+    "prettier": "prettier --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
+    "test": "npm run lint && npm run type-check && npm run jest",
+    "test-preact": "jest --config ./jest.preact.config.json --no-cache",
+    "test-watch": "jest --watch",
+    "test:compiled": "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
+    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js",
+    "test:compiled:cjs": "jest --config jest.cjs.config.js",
+    "test:compiled:server:umd": "jest --config jest.server.umd.config.js",
+    "type-check": "tsc --project tsconfig.json --noEmit ",
+    "watch": "tsc -w"
   },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "bundlesize": [
+    {
+      "path": "./dist/bundlesize.js",
+      "maxSize": "11 KB"
+    }
+  ],
   "jest": {
-    "preset": "jest-react-native",
     "testEnvironment": "jsdom",
     "transform": {
-      ".*": "./preprocessor.js"
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.jsx?$": "babel-jest"
     },
-    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
-      "<rootDir>/test/flow.js",
-      "<rootDir>/test/typescript.ts"
+      "<rootDir>/test/flow-usage.js",
+      "<rootDir>/test/typescript-usage.tsx",
+      "<rootDir>/test/fail-no-entry-point.js"
     ],
-    "projects": ["<rootDir>", "<rootDir>/examples/*"],
-    "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "setupFiles": ["<rootDir>/scripts/tests.js"]
+    "projects": [
+      "<rootDir>"
+    ],
+    "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "setupFiles": [
+      "<rootDir>/test/test-utils/setup.ts"
+    ]
   },
-  "license": "MIT",
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "all"
+  },
   "peerDependencies": {
-    "apollo-client": "^2.0.3",
+    "apollo-client": "^2.2.3",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
-    "@types/enzyme": "2.8.9",
-    "@types/graphql": "0.9.4",
+    "@types/enzyme": "3.1.9",
+    "@types/enzyme-adapter-react-16": "1.0.2",
+    "@types/graphql": "0.12.4",
     "@types/invariant": "2.2.29",
-    "@types/isomorphic-fetch": "0.0.34",
-    "@types/jest": "20.0.8",
-    "@types/lodash": "4.14.74",
-    "@types/node": "8.0.31",
+    "@types/jest": "22.1.3",
+    "@types/lodash": "4.14.104",
     "@types/object-assign": "4.0.30",
-    "@types/react": "^16.0.22",
-    "@types/react-addons-test-utils": "0.14.19",
+    "@types/prop-types": "15.5.2",
+    "@types/react": "16.0.35",
     "@types/react-dom": "16.0.3",
-    "@types/react-redux": "5.0.9",
-    "@types/redux-form": "7.0.5",
-    "@types/redux-immutable": "3.0.37",
-    "@types/sinon": "2.3.5",
-    "@types/zen-observable": "^0.5.3",
-    "apollo-cache-inmemory": "^1.0.0",
-    "apollo-client": "^2.0.3",
-    "babel-jest": "20.0.3",
-    "babel-preset-react-native": "3.0.2",
-    "browserify": "14.4.0",
-    "bundlesize": "0.14.4",
-    "cheerio": "0.22.0",
-    "colors": "1.1.2",
-    "danger": "1.2.0",
-    "enzyme": "3.0.0",
-    "enzyme-adapter-react-16": "^1.0.0",
-    "enzyme-to-json": "1.6.0",
-    "flow-bin": "0.59.0",
-    "graphql": "0.11.4",
-    "graphql-tag": "^2.0.0",
-    "immutable": "3.8.1",
-    "isomorphic-fetch": "2.2.1",
-    "jest": "20.0.4",
-    "jest-react-native": "18.0.0",
-    "jsdom": "11.2.0",
-    "lint-staged": "4.2.3",
-    "lodash": "4.17.4",
-    "minimist": "1.2.0",
-    "mobx": "3.3.0",
-    "mobx-react": "4.3.2",
-    "pre-commit": "1.2.2",
-    "prettier": "1.7.2",
-    "pretty-bytes": "4.0.2",
-    "react": "16.0.0",
-    "react-addons-test-utils": "15.6.0",
-    "react-dom": "16.0.0",
-    "react-native": "0.48.4",
-    "react-redux": "5.0.6",
-    "react-test-renderer": "16.0.0",
-    "recompose": "0.25.1",
-    "redux": "3.7.2",
-    "redux-form": "6.8.0",
-    "redux-immutable": "4.0.0",
-    "redux-loop": "2.2.2",
-    "rollup": "0.50.0",
-    "source-map-support": "0.4.18",
-    "swapi-graphql": "0.0.6",
-    "travis-weigh-in": "1.0.2",
-    "ts-jest": "20.0.14",
-    "tslint": "5.7.0",
-    "typescript": "2.4.2",
+    "@types/react-test-renderer": "16.0.1",
+    "@types/recompose": "0.24.5",
+    "@types/zen-observable": "0.5.3",
+    "apollo-cache-inmemory": "1.1.9",
+    "apollo-client": "2.2.5",
+    "apollo-link": "1.2.1",
+    "babel-core": "6.26.0",
+    "babel-jest": "22.4.1",
+    "babel-preset-env": "1.6.1",
+    "bundlesize": "0.16.0",
+    "coveralls": "3.0.0",
+    "danger": "3.1.7",
+    "enzyme": "3.3.0",
+    "enzyme-adapter-react-16": "1.1.1",
+    "flow-bin": "0.66.0",
+    "graphql": "0.13.1",
+    "graphql-tag": "2.8.0",
+    "husky": "0.14.3",
+    "jest": "22.4.2",
+    "jsdom": "11.6.2",
+    "preact": "8.2.7",
+    "preact-compat": "3.18.0",
+    "prettier": "1.11.0",
+    "pretty-quick": "1.4.1",
+    "react": "16.2.0",
+    "react-dom": "16.2.0",
+    "react-test-renderer": "16.2.0",
+    "recompose": "0.26.0",
+    "recursive-rename": "2.0.0",
+    "rimraf": "2.6.2",
+    "rollup": "0.56.3",
+    "rollup-plugin-babel-minify": "4.0.0",
+    "rollup-plugin-commonjs": "8.3.0",
+    "rollup-plugin-node-resolve": "3.0.3",
+    "rollup-plugin-replace": "2.0.0",
+    "rollup-plugin-uglify": "3.0.0",
+    "ts-jest": "22.4.0",
+    "tslint": "5.9.1",
+    "typescript": "2.6.2",
     "typescript-require": "0.2.9",
-    "typings": "2.1.1",
-    "uglify-js": "3.1.1",
-    "zen-observable-ts": "^0.4.4"
+    "zen-observable-ts": "0.8.8"
   },
   "dependencies": {
-    "apollo-link": "^1.0.0",
-    "hoist-non-react-statics": "^2.2.0",
-    "invariant": "^2.2.1",
-    "lodash.flowright": "^3.5.0",
-    "lodash.pick": "^4.4.0",
-    "prop-types": "^15.5.8"
-  }
+    "fbjs": "^0.8.16",
+    "hoist-non-react-statics": "^2.3.1",
+    "invariant": "^2.2.2",
+    "lodash": "4.17.5",
+    "prop-types": "^15.6.0"
+  },
+  "sideEffects": false
 }

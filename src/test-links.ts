@@ -14,7 +14,7 @@ export interface MockedResponse {
   result?: FetchResult;
   error?: Error;
   delay?: number;
-  newData: () => GraphQLRequest;
+  newData?: () => FetchResult;
 }
 
 export interface MockedSubscriptionResult {
@@ -59,17 +59,14 @@ export class MockLink extends ApolloLink {
     }
 
     const original = [...this.mockedResponsesByKey[key]];
-    const { result, error, delay, newData } =
-      this.mockedResponsesByKey[key].shift() || ({} as any);
+    const { result, error, delay, newData } = this.mockedResponsesByKey[key].shift() || ({} as any);
 
     if (newData) {
       original[0].result = newData();
       this.mockedResponsesByKey[key].push(original[0]);
     }
     if (!result && !error) {
-      throw new Error(
-        `Mocked response should contain either result or error: ${key}`,
-      );
+      throw new Error(`Mocked response should contain either result or error: ${key}`);
     }
 
     return new Observable<FetchResult>(observer => {
@@ -100,7 +97,7 @@ export class MockSubscriptionLink extends ApolloLink {
     super();
   }
 
-  public request() {
+  public request(_req: any) {
     return new Observable<FetchResult>(observer => {
       this.setups.forEach(x => x());
       this.observer = observer;
@@ -119,11 +116,11 @@ export class MockSubscriptionLink extends ApolloLink {
     }, result.delay || 0);
   }
 
-  public onSetup(listener): void {
+  public onSetup(listener: any): void {
     this.setups = this.setups.concat([listener]);
   }
 
-  public onUnsubscribe(listener): void {
+  public onUnsubscribe(listener: any): void {
     this.unsubscribers = this.unsubscribers.concat([listener]);
   }
 }
@@ -135,14 +132,13 @@ function requestToKey(request: GraphQLRequest): string {
     variables: request.variables || {},
     query: queryString,
   };
-  return JSON.stringify(requestKey, Object.keys(requestKey).sort());
+
+  return JSON.stringify(requestKey);
 }
 
 // Pass in multiple mocked responses, so that you can test flows that end up
 // making multiple queries to the server
-export function mockSingleLink(
-  ...mockedResponses: MockedResponse[]
-): ApolloLink {
+export function mockSingleLink(...mockedResponses: MockedResponse[]): ApolloLink {
   return new MockLink(mockedResponses);
 }
 

@@ -1,0 +1,8 @@
+node_modules
+lib
+coverage
+npm
+package.json
+dist
+*.snap
+package-lock.json

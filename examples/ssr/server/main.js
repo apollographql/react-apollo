@@ -31,9 +31,7 @@ export const render = async sink => {
   const body = renderToString(WrappedApp);
   sink.renderIntoElementById('app', body);
   sink.appendToBody(`
-    <script>window.__APOLLO_STATE__=${JSON.stringify(
-      client.getInitialState(),
-    )};</script>
+    <script>window.__APOLLO_STATE__=${JSON.stringify(client.getInitialState())};</script>
   `);
 };
 

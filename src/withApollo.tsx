@@ -1,68 +1,60 @@
-import { Component, createElement } from 'react';
-import * as PropTypes from 'prop-types';
+import * as React from 'react';
+import { OperationOption } from './types';
+import ApolloConsumer from './ApolloConsumer';
+import { ApolloClient } from 'apollo-client';
 
 const invariant = require('invariant');
-const assign = require('object-assign');
-
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
-import ApolloClient from 'apollo-client';
-
-import { OperationOption } from './types';
-
-function getDisplayName(WrappedComponent) {
+function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export function withApollo<TProps, TResult>(
-  WrappedComponent,
+export type WithApolloClient<P> = P & { client: ApolloClient<any> };
+
+export default function withApollo<TProps, TResult>(
+  WrappedComponent: React.ComponentType<WithApolloClient<TProps>>,
   operationOptions: OperationOption<TProps, TResult> = {},
-) {
+): React.ComponentClass<TProps> {
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
-  class WithApollo extends Component<any, any> {
+  class WithApollo extends React.Component<TProps> {
     static displayName = withDisplayName;
     static WrappedComponent = WrappedComponent;
-    static contextTypes = { client: PropTypes.object.isRequired };
-
-    // data storage
-    private client: ApolloClient<any>; // apollo client
 
     // wrapped instance
     private wrappedInstance: any;
 
-    constructor(props, context) {
-      super(props, context);
-      this.client = context.client;
+    constructor(props: TProps) {
+      super(props);
       this.setWrappedInstance = this.setWrappedInstance.bind(this);
-
-      invariant(
-        !!this.client,
-        `Could not find "client" in the context of ` +
-          `"${withDisplayName}". ` +
-          `Wrap the root component in an <ApolloProvider>`,
-      );
     }
 
     getWrappedInstance() {
       invariant(
         operationOptions.withRef,
-        `To access the wrapped instance, you need to specify ` +
-          `{ withRef: true } in the options`,
+        `To access the wrapped instance, you need to specify ` + `{ withRef: true } in the options`,
       );
 
       return this.wrappedInstance;
     }
 
-    setWrappedInstance(ref) {
+    setWrappedInstance(ref: React.ComponentType<WithApolloClient<TProps>>) {
       this.wrappedInstance = ref;
     }
 
     render() {
-      const props = assign({}, this.props);
-      props.client = this.client;
-      if (operationOptions.withRef) props.ref = this.setWrappedInstance;
-      return createElement(WrappedComponent, props);
+      return (
+        <ApolloConsumer>
+          {client => {
+            const props = Object.assign({}, this.props, {
+              client,
+              ref: operationOptions.withRef ? this.setWrappedInstance : undefined,
+            });
+            return <WrappedComponent {...props} />;
+          }}
+        </ApolloConsumer>
+      );
     }
   }
 
