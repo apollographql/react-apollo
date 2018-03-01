@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-interface Context {
+export interface Context {
     [key: string]: any;
 }
 
@@ -143,17 +143,22 @@ export function walkTree(element: React.ReactNode, context: Context, visitor: (
 function hasFetchDataFunction(instance: React.Component<any>): instance is FetchComponent {
     return typeof (instance as any).fetchData === 'function';
 }
-
+               
+function isPromise<T>(promise: Object): promise is Promise<T> {
+  return typeof (query as any).then === 'function';
+}
+                         
 function getPromisesFromTree({rootElement, rootContext = {}}: PromiseTreeArgument): PromiseTreeResult[] {
 
     const promises: PromiseTreeResult[] = [];
 
-    walkTree(rootElement, rootContext, (element, instance, context, childContext) => {
+    walkTree(rootElement, rootContext, (_, instance, context, childContext) => {
         if (instance && hasFetchDataFunction(instance)) {
             const promise = instance.fetchData();
-
-            promises.push({promise, context: childContext || context, instance});
-            return false;
+            if (isPromise<Object>(promise)) {
+                promises.push({promise, context: childContext || context, instance});
+                return false;
+            }
         }
     });
 
