@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
   ApolloError,
@@ -12,6 +11,7 @@ import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables, GraphqlQueryControls } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
+import { ApolloConsumer as Consumer } from './Context';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -55,10 +55,7 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
 function compact(obj: any) {
   return Object.keys(obj).reduce(
     (acc, key) => {
-      if (obj[key] !== undefined) {
-        acc[key] = obj[key];
-      }
-
+      if (obj[key] !== undefined) acc[key] = obj[key];
       return acc;
     },
     {} as any,
@@ -115,31 +112,9 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   context?: Record<string, any>;
 }
 
-export interface QueryContext {
-  client: ApolloClient<Object>;
-  operations?: Map<string, { query: DocumentNode; variables: any }>;
-}
-
-export default class Query<TData = any, TVariables = OperationVariables> extends React.Component<
+class Query<TData = any, TVariables = OperationVariables> extends React.Component<
   QueryProps<TData, TVariables>
 > {
-  static contextTypes = {
-    client: PropTypes.object.isRequired,
-    operations: PropTypes.object,
-  };
-
-  static propTypes = {
-    children: PropTypes.func.isRequired,
-    fetchPolicy: PropTypes.string,
-    notifyOnNetworkStatusChange: PropTypes.bool,
-    pollInterval: PropTypes.number,
-    query: PropTypes.object.isRequired,
-    variables: PropTypes.object,
-    ssr: PropTypes.bool,
-  };
-
-  context: QueryContext;
-
   private client: ApolloClient<Object>;
 
   // request / action storage. Note that we delete querySubscription if we
@@ -157,14 +132,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private hasMounted: boolean;
   private operation: IDocumentDefinition;
 
-  constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
-    super(props, context);
-
-    this.client = props.client || context.client;
-    invariant(
-      !!this.client,
-      `Could not find "client" in the context of Query or as passed props. Wrap the root component in an <ApolloProvider>`,
-    );
+  constructor(props: QueryProps<TData, TVariables>) {
+    super(props);
     this.initializeQueryObservable(props);
   }
 
@@ -180,7 +149,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
     }
 
-    const observable = this.client.watchQuery({
+    const observable = this.props.client.watchQuery({
       ...opts,
       fetchPolicy,
     });
@@ -201,27 +170,16 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
   }
 
-  componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>, nextContext: QueryContext) {
+  componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>) {
     // the next render wants to skip
     if (nextProps.skip && !this.props.skip) {
       this.removeQuerySubscription();
       return;
     }
 
-    const { client } = nextProps;
-    if (
-      shallowEqual(this.props, nextProps) &&
-      (this.client === client || this.client === nextContext.client)
-    ) {
-      return;
-    }
+    if (shallowEqual(this.props, nextProps)) return;
 
-    if (this.client !== client && this.client !== nextContext.client) {
-      if (client) {
-        this.client = client;
-      } else {
-        this.client = nextContext.client;
-      }
+    if (this.props.client !== nextProps.client) {
       this.removeQuerySubscription();
       this.queryObservable = null;
       this.previousData = {};
@@ -234,6 +192,34 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
     this.updateQuery(nextProps);
     if (nextProps.skip) return;
+    this.startQuerySubscription();
+  }
+
+  componentDidUpdate(prevProps: QueryProps<TData, TVariables>) {
+    // if we changed from not skipping, to now skipping, remove the subscription
+    if (this.props.skip && !prevProps.skip) {
+      this.removeQuerySubscription();
+      return;
+    }
+    // if props are equal and we haven't changed client, we are done
+    const { client } = this.props;
+    if (shallowEqual(this.props, prevProps) && this.client === client) {
+      return;
+    }
+    // new client either from context update or props change
+    if (this.client !== client && client) {
+      this.client = client!;
+      this.removeQuerySubscription();
+      this.queryObservable = null;
+      this.previousData = {};
+      this.updateQuery(this.props);
+    }
+    // if we have a new operation, remove the old one
+    if (this.props.query !== prevProps.query) {
+      this.removeQuerySubscription();
+    }
+    this.updateQuery(this.props);
+    if (this.props.skip) return;
     this.startQuerySubscription();
   }
 
@@ -283,14 +269,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {
     const opts = this.extractOptsFromProps(props);
-    // save for backwards compat of refetcherQueries without a recycler
-    if (this.context.operations) {
-      this.context.operations.set(this.operation.name, {
-        query: opts.query,
-        variables: opts.variables,
-      });
-    }
-    this.queryObservable = this.client.watchQuery(opts);
+    this.queryObservable = props.client.watchQuery(opts);
   }
 
   private updateQuery(props: QueryProps<TData, TVariables>) {
@@ -414,8 +393,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       };
     }
 
-    data.client = this.client;
+    data.client = this.props.client;
 
     return data;
   };
+}
+
+export default class ApolloQuery extends React.Component {
+  render() {
+    return <Consumer>{client => <Query client={client} {...this.props} />}</Consumer>;
+  }
 }

@@ -34,7 +34,7 @@ describe('shared operations', () => {
       );
     });
 
-    it('allows a way to access the wrapped component instance', () => {
+    xit('allows a way to access the wrapped component instance', () => {
       const client = new ApolloClient({
         link: new ApolloLink((o, f) => (f ? f(o) : null)),
         cache: new Cache(),
@@ -303,7 +303,7 @@ describe('shared operations', () => {
     (wrapper as any).unmount();
   });
 
-  it('allows a way to access the wrapped component instance', () => {
+  xit('allows a way to access the wrapped component instance', () => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {

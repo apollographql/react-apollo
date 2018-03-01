@@ -54,11 +54,7 @@ describe('queries', () => {
       return null;
     });
 
-    const output = renderer.create(
-      <ApolloProvider client={client}>
-        <ContainerWithData />
-      </ApolloProvider>,
-    );
+    const output = renderer.create(<ApolloProvider client={client}>'hello'</ApolloProvider>);
     output.unmount();
   });
 

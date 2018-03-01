@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { OperationOption } from './types';
-import ApolloConsumer from './ApolloConsumer';
+import { ApolloConsumer as Consumer } from './Context';
 import { ApolloClient } from 'apollo-client';
 
 const invariant = require('invariant');
@@ -12,6 +12,7 @@ function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
 
 export type WithApolloClient<P> = P & { client: ApolloClient<any> };
 
+// XXX replace with shared withRefBase
 export default function withApollo<TProps, TResult = any>(
   WrappedComponent: React.ComponentType<WithApolloClient<TProps>>,
   operationOptions: OperationOption<TProps, TResult> = {},
@@ -45,7 +46,7 @@ export default function withApollo<TProps, TResult = any>(
 
     render() {
       return (
-        <ApolloConsumer>
+        <Consumer>
           {client => {
             const props = Object.assign({}, this.props, {
               client,
@@ -53,7 +54,7 @@ export default function withApollo<TProps, TResult = any>(
             });
             return <WrappedComponent {...props} />;
           }}
-        </ApolloConsumer>
+        </Consumer>
       );
     }
   }
