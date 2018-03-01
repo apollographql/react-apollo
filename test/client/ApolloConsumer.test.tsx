@@ -38,17 +38,4 @@ describe('<ApolloConsumer /> component', () => {
 
     expect(wrapper.find('div').exists()).toBeTruthy();
   });
-
-  it('errors if there is no client in the context', () => {
-    // Prevent Error about missing context type from appearing in the console.
-    const errorLogger = console.error;
-    console.error = () => {}; // tslint:disable-line
-    expect(() => {
-      mount(<ApolloConsumer>{() => null}</ApolloConsumer>);
-    }).toThrowError(
-      'Could not find "client" in the context of ApolloConsumer. Wrap the root component in an <ApolloProvider>',
-    );
-
-    console.error = errorLogger;
-  });
 });

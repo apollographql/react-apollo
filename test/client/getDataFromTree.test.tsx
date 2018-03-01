@@ -28,7 +28,7 @@ describe('SSR', () => {
             <span>Bar</span>
           </div>
         );
-        walkTree(rootElement, {}, () => {
+        walkTree(rootElement, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(5);
@@ -37,7 +37,7 @@ describe('SSR', () => {
       it('basic element trees with nulls', () => {
         let elementCount = 0;
         const rootElement = <div>{null}</div>;
-        walkTree(rootElement, {}, () => {
+        walkTree(rootElement, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -46,7 +46,7 @@ describe('SSR', () => {
       it('basic element trees with false', () => {
         let elementCount = 0;
         const rootElement = <div>{false}</div>;
-        walkTree(rootElement, {}, () => {
+        walkTree(rootElement, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -55,7 +55,7 @@ describe('SSR', () => {
       it('basic element trees with empty string', () => {
         let elementCount = 0;
         const rootElement = <div>{''}</div>;
-        walkTree(rootElement, {}, () => {
+        walkTree(rootElement, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -64,7 +64,7 @@ describe('SSR', () => {
       it('basic element trees with arrays', () => {
         let elementCount = 0;
         const rootElement = [1, 2];
-        walkTree(rootElement, {}, () => {
+        walkTree(rootElement, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -73,7 +73,7 @@ describe('SSR', () => {
       it('basic element trees with false or null', () => {
         let elementCount = 0;
         const rootElement = [1, false, null, ''];
-        walkTree(rootElement, {}, () => {
+        walkTree(rootElement, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -84,7 +84,7 @@ describe('SSR', () => {
         const MyComponent = ({ n }: { n: number }) => (
           <div>{_.times(n, i => <span key={i} />)}</div>
         );
-        walkTree(<MyComponent n={5} />, {}, () => {
+        walkTree(<MyComponent n={5} />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -107,7 +107,6 @@ describe('SSR', () => {
           <MyComponent n={5}>
             <span>Foo</span>
           </MyComponent>,
-          {},
           element => {
             if (element && (element as any).preactCompatUpgraded) {
               isPreact = true;
@@ -133,7 +132,7 @@ describe('SSR', () => {
             {children}
           </div>
         );
-        walkTree(<MyComponent n={5}>{null}</MyComponent>, {}, () => {
+        walkTree(<MyComponent n={5}>{null}</MyComponent>, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -142,7 +141,7 @@ describe('SSR', () => {
       it('functional stateless components that render null', () => {
         let elementCount = 0;
         const MyComponent = () => null;
-        walkTree(<MyComponent />, {}, () => {
+        walkTree(<MyComponent />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -151,7 +150,7 @@ describe('SSR', () => {
       it('functional stateless components that render an array', () => {
         let elementCount = 0;
         const MyComponent = () => [1, 2] as any;
-        walkTree(<MyComponent />, {}, () => {
+        walkTree(<MyComponent />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(3);
@@ -161,7 +160,7 @@ describe('SSR', () => {
         let elementCount = 0;
 
         const MyComponent = () => [null, <div />] as any;
-        walkTree(<MyComponent />, {}, () => {
+        walkTree(<MyComponent />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -171,7 +170,7 @@ describe('SSR', () => {
         let elementCount = 0;
 
         const MyComponent = () => [undefined, <div />] as any;
-        walkTree(<MyComponent />, {}, () => {
+        walkTree(<MyComponent />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -184,7 +183,7 @@ describe('SSR', () => {
             return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
-        walkTree(<MyComponent n={5} />, {}, () => {
+        walkTree(<MyComponent n={5} />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -197,7 +196,7 @@ describe('SSR', () => {
             return null;
           }
         }
-        walkTree(<MyComponent />, {}, () => {
+        walkTree(<MyComponent />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(1);
@@ -210,7 +209,7 @@ describe('SSR', () => {
             return [1, 2];
           }
         }
-        walkTree(<MyComponent />, {}, () => {
+        walkTree(<MyComponent />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(3);
@@ -224,7 +223,7 @@ describe('SSR', () => {
             return [null, <div />];
           }
         }
-        walkTree(<MyComponent />, {}, () => {
+        walkTree(<MyComponent />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(2);
@@ -240,7 +239,7 @@ describe('SSR', () => {
             return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
           }
         }
-        walkTree(<MyComponent n={5} />, {}, () => {
+        walkTree(<MyComponent n={5} />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -262,7 +261,6 @@ describe('SSR', () => {
           <MyComponent n={5}>
             <span>Foo</span>
           </MyComponent>,
-          {},
           () => {
             elementCount += 1;
           },
@@ -278,7 +276,7 @@ describe('SSR', () => {
           };
         }
         const MyCompAsAny = MyComponent as any;
-        walkTree(<MyCompAsAny n={5} />, {}, () => {
+        walkTree(<MyCompAsAny n={5} />, () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
@@ -889,16 +887,14 @@ describe('SSR', () => {
         state: State = {
           thing: 1,
           userId: null,
-          client: null,
         };
 
         componentWillMount() {
           this.setState(
-            (state: State, props: Props, context: { client: ApolloClient<any> }) =>
+            (state: State, props: Props) =>
               ({
                 thing: state.thing + 1,
                 userId: props.id,
-                client: context.client,
               } as any),
           );
         }
@@ -907,7 +903,6 @@ describe('SSR', () => {
           const { data, id } = this.props;
           expect(this.state.thing).toBe(2);
           expect(this.state.userId).toBe(id);
-          expect(this.state.client).toBe(apolloClient);
           return (
             <div>
               {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.firstName}
