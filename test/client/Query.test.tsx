@@ -790,9 +790,7 @@ describe('Query component', () => {
           return (
             <AllPeopleQuery query={query} variables={variables}>
               {result => {
-                if (result.loading) {
-                  return null;
-                }
+                if (result.loading) return null;
                 catchAsyncError(done, () => {
                   if (count === 0) {
                     expect(variables).toEqual({ first: 1 });
