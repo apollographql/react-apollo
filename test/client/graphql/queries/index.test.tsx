@@ -666,9 +666,7 @@ describe('queries', () => {
 
     const ContainerWithData = graphql<any, Data>(query, {
       options: props => ({ context: { fromProps: props.context } }),
-    })(({ data }: DataProps<Data>) => {
-      return null;
-    });
+    })(() => null);
 
     renderer.create(
       <ApolloProvider client={client}>
