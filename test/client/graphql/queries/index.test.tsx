@@ -4,6 +4,7 @@ import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { ApolloLink, Observable } from 'apollo-link';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql, DataProps, ChildProps } from '../../../../src';
 
@@ -628,5 +629,49 @@ describe('queries', () => {
 
     // Not sure why I have to cast Container to any
     expect((Container as any).displayName).toEqual('withFoo(Container)');
+  });
+
+  it('passes context to the link', done => {
+    const query: DocumentNode = gql`
+      query people {
+        allPeople(first: 1) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    const link = new ApolloLink((o, f) => {
+      expect(o.getContext().fromProps).toBe(true);
+      done();
+      return f ? f(o) : null;
+    }).concat(
+      mockSingleLink({
+        request: { query },
+        result: {
+          data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } },
+        },
+      }),
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    interface Data {
+      allPeople?: {
+        people: { name: string }[];
+      };
+    }
+
+    const ContainerWithData = graphql<any, Data>(query, {
+      options: props => ({ context: { fromProps: props.context } }),
+    })(() => null);
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ContainerWithData context={true} />
+      </ApolloProvider>,
+    );
   });
 });
