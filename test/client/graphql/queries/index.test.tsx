@@ -644,7 +644,7 @@ describe('queries', () => {
     const link = new ApolloLink((o, f) => {
       expect(o.getContext().fromProps).toBe(true);
       done();
-      return f(o);
+      return f ? f(o) : null;
     }).concat(
       mockSingleLink({
         request: { query },
