@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.1.0-beta.3",
+  "version": "2.1.0-rc.0",
   "author": "opensource@apollographql.com",
   "browser": "lib/react-apollo.browser.umd.js",
   "description": "React data container for Apollo Client",
@@ -22,7 +22,7 @@
     "compile:cjs": "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
     "compile:esm": "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
     "danger": "danger run --verbose",
-    "deploy": "cd lib && npm publish --tag=beta",
+    "deploy": "cd lib && npm publish --tag=next",
     "filesize": "bundlesize",
     "jest": "jest --maxWorkers=4 --coverage",
     "lint": "tslint --project tsconfig.json --config tslint.json",
