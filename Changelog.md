@@ -2,11 +2,15 @@
 
 ### vNext
 
-### 2.1.0-rc.0
+## 2.1.0-rc.1
 
 * Fix default values being set as falsy in options merging
 * Remove console.error call for unhandled errors for query-hoc (but keep in place for graphql hoc for backwards compat)
 * Ensure context can be passed as props
+
+### 2.1.0-rc.0
+
+* bad build
 
 ### 2.1.0-beta.3
 
