@@ -108,7 +108,7 @@ export class ObservableQueryRecycler {
       // are set to `undefined` if not provided in options.
       pollInterval: options.pollInterval,
       fetchPolicy: options.fetchPolicy,
-    });
+    } as any);
 
     return observableQuery;
   }

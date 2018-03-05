@@ -29,6 +29,7 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
   update?: MutationUpdaterFn;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
+  context?: Record<string, any>;
 }
 
 export interface QueryOpts<TGraphQLVariables = OperationVariables> {
@@ -39,6 +40,7 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   pollInterval?: number;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
+  context?: Record<string, any>;
 }
 
 export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {

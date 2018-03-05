@@ -59,6 +59,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
+  context?: Record<string, any>;
 }
 
 export interface MutationState<TData = any> {
@@ -161,7 +162,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const { mutation, variables, optimisticResponse, update } = this.props;
+    const { mutation, variables, optimisticResponse, update, context = {} } = this.props;
     let refetchQueries = options.refetchQueries || this.props.refetchQueries;
     // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
     // support refectching of named queries which just pulls the latest
@@ -185,6 +186,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       optimisticResponse,
       refetchQueries,
       update,
+      context,
       ...options,
     });
   };
