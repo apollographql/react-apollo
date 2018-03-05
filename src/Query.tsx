@@ -104,6 +104,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   displayName?: string;
   skip?: boolean;
   client?: ApolloClient<Object>;
+  context?: Record<string, any>;
 }
 
 export interface QueryContext {
@@ -186,8 +187,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
-      this.queryObservable!
-        .refetch(args)
+      this.queryObservable!.refetch(args)
         .then(resolve)
         .catch(reject);
     }
@@ -249,6 +249,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       notifyOnNetworkStatusChange,
       query,
       displayName = 'Query',
+      context = {},
     } = props;
 
     this.operation = parser(query);
@@ -268,6 +269,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       errorPolicy,
       notifyOnNetworkStatusChange,
       metadata: { reactComponent: { displayName } },
+      context,
     });
   }
 
@@ -287,8 +289,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // if we skipped initially, we may not have yet created the observable
     if (!this.queryObservable) this.initializeQueryObservable(props);
 
-    this.queryObservable!
-      .setOptions(this.extractOptsFromProps(props))
+    this.queryObservable!.setOptions(this.extractOptsFromProps(props))
       // The error will be passed to the child container, so we don't
       // need to log it here. We could conceivably log something if
       // an option was set. OTOH we don't log errors w/ the original
