@@ -49,7 +49,7 @@ it('executes the subscription', done => {
   let count = 0;
 
   const Component = () => (
-    <Subscription query={subscription}>
+    <Subscription subscription={subscription}>
       {result => {
         const { loading, data, error } = result;
 
@@ -129,7 +129,7 @@ it('executes subscription for the variables passed in the props', done => {
   let count = 0;
 
   const Component = () => (
-    <Subscription query={subscriptionWithVariables} variables={variables}>
+    <Subscription subscription={subscriptionWithVariables} variables={variables}>
       {result => {
         const { loading, data } = result;
 
@@ -176,7 +176,7 @@ it('renders an error', done => {
 
   let count = 0;
   const Component = () => (
-    <Subscription query={subscriptionWithVariables} variables={variables}>
+    <Subscription subscription={subscriptionWithVariables} variables={variables}>
       {result => {
         const { loading, data, error } = result;
         catchAsyncError(done, () => {
@@ -224,7 +224,7 @@ describe('should update', () => {
       render() {
         return (
           <ApolloProvider client={this.state.client}>
-            <Subscription query={subscription}>
+            <Subscription subscription={subscription}>
               {result => {
                 const { loading, data } = result;
                 catchAsyncError(done, () => {
@@ -309,7 +309,7 @@ describe('should update', () => {
 
       render() {
         return (
-          <Subscription query={this.state.subscription}>
+          <Subscription subscription={this.state.subscription}>
             {result => {
               const { loading, data } = result;
               catchAsyncError(done, () => {
@@ -421,7 +421,7 @@ describe('should update', () => {
 
       render() {
         return (
-          <Subscription query={subscriptionWithVariables} variables={this.state.variables}>
+          <Subscription subscription={subscriptionWithVariables} variables={this.state.variables}>
             {result => {
               const { loading, data } = result;
               catchAsyncError(done, () => {
