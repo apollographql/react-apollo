@@ -42,7 +42,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   };
 
   static propTypes = {
-    query: PropTypes.object.isRequired,
+    subscription: PropTypes.object.isRequired,
     variables: PropTypes.object,
     children: PropTypes.func.isRequired,
   };
