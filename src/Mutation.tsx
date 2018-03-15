@@ -174,7 +174,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     // refetch.
     if (refetchQueries && refetchQueries.length && Array.isArray(refetchQueries)) {
       refetchQueries = (refetchQueries as any).map((x: string | PureQueryOptions) => {
-        if (typeof x === 'string' && this.context.operations) return this.context.operations.get(x);
+        if (typeof x === 'string' && this.context.operations) return this.context.operations.get(x) || x;
         return x;
       });
       delete options.refetchQueries;
