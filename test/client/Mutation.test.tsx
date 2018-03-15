@@ -1119,3 +1119,106 @@ it('errors when changing from mutation to a subscription', done => {
 
   console.log = errorLogger;
 });
+
+it('does not update state after receiving data after it has been unmounted', done => {
+  console.error = jest.fn();
+
+  class Component extends React.Component {
+    state = {
+      called: false,
+    };
+
+    render() {
+      const { called } = this.state;
+      if (called === true) {
+        return null;
+      } else {
+        return (
+          <Mutation mutation={mutation}>
+            {(createTodo, result) => {
+              if (!result) {
+                setTimeout(() => {
+                  createTodo();
+                  this.setState(
+                    {
+                      called: true,
+                    },
+                    () => {
+                      setTimeout(() => {
+                        expect(console.error).not.toHaveBeenCalled();
+                        done();
+                      }, 100);
+                    },
+                  );
+                });
+              }
+
+              return null;
+            }}
+          </Mutation>
+        );
+      }
+    }
+  }
+
+  const wrapper = mount(
+    <MockedProvider mocks={mocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('does not update state after receiving error after it has been unmounted', done => {
+  console.error = jest.fn();
+
+  class Component extends React.Component {
+    state = {
+      called: false,
+    };
+
+    render() {
+      const { called } = this.state;
+      if (called === true) {
+        return null;
+      } else {
+        return (
+          <Mutation mutation={mutation}>
+            {(createTodo, result) => {
+              if (!result) {
+                setTimeout(() => {
+                  createTodo().catch(() => {});
+                  this.setState(
+                    {
+                      called: true,
+                    },
+                    () => {
+                      setTimeout(() => {
+                        expect(console.error).not.toHaveBeenCalled();
+                        done();
+                      }, 100);
+                    },
+                  );
+                });
+              }
+
+              return null;
+            }}
+          </Mutation>
+        );
+      }
+    }
+  }
+
+  const mockError = [
+    {
+      request: { query: mutation },
+      error: new Error('error occurred'),
+    },
+  ];
+
+  const wrapper = mount(
+    <MockedProvider mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});

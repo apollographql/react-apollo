@@ -100,6 +100,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   private client: ApolloClient<any>;
   private mostRecentMutationId: number;
 
+  private hasMounted: boolean;
+
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
 
@@ -110,6 +112,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
     this.mostRecentMutationId = 0;
     this.state = initialState;
+  }
+
+  componentDidMount() {
+    this.hasMounted = true;
+  }
+
+  componentWillUnmount() {
+    this.hasMounted = false;
   }
 
   componentWillReceiveProps(
@@ -203,6 +213,9 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onCompletedMutation = (response: ExecutionResult<TData>, mutationId: number) => {
+    if (this.hasMounted === false) {
+      return;
+    }
     const { onCompleted, ignoreResults } = this.props;
 
     const data = response.data as TData;
@@ -217,8 +230,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onMutationError = (error: ApolloError, mutationId: number) => {
+    if (this.hasMounted === false) {
+      return;
+    }
     const { onError } = this.props;
-
     const callOnError = () => (onError ? onError(error) : null);
 
     if (this.isMostRecentMutation(mutationId)) {
