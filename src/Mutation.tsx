@@ -12,7 +12,8 @@ import { parser, DocumentType } from './parser';
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
   error?: ApolloError;
-  loading?: boolean;
+  loading: boolean;
+  called: boolean;
 }
 export interface MutationContext {
   client: ApolloClient<Object>;
@@ -55,7 +56,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: (options?: MutationOptions<TData, TVariables>) => Promise<void | FetchResult>,
-    result?: MutationResult<TData>,
+    result: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
@@ -63,14 +64,17 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
 }
 
 export interface MutationState<TData = any> {
-  notCalled: boolean;
+  called: boolean;
   error?: ApolloError;
   data?: TData;
-  loading?: boolean;
+  loading: boolean;
 }
 
 const initialState = {
-  notCalled: true,
+  loading: false,
+  called: false,
+  error: undefined,
+  data: undefined,
 };
 
 class Mutation<TData = any, TVariables = OperationVariables> extends React.Component<
@@ -132,15 +136,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   render() {
     const { children } = this.props;
-    const { loading, data, error, notCalled } = this.state;
+    const { loading, data, error, called } = this.state;
 
-    const result = notCalled
-      ? undefined
-      : {
-          loading,
-          data,
-          error,
-        };
+    const result = {
+      called,
+      loading,
+      data,
+      error,
+    };
 
     return children(this.runMutation, result);
   }
@@ -197,7 +200,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
         loading: true,
         error: undefined,
         data: undefined,
-        notCalled: false,
+        called: true,
       });
     }
   };
