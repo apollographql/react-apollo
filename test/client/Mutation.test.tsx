@@ -1186,7 +1186,7 @@ it('does not update state after receiving error after it has been unmounted', do
             {(createTodo, result) => {
               if (!result) {
                 setTimeout(() => {
-                  createTodo().catch(() => {});
+                  createTodo().catch(() => {}); // tslint:disable-line
                   this.setState(
                     {
                       called: true,
