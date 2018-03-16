@@ -76,7 +76,7 @@ export function subscribe<
             {...opts}
             displayName={graphQLDisplayName}
             skip={shouldSkip}
-            query={document}
+            subscription={document}
             shouldResubscribe={this.state.resubscribe}
           >
             {({ data, ...r }) => {
