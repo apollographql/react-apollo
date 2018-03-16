@@ -17,7 +17,7 @@ export interface SubscriptionResult<TData = any> {
 }
 
 export interface SubscriptionProps<TData = any, TVariables = OperationVariables> {
-  query: DocumentNode;
+  subscription: DocumentNode;
   variables?: TVariables;
   shouldResubscribe?: boolean;
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
@@ -42,7 +42,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   };
 
   static propTypes = {
-    query: PropTypes.object.isRequired,
+    subscription: PropTypes.object.isRequired,
     variables: PropTypes.object,
     children: PropTypes.func.isRequired,
   };
@@ -105,7 +105,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   private initialize = (props: SubscriptionProps<TData, TVariables>) => {
     if (this.queryObservable) return;
     this.queryObservable = this.client.subscribe({
-      query: props.query,
+      query: props.subscription,
       variables: props.variables,
     });
   };
