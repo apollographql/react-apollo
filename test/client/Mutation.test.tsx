@@ -1121,7 +1121,17 @@ it('errors when changing from mutation to a subscription', done => {
 });
 
 it('does not update state after receiving data after it has been unmounted', done => {
+  let success = false;
+  let original = console.error;
   console.error = jest.fn();
+  const checker = () => {
+    setTimeout(() => {
+      expect(console.error).not.toHaveBeenCalled();
+      console.error = original;
+      success = true;
+      done();
+    }, 100);
+  };
 
   class Component extends React.Component {
     state = {
@@ -1139,17 +1149,7 @@ it('does not update state after receiving data after it has been unmounted', don
               if (!result) {
                 setTimeout(() => {
                   createTodo();
-                  this.setState(
-                    {
-                      called: true,
-                    },
-                    () => {
-                      setTimeout(() => {
-                        expect(console.error).not.toHaveBeenCalled();
-                        done();
-                      }, 100);
-                    },
-                  );
+                  this.setState({ called: true }, checker);
                 });
               }
 
@@ -1161,15 +1161,27 @@ it('does not update state after receiving data after it has been unmounted', don
     }
   }
 
-  const wrapper = mount(
+  mount(
     <MockedProvider mocks={mocks}>
       <Component />
     </MockedProvider>,
   );
+
+  setTimeout(() => {
+    if (!success) done.fail('timeout passed');
+  }, 200);
 });
 
 it('does not update state after receiving error after it has been unmounted', done => {
+  let original = console.error;
   console.error = jest.fn();
+  const checker = () => {
+    setTimeout(() => {
+      expect(console.error).not.toHaveBeenCalled();
+      console.error = original;
+      done();
+    }, 100);
+  };
 
   class Component extends React.Component {
     state = {
@@ -1187,18 +1199,8 @@ it('does not update state after receiving error after it has been unmounted', do
               if (!result) {
                 setTimeout(() => {
                   createTodo().catch(() => {}); // tslint:disable-line
-                  this.setState(
-                    {
-                      called: true,
-                    },
-                    () => {
-                      setTimeout(() => {
-                        expect(console.error).not.toHaveBeenCalled();
-                        done();
-                      }, 100);
-                    },
-                  );
-                });
+                  this.setState({ called: true }, checker);
+                }, 10);
               }
 
               return null;
