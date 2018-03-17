@@ -11,6 +11,10 @@ jobs:
           command: npm run jest -- --ci --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
 
 
   Node.js 9:
@@ -23,6 +27,11 @@ jobs:
           command: npm run jest -- --ci --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
+
 
 
   Linting:
@@ -50,6 +59,11 @@ jobs:
           command: npm run test-preact -- --ci --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
+
 
 
   Browser:
@@ -63,6 +77,10 @@ jobs:
           command: npm run test:compiled:browser:umd -- --ci --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
 
 
   Server:
@@ -76,6 +94,10 @@ jobs:
           command: npm run test:compiled:server:umd -- --ci --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
 
 
   Commonjs:
@@ -89,7 +111,10 @@ jobs:
           command: npm run test:compiled:cjs -- --ci --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
-
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
 
   Filesize:
     docker: [ { image: 'circleci/node:8' } ]
