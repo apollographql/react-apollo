@@ -43,7 +43,7 @@ jobs:
       - checkout
       - run: npm install
       - run: npm run compile
-      - run: npm run test:compile
+      - run: npm run test:compiled
 
   Filesize:
     docker: [ { image: 'circleci/node:8' } ]
