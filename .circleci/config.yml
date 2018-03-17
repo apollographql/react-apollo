@@ -1,55 +1,50 @@
 version: 2
 
-common_test_steps: &common_test_steps
-  steps:
-    - checkout
-    - run: npm --version
-    - run: npm install
-
 jobs:
   Node.js 8:
     docker: [ { image: 'circleci/node:8' } ]
-    <<: *common_test_steps
-    - run: npm run jest
+    steps:
+      - run: npm i
+      - run: npm run jest
 
   Node.js 9:
     docker: [ { image: 'circleci/node:9' } ]
-    <<: *common_test_steps
-    - run: npm run jest
+    steps: 
+      - run: npm i
+      - run: npm run jest
 
-  # Other tests, unrelated to typical code tests.
   Linting:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      <<: *common_test_steps
+      - run: npm i
       - run: npm run danger
       - run: npm run lint
 
   Typecheck:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      <<: *common_test_steps
+      - run: npm i
       - run: npm run type-check
 
   Preact:
     docker: [ { image: 'circleci/node:8' } ]
-      <<: *common_test_steps
+    steps:
+      - run: npm i
       - run: npm run test-preact
 
   TestBundles:
     docker: [ { image: 'circleci/node:8' } ]
-      <<: *common_test_steps
+    steps:
+      - run: npm i
       - run: npm run compile
       - run: npm run test:compile
 
   Filesize:
     docker: [ { image: 'circleci/node:8' } ]
-      <<: *common_test_steps
+    steps:
+      - run: npm i
       - run: npm run compile
       - run: npm run filesize
-
-
-
 
 workflows:
   version: 2
