@@ -33,7 +33,6 @@ jobs:
   Preact:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      <<: *setup
       - checkout
       - run: npm install
       - run: npm run test-preact
@@ -41,7 +40,6 @@ jobs:
   TestBundles:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      <<: *setup
       - checkout
       - run: npm install
       - run: npm run compile
