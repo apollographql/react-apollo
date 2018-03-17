@@ -222,6 +222,34 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
 
   private hasMounted: boolean;
   private operation: IDocumentDefinition;
+
+  static getDerivedStateFromProps(
+    nextProps: InnerQueryProps<any, any>,
+    prevState: QueryState<any>,
+  ) {
+    const props = pickObservedProps(nextProps);
+    // if we aren't working from a live query, we can just ignore props changes
+    if (!prevState.queryObservable) return { props };
+
+    // if there are no changes to the props, don't do anything state wise
+    if (shallowEqual(pickObservedProps(nextProps), prevState.props)) return null;
+
+    if (nextProps.skip) return { props };
+
+    prevState.evictData = false;
+
+    // remove the queryObservable so cDU will have to create a new one
+    if (nextProps.client !== prevState.props.client || nextProps.query !== prevState.props.query) {
+      prevState.evictData = true;
+      prevState.queryObservable = null;
+    }
+
+    // update the ObservableQuery
+    prevState.queryObservable = updateQuery(nextProps, prevState);
+    prevState.props = props;
+
+    return prevState;
+  }
   constructor(props: InnerQueryProps<TData, TVariables>) {
     super(props);
 
@@ -263,34 +291,6 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
         .then(resolve)
         .catch(reject);
     }
-  }
-
-  static getDerivedStateFromProps(
-    nextProps: InnerQueryProps<any, any>,
-    prevState: QueryState<any>,
-  ) {
-    const props = pickObservedProps(nextProps);
-    // if we aren't working from a live query, we can just ignore props changes
-    if (!prevState.queryObservable) return { props };
-
-    // if there are no changes to the props, don't do anything state wise
-    if (shallowEqual(pickObservedProps(nextProps), prevState.props)) return null;
-
-    if (nextProps.skip) return { props };
-
-    prevState.evictData = false;
-
-    // remove the queryObservable so cDU will have to create a new one
-    if (nextProps.client !== prevState.props.client || nextProps.query !== prevState.props.query) {
-      prevState.evictData = true;
-      prevState.queryObservable = null;
-    }
-
-    // update the ObservableQuery
-    prevState.queryObservable = updateQuery(nextProps, prevState);
-    prevState.props = props;
-
-    return prevState;
   }
 
   componentDidUpdate(prevProps: InnerQueryProps<TData, TVariables>) {

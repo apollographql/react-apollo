@@ -1,3 +1,3 @@
 import './shim';
 import './enzyme';
-console.error = () => {};
+// console.error = () => {}; // tslint:ignore

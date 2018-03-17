@@ -550,11 +550,8 @@ describe('[queries] lifecycle', () => {
     await wait(1);
     switchClient!(client2);
     await wait(1);
-    console.log('calling refetch');
     refetchQuery!();
     await wait(1);
-    console.log(renders);
-    console.log('called refetch');
     // switchClient!(client3);
     // await wait(1);
     // switchClient!(client1);
