@@ -89,6 +89,19 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   private hasMounted: boolean;
 
+  static getDerivedStateFromProps = (
+    nextProps: InnerMutationProps<any, any>,
+    prevState: MutationState<any>,
+  ) => {
+    if (nextProps.client !== prevState.client) {
+      return {
+        ...initialState,
+        client: nextProps.client,
+      };
+    }
+    return null;
+  };
+
   constructor(props: InnerMutationProps<TData, TVariables>) {
     super(props);
 
@@ -105,19 +118,6 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   componentWillUnmount() {
     this.hasMounted = false;
   }
-
-  static getDerivedStateFromProps = (
-    nextProps: InnerMutationProps<any, any>,
-    prevState: MutationState<any>,
-  ) => {
-    if (nextProps.client !== prevState.client) {
-      return {
-        ...initialState,
-        client: nextProps.client,
-      };
-    }
-    return null;
-  };
 
   componentDidUpdate(prevProps: InnerMutationProps<TData, TVariables>) {
     if (this.props.mutation !== prevProps.mutation) {
