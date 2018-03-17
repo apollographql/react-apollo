@@ -1167,7 +1167,7 @@ it('does not update state after receiving data after it has been unmounted', don
         return (
           <Mutation mutation={mutation}>
             {(createTodo, result) => {
-              if (!result) {
+              if (!result.called) {
                 setTimeout(() => {
                   createTodo();
                   this.setState({ called: true }, checker);
@@ -1217,7 +1217,7 @@ it('does not update state after receiving error after it has been unmounted', do
         return (
           <Mutation mutation={mutation}>
             {(createTodo, result) => {
-              if (!result) {
+              if (!result.called) {
                 setTimeout(() => {
                   createTodo().catch(() => {}); // tslint:disable-line
                   this.setState({ called: true }, checker);
