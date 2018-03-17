@@ -556,8 +556,8 @@ describe('[queries] errors', () => {
           try {
             switch (count++) {
               case 0:
-                props.data!
-                  .refetch()
+                props
+                  .data!.refetch()
                   .then(() => {
                     done.fail('Expected error value on first refetch.');
                   })
@@ -569,8 +569,8 @@ describe('[queries] errors', () => {
               case 2:
                 expect(props.data!.loading).toBeFalsy();
                 expect(props.data!.error).toBeTruthy();
-                props.data!
-                  .refetch()
+                props
+                  .data!.refetch()
                   .then(noop)
                   .catch(() => {
                     done.fail('Expected good data on second refetch.');
@@ -655,8 +655,8 @@ describe('[queries] errors', () => {
           try {
             switch (count++) {
               case 0:
-                props.data!
-                  .refetch()
+                props
+                  .data!.refetch()
                   .then(() => {
                     done.fail('Expected error value on first refetch.');
                   })
@@ -736,7 +736,6 @@ describe('[queries] errors', () => {
     });
 
     let count = 0;
-    const noop = () => null;
     type ContainerOwnProps = { toggle: () => void };
     const Container = graphql<ContainerOwnProps, Data>(query, {
       options: { notifyOnNetworkStatusChange: true },

@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.1.0-rc.1",
+  "version": "2.1.0-rc.3",
   "author": "opensource@apollographql.com",
   "browser": "lib/react-apollo.browser.umd.js",
   "description": "React data container for Apollo Client",
@@ -18,9 +18,7 @@
     "url": "apollostack/react-apollo"
   },
   "scripts": {
-    "compile": "npm run compile:esm && npm run compile:cjs",
-    "compile:cjs": "tsc --project tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
-    "compile:esm": "tsc --project tsconfig.json -d && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src && cd lib && rename js mjs",
+    "compile": "tsc && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
     "danger": "danger run --verbose",
     "deploy": "cd lib && npm publish --tag=next",
     "filesize": "bundlesize",
@@ -150,6 +148,5 @@
     "invariant": "^2.2.2",
     "lodash": "4.17.5",
     "prop-types": "^15.6.0"
-  },
-  "sideEffects": false
+  }
 }
