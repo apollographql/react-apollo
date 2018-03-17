@@ -5,21 +5,21 @@ jobs:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run jest
 
   Node.js 9:
     docker: [ { image: 'circleci/node:9' } ]
     steps: 
       - checkout
-      - run: npm ci 
+      - run: npm i 
       - run: npm run jest
 
   Linting:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run danger
       - run: npm run lint
 
@@ -27,21 +27,21 @@ jobs:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run type-check
 
   Preact:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run test-preact
 
   Browser:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run compile
       - run: npm run test:compiled:browser:umd
 
@@ -49,7 +49,7 @@ jobs:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run compile
       - run: npm run test:compiled:server:umd
 
@@ -57,7 +57,7 @@ jobs:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run compile
       - run: npm run test:compiled:cjs
 
@@ -65,7 +65,7 @@ jobs:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
       - checkout
-      - run: npm ci
+      - run: npm i
       - run: npm run compile
       - run: npm run filesize
 
