@@ -10,12 +10,12 @@ jobs:
   Node.js 8:
     docker: [ { image: 'circleci/node:8' } ]
     <<: *common_test_steps
-    - npm run jest
+    - run: npm run jest
 
   Node.js 9:
     docker: [ { image: 'circleci/node:9' } ]
     <<: *common_test_steps
-    - npm run jest
+    - run: npm run jest
 
   # Other tests, unrelated to typical code tests.
   Linting:
@@ -34,20 +34,31 @@ jobs:
   Preact:
     docker: [ { image: 'circleci/node:8' } ]
       <<: *common_test_steps
-      - npm run test-preact
+      - run: npm run test-preact
 
   TestBundles:
     docker: [ { image: 'circleci/node:8' } ]
       <<: *common_test_steps
-      - npm run compile
-      - npm run test:compile
+      - run: npm run compile
+      - run: npm run test:compile
 
   Filesize:
     docker: [ { image: 'circleci/node:8' } ]
       <<: *common_test_steps
-      - npm run compile
-      - npm run filesize
+      - run: npm run compile
+      - run: npm run filesize
 
 
 
-    
+
+workflows:
+  version: 2
+  Build and Test:
+    jobs:
+      - Node.js 8
+      - Node.js 9
+      - Linting
+      - Typecheck 
+      - Preact
+      - TestBundles
+      - Filesize
