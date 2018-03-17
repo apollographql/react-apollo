@@ -72,16 +72,21 @@ it('performs a mutation', done => {
     <Mutation mutation={mutation}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
+          expect(result).toEqual({
+            loading: false,
+            called: false,
+          });
           setTimeout(() => {
             createTodo();
           });
         } else if (count === 1) {
           expect(result).toEqual({
+            called: true,
             loading: true,
           });
         } else if (count === 2) {
           expect(result).toEqual({
+            called: true,
             loading: false,
             data,
           });
@@ -106,7 +111,10 @@ it('can bind only the mutation and not rerender by props', done => {
     <Mutation mutation={mutation} ignoreResults>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
+          expect(result).toEqual({
+            loading: false,
+            called: false,
+          });
           setTimeout(() => {
             createTodo().then(r => {
               expect(r!.data).toEqual(data);
@@ -190,6 +198,7 @@ it('returns rejected promise when calling the mutation function', done => {
     </MockedProvider>,
   );
 });
+
 it('only shows result for the latest mutation that is in flight', done => {
   let count = 0;
 
@@ -205,7 +214,11 @@ it('only shows result for the latest mutation that is in flight', done => {
     <Mutation mutation={mutation} onCompleted={onCompleted}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
+          expect(result).toEqual({
+            called: false,
+            loading: false,
+          });
+
           setTimeout(() => {
             createTodo();
             createTodo();
@@ -213,10 +226,12 @@ it('only shows result for the latest mutation that is in flight', done => {
         } else if (count === 1) {
           expect(result).toEqual({
             loading: true,
+            called: true,
           });
         } else if (count === 2) {
           expect(result).toEqual({
             loading: false,
+            called: true,
             data: data2,
           });
         }
@@ -248,7 +263,10 @@ it('only shows the error for the latest mutation in flight', done => {
     <Mutation mutation={mutation} onError={onError}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
+          expect(result).toEqual({
+            called: false,
+            loading: false,
+          });
           setTimeout(() => {
             createTodo();
             createTodo();
@@ -256,11 +274,13 @@ it('only shows the error for the latest mutation in flight', done => {
         } else if (count === 1) {
           expect(result).toEqual({
             loading: true,
+            called: true,
           });
         } else if (count === 2) {
           expect(result).toEqual({
             loading: false,
             data: undefined,
+            called: true,
             error: new Error('Network error: Error 2'),
           });
         }
@@ -308,7 +328,7 @@ it('calls the onCompleted prop as soon as the mutation is complete', done => {
       return (
         <Mutation mutation={mutation} onCompleted={this.onCompleted}>
           {(createTodo, result) => {
-            if (!result) {
+            if (!result.called) {
               expect(this.state.mutationDone).toBe(false);
               setTimeout(() => {
                 createTodo();
@@ -354,9 +374,9 @@ it('renders an error state', done => {
               expect(err).toEqual(new Error('Network error: error occurred'));
             }),
           );
-        } else if (count === 1 && result) {
+        } else if (count === 1) {
           expect(result.loading).toBeTruthy();
-        } else if (count === 2 && result) {
+        } else if (count === 2) {
           expect(result.error).toEqual(new Error('Network error: error occurred'));
           done();
         }
@@ -400,7 +420,7 @@ it('calls the onError prop if the mutation encounters an error', done => {
       return (
         <Mutation mutation={mutation} onError={this.onError}>
           {(createTodo, result) => {
-            if (!result) {
+            if (!result.called) {
               expect(mutationError).toBe(false);
               setTimeout(() => createTodo());
             }
@@ -439,17 +459,18 @@ it('performs a mutation with variables prop', done => {
     <Mutation mutation={mutation} variables={variables}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
           setTimeout(() => {
             createTodo();
           });
         } else if (count === 1) {
           expect(result).toEqual({
             loading: true,
+            called: true,
           });
         } else if (count === 2) {
           expect(result).toEqual({
             loading: false,
+            called: true,
             data,
           });
           done();
@@ -484,17 +505,18 @@ it('allows passing a variable to the mutate function', done => {
     <Mutation mutation={mutation}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
           setTimeout(() => {
             createTodo({ variables });
           });
         } else if (count === 1) {
           expect(result).toEqual({
             loading: true,
+            called: true,
           });
         } else if (count === 2) {
           expect(result).toEqual({
             loading: false,
+            called: true,
             data,
           });
           done();
@@ -541,7 +563,6 @@ it('allows an optimistic response prop', done => {
     <Mutation mutation={mutation} optimisticResponse={optimisticResponse}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
           setTimeout(() => {
             createTodo();
             const dataInStore = client.cache.extract(true);
@@ -550,10 +571,12 @@ it('allows an optimistic response prop', done => {
         } else if (count === 1) {
           expect(result).toEqual({
             loading: true,
+            called: true,
           });
         } else if (count === 2) {
           expect(result).toEqual({
             loading: false,
+            called: true,
             data,
           });
           done();
@@ -593,19 +616,15 @@ it('allows passing an optimistic response to the mutate function', done => {
     <Mutation mutation={mutation}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
           setTimeout(() => {
             createTodo({ optimisticResponse });
             const dataInStore = client.cache.extract(true);
             expect(dataInStore['Todo:99']).toEqual(optimisticResponse.createTodo);
           });
-        } else if (count === 1) {
-          expect(result).toEqual({
-            loading: true,
-          });
         } else if (count === 2) {
           expect(result).toEqual({
             loading: false,
+            called: true,
             data,
           });
           done();
@@ -680,10 +699,10 @@ it('allows a refetchQueries prop', done => {
               setTimeout(() => {
                 createTodo();
               });
-            } else if (count === 1 && resultMutation) {
+            } else if (count === 1) {
               expect(resultMutation.loading).toBe(true);
               expect(resultQuery.loading).toBe(true);
-            } else if (count === 2 && resultMutation) {
+            } else if (count === 2) {
               expect(resultMutation.loading).toBe(true);
               expect(stripSymbols(resultQuery.data)).toEqual(queryData);
               done();
@@ -760,10 +779,10 @@ it('allows refetchQueries to be passed to the mutate function', done => {
               setTimeout(() => {
                 createTodo({ refetchQueries });
               });
-            } else if (count === 1 && resultMutation) {
+            } else if (count === 1) {
               expect(resultMutation.loading).toBe(true);
               expect(resultQuery.loading).toBe(true);
-            } else if (count === 2 && resultMutation) {
+            } else if (count === 2) {
               expect(resultMutation.loading).toBe(true);
               expect(stripSymbols(resultQuery.data)).toEqual(queryData);
               done();
@@ -857,17 +876,13 @@ it('allows for overriding the options passed in the props by passing them in the
     <Mutation mutation={mutation} variables={variablesProp}>
       {(createTodo, result) => {
         if (count === 0) {
-          expect(result).toBeUndefined();
           setTimeout(() => {
             createTodo({ variables: variablesMutateFn });
-          });
-        } else if (count === 1) {
-          expect(result).toEqual({
-            loading: true,
           });
         } else if (count === 2) {
           expect(result).toEqual({
             loading: false,
+            called: true,
             data: data2,
           });
           done();
@@ -938,7 +953,10 @@ it('updates if the client changes', done => {
           <Mutation mutation={mutation}>
             {(createTodo, result) => {
               if (count === 0) {
-                expect(result).toBeUndefined();
+                expect(result).toEqual({
+                  called: false,
+                  loading: false,
+                });
                 setTimeout(() => {
                   createTodo();
                 });
@@ -950,11 +968,14 @@ it('updates if the client changes', done => {
                   });
                 });
               } else if (count === 3) {
-                expect(result).toBeUndefined();
+                expect(result).toEqual({
+                  called: false,
+                  loading: false,
+                });
                 setTimeout(() => {
                   createTodo();
                 });
-              } else if (count === 5 && result) {
+              } else if (count === 5) {
                 expect(result.data).toEqual(data3);
                 done();
               }

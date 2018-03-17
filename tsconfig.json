@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "module": "es2015",
-    "target": "es2015",
-    "lib": ["es2015", "dom"],
+    "target": "es5",
+    "lib": ["es6", "dom"],
     "moduleResolution": "node",
+    "sourceMap": true,
     "strict": true,
     "outDir": "lib",
     "allowSyntheticDefaultImports": false,

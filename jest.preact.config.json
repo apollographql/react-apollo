@@ -4,7 +4,6 @@
     "^.+\\.tsx?$": "ts-jest",
     "^.+\\.jsx?$": "babel-jest"
   },
-  "mapCoverage": true,
   "moduleFileExtensions": ["ts", "tsx", "js", "json"],
   "modulePathIgnorePatterns": [
     "<rootDir>/examples",

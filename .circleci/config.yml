@@ -1,0 +1,85 @@
+version: 2
+
+jobs:
+  Node.js 8:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run jest
+
+  Node.js 9:
+    docker: [ { image: 'circleci/node:9' } ]
+    steps: 
+      - checkout
+      - run: npm i 
+      - run: npm run jest
+
+  Linting:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run danger
+      - run: npm run lint
+
+  Typecheck:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run type-check
+
+  Preact:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run test-preact
+
+  Browser:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run compile
+      - run: npm run test:compiled:browser:umd
+
+  Server:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run compile
+      - run: npm run test:compiled:server:umd
+
+  Commonjs:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run compile
+      - run: npm run test:compiled:cjs
+
+  Filesize:
+    docker: [ { image: 'circleci/node:8' } ]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run compile
+      - run: npm run filesize
+
+workflows:
+  version: 2
+  Build and Test:
+    jobs:
+      - Node.js 8
+      - Node.js 9
+      - Linting
+      - Typecheck 
+      - Preact
+      - Browser
+      - Server
+      - Commonjs
+      - Filesize
+
