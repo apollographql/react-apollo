@@ -265,7 +265,10 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     }
   }
 
-  static getDerivedStateFromProps(nextProps: QueryProps<TData, TVariables>, prevState) {
+  static getDerivedStateFromProps(
+    nextProps: InnerQueryProps<any, any>,
+    prevState: QueryState<any>,
+  ) {
     const props = pickObservedProps(nextProps);
     // if we aren't working from a live query, we can just ignore props changes
     if (!prevState.queryObservable) return { props };
