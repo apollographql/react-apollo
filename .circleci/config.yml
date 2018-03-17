@@ -1,48 +1,53 @@
 version: 2
 
+setup: &setup
+    - checkout
+    - run: npm --version
+    - run: npm install
+
 jobs:
   Node.js 8:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      - run: npm i
+      <<: *setup
       - run: npm run jest
 
   Node.js 9:
     docker: [ { image: 'circleci/node:9' } ]
     steps: 
-      - run: npm i
+      <<: *setup
       - run: npm run jest
 
   Linting:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      - run: npm i
+      <<: *setup
       - run: npm run danger
       - run: npm run lint
 
   Typecheck:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      - run: npm i
+      <<: *setup
       - run: npm run type-check
 
   Preact:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      - run: npm i
+      <<: *setup
       - run: npm run test-preact
 
   TestBundles:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      - run: npm i
+      <<: *setup
       - run: npm run compile
       - run: npm run test:compile
 
   Filesize:
     docker: [ { image: 'circleci/node:8' } ]
     steps:
-      - run: npm i
+      <<: *setup
       - run: npm run compile
       - run: npm run filesize
 
