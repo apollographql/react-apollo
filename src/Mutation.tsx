@@ -60,12 +60,17 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   context?: Record<string, any>;
 }
 
+export interface InnerMutationProps<TData = any, TVariables = OperationVariables>
+  extends MutationProps<TData, TVariables> {
+  client: ApolloClient<any>;
+}
+
 export interface MutationState<TData = any> {
   called: boolean;
   error?: ApolloError;
   data?: TData;
   loading: boolean;
-  client: ApolloClient;
+  client: ApolloClient<any>;
 }
 
 const initialState = {
@@ -77,14 +82,14 @@ const initialState = {
 };
 
 class Mutation<TData = any, TVariables = OperationVariables> extends React.Component<
-  MutationProps<TData, TVariables>,
+  InnerMutationProps<TData, TVariables>,
   MutationState<TData>
 > {
   private mostRecentMutationId: number;
 
   private hasMounted: boolean;
 
-  constructor(props: MutationProps<TData, TVariables>) {
+  constructor(props: InnerMutationProps<TData, TVariables>) {
     super(props);
 
     this.verifyDocumentIsMutation(props.mutation);
@@ -101,7 +106,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     this.hasMounted = false;
   }
 
-  static getDerivedStateFromProps = (nextProps, prevState) => {
+  static getDerivedStateFromProps = (
+    nextProps: InnerMutationProps<any, any>,
+    prevState: MutationState<any>,
+  ) => {
     if (nextProps.client !== prevState.client) {
       return {
         ...initialState,
