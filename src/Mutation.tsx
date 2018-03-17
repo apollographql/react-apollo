@@ -30,18 +30,14 @@ export declare type MutationUpdaterFn<
   }
 > = (proxy: DataProxy, mutationResult: FetchResult<T>) => void;
 
-export declare type FetchResult<
-  C = Record<string, any>,
-  E = Record<string, any>
-> = ExecutionResult<C> & {
+export declare type FetchResult<C = Record<string, any>, E = Record<string, any>> = ExecutionResult<
+  C
+> & {
   extensions?: E;
   context?: C;
 };
 
-export declare type MutationOptions<
-  TData = any,
-  TVariables = OperationVariables
-> = {
+export declare type MutationOptions<TData = any, TVariables = OperationVariables> = {
   variables?: TVariables;
   optimisticResponse?: Object;
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
@@ -56,10 +52,8 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
-    mutateFn: (
-      options?: MutationOptions<TData, TVariables>
-    ) => Promise<void | FetchResult>,
-    result: MutationResult<TData>
+    mutateFn: (options?: MutationOptions<TData, TVariables>) => Promise<void | FetchResult>,
+    result: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
@@ -82,10 +76,7 @@ const initialState = {
   client: undefined,
 };
 
-class Mutation<
-  TData = any,
-  TVariables = OperationVariables
-> extends React.Component<
+class Mutation<TData = any, TVariables = OperationVariables> extends React.Component<
   MutationProps<TData, TVariables>,
   MutationState<TData>
 > {
@@ -99,7 +90,7 @@ class Mutation<
     this.verifyDocumentIsMutation(props.mutation);
 
     this.mostRecentMutationId = 0;
-    this.state = { called: false, client: props.client };
+    this.state = { called: false, client: props.client, loading: false };
   }
 
   componentDidMount() {
@@ -113,7 +104,7 @@ class Mutation<
   static getDerivedStateFromProps = (nextProps, prevState) => {
     if (nextProps.client !== prevState.client) {
       return {
-        called: false,
+        ...initialState,
         client: nextProps.client,
       };
     }
@@ -121,8 +112,6 @@ class Mutation<
   };
 
   componentDidUpdate(prevProps: InnerMutationProps<TData, TVariables>) {
-    if (shallowEqual(this.props, prevProps)) return;
-
     if (this.props.mutation !== prevProps.mutation) {
       this.verifyDocumentIsMutation(this.props.mutation);
     }
@@ -159,13 +148,7 @@ class Mutation<
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const {
-      mutation,
-      variables,
-      optimisticResponse,
-      update,
-      context = {},
-    } = this.props;
+    const { mutation, variables, optimisticResponse, update, context = {} } = this.props;
     let refetchQueries = options.refetchQueries || this.props.refetchQueries;
     return this.state.client.mutate({
       mutation,
@@ -189,10 +172,7 @@ class Mutation<
     }
   };
 
-  private onCompletedMutation = (
-    response: ExecutionResult<TData>,
-    mutationId: number
-  ) => {
+  private onCompletedMutation = (response: ExecutionResult<TData>, mutationId: number) => {
     if (this.hasMounted === false) {
       return;
     }
@@ -238,7 +218,7 @@ class Mutation<
       operation.type === DocumentType.Mutation,
       `The <Mutation /> component requires a graphql mutation, but got a ${
         operation.type === DocumentType.Query ? 'query' : 'subscription'
-      }.`
+      }.`,
     );
   };
 }
@@ -248,10 +228,6 @@ export default class ApolloMutation<
   TVariables = OperationVariables
 > extends React.Component<MutationProps<TData, TVariables>> {
   render() {
-    return (
-      <Consumer>
-        {client => <Mutation client={client} {...this.props} />}
-      </Consumer>
-    );
+    return <Consumer>{client => <Mutation client={client} {...this.props} />}</Consumer>;
   }
 }
