@@ -16,9 +16,11 @@ node -e "var package = require('./package.json'); \
   delete package[\"husky\"]; \
   delete package.scripts; \
   delete package.options; \
+  delete package.prettier; \
+  delete package.devDependencies; \
   package.main = 'react-apollo.umd.js'; \
   package.browser = 'react-apollo.browser.umd.js'; \
-  package.module = 'index.mjs'; \
+  package.module = 'index.js'; \
   package.typings = 'index.d.ts'; \
   var origVersion = 'local';
   var fs = require('fs'); \
@@ -29,5 +31,4 @@ node -e "var package = require('./package.json'); \
 # Copy few more files to ./lib
 cp README.md lib/
 cp LICENSE lib/
-cp src/index.js.flow lib/
 cp .npmignore lib/
