@@ -22,7 +22,7 @@
     "danger": "danger run --verbose",
     "deploy": "cd lib && npm publish --tag=next",
     "filesize": "bundlesize",
-    "jest": "jest --runInBand --maxWorkers=4 --coverage",
+    "jest": "jest --runInBand --coverage",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "lint-staged": "lint-staged",
     "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
