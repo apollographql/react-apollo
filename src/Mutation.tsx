@@ -94,7 +94,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     this.verifyDocumentIsMutation(props.mutation);
 
     this.mostRecentMutationId = 0;
-    this.state = { called: false, client: props.client };
+    this.state = { called: false, client: props.client, loading: false };
   }
 
   componentDidMount() {
@@ -108,7 +108,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   static getDerivedStateFromProps = (nextProps, prevState) => {
     if (nextProps.client !== prevState.client) {
       return {
-        called: false,
+        ...initialState,
         client: nextProps.client,
       };
     }
@@ -116,8 +116,6 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   componentDidUpdate(prevProps: InnerMutationProps<TData, TVariables>) {
-    if (shallowEqual(this.props, prevProps)) return;
-
     if (this.props.mutation !== prevProps.mutation) {
       this.verifyDocumentIsMutation(this.props.mutation);
     }

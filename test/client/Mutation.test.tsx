@@ -991,156 +991,6 @@ it('updates if the client changes', done => {
   mount(<Component />);
 });
 
-it('errors if a query is passed instead of a mutation', () => {
-  const query = gql`
-    query todos {
-      todos {
-        id
-      }
-    }
-  `;
-
-  // Prevent error from being logged in console of test.
-  const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
-
-  expect(() => {
-    mount(
-      <MockedProvider>
-        <Mutation mutation={query}>{() => null}</Mutation>
-      </MockedProvider>,
-    );
-  }).toThrowError('The <Mutation /> component requires a graphql mutation, but got a query.');
-
-  console.log = errorLogger;
-});
-
-it('errors when changing from mutation to a query', done => {
-  const query = gql`
-    query todos {
-      todos {
-        id
-      }
-    }
-  `;
-
-  class Component extends React.Component {
-    state = {
-      query: mutation,
-    };
-
-    componentDidCatch(e: Error) {
-      expect(e).toEqual(
-        new Error('The <Mutation /> component requires a graphql mutation, but got a query.'),
-      );
-      done();
-    }
-    render() {
-      return (
-        <Mutation mutation={this.state.query}>
-          {() => {
-            setTimeout(() => {
-              this.setState({
-                query,
-              });
-            });
-            return null;
-          }}
-        </Mutation>
-      );
-    }
-  }
-
-  // Prevent error from being logged in console of test.
-  const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
-
-  mount(
-    <MockedProvider>
-      <Component />
-    </MockedProvider>,
-  );
-
-  console.log = errorLogger;
-});
-
-it('errors if a subscription is passed instead of a mutation', () => {
-  const subscription = gql`
-    subscription todos {
-      todos {
-        id
-      }
-    }
-  `;
-
-  // Prevent error from being logged in console of test.
-  const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
-
-  expect(() => {
-    mount(
-      <MockedProvider>
-        <Mutation mutation={subscription}>{() => null}</Mutation>
-      </MockedProvider>,
-    );
-  }).toThrowError(
-    'The <Mutation /> component requires a graphql mutation, but got a subscription.',
-  );
-
-  console.log = errorLogger;
-});
-
-it('errors when changing from mutation to a subscription', done => {
-  const subscription = gql`
-    subscription todos {
-      todos {
-        id
-      }
-    }
-  `;
-
-  class Component extends React.Component {
-    state = {
-      query: mutation,
-    };
-
-    componentDidCatch(e: Error) {
-      expect(e).toEqual(
-        new Error(
-          'The <Mutation /> component requires a graphql mutation, but got a subscription.',
-        ),
-      );
-      done();
-    }
-    render() {
-      return (
-        <Mutation mutation={this.state.query}>
-          {() => {
-            setTimeout(() => {
-              this.setState({
-                query: subscription,
-              });
-            });
-            return null;
-          }}
-        </Mutation>
-      );
-    }
-  }
-
-  // Prevent error from being logged in console of test.
-  const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
-
-  mount(
-    <MockedProvider>
-      <Component />
-    </MockedProvider>,
-  );
-
-  console.log = errorLogger;
-});
-
 it('does not update state after receiving data after it has been unmounted', done => {
   let success = false;
   let original = console.error;
@@ -1241,6 +1091,143 @@ it('does not update state after receiving error after it has been unmounted', do
 
   const wrapper = mount(
     <MockedProvider mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+it('errors if a query is passed instead of a mutation', () => {
+  const query = gql`
+    query todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  // Prevent error from being logged in console of test.
+  const errorLogger = console.error;
+  console.error = () => {}; // tslint:disable-line
+
+  expect(() => {
+    mount(
+      <MockedProvider>
+        <Mutation mutation={query}>{() => null}</Mutation>
+      </MockedProvider>,
+    );
+  }).toThrowError('The <Mutation /> component requires a graphql mutation, but got a query.');
+
+  console.log = errorLogger;
+});
+
+it('errors when changing from mutation to a query', done => {
+  const query = gql`
+    query todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  class Component extends React.Component {
+    state = {
+      query: mutation,
+    };
+
+    componentDidCatch(e: Error) {
+      expect(e).toEqual(
+        new Error('The <Mutation /> component requires a graphql mutation, but got a query.'),
+      );
+      done();
+    }
+    render() {
+      return (
+        <Mutation mutation={this.state.query}>
+          {() => {
+            setTimeout(() => {
+              this.setState({
+                query,
+              });
+            });
+            return null;
+          }}
+        </Mutation>
+      );
+    }
+  }
+
+  // Prevent error from being logged in console of test.
+  const errorLogger = console.error;
+  console.error = () => {}; // tslint:disable-line
+
+  mount(
+    <MockedProvider>
+      <Component />
+    </MockedProvider>,
+  );
+
+  console.log = errorLogger;
+});
+
+it('errors if a subscription is passed instead of a mutation', () => {
+  const subscription = gql`
+    subscription todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  expect(() => {
+    mount(
+      <MockedProvider>
+        <Mutation mutation={subscription}>{() => null}</Mutation>
+      </MockedProvider>,
+    );
+  }).toThrowError(
+    'The <Mutation /> component requires a graphql mutation, but got a subscription.',
+  );
+});
+
+it('errors when changing from mutation to a subscription', done => {
+  const subscription = gql`
+    subscription todos {
+      todos {
+        id
+      }
+    }
+  `;
+
+  class Component extends React.Component {
+    state = {
+      query: mutation,
+    };
+
+    componentDidCatch(e: Error) {
+      expect(e).toEqual(
+        new Error(
+          'The <Mutation /> component requires a graphql mutation, but got a subscription.',
+        ),
+      );
+      done();
+    }
+    render() {
+      return (
+        <Mutation mutation={this.state.query}>
+          {() => {
+            setTimeout(() => {
+              this.setState({
+                query: subscription,
+              });
+            });
+            return null;
+          }}
+        </Mutation>
+      );
+    }
+  }
+
+  mount(
+    <MockedProvider>
       <Component />
     </MockedProvider>,
   );

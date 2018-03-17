@@ -16,20 +16,15 @@ export interface SubscriptionResult<TData = any> {
   error?: ApolloError;
 }
 
-export interface SubscriptionProps<
-  TData = any,
-  TVariables = OperationVariables
-> {
+export interface SubscriptionProps<TData = any, TVariables = OperationVariables> {
   subscription: DocumentNode;
   variables?: TVariables;
   shouldResubscribe?: any;
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
 
-export interface InnerSubscriptionProps<
-  TData = any,
-  TVariables = OperationVariables
-> extends SubscriptionProps<TData, TVariables> {
+export interface InnerSubscriptionProps<TData = any, TVariables = OperationVariables>
+  extends SubscriptionProps<TData, TVariables> {
   client: ApolloClient<any>;
 }
 
@@ -56,7 +51,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
 
   static getDerivedStateFromProps(
     nextProps: InnerSubscriptionProps<any, any>,
-    prevState: SubscriptionState
+    prevState: SubscriptionState,
   ) {
     const shouldNotResubscribe = prevState.props.shouldResubscribe === false;
     if (shallowEqual(nextProps, prevState.props) || shouldNotResubscribe) {
@@ -105,7 +100,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
 
   private initialize = (props: InnerSubscriptionProps<TData, TVariables>) => {
     if (this.queryObservable) return;
-    this.queryObservable = this.client.subscribe({
+    this.queryObservable = props.client.subscribe({
       query: props.subscription,
       variables: props.variables,
     });
@@ -143,10 +138,6 @@ export default class ApolloSubscription<
   TVariables = OperationVariables
 > extends React.Component<SubscriptionProps<TData, TVariables>> {
   render() {
-    return (
-      <Consumer>
-        {client => <Subscription client={client} {...this.props} />}
-      </Consumer>
-    );
+    return <Consumer>{client => <Subscription client={client} {...this.props} />}</Consumer>;
   }
 }

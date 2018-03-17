@@ -110,13 +110,40 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   skip?: boolean;
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
-  asyncMode?: boolean;
+  suspend?: boolean;
 }
 
 export interface InnerQueryProps<TData = any, TVariables = OperationVariables>
   extends QueryProps<TData, TVariables> {
   client: ApolloClient<any>;
 }
+
+const pickObservedProps = (props: QueryProps<any, any>) => {
+  const {
+    fetchPolicy,
+    errorPolicy,
+    notifyOnNetworkStatusChange,
+    pollInterval,
+    query,
+    variables,
+    skip,
+    client,
+    context,
+    suspend,
+  } = props;
+  return {
+    fetchPolicy,
+    errorPolicy,
+    notifyOnNetworkStatusChange,
+    pollInterval,
+    query,
+    variables,
+    skip,
+    client,
+    context,
+    suspend,
+  };
+};
 
 const extractOptsFromProps = (props: QueryProps<any, any>) => {
   const {
@@ -195,36 +222,12 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
 
   private hasMounted: boolean;
   private operation: IDocumentDefinition;
-  static getDerivedStateFromProps(
-    nextProps: InnerQueryProps<any, any>,
-    prevState: QueryState<any>,
-  ) {
-    // if we aren't working from a live query, we can just ignore props changes
-    if (!prevState.queryObservable) return null;
-
-    // if there are no changes to the props, don't do anything state wise
-    if (shallowEqual(nextProps, prevState.props)) return null;
-
-    if (nextProps.skip) return null;
-
-    prevState.evictData = false;
-
-    // remove the queryObservable so cDU will have to create a new one
-    if (nextProps.client !== prevState.props.client || nextProps.query !== prevState.props.query) {
-      prevState.evictData = true;
-      prevState.queryObservable = null;
-    }
-
-    // update the ObservableQuery
-    prevState.queryObservable = updateQuery(nextProps, prevState);
-
-    return prevState;
-  }
   constructor(props: InnerQueryProps<TData, TVariables>) {
     super(props);
+
     this.state = {
       queryObservable: initializeQueryObservable(props),
-      props,
+      props: pickObservedProps(props),
     } as any;
   }
 
@@ -232,7 +235,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.props.skip) return false;
     // pull off react options
-    const { children, ssr, displayName, skip, client, asyncMode, ...opts } = this.props;
+    const { children, ssr, displayName, skip, client, suspend, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -263,25 +266,31 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
   }
 
   static getDerivedStateFromProps(nextProps: QueryProps<TData, TVariables>, prevState) {
+    const props = pickObservedProps(nextProps);
     // if we aren't working from a live query, we can just ignore props changes
-    if (!prevState.queryObservable) return null;
+    if (!prevState.queryObservable) return { props };
 
     // if there are no changes to the props, don't do anything state wise
-    if (shallowEqual(nextProps, prevState.props)) return null;
+    if (shallowEqual(pickObservedProps(nextProps), prevState.props)) return null;
+
+    if (nextProps.skip) return { props };
+
+    prevState.evictData = false;
 
     // remove the queryObservable so cDU will have to create a new one
     if (nextProps.client !== prevState.props.client || nextProps.query !== prevState.props.query) {
+      prevState.evictData = true;
       prevState.queryObservable = null;
     }
 
     // update the ObservableQuery
     prevState.queryObservable = updateQuery(nextProps, prevState);
+    prevState.props = props;
 
-    if (nextProps.skip) return null;
     return prevState;
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: InnerQueryProps<TData, TVariables>) {
     // the next render wants to skip
     if (this.props.skip && !prevProps.skip) {
       this.removeQuerySubscription();
@@ -385,7 +394,7 @@ class Query<TData = any, TVariables = OperationVariables> extends React.Componen
     if (evictData) this.previousData = {};
     if (loading) {
       // only throw if we are still in a loading state
-      if (this.props.asyncMode) {
+      if (this.props.suspend) {
         // async mode wants to throw a promise that waits for the data to be loaded
         throw this.state.queryObservable!.result();
       }
