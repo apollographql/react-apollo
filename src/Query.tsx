@@ -303,7 +303,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.querySubscription = this.queryObservable!.subscribe({
       next: () => {
         if (initialQueryResult.loading) {
-          this.updateCurrentData
+          this.updateCurrentData();
         }
       },
       error: error => {
