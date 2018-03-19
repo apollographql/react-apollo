@@ -2,6 +2,8 @@
 
 ### vNext
 
+## 2.1.0-rc.4
+
 * Fix regression on refetchQueries [#1794](https://github.com/apollographql/react-apollo/pull/1794)
 * Added a new `called` prop for mutations [#1775](https://github.com/apollographql/react-apollo/pull/1775)
 * Fix inconsistency in naming of subscription document prop [#1774](https://github.com/apollographql/react-apollo/pull/1774)
