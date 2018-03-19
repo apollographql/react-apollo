@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "apollo-cache-inmemory": "^1.1.4",
-    "apollo-client": "^2.0.4",
-    "apollo-link-http": "^1.3.2",
+    "apollo-cache-inmemory": "latest",
+    "apollo-client": "latest",
+    "apollo-link-http": "latest",
     "graphql-tag": "^2.6.1",
     "react": "^16.2.0",
     "react-apollo": "../../lib",
@@ -29,9 +29,7 @@
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "schema":
-      "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
-    "types":
-      "apollo-codegen generate ./src/**/queries.ts --addTypename --schema ./src/schema.json --target typescript --output ./src/__generated__/types.ts"
+    "schema": "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
+    "types": "apollo-codegen generate ./src/**/queries.ts --addTypename --schema ./src/schema.json --target typescript --output ./src/__generated__/types.ts"
   }
 }

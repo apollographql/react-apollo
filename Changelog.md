@@ -2,6 +2,10 @@
 
 ### vNext
 
+## 2.1.0-rc.5
+
+* Turn back on TypeScript definitions
+
 ## 2.1.0-rc.4
 
 * Fix regression on refetchQueries [#1794](https://github.com/apollographql/react-apollo/pull/1794)

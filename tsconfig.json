@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
-    "module": "es2015",
-    "target": "es5",
-    "lib": ["es6", "dom"],
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "strict": true,
-    "outDir": "lib",
     "allowSyntheticDefaultImports": false,
+    "declaration": true,
     "experimentalDecorators": true,
+    "jsx": "react",
+    "lib": ["es2015", "dom"],
+    "module": "es2015",
+    "moduleResolution": "node",
+    "noUnusedParameters": true,
+    "outDir": "lib",
     "pretty": true,
     "removeComments": true,
-    "jsx": "react",
     "skipLibCheck": true,
-    "noUnusedParameters": true
+    "sourceMap": true,
+    "strict": true,
+    "target": "es5"
   },
   "include": ["./typings/**/*", "./src/**/*", "./test/**/*"],
   "exclude": ["./node_modules", "./dist", "./lib"]
