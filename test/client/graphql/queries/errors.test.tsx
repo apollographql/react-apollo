@@ -12,7 +12,6 @@ import {
   Query,
   QueryResult,
   DataValue,
-  query as queryHoc,
 } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
@@ -417,7 +416,7 @@ describe('[queries] errors', () => {
       console.error = errorMock;
 
       let renderCount = 0;
-      @queryHoc<{}, Data>(query)
+      @graphql<{}, Data>(query)
       class UnhandledErrorComponent extends React.Component<ChildProps<{}, Data>> {
         render(): React.ReactNode {
           try {
