@@ -2,6 +2,10 @@
 
 ### vNext
 
+### 2.1.0
+
+* Officially release new components!
+
 ## 2.1.0-rc.5
 
 * Turn back on TypeScript definitions
