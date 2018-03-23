@@ -47,6 +47,10 @@ export declare type MutationOptions<TData = any, TVariables = OperationVariables
   update?: MutationUpdaterFn<TData>;
 };
 
+export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
+  options?: MutationOptions<TData, TVariables>,
+) => Promise<void | FetchResult<TData>>;
+
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
   ignoreResults?: boolean;
@@ -55,7 +59,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
-    mutateFn: (options?: MutationOptions<TData, TVariables>) => Promise<void | FetchResult>,
+    mutateFn: MutationFn<TData, TVariables>,
     result: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
@@ -187,7 +191,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     // refetch.
     if (refetchQueries && refetchQueries.length && Array.isArray(refetchQueries)) {
       refetchQueries = (refetchQueries as any).map((x: string | PureQueryOptions) => {
-        if (typeof x === 'string' && this.context.operations) return this.context.operations.get(x) || x;
+        if (typeof x === 'string' && this.context.operations)
+          return this.context.operations.get(x) || x;
         return x;
       });
       delete options.refetchQueries;
