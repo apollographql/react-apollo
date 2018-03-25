@@ -60,11 +60,12 @@ export function mutation<
           <Mutation {...opts} mutation={document} ignoreResults>
             {(mutate, _result) => {
               const name = operationOptions.name || 'mutate';
-              let childProps = { [name]: mutate };
+              let childProps = { [name]: mutate, ..._result };
               if (operationOptions.props) {
-                const newResult: OptionProps<TProps, TData> = {
+                const newResult: any = {
                   [name]: mutate,
                   ownProps: props,
+                  ...childProps,
                 };
                 childProps = operationOptions.props(newResult) as any;
               }
