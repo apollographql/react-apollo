@@ -62,7 +62,7 @@ export function mutation<
               const name = operationOptions.name || 'mutate';
               let childProps = { [name]: mutate, ..._result };
               if (operationOptions.props) {
-                const newResult: OptionProps<TProps, TData> = {
+                const newResult = {
                   ...childProps,
                   ownProps: props,
                 };
