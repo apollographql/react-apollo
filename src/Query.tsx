@@ -307,8 +307,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
+    const initialQueryResult = this.getQueryResult();
     this.querySubscription = this.queryObservable!.subscribe({
-      next: this.updateCurrentData,
+      next: () => {
+        if (initialQueryResult.loading) {
+          this.updateCurrentData();
+        }
+      },
       error: error => {
         this.resubscribeToQuery();
         // Quick fix for https://github.com/apollostack/react-apollo/issues/378
