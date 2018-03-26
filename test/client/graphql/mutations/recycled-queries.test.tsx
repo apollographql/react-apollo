@@ -28,7 +28,7 @@ describe('graphql(mutation) update queries', () => {
   //
   // There are also a lot more assertions on the way to make sure everything is
   // going as smoothly as planned.
-  fit('will run `update` for a previously mounted component', () =>
+  it('will run `update` for a previously mounted component', () =>
     new Promise((resolve, reject) => {
       const query: DocumentNode = gql`
         query todos {
