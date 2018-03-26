@@ -33,11 +33,13 @@ describe('[queries] reducer', () => {
     // in case of a skip
     type ChildProps = DataValue<Data>;
 
+    let count = 0;
     const ContainerWithData = graphql<{}, Data, {}, ChildProps>(query, {
       props: ({ data }) => ({ ...data! }),
     })(({ getThing, loading }) => {
-      expect(loading).toBe(true);
-      if (!loading) {
+      count++;
+      if (count === 1) expect(loading).toBe(true);
+      if (count === 2) {
         expect(getThing).toBeDefined();
         done();
       }
@@ -49,7 +51,6 @@ describe('[queries] reducer', () => {
         <ContainerWithData />
       </ApolloProvider>,
     );
-    (wrapper as any).unmount();
   });
 
   it('allows custom mapping of a result to props that includes the passed props', () => {
