@@ -533,7 +533,7 @@ describe('[queries] observableQuery', () => {
         render() {
           count++;
           try {
-            const { variables, loading, allPeople } = this.props.data!;
+            const { loading, allPeople } = this.props.data!;
             // first variable render
             if (count === 1) {
               expect(loading).toBe(true);

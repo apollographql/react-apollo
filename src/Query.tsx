@@ -308,7 +308,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
     // store the inital renders worth of result
-    let current = this.getQueryResult();
+    let current: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
     this.querySubscription = this.queryObservable!.subscribe({
       next: () => {
         // to prevent a quick second render from the subscriber
