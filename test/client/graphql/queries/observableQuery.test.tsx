@@ -493,7 +493,7 @@ describe('[queries] observableQuery', () => {
     }, 5);
   });
 
-  fit('not overly rerender', done => {
+  it('not overly rerender', done => {
     const query: DocumentNode = gql`
       query people($first: Int!) {
         allPeople(first: $first) {
