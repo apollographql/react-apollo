@@ -307,8 +307,19 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
+    // store the inital renders worth of result
+    let current: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
     this.querySubscription = this.queryObservable!.subscribe({
-      next: this.updateCurrentData,
+      next: () => {
+        // to prevent a quick second render from the subscriber
+        // we compare to see if the original started finished (from cache)
+        if (current && current.networkStatus === 7) {
+          // remove this for future rerenders (i.e. polling)
+          current = undefined;
+          return;
+        }
+        this.updateCurrentData();
+      },
       error: error => {
         this.resubscribeToQuery();
         // Quick fix for https://github.com/apollostack/react-apollo/issues/378

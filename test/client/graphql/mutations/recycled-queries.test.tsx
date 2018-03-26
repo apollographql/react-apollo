@@ -247,7 +247,7 @@ describe('graphql(mutation) update queries', () => {
                   expect(todoUpdateQueryCount).toBe(2);
                   expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(2);
-                  expect(queryRenderCount).toBe(5);
+                  expect(queryRenderCount).toBe(4);
                   resolve();
                 } catch (error) {
                   reject(error);

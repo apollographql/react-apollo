@@ -2,6 +2,10 @@
 
 ### vNext
 
+### 2.1.1
+
+* Fix uneccesary rerender on cache hit
+
 ### 2.1.0
 
 * Officially release new components!
