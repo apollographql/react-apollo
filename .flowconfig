@@ -4,9 +4,14 @@
 .*/node_modules/art/.*
 .*/node_modules/react-native/**/.*
 
+[untyped]
+.*/node_modules/graphql/.*
+
 [include]
 
 [libs]
 
 [options]
 suppress_comment= \\(.\\|\n\\)*\\$ExpectError
+; needed for $ExpectError to actually work
+include_warnings=true

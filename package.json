@@ -40,6 +40,7 @@
     "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
     "test:compiled:server:umd": "jest --config jest.server.umd.config.js --runInBand",
     "type-check": "tsc --project tsconfig.json --noEmit ",
+    "flow-check": "flow check test",
     "watch": "tsc -w"
   },
   "babel": {
