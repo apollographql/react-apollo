@@ -31,4 +31,5 @@ node -e "var package = require('./package.json'); \
 # Copy few more files to ./lib
 cp README.md lib/
 cp LICENSE lib/
+cp src/index.js.flow lib/
 cp .npmignore lib/
