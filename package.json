@@ -114,7 +114,7 @@
     "danger": "3.3.2",
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.1.1",
-    "flow-bin": "0.68.0",
+    "flow-bin": "0.69.0",
     "graphql": "0.13.2",
     "graphql-tag": "2.8.0",
     "husky": "0.14.3",
