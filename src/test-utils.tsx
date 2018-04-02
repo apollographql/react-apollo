@@ -11,22 +11,16 @@ export class MockedProvider extends React.Component<any, any> {
 
   constructor(props: any, context: any) {
     super(props, context);
-    if (this.props.client) return;
 
-    const addTypename = !this.props.removeTypename;
     const link = mockSingleLink.apply(null, this.props.mocks);
     this.client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename }),
+      cache: new Cache({ addTypename: false }),
       defaultOptions: this.props.defaultOptions,
     });
   }
 
   render() {
-    return (
-      <ApolloProvider client={this.client || this.props.client}>
-        {this.props.children}
-      </ApolloProvider>
-    );
+    return <ApolloProvider client={this.client}>{this.props.children}</ApolloProvider>;
   }
 }

@@ -91,7 +91,7 @@ describe('Query component', () => {
     const Component = () => <Query query={allPeopleQuery}>{_ => <div />}</Query>;
 
     wrapper = mount(
-      <MockedProvider mocks={allPeopleMocks} removeTypename>
+      <MockedProvider mocks={allPeopleMocks}>
         <Component />
       </MockedProvider>,
     );
@@ -142,7 +142,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocksWithVariable} removeTypename>
+        <MockedProvider mocks={mocksWithVariable}>
           <Component />
         </MockedProvider>,
       );
@@ -172,7 +172,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mockError} removeTypename>
+        <MockedProvider mocks={mockError}>
           <Component />
         </MockedProvider>,
       );
@@ -271,7 +271,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -341,7 +341,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -403,7 +403,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -462,7 +462,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -524,7 +524,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -547,7 +547,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={allPeopleMocks} removeTypename>
+        <MockedProvider mocks={allPeopleMocks}>
           <Component />
         </MockedProvider>,
       );
@@ -571,7 +571,6 @@ describe('Query component', () => {
         <MockedProvider
           defaultOptions={{ watchQuery: { fetchPolicy: 'cache-only' } }}
           mocks={allPeopleMocks}
-          removeTypename
         >
           <Component />
         </MockedProvider>,
@@ -624,7 +623,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -677,7 +676,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -814,7 +813,7 @@ describe('Query component', () => {
       }
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -883,7 +882,7 @@ describe('Query component', () => {
       }
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -1018,7 +1017,7 @@ describe('Query component', () => {
       }
 
       wrapper = mount(
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>,
       );
@@ -1069,7 +1068,7 @@ describe('Query component', () => {
     }
 
     wrapper = mount(
-      <MockedProvider mocks={allPeopleMocks} removeTypename>
+      <MockedProvider mocks={allPeopleMocks}>
         <Component />
       </MockedProvider>,
     );

@@ -2,6 +2,8 @@
 
 ### vNext
 
+* Simplified the MockedProvider API [#1882](https://github.com/apollographql/react-apollo/pull/1882)
+
 ### 2.1.1
 
 * Fix uneccesary rerender on cache hit
