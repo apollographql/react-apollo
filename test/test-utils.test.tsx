@@ -25,14 +25,14 @@ const query: DocumentNode = gql`
   query GetUser($username: String!) {
     user(username: $username) {
       id
-      __typename
     }
   }
 `;
-const queryWithoutTypename: DocumentNode = gql`
+const queryWithTypename: DocumentNode = gql`
   query GetUser($username: String!) {
     user(username: $username) {
       id
+      __typename
     }
   }
 `;
@@ -47,21 +47,27 @@ interface Variables {
   username: string;
 }
 
-const withUser = graphql<Variables, Data, Variables>(queryWithoutTypename, {
+const withUser = graphql<Variables, Data, Variables>(query, {
   options: props => ({
     variables: props,
   }),
 });
 
-it('mocks the data and adds the typename to the query', done => {
+const mocks = [
+  {
+    request: {
+      query,
+      variables,
+    },
+    result: { data: { user } },
+  },
+];
+
+it('mocks the data', done => {
   class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
     componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
-      try {
-        expect(nextProps.data!.user).toMatchSnapshot();
-        done();
-      } catch (e) {
-        done.fail(e);
-      }
+      expect(nextProps.data!.user).toMatchSnapshot();
+      done();
     }
 
     render() {
@@ -75,6 +81,43 @@ it('mocks the data and adds the typename to the query', done => {
     {
       request: {
         query,
+        variables,
+      },
+      result: { data: { user } },
+    },
+  ];
+
+  renderer.create(
+    <MockedProvider mocks={mocks}>
+      <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});
+
+it('allows for querying with the typename', done => {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      expect(nextProps.data!.user).toMatchSnapshot();
+      done();
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const withUserAndTypename = graphql<Variables, Data, Variables>(queryWithTypename, {
+    options: props => ({
+      variables: props,
+    }),
+  });
+
+  const ContainerWithData = withUserAndTypename(Container);
+
+  const mocks = [
+    {
+      request: {
+        query: queryWithTypename,
         variables,
       },
       result: { data: { user } },
@@ -163,11 +206,12 @@ it('mocks a network error', done => {
   );
 });
 
-it('mocks the data without adding the typename', done => {
+it('errors if the query in the mock and component do not match', done => {
   class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
     componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
       try {
-        expect(nextProps.data!.user).toMatchSnapshot();
+        expect(nextProps.data!.user).toBeUndefined();
+        expect(nextProps.data!.error).toMatchSnapshot();
         done();
       } catch (e) {
         done.fail(e);
@@ -181,55 +225,24 @@ it('mocks the data without adding the typename', done => {
 
   const ContainerWithData = withUser(Container);
 
-  const mocks = [
+  const mocksError = [
     {
       request: {
-        query: queryWithoutTypename,
+        query: gql`
+          query OtherQuery {
+            otherQuery {
+              id
+            }
+          }
+        `,
         variables,
       },
-      result: { data: { user: userWithoutTypeName } },
+      result: { data: { user } },
     },
   ];
 
   renderer.create(
-    <MockedProvider mocks={mocks} removeTypename>
-      <ContainerWithData {...variables} />
-    </MockedProvider>,
-  );
-});
-
-it('allows for passing a custom client', done => {
-  const link = mockSingleLink({
-    request: {
-      query,
-      variables,
-    },
-    result: { data: { user } },
-  });
-  const client = new ApolloClient({
-    link,
-    cache: new InMemoryCache(),
-  });
-
-  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
-    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
-      try {
-        expect(nextProps.data!.user).toMatchSnapshot();
-        done();
-      } catch (e) {
-        done.fail(e);
-      }
-    }
-
-    render() {
-      return null;
-    }
-  }
-
-  const ContainerWithData = withUser(Container);
-
-  renderer.create(
-    <MockedProvider client={client}>
+    <MockedProvider mocks={mocksError}>
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
