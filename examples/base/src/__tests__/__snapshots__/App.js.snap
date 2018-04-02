@@ -28,8 +28,7 @@ exports[`CharacterWithoutData renders a full data result 1`] = `
     </h3>
     <h6>
       luke
-      :
-       
+      : 
       newhope
     </h6>
   </div>
@@ -44,14 +43,12 @@ exports[`CharacterWithoutData returns markup for a friend without an appearsIn 1
     </h3>
     <h6>
       luke
-      :
-       
+      : 
       newhope
     </h6>
     <h6>
       james
-      :
-       
+      : 
       
     </h6>
   </div>

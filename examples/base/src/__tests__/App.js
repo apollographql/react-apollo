@@ -5,11 +5,9 @@ import * as renderer from 'react-test-renderer';
 // but during development, it needs to be pulled from lib
 import { MockedProvider } from 'react-apollo/lib/test-utils';
 
-import { addTypenameToDocument } from 'apollo-client';
+import { HERO_QUERY, withCharacter, CharacterWithoutData, App } from '../App';
 
-import { HERO_QUERY, withCharacter, CharacterWithoutData, App, ShapedProps } from '../App';
-
-const query = addTypenameToDocument(HERO_QUERY);
+const query = HERO_QUERY;
 
 import {
   empty,
@@ -19,14 +17,28 @@ import {
   full,
 } from '../__mocks__/data';
 
+class ErrorBoundary extends React.Component {
+  componentDidCatch(e) {
+    console.log(e);
+  }
+
+  render() {
+    return this.props.children;
+  }
+}
+
 const variables = { episode: 'NEWHOPE' };
 
 describe('withCharacter', () => {
   it('shapes the props into variables', done => {
-    class Container extends React.Component<ShapedProps> {
+    class Container extends React.Component {
       componentWillMount() {
-        expect(this.props.variables).toEqual(variables);
-        done();
+        try {
+          expect(this.props.variables).toEqual(variables);
+          done();
+        } catch (e) {
+          done.fail(e);
+        }
       }
       render() {
         return null;
@@ -36,16 +48,22 @@ describe('withCharacter', () => {
     const ContainerWithData = withCharacter(Container);
     const mocks = [{ request: { query, variables }, result: { data: { hero: empty } } }];
     renderer.create(
-      <MockedProvider mocks={mocks}>
-        <ContainerWithData {...variables} />
-      </MockedProvider>,
+      <ErrorBoundary>
+        <MockedProvider mocks={mocks} removeTypename>
+          <ContainerWithData {...variables} />
+        </MockedProvider>
+      </ErrorBoundary>,
     );
   });
   it('reshapes the data into the passed props', done => {
-    class Container extends React.Component<ShapedProps> {
-      componentWillReceiveProps(next: ShapedProps) {
-        expect(next.hero).toEqual(hero_no_friends);
-        done();
+    class Container extends React.Component {
+      componentWillReceiveProps(next) {
+        try {
+          expect(next.hero).toEqual(hero_no_friends);
+          done();
+        } catch (e) {
+          done.fail(e);
+        }
       }
       render() {
         return null;
@@ -60,17 +78,19 @@ describe('withCharacter', () => {
       },
     ];
     renderer.create(
-      <MockedProvider mocks={mocks}>
-        <ContainerWithData {...variables} />
-      </MockedProvider>,
+      <ErrorBoundary>
+        <MockedProvider mocks={mocks} removeTypename>
+          <ContainerWithData {...variables} />
+        </MockedProvider>
+      </ErrorBoundary>,
     );
   });
   it('has a loading state', done => {
-    class Container extends React.Component<ShapedProps> {
+    class Container extends React.Component {
       componentWillMount() {
         expect(this.props.loading).toBe(true);
       }
-      componentWillReceiveProps(next: ShapedProps) {
+      componentWillReceiveProps(next) {
         expect(next.loading).toBe(false);
         done();
       }
@@ -87,17 +107,19 @@ describe('withCharacter', () => {
       },
     ];
     renderer.create(
-      <MockedProvider mocks={mocks}>
-        <ContainerWithData {...variables} />
-      </MockedProvider>,
+      <ErrorBoundary>
+        <MockedProvider mocks={mocks} removeTypename>
+          <ContainerWithData {...variables} />
+        </MockedProvider>
+      </ErrorBoundary>,
     );
   });
   it('has a potential error state', done => {
-    class Container extends React.Component<ShapedProps> {
+    class Container extends React.Component {
       componentWillMount() {
         expect(this.props.loading).toBe(true);
       }
-      componentWillReceiveProps(next: ShapedProps) {
+      componentWillReceiveProps(next) {
         expect(next.loading).toBe(false);
         expect(next.error.message).toMatch(/these are not the droids you are looking for/);
         done();
@@ -116,44 +138,11 @@ describe('withCharacter', () => {
     ];
 
     renderer.create(
-      <MockedProvider mocks={mocks}>
-        <ContainerWithData {...variables} />
-      </MockedProvider>,
-    );
-  });
-});
-
-describe('MocksWithoutTypename', () => {
-  it('reshapes the data into the passed props', done => {
-    const hero_without_typename = {
-      name: 'anakin',
-      id: '1',
-      friends: null,
-    };
-    const queryWithoutTypename = HERO_QUERY;
-
-    class Container extends React.Component<ShapedProps> {
-      componentWillReceiveProps(next: ShapedProps) {
-        expect(next.hero).toEqual(hero_without_typename);
-        done();
-      }
-      render() {
-        return null;
-      }
-    }
-
-    const ContainerWithData = withCharacter(Container);
-    const mocks = [
-      {
-        request: { query: queryWithoutTypename, variables },
-        result: { data: { hero: hero_without_typename } },
-      },
-    ];
-
-    renderer.create(
-      <MockedProvider mocks={mocks} removeTypename>
-        <ContainerWithData {...variables} />
-      </MockedProvider>,
+      <ErrorBoundary>
+        <MockedProvider mocks={mocks} removeTypename>
+          <ContainerWithData {...variables} />
+        </MockedProvider>
+      </ErrorBoundary>,
     );
   });
 });
@@ -193,9 +182,11 @@ describe('App', () => {
   it('renders the data from NEWHOPE', () => {
     const mocks = [{ request: { query, variables }, result: { data: { hero: empty } } }];
     const output = renderer.create(
-      <MockedProvider mocks={mocks}>
-        <App />
-      </MockedProvider>,
+      <ErrorBoundary>
+        <MockedProvider mocks={mocks} removeTypename>
+          <App />
+        </MockedProvider>
+      </ErrorBoundary>,
     );
 
     expect(output.toJSON()).toMatchSnapshot();
