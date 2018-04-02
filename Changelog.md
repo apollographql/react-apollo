@@ -2,7 +2,10 @@
 
 ### vNext
 
+### 2.1.2
+
 * Simplified the MockedProvider API [#1882](https://github.com/apollographql/react-apollo/pull/1882)
+* Fixed test-utils export
 
 ### 2.1.1
 
