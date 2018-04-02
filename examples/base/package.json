@@ -1,13 +1,12 @@
 {
-  "name": "flow",
+  "name": "base",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "apollo-client": "^2.0.0",
-    "graphql-tag": "^2.4.2",
-    "react": "^16.0.0",
+    "apollo-boost": "^0.1.4",
+    "react": "^16.3.0",
     "react-apollo": "file:../..",
-    "react-dom": "^16.0.0",
+    "react-dom": "^16.3.0",
     "react-scripts": "1.1.1"
   },
   "scripts": {

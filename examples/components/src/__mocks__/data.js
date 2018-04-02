@@ -1,9 +1,6 @@
-// @flow
-
 export const empty = null;
 
 export const hero_no_friends = {
-  __typename: 'Droid',
   name: 'r2d2',
   id: '1',
   friends: null,
