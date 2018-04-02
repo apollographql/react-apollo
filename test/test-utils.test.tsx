@@ -77,16 +77,6 @@ it('mocks the data', done => {
 
   const ContainerWithData = withUser(Container);
 
-  const mocks = [
-    {
-      request: {
-        query,
-        variables,
-      },
-      result: { data: { user } },
-    },
-  ];
-
   renderer.create(
     <MockedProvider mocks={mocks}>
       <ContainerWithData {...variables} />
@@ -114,7 +104,7 @@ it('allows for querying with the typename', done => {
 
   const ContainerWithData = withUserAndTypename(Container);
 
-  const mocks = [
+  const mocksWithTypename = [
     {
       request: {
         query: queryWithTypename,
@@ -125,7 +115,7 @@ it('allows for querying with the typename', done => {
   ];
 
   renderer.create(
-    <MockedProvider mocks={mocks}>
+    <MockedProvider mocks={mocksWithTypename}>
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
@@ -149,16 +139,6 @@ it('errors if the variables in the mock and component do not match', done => {
   }
 
   const ContainerWithData = withUser(Container);
-
-  const mocks = [
-    {
-      request: {
-        query,
-        variables,
-      },
-      result: { data: { user } },
-    },
-  ];
 
   const variables2 = {
     username: 'other_user',
@@ -189,7 +169,7 @@ it('mocks a network error', done => {
 
   const ContainerWithData = withUser(Container);
 
-  const mocks = [
+  const mocksError = [
     {
       request: {
         query,
@@ -200,7 +180,7 @@ it('mocks a network error', done => {
   ];
 
   renderer.create(
-    <MockedProvider mocks={mocks}>
+    <MockedProvider mocks={mocksError}>
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
@@ -225,7 +205,7 @@ it('errors if the query in the mock and component do not match', done => {
 
   const ContainerWithData = withUser(Container);
 
-  const mocksError = [
+  const mocksDifferentQuery = [
     {
       request: {
         query: gql`
@@ -242,7 +222,7 @@ it('errors if the query in the mock and component do not match', done => {
   ];
 
   renderer.create(
-    <MockedProvider mocks={mocksError}>
+    <MockedProvider mocks={mocksDifferentQuery}>
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
