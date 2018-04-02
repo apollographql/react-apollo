@@ -19,9 +19,9 @@ jobs:
 
   Node.js 9:
     docker: [ { image: 'circleci/node:9' } ]
-    steps: 
+    steps:
       - checkout
-      - run: npm i 
+      - run: npm i
       - run:
           name: Jest suite
           command: npm run jest -- --ci --testResultsProcessor="jest-junit"
@@ -48,6 +48,7 @@ jobs:
       - checkout
       - run: npm i
       - run: npm run type-check
+      - run: npm run flow-check
 
   Preact:
     docker: [ { image: 'circleci/node:8' } ]
@@ -131,7 +132,7 @@ workflows:
       - Node.js 8
       - Node.js 9
       - Linting
-      - Typecheck 
+      - Typecheck
       - Preact
       - Browser
       - Server
