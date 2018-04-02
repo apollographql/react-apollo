@@ -36,6 +36,18 @@ export default [
     },
     onwarn,
   },
+  // for test-utils
+  {
+    input: 'lib/test-utils.js',
+    output: {
+      file: 'lib/test-utils.js',
+      format: 'umd',
+      name: 'react-apollo',
+      sourcemap: false,
+      exports: 'named',
+    },
+    onwarn,
+  },
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',
