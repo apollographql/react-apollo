@@ -120,7 +120,7 @@
     "husky": "0.14.3",
     "jest": "22.4.3",
     "jest-junit": "3.6.0",
-    "jsdom": "11.6.2",
+    "jsdom": "11.7.0",
     "preact": "8.2.7",
     "preact-compat": "3.18.0",
     "prettier": "1.11.1",
