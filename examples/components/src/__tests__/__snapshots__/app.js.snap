@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App renders 1`] = `
+<div>
+  Loading
+</div>
+`;
+
+exports[`Character handles a loading state 1`] = `
+<div>
+  Loading
+</div>
+`;
+
+exports[`Character handles an error state 1`] = `
+<h1>
+  ERROR
+</h1>
+`;
+
+exports[`Character returns markup for a friend without an appearsIn 1`] = `
+<div>
+  <div>
+    <h3>
+      r2d2
+    </h3>
+    <h6>
+      luke
+      : 
+      newhope
+    </h6>
+    <h6>
+      james
+      : 
+      
+    </h6>
+  </div>
+</div>
+`;
+
+exports[`Character returns markup for a hero with no friends 1`] = `
+<div>
+  <div>
+    <h3>
+      r2d2
+    </h3>
+  </div>
+</div>
+`;
+
+exports[`Character returns markup for empty array of friends 1`] = `
+<div>
+  <div>
+    <h3>
+      r2d2
+    </h3>
+  </div>
+</div>
+`;
+
+exports[`Character returns markup for null response 1`] = `<div />`;
