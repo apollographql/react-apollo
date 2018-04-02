@@ -1,5 +1,5 @@
 {
-  "name": "flow",
+  "name": "base",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
