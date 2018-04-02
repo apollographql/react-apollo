@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, { ApolloError } from 'apollo-client';
-import { Observable } from 'apollo-client/util/Observable';
+import { Observable } from 'apollo-link';
 
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';

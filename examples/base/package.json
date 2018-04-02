@@ -5,9 +5,9 @@
   "dependencies": {
     "apollo-client": "^2.0.0",
     "graphql-tag": "^2.4.2",
-    "react": "^15.6.1",
+    "react": "^16.0.0",
     "react-apollo": "file:../..",
-    "react-dom": "^15.6.1",
+    "react-dom": "^16.0.0",
     "react-scripts": "1.1.1"
   },
   "scripts": {
