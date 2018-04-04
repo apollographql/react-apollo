@@ -176,9 +176,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
-    if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
-      fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
-    }
 
     const observable = this.client.watchQuery({
       ...opts,
