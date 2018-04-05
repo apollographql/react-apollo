@@ -72,7 +72,11 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     nextProps: SubscriptionProps<TData, TVariables>,
     nextContext: SubscriptionContext,
   ) {
-    if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+    if (
+      shallowEqual(this.props.variables, nextProps.variables) &&
+      this.client === nextContext.client &&
+      this.props.subscription === nextProps.subscription
+    ) {
       return;
     }
 
