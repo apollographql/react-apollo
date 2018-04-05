@@ -82,7 +82,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
 
     let shouldResubscribe = nextProps.shouldResubscribe;
     if (typeof shouldResubscribe === 'function') {
-      shouldResubscribe = !!shouldResubscribe(this.props.variables, nextProps.variables);
+      shouldResubscribe = !!shouldResubscribe(this.props, nextProps);
     }
     const shouldNotResubscribe = shouldResubscribe === false;
     if (this.client !== nextContext.client) {
