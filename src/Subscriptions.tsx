@@ -19,7 +19,7 @@ export interface SubscriptionResult<TData = any> {
 export interface SubscriptionProps<TData = any, TVariables = OperationVariables> {
   subscription: DocumentNode;
   variables?: TVariables;
-  shouldResubscribe?: boolean;
+  shouldResubscribe?: any;
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
 
@@ -45,6 +45,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     subscription: PropTypes.object.isRequired,
     variables: PropTypes.object,
     children: PropTypes.func.isRequired,
+    shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   };
 
   private client: ApolloClient<any>;
@@ -71,10 +72,19 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     nextProps: SubscriptionProps<TData, TVariables>,
     nextContext: SubscriptionContext,
   ) {
-    if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+    if (
+      shallowEqual(this.props.variables, nextProps.variables) &&
+      this.client === nextContext.client &&
+      this.props.subscription === nextProps.subscription
+    ) {
       return;
     }
-    const shouldNotResubscribe = this.props.shouldResubscribe === false;
+
+    let shouldResubscribe = nextProps.shouldResubscribe;
+    if (typeof shouldResubscribe === 'function') {
+      shouldResubscribe = !!shouldResubscribe(this.props, nextProps);
+    }
+    const shouldNotResubscribe = shouldResubscribe === false;
     if (this.client !== nextContext.client) {
       this.client = nextContext.client;
     }

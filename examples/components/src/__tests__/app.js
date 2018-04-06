@@ -1,9 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-
-// @IMPORTANT this is normally consumed from react-apollo/test-utils
-// but during development, it needs to be pulled from lib
-import { MockedProvider } from 'react-apollo/lib/test-utils';
+import { MockedProvider } from 'react-apollo/test-utils';
 
 import { HERO_QUERY, App, HeroQuery, Character } from '../App';
 
@@ -44,7 +41,7 @@ class ErrorBoundary extends React.Component {
 describe('App', () => {
   it('renders', () => {
     const tree = renderer.create(
-      <MockedProvider mocks={mocks} removeTypename>
+      <MockedProvider mocks={mocks}>
         <App />
       </MockedProvider>,
     );
@@ -58,7 +55,7 @@ describe('Hero Query', () => {
 
     renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <HeroQuery episode="EMPIRE">
             {result => {
               if (renderCount === 0) {
@@ -94,7 +91,7 @@ describe('Hero Query', () => {
 
     renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocksWithError} removeTypename>
+        <MockedProvider mocks={mocksWithError}>
           <HeroQuery episode="EMPIRE">
             {result => {
               if (renderCount === 1) {
