@@ -15,7 +15,7 @@
   "typings": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "apollostack/react-apollo"
+    "url": "apollographql/react-apollo"
   },
   "scripts": {
     "compile": "tsc && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
