@@ -237,6 +237,16 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   render() {
     const { children } = this.props;
     const queryResult = this.getQueryResult();
+    if (this.props.skip) {
+      const result = {
+        ...queryResult,
+        data: undefined,
+        error: undefined,
+        loading: false,
+      };
+
+      return children(result);
+    }
     return children(queryResult);
   }
 
