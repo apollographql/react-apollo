@@ -688,6 +688,36 @@ describe('Query component', () => {
         done();
       });
     });
+
+    it('onCompleted with data', done => {
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+      const mocks = [
+        {
+          request: { query: allPeopleQuery },
+          result: { data: data },
+        },
+      ];
+
+      const onCompleted = (queryData: Data) => {
+        expect(stripSymbols(queryData)).toEqual(data);
+        done();
+      };
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onCompleted={onCompleted}>
+          {() => {
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
   });
 
   describe('props disallow', () => {
@@ -736,6 +766,37 @@ describe('Query component', () => {
       }).toThrowError('The <Query /> component requires a graphql query, but got a subscription.');
 
       console.error = errorLogger;
+    });
+
+    it('onCompleted with error', done => {
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+      const mockError = [
+        {
+          request: { query: allPeopleQuery },
+          error: new Error('error occurred'),
+        },
+      ];
+
+      const onCompleted = jest.fn();
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onCompleted={onCompleted}>
+          {({ error }) => {
+            if (error) {
+              expect(onCompleted).not.toHaveBeenCalled();
+              done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mockError}>
+          <Component />
+        </MockedProvider>,
+      );
     });
   });
 
