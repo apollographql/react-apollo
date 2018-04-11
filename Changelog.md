@@ -2,7 +2,15 @@
 
 ### vNext
 
+### 2.1.3
+
+* Fixed issue where refetch was not possible after SSR
+* Fixed overly resubscribing from Subscription and allow passing function to determine shouldResubscribe
+
+### 2.1.2
+
 * Simplified the MockedProvider API [#1882](https://github.com/apollographql/react-apollo/pull/1882)
+* Fixed test-utils export
 
 ### 2.1.1
 
