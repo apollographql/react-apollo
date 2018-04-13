@@ -6,10 +6,11 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql, ChildProps } from '../../../../src';
+import { ApolloProvider, graphql, ChildProps, Query as QueryComponent } from '../../../../src';
 import wait from '../../../test-utils/wait';
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
+import { create } from 'react-test-renderer';
 
 describe('[queries] lifecycle', () => {
   // lifecycle
@@ -576,7 +577,7 @@ describe('[queries] lifecycle', () => {
     ]);
   });
 
-  it('handles racecondition with prefilled data from the server', async done => {
+  it('handles synchronous racecondition with prefilled data from the server', async done => {
     const query: DocumentNode = gql`
       query GetUser($first: Int) {
         user(first: $first) {
@@ -641,5 +642,107 @@ describe('[queries] lifecycle', () => {
         <Container first={1} />
       </ApolloProvider>,
     );
+  });
+
+  it('handles asynchronous racecondition with prefilled data from the server', async done => {
+    const query: DocumentNode = gql`
+      query Q {
+        books {
+          name
+          __typename
+        }
+      }
+    `;
+
+    const ssrResult = {
+      books: [
+        {
+          name: 'ssrfirst',
+          __typename: 'Book',
+        },
+      ],
+    };
+
+    const result = {
+      books: [
+        {
+          name: 'first',
+          __typename: 'Book',
+        },
+      ],
+    };
+
+    const ssrLink = mockSingleLink({
+      request: { query } as any,
+      result: { data: ssrResult },
+    });
+
+    const link = mockSingleLink({
+      request: { query } as any,
+      result: { data: result },
+    });
+
+    const ssrClient = new ApolloClient({
+      cache: new Cache(),
+      link: ssrLink,
+    });
+    await ssrClient.query({
+      query,
+      variables: {},
+    });
+    const client = new ApolloClient({
+      cache: new Cache().restore(ssrClient.extract()), // --- this is the "SSR" bit
+      link,
+    });
+
+    //try to render the app / call refetch / etc
+
+    let refetched = false;
+    const ApolloApp = (
+      <ApolloProvider client={client}>
+        <QueryComponent query={query}>
+          {({ loading, data, error, refetch }) => {
+            if (loading) {
+              done.fail('should not be loading, since already have data from ssr');
+              return <div>loading</div>;
+            }
+            if (error) {
+              done.fail(error);
+              return <div>error</div>;
+            }
+
+            try {
+              if (!refetched) {
+                expect(data.books[0].name).toEqual('ssrfirst');
+                //setTimeout allows component to mount, which often happens
+                //when waiting  ideally we should be able to call refetch
+                //immediately However the subscription needs to start before
+                //we update the data To get around this issue, we would need
+                //to start the subscription before we render to the page. In
+                //practice, this seems like an uncommon use case, since the
+                //data you get is fresh, so one would wait for an interaction
+                setTimeout(() => {
+                  refetch()
+                    .then(refetchResult => {
+                      expect(refetchResult.data.books[0].name).toEqual('first');
+                      done();
+                    })
+                    .catch(done.fail);
+                });
+                refetched = true;
+              } else {
+                expect(data.books[0].name).toEqual('first');
+              }
+            } catch (e) {
+              done.fail(e);
+            }
+            return <p> stub </p>;
+          }}
+        </QueryComponent>
+      </ApolloProvider>
+    );
+
+    //render
+    expect(create(ApolloApp).toJSON()).toMatchSnapshot();
   });
 });

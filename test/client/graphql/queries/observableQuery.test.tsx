@@ -492,4 +492,115 @@ describe('[queries] observableQuery', () => {
       }, 20);
     }, 5);
   });
+
+  it('not overly rerender', done => {
+    const query: DocumentNode = gql`
+      query people($first: Int!) {
+        allPeople(first: $first) {
+          people {
+            name
+            friends(id: $first) {
+              name
+            }
+          }
+        }
+      }
+    `;
+
+    const variables = { first: 1 };
+    const data = {
+      allPeople: {
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
+      },
+    };
+    type Data = typeof data;
+    type Vars = typeof variables;
+
+    const link = mockSingleLink({
+      request: { query, variables },
+      result: { data },
+    });
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+    let remount: any;
+
+    let count = 0;
+    const Container = graphql<Vars, Data, Vars>(query)(
+      class extends React.Component<ChildProps<Vars, Data, Vars>> {
+        render() {
+          count++;
+          try {
+            const { loading, allPeople } = this.props.data!;
+            // first variable render
+            if (count === 1) {
+              expect(loading).toBe(true);
+            }
+            if (count === 2 || count === 3) {
+              expect(loading).toBe(false);
+              expect(stripSymbols(allPeople)).toEqual(data.allPeople);
+            }
+
+            if (count > 3) {
+              throw new Error('too many renders');
+            }
+          } catch (e) {
+            done.fail(e);
+          }
+
+          return null;
+        }
+      },
+    );
+
+    class Remounter extends React.Component<
+      { render: typeof Container },
+      { showChildren: boolean; variables: Vars }
+    > {
+      state = {
+        showChildren: true,
+        variables,
+      };
+
+      componentDidMount() {
+        remount = () => {
+          this.setState({ showChildren: false }, () => {
+            setTimeout(() => {
+              this.setState({ showChildren: true, variables });
+            }, 10);
+          });
+        };
+      }
+
+      render() {
+        if (!this.state.showChildren) return null;
+        const Thing = this.props.render;
+        return <Thing first={this.state.variables.first} />;
+      }
+    }
+
+    // the initial mount fires off the query
+    // the same as episode id = 1
+    const wrapper = renderer.create(
+      <ApolloProvider client={client}>
+        <Remounter render={Container} />
+      </ApolloProvider>,
+    );
+
+    // after the initial data has been returned
+    // the user navigates to a different page
+    // but the query is recycled
+    setTimeout(() => {
+      // move to the "home" page from the "episode" page
+      remount();
+      setTimeout(() => {
+        // move to the same "episode" page
+        // make sure we dont over render
+        wrapper.unmount();
+        done();
+      }, 20);
+    }, 5);
+  });
 });

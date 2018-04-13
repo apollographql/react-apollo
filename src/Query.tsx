@@ -86,6 +86,14 @@ function observableQueryFields<TData, TVariables>(
 export interface QueryResult<TData = any, TVariables = OperationVariables>
   extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
+  // we create an empty object to make checking for data
+  // easier for consumers (i.e. instead of data && data.user
+  // you can just check data.user) this also makes destructring
+  // easier (i.e. { data: { user } })
+  // however, this isn't realy possible with TypeScript that
+  // I'm aware of. So intead we enforce checking for data
+  // like so result.data!.user. This tells TS to use TData
+  // XXX is there a better way to do this?
   data: TData | undefined;
   error?: ApolloError;
   loading: boolean;
@@ -309,8 +317,19 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
+    // store the inital renders worth of result
+    let current: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
     this.querySubscription = this.queryObservable!.subscribe({
-      next: this.updateCurrentData,
+      next: () => {
+        // to prevent a quick second render from the subscriber
+        // we compare to see if the original started finished (from cache)
+        if (current && current.networkStatus === 7) {
+          // remove this for future rerenders (i.e. polling)
+          current = undefined;
+          return;
+        }
+        this.updateCurrentData();
+      },
       error: error => {
         this.resubscribeToQuery();
         // Quick fix for https://github.com/apollostack/react-apollo/issues/378
@@ -372,12 +391,36 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       Object.assign(data.data, currentResult.data);
       this.previousData = currentResult.data;
     }
-    // handle race condition where refetch is called on child mount
+    // handle race condition where refetch is called on child mount or later
+    // Normal execution model:
+    // render(loading) -> mount -> start subscription -> get data -> render(with data)
+    //
+    // SSR with synchronous refetch:
+    // render(with data) -> refetch -> mount -> start subscription
+    //
+    // SSR with asynchronous refetch:
+    // render(with data) -> mount -> start subscription -> refetch
+    //
+    // If a subscription has not started, then the synchronous call to refetch
+    // must be made at a time when an active network request is being made, so
+    // we ensure that the network requests are deduped, to avoid an
+    // inconsistant UI state that displays different data for the current query
+    // alongside a refetched query.
+    //
+    // Once the Query component is mounted and the subscription is made, we
+    // always hit the network with refetch, since the components data will be
+    // updated and a network request is not currently active
     if (!this.querySubscription) {
+      const oldRefetch = (data as GraphqlQueryControls).refetch;
+
       (data as GraphqlQueryControls).refetch = args => {
-        return new Promise((r, f) => {
-          this.refetcherQueue = { resolve: r, reject: f, args };
-        });
+        if (this.querySubscription) {
+          return oldRefetch(args);
+        } else {
+          return new Promise((r, f) => {
+            this.refetcherQueue = { resolve: r, reject: f, args };
+          });
+        }
       };
     }
 

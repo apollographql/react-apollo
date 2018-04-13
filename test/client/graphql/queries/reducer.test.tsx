@@ -4,14 +4,14 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, graphql } from '../../../../src';
+import { ApolloProvider, graphql, DataValue } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
 describe('[queries] reducer', () => {
   // props reducer
-  it('allows custom mapping of a result to props', () => {
+  it('allows custom mapping of a result to props', done => {
     const query: DocumentNode = gql`
       query thing {
         getThing {
@@ -19,30 +19,30 @@ describe('[queries] reducer', () => {
         }
       }
     `;
-    const data = { getThing: { thing: true } };
+    const result = { getThing: { thing: true } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data: result },
     });
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
 
-    interface Data {
-      getThing: { thing: boolean };
-    }
+    type Data = typeof result;
+    // in case of a skip
+    type ChildProps = DataValue<Data>;
 
-    interface FinalProps {
-      showSpinner: boolean | undefined;
-    }
-
-    const ContainerWithData = graphql<{}, Data, {}, FinalProps>(query, {
-      props: result => ({
-        showSpinner: result.data && result.data.loading,
-      }),
-    })(({ showSpinner }: FinalProps) => {
-      expect(showSpinner).toBeTruthy();
+    let count = 0;
+    const ContainerWithData = graphql<{}, Data, {}, ChildProps>(query, {
+      props: ({ data }) => ({ ...data! }),
+    })(({ getThing, loading }) => {
+      count++;
+      if (count === 1) expect(loading).toBe(true);
+      if (count === 2) {
+        expect(getThing).toBeDefined();
+        done();
+      }
       return null;
     });
 
@@ -51,7 +51,6 @@ describe('[queries] reducer', () => {
         <ContainerWithData />
       </ApolloProvider>,
     );
-    (wrapper as any).unmount();
   });
 
   it('allows custom mapping of a result to props that includes the passed props', () => {

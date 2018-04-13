@@ -17,10 +17,9 @@ export { default as Subscription } from './Subscriptions';
 export * from './Subscriptions';
 
 export { graphql } from './graphql';
-export * from './query-hoc';
-export * from './mutation-hoc';
 
 export { default as withApollo } from './withApollo';
+export * from './withApollo'
 
 export * from './types';
 

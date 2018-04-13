@@ -12,7 +12,8 @@ import { parser, DocumentType } from './parser';
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
   error?: ApolloError;
-  loading?: boolean;
+  loading: boolean;
+  called: boolean;
 }
 export interface MutationContext {
   client: ApolloClient<Object>;
@@ -46,6 +47,10 @@ export declare type MutationOptions<TData = any, TVariables = OperationVariables
   update?: MutationUpdaterFn<TData>;
 };
 
+export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
+  options?: MutationOptions<TData, TVariables>,
+) => Promise<void | FetchResult<TData>>;
+
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
   ignoreResults?: boolean;
@@ -54,8 +59,8 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
-    mutateFn: (options?: MutationOptions<TData, TVariables>) => Promise<void | FetchResult>,
-    result?: MutationResult<TData>,
+    mutateFn: MutationFn<TData, TVariables>,
+    result: MutationResult<TData>,
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
@@ -63,14 +68,17 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
 }
 
 export interface MutationState<TData = any> {
-  notCalled: boolean;
+  called: boolean;
   error?: ApolloError;
   data?: TData;
-  loading?: boolean;
+  loading: boolean;
 }
 
 const initialState = {
-  notCalled: true,
+  loading: false,
+  called: false,
+  error: undefined,
+  data: undefined,
 };
 
 class Mutation<TData = any, TVariables = OperationVariables> extends React.Component<
@@ -100,6 +108,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   private client: ApolloClient<any>;
   private mostRecentMutationId: number;
 
+  private hasMounted: boolean;
+
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
 
@@ -110,6 +120,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
     this.mostRecentMutationId = 0;
     this.state = initialState;
+  }
+
+  componentDidMount() {
+    this.hasMounted = true;
+  }
+
+  componentWillUnmount() {
+    this.hasMounted = false;
   }
 
   componentWillReceiveProps(
@@ -132,15 +150,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   render() {
     const { children } = this.props;
-    const { loading, data, error, notCalled } = this.state;
+    const { loading, data, error, called } = this.state;
 
-    const result = notCalled
-      ? undefined
-      : {
-          loading,
-          data,
-          error,
-        };
+    const result = {
+      called,
+      loading,
+      data,
+      error,
+    };
 
     return children(this.runMutation, result);
   }
@@ -174,7 +191,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     // refetch.
     if (refetchQueries && refetchQueries.length && Array.isArray(refetchQueries)) {
       refetchQueries = (refetchQueries as any).map((x: string | PureQueryOptions) => {
-        if (typeof x === 'string' && this.context.operations) return this.context.operations.get(x);
+        if (typeof x === 'string' && this.context.operations)
+          return this.context.operations.get(x) || x;
         return x;
       });
       delete options.refetchQueries;
@@ -197,12 +215,15 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
         loading: true,
         error: undefined,
         data: undefined,
-        notCalled: false,
+        called: true,
       });
     }
   };
 
   private onCompletedMutation = (response: ExecutionResult<TData>, mutationId: number) => {
+    if (this.hasMounted === false) {
+      return;
+    }
     const { onCompleted, ignoreResults } = this.props;
 
     const data = response.data as TData;
@@ -217,8 +238,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onMutationError = (error: ApolloError, mutationId: number) => {
+    if (this.hasMounted === false) {
+      return;
+    }
     const { onError } = this.props;
-
     const callOnError = () => (onError ? onError(error) : null);
 
     if (this.isMostRecentMutation(mutationId)) {

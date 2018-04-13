@@ -2,6 +2,42 @@
 
 ### vNext
 
+### 2.1.3
+
+* Fixed issue where refetch was not possible after SSR
+* Fixed overly resubscribing from Subscription and allow passing function to determine shouldResubscribe
+
+### 2.1.2
+
+* Simplified the MockedProvider API [#1882](https://github.com/apollographql/react-apollo/pull/1882)
+* Fixed test-utils export
+
+### 2.1.1
+
+* Fix uneccesary rerender on cache hit
+
+### 2.1.0
+
+* Officially release new components!
+
+## 2.1.0-rc.5
+
+* Turn back on TypeScript definitions
+
+## 2.1.0-rc.4
+
+* Fix regression on refetchQueries [#1794](https://github.com/apollographql/react-apollo/pull/1794)
+* Added a new `called` prop for mutations [#1775](https://github.com/apollographql/react-apollo/pull/1775)
+* Fix inconsistency in naming of subscription document prop [#1774](https://github.com/apollographql/react-apollo/pull/1774)
+
+## 2.1.0-rc.3
+
+* remove .mjs support
+
+## 2.1.0-rc.2
+
+* attempt to fix .mjs support for create react app
+
 ## 2.1.0-rc.1
 
 * Fix default values being set as falsy in options merging

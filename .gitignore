@@ -39,3 +39,4 @@ npm
 yarn.lock
 
 .vscode
+examples/**/package-lock.json

@@ -16,43 +16,46 @@ export const HERO_QUERY = gql`
   }
 `;
 
-const Character = ({ episode }) => (
-  <Query
-    query={HERO_QUERY}
-    variables={{ episode }}
-    render={result => {
-      if (result.loading) {
-        return <div>Loading</div>;
-      }
-      if (result.error) {
-        return <h1>ERROR</h1>;
-      }
-      const { hero } = result.data;
-      return (
-        <div>
-          {hero && (
-            <div>
-              <h3>{hero.name}</h3>
-
-              {hero.friends &&
-                hero.friends.map(
-                  friend =>
-                    friend && (
-                      <h6 key={friend.id}>
-                        {friend.name}: {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
-                      </h6>
-                    ),
-                )}
-            </div>
-          )}
-        </div>
-      );
+export const HeroQuery = ({ episode, children }) => (
+  <Query query={HERO_QUERY} variables={{ episode }}>
+    {result => {
+      const { loading, error, data } = result;
+      return children({
+        loading,
+        error,
+        hero: data && data.hero,
+      });
     }}
-  />
+  </Query>
 );
 
+export const Character = ({ loading, error, hero }) => {
+  if (loading) {
+    return <div>Loading</div>;
+  }
+  if (error) {
+    return <h1>ERROR</h1>;
+  }
+  return (
+    <div>
+      {hero && (
+        <div>
+          <h3>{hero.name}</h3>
+          {hero.friends &&
+            hero.friends.map(
+              friend =>
+                friend && (
+                  <h6 key={friend.id}>
+                    {friend.name}: {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
+                  </h6>
+                ),
+            )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const App = () => (
-  <div>
-    <Character episode="EMPIRE" />
-  </div>
+  <HeroQuery episode="EMPIRE">{result => <Character {...result} />}</HeroQuery>
 );
