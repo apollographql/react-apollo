@@ -21,15 +21,17 @@ Get started today on the app you’ve been dreaming of, and let React Apollo tak
 
 ## Installation
 
-It is simple to install React Apollo and related libraries.
+It is simple to install React Apollo and related libraries
 
 ```bash
-# installing the preset package and react integration
-npm install apollo-client-preset react-apollo graphql-tag graphql --save
+# installing apollo-boost and react integration
+npm install apollo-boost react-apollo graphql-tag graphql --save
 
 # installing each piece independently
 npm install apollo-client apollo-cache-inmemory apollo-link-http react-apollo graphql-tag graphql ---save
 ```
+
+[apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost)  is a zero-config way to start using Apollo Client. It includes some sensible defaults, such as `InMemoryCache` and `HttpLink`. 
 
 That’s it! You may now use React Apollo in any of your React environments.
 
@@ -59,6 +61,14 @@ const client = new ApolloClient({
   link: new HttpLink(),
   cache: new InMemoryCache(),
 });
+```
+
+If you're using [apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost) you can create an `ApolloClient` that uses `HttpLink` and `InMemoryCache` like so:
+
+```js
+import { ApolloClient } from 'apollo-boost';
+
+const client = new ApolloClient();
 ```
 
 > Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/2.0-migration.html).
