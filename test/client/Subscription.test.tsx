@@ -157,6 +157,71 @@ it('executes subscription for the variables passed in the props', done => {
   mockLink.simulateResult(results[0]);
 });
 
+it('does not execute if variables have not changed', done => {
+  expect.assertions(4);
+  const subscriptionWithVariables = gql`
+    subscription UserInfo($name: String) {
+      user(name: $name) {
+        name
+      }
+    }
+  `;
+
+  const name = 'Luke Skywalker';
+
+  class MockSubscriptionLinkOverride extends MockSubscriptionLink {
+    request(req: Operation) {
+      catchAsyncError(done, () => {
+        expect(req.variables).toEqual({ name });
+      });
+      return super.request(req);
+    }
+  }
+
+  const mockLink = new MockSubscriptionLinkOverride();
+
+  const mockClient = new ApolloClient({
+    link: mockLink,
+    cache,
+  });
+
+  let count = 0;
+
+  class Component extends React.Component {
+    render() {
+      return (
+        <Subscription subscription={subscriptionWithVariables} variables={{ name }}>
+          {result => {
+            const { loading, data } = result;
+
+            catchAsyncError(done, () => {
+              if (count === 0) {
+                expect(loading).toBe(true);
+              } else if (count === 1) {
+                expect(loading).toBe(false);
+                setTimeout(() => this.forceUpdate());
+              } else if (count === 2) {
+                expect(loading).toBe(false);
+                done();
+              }
+            });
+            count++;
+            return null;
+          }}
+        </Subscription>
+      );
+    }
+  }
+
+  wrapper = mount(
+    <ApolloProvider client={mockClient}>
+      <Component />
+    </ApolloProvider>,
+  );
+
+  mockLink.simulateResult(results[0]);
+});
+
 it('renders an error', done => {
   const subscriptionWithVariables = gql`
     subscription UserInfo($name: String) {
@@ -399,8 +464,6 @@ describe('should update', () => {
               data: dataHan,
             },
           });
-        } else {
-          done.fail(`Unknown variable ${String(this.variables)}`);
         }
       }
     }
@@ -447,6 +510,193 @@ describe('should update', () => {
                 } else if (count === 3) {
                   expect(loading).toBeFalsy();
                   expect(data).toEqual(dataHan);
+                  done();
+                }
+              });
+
+              count++;
+              return null;
+            }}
+          </Subscription>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <ApolloProvider client={mockClient}>
+        <Component />
+      </ApolloProvider>,
+    );
+
+    mockLink.simulateResult();
+  });
+});
+
+describe('should not update', () => {
+  const variablesLuke = { name: 'Luke Skywalker' };
+  const variablesHan = { name: 'Han Solo' };
+
+  const dataLuke = {
+    user: {
+      name: 'Luke Skywalker',
+    },
+  };
+
+  const dataHan = {
+    user: {
+      name: 'Han Solo',
+    },
+  };
+
+  class MockSubscriptionLinkOverride extends MockSubscriptionLink {
+    variables: any;
+    request(req: Operation) {
+      this.variables = req.variables;
+      return super.request(req);
+    }
+
+    simulateResult() {
+      if (this.variables.name === 'Luke Skywalker') {
+        return super.simulateResult({
+          result: {
+            data: dataLuke,
+          },
+        });
+      } else if (this.variables.name === 'Han Solo') {
+        return super.simulateResult({
+          result: {
+            data: dataHan,
+          },
+        });
+      }
+    }
+  }
+
+  it('if shouldResubscribe is false', done => {
+    const subscriptionWithVariables = gql`
+      subscription UserInfo($name: String) {
+        user(name: $name) {
+          name
+        }
+      }
+    `;
+
+    const mockLink = new MockSubscriptionLinkOverride();
+
+    const mockClient = new ApolloClient({
+      link: mockLink,
+      cache,
+    });
+
+    let count = 0;
+
+    class Component extends React.Component {
+      state = {
+        variables: variablesLuke,
+      };
+
+      render() {
+        return (
+          <Subscription
+            subscription={subscriptionWithVariables}
+            variables={this.state.variables}
+            shouldResubscribe={false}
+          >
+            {result => {
+              const { loading, data } = result;
+              catchAsyncError(done, () => {
+                if (count === 0) {
+                  expect(loading).toBeTruthy();
+                  expect(data).toBeUndefined();
+                } else if (count === 1) {
+                  expect(loading).toBeFalsy();
+                  expect(data).toEqual(dataLuke);
+                  setTimeout(() => {
+                    this.setState(
+                      {
+                        variables: variablesHan,
+                      },
+                      () => {
+                        mockLink.simulateResult();
+                      },
+                    );
+                  });
+                } else if (count === 2) {
+                  expect(loading).toBeFalsy();
+                  expect(data).toEqual(dataLuke);
+                  done();
+                }
+              });
+
+              count++;
+              return null;
+            }}
+          </Subscription>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <ApolloProvider client={mockClient}>
+        <Component />
+      </ApolloProvider>,
+    );
+
+    mockLink.simulateResult();
+  });
+
+  it('if shouldResubscribe returns false', done => {
+    const subscriptionWithVariables = gql`
+      subscription UserInfo($name: String) {
+        user(name: $name) {
+          name
+        }
+      }
+    `;
+
+    const mockLink = new MockSubscriptionLinkOverride();
+
+    const mockClient = new ApolloClient({
+      link: mockLink,
+      cache,
+    });
+
+    let count = 0;
+
+    class Component extends React.Component {
+      state = {
+        variables: variablesLuke,
+      };
+
+      render() {
+        return (
+          <Subscription
+            subscription={subscriptionWithVariables}
+            variables={this.state.variables}
+            shouldResubscribe={() => false}
+          >
+            {result => {
+              const { loading, data } = result;
+              catchAsyncError(done, () => {
+                if (count === 0) {
+                  expect(loading).toBeTruthy();
+                  expect(data).toBeUndefined();
+                } else if (count === 1) {
+                  expect(loading).toBeFalsy();
+                  expect(data).toEqual(dataLuke);
+                  setTimeout(() => {
+                    this.setState(
+                      {
+                        variables: variablesHan,
+                      },
+                      () => {
+                        mockLink.simulateResult();
+                      },
+                    );
+                  });
+                } else if (count === 2) {
+                  expect(loading).toBeFalsy();
+                  expect(data).toEqual(dataLuke);
                   done();
                 }
               });

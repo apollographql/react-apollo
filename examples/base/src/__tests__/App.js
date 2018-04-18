@@ -1,9 +1,6 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
-
-// @IMPORTANT this is normally consumed from react-apollo/test-utils
-// but during development, it needs to be pulled from lib
-import { MockedProvider } from 'react-apollo/lib/test-utils';
+import { MockedProvider } from 'react-apollo/test-utils';
 
 import { HERO_QUERY, withCharacter, CharacterWithoutData, App } from '../App';
 
@@ -79,7 +76,7 @@ describe('withCharacter', () => {
     ];
     renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <ContainerWithData {...variables} />
         </MockedProvider>
       </ErrorBoundary>,
@@ -108,7 +105,7 @@ describe('withCharacter', () => {
     ];
     renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <ContainerWithData {...variables} />
         </MockedProvider>
       </ErrorBoundary>,
@@ -139,7 +136,7 @@ describe('withCharacter', () => {
 
     renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <ContainerWithData {...variables} />
         </MockedProvider>
       </ErrorBoundary>,
@@ -183,7 +180,7 @@ describe('App', () => {
     const mocks = [{ request: { query, variables }, result: { data: { hero: empty } } }];
     const output = renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <App />
         </MockedProvider>
       </ErrorBoundary>,
