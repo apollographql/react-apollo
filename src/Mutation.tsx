@@ -14,6 +14,7 @@ export interface MutationResult<TData = Record<string, any>> {
   error?: ApolloError;
   loading: boolean;
   called: boolean;
+  client: ApolloClient<Object>;
 }
 export interface MutationContext {
   client: ApolloClient<Object>;
@@ -157,6 +158,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       loading,
       data,
       error,
+      client: this.client,
     };
 
     return children(this.runMutation, result);
