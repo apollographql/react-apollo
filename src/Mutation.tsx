@@ -65,6 +65,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
   context?: Record<string, any>;
+  client?: ApolloClient<Object>;
 }
 
 export interface MutationState<TData = any> {
@@ -114,7 +115,11 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     super(props, context);
 
     this.verifyContext(context);
-    this.client = context.client;
+    this.client = props.client || context.client;
+    invariant(
+      !!this.client,
+      `Could not find "client" in the context of Query or as passed props. Wrap the root component in an <ApolloProvider>`,
+    );
 
     this.verifyDocumentIsMutation(props.mutation);
 
