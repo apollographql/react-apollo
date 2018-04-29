@@ -149,15 +149,17 @@ describe('<ApolloProvider /> Component', () => {
   //   console.error = originalConsoleError;
   // });
 
-  it('should add the client to the child context', () => {
+  it('should add the client to the children context', () => {
     const tree = TestUtils.renderIntoDocument(
       <ApolloProvider client={client}>
+        <Child />
         <Child />
       </ApolloProvider>,
     ) as React.Component<any, any>;
 
-    const child = TestUtils.findRenderedComponentWithType(tree, Child);
-    expect(child.context.client).toEqual(client);
+    TestUtils.scryRenderedComponentsWithType(tree, Child).forEach(child => {
+      expect(child.context.client).toEqual(client);
+    });
   });
 
   it('should update props when the client changes', () => {
