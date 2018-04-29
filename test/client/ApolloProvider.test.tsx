@@ -157,9 +157,10 @@ describe('<ApolloProvider /> Component', () => {
       </ApolloProvider>,
     ) as React.Component<any, any>;
 
-    TestUtils.scryRenderedComponentsWithType(tree, Child).forEach(child => {
-      expect(child.context.client).toEqual(client);
-    });
+    const children = TestUtils.scryRenderedComponentsWithType(tree, Child);
+
+    expect(children).toHaveLength(2);
+    children.forEach(child => expect(child.context.client).toEqual(client));
   });
 
   it('should update props when the client changes', () => {
