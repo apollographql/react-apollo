@@ -889,61 +889,74 @@ describe('Query component', () => {
     });
 
     it('if the client changes in the context', done => {
-      function newClient(data: Object) {
+      function newClient(name: string) {
         const link = mockSingleLink({
           request: { query: allPeopleQuery },
-          result: { data },
+          result: { data: { allPeople: { people: [{ name }] } } },
         });
 
-        return new ApolloClient({
-          link,
-          cache: new Cache({ addTypename: false }),
-        });
+        return new ApolloClient({ link, cache: new Cache({ addTypename: false }) });
       }
 
-      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-      const client1 = newClient(data1);
+      const AckbarClient = newClient('Admiral Ackbar');
+      const LukeClient = newClient('Luke Skywalker');
+      const HanClient = newClient('Han Solo');
 
-      const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
-      const client2 = newClient(data2);
-
-      const data3 = { allPeople: { people: [{ name: 'Frodo' }] } };
-      const client3 = newClient(data3);
+      const steps = [
+        {
+          name: null,
+          nextState: { query: null, provider: AckbarClient },
+        },
+        {
+          name: 'Admiral Ackbar',
+          nextState: { query: null, provider: LukeClient },
+        },
+        {
+          name: 'Luke Skywalker',
+          nextState: { query: HanClient, provider: LukeClient },
+        },
+        {
+          name: 'Han Solo',
+          nextState: { query: null, provider: AckbarClient },
+        },
+        {
+          name: 'Admiral Ackbar',
+          nextState: null,
+        },
+      ];
 
       let count = 0;
 
-      class Component extends React.Component {
-        state = {
-          propClient: undefined,
-          providerClient: client1,
-        };
+      class Component extends React.Component<any, any> {
+        componentDidMount() {
+          this.setState(steps[0].nextState);
+        }
 
         render() {
+          if (!this.state) {
+            return null;
+          }
+
           return (
-            <ApolloProvider client={this.state.providerClient}>
-              <Query query={allPeopleQuery} client={this.state.propClient}>
+            <ApolloProvider client={this.state.provider}>
+              <Query query={allPeopleQuery} client={this.state.query}>
                 {result => {
                   if (result.loading) {
                     return null;
                   }
 
                   catchAsyncError(done, () => {
-                    if (count === 0) {
-                      expect(stripSymbols(result.data)).toEqual(data1);
-                      setTimeout(() => this.setState({ providerClient: client2 }), 0);
+                    const step = steps[count++];
+
+                    if (step.name) {
+                      expect(result.data.allPeople.people[0].name).toEqual(step.name);
                     }
 
-                    if (count === 1) {
-                      expect(stripSymbols(result.data)).toEqual(data2);
-                      setTimeout(() => this.setState({ propClient: client3 }), 0);
-                    }
-
-                    if (count === 2) {
-                      expect(stripSymbols(result.data)).toEqual(data3);
+                    if (step.nextState) {
+                      setTimeout(() => this.setState(step.nextState), 0);
+                    } else {
                       done();
                     }
-
-                    count++;
                   });
 
                   return null;
