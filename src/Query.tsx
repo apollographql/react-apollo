@@ -116,7 +116,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
 }
 
 export interface QueryContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
   operations?: Map<string, { query: DocumentNode; variables: any }>;
 }
 
@@ -124,11 +124,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   QueryProps<TData, TVariables>
 > {
   static contextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
     operations: PropTypes.object,
   };
 
   static propTypes = {
+    client: PropTypes.object,
     children: PropTypes.func.isRequired,
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
@@ -160,11 +161,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
 
-    this.client = props.client || context.client;
-    invariant(
-      !!this.client,
-      `Could not find "client" in the context of Query or as passed props. Wrap the root component in an <ApolloProvider>`,
-    );
+    this.client = this.getClient(props, context);
     this.initializeQueryObservable(props);
   }
 
@@ -208,26 +205,20 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       return;
     }
 
-    const { client } = nextProps;
-    if (
-      shallowEqual(this.props, nextProps) &&
-      (this.client === client || this.client === nextContext.client)
-    ) {
+    const nextClient = this.getClient(nextProps, nextContext);
+
+    if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
     }
 
-    if (this.client !== client && this.client !== nextContext.client) {
-      if (client) {
-        this.client = client;
-      } else {
-        this.client = nextContext.client;
-      }
+    if (this.client !== nextClient) {
+      this.client = nextClient;
       this.removeQuerySubscription();
       this.queryObservable = null;
       this.previousData = {};
-
       this.updateQuery(nextProps);
     }
+
     if (this.props.query !== nextProps.query) {
       this.removeQuerySubscription();
     }
@@ -349,6 +340,22 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.queryObservable!.resetLastResults();
     this.startQuerySubscription();
     Object.assign(this.queryObservable!, { lastError, lastResult });
+  }
+
+  private getClient(
+    props: QueryProps<TData, TVariables>,
+    context: QueryContext,
+  ): ApolloClient<Object> {
+    const client = props.client || context.client;
+
+    invariant(
+      !!client,
+      'Could not find "client" in the context of Query or as passed props.',
+      'Wrap the root component in an <ApolloProvider>',
+    );
+
+    // fixme: TS doesn't infer that the type cannot be undefined after the invariant.
+    return client as ApolloClient<Object>;
   }
 
   private updateCurrentData = () => {

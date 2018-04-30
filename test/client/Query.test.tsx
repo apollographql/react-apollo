@@ -889,53 +889,60 @@ describe('Query component', () => {
     });
 
     it('if the client changes in the context', done => {
+      function newClient(data: Object) {
+        const link = mockSingleLink({
+          request: { query: allPeopleQuery },
+          result: { data },
+        });
+
+        return new ApolloClient({
+          link,
+          cache: new Cache({ addTypename: false }),
+        });
+      }
+
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-      const link1 = mockSingleLink({
-        request: { query: allPeopleQuery },
-        result: { data: data1 },
-      });
-      const client1 = new ApolloClient({
-        link: link1,
-        cache: new Cache({ addTypename: false }),
-      });
+      const client1 = newClient(data1);
 
       const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
-      const link2 = mockSingleLink({
-        request: { query: allPeopleQuery },
-        result: { data: data2 },
-      });
-      const client2 = new ApolloClient({
-        link: link2,
-        cache: new Cache({ addTypename: false }),
-      });
+      const client2 = newClient(data2);
+
+      const data3 = { allPeople: { people: [{ name: 'Frodo' }] } };
+      const client3 = newClient(data3);
 
       let count = 0;
+
       class Component extends React.Component {
         state = {
-          client: client1,
+          propClient: undefined,
+          providerClient: client1,
         };
 
         render() {
           return (
-            <ApolloProvider client={this.state.client}>
-              <Query query={allPeopleQuery}>
+            <ApolloProvider client={this.state.providerClient}>
+              <Query query={allPeopleQuery} client={this.state.propClient}>
                 {result => {
                   if (result.loading) {
                     return null;
                   }
+
                   catchAsyncError(done, () => {
                     if (count === 0) {
                       expect(stripSymbols(result.data)).toEqual(data1);
-                      setTimeout(() => {
-                        this.setState({
-                          client: client2,
-                        });
-                      }, 0);
+                      setTimeout(() => this.setState({ providerClient: client2 }), 0);
                     }
+
                     if (count === 1) {
                       expect(stripSymbols(result.data)).toEqual(data2);
+                      setTimeout(() => this.setState({ propClient: client3 }), 0);
+                    }
+
+                    if (count === 2) {
+                      expect(stripSymbols(result.data)).toEqual(data3);
                       done();
                     }
+
                     count++;
                   });
 
