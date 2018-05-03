@@ -7,6 +7,10 @@ import { mockSingleLink } from './test-links';
 export * from './test-links';
 
 export class MockedProvider extends React.Component<any, any> {
+  static defaultProps = {
+    addTypename: true,
+  };
+
   private client: any;
 
   constructor(props: any, context: any) {
@@ -15,7 +19,7 @@ export class MockedProvider extends React.Component<any, any> {
     const link = mockSingleLink.apply(null, this.props.mocks);
     this.client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: this.props.addTypename }),
       defaultOptions: this.props.defaultOptions,
     });
   }

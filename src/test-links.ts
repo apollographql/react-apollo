@@ -8,6 +8,7 @@ import {
 } from 'apollo-link';
 
 import { print } from 'graphql/language/printer';
+import { addTypenameToDocument } from 'apollo-utilities';
 
 export interface MockedResponse {
   request: GraphQLRequest;
@@ -126,7 +127,7 @@ export class MockSubscriptionLink extends ApolloLink {
 }
 
 function requestToKey(request: GraphQLRequest): string {
-  const queryString = request.query && print(request.query);
+  const queryString = request.query && print(addTypenameToDocument(request.query));
 
   const requestKey = {
     variables: request.variables || {},
