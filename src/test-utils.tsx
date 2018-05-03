@@ -3,7 +3,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { ApolloProvider } from './index';
-import { mockSingleLink } from './test-links';
+import { MockLink } from './test-links';
 export * from './test-links';
 
 export class MockedProvider extends React.Component<any, any> {
@@ -15,8 +15,7 @@ export class MockedProvider extends React.Component<any, any> {
 
   constructor(props: any, context: any) {
     super(props, context);
-
-    const link = mockSingleLink.apply(null, this.props.mocks);
+    const link = new MockLink(this.props.mocks, this.props.addTypename);
     this.client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: this.props.addTypename }),
