@@ -98,6 +98,39 @@ it('executes the subscription', done => {
   jest.runTimersToTime(40);
 });
 
+
+it('calls onSubscriptionData if given', done => {
+  jest.useFakeTimers();
+
+  let count = 0;
+
+  const Component = () => (
+    <Subscription
+      subscription={subscription}
+      onSubscriptionData={opts => {
+        expect(opts.client).toBeInstanceOf(ApolloClient);
+        const {data} = opts.subscriptionData;
+        expect(data).toEqual(results[count].result.data);
+        if (count === 3) done();
+        count++;
+      }}
+    />
+  );
+
+  wrapper = mount(
+    <ApolloProvider client={client}>
+      <Component />
+    </ApolloProvider>,
+  );
+
+  const interval = setInterval(() => {
+    link.simulateResult(results[count]);
+    if (count >= 3) clearInterval(interval);
+  }, 10);
+
+  jest.runTimersToTime(40);
+});
+
 it('executes subscription for the variables passed in the props', done => {
   expect.assertions(4);
   const subscriptionWithVariables = gql`
