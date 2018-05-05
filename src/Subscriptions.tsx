@@ -16,7 +16,7 @@ export interface SubscriptionResult<TData = any> {
   error?: ApolloError;
 }
 
-declare interface OnSubscriptionDataOptions<TData = any> {
+export interface OnSubscriptionDataOptions<TData = any> {
   client: ApolloClient<Object>;
   subscriptionData: SubscriptionResult<TData>;
 }
