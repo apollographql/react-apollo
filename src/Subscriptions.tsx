@@ -20,6 +20,10 @@ export interface SubscriptionProps<TData = any, TVariables = OperationVariables>
   subscription: DocumentNode;
   variables?: TVariables;
   shouldResubscribe?: any;
+  onSubscriptionData?: (options: {
+    client: ApolloClient<Object>;
+    subscriptionData: SubscriptionResult<TData>;
+  }) => any,
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
 
@@ -135,6 +139,8 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   });
 
   private updateCurrentData = (result: SubscriptionResult<TData>) => {
+    const {client, props: {onSubscriptionData}} = this;
+    if (onSubscriptionData) onSubscriptionData({client, subscriptionData: result})
     this.setState({
       data: result.data,
       loading: false,
