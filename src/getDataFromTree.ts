@@ -1,193 +1,205 @@
 import * as React from 'react';
 
 export interface Context {
-    [key: string]: any;
+  [key: string]: any;
 }
 
 interface PromiseTreeArgument {
-    rootElement: React.ReactNode;
-    rootContext?: Context;
+  rootElement: React.ReactNode;
+  rootContext?: Context;
 }
 interface FetchComponent extends React.Component<any> {
-    fetchData(): Promise<void>;
+  fetchData(): Promise<void>;
 }
 
 interface PromiseTreeResult {
-    promise: Promise<any>;
-    context: Context;
-    instance: FetchComponent;
+  promise: Promise<any>;
+  context: Context;
+  instance: FetchComponent;
 }
 
 interface PreactElement<P> {
-    attributes: P;
-  }
+  attributes: P;
+}
 
 function getProps<P>(element: React.ReactElement<P> | PreactElement<P>): P {
-    return (element as React.ReactElement<P>).props || (element as PreactElement<P>).attributes;
+  return (element as React.ReactElement<P>).props || (element as PreactElement<P>).attributes;
 }
 
 function isReactElement(element: React.ReactNode): element is React.ReactElement<any> {
-    return !!(element as any).type;
+  return !!(element as any).type;
 }
 
 function isComponentClass(Comp: React.ComponentType<any>): Comp is React.ComponentClass<any> {
-    return Comp.prototype && (Comp.prototype.render || Comp.prototype.isReactComponent);
+  return Comp.prototype && (Comp.prototype.render || Comp.prototype.isReactComponent);
 }
-function providesChildContext(instance: React.Component<any>): instance is React.Component<any> & React.ChildContextProvider<any> {
-    return !!(instance as any).getChildContext;
+function providesChildContext(
+  instance: React.Component<any>,
+): instance is React.Component<any> & React.ChildContextProvider<any> {
+  return !!(instance as any).getChildContext;
 }
 
 // Recurse a React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
 //   or recurse into its child elements
-export function walkTree(element: React.ReactNode, context: Context, visitor: (
-      element: React.ReactNode,
-      instance: React.Component<any> | null,
-      context: Context,
-      childContext?: Context,
-    ) => boolean | void,
+export function walkTree(
+  element: React.ReactNode,
+  context: Context,
+  visitor: (
+    element: React.ReactNode,
+    instance: React.Component<any> | null,
+    context: Context,
+    childContext?: Context,
+  ) => boolean | void,
 ) {
-    if (Array.isArray(element)) {
-        element.forEach(item => walkTree(item, context, visitor));
-        return;
-    }
+  if (Array.isArray(element)) {
+    element.forEach(item => walkTree(item, context, visitor));
+    return;
+  }
 
-    if (!element) {
-        return;
-    }
+  if (!element) {
+    return;
+  }
 
-    // a stateless functional component or a class
-    if (isReactElement(element)) {
-      if (typeof element.type === 'function') {
-        const Comp = element.type;
-        const props = Object.assign({}, Comp.defaultProps, getProps(element));
-        let childContext = context;
-        let child;
+  // a stateless functional component or a class
+  if (isReactElement(element)) {
+    if (typeof element.type === 'function') {
+      const Comp = element.type;
+      const props = Object.assign({}, Comp.defaultProps, getProps(element));
+      let childContext = context;
+      let child;
 
-        // Are we are a react class?
-        //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
-        if (isComponentClass(Comp)) {
-          const instance = new Comp(props, context);
-          // In case the user doesn't pass these to super in the constructor
-          instance.props = instance.props || props;
-          instance.context = instance.context || context;
-          // set the instance state to null (not undefined) if not set, to match React behaviour
-          instance.state = instance.state || null;
+      // Are we are a react class?
+      //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
+      if (isComponentClass(Comp)) {
+        const instance = new Comp(props, context);
+        // In case the user doesn't pass these to super in the constructor
+        instance.props = instance.props || props;
+        instance.context = instance.context || context;
+        // set the instance state to null (not undefined) if not set, to match React behaviour
+        instance.state = instance.state || null;
 
-          // Override setState to just change the state, not queue up an update.
-          //   (we can't do the default React thing as we aren't mounted "properly"
-          //   however, we don't need to re-render as well only support setState in
-          //   componentWillMount, which happens *before* render).
-          instance.setState = newState => {
-            if (typeof newState === 'function') {
-              // React's TS type definitions don't contain context as a third parameter for
-              // setState's updater function.
-              // Remove this cast to `any` when that is fixed.
-              newState = (newState as any)(instance.state, instance.props, instance.context);
-            }
-            instance.state = Object.assign({}, instance.state, newState);
-          };
-
-          // this is a poor man's version of
-          //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
-          if (instance.componentWillMount) {
-            instance.componentWillMount();
+        // Override setState to just change the state, not queue up an update.
+        //   (we can't do the default React thing as we aren't mounted "properly"
+        //   however, we don't need to re-render as well only support setState in
+        //   componentWillMount, which happens *before* render).
+        instance.setState = newState => {
+          if (typeof newState === 'function') {
+            // React's TS type definitions don't contain context as a third parameter for
+            // setState's updater function.
+            // Remove this cast to `any` when that is fixed.
+            newState = (newState as any)(instance.state, instance.props, instance.context);
           }
+          instance.state = Object.assign({}, instance.state, newState);
+        };
 
-          if (providesChildContext(instance)) {
-            childContext = Object.assign({}, context, instance.getChildContext());
-          }
-
-          if (visitor(element, instance, context, childContext) === false) {
-            return;
-          }
-
-          child = instance.render();
-        } else {
-          // just a stateless functional
-          if (visitor(element, null, context) === false) {
-            return;
-          }
-
-          child = Comp(props, context);
+        // this is a poor man's version of
+        //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
+        if (instance.componentWillMount) {
+          instance.componentWillMount();
         }
 
-        if (child) {
-          if (Array.isArray(child)) {
-            child.forEach(item => walkTree(item, childContext, visitor));
-          } else {
-            walkTree(child, childContext, visitor);
-          }
+        if (providesChildContext(instance)) {
+          childContext = Object.assign({}, context, instance.getChildContext());
         }
+
+        if (visitor(element, instance, context, childContext) === false) {
+          return;
+        }
+
+        child = instance.render();
       } else {
-        // a basic string or dom element, just get children
+        // just a stateless functional
         if (visitor(element, null, context) === false) {
           return;
         }
 
-        if (element.props && element.props.children) {
-            React.Children.forEach(element.props.children, (child: any) => {
-            if (child) {
-              walkTree(child, context, visitor);
-            }
-          });
+        child = Comp(props, context);
+      }
+
+      if (child) {
+        if (Array.isArray(child)) {
+          child.forEach(item => walkTree(item, childContext, visitor));
+        } else {
+          walkTree(child, childContext, visitor);
         }
       }
-    } else if (typeof element === 'string' || typeof element === 'number') {
-      // Just visit these, they are leaves so we don't keep traversing.
-      visitor(element, null, context);
+    } else {
+      // a basic string or dom element, just get children
+      if (visitor(element, null, context) === false) {
+        return;
+      }
+
+      if (element.props && element.props.children) {
+        React.Children.forEach(element.props.children, (child: any) => {
+          if (child) {
+            walkTree(child, context, visitor);
+          }
+        });
+      }
     }
-    // TODO: Portals?
+  } else if (typeof element === 'string' || typeof element === 'number') {
+    // Just visit these, they are leaves so we don't keep traversing.
+    visitor(element, null, context);
   }
+  // TODO: Portals?
+}
 
 function hasFetchDataFunction(instance: React.Component<any>): instance is FetchComponent {
-    return typeof (instance as any).fetchData === 'function';
+  return typeof (instance as any).fetchData === 'function';
 }
-               
+
 function isPromise<T>(promise: Object): promise is Promise<T> {
   return typeof (promise as any).then === 'function';
 }
-                         
-function getPromisesFromTree({rootElement, rootContext = {}}: PromiseTreeArgument): PromiseTreeResult[] {
 
-    const promises: PromiseTreeResult[] = [];
+function getPromisesFromTree({
+  rootElement,
+  rootContext = {},
+}: PromiseTreeArgument): PromiseTreeResult[] {
+  const promises: PromiseTreeResult[] = [];
 
-    walkTree(rootElement, rootContext, (_, instance, context, childContext) => {
-        if (instance && hasFetchDataFunction(instance)) {
-            const promise = instance.fetchData();
-            if (isPromise<Object>(promise)) {
-                promises.push({promise, context: childContext || context, instance});
-                return false;
-            }
-        }
-    });
+  walkTree(rootElement, rootContext, (_, instance, context, childContext) => {
+    if (instance && hasFetchDataFunction(instance)) {
+      const promise = instance.fetchData();
+      if (isPromise<Object>(promise)) {
+        promises.push({ promise, context: childContext || context, instance });
+        return false;
+      }
+    }
+  });
 
-    return promises;
+  return promises;
+}
+
+export default function getDataFromTree(
+  rootElement: React.ReactNode,
+  rootContext: any = {},
+): Promise<any> {
+  const promises = getPromisesFromTree({ rootElement, rootContext });
+
+  if (!promises.length) {
+    return Promise.resolve();
   }
 
-export default function getDataFromTree(rootElement: React.ReactNode, rootContext: any = {}): Promise<any> {
-    const promises = getPromisesFromTree({rootElement, rootContext});
+  const errors: any[] = [];
 
-    if (!promises.length) {
-        return Promise.resolve();
+  const mappedPromises = promises.map(({ promise, context, instance }) => {
+    return promise
+      .then(_ => getDataFromTree(instance.render(), context))
+      .catch(e => errors.push(e));
+  });
+
+  return Promise.all(mappedPromises).then(_ => {
+    if (errors.length > 0) {
+      const error =
+        errors.length === 1
+          ? errors[0]
+          : new Error(
+              `${errors.length} errors were thrown when executing your fetchData functions.`,
+            );
+      error.queryErrors = errors;
+      throw error;
     }
-
-    const errors: any[] = [];
-
-    const mappedPromises = promises.map(({promise, context, instance}) => {
-        return promise
-            .then(_ => getDataFromTree(instance.render(), context))
-            .catch(e => errors.push(e));
-    });
-
-    return Promise.all(mappedPromises).then(_ => {
-        if (errors.length > 0) {
-          const error =
-            errors.length === 1
-              ? errors[0]
-              : new Error(`${errors.length} errors were thrown when executing your fetchData functions.`);
-          error.queryErrors = errors;
-          throw error;
-        }
-      });
+  });
 }
