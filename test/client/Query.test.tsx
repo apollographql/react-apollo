@@ -163,6 +163,7 @@ describe('Query component', () => {
               return null;
             }
             catchAsyncError(done, () => {
+              expect(result.data).toEqual({});
               expect(result.error).toEqual(new Error('Network error: error occurred'));
               done();
             });
