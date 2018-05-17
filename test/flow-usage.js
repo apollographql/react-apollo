@@ -35,7 +35,7 @@ const withData: OperationComponent<IQuery> = graphql(query);
 
 // Test a functional component
 const FunctionalWithData = withData(({ data }) => {
-  // $ExpectError string type beeing treated as numerical
+  // $ExpectError string type being treated as numerical
   if (data.foo > 1) return <span />;
 
   return null;
