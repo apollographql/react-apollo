@@ -19,6 +19,34 @@ const allPeopleQuery: DocumentNode = gql`
   }
 `;
 
+const allPeopleQueryWithFragment: DocumentNode = gql`
+  query people {
+    allPeople(first: 1) {
+      ...peopleFragment
+    }
+  }
+
+  fragment peopleFragment on Person {
+    people {
+      name
+    }
+  }
+`;
+
+const nodeFragmentQuery: DocumentNode = gql`
+  query people {
+    ...peopleFrag
+  }
+
+  fragment peopleFrag on Query {
+    allPeople(first: 1) {
+      people {
+        name
+      }
+    }
+  }
+`;
+
 interface Data {
   allPeople: {
     people: Array<{ name: string }>;
@@ -48,6 +76,84 @@ describe('Query component', () => {
       wrapper.unmount();
       wrapper = null;
     }
+  });
+
+  it('successfully makes a query with a fragment in it', done => {
+    const link = mockSingleLink({
+      request: { query: allPeopleQueryWithFragment },
+      result: { data: allPeopleData },
+    });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: true }),
+    });
+
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+    const Component = () => (
+      <Query query={allPeopleQueryWithFragment}>
+        {result => {
+          catchAsyncError(done, () => {
+            const { client: clientResult, data } = result;
+            if (result.loading) {
+              expect(data).toMatchSnapshot('result in render prop while loading');
+              expect(clientResult).toBe(client);
+            } else {
+              expect(stripSymbols(data)).toEqual(data1);
+              expect(stripSymbols(data)).toMatchSnapshot('result in render prop');
+              done();
+            }
+          });
+
+          return null;
+        }}
+      </Query>
+    );
+
+    wrapper = mount(
+      <ApolloProvider client={client}>
+        <Component />
+      </ApolloProvider>,
+    );
+  });
+
+  it('successfully makes node fragment queries', done => {
+    const link = mockSingleLink({
+      request: { query: nodeFragmentQuery },
+      result: { data: allPeopleData },
+    });
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+    const Component = () => (
+      <Query query={nodeFragmentQuery}>
+        {result => {
+          catchAsyncError(done, () => {
+            const { client: clientResult, data } = result;
+            if (result.loading) {
+              expect(rest).toMatchSnapshot('result in render prop while loading');
+              expect(clientResult).toBe(client);
+            } else {
+              expect(stripSymbols(data)).toEqual(data1);
+              expect(stripSymbols(data)).toMatchSnapshot('result in render prop');
+              done();
+            }
+          });
+
+          return null;
+        }}
+      </Query>
+    );
+
+    wrapper = mount(
+      <ApolloProvider client={client}>
+        <Component />
+      </ApolloProvider>,
+    );
   });
 
   it('calls the children prop', done => {
