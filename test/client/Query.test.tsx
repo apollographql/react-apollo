@@ -688,6 +688,27 @@ describe('Query component', () => {
         done();
       });
     });
+
+    it('skip property', done => {
+      const Component = () => (
+        <Query query={allPeopleQuery}>
+          {result => {
+            catchAsyncError(done, () => {
+              expect(result.loading).toBe(false);
+              done();
+            });
+
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={allPeopleMocks}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
   });
 
   describe('props disallow', () => {
