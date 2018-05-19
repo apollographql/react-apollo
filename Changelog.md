@@ -2,6 +2,8 @@
 
 ### vNext
 
+* Created the `ManualQuery` component: [#1989](https://github.com/apollographql/react-apollo/pull/1989)
+
 ### 2.1.4
 
 * Adds `__typename` for queries made with MockProvider and MockLink

@@ -44,11 +44,11 @@ export default class ManualQuery<
   TData = any,
   TVariables = OperationVariables
 > extends React.Component<Props<TData, TVariables>, State<TData>> {
-  private client: ApolloClient<any>;
-
   static contextTypes = {
     client: PropTypes.object.isRequired,
   };
+
+  private client: ApolloClient<any>;
 
   constructor(props: Props<TData, TVariables>, context: any) {
     super(props, context);
