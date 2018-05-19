@@ -57,7 +57,7 @@ class AllPeopleQuery extends ManualQuery<Data, { first: number }> {}
 it('errors if there is no client instance in the context', () => {
   expect.assertions(1);
   console.error = jest.fn();
-  expect(() => mount(<AllPeopleQuery>{() => null}</AllPeopleQuery>)).toThrow(
+  expect(() => mount(<AllPeopleQuery query={allPeopleQuery}>{() => null}</AllPeopleQuery>)).toThrow(
     'Could not find "client" in the context of ManualQuery. Wrap the root component in an <ApolloProvider>',
   );
 });
