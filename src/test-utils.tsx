@@ -8,7 +8,7 @@ export * from './test-links';
 
 export class MockedProvider extends React.Component<any, any> {
   static defaultProps = {
-    addTypename: true,
+    addTypename: false,
   };
 
   private client: any;
