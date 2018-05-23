@@ -362,7 +362,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     Object.assign(data, observableQueryFields(this.queryObservable!));
     // fetch the current result (if any) from the store
     const currentResult = this.queryObservable!.currentResult();
-    const { loading, networkStatus, errors } = currentResult;
+    const { loading, partial, networkStatus, errors } = currentResult;
     let { error } = currentResult;
     // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
     if (errors && errors.length > 0) {
@@ -378,6 +378,16 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         data: (this.queryObservable!.getLastResult() || {}).data,
       });
     } else {
+      if (partial) {
+        // Partial and not loading
+        // Means we ran a mutation with results that were missing a few fields
+        // So refetch the query to get the missing information
+
+        Object.assign(data, { loading: true });
+        data.refetch();
+        return data;
+      }
+
       Object.assign(data.data, currentResult.data);
       this.previousData = currentResult.data;
     }
