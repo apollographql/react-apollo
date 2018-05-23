@@ -65,8 +65,8 @@ it('fires the mutation', async () => {
   getByText('Created peter with id 1');
 });
 
-fit('errors', async () => {
-  const { container, getByPlaceholderText, getByTestId, getByText, queryByText } = render(
+it('errors', async () => {
+  const { getByTestId, getByText, getByPlaceholderText, queryByText } = render(
     <MockedProvider mocks={mocksWithError} addTypename={false}>
       <AddUser />
     </MockedProvider>,
@@ -77,6 +77,7 @@ fit('errors', async () => {
   Simulate.change(inputNode);
 
   const buttonNode = getByTestId('add-user-button');
+
   Simulate.click(buttonNode);
 
   await waitUntilLoadingIsFinished(queryByText);

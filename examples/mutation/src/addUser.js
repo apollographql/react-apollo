@@ -19,7 +19,7 @@ export default class AddUser extends React.Component {
     const { username } = this.state;
 
     return (
-      <Mutation mutation={ADD_USER} variables={{ username }}>
+      <Mutation mutation={ADD_USER} variables={{ username }} onError={() => {}}>
         {(addUser, result) => {
           const { data, loading, error, called } = result;
 
