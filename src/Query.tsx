@@ -378,7 +378,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         data: (this.queryObservable!.getLastResult() || {}).data,
       });
     } else {
-      if (partial) {
+      const { fetchPolicy } = this.queryObservable!.options;
+      if (partial && fetchPolicy !== 'cache-only') {
         // Partial and not loading
         // Means we ran a mutation with results that were missing a few fields
         // So refetch the query to get the missing information
