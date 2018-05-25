@@ -116,7 +116,7 @@
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.1.1",
     "graphql": "0.13.2",
-    "graphql-tag": "2.8.0",
+    "graphql-tag": "2.9.2",
     "husky": "0.14.3",
     "jest": "22.4.3",
     "jest-junit": "3.6.0",
