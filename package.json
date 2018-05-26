@@ -121,7 +121,7 @@
     "jest": "22.4.4",
     "jest-junit": "3.7.0",
     "jsdom": "11.11.0",
-    "preact": "8.2.7",
+    "preact": "8.2.9",
     "preact-compat": "3.18.0",
     "prettier": "1.11.1",
     "pretty-quick": "1.4.1",
