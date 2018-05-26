@@ -8,6 +8,7 @@ import catchAsyncError from '../test-utils/catchAsyncError';
 import stripSymbols from '../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
+import { wrap } from 'module';
 
 const allPeopleQuery: DocumentNode = gql`
   query people {
@@ -888,7 +889,9 @@ describe('Query component', () => {
       );
     });
 
-    it('if the client changes in the context', done => {
+    it('use client from props or context', done => {
+      jest.useFakeTimers();
+
       function newClient(name: string) {
         const link = mockSingleLink({
           request: { query: allPeopleQuery },
@@ -898,76 +901,75 @@ describe('Query component', () => {
         return new ApolloClient({ link, cache: new Cache({ addTypename: false }) });
       }
 
-      const AckbarClient = newClient('Admiral Ackbar');
-      const LukeClient = newClient('Luke Skywalker');
-      const HanClient = newClient('Han Solo');
-
-      const steps = [
+      // simulate prop & context client changes
+      // and assert that the <Query /> component refresh correctly.
+      const propsChanges = [
         {
-          name: null,
-          nextState: { query: null, provider: AckbarClient },
+          propsClient: null,
+          contextClient: newClient('Admiral Ackbar'),
+          renderedResult: (result: any) =>
+            expect(result.data.allPeople.people[0].name).toEqual('Admiral Ackbar'),
         },
         {
-          name: 'Admiral Ackbar',
-          nextState: { query: null, provider: LukeClient },
+          propsClient: null,
+          contextClient: newClient('Luke Skywalker'),
+          renderedResult: (result: any) =>
+            expect(result.data.allPeople.people[0].name).toEqual('Luke Skywalker'),
         },
         {
-          name: 'Luke Skywalker',
-          nextState: { query: HanClient, provider: LukeClient },
+          propsClient: newClient('Han Solo'),
+          contextClient: newClient('Luke Skywalker'),
+          renderedResult: (result: any) =>
+            expect(result.data.allPeople.people[0].name).toEqual('Han Solo'),
         },
         {
-          name: 'Han Solo',
-          nextState: { query: null, provider: AckbarClient },
+          propsClient: null,
+          contextClient: newClient('Admiral Ackbar'),
+          renderedResult: (result: any) =>
+            expect(result.data.allPeople.people[0].name).toEqual('Admiral Ackbar'),
         },
         {
-          name: 'Admiral Ackbar',
-          nextState: null,
+          propsClient: newClient('Luke Skywalker'),
+          contextClient: null,
+          renderedResult: (result: any) =>
+            expect(result.data.allPeople.people[0].name).toEqual('Luke Skywalker'),
         },
       ];
 
-      let count = 0;
-
       class Component extends React.Component<any, any> {
-        componentDidMount() {
-          this.setState(steps[0].nextState);
-        }
-
         render() {
-          if (!this.state) {
+          if (Object.keys(this.props).length === 0) {
             return null;
           }
 
-          return (
-            <ApolloProvider client={this.state.provider}>
-              <Query query={allPeopleQuery} client={this.state.query}>
-                {result => {
-                  if (result.loading) {
-                    return null;
-                  }
+          const query = (
+            <Query query={allPeopleQuery} client={this.props.propsClient}>
+              {result => {
+                if (result.data && result.data.allPeople) {
+                  this.props.renderedResult(result);
+                }
 
-                  catchAsyncError(done, () => {
-                    const step = steps[count++];
-
-                    if (step.name) {
-                      expect(result.data.allPeople.people[0].name).toEqual(step.name);
-                    }
-
-                    if (step.nextState) {
-                      setTimeout(() => this.setState(step.nextState), 0);
-                    } else {
-                      done();
-                    }
-                  });
-
-                  return null;
-                }}
-              </Query>
-            </ApolloProvider>
+                return null;
+              }}
+            </Query>
           );
+
+          if (this.props.contextClient) {
+            return <ApolloProvider client={this.props.contextClient}>{query}</ApolloProvider>;
+          }
+
+          return query;
         }
       }
 
-      wrapper = mount(<Component />);
+      const component = mount(<Component />);
+
+      propsChanges.forEach(props => {
+        component.setProps(props);
+        jest.runAllTimers();
+      });
+
+      done();
     });
 
     it('with data while loading', done => {
