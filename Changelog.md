@@ -2,6 +2,10 @@
 
 ### vNext
 
+### 2.1.4
+
+* Adds `__typename` for queries made with MockProvider and MockLink
+
 ### 2.1.3
 
 * Fixed issue where refetch was not possible after SSR
