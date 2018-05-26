@@ -8,7 +8,6 @@ import catchAsyncError from '../test-utils/catchAsyncError';
 import stripSymbols from '../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { wrap } from 'module';
 
 const allPeopleQuery: DocumentNode = gql`
   query people {
@@ -901,38 +900,35 @@ describe('Query component', () => {
         return new ApolloClient({ link, cache: new Cache({ addTypename: false }) });
       }
 
-      // simulate prop & context client changes
-      // and assert that the <Query /> component refresh correctly.
+      const skywalker = newClient('Luke Skywalker');
+      const ackbar = newClient('Admiral Ackbar');
+      const solo = newClient('Han Solo');
+
       const propsChanges = [
         {
           propsClient: null,
-          contextClient: newClient('Admiral Ackbar'),
-          renderedResult: (result: any) =>
-            expect(result.data.allPeople.people[0].name).toEqual('Admiral Ackbar'),
+          contextClient: ackbar,
+          renderedName: (name: string) => expect(name).toEqual('Admiral Ackbar'),
         },
         {
           propsClient: null,
-          contextClient: newClient('Luke Skywalker'),
-          renderedResult: (result: any) =>
-            expect(result.data.allPeople.people[0].name).toEqual('Luke Skywalker'),
+          contextClient: skywalker,
+          renderedName: (name: string) => expect(name).toEqual('Luke Skywalker'),
         },
         {
-          propsClient: newClient('Han Solo'),
-          contextClient: newClient('Luke Skywalker'),
-          renderedResult: (result: any) =>
-            expect(result.data.allPeople.people[0].name).toEqual('Han Solo'),
+          propsClient: solo,
+          contextClient: skywalker,
+          renderedName: (name: string) => expect(name).toEqual('Han Solo'),
         },
         {
           propsClient: null,
-          contextClient: newClient('Admiral Ackbar'),
-          renderedResult: (result: any) =>
-            expect(result.data.allPeople.people[0].name).toEqual('Admiral Ackbar'),
+          contextClient: ackbar,
+          renderedName: (name: string) => expect(name).toEqual('Admiral Ackbar'),
         },
         {
-          propsClient: newClient('Luke Skywalker'),
+          propsClient: skywalker,
           contextClient: null,
-          renderedResult: (result: any) =>
-            expect(result.data.allPeople.people[0].name).toEqual('Luke Skywalker'),
+          renderedName: (name: string) => expect(name).toEqual('Luke Skywalker'),
         },
       ];
 
@@ -946,7 +942,7 @@ describe('Query component', () => {
             <Query query={allPeopleQuery} client={this.props.propsClient}>
               {result => {
                 if (result.data && result.data.allPeople) {
-                  this.props.renderedResult(result);
+                  this.props.renderedName(result.data.allPeople.people[0].name);
                 }
 
                 return null;
