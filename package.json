@@ -123,7 +123,7 @@
     "jsdom": "11.11.0",
     "preact": "8.2.9",
     "preact-compat": "3.18.0",
-    "prettier": "1.11.1",
+    "prettier": "1.12.1",
     "pretty-quick": "1.4.1",
     "react": "16.3.1",
     "react-dom": "16.3.1",
