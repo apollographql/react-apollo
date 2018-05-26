@@ -140,7 +140,7 @@
     "ts-jest": "22.4.6",
     "tslint": "5.10.0",
     "typescript": "2.6.2",
-    "typescript-require": "0.2.9",
+    "typescript-require": "0.2.10",
     "zen-observable-ts": "0.8.8"
   },
   "dependencies": {
