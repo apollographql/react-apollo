@@ -8,6 +8,7 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 
 import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';
+import { getClient } from './component-utils';
 
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
@@ -16,7 +17,7 @@ export interface MutationResult<TData = Record<string, any>> {
   called: boolean;
 }
 export interface MutationContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
   operations: Map<string, { query: DocumentNode; variables: any }>;
 }
 
@@ -52,6 +53,7 @@ export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
 ) => Promise<void | FetchResult<TData>>;
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
+  client?: ApolloClient<Object>;
   mutation: DocumentNode;
   ignoreResults?: boolean;
   optimisticResponse?: Object;
@@ -114,7 +116,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     super(props, context);
 
     this.verifyContext(context);
-    this.client = context.client;
+    this.client = getClient(props, context);
 
     this.verifyDocumentIsMutation(props.mutation);
 
@@ -134,7 +136,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     nextProps: MutationProps<TData, TVariables>,
     nextContext: MutationContext,
   ) {
-    if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+    const nextClient = getClient(nextProps, nextContext);
+    if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
     }
 
@@ -142,8 +145,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       this.verifyDocumentIsMutation(nextProps.mutation);
     }
 
-    if (this.client !== nextContext.client) {
-      this.client = nextContext.client;
+    if (this.client !== nextClient) {
+      this.client = nextClient;
       this.setState(initialState);
     }
   }
@@ -164,7 +167,6 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   private runMutation = (options: MutationOptions<TVariables> = {}) => {
     this.onStartMutation();
-
     const mutationId = this.generateNewMutationId();
 
     return this.mutate(options)

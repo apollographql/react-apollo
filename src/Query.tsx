@@ -12,6 +12,7 @@ import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables, GraphqlQueryControls } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
+import { getClient } from './component-utils';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -161,7 +162,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
 
-    this.client = this.getClient(props, context);
+    this.client = getClient(props, context);
     this.initializeQueryObservable(props);
   }
 
@@ -205,7 +206,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       return;
     }
 
-    const nextClient = this.getClient(nextProps, nextContext);
+    const nextClient = getClient(nextProps, nextContext);
 
     if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
@@ -340,22 +341,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.queryObservable!.resetLastResults();
     this.startQuerySubscription();
     Object.assign(this.queryObservable!, { lastError, lastResult });
-  }
-
-  private getClient(
-    props: QueryProps<TData, TVariables>,
-    context: QueryContext,
-  ): ApolloClient<Object> {
-    const client = props.client || context.client;
-
-    invariant(
-      !!client,
-      'Could not find "client" in the context of Query or as passed props.',
-      'Wrap the root component in an <ApolloProvider>',
-    );
-
-    // fixme: TS doesn't infer that the type cannot be undefined after the invariant.
-    return client as ApolloClient<Object>;
   }
 
   private updateCurrentData = () => {
