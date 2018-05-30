@@ -14,7 +14,7 @@
     "graphql-server-express": "^1.0.4",
     "graphql-tag": "^2.4.2",
     "graphql-tools": "^1.1.0",
-    "meteor-node-stubs": "^0.3.0",
+    "meteor-node-stubs": "^0.4.0",
     "react": "^16.0.0",
     "react-apollo": "^1.4.8",
     "react-dom": "^16.0.0"
@@ -24,8 +24,8 @@
     "babel-plugin-transform-react-require": "1.0.1",
     "babel-preset-react": "6.24.1",
     "cheerio": "1.0.0-rc.2",
-    "chromedriver": "2.37.0",
-    "nightwatch": "0.9.19",
+    "chromedriver": "2.38.3",
+    "nightwatch": "0.9.21",
     "selenium-webdriver": "3.6.0"
   }
 }
