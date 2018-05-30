@@ -729,7 +729,7 @@ describe('Query component', () => {
         },
       ];
 
-      const onError = (queryError: ApolloError) => {
+      const onErrorFunc = (queryError: ApolloError) => {
         expect(queryError).toEqual(null);
         done();
       };
@@ -737,7 +737,7 @@ describe('Query component', () => {
       const onError = jest.fn();
 
       const Component = () => (
-        <Query query={allPeopleQuery} onError={onError}>
+        <Query query={allPeopleQuery} onError={onErrorFunc}>
           {({ loading }) => {
             if (!loading) {
               expect(onError).not.toHaveBeenCalled();
@@ -842,13 +842,13 @@ describe('Query component', () => {
         },
       ];
 
-      const onError = (queryError: ApolloError) => {
+      const onErrorFunc = (queryError: ApolloError) => {
         expect(queryError.networkError).toEqual(error);
         done();
       };
 
       const Component = () => (
-        <Query query={allPeopleQuery} onError={onError}>
+        <Query query={allPeopleQuery} onError={onErrorFunc}>
           {() => {
             return null;
           }}
