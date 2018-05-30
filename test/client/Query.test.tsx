@@ -713,7 +713,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -793,7 +793,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mockError}>
+        <MockedProvider mocks={mockError} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
