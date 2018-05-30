@@ -114,6 +114,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
   onCompleted?: (data: TData | {}) => void;
+  onError?: (error: ApolloError) => void;
 }
 
 export interface QueryContext {
@@ -134,6 +135,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
     onCompleted: PropTypes.func,
+    onError: PropTypes.func,
     pollInterval: PropTypes.number,
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
@@ -174,7 +176,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.props.skip) return false;
     // pull off react options
-    const { children, ssr, displayName, skip, client, onCompleted, ...opts } = this.props;
+    const { children, ssr, displayName, skip, client, onCompleted, onError, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -354,12 +356,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
-    const { onCompleted } = this.props;
-    if (onCompleted) {
+    const { onCompleted, onError } = this.props;
+    if (onCompleted || onError) {
       const currentResult = this.queryObservable!.currentResult();
       const { loading, error, data } = currentResult;
-      if (!loading && !error) {
+      if (onCompleted && !loading && !error) {
         onCompleted(data);
+      } else if (onError && !loading && error) {
+        onError(error);
       }
     }
     // force a rerender that goes through shouldComponentUpdate

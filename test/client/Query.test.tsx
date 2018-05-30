@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ApolloClient, { NetworkStatus } from 'apollo-client';
+import ApolloClient, { ApolloError, NetworkStatus } from 'apollo-client';
 import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloProvider, Query } from '../../src';
@@ -718,6 +718,42 @@ describe('Query component', () => {
         </MockedProvider>,
       );
     });
+
+    it('onError with data', done => {
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+      const mocks = [
+        {
+          request: { query: allPeopleQuery },
+          result: { data: data },
+        },
+      ];
+
+      const onError = (queryError: ApolloError) => {
+        expect(queryError).toEqual(null);
+        done();
+      };
+
+      const onError = jest.fn();
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onError={onError}>
+          {({ loading }) => {
+            if (!loading) {
+              expect(onError).not.toHaveBeenCalled();
+              done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
   });
 
   describe('props disallow', () => {
@@ -769,8 +805,6 @@ describe('Query component', () => {
     });
 
     it('onCompleted with error', done => {
-      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-
       const mockError = [
         {
           request: { query: allPeopleQuery },
@@ -787,6 +821,35 @@ describe('Query component', () => {
               expect(onCompleted).not.toHaveBeenCalled();
               done();
             }
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mockError} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
+    it('onError with error', done => {
+      const error = new Error('error occurred');
+      const mockError = [
+        {
+          request: { query: allPeopleQuery },
+          error: error,
+        },
+      ];
+
+      const onError = (queryError: ApolloError) => {
+        expect(queryError.networkError).toEqual(error);
+        done();
+      };
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onError={onError}>
+          {() => {
             return null;
           }}
         </Query>
