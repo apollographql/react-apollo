@@ -105,7 +105,7 @@
     "@types/recompose": "0.26.1",
     "@types/zen-observable": "0.5.3",
     "apollo-cache-inmemory": "1.2.2",
-    "apollo-client": "2.3.1",
+    "apollo-client": "2.3.2",
     "apollo-link": "1.2.1",
     "babel-core": "6.26.3",
     "babel-jest": "22.4.4",
