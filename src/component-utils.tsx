@@ -17,7 +17,7 @@ export function getClient(
 
   invariant(
     !!client,
-    'Could not find "client" in the context of Query or as passed props.',
+    'Could not find "client" in the context or as passed props.',
     'Wrap the root component in an <ApolloProvider>',
   );
 
