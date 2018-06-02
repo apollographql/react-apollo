@@ -39,6 +39,7 @@ jobs:
     steps:
       - checkout
       - run: npm i
+      - run: npm run prettier:check
       - run: npm run danger
       - run: npm run lint
 

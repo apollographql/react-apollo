@@ -71,6 +71,7 @@ describe('fragments', () => {
           name
         }
       }
+
     `;
     const data = {
       allPeople: {
