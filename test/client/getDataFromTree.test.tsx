@@ -283,6 +283,29 @@ describe('SSR', () => {
         });
         expect(elementCount).toEqual(7);
       });
+
+      it('basic classes with getDerivedStateFromProps', () => {
+        const renderedCounts = [];
+        class MyComponent extends React.Component<any> {
+          state = { count: 0 };
+
+          static getDerivedStateFromProps(nextProps: any, prevState: any) {
+            if (nextProps.increment) {
+              return { count: prevState.count + 1 };
+            }
+            return null;
+          }
+
+          render() {
+            renderedCounts.push(this.state.count);
+            return <div>{this.state.count}</div>;
+          }
+        }
+        walkTree(<MyComponent increment />, {}, () => {
+          // noop
+        });
+        expect(renderedCounts).toEqual([1]);
+      });
     });
   });
 

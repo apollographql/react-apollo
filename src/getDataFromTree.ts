@@ -99,6 +99,13 @@ export function walkTree(
           instance.componentWillMount();
         }
 
+        if (Comp.getDerivedStateFromProps) {
+          const result = Comp.getDerivedStateFromProps(instance.props, instance.state);
+          if (result !== null) {
+            instance.state = Object.assign({}, instance.state, result);
+          }
+        }
+
         if (providesChildContext(instance)) {
           childContext = Object.assign({}, context, instance.getChildContext());
         }
