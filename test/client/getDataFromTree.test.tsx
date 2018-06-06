@@ -285,7 +285,7 @@ describe('SSR', () => {
       });
 
       it('basic classes with getDerivedStateFromProps', () => {
-        const renderedCounts = [];
+        const renderedCounts: Number[] = [];
         class MyComponent extends React.Component<any> {
           state = { count: 0 };
 
