@@ -124,7 +124,7 @@ export function walkTree(
           walkTree(child, childContext, visitor);
         }
       }
-    } else if (element.type._context || element.type.Consumer) {
+    } else if ((element.type as any)._context || (element.type as any).Consumer) {
       // a React context provider or consumer
       //   https://github.com/facebook/react/blob/master/packages/react/src/ReactContext.js
       if (visitor(element, null, context) === false) {
@@ -132,14 +132,14 @@ export function walkTree(
       }
 
       let child;
-      if (element.type._context) {
+      if ((element.type as any)._context) {
         // a Provider - sets the context value before rendering children
         //   https://github.com/facebook/react/blob/fc3777b/packages/react-dom/src/server/ReactPartialRenderer.js#L680
-        element.type._context._currentValue = element.props.value;
+        ((element.type as any)._context as any)._currentValue = element.props.value;
         child = element.props.children;
       } else {
         // a Consumer
-        child = element.props.children(element.type._currentValue);
+        child = element.props.children((element.type as any)._currentValue);
       }
 
       if (child) {
