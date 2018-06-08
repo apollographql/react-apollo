@@ -1183,41 +1183,77 @@ describe('Query component', () => {
     );
   });
 
-  it(
-    'should attempt a refetch when the query result was marked as being ' +
-      'partial, but the returned data was reset to an empty Object by the ' +
-      'Apollo Client QueryManager (due to a cache miss)',
-    done => {
-      const query = allPeopleQuery;
-      const link = mockSingleLink(
-        { request: { query }, result: { data: {} } },
-        { request: { query }, result: { data: allPeopleData } },
-      );
+  describe('Partial refetching', () => {
+    it(
+      'should attempt a refetch when the query result was marked as being ' +
+        'partial, but the returned data was reset to an empty Object by the ' +
+        'Apollo Client QueryManager (due to a cache miss)',
+      done => {
+        const query = allPeopleQuery;
+        const link = mockSingleLink(
+          { request: { query }, result: { data: {} } },
+          { request: { query }, result: { data: allPeopleData } },
+        );
 
-      const client = new ApolloClient({
-        link,
-        cache: new Cache({ addTypename: false }),
-      });
+        const client = new ApolloClient({
+          link,
+          cache: new Cache({ addTypename: false }),
+        });
 
-      let count = 0;
-      const Component = () => (
-        <Query query={allPeopleQuery}>
-          {result => {
-            const { data, loading } = result;
-            if (!loading) {
-              expect(stripSymbols(data)).toEqual(allPeopleData);
-              done();
-            }
-            return null;
-          }}
-        </Query>
-      );
+        let count = 0;
+        const Component = () => (
+          <Query query={allPeopleQuery}>
+            {result => {
+              const { data, loading } = result;
+              if (!loading) {
+                expect(stripSymbols(data)).toEqual(allPeopleData);
+                done();
+              }
+              return null;
+            }}
+          </Query>
+        );
 
-      wrapper = mount(
-        <ApolloProvider client={client}>
-          <Component />
-        </ApolloProvider>,
-      );
-    },
-  );
+        wrapper = mount(
+          <ApolloProvider client={client}>
+            <Component />
+          </ApolloProvider>,
+        );
+      },
+    );
+
+    it(
+      'should not refetch when an empty partial is returned if the ' +
+        '`disablePartialRefetch` prop is true',
+      done => {
+        const query = allPeopleQuery;
+        const link = mockSingleLink({ request: { query }, result: { data: {} } });
+
+        const client = new ApolloClient({
+          link,
+          cache: new Cache({ addTypename: false }),
+        });
+
+        let count = 0;
+        const Component = () => (
+          <Query query={allPeopleQuery} disablePartialRefetch>
+            {result => {
+              const { data, loading } = result;
+              if (!loading) {
+                expect(data).toEqual({});
+                done();
+              }
+              return null;
+            }}
+          </Query>
+        );
+
+        wrapper = mount(
+          <ApolloProvider client={client}>
+            <Component />
+          </ApolloProvider>,
+        );
+      },
+    );
+  });
 });

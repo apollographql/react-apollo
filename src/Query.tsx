@@ -113,6 +113,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   skip?: boolean;
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
+  disablePartialRefetch?: boolean;
 }
 
 export interface QueryContext {
@@ -136,6 +137,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
     ssr: PropTypes.bool,
+    disablePartialRefetch: PropTypes.bool,
   };
 
   context: QueryContext;
@@ -172,7 +174,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.props.skip) return false;
     // pull off react options
-    const { children, ssr, displayName, skip, client, ...opts } = this.props;
+    const { children, ssr, displayName, skip, client, disablePartialRefetch, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -380,7 +382,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       });
     } else {
       const { fetchPolicy } = this.queryObservable!.options;
-      if (Object.keys(currentResult.data).length === 0 && partial && fetchPolicy !== 'cache-only') {
+      const { disablePartialRefetch } = this.props;
+      if (
+        !disablePartialRefetch &&
+        Object.keys(currentResult.data).length === 0 &&
+        partial &&
+        fetchPolicy !== 'cache-only'
+      ) {
         // When a `Query` component is mounted, and a mutation is executed
         // that returns the same ID as the mounted `Query`, but has less
         // fields in its result, Apollo Client's `QueryManager` returns the
