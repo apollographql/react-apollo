@@ -358,13 +358,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     let data = { data: Object.create(null) as TData } as any;
-    // attach bound methods
+    // Attach bound methods
     Object.assign(data, observableQueryFields(this.queryObservable!));
-    // fetch the current result (if any) from the store
+    // Fetch the current result (if any) from the store
     const currentResult = this.queryObservable!.currentResult();
     const { loading, partial, networkStatus, errors } = currentResult;
     let { error } = currentResult;
-    // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
+    // Until a set naming convention for networkError and graphQLErrors is
+    // decided upon, we map errors (graphQLErrors) to the error props
     if (errors && errors.length > 0) {
       error = new ApolloError({ graphQLErrors: errors });
     }
@@ -379,11 +380,15 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       });
     } else {
       const { fetchPolicy } = this.queryObservable!.options;
-      if (partial && fetchPolicy !== 'cache-only') {
-        // Partial and not loading
-        // Means we ran a mutation with results that were missing a few fields
-        // So refetch the query to get the missing information
-
+      if (Object.keys(currentResult.data).length === 0 && partial && fetchPolicy !== 'cache-only') {
+        // When a `Query` component is mounted, and a mutation is executed
+        // that returns the same ID as the mounted `Query`, but has less
+        // fields in its result, Apollo Client's `QueryManager` returns the
+        // data as an empty Object since a hit can't be found in the cache.
+        // This can lead to application errors when the UI elements rendered by
+        // the original `Query` component are expecting certain data values to
+        // exist, and they're all of a sudden stripped away. To help avoid
+        // this we'll attempt to refetch the `Query` data.
         Object.assign(data, { loading: true });
         data.refetch();
         return data;
@@ -392,6 +397,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       Object.assign(data.data, currentResult.data);
       this.previousData = currentResult.data;
     }
+
     // handle race condition where refetch is called on child mount or later
     // Normal execution model:
     // render(loading) -> mount -> start subscription -> get data -> render(with data)
