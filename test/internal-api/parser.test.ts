@@ -25,7 +25,6 @@ describe('parser', () => {
           }
         }
       }
-
     `;
 
     expect(parser.bind(null, query)).toThrowError(/react-apollo only supports/);
@@ -44,7 +43,6 @@ describe('parser', () => {
           name
         }
       }
-
     `;
 
     expect(parser.bind(null, query)).toThrowError(/react-apollo only supports/);
