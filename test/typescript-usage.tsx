@@ -1,7 +1,7 @@
 // this file tests compilation of typescript types to ensure compatibility
-// we intentionally don't enforce TS compilation on the reset of the tests so we can
+// we intentionally don't enforce TS compilation on the rest of the tests so we can
 // test things like improper argument calling / etc to cause errors and ensure
-// that the are handled
+// that they are handled
 import * as React from 'react';
 import gql from 'graphql-tag';
 import { graphql, DataValue } from '../src';
