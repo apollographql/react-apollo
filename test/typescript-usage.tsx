@@ -125,6 +125,38 @@ const Foo = withProps(props => <div>Woot {props.organisationData!.history}</div>
 <Foo solutionId="foo" />; // tslint:disable-line
 
 // --------------------------
+// variables with simple custom props
+interface Variables {
+  solutionId: string;
+}
+
+const simpleVarsAndProps = graphql<Props, Data, Variables>(historyQuery, {
+  options: ({ solutionId }) => ({
+    variables: { solutionId },
+  }),
+  props: data => data,
+});
+
+const HistorySimpleVarsAndProps = simpleVarsAndProps(props => <div>{props.data!.history}</div>);
+
+<HistorySimpleVarsAndProps solutionId="foo" />; // tslint:disable-line
+
+// --------------------------
+// variables with advanced custom props
+type FlatProps = Props & Partial<DataValue<Data, Variables>>;
+
+const advancedVarsAndProps = graphql<Props, Data, Variables, FlatProps>(historyQuery, {
+  options: ({ solutionId }) => ({
+    variables: { solutionId },
+  }),
+  props: ({ data, ownProps }) => ({ ...data, ...ownProps }),
+});
+
+const HistoryAdvancedVarsAndProps = advancedVarsAndProps(props => <div>{props.history}</div>);
+
+<HistoryAdvancedVarsAndProps solutionId="foo" />; // tslint:disable-line
+
+// --------------------------
 // It is not recommended to use `name` with Typescript, better to use props and map the property
 // explicitly so it can be type checked.
 // with using name
