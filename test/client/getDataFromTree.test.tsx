@@ -296,6 +296,12 @@ describe('SSR', () => {
             return null;
           }
 
+          componentWillMount() {
+            throw new Error(
+              "`componentWillMount` shouldn't be called when `getDerivedStateFromProps` is available",
+            );
+          }
+
           render() {
             renderedCounts.push(this.state.count);
             return <div>{this.state.count}</div>;

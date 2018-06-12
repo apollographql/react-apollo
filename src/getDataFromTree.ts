@@ -93,17 +93,15 @@ export function walkTree(
           instance.state = Object.assign({}, instance.state, newState);
         };
 
-        // this is a poor man's version of
-        //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
-        if (instance.componentWillMount) {
-          instance.componentWillMount();
-        }
-
         if (Comp.getDerivedStateFromProps) {
           const result = Comp.getDerivedStateFromProps(instance.props, instance.state);
           if (result !== null) {
             instance.state = Object.assign({}, instance.state, result);
           }
+        } else if (instance.componentWillMount) {
+          // this is a poor man's version of
+          //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
+          instance.componentWillMount();
         }
 
         if (providesChildContext(instance)) {
