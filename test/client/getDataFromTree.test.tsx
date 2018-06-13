@@ -580,7 +580,7 @@ describe('SSR', () => {
         <div>{!data || data.loading || !data.user ? 'loading' : data.user.firstName}</div>
       );
 
-      const WrappedComponent = withId(withUser(Component));
+      const WrappedComponent = withId(Component);
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -591,6 +591,121 @@ describe('SSR', () => {
       return getDataFromTree(app).then(() => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
+      });
+    });
+
+    it('should handle nested errors without circular reference', () => {
+      const idQuery: DocumentNode = gql`
+        {
+          currentUser {
+            id
+          }
+        }
+      `;
+      const idData = { currentUser: { id: '1234' } };
+      const userQuery: DocumentNode = gql`
+        query getUser($id: String) {
+          user(id: $id) {
+            firstName
+          }
+        }
+      `;
+      const lastNameQuery = gql`
+        {
+          currentUser {
+            lastName
+          }
+        }
+      `;
+      interface LastNameData {
+        currentUser: {
+          firstName: string;
+        };
+      }
+      const variables = { id: '1234' };
+      const userData = { user: { firstName: 'James' } };
+      const link = mockSingleLink(
+        { request: { query: idQuery }, result: { data: idData }, delay: 50 },
+        {
+          request: { query: lastNameQuery },
+          result: { data: idData },
+          delay: 50,
+        },
+        {
+          request: { query: userQuery, variables },
+          result: { data: userData },
+          delay: 50,
+        },
+      );
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      interface Props {}
+      interface IdQueryData {
+        currentUser: {
+          id: string;
+        };
+      }
+
+      interface UserQueryData {
+        user: {
+          firstName: string;
+        };
+      }
+
+      interface UserQueryVariables {
+        id: string;
+      }
+
+      type WithIdChildProps = ChildProps<Props, IdQueryData>;
+      const withId = graphql<Props, IdQueryData>(idQuery);
+
+      type WithUserChildProps = ChildProps<Props, UserQueryData, UserQueryVariables>;
+      const withUser = graphql<WithIdChildProps, UserQueryData, UserQueryVariables>(userQuery, {
+        skip: ({ data: { loading } }) => loading,
+        options: ({ data }) => ({
+          variables: { id: data!.currentUser!.id },
+        }),
+      });
+
+      type WithLastNameProps = ChildProps<Props, LastNameData>;
+      const withLastName = graphql<Props, LastNameData>(lastNameQuery);
+
+      const BorkedComponent = () => {
+        console.log('baz');
+        throw new Error('foo');
+      };
+
+      const WrappedBorkedComponent = withLastName(BorkedComponent);
+
+      const Component: React.StatelessComponent<WithUserChildProps> = ({ data }) => (
+        <div>
+          {!data || data.loading || !data.user ? 'loading' : data.user.firstName}
+          <WrappedBorkedComponent />
+          <WrappedBorkedComponent />
+        </div>
+      );
+
+      const WrappedComponent = withId(withUser(Component));
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <WrappedComponent />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).catch(e => {
+        console.log(e);
+        expect(e).toBeTruthy();
+        expect(e.queryErrors.length).toEqual(1);
+
+        // But we can still render the app if we want to
+        const markup = ReactDOM.renderToString(app);
+        // It renders in a loading state as errored query isn't shared between
+        // the query fetching run and the rendering run.
+        expect(markup).toMatch(/loading/);
       });
     });
 
