@@ -78,7 +78,7 @@ ReactDOM.render(
 
 Now you may create components in this React tree that are connected to your GraphQL API.
 
-Finally, to demonstrate the power of React Apollo in building interactive UIs let us connect one of your components to your GraphQL server using the [`graphql()`][] component enhancer:
+Finally, to demonstrate the power of React Apollo in building interactive UIs let us connect one of your components to your GraphQL server using the [`<Query>`][] component:
 
 You'll need install `graphql-tag` to use `gql` module:
 
@@ -87,26 +87,36 @@ npm install graphql-tag --save
 ```
 
 ```js
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
+import { Query } from "react-apollo";
 
-function TodoApp({ data: { todos, refetch } }) {
-  return (
-    <div>
-      <button onClick={() => refetch()}>Refresh</button>
-      <ul>{todos && todos.map(todo => <li key={todo.id}>{todo.text}</li>)}</ul>
-    </div>
-  );
-}
-
-export default graphql(gql`
-  query TodoAppQuery {
-    todos {
+const GET_DOGS = gql`
+  {
+    dogs {
       id
-      text
+      breed
     }
   }
-`)(TodoApp);
+`;
+
+const Dogs = ({ onDogSelected }) => (
+  <Query query={GET_DOGS}>
+    {({ loading, error, data }) => {
+      if (loading) return "Loading...";
+      if (error) return `Error! ${error.message}`;
+
+      return (
+        <select name="dog" onChange={onDogSelected}>
+          {data.dogs.map(dog => (
+            <option key={dog.id} value={dog.breed}>
+              {dog.breed}
+            </option>
+          ))}
+        </select>
+      );
+    }}
+  </Query>
+);
 ```
 
 With that your `<TodoApp/>` component is now connected to your GraphQL API. Whenever some other component modifies the data in your cache, this component will automatically be updated with the new data.
@@ -116,7 +126,7 @@ To learn more about querying with React Apollo be sure to start reading the [doc
 
 [`apolloclient`]: http://dev.apollodata.com/core/apollo-client-api.html#apollo-client
 [`<apolloprovider/>`]: http://dev.apollodata.com/react/api.html#ApolloProvider
-[`graphql()`]: http://dev.apollodata.com/react/api.html#graphql
+[`<Query>`]: https://www.apollographql.com/docs/react/essentials/queries.html
 [`createnetworkinterface`]: http://dev.apollodata.com/core/network.html
 [`<provider/>` component in `react-redux`]: https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
 [documentation article on queries]: http://dev.apollodata.com/react/queries.html
