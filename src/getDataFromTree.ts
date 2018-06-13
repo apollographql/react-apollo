@@ -124,6 +124,31 @@ export function walkTree(
           walkTree(child, childContext, visitor);
         }
       }
+    } else if (element.type._context || element.type.Consumer) {
+      // a React context provider or consumer
+      //   https://github.com/facebook/react/blob/master/packages/react/src/ReactContext.js
+      if (visitor(element, null, context) === false) {
+        return;
+      }
+
+      let child;
+      if (element.type._context) {
+        // a Provider - sets the context value before rendering children
+        //   https://github.com/facebook/react/blob/fc3777b/packages/react-dom/src/server/ReactPartialRenderer.js#L680
+        element.type._context._currentValue = element.props.value;
+        child = element.props.children;
+      } else {
+        // a Consumer
+        child = element.props.children(element.type._currentValue);
+      }
+
+      if (child) {
+        if (Array.isArray(child)) {
+          child.forEach(item => walkTree(item, context, visitor));
+        } else {
+          walkTree(child, context, visitor);
+        }
+      }
     } else {
       // a basic string or dom element, just get children
       if (visitor(element, null, context) === false) {
