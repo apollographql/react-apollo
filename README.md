@@ -119,7 +119,7 @@ const Dogs = ({ onDogSelected }) => (
 );
 ```
 
-With that your `<TodoApp/>` component is now connected to your GraphQL API. Whenever some other component modifies the data in your cache, this component will automatically be updated with the new data.
+If you render Dogs within your App component, you’ll first see a loading state and then a form with a list of dog breeds once Apollo Client receives the data from the server.
 
 To learn more about querying with React Apollo be sure to start reading the [documentation article on Queries][]. If you would like to see all of the features React Apollo supports be sure to check out the [complete API reference][].
 
@@ -129,7 +129,7 @@ To learn more about querying with React Apollo be sure to start reading the [doc
 [`<Query>`]: https://www.apollographql.com/docs/react/essentials/queries.html
 [`createnetworkinterface`]: http://dev.apollodata.com/core/network.html
 [`<provider/>` component in `react-redux`]: https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
-[documentation article on queries]: http://dev.apollodata.com/react/queries.html
+[documentation article on queries]: https://www.apollographql.com/docs/react/essentials/queries.html
 [complete api reference]: http://dev.apollodata.com/react/api.html
 [**full-stack react + graphql tutorial**]: https://dev-blog.apollodata.com/full-stack-react-graphql-tutorial-582ac8d24e3b#.w8e9j7jmp
 [learn apollo]: https://www.learnapollo.com/
