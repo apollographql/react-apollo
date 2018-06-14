@@ -192,12 +192,17 @@ function getDataAndErrorsFromTree(
 }
 
 function handleErrors(errors: any[]) {
-  if (errors.length > 0) {
-    const error: any = new Error(
-      `${errors.length} errors were thrown when executing your fetchData functions.`,
-    );
-    error.queryErrors = errors;
-    throw error;
+  switch (errors.length) {
+    case 0:
+      break;
+    case 1:
+      throw errors.pop();
+    default:
+      const error: any = new Error(
+        `${errors.length} errors were thrown when executing your fetchData functions.`,
+      );
+      error.queryErrors = errors;
+      throw error;
   }
 }
 
@@ -209,8 +214,7 @@ export default function getDataFromTree(
 
   const storeError = (error: any) => errors.push(error);
 
-  const dataPromise = getDataAndErrorsFromTree(rootElement, rootContext, storeError);
-  return dataPromise.then(data => {
+  return getDataAndErrorsFromTree(rootElement, rootContext, storeError).then(data => {
     handleErrors(errors);
     return data;
   });
