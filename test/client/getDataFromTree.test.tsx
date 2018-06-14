@@ -178,6 +178,10 @@ describe('SSR', () => {
       });
 
       it('function stateless components with React 16.3 context', () => {
+        if (!React.createContext) {
+          // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963
+          return;
+        }
         expect.assertions(4);
         let elementCount = 0;
         const defaultValue = { key: 'default' };
@@ -328,6 +332,10 @@ describe('SSR', () => {
       });
 
       it('basic classes with React 16.3 context', () => {
+        if (!React.createContext) {
+          // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963
+          return;
+        }
         expect.assertions(4);
         let elementCount = 0;
         const defaultValue = { key: 'default' };
