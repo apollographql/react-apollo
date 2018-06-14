@@ -10,6 +10,8 @@ export * from './ApolloProvider';
 export { default as Query } from './Query';
 export * from './Query';
 
+export { default as ManualQuery } from './ManualQuery';
+
 export { default as Mutation } from './Mutation';
 export * from './Mutation';
 
@@ -19,7 +21,7 @@ export * from './Subscriptions';
 export { graphql } from './graphql';
 
 export { default as withApollo } from './withApollo';
-export * from './withApollo'
+export * from './withApollo';
 
 export * from './types';
 

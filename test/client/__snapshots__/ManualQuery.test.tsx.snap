@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`accepts variables in the load function that take precendence over those passed in the props: result props 1`] = `
+Object {
+  "called": true,
+  "data": Object {
+    "allPeople": Object {
+      "people": Array [
+        Object {
+          "name": "Luke Skywalker",
+          Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+        },
+      ],
+      Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+    },
+    Symbol(id): "ROOT_QUERY",
+  },
+  "error": undefined,
+  "loading": false,
+}
+`;
+
+exports[`accepts variables in the load function that take precendence over those passed in the props: return of load() function 1`] = `
+Object {
+  "allPeople": Object {
+    "people": Array [
+      Object {
+        "name": "Luke Skywalker",
+        Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+      },
+    ],
+    Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+  },
+  Symbol(id): "ROOT_QUERY",
+}
+`;
+
+exports[`manages an error: result props 1`] = `
+Object {
+  "called": true,
+  "data": undefined,
+  "error": [Error: Network error: error],
+  "loading": false,
+}
+`;
+
+exports[`passes a load function as the first param of the render prop 1`] = `
+Object {
+  "called": true,
+  "data": Object {
+    "allPeople": Object {
+      "people": Array [
+        Object {
+          "name": "Luke Skywalker",
+          Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1}).people.0",
+        },
+      ],
+      Symbol(id): "$ROOT_QUERY.allPeople({\\"first\\":1})",
+    },
+    Symbol(id): "ROOT_QUERY",
+  },
+  "error": undefined,
+  "loading": false,
+}
+`;
