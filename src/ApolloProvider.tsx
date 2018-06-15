@@ -29,7 +29,7 @@ export default class ApolloProvider<TCache> extends Component<ApolloProviderProp
 
     invariant(
       props.client,
-      'ApolloClient was not passed a client instance. Make ' +
+      'ApolloProvider was not passed a client instance. Make ' +
         'sure you pass in your client via the "client" prop.',
     );
 
