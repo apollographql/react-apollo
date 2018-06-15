@@ -116,7 +116,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
 }
 
 export interface QueryContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
   operations?: Map<string, { query: DocumentNode; variables: any }>;
 }
 
@@ -124,7 +124,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   QueryProps<TData, TVariables>
 > {
   static contextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
     operations: PropTypes.object,
   };
 
@@ -136,6 +136,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
     ssr: PropTypes.bool,
+    client: PropTypes.object,
   };
 
   context: QueryContext;
