@@ -21,6 +21,7 @@ export interface SubscriptionProps<TData = any, TVariables = OperationVariables>
   variables?: TVariables;
   shouldResubscribe?: any;
   children: (result: SubscriptionResult<TData>) => React.ReactNode;
+  client?: ApolloClient<Object>;
 }
 
 export interface SubscriptionState<TData = any> {
@@ -30,7 +31,7 @@ export interface SubscriptionState<TData = any> {
 }
 
 export interface SubscriptionContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
 }
 
 class Subscription<TData = any, TVariables = any> extends React.Component<
@@ -38,7 +39,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   SubscriptionState<TData>
 > {
   static contextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
   };
 
   static propTypes = {
@@ -46,6 +47,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     variables: PropTypes.object,
     children: PropTypes.func.isRequired,
     shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+    client: PropTypes.object,
   };
 
   private client: ApolloClient<any>;
@@ -55,11 +57,11 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   constructor(props: SubscriptionProps<TData, TVariables>, context: SubscriptionContext) {
     super(props, context);
 
+    this.client = props.client || context.client;
     invariant(
-      !!context.client,
-      `Could not find "client" in the context of Subscription. Wrap the root component in an <ApolloProvider>`,
+      !!this.client,
+      `Could not find "client" in the context of Subscription or as passed props. Wrap the root component in an <ApolloProvider>`,
     );
-    this.client = context.client;
     this.initialize(props);
     this.state = this.getInitialState();
   }
@@ -72,9 +74,10 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     nextProps: SubscriptionProps<TData, TVariables>,
     nextContext: SubscriptionContext,
   ) {
+    const nextClient = nextProps.client || nextContext.client;
     if (
       shallowEqual(this.props.variables, nextProps.variables) &&
-      this.client === nextContext.client &&
+      this.client === nextClient &&
       this.props.subscription === nextProps.subscription
     ) {
       return;
@@ -85,8 +88,12 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
       shouldResubscribe = !!shouldResubscribe(this.props, nextProps);
     }
     const shouldNotResubscribe = shouldResubscribe === false;
-    if (this.client !== nextContext.client) {
-      this.client = nextContext.client;
+    if (this.client !== nextClient) {
+      this.client = nextClient;
+      invariant(
+        !!this.client,
+        `Could not find "client" in the context of Subscription or as passed props. Wrap the root component in an <ApolloProvider>`,
+      );
     }
 
     if (!shouldNotResubscribe) {
