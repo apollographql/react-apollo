@@ -551,7 +551,9 @@ describe('[queries] errors', () => {
         };
       }
       render() {
-        const { state: { showContainer } } = this;
+        const {
+          state: { showContainer },
+        } = this;
         if (showContainer) {
           return <Container hideContainer={() => this.setState({ showContainer: false })} />;
         }

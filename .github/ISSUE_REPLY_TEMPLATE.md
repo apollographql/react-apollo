@@ -8,9 +8,9 @@ If this is your first time contributing to Apollo, one of our friendly bots will
 
 ### Creating a reproduction:
 
-* You can create a reproduction using [this template](https://codesandbox.io/s/7361K9q6w) on codesandbox, or try it locally using [the apollo error template](https://github.com/apollographql/react-apollo-error-template)
-* If you want to customize the schema to match the issue you are having, checkout [Apollo Launchpad](https://launchpad.graphql.com/new)
-* If your issue is related to react-native, try using [Expo](https://snack.expo.io/)
+- You can create a reproduction using [this template](https://codesandbox.io/s/7361K9q6w) on codesandbox, or try it locally using [the apollo error template](https://github.com/apollographql/react-apollo-error-template)
+- If you want to customize the schema to match the issue you are having, checkout [Apollo Launchpad](https://launchpad.graphql.com/new)
+- If your issue is related to react-native, try using [Expo](https://snack.expo.io/)
 
 ### Guides and Documentation
 

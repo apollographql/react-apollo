@@ -64,7 +64,10 @@ type CmplxComponentProps = {
 } & CmplxOwnProps;
 class CmplxComponent extends React.Component<CmplxComponentProps> {
   render() {
-    const { data: { loading, error, bar, foo }, faz } = this.props;
+    const {
+      data: { loading, error, bar, foo },
+      faz,
+    } = this.props;
     if (loading) return <div>Loading</div>;
     if (error) return <h1>ERROR</h1>;
 
@@ -90,7 +93,10 @@ type Cmplx2ComponentProps = {
 } & Cmplx2OwnProps;
 class Cmplx2Component extends React.Component<Cmplx2ComponentProps> {
   render() {
-    const { data: { loading, error, bar, foo }, faz } = this.props;
+    const {
+      data: { loading, error, bar, foo },
+      faz,
+    } = this.props;
     if (loading) return <div>Loading</div>;
     if (error) return <h1>ERROR</h1>;
 

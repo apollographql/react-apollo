@@ -30,8 +30,8 @@ Instructions for how the issue can be reproduced by a maintainer or contributor.
 
 **Version**
 
-* apollo-client@<version number>
-* react-apollo@<version number>
+- apollo-client@<version number>
+- react-apollo@<version number>
 
 <!--**Issue Labels**
 

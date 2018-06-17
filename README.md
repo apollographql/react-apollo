@@ -9,13 +9,13 @@ React Apollo unlike many other tools in the React ecosystem requires _no_ comple
 
 React Apollo is:
 
-1. **Incrementally adoptable**, so that you can drop it into an existing JavaScript app and start using GraphQL for just part of your UI.
-2. **Universally compatible**, so that Apollo works with any build setup, any GraphQL server, and any GraphQL schema.
-3. **Simple to get started with**, you can start loading data right away and learn about advanced features later.
-4. **Inspectable and understandable**, so that you can have great developer tools to understand exactly what is happening in your app.
-5. **Built for interactive apps**, so your users can make changes and see them reflected in the UI immediately.
-6. **Small and flexible**, so you don't get stuff you don't need. The core is under 25kb compressed.
-7. **Community driven**, Apollo is driven by the community and serves a variety of use cases. Everything is planned and developed in the open.
+1.  **Incrementally adoptable**, so that you can drop it into an existing JavaScript app and start using GraphQL for just part of your UI.
+2.  **Universally compatible**, so that Apollo works with any build setup, any GraphQL server, and any GraphQL schema.
+3.  **Simple to get started with**, you can start loading data right away and learn about advanced features later.
+4.  **Inspectable and understandable**, so that you can have great developer tools to understand exactly what is happening in your app.
+5.  **Built for interactive apps**, so your users can make changes and see them reflected in the UI immediately.
+6.  **Small and flexible**, so you don't get stuff you don't need. The core is under 25kb compressed.
+7.  **Community driven**, Apollo is driven by the community and serves a variety of use cases. Everything is planned and developed in the open.
 
 Get started today on the app you’ve been dreaming of, and let React Apollo take you to the moon!
 
@@ -113,7 +113,6 @@ With that your `<TodoApp/>` component is now connected to your GraphQL API. When
 
 To learn more about querying with React Apollo be sure to start reading the [documentation article on Queries][]. If you would like to see all of the features React Apollo supports be sure to check out the [complete API reference][].
 
-
 [`apolloclient`]: http://dev.apollodata.com/core/apollo-client-api.html#apollo-client
 [`<apolloprovider/>`]: http://dev.apollodata.com/react/api.html#ApolloProvider
 [`graphql()`]: http://dev.apollodata.com/react/api.html#graphql
@@ -132,7 +131,7 @@ All of the documentation for React Apollo including usage articles and helpful r
 
 ### Recipes
 
-* [Authentication](http://dev.apollodata.com/react/auth.html)
-* [Pagination](http://dev.apollodata.com/react/pagination.html)
-* [Optimistic UI](http://dev.apollodata.com/react/optimistic-ui.html)
-* [Server Side Rendering](https://www.apollographql.com/docs/react/recipes/server-side-rendering.html)
+- [Authentication](http://dev.apollodata.com/react/auth.html)
+- [Pagination](http://dev.apollodata.com/react/pagination.html)
+- [Optimistic UI](http://dev.apollodata.com/react/optimistic-ui.html)
+- [Server Side Rendering](https://www.apollographql.com/docs/react/recipes/server-side-rendering.html)
