@@ -33,6 +33,7 @@ function isReactElement(element: React.ReactNode): element is React.ReactElement
 function isComponentClass(Comp: React.ComponentType<any>): Comp is React.ComponentClass<any> {
   return Comp.prototype && (Comp.prototype.render || Comp.prototype.isReactComponent);
 }
+
 function providesChildContext(
   instance: React.Component<any>,
 ): instance is React.Component<any> & React.ChildContextProvider<any> {
@@ -41,7 +42,7 @@ function providesChildContext(
 
 // Recurse a React Element tree, running visitor on each element.
 // If visitor returns `false`, don't call the element's render function
-//   or recurse into its child elements
+// or recurse into its child elements.
 export function walkTree(
   element: React.ReactNode,
   context: Context,
@@ -61,7 +62,7 @@ export function walkTree(
     return;
   }
 
-  // a stateless functional component or a class
+  // A stateless functional component or a class
   if (isReactElement(element)) {
     if (typeof element.type === 'function') {
       const Comp = element.type;
@@ -70,19 +71,18 @@ export function walkTree(
       let child;
 
       // Are we are a react class?
-      //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
       if (isComponentClass(Comp)) {
         const instance = new Comp(props, context);
         // In case the user doesn't pass these to super in the constructor
         instance.props = instance.props || props;
         instance.context = instance.context || context;
-        // set the instance state to null (not undefined) if not set, to match React behaviour
+        // Set the instance state to null (not undefined) if not set, to match React behaviour
         instance.state = instance.state || null;
 
-        // Override setState to just change the state, not queue up an update.
-        //   (we can't do the default React thing as we aren't mounted "properly"
-        //   however, we don't need to re-render as well only support setState in
-        //   componentWillMount, which happens *before* render).
+        // Override setState to just change the state, not queue up an update
+        // (we can't do the default React thing as we aren't mounted
+        // "properly", however we don't need to re-render as we only support
+        // setState in componentWillMount, which happens *before* render).
         instance.setState = newState => {
           if (typeof newState === 'function') {
             // React's TS type definitions don't contain context as a third parameter for
@@ -93,8 +93,6 @@ export function walkTree(
           instance.state = Object.assign({}, instance.state, newState);
         };
 
-        // this is a poor man's version of
-        //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L181
         if (instance.componentWillMount) {
           instance.componentWillMount();
         }
@@ -109,7 +107,7 @@ export function walkTree(
 
         child = instance.render();
       } else {
-        // just a stateless functional
+        // Just a stateless functional
         if (visitor(element, null, context) === false) {
           return;
         }
@@ -125,20 +123,18 @@ export function walkTree(
         }
       }
     } else if ((element.type as any)._context || (element.type as any).Consumer) {
-      // a React context provider or consumer
-      //   https://github.com/facebook/react/blob/master/packages/react/src/ReactContext.js
+      // A React context provider or consumer
       if (visitor(element, null, context) === false) {
         return;
       }
 
       let child;
       if ((element.type as any)._context) {
-        // a Provider - sets the context value before rendering children
-        //   https://github.com/facebook/react/blob/fc3777b/packages/react-dom/src/server/ReactPartialRenderer.js#L680
+        // A provider - sets the context value before rendering children
         ((element.type as any)._context as any)._currentValue = element.props.value;
         child = element.props.children;
       } else {
-        // a Consumer
+        // A consumer
         child = element.props.children((element.type as any)._currentValue);
       }
 
@@ -150,7 +146,7 @@ export function walkTree(
         }
       }
     } else {
-      // a basic string or dom element, just get children
+      // A basic string or dom element, just get children
       if (visitor(element, null, context) === false) {
         return;
       }
