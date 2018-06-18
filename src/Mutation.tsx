@@ -117,7 +117,9 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     this.client = props.client || context.client;
     invariant(
       !!this.client,
-      `Could not find "client" in the context of Mutation or as passed props. Wrap the root component in an <ApolloProvider>`,
+      'Could not find "client" in the context or props of Mutation. Wrap ' +
+        'the root component in an <ApolloProvider>, or pass an ApolloClient ' +
+        'instance in via props.',
     );
 
     this.verifyDocumentIsMutation(props.mutation);
@@ -151,11 +153,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     }
 
     if (this.client !== client && this.client !== nextContext.client) {
-      if (client) {
-        this.client = client;
-      } else {
-        this.client = nextContext.client;
-      }
+      this.client = client || nextContext.client;
       this.setState(initialState);
     }
   }
