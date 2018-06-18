@@ -24,8 +24,8 @@ Get started today on the app you’ve been dreaming of, and let React Apollo tak
 It is simple to install React Apollo and related libraries.
 
 ```bash
-# installing the preset package and react integration
-npm install apollo-client-preset react-apollo graphql-tag graphql --save
+# installing the preset package (apollo-boost) and react integration
+npm install apollo-boost react-apollo graphql-tag graphql --save
 
 # installing each piece independently
 npm install apollo-client apollo-cache-inmemory apollo-link-http react-apollo graphql-tag graphql ---save
