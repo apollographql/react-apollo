@@ -110,6 +110,7 @@
 - **BREAKING CHANGES [Removal of deprecated code]**
 
   - Remove deprecated `operationOptions.options.skip`, use `operationOptions.skip` instead
+  - Remove deprecated [`options.updateQueries`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-updateQueries), use [`options.update`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-update) instead [#1485](https://github.com/apollographql/react-apollo/pull/1485)
 
 - **BREAKING CHANGES [TypeScript and Flow only]**
 
@@ -120,7 +121,6 @@
   - Rename type `ProviderProps` to `ApolloProviderProps` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename `getDataFromTree` type `QueryResult` to `QueryTreeResult` [#1467](https://github.com/apollographql/react-apollo/pull/1467)
   - Rename type `QueryProps` to `GraphqlQueryControls` [#1467](https://github.com/apollographql/react-apollo/pull/1467) [#1478](https://github.com/apollographql/react-apollo/pull/1478)
-  - Remove deprecated [`options.updateQueries`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-updateQueries), use [`options.update`](https://www.apollographql.com/docs/react/basics/mutations.html#graphql-mutation-options-update) instead [#1485](https://github.com/apollographql/react-apollo/pull/1485)
 
 - **Fixes and Improvements**
   - Fixed bug where link error prevents future requests
