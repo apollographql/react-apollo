@@ -1,5 +1,11 @@
 # Change log
 
+### vNext
+
+- Adjust `getDataFromTree` to properly traverse React 16.3's context API
+  provider/consumer approach.
+  [PR #1978](https://github.com/apollographql/react-apollo/pull/1978)
+
 ### 2.1.5
 
 - Dependency updates to align with typescript changes made in
