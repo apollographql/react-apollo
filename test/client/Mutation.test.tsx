@@ -991,6 +991,53 @@ it('updates if the client changes', done => {
   mount(<Component />);
 });
 
+it('uses client from props instead of one provided by context', () => {
+  const link1 = mockSingleLink({
+    request: { query: mutation },
+    result: { data },
+  });
+  const client1 = new ApolloClient({
+    link: link1,
+    cache: new Cache({ addTypename: false }),
+  });
+
+  const link2 = mockSingleLink({
+    request: { query: mutation },
+    result: { data: data2 },
+  });
+  const client2 = new ApolloClient({
+    link: link2,
+    cache: new Cache({ addTypename: false }),
+  });
+
+  let count = 0;
+
+  mount(
+    <ApolloProvider client={client1}>
+      <Mutation client={client2} mutation={mutation}>
+        {(createTodo, result) => {
+          if (!result.called) {
+            setTimeout(() => {
+              createTodo();
+            });
+          }
+
+          if (count === 2) {
+            expect(result).toEqual({
+              loading: false,
+              called: true,
+              data: data2,
+            });
+          }
+
+          count++;
+          return <div />;
+        }}
+      </Mutation>
+    </ApolloProvider>,
+  );
+});
+
 it('errors if a query is passed instead of a mutation', () => {
   const query = gql`
     query todos {
