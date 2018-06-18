@@ -64,6 +64,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
+  client?: ApolloClient<Object>;
   context?: Record<string, any>;
 }
 
@@ -113,8 +114,13 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
 
-    this.verifyContext(context);
-    this.client = context.client;
+    this.client = props.client || context.client;
+    invariant(
+      !!this.client,
+      'Could not find "client" in the context or props of Mutation. Wrap ' +
+        'the root component in an <ApolloProvider>, or pass an ApolloClient ' +
+        'instance in via props.',
+    );
 
     this.verifyDocumentIsMutation(props.mutation);
 
@@ -134,7 +140,11 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     nextProps: MutationProps<TData, TVariables>,
     nextContext: MutationContext,
   ) {
-    if (shallowEqual(this.props, nextProps) && this.client === nextContext.client) {
+    const { client } = nextProps;
+    if (
+      shallowEqual(this.props, nextProps) &&
+      (this.client === client || this.client === nextContext.client)
+    ) {
       return;
     }
 
@@ -142,8 +152,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       this.verifyDocumentIsMutation(nextProps.mutation);
     }
 
-    if (this.client !== nextContext.client) {
-      this.client = nextContext.client;
+    if (this.client !== client && this.client !== nextContext.client) {
+      this.client = client || nextContext.client;
       this.setState(initialState);
     }
   }
@@ -267,13 +277,6 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       `The <Mutation /> component requires a graphql mutation, but got a ${
         operation.type === DocumentType.Query ? 'query' : 'subscription'
       }.`,
-    );
-  };
-
-  private verifyContext = (context: MutationContext) => {
-    invariant(
-      !!context.client,
-      `Could not find "client" in the context of Mutation. Wrap the root component in an <ApolloProvider>`,
     );
   };
 }
