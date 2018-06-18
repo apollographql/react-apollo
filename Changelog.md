@@ -10,6 +10,9 @@
   an `ApolloClient` instance set via `context`, by the `ApolloProvider`
   component.
   [PR #1890](https://github.com/apollographql/react-apollo/pull/1890)
+- The `ApolloClient` instance used by a Mutation is now available in that
+  Mutation's result.
+  [PR #1945](https://github.com/apollographql/react-apollo/pull/1945)
 
 ### 2.1.5
 
