@@ -5,6 +5,14 @@
 - Adjust `getDataFromTree` to properly traverse React 16.3's context API
   provider/consumer approach.
   [PR #1978](https://github.com/apollographql/react-apollo/pull/1978)
+- An `ApolloClient` instance can now be passed into a `Mutation`
+  component via a prop named `client`. This prop will override
+  an `ApolloClient` instance set via `context`, by the `ApolloProvider`
+  component.
+  [PR #1890](https://github.com/apollographql/react-apollo/pull/1890)
+- The `ApolloClient` instance used by a Mutation is now available in that
+  Mutation's result.
+  [PR #1945](https://github.com/apollographql/react-apollo/pull/1945)
 
 ### 2.1.5
 
