@@ -245,16 +245,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   render() {
     const { children } = this.props;
     const queryResult = this.getQueryResult();
-    if (this.props.skip) {
-      const result = {
-        ...queryResult,
-        data: undefined,
-        error: undefined,
-        loading: false,
-      };
-
-      return children(result);
-    }
     return children(queryResult);
   }
 
@@ -425,6 +415,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
 
     data.client = this.client;
+
+    // When skipping a query, make sure the `data` is cleared out and
+    // `loading` is set to `false` (since we aren't loading anything).
+    if (this.props.skip) {
+      data.data = undefined;
+      data.error = undefined;
+      data.loading = false;
+    }
 
     return data;
   };
