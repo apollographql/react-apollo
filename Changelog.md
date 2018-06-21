@@ -2,7 +2,7 @@
 
 ## vNext (June X, 2018)
 
-- README Updates
+- README updates to replace `apollo-client-preset` with `apollo-boost`.
   - [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
 
 ## 2.1.6 (June 19, 2018)
