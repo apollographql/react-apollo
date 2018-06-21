@@ -135,7 +135,6 @@ To learn more about querying with React Apollo be sure to start reading the [doc
 
 [`apolloclient`]: https://www.apollographql.com/docs/react/api/apollo-client.html#apollo-client
 [`<apolloprovider/>`]: https://www.apollographql.com/docs/react/api/react-apollo.html#ApolloProvider
-[`<provider/>` component in `react-redux`]: https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
 [`<Query>`]: https://www.apollographql.com/docs/react/essentials/queries.html
 [documentation article on queries]: http://dev.apollodata.com/react/queries.html
 [complete api reference]: https://www.apollographql.com/docs/react/api/react-apollo.html
