@@ -1,5 +1,10 @@
 # Change log
 
+## vNext (June X, 2018)
+
+- README Updates
+  - [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
+
 ## 2.1.6 (June 19, 2018)
 
 - Adjust `getDataFromTree` to properly traverse React 16.3's context API
