@@ -9,27 +9,29 @@ React Apollo unlike many other tools in the React ecosystem requires _no_ comple
 
 React Apollo is:
 
-1.  **Incrementally adoptable**, so that you can drop it into an existing JavaScript app and start using GraphQL for just part of your UI.
-2.  **Universally compatible**, so that Apollo works with any build setup, any GraphQL server, and any GraphQL schema.
-3.  **Simple to get started with**, you can start loading data right away and learn about advanced features later.
-4.  **Inspectable and understandable**, so that you can have great developer tools to understand exactly what is happening in your app.
-5.  **Built for interactive apps**, so your users can make changes and see them reflected in the UI immediately.
-6.  **Small and flexible**, so you don't get stuff you don't need. The core is under 25kb compressed.
-7.  **Community driven**, Apollo is driven by the community and serves a variety of use cases. Everything is planned and developed in the open.
+1. **Incrementally adoptable**, so that you can drop it into an existing JavaScript app and start using GraphQL for just part of your UI.
+2. **Universally compatible**, so that Apollo works with any build setup, any GraphQL server, and any GraphQL schema.
+3. **Simple to get started with**, you can start loading data right away and learn about advanced features later.
+4. **Inspectable and understandable**, so that you can have great developer tools to understand exactly what is happening in your app.
+5. **Built for interactive apps**, so your users can make changes and see them reflected in the UI immediately.
+6. **Small and flexible**, so you don't get stuff you don't need. The core is under 25kb compressed.
+7. **Community driven**, Apollo is driven by the community and serves a variety of use cases. Everything is planned and developed in the open.
 
 Get started today on the app you’ve been dreaming of, and let React Apollo take you to the moon!
 
 ## Installation
 
-It is simple to install React Apollo and related libraries.
+It is simple to install React Apollo and related libraries
 
 ```bash
-# installing the preset package and react integration
-npm install apollo-client-preset react-apollo graphql-tag graphql --save
+# installing the preset package (apollo-boost) and react integration
+npm install apollo-boost react-apollo graphql-tag graphql --save
 
 # installing each piece independently
-npm install apollo-client apollo-cache-inmemory apollo-link-http react-apollo graphql-tag graphql ---save
+npm install apollo-client apollo-cache-inmemory apollo-link-http react-apollo graphql-tag graphql --save
 ```
+
+[apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost) is a minimal config way to start using Apollo Client. It includes some sensible defaults, such as `InMemoryCache` and `HttpLink`.
 
 That’s it! You may now use React Apollo in any of your React environments.
 
@@ -61,7 +63,15 @@ const client = new ApolloClient({
 });
 ```
 
-> Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/recipes/2.0-migration.html).
+If you're using [apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost), you can create an `ApolloClient` that uses `HttpLink` and `InMemoryCache` like so:
+
+```js
+import { ApolloClient } from 'apollo-boost';
+
+const client = new ApolloClient();
+```
+
+> Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/2.0-migration.html).
 
 Next you will want to add a [`<ApolloProvider/>`][] component to the root of your React component tree. This component [provides](https://reactjs.org/docs/context.html) the React Apollo functionality to all the other components in the application without passing it explicitly. To use an [`<ApolloProvider/>`][] with your newly constructed client see the following:
 

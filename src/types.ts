@@ -49,13 +49,13 @@ export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {
   loading: boolean;
   variables: TGraphQLVariables;
   fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+    fetchMoreOptions: FetchMoreQueryOptions<any, any> & FetchMoreOptions,
   ) => Promise<ApolloQueryResult<any>>;
   refetch: (variables?: TGraphQLVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
+  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions<any>) => any) => void;
 }
 
 export type MutationFunc<TData = any, TGraphQLVariables = OperationVariables> = (
