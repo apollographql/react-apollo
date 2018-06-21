@@ -43,7 +43,7 @@ For an amazing developer experience you may also install the [Apollo Client Deve
 
 > Looking for apollo 1.x docs? See [here](https://s3.amazonaws.com/apollo-docs-1.x/index.html).
 
-To get started you will first want to create an instance of [`ApolloClient`][] and then you will want to provide that client to your React component tree using the [`<ApolloProvider/>`][] component. Finally, we will show you a basic example of connecting your GraphQL data to your React components with the [`graphql()`][] enhancer function.
+To get started you will first want to create an instance of [`ApolloClient`][] and then you will want to provide that client to your React component tree using the [`<ApolloProvider/>`][] component. Finally, we will show you a basic example of connecting your GraphQL data to your React components with the [`<Query>`][] component.
 
 First we want an instance of [`ApolloClient`][]. We can import the class from `apollo-client`.
 To get started, create an ApolloClient instance and point it at your GraphQL server:
@@ -88,7 +88,7 @@ ReactDOM.render(
 
 Now you may create components in this React tree that are connected to your GraphQL API.
 
-Finally, to demonstrate the power of React Apollo in building interactive UIs let us connect one of your components to your GraphQL server using the [`graphql()`][] component enhancer:
+Finally, to demonstrate the power of React Apollo in building interactive UIs let us connect one of your components to your GraphQL server using the [`<Query>`][] component:
 
 You'll need install `graphql-tag` to use `gql` module:
 
@@ -97,35 +97,45 @@ npm install graphql-tag --save
 ```
 
 ```js
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
+import { Query } from "react-apollo";
 
-function TodoApp({ data: { todos, refetch } }) {
-  return (
-    <div>
-      <button onClick={() => refetch()}>Refresh</button>
-      <ul>{todos && todos.map(todo => <li key={todo.id}>{todo.text}</li>)}</ul>
-    </div>
-  );
-}
-
-export default graphql(gql`
-  query TodoAppQuery {
-    todos {
+const GET_DOGS = gql`
+  {
+    dogs {
       id
-      text
+      breed
     }
   }
-`)(TodoApp);
+`;
+
+const Dogs = ({ onDogSelected }) => (
+  <Query query={GET_DOGS}>
+    {({ loading, error, data }) => {
+      if (loading) return "Loading...";
+      if (error) return `Error! ${error.message}`;
+
+      return (
+        <select name="dog" onChange={onDogSelected}>
+          {data.dogs.map(dog => (
+            <option key={dog.id} value={dog.breed}>
+              {dog.breed}
+            </option>
+          ))}
+        </select>
+      );
+    }}
+  </Query>
+);
 ```
 
-With that your `<TodoApp/>` component is now connected to your GraphQL API. Whenever some other component modifies the data in your cache, this component will automatically be updated with the new data.
+If you render Dogs within your App component, you’ll first see a loading state and then a form with a list of dog breeds once Apollo Client receives the data from the server.
 
 To learn more about querying with React Apollo be sure to start reading the [documentation article on Queries][]. If you would like to see all of the features React Apollo supports be sure to check out the [complete API reference][].
 
 [`apolloclient`]: https://www.apollographql.com/docs/react/api/apollo-client.html#apollo-client
 [`<apolloprovider/>`]: https://www.apollographql.com/docs/react/api/react-apollo.html#ApolloProvider
-[`graphql()`]: https://www.apollographql.com/docs/react/api/react-apollo.html#graphql
+[`<Query>`]: https://www.apollographql.com/docs/react/essentials/queries.html
 [documentation article on queries]: http://dev.apollodata.com/react/queries.html
 [complete api reference]: https://www.apollographql.com/docs/react/api/react-apollo.html
 
