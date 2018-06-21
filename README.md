@@ -21,15 +21,17 @@ Get started today on the app you’ve been dreaming of, and let React Apollo tak
 
 ## Installation
 
-It is simple to install React Apollo and related libraries.
+It is simple to install React Apollo and related libraries
 
 ```bash
-# installing the preset package and react integration
-npm install apollo-client-preset react-apollo graphql-tag graphql --save
+# installing the preset package (apollo-boost) and react integration
+npm install apollo-boost react-apollo graphql-tag graphql --save
 
 # installing each piece independently
-npm install apollo-client apollo-cache-inmemory apollo-link-http react-apollo graphql-tag graphql ---save
+npm install apollo-client apollo-cache-inmemory apollo-link-http react-apollo graphql-tag graphql --save
 ```
+
+[apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost) is a minimal config way to start using Apollo Client. It includes some sensible defaults, such as `InMemoryCache` and `HttpLink`.
 
 That’s it! You may now use React Apollo in any of your React environments.
 
@@ -59,6 +61,14 @@ const client = new ApolloClient({
   link: new HttpLink(),
   cache: new InMemoryCache(),
 });
+```
+
+If you're using [apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost), you can create an `ApolloClient` that uses `HttpLink` and `InMemoryCache` like so:
+
+```js
+import { ApolloClient } from 'apollo-boost';
+
+const client = new ApolloClient();
 ```
 
 > Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/2.0-migration.html).
@@ -113,22 +123,17 @@ With that your `<TodoApp/>` component is now connected to your GraphQL API. When
 
 To learn more about querying with React Apollo be sure to start reading the [documentation article on Queries][]. If you would like to see all of the features React Apollo supports be sure to check out the [complete API reference][].
 
-
-[`apolloclient`]: http://dev.apollodata.com/core/apollo-client-api.html#apollo-client
-[`<apolloprovider/>`]: http://dev.apollodata.com/react/api.html#ApolloProvider
-[`graphql()`]: http://dev.apollodata.com/react/api.html#graphql
-[`createnetworkinterface`]: http://dev.apollodata.com/core/network.html
-[`<provider/>` component in `react-redux`]: https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
+[`apolloclient`]: https://www.apollographql.com/docs/react/api/apollo-client.html#apollo-client
+[`<apolloprovider/>`]: https://www.apollographql.com/docs/react/api/react-apollo.html#ApolloProvider
+[`graphql()`]: https://www.apollographql.com/docs/react/api/react-apollo.html#graphql
 [documentation article on queries]: http://dev.apollodata.com/react/queries.html
-[complete api reference]: http://dev.apollodata.com/react/api.html
-[**full-stack react + graphql tutorial**]: https://dev-blog.apollodata.com/full-stack-react-graphql-tutorial-582ac8d24e3b#.w8e9j7jmp
-[learn apollo]: https://www.learnapollo.com/
+[complete api reference]: https://www.apollographql.com/docs/react/api/react-apollo.html
 
 ## Documentation
 
-For a complete React Apollo API reference visit the documentation website at: [http://dev.apollodata.com/react/api.html](http://dev.apollodata.com/react/api.html)
+For a complete React Apollo API reference visit the documentation website at: [https://www.apollographql.com/docs/react/api/react-apollo.html](https://www.apollographql.com/docs/react/api/react-apollo.html)
 
-All of the documentation for React Apollo including usage articles and helpful recipes lives on: [http://dev.apollodata.com/react/](http://dev.apollodata.com/react/)
+All of the documentation for React Apollo including usage articles and helpful recipes lives on: [https://www.apollographql.com/docs/react/](https://www.apollographql.com/docs/react/)
 
 ### Recipes
 
