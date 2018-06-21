@@ -12,13 +12,8 @@ const variables = {
   username: 'mock_username',
 };
 
-const userWithoutTypeName = {
-  id: 'user_id',
-};
-
 const user = {
-  __typename: 'User',
-  ...userWithoutTypeName,
+  id: 'user_id',
 };
 
 const query: DocumentNode = gql`
@@ -96,13 +91,7 @@ it('allows for querying with the typename', done => {
     }
   }
 
-  const withUserAndTypename = graphql<Variables, Data, Variables>(queryWithTypename, {
-    options: props => ({
-      variables: props,
-    }),
-  });
-
-  const ContainerWithData = withUserAndTypename(Container);
+  const ContainerWithData = withUser(Container);
 
   const mocksWithTypename = [
     {
@@ -110,12 +99,19 @@ it('allows for querying with the typename', done => {
         query: queryWithTypename,
         variables,
       },
-      result: { data: { user } },
+      result: {
+        data: {
+          user: {
+            __typename: 'User',
+            ...user,
+          },
+        },
+      },
     },
   ];
 
   renderer.create(
-    <MockedProvider mocks={mocksWithTypename}>
+    <MockedProvider mocks={mocksWithTypename} addTypename={true}>
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
