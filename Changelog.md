@@ -6,6 +6,10 @@
   - [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
 - README updates to fix broken links.
   - [@DennisKo](https://github.com/DennisKo) in [#1935](https://github.com/apollographql/react-apollo/pull/1935)
+- `lodash` is no longer pinned to version 4.17.10.
+  - [@cherewaty](https://github.com/cherewaty) in [#1951](https://github.com/apollographql/react-apollo/pull/1951)
+- Project README has been updated to show a `<Query />` example.
+  - [@petetnt](https://github.com/petetnt) in [#2102](https://github.com/apollographql/react-apollo/pull/2102)
 
 ## 2.1.6 (June 19, 2018)
 
