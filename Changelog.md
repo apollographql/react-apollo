@@ -10,6 +10,9 @@
   - [@cherewaty](https://github.com/cherewaty) in [#1951](https://github.com/apollographql/react-apollo/pull/1951)
 - Project README has been updated to show a `<Query />` example.
   - [@petetnt](https://github.com/petetnt) in [#2102](https://github.com/apollographql/react-apollo/pull/2102)
+- The `ApolloProvider` `children` prop type has been changed from `element`
+  to `node`, to allow multiple children.
+  - [@quentin-](https://github.com/quentin-) in [#1955](https://github.com/apollographql/react-apollo/pull/1955)
 
 ## 2.1.6 (June 19, 2018)
 
