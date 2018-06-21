@@ -4,6 +4,8 @@
 
 - README updates to replace `apollo-client-preset` with `apollo-boost`.
   - [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
+- README updates to fix broken links.
+  - [@DennisKo](https://github.com/DennisKo) in [#1935](https://github.com/apollographql/react-apollo/pull/1935)
 
 ## 2.1.6 (June 19, 2018)
 
