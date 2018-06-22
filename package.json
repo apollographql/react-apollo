@@ -104,6 +104,7 @@
     "@types/react-test-renderer": "16.0.1",
     "@types/recompose": "0.26.1",
     "@types/zen-observable": "0.5.4",
+    "apollo-cache": "^1.1.12",
     "apollo-cache-inmemory": "1.2.4",
     "apollo-client": "2.3.5",
     "apollo-link": "1.2.1",
@@ -147,7 +148,7 @@
     "fbjs": "^0.8.16",
     "hoist-non-react-statics": "^2.5.0",
     "invariant": "^2.2.2",
-    "lodash": "4.17.10",
+    "lodash": "^4.17.10",
     "prop-types": "^15.6.0"
   }
 }
