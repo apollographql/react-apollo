@@ -22,7 +22,9 @@ describe('<ApolloProvider /> Component', () => {
       client: PropTypes.object.isRequired,
     };
 
-    context: ChildContext;
+    context: ChildContext = {
+      client: {},
+    };
 
     render() {
       return null;

@@ -138,24 +138,24 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     ssr: PropTypes.bool,
   };
 
-  context: QueryContext;
+  context: QueryContext | undefined;
 
   private client: ApolloClient<Object>;
 
   // request / action storage. Note that we delete querySubscription if we
   // unsubscribe but never delete queryObservable once it is created. We
   // only delete queryObservable when we unmount the component.
-  private queryObservable: ObservableQuery<TData> | null;
-  private querySubscription: ZenObservable.Subscription;
+  private queryObservable?: ObservableQuery<TData> | null;
+  private querySubscription?: ZenObservable.Subscription;
   private previousData: any = {};
-  private refetcherQueue: {
+  private refetcherQueue?: {
     args: any;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
   };
 
-  private hasMounted: boolean;
-  private operation: IDocumentDefinition;
+  private hasMounted: boolean = false;
+  private operation?: IDocumentDefinition;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -284,8 +284,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {
     const opts = this.extractOptsFromProps(props);
     // save for backwards compat of refetcherQueries without a recycler
-    if (this.context.operations) {
-      this.context.operations.set(this.operation.name, {
+    if (this.context!.operations) {
+      this.context!.operations!.set(this.operation!.name, {
         query: opts.query,
         variables: opts.variables,
       });

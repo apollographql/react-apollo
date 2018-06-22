@@ -22,7 +22,7 @@
     "apollo-codegen": "0.19.1",
     "react-scripts-ts": "2.16.0",
     "react-test-renderer": "16.4.1",
-    "typescript": "2.6.2"
+    "typescript": "2.9.2"
   },
   "scripts": {
     "start": "react-scripts-ts start",
