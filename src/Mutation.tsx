@@ -110,7 +110,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   private client: ApolloClient<any>;
   private mostRecentMutationId: number;
 
-  private hasMounted: boolean;
+  private hasMounted: boolean = false;
 
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);

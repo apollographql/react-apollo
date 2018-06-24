@@ -14,7 +14,7 @@ export interface ApolloProviderProps<TCache> {
 export default class ApolloProvider<TCache> extends Component<ApolloProviderProps<TCache>> {
   static propTypes = {
     client: PropTypes.object.isRequired,
-    children: PropTypes.element.isRequired,
+    children: PropTypes.node.isRequired,
   };
 
   static childContextTypes = {
