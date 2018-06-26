@@ -13,6 +13,8 @@
 - The `ApolloProvider` `children` prop type has been changed from `element`
   to `node`, to allow multiple children.
   - [@quentin-](https://github.com/quentin-) in [#1955](https://github.com/apollographql/react-apollo/pull/1955)
+- Properly support the new `getDerivedStateFromProps` lifecycle method.
+  - [@amannn](https://github.com/amannn) in [#2076](https://github.com/apollographql/react-apollo/pull/2076)
 
 ## 2.1.6 (June 19, 2018)
 

@@ -345,7 +345,8 @@ describe('SSR', () => {
 
           componentWillMount() {
             throw new Error(
-              "`componentWillMount` shouldn't be called when `getDerivedStateFromProps` is available",
+              "`componentWillMount` shouldn't be called when " +
+                '`getDerivedStateFromProps` is available',
             );
           }
 
