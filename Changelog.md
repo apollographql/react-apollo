@@ -2,33 +2,33 @@
 
 ## vNext (June X, 2018)
 
-- README updates to replace `apollo-client-preset` with `apollo-boost`.
-  - [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
-- README updates to fix broken links.
-  - [@DennisKo](https://github.com/DennisKo) in [#1935](https://github.com/apollographql/react-apollo/pull/1935)
-- `lodash` is no longer pinned to version 4.17.10.
-  - [@cherewaty](https://github.com/cherewaty) in [#1951](https://github.com/apollographql/react-apollo/pull/1951)
-- Project README has been updated to show a `<Query />` example.
-  - [@petetnt](https://github.com/petetnt) in [#2102](https://github.com/apollographql/react-apollo/pull/2102)
+- README updates to replace `apollo-client-preset` with `apollo-boost`.  
+  [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
+- README updates to fix broken links.  
+  [@DennisKo](https://github.com/DennisKo) in [#1935](https://github.com/apollographql/react-apollo/pull/1935)
+- `lodash` is no longer pinned to version 4.17.10.  
+  [@cherewaty](https://github.com/cherewaty) in [#1951](https://github.com/apollographql/react-apollo/pull/1951)
+- Project README has been updated to show a `<Query />` example.  
+  [@petetnt](https://github.com/petetnt) in [#2102](https://github.com/apollographql/react-apollo/pull/2102)
 - The `ApolloProvider` `children` prop type has been changed from `element`
-  to `node`, to allow multiple children.
-  - [@quentin-](https://github.com/quentin-) in [#1955](https://github.com/apollographql/react-apollo/pull/1955)
-- Properly support the new `getDerivedStateFromProps` lifecycle method.
-  - [@amannn](https://github.com/amannn) in [#2076](https://github.com/apollographql/react-apollo/pull/2076)
+  to `node`, to allow multiple children.  
+  [@quentin-](https://github.com/quentin-) in [#1955](https://github.com/apollographql/react-apollo/pull/1955)
+- Properly support the new `getDerivedStateFromProps` lifecycle method.  
+  [@amannn](https://github.com/amannn) in [#2076](https://github.com/apollographql/react-apollo/pull/2076)
 
 ## 2.1.6 (June 19, 2018)
 
 - Adjust `getDataFromTree` to properly traverse React 16.3's context API
-  provider/consumer approach.
-  - [@marnusw](https://github.com/marnusw) in [#1978](https://github.com/apollographql/react-apollo/pull/1978)
+  provider/consumer approach.  
+  [@marnusw](https://github.com/marnusw) in [#1978](https://github.com/apollographql/react-apollo/pull/1978)
 - An `ApolloClient` instance can now be passed into a `Mutation`
   component via a prop named `client`. This prop will override
   an `ApolloClient` instance set via `context`, by the `ApolloProvider`
-  component.
-  - [@amneacsu](https://github.com/amneacsu) in [#1890](https://github.com/apollographql/react-apollo/pull/1890)
+  component.  
+  [@amneacsu](https://github.com/amneacsu) in [#1890](https://github.com/apollographql/react-apollo/pull/1890)
 - The `ApolloClient` instance used by a Mutation is now available in that
-  Mutation's result.
-  - [@cooperka](https://github.com/cooperka) in [#1945](https://github.com/apollographql/react-apollo/pull/1945)
+  Mutation's result.  
+  [@cooperka](https://github.com/cooperka) in [#1945](https://github.com/apollographql/react-apollo/pull/1945)
 
 ## 2.1.5
 
