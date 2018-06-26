@@ -76,6 +76,7 @@ export function walkTree(
         // In case the user doesn't pass these to super in the constructor
         instance.props = instance.props || props;
         instance.context = instance.context || context;
+
         // Set the instance state to null (not undefined) if not set, to match React behaviour
         instance.state = instance.state || null;
 
@@ -93,7 +94,12 @@ export function walkTree(
           instance.state = Object.assign({}, instance.state, newState);
         };
 
-        if (instance.componentWillMount) {
+        if (Comp.getDerivedStateFromProps) {
+          const result = Comp.getDerivedStateFromProps(instance.props, instance.state);
+          if (result !== null) {
+            instance.state = Object.assign({}, instance.state, result);
+          }
+        } else if (instance.componentWillMount) {
           instance.componentWillMount();
         }
 
