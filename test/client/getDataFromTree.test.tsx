@@ -177,6 +177,53 @@ describe('SSR', () => {
         expect(elementCount).toEqual(2);
       });
 
+      it('function stateless components with React 16.3 context', () => {
+        if (!React.createContext) {
+          // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963
+          return;
+        }
+        expect.assertions(4);
+        let elementCount = 0;
+        const defaultValue = { key: 'default' };
+        const contextValue = { key: 'value' };
+        const Context = React.createContext(defaultValue);
+        const MyComponent = () => (
+          <div>
+            <Context.Consumer>
+              {(value: object) => {
+                expect(value).toBe(defaultValue);
+                return (
+                  <Context.Provider value={contextValue}>
+                    <div>
+                      <Context.Consumer>
+                        {(value1: object) => {
+                          expect(value1).toBe(contextValue);
+                          return (
+                            <div>
+                              <Context.Consumer>
+                                {(value2: object) => {
+                                  expect(value2).toBe(contextValue);
+                                  return [<div />, <div />];
+                                }}
+                              </Context.Consumer>
+                            </div>
+                          );
+                        }}
+                      </Context.Consumer>
+                    </div>
+                  </Context.Provider>
+                );
+              }}
+            </Context.Consumer>
+          </div>
+        );
+        const MyCompAsAny = MyComponent as any;
+        walkTree(<MyCompAsAny />, {}, () => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(10);
+      });
+
       it('basic classes', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
@@ -282,6 +329,87 @@ describe('SSR', () => {
           elementCount += 1;
         });
         expect(elementCount).toEqual(7);
+      });
+
+      it('basic classes with getDerivedStateFromProps', () => {
+        const renderedCounts: Number[] = [];
+        class MyComponent extends React.Component<any> {
+          state = { count: 0 };
+
+          static getDerivedStateFromProps(nextProps: any, prevState: any) {
+            if (nextProps.increment) {
+              return { count: prevState.count + 1 };
+            }
+            return null;
+          }
+
+          componentWillMount() {
+            throw new Error(
+              "`componentWillMount` shouldn't be called when " +
+                '`getDerivedStateFromProps` is available',
+            );
+          }
+
+          render() {
+            renderedCounts.push(this.state.count);
+            return <div>{this.state.count}</div>;
+          }
+        }
+        walkTree(<MyComponent increment />, {}, () => {
+          // noop
+        });
+        expect(renderedCounts).toEqual([1]);
+      });
+
+      it('basic classes with React 16.3 context', () => {
+        if (!React.createContext) {
+          // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963
+          return;
+        }
+        expect.assertions(4);
+        let elementCount = 0;
+        const defaultValue = { key: 'default' };
+        const contextValue = { key: 'value' };
+        const Context = React.createContext(defaultValue);
+        class MyComponent extends (React.Component as any) {
+          render() {
+            return (
+              <div>
+                <Context.Consumer>
+                  {(value: object) => {
+                    expect(value).toBe(defaultValue);
+                    return (
+                      <Context.Provider value={contextValue}>
+                        <div>
+                          <Context.Consumer>
+                            {(value1: object) => {
+                              expect(value1).toBe(contextValue);
+                              return (
+                                <div>
+                                  <Context.Consumer>
+                                    {(value2: object) => {
+                                      expect(value2).toBe(contextValue);
+                                      return [<div />, <div />];
+                                    }}
+                                  </Context.Consumer>
+                                </div>
+                              );
+                            }}
+                          </Context.Consumer>
+                        </div>
+                      </Context.Provider>
+                    );
+                  }}
+                </Context.Consumer>
+              </div>
+            );
+          }
+        }
+        const MyCompAsAny = MyComponent as any;
+        walkTree(<MyCompAsAny />, {}, () => {
+          elementCount += 1;
+        });
+        expect(elementCount).toEqual(10);
       });
     });
   });
