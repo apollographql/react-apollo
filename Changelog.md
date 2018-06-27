@@ -1,5 +1,10 @@
 # Change log
 
+## 2.1.8 (June 28, 2018)
+
+- Allow a custom `Cache` to be passed into `MockedProvider` via props.  
+  [@2142](https://github.com/JakeDawkins) in [#2142](https://github.com/apollographql/react-apollo/pull/2142)
+
 ## 2.1.7 (June 27, 2018)
 
 - The `ApolloProvider` `children` prop type has been changed from `element`
