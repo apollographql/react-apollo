@@ -1,20 +1,20 @@
 # Change log
 
-## vNext (June X, 2018)
+## 2.1.7 (June 27, 2018)
 
-- README updates to replace `apollo-client-preset` with `apollo-boost`.  
-  [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
-- README updates to fix broken links.  
-  [@DennisKo](https://github.com/DennisKo) in [#1935](https://github.com/apollographql/react-apollo/pull/1935)
-- `lodash` is no longer pinned to version 4.17.10.  
-  [@cherewaty](https://github.com/cherewaty) in [#1951](https://github.com/apollographql/react-apollo/pull/1951)
-- Project README has been updated to show a `<Query />` example.  
-  [@petetnt](https://github.com/petetnt) in [#2102](https://github.com/apollographql/react-apollo/pull/2102)
 - The `ApolloProvider` `children` prop type has been changed from `element`
   to `node`, to allow multiple children.  
   [@quentin-](https://github.com/quentin-) in [#1955](https://github.com/apollographql/react-apollo/pull/1955)
 - Properly support the new `getDerivedStateFromProps` lifecycle method.  
   [@amannn](https://github.com/amannn) in [#2076](https://github.com/apollographql/react-apollo/pull/2076)
+- `lodash` is no longer pinned to version 4.17.10.  
+  [@cherewaty](https://github.com/cherewaty) in [#1951](https://github.com/apollographql/react-apollo/pull/1951)
+- README updates to replace `apollo-client-preset` with `apollo-boost`.  
+  [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
+- README updates to fix broken links.  
+  [@DennisKo](https://github.com/DennisKo) in [#1935](https://github.com/apollographql/react-apollo/pull/1935)
+- Project README has been updated to show a `<Query />` example.  
+  [@petetnt](https://github.com/petetnt) in [#2102](https://github.com/apollographql/react-apollo/pull/2102)
 
 ## 2.1.6 (June 19, 2018)
 
