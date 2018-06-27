@@ -235,7 +235,6 @@ it('allows a custom cache to be used for the MockedProvider', done => {
   class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
     componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
       expect(nextProps.data!.user!.id).toEqual('custom');
-      console.log(nextProps.data);
       done();
     }
 
