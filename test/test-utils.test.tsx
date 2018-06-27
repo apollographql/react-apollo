@@ -227,3 +227,32 @@ it('errors if the query in the mock and component do not match', done => {
     </MockedProvider>,
   );
 });
+
+it('allows a custom cache to be used for the MockedProvider', done => {
+  const customCache = new InMemoryCache();
+  customCache.writeQuery({ query, variables, data: { user: { ...user, id: 'custom' } } });
+
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      expect(nextProps.data!.user!.id).toEqual('custom');
+      done();
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = graphql<Variables, Data, Variables>(query, {
+    options: props => ({
+      variables: props,
+      fetchPolicy: 'cache-only',
+    }),
+  })(Container);
+
+  renderer.create(
+    <MockedProvider mocks={mocks} cache={customCache} addTypename={false}>
+      <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});

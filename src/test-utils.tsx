@@ -18,7 +18,7 @@ export class MockedProvider extends React.Component<any, any> {
     const link = new MockLink(this.props.mocks, this.props.addTypename);
     this.client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: this.props.addTypename }),
+      cache: this.props.cache || new Cache({ addTypename: this.props.addTypename }),
       defaultOptions: this.props.defaultOptions,
     });
   }
