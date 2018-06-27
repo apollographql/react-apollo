@@ -104,7 +104,7 @@
     "@types/react-test-renderer": "16.0.1",
     "@types/recompose": "0.26.1",
     "@types/zen-observable": "0.5.4",
-    "apollo-cache": "^1.1.12",
+    "apollo-cache": "1.1.12",
     "apollo-cache-inmemory": "1.2.4",
     "apollo-client": "2.3.5",
     "apollo-link": "1.2.1",
@@ -140,7 +140,7 @@
     "rollup-plugin-uglify": "3.0.0",
     "ts-jest": "22.4.6",
     "tslint": "5.10.0",
-    "typescript": "^2.9.2",
+    "typescript": "2.9.2",
     "typescript-require": "0.2.10",
     "zen-observable-ts": "0.8.9"
   },
