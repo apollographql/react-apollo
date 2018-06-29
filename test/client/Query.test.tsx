@@ -690,17 +690,15 @@ describe('Query component', () => {
     });
 
     it('onCompleted with data', done => {
-      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-
       const mocks = [
         {
           request: { query: allPeopleQuery },
-          result: { data: data },
+          result: { data: allPeopleData },
         },
       ];
 
-      const onCompleted = (queryData: Data) => {
-        expect(stripSymbols(queryData)).toEqual(data);
+      const onCompleted = (queryData: Data | {}) => {
+        expect(stripSymbols(queryData)).toEqual(allPeopleData);
         done();
       };
 
