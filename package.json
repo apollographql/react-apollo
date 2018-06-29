@@ -96,7 +96,7 @@
     "@types/graphql": "0.12.7",
     "@types/invariant": "2.2.29",
     "@types/jest": "22.2.3",
-    "@types/lodash": "4.14.109",
+    "@types/lodash": "4.14.110",
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.5.3",
     "@types/react": "16.3.18",
