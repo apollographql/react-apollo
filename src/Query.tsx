@@ -175,6 +175,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   // For server-side rendering (see getDataFromTree.ts)
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.props.skip) return false;
+
     // pull off react options
     const { children, ssr, displayName, skip, client, onCompleted, onError, ...opts } = this.props;
 
@@ -366,6 +367,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         onError(error);
       }
     }
+
     // force a rerender that goes through shouldComponentUpdate
     if (this.hasMounted) this.forceUpdate();
   };
