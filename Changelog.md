@@ -1,5 +1,9 @@
 # Change log
 
+## 2.1.8 (Jun3 28, 2018)
+
+- Addressed deployment issue.
+
 ## 2.1.7 (June 27, 2018)
 
 - The `ApolloProvider` `children` prop type has been changed from `element`
