@@ -38,4 +38,14 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
   public render() {
     return <ApolloProvider client={this.state.client}>{this.props.children}</ApolloProvider>;
   }
+
+  public componentWillUnmount() {
+    const scheduler = this.state.client.queryManager.scheduler;
+    Object.keys(scheduler.registeredQueries).forEach(queryId => {
+      scheduler.stopPollingQuery(queryId);
+    });
+    Object.keys(scheduler.intervalQueries).forEach((interval: any) => {
+      scheduler.fetchQueriesOnInterval(interval);
+    });
+  }
 }
