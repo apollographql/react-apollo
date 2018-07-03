@@ -120,7 +120,7 @@
     "graphql-tag": "2.9.2",
     "husky": "0.14.3",
     "jest": "22.4.4",
-    "jest-junit": "3.7.0",
+    "jest-junit": "5.1.0",
     "jsdom": "11.11.0",
     "preact": "8.2.9",
     "preact-compat": "3.18.0",
