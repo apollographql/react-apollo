@@ -103,6 +103,8 @@ export function walkTree(
           if (result !== null) {
             instance.state = Object.assign({}, instance.state, result);
           }
+        } else if (instance.UNSAFE_componentWillMount) {
+          instance.UNSAFE_componentWillMount();
         } else if (instance.componentWillMount) {
           instance.componentWillMount();
         }
