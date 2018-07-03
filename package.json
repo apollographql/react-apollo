@@ -124,7 +124,7 @@
     "jsdom": "11.11.0",
     "preact": "8.2.9",
     "preact-compat": "3.18.0",
-    "prettier": "1.13.5",
+    "prettier": "1.13.7",
     "pretty-quick": "1.6.0",
     "react": "16.4.1",
     "react-dom": "16.4.1",
