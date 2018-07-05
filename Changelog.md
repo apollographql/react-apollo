@@ -1,6 +1,15 @@
 # Change log
 
-## 2.1.8 (Jun3 28, 2018)
+## 2.1.9 (July 4, 2018)
+
+- Added `onCompleted` and `onError` props to the `Query` component, than can
+  be used to register callback functions that are to be executed after a
+  query successfully completes, or an error occurs.
+  [@jeshep](https://github.com/jeshep) in [#1922](https://github.com/apollographql/react-apollo/pull/1922)
+- Add `UNSAFE_componentWillMount` SSR support.
+  [@leops](https://github.com/leops) in [#2152](https://github.com/apollographql/react-apollo/pull/2152)
+
+## 2.1.8 (June 28, 2018)
 
 - Addressed deployment issue.
 

@@ -73,8 +73,12 @@ export function walkTree(
       // Are we are a react class?
       if (isComponentClass(Comp)) {
         const instance = new Comp(props, context);
-        // In case the user doesn't pass these to super in the constructor
-        instance.props = instance.props || props;
+        // In case the user doesn't pass these to super in the constructor.
+        // Note: `Component.props` are now readonly in `@types/react`, so
+        // we're using `defineProperty` as a workaround (for now).
+        Object.defineProperty(instance, 'props', {
+          value: instance.props || props,
+        });
         instance.context = instance.context || context;
 
         // Set the instance state to null (not undefined) if not set, to match React behaviour
@@ -99,6 +103,8 @@ export function walkTree(
           if (result !== null) {
             instance.state = Object.assign({}, instance.state, result);
           }
+        } else if (instance.UNSAFE_componentWillMount) {
+          instance.UNSAFE_componentWillMount();
         } else if (instance.componentWillMount) {
           instance.componentWillMount();
         }

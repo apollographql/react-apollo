@@ -361,6 +361,31 @@ describe('SSR', () => {
         expect(renderedCounts).toEqual([1]);
       });
 
+      it('basic classes with UNSAFE_componentWillMount', () => {
+        class MyComponent extends React.Component<any> {
+          state = { count: 0 };
+
+          UNSAFE_componentWillMount() {
+            this.setState({ count: 1 });
+          }
+
+          componentWillMount() {
+            throw new Error(
+              "`componentWillMount` shouldn't be called when " +
+                '`UNSAFE_componentWillMount` is available',
+            );
+          }
+
+          render() {
+            expect(this.state.count).toBe(1);
+            return <div>{this.state.count}</div>;
+          }
+        }
+        walkTree(<MyComponent />, {}, () => {
+          // noop
+        });
+      });
+
       it('basic classes with React 16.3 context', () => {
         if (!React.createContext) {
           // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963

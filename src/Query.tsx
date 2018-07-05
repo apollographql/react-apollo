@@ -113,6 +113,8 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   skip?: boolean;
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
+  onCompleted?: (data: TData | {}) => void;
+  onError?: (error: ApolloError) => void;
 }
 
 export interface QueryContext {
@@ -132,6 +134,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     children: PropTypes.func.isRequired,
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
+    onCompleted: PropTypes.func,
+    onError: PropTypes.func,
     pollInterval: PropTypes.number,
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
@@ -171,8 +175,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   // For server-side rendering (see getDataFromTree.ts)
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.props.skip) return false;
+
     // pull off react options
-    const { children, ssr, displayName, skip, client, ...opts } = this.props;
+    const { children, ssr, displayName, skip, client, onCompleted, onError, ...opts } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -307,7 +312,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
-    // store the inital renders worth of result
+    // store the initial renders worth of result
     let current: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
     this.querySubscription = this.queryObservable!.subscribe({
       next: () => {
@@ -352,6 +357,17 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
+    const { onCompleted, onError } = this.props;
+    if (onCompleted || onError) {
+      const currentResult = this.queryObservable!.currentResult();
+      const { loading, error, data } = currentResult;
+      if (onCompleted && !loading && !error) {
+        onCompleted(data);
+      } else if (onError && !loading && error) {
+        onError(error);
+      }
+    }
+
     // force a rerender that goes through shouldComponentUpdate
     if (this.hasMounted) this.forceUpdate();
   };
@@ -394,7 +410,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // If a subscription has not started, then the synchronous call to refetch
     // must be made at a time when an active network request is being made, so
     // we ensure that the network requests are deduped, to avoid an
-    // inconsistant UI state that displays different data for the current query
+    // inconsistent UI state that displays different data for the current query
     // alongside a refetched query.
     //
     // Once the Query component is mounted and the subscription is made, we
