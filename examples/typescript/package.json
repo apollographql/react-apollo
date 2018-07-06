@@ -14,7 +14,7 @@
   "devDependencies": {
     "@types/graphql": "0.12.7",
     "@types/jest": "22.2.3",
-    "@types/node": "9.6.22",
+    "@types/node": "10.5.2",
     "@types/prop-types": "15.5.3",
     "@types/react": "16.4.6",
     "@types/react-dom": "16.0.6",
