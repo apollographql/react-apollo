@@ -19,12 +19,12 @@ export type OperationVariables = {
  * Function which returns an array of query names or query objects for refetchQueries option.
  * Allows conditional refetches.
  */
-export type RefetchQueriesProviderFn = (...args: any[]) => string[] | PureQueryOptions[];
+export type RefetchQueriesProviderFn = (...args: any[]) => Array<string | PureQueryOptions>;
 
 export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariables> {
   variables?: TGraphQLVariables;
   optimisticResponse?: TData;
-  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
+  refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   errorPolicy?: ErrorPolicy;
   update?: MutationUpdaterFn;
   client?: ApolloClient<any>;
