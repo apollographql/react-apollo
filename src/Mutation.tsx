@@ -175,13 +175,13 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   }
 
   private runMutation = (options: MutationOptions<TVariables> = {}) => {
-    this.onStartMutation();
+    this.onMutationStart();
 
     const mutationId = this.generateNewMutationId();
 
     return this.mutate(options)
       .then(response => {
-        this.onCompletedMutation(response, mutationId);
+        this.onMutationCompleted(response, mutationId);
         return response;
       })
       .catch(e => {
@@ -221,7 +221,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     });
   };
 
-  private onStartMutation = () => {
+  private onMutationStart = () => {
     if (!this.state.loading && !this.props.ignoreResults) {
       this.setState({
         loading: true,
@@ -232,7 +232,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     }
   };
 
-  private onCompletedMutation = (response: ExecutionResult<TData>, mutationId: number) => {
+  private onMutationCompleted = (response: ExecutionResult<TData>, mutationId: number) => {
     if (this.hasMounted === false) {
       return;
     }
