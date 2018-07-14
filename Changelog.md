@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.1.9 (July 4, 2018)
 
 - Added `onCompleted` and `onError` props to the `Query` component, than can
   be used to register callback functions that are to be executed after a

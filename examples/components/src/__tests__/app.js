@@ -1,16 +1,10 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { MockedProvider } from 'react-apollo/test-utils';
+import { render, wait, cleanup } from 'react-testing-library';
 
-import { HERO_QUERY, App, HeroQuery, Character } from '../App';
-
-import {
-  empty,
-  hero_no_friends,
-  empty_array_friends,
-  friend_without_appearsIn,
-  full,
-} from '../__mocks__/data';
+import App, { HERO_QUERY } from '../app';
+import { full } from '../__mocks__/data';
 
 const request = {
   query: HERO_QUERY,
@@ -28,113 +22,51 @@ const mocks = [
   },
 ];
 
-class ErrorBoundary extends React.Component {
-  componentDidCatch(e) {
-    console.log(e);
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
+const mocksWithError = [
+  {
+    request,
+    error: new Error('Something went wrong'),
+  },
+];
 
 describe('App', () => {
-  it('renders', () => {
-    const tree = renderer.create(
-      <MockedProvider mocks={mocks}>
-        <App />
+  it('renders loading', () => {
+    const { container } = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <App episode="EMPIRE" />
       </MockedProvider>,
     );
-    expect(tree).toMatchSnapshot();
+
+    expect(container).toMatchSnapshot();
   });
-});
 
-describe('Hero Query', () => {
-  it('renders loading and data', done => {
-    let renderCount = 0;
-
-    renderer.create(
-      <ErrorBoundary>
-        <MockedProvider mocks={mocks}>
-          <HeroQuery episode="EMPIRE">
-            {result => {
-              if (renderCount === 0) {
-                expect(result).toEqual({
-                  loading: true,
-                });
-              } else if (renderCount === 1) {
-                expect(result).toEqual({
-                  loading: false,
-                  hero: full,
-                });
-                done();
-              }
-
-              renderCount++;
-              return null;
-            }}
-          </HeroQuery>
-        </MockedProvider>
-      </ErrorBoundary>,
+  it('renders data', async () => {
+    const { queryByText, container } = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <App episode="EMPIRE" />
+      </MockedProvider>,
     );
+
+    await waitUntilLoadingIsFinished(queryByText);
+
+    expect(container).toMatchSnapshot();
   });
 
-  it('renders error', done => {
-    const mocksWithError = [
-      {
-        request,
-        error: new Error('Something went wrong'),
-      },
-    ];
-
-    let renderCount = 0;
-
-    renderer.create(
-      <ErrorBoundary>
-        <MockedProvider mocks={mocksWithError}>
-          <HeroQuery episode="EMPIRE">
-            {result => {
-              if (renderCount === 1) {
-                expect(result).toEqual({
-                  error: new Error('Network error: Something went wrong'),
-                  loading: false,
-                });
-                done();
-              }
-
-              renderCount++;
-              return null;
-            }}
-          </HeroQuery>
-        </MockedProvider>
-      </ErrorBoundary>,
+  it('renders error', async () => {
+    const { queryByText, container } = render(
+      <MockedProvider mocks={mocksWithError} addTypename={false}>
+        <App episode="EMPIRE" />
+      </MockedProvider>,
     );
+
+    await waitUntilLoadingIsFinished(queryByText);
+
+    expect(container).toMatchSnapshot();
   });
 });
 
-describe('Character', () => {
-  it('handles a loading state', () => {
-    const output = renderer.create(<Character loading />);
-    expect(output.toJSON()).toMatchSnapshot();
+const waitUntilLoadingIsFinished = queryByText =>
+  wait(() => {
+    const isLoading = queryByText('Loading') != null;
+    expect(isLoading).toBe(false);
   });
-  it('handles an error state', () => {
-    const output = renderer.create(<Character error />);
-    expect(output.toJSON()).toMatchSnapshot();
-  });
-  it('returns markup for null response', () => {
-    const output = renderer.create(<Character hero={empty} />);
-    expect(output.toJSON()).toMatchSnapshot();
-  });
-  it('returns markup for a hero with no friends', () => {
-    const output = renderer.create(<Character hero={hero_no_friends} />);
-    expect(output.toJSON()).toMatchSnapshot();
-  });
-  it('returns markup for empty array of friends', () => {
-    const output = renderer.create(<Character hero={empty_array_friends} />);
-    expect(output.toJSON()).toMatchSnapshot();
-  });
-  it('returns markup for a friend without an appearsIn', () => {
-    const output = renderer.create(<Character hero={friend_without_appearsIn} />);
-    expect(output.toJSON()).toMatchSnapshot();
-  });
-});
