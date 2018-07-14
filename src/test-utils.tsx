@@ -40,6 +40,9 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
   }
 
   public componentWillUnmount() {
+    if (!this.state.client.queryManager) {
+      return;
+    }
     const scheduler = this.state.client.queryManager.scheduler;
     Object.keys(scheduler.registeredQueries).forEach(queryId => {
       scheduler.stopPollingQuery(queryId);

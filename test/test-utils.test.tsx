@@ -227,3 +227,18 @@ it('errors if the query in the mock and component do not match', done => {
     </MockedProvider>,
   );
 });
+
+it('doesnt crash on unmount if there is no query manager', () => {
+  class Container extends React.Component {
+    render() {
+      return null;
+    }
+  }
+  renderer
+    .create(
+      <MockedProvider>
+        <Container />
+      </MockedProvider>,
+    )
+    .unmount();
+});
