@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ApolloClient, { NetworkStatus } from 'apollo-client';
+import ApolloClient, { ApolloError, NetworkStatus } from 'apollo-client';
 import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloProvider, Query } from '../../src';
@@ -271,7 +271,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -341,7 +341,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -403,7 +403,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -462,7 +462,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -524,7 +524,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -623,7 +623,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -676,7 +676,7 @@ describe('Query component', () => {
       );
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -687,6 +687,70 @@ describe('Query component', () => {
         expect(count).toBe(POLL_COUNT);
         done();
       });
+    });
+
+    it('onCompleted with data', done => {
+      const mocks = [
+        {
+          request: { query: allPeopleQuery },
+          result: { data: allPeopleData },
+        },
+      ];
+
+      const onCompleted = (queryData: Data | {}) => {
+        expect(stripSymbols(queryData)).toEqual(allPeopleData);
+        done();
+      };
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onCompleted={onCompleted}>
+          {() => {
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
+    it('onError with data', done => {
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+      const mocks = [
+        {
+          request: { query: allPeopleQuery },
+          result: { data: data },
+        },
+      ];
+
+      const onErrorFunc = (queryError: ApolloError) => {
+        expect(queryError).toEqual(null);
+        done();
+      };
+
+      const onError = jest.fn();
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onError={onErrorFunc}>
+          {({ loading }) => {
+            if (!loading) {
+              expect(onError).not.toHaveBeenCalled();
+              done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
     });
   });
 
@@ -736,6 +800,64 @@ describe('Query component', () => {
       }).toThrowError('The <Query /> component requires a graphql query, but got a subscription.');
 
       console.error = errorLogger;
+    });
+
+    it('onCompleted with error', done => {
+      const mockError = [
+        {
+          request: { query: allPeopleQuery },
+          error: new Error('error occurred'),
+        },
+      ];
+
+      const onCompleted = jest.fn();
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onCompleted={onCompleted}>
+          {({ error }) => {
+            if (error) {
+              expect(onCompleted).not.toHaveBeenCalled();
+              done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mockError} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
+    it('onError with error', done => {
+      const error = new Error('error occurred');
+      const mockError = [
+        {
+          request: { query: allPeopleQuery },
+          error: error,
+        },
+      ];
+
+      const onErrorFunc = (queryError: ApolloError) => {
+        expect(queryError.networkError).toEqual(error);
+        done();
+      };
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onError={onErrorFunc}>
+          {() => {
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mockError} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
     });
   });
 
@@ -813,7 +935,7 @@ describe('Query component', () => {
       }
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -882,7 +1004,7 @@ describe('Query component', () => {
       }
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -961,8 +1083,14 @@ describe('Query component', () => {
         }
       `;
 
-      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-      const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+      const data1 = {
+        allPeople: {
+          people: [{ name: 'Luke Skywalker' }],
+        },
+      };
+      const data2 = {
+        allPeople: { people: [{ name: 'Han Solo' }] },
+      };
       const mocks = [
         {
           request: { query, variables: { first: 1 } },
@@ -1017,7 +1145,7 @@ describe('Query component', () => {
       }
 
       wrapper = mount(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} addTypename={false}>
           <Component />
         </MockedProvider>,
       );
@@ -1068,7 +1196,7 @@ describe('Query component', () => {
     }
 
     wrapper = mount(
-      <MockedProvider mocks={allPeopleMocks}>
+      <MockedProvider mocks={allPeopleMocks} addTypename={false}>
         <Component />
       </MockedProvider>,
     );
