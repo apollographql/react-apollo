@@ -44,7 +44,7 @@ export declare type FetchResult<C = Record<string, any>, E = Record<string, any>
 export declare type MutationOptions<TData = any, TVariables = OperationVariables> = {
   variables?: TVariables;
   optimisticResponse?: Object;
-  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
+  refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
 };
 
@@ -57,7 +57,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   ignoreResults?: boolean;
   optimisticResponse?: Object;
   variables?: TVariables;
-  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
+  refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: MutationFn<TData, TVariables>,
@@ -97,8 +97,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     variables: PropTypes.object,
     optimisticResponse: PropTypes.object,
     refetchQueries: PropTypes.oneOfType([
-      PropTypes.arrayOf(PropTypes.string),
-      PropTypes.arrayOf(PropTypes.object),
+      PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.object])),
       PropTypes.func,
     ]),
     update: PropTypes.func,
