@@ -49,8 +49,8 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   };
 
   private client: ApolloClient<any>;
-  private queryObservable: Observable<any>;
-  private querySubscription: ZenObservable.Subscription;
+  private queryObservable?: Observable<any>;
+  private querySubscription?: ZenObservable.Subscription;
 
   constructor(props: SubscriptionProps<TData, TVariables>, context: SubscriptionContext) {
     super(props, context);
@@ -122,7 +122,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
 
   private startSubscription = () => {
     if (this.querySubscription) return;
-    this.querySubscription = this.queryObservable.subscribe({
+    this.querySubscription = this.queryObservable!.subscribe({
       next: this.updateCurrentData,
       error: this.updateError,
     });

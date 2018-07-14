@@ -54,9 +54,9 @@ export class GraphQLBase<TProps, TChildProps, TState = any> extends React.Compon
   TProps,
   TState
 > {
-  public withRef: boolean;
+  public withRef: boolean = false;
   // wrapped instance
-  private wrappedInstance: React.ComponentClass<TChildProps>;
+  private wrappedInstance?: React.ComponentClass<TChildProps>;
 
   constructor(props: TProps) {
     super(props);
