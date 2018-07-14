@@ -313,16 +313,17 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
     // store the initial renders worth of result
-    let current: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
+    let initial: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
     this.querySubscription = this.queryObservable!.subscribe({
-      next: () => {
+      next: ({ data }) => {
         // to prevent a quick second render from the subscriber
-        // we compare to see if the original started finished (from cache)
-        if (current && current.networkStatus === 7) {
-          // remove this for future rerenders (i.e. polling)
-          current = undefined;
+        // we compare to see if the original started finished (from cache) and is unchanged
+        if (initial && initial.networkStatus === 7 && shallowEqual(initial.data, data)) {
+          initial = undefined;
           return;
         }
+
+        initial = undefined;
         this.updateCurrentData();
       },
       error: error => {

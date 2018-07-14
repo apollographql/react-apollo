@@ -11,7 +11,7 @@ const client = new ApolloClient({
 
 const WrappedApp = (
   <ApolloProvider client={client}>
-    <App />
+    <App episode="EMPIRE" />
   </ApolloProvider>
 );
 
