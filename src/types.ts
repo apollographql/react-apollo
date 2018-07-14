@@ -114,7 +114,10 @@ export interface OperationOption<
     | QueryOpts<TGraphQLVariables>
     | MutationOpts<TData, TGraphQLVariables>
     | ((props: TProps) => QueryOpts<TGraphQLVariables> | MutationOpts<TData, TGraphQLVariables>);
-  props?: (props: OptionProps<TProps, TData>, lastProps?: TChildProps | void) => TChildProps;
+  props?: (
+    props: OptionProps<TProps, TData, TGraphQLVariables>,
+    lastProps?: TChildProps | void,
+  ) => TChildProps;
   skip?: boolean | ((props: any) => boolean);
   name?: string;
   withRef?: boolean;
