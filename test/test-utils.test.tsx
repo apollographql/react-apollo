@@ -151,6 +151,89 @@ it('errors if the variables in the mock and component do not match', done => {
   );
 });
 
+it('errors if the variables do not deep equal', done => {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      try {
+        expect(nextProps.data!.user).toBeUndefined();
+        expect(nextProps.data!.error).toMatchSnapshot();
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUser(Container);
+
+  const mocks2 = [
+    {
+      request: {
+        query,
+        variables: {
+          age: 13,
+          username: 'some_user',
+        },
+      },
+      result: { data: { user } },
+    },
+  ];
+
+  const variables2 = {
+    username: 'some_user',
+    age: 42,
+  };
+
+  renderer.create(
+    <MockedProvider mocks={mocks2}>
+      <ContainerWithData {...variables2} />
+    </MockedProvider>,
+  );
+});
+
+it('does not error if the variables match but have different order', done => {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      expect(nextProps.data!.user).toMatchSnapshot();
+      done();
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUser(Container);
+
+  const mocks2 = [
+    {
+      request: {
+        query,
+        variables: {
+          age: 13,
+          username: 'some_user',
+        },
+      },
+      result: { data: { user } },
+    },
+  ];
+
+  const variables2 = {
+    username: 'some_user',
+    age: 13,
+  };
+
+  renderer.create(
+    <MockedProvider mocks={mocks2}>
+      <ContainerWithData {...variables2} />
+    </MockedProvider>,
+  );
+});
+
 it('mocks a network error', done => {
   class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
     componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
