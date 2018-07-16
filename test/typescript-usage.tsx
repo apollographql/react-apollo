@@ -1,7 +1,7 @@
 // this file tests compilation of typescript types to ensure compatibility
-// we intentionally don't enforce TS compilation on the reset of the tests so we can
+// we intentionally don't enforce TS compilation on the rest of the tests so we can
 // test things like improper argument calling / etc to cause errors and ensure
-// that the are handled
+// that they are handled
 import * as React from 'react';
 import gql from 'graphql-tag';
 import { graphql, DataValue } from '../src';
@@ -123,6 +123,38 @@ const withProps = graphql<Props, Data, {}, { organisationData: DataValue<Data> |
 const Foo = withProps(props => <div>Woot {props.organisationData!.history}</div>);
 
 <Foo solutionId="foo" />; // tslint:disable-line
+
+// --------------------------
+// variables with simple custom props
+interface Variables {
+  solutionId: string;
+}
+
+const simpleVarsAndProps = graphql<Props, Data, Variables>(historyQuery, {
+  options: ({ solutionId }) => ({
+    variables: { solutionId },
+  }),
+  props: data => data,
+});
+
+const HistorySimpleVarsAndProps = simpleVarsAndProps(props => <div>{props.data!.history}</div>);
+
+<HistorySimpleVarsAndProps solutionId="foo" />; // tslint:disable-line
+
+// --------------------------
+// variables with advanced custom props
+type FlatProps = Props & Partial<DataValue<Data, Variables>>;
+
+const advancedVarsAndProps = graphql<Props, Data, Variables, FlatProps>(historyQuery, {
+  options: ({ solutionId }) => ({
+    variables: { solutionId },
+  }),
+  props: ({ data, ownProps }) => ({ ...data, ...ownProps }),
+});
+
+const HistoryAdvancedVarsAndProps = advancedVarsAndProps(props => <div>{props.history}</div>);
+
+<HistoryAdvancedVarsAndProps solutionId="foo" />; // tslint:disable-line
 
 // --------------------------
 // It is not recommended to use `name` with Typescript, better to use props and map the property
