@@ -205,9 +205,10 @@ function getPromisesFromTree({
   return promises;
 }
 
-export default function getDataFromTree(
+function getDataAndErrorsFromTree(
   rootElement: React.ReactNode,
   rootContext: any = {},
+  storeError: Function,
 ): Promise<any> {
   const promises = getPromisesFromTree({ rootElement, rootContext });
 
@@ -215,24 +216,38 @@ export default function getDataFromTree(
     return Promise.resolve();
   }
 
-  const errors: any[] = [];
-
   const mappedPromises = promises.map(({ promise, context, instance }) => {
     return promise
-      .then(_ => getDataFromTree(instance.render(), context))
-      .catch(e => errors.push(e));
+      .then(_ => getDataAndErrorsFromTree(instance.render(), context, storeError))
+      .catch(e => storeError(e));
   });
 
-  return Promise.all(mappedPromises).then(_ => {
-    if (errors.length > 0) {
-      const error =
-        errors.length === 1
-          ? errors[0]
-          : new Error(
-              `${errors.length} errors were thrown when executing your fetchData functions.`,
-            );
-      error.queryErrors = errors;
-      throw error;
-    }
-  });
+  return Promise.all(mappedPromises);
+}
+
+function processErrors(errors: any[]) {
+  switch (errors.length) {
+    case 0:
+      break;
+    case 1:
+      throw errors.pop();
+    default:
+      const wrapperError: any = new Error(
+        `${errors.length} errors were thrown when executing your fetchData functions.`,
+      );
+      wrapperError.queryErrors = errors;
+      throw wrapperError;
+  }
+}
+
+export default function getDataFromTree(
+  rootElement: React.ReactNode,
+  rootContext: any = {},
+): Promise<any> {
+  const errors: any[] = [];
+  const storeError = (error: any) => errors.push(error);
+
+  return getDataAndErrorsFromTree(rootElement, rootContext, storeError).then(_ =>
+    processErrors(errors),
+  );
 }

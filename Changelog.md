@@ -1,5 +1,12 @@
 # Change log
 
+## vNext
+
+- Fixed an issue in `getDataFromTree` where queries that threw more than one
+  error had error messages swallowed, and returned an invalid error object
+  with circular references. Multiple errors are now preserved.  
+  [@anand-sundaram-zocdoc](https://github.com/anand-sundaram-zocdoc) in [#2133](https://github.com/apollographql/react-apollo/pull/2133)
+
 ## 2.1.9 (July 4, 2018)
 
 - Added `onCompleted` and `onError` props to the `Query` component, than can
