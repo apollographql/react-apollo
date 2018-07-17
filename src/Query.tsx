@@ -197,6 +197,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentDidMount() {
     this.hasMounted = true;
     if (this.props.skip) return;
+    this.updateCurrentData();
     this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
