@@ -98,6 +98,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
+  loadingState?: Record<string, any>;
 }
 
 export interface QueryProps<TData = any, TVariables = OperationVariables> {
@@ -379,14 +380,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     Object.assign(data, observableQueryFields(this.queryObservable!));
     // fetch the current result (if any) from the store
     const currentResult = this.queryObservable!.currentResult();
-    const { loading, networkStatus, errors } = currentResult;
+    const { loading, networkStatus, errors, loadingState } = currentResult;
     let { error } = currentResult;
     // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
     if (errors && errors.length > 0) {
       error = new ApolloError({ graphQLErrors: errors });
     }
 
-    Object.assign(data, { loading, networkStatus, error });
+    Object.assign(data, { loading, networkStatus, error, loadingState });
 
     if (loading) {
       Object.assign(data.data, this.previousData, currentResult.data);
