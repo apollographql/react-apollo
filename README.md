@@ -71,7 +71,7 @@ import { ApolloClient } from 'apollo-boost';
 const client = new ApolloClient();
 ```
 
-> Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/2.0-migration.html).
+> Migrating from 1.x? See the [2.0 migration guide](https://www.apollographql.com/docs/react/recipes/2.0-migration.html).
 
 Next you will want to add a [`<ApolloProvider/>`][] component to the root of your React component tree. This component [provides](https://reactjs.org/docs/context.html) the React Apollo functionality to all the other components in the application without passing it explicitly. To use an [`<ApolloProvider/>`][] with your newly constructed client see the following:
 
