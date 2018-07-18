@@ -95,7 +95,7 @@
     "@types/enzyme-adapter-react-16": "1.0.2",
     "@types/graphql": "0.12.7",
     "@types/invariant": "2.2.29",
-    "@types/jest": "23.1.6",
+    "@types/jest": "23.3.0",
     "@types/lodash": "4.14.112",
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.5.3",
