@@ -4,7 +4,7 @@
 
 - Fixed an issue in `getDataFromTree` where queries that threw more than one
   error had error messages swallowed, and returned an invalid error object
-  with circular references. Multiple errors are now preserved.
+  with circular references. Multiple errors are now preserved. <br/>
   [@anand-sundaram-zocdoc](https://github.com/anand-sundaram-zocdoc) in [#2133](https://github.com/apollographql/react-apollo/pull/2133)
 - Update both the `<Mutation />` component and `graphql` HOC to accept a new
   `awaitRefetchQueries` prop (boolean). When set to `true`, queries specified
@@ -12,7 +12,8 @@
   completed. `awaitRefetchQueries` is `false` by default, which means
   `refetchQueries` are usually completed after the mutation has resolved.
   Relates to Apollo Client
-  [PR #3169](https://github.com/apollographql/apollo-client/pull/3169).
+  [PR #3169](https://github.com/apollographql/apollo-client/pull/3169). <br/>
+  [@hwillson](https://github.com/hwillson) in [#2214](https://github.com/apollographql/react-apollo/pull/2214)
 
 ## 2.1.9 (July 4, 2018)
 
