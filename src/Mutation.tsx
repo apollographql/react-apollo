@@ -221,13 +221,13 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
     return this.client.mutate({
       mutation,
-      variables,
       optimisticResponse,
       refetchQueries,
       awaitRefetchQueries,
       update,
       context,
       ...options,
+      variables: Object.assign({}, variables, options.variables),
     });
   };
 
