@@ -104,7 +104,7 @@
     "@types/react-test-renderer": "16.0.1",
     "@types/recompose": "0.26.2",
     "@types/zen-observable": "0.8.0",
-    "apollo-cache": "1.1.12",
+    "apollo-cache": "1.1.13",
     "apollo-cache-inmemory": "1.2.5",
     "apollo-client": "2.3.7",
     "apollo-link": "1.2.1",
