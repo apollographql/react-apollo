@@ -339,7 +339,11 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private removeQuerySubscription = () => {
     if (this.querySubscription) {
-      this.querySubscription.unsubscribe();
+      const currentResult = this.queryObservable!.currentResult();
+      const { networkStatus } = currentResult;
+      if (networkStatus === NetworkStatus.ready) {
+        this.querySubscription.unsubscribe();
+      } // Otherwise do not tear down observable that is still receiving patches
       delete this.querySubscription;
     }
   };
@@ -362,8 +366,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     const { onCompleted, onError } = this.props;
     if (onCompleted || onError) {
       const currentResult = this.queryObservable!.currentResult();
-      const { loading, error, data } = currentResult;
-      if (onCompleted && !loading && !error) {
+      const { loading, error, data, networkStatus } = currentResult;
+      if (onCompleted && !loading && !error && networkStatus === NetworkStatus.ready) {
         onCompleted(data);
       } else if (onError && !loading && error) {
         onError(error);
