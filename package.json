@@ -142,6 +142,7 @@
     "tslint": "5.10.0",
     "typescript": "2.9.2",
     "typescript-require": "0.2.10",
+    "waait": "^1.0.2",
     "zen-observable-ts": "0.8.9"
   },
   "dependencies": {

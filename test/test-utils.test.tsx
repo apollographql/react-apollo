@@ -3,8 +3,9 @@ import * as renderer from 'react-test-renderer';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
+import * as wait from 'waait';
 
-import { graphql, ChildProps } from '../src';
+import { graphql, ChildProps, Query } from '../src';
 import { MockedProvider, mockSingleLink } from '../src/test-utils';
 import { DocumentNode } from 'graphql';
 
@@ -324,4 +325,93 @@ it('doesnt crash on unmount if there is no query manager', () => {
       </MockedProvider>,
     )
     .unmount();
+});
+
+it('resolves all queries within one tick if there are nested query components when no delay is specified', async () => {
+  const firstQuery = gql`
+    query FirstQuery {
+      firstQuery {
+        id
+      }
+    }
+  `;
+
+  const firstResult = {
+    data: {
+      firstQuery: {
+        id: '1',
+        __typename: 'FirstQueryResult',
+      },
+    },
+  };
+
+  const secondQuery = gql`
+    query SecondQuery {
+      secondQuery {
+        id
+      }
+    }
+  `;
+
+  const secondResult = {
+    data: {
+      secondQuery: {
+        id: '2',
+        __typename: 'SecondQueryResult',
+      },
+    },
+  };
+
+  const thirdQuery = gql`
+    query ThirdQuery {
+      thirdQuery {
+        id
+      }
+    }
+  `;
+
+  const thirdResult = {
+    data: {
+      thirdQuery: {
+        id: '3',
+        __typename: 'ThirdQueryResult',
+      },
+    },
+  };
+
+  const component = renderer.create(
+    <MockedProvider
+      mocks={[
+        { request: { query: firstQuery }, result: firstResult },
+        { request: { query: secondQuery }, result: secondResult },
+        { request: { query: thirdQuery }, result: thirdResult },
+      ]}
+    >
+      <Query query={firstQuery}>
+        {({ data: firstData }) =>
+          firstData.firstQuery ? (
+            <Query query={secondQuery}>
+              {({ data: secondData }) =>
+                secondData.secondQuery ? (
+                  <Query query={thirdQuery}>
+                    {({ data: thirdData }) =>
+                      thirdData.thirdQuery
+                        ? `first ID: ${firstData.firstQuery.id}, second ID: ${
+                            secondData.secondQuery.id
+                          }, third ID: ${thirdData.thirdQuery.id}`
+                        : null
+                    }
+                  </Query>
+                ) : null
+              }
+            </Query>
+          ) : null
+        }
+      </Query>
+    </MockedProvider>,
+  );
+
+  await wait(0);
+
+  expect(component.toJSON()).toEqual('first ID: 1, second ID: 2, third ID: 3');
 });
