@@ -17,6 +17,8 @@
 - Typings adjustment: pass `TData` along into `MutationUpdaterFn` when using
   `MutationOpts`, to ensure that the updater function is properly typed. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2227](https://github.com/apollographql/react-apollo/pull/2227)
+- Check if queryManager is set before accessing it.
+  [@danilobuerger](https://github.com/danilobuerger) in [#2165](https://github.com/apollographql/react-apollo/pull/2165)
 
 ## 2.1.9 (July 4, 2018)
 
@@ -26,6 +28,8 @@
   [@jeshep](https://github.com/jeshep) in [#1922](https://github.com/apollographql/react-apollo/pull/1922)
 - Add `UNSAFE_componentWillMount` SSR support.
   [@leops](https://github.com/leops) in [#2152](https://github.com/apollographql/react-apollo/pull/2152)
+- Clear out scheduler on MockedProvider unmount.
+  [@danilobuerger](https://github.com/danilobuerger) in [#2151](https://github.com/apollographql/react-apollo/pull/2151)
 
 ## 2.1.8 (June 28, 2018)
 
