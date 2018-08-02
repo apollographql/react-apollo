@@ -87,14 +87,23 @@ export class MockLink extends ApolloLink {
     }
 
     return new Observable<FetchResult>(observer => {
-      let timer = setTimeout(() => {
+      const handleResponse = () => {
         if (error) {
           observer.error(error);
         } else {
           if (result) observer.next(result);
           observer.complete();
         }
-      }, delay ? delay : 0);
+      };
+
+      if (!delay) {
+        handleResponse();
+        return () => {
+          return undefined;
+        };
+      }
+
+      let timer = setTimeout(handleResponse, delay);
 
       return () => {
         clearTimeout(timer);

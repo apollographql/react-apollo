@@ -14,6 +14,10 @@
   Relates to Apollo Client
   [PR #3169](https://github.com/apollographql/apollo-client/pull/3169). <br/>
   [@hwillson](https://github.com/hwillson) in [#2214](https://github.com/apollographql/react-apollo/pull/2214)
+- Fixed an issue with MockedProvider that caused results to be returned with
+  an unnecessary `setTimeout`, making tests less reliable.< br/>
+  [@tobobo](https://github.com/tobobo) in
+  [#2233](https://github.com/apollographql/react-apollo/pull/2233)
 
 ## 2.1.9 (July 4, 2018)
 
