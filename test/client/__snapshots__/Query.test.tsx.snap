@@ -23,6 +23,7 @@ Object {
   "error": undefined,
   "fetchMore": [Function],
   "loading": true,
+  "loadingState": undefined,
   "networkStatus": 1,
   "refetch": [Function],
   "startPolling": [Function],
