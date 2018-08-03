@@ -126,7 +126,7 @@
     "preact-compat": "3.18.0",
     "prettier": "1.14.0",
     "pretty-quick": "1.6.0",
-    "react": "16.4.1",
+    "react": "16.4.2",
     "react-dom": "16.4.1",
     "react-test-renderer": "16.4.1",
     "recompose": "0.28.0",
