@@ -138,7 +138,7 @@
     "rollup-plugin-node-resolve": "3.3.0",
     "rollup-plugin-replace": "2.0.0",
     "rollup-plugin-uglify": "4.0.0",
-    "ts-jest": "23.0.1",
+    "ts-jest": "23.1.2",
     "tslint": "5.10.0",
     "typescript": "2.9.2",
     "typescript-require": "0.2.10",
