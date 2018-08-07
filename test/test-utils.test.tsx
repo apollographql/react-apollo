@@ -121,6 +121,28 @@ it('allows for querying with the typename', done => {
   );
 });
 
+it('allows for using a custom cache', done => {
+  const cache = new InMemoryCache();
+  cache.writeQuery({
+    query,
+    variables,
+    data: { user },
+  });
+
+  const Container: React.SFC<ChildProps<Variables, Data, Variables>> = props => {
+    expect(props.data).toMatchObject({ user });
+    done();
+
+    return null;
+  };
+  const ContainerWithData = withUser(Container);
+  renderer.create(
+    <MockedProvider mocks={[]} cache={cache}>
+      <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});
+
 it('errors if the variables in the mock and component do not match', done => {
   class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
     componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
@@ -317,6 +339,7 @@ it('doesnt crash on unmount if there is no query manager', () => {
       return null;
     }
   }
+
   renderer
     .create(
       <MockedProvider>
