@@ -8,11 +8,11 @@ import { MockedResponse, MockLink } from './test-links';
 import { ApolloCache } from 'apollo-cache';
 export * from './test-links';
 
-export interface MockedProviderProps<TCache = {}> {
+export interface MockedProviderProps<TSerializedCache = {}> {
   mocks?: MockedResponse[];
   addTypename?: boolean;
   defaultOptions?: DefaultOptions;
-  cache?: ApolloCache<TCache>;
+  cache?: ApolloCache<TSerializedCache>;
 }
 
 export interface MockedProviderState {
