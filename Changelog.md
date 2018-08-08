@@ -2,6 +2,7 @@
 
 ## vNext
 
+- Added `@defer` support [#2192](https://github.com/apollographql/react-apollo/pull/2192)
 - Fixed an issue in `getDataFromTree` where queries that threw more than one
   error had error messages swallowed, and returned an invalid error object
   with circular references. Multiple errors are now preserved. <br/>
