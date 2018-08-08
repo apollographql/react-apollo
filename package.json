@@ -100,7 +100,7 @@
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.5.4",
     "@types/react": "16.4.7",
-    "@types/react-dom": "16.0.6",
+    "@types/react-dom": "16.0.7",
     "@types/react-test-renderer": "16.0.2",
     "@types/recompose": "0.26.3",
     "@types/zen-observable": "0.8.0",
