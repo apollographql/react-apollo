@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "author": "opensource@apollographql.com",
   "browser": "lib/react-apollo.browser.umd.js",
   "description": "React data container for Apollo Client",
@@ -87,7 +87,7 @@
     "trailingComma": "all"
   },
   "peerDependencies": {
-    "apollo-client": "^2.3.7",
+    "apollo-client": "^2.3.8",
     "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
@@ -106,7 +106,7 @@
     "@types/zen-observable": "0.8.0",
     "apollo-cache": "1.1.13",
     "apollo-cache-inmemory": "1.2.6",
-    "apollo-client": "2.3.7",
+    "apollo-client": "2.3.8",
     "apollo-link": "1.2.1",
     "babel-core": "6.26.3",
     "babel-jest": "23.4.2",

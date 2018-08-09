@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.1.10 (August 9, 2018)
 
 - Fixed an issue in `getDataFromTree` where queries that threw more than one
   error had error messages swallowed, and returned an invalid error object
