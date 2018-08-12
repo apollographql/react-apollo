@@ -22,7 +22,9 @@ describe('<ApolloProvider /> Component', () => {
       client: PropTypes.object.isRequired,
     };
 
-    context: ChildContext;
+    context: ChildContext = {
+      client: {},
+    };
 
     render() {
       return null;
@@ -120,7 +122,7 @@ describe('<ApolloProvider /> Component', () => {
         </ApolloProvider>,
       );
     }).toThrowError(
-      'ApolloClient was not passed a client instance. Make ' +
+      'ApolloProvider was not passed a client instance. Make ' +
         'sure you pass in your client via the "client" prop.',
     );
     console.error = originalConsoleError;
@@ -149,15 +151,18 @@ describe('<ApolloProvider /> Component', () => {
   //   console.error = originalConsoleError;
   // });
 
-  it('should add the client to the child context', () => {
+  it('should add the client to the children context', () => {
     const tree = TestUtils.renderIntoDocument(
       <ApolloProvider client={client}>
+        <Child />
         <Child />
       </ApolloProvider>,
     ) as React.Component<any, any>;
 
-    const child = TestUtils.findRenderedComponentWithType(tree, Child);
-    expect(child.context.client).toEqual(client);
+    const children = TestUtils.scryRenderedComponentsWithType(tree, Child);
+
+    expect(children).toHaveLength(2);
+    children.forEach(child => expect(child.context.client).toEqual(client));
   });
 
   it('should update props when the client changes', () => {
