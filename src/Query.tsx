@@ -16,7 +16,7 @@ import { parser, DocumentType, IDocumentDefinition } from './parser';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 
-// Improved FetchMoreOptions type, need to port them back to Apollo Client
+// Improved FetchMoreOptions type, need to replace with Apollo Client types
 export interface FetchMoreOptions<TData, TVariables> {
   updateQuery: (
     previousQueryResult: TData,
@@ -27,16 +27,32 @@ export interface FetchMoreOptions<TData, TVariables> {
   ) => TData;
 }
 
-// Improved FetchMoreQueryOptions type, need to port them back to Apollo Client
+// Improved FetchMoreQueryOptions type, need to replace with Apollo Client types
 export interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
   variables: Pick<TVariables, K>;
 }
 
-// XXX open types improvement PR to AC
-// Improved ObservableQuery field types, need to port them back to Apollo Client
+// Improved UpdateQueryFn type, need to replace with Apollo Client types
+export type UpdateQueryFn<TData, TVariables> = (
+  previousQueryResult: TData,
+  options: {
+    subscriptionData: { data: TData };
+    variables?: TVariables;
+  },
+) => TData;
+
+// Improved SubscribeToMoreOptions type, need to replace with Apollo Client types
+export type SubscribeToMoreOptions<TData, TVariables> = {
+  document: DocumentNode;
+  variables?: TVariables;
+  updateQuery?: UpdateQueryFn<TData, TVariables>;
+  onError?: (error: Error) => void;
+};
+
+// Improved ObservableQuery field types, need to replace with Apollo Client types
 export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData>,
-  'startPolling' | 'stopPolling' | 'subscribeToMore'
+  'startPolling' | 'stopPolling'
 > & {
   variables: TVariables;
   refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>;
@@ -47,9 +63,8 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
       fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<TVariables2, K> &
         FetchMoreOptions<TData2, TVariables2>,
     ) => Promise<ApolloQueryResult<TData2>>);
-  updateQuery: (
-    mapFn: (previousQueryResult: TData, options: { variables?: TVariables }) => TData,
-  ) => void;
+  updateQuery: (mapFn: UpdateQueryFn<TData, TVariables>) => void;
+  subscribeToMore: (options: SubscribeToMoreOptions<TData, TVariables>) => void;
 };
 
 function compact(obj: any) {
