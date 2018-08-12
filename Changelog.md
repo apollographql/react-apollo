@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.1.11 (August 9, 2018)
 
 - Fixed an issue in `getDataFromTree` where queries that threw more than one
   error had error messages swallowed, and returned an invalid error object
@@ -14,6 +14,9 @@
   Relates to Apollo Client
   [PR #3169](https://github.com/apollographql/apollo-client/pull/3169). <br/>
   [@hwillson](https://github.com/hwillson) in [#2214](https://github.com/apollographql/react-apollo/pull/2214)
+- Typings adjustment: pass `TData` along into `MutationUpdaterFn` when using
+  `MutationOpts`, to ensure that the updater function is properly typed. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2227](https://github.com/apollographql/react-apollo/pull/2227)
 
 ## 2.1.9 (July 4, 2018)
 
