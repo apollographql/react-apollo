@@ -8,7 +8,7 @@ import { MockedResponse, MockLink } from './test-links';
 export * from './test-links';
 
 export interface MockedProviderProps {
-  mocks?: MockedResponse[];
+  mocks?: ReadonlyArray<MockedResponse>;
   addTypename?: boolean;
   defaultOptions?: DefaultOptions;
 }

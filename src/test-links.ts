@@ -33,7 +33,7 @@ export class MockLink extends ApolloLink {
   public addTypename: Boolean = true;
   private mockedResponsesByKey: { [key: string]: MockedResponse[] } = {};
 
-  constructor(mockedResponses: MockedResponse[], addTypename: Boolean = true) {
+  constructor(mockedResponses: ReadonlyArray<MockedResponse>, addTypename: Boolean = true) {
     super();
     this.addTypename = addTypename;
     if (mockedResponses)
