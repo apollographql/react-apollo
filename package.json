@@ -115,7 +115,7 @@
     "coveralls": "3.0.2",
     "danger": "3.8.6",
     "enzyme": "3.3.0",
-    "enzyme-adapter-react-16": "1.1.1",
+    "enzyme-adapter-react-16": "1.2.0",
     "graphql": "0.13.2",
     "graphql-tag": "2.9.2",
     "husky": "0.14.3",
