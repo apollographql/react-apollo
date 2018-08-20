@@ -584,7 +584,7 @@ describe('queries', () => {
       // tslint:disable-next-line:no-shadowed-variable
       class Container extends React.Component<ChildProps<{}, Data>> {
         componentWillReceiveProps() {
-          const queries = client.queryManager.queryStore.getStore();
+          const queries = client.queryManager!.queryStore.getStore();
           const queryIds = Object.keys(queries);
           expect(queryIds.length).toEqual(1);
           const queryFirst = queries[queryIds[0]];
