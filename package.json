@@ -51,7 +51,7 @@
   "bundlesize": [
     {
       "path": "./dist/bundlesize.js",
-      "maxSize": "11 KB"
+      "maxSize": "11.5 KB"
     }
   ],
   "jest": {
@@ -146,7 +146,7 @@
   },
   "dependencies": {
     "fbjs": "^0.8.16",
-    "hoist-non-react-statics": "^2.5.0",
+    "hoist-non-react-statics": "^3.0.0",
     "invariant": "^2.2.2",
     "lodash": "^4.17.10",
     "prop-types": "^15.6.0"
