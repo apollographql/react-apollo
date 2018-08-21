@@ -1,6 +1,6 @@
 import commonjs from 'rollup-plugin-commonjs';
 import node from 'rollup-plugin-node-resolve';
-import uglify from 'rollup-plugin-uglify';
+import { uglify } from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
 
 function onwarn(message) {
