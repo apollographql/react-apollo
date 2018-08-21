@@ -114,7 +114,7 @@
     "bundlesize": "0.17.0",
     "coveralls": "3.0.2",
     "danger": "3.8.6",
-    "enzyme": "3.3.0",
+    "enzyme": "3.4.4",
     "enzyme-adapter-react-16": "1.2.0",
     "graphql": "0.13.2",
     "graphql-tag": "2.9.2",
