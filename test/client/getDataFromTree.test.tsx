@@ -331,6 +331,61 @@ describe('SSR', () => {
         expect(elementCount).toEqual(7);
       });
 
+      it('basic classes with getDerivedStateFromProps', () => {
+        const renderedCounts: Number[] = [];
+        class MyComponent extends React.Component<any> {
+          state = { count: 0 };
+
+          static getDerivedStateFromProps(nextProps: any, prevState: any) {
+            if (nextProps.increment) {
+              return { count: prevState.count + 1 };
+            }
+            return null;
+          }
+
+          componentWillMount() {
+            throw new Error(
+              "`componentWillMount` shouldn't be called when " +
+                '`getDerivedStateFromProps` is available',
+            );
+          }
+
+          render() {
+            renderedCounts.push(this.state.count);
+            return <div>{this.state.count}</div>;
+          }
+        }
+        walkTree(<MyComponent increment />, {}, () => {
+          // noop
+        });
+        expect(renderedCounts).toEqual([1]);
+      });
+
+      it('basic classes with UNSAFE_componentWillMount', () => {
+        class MyComponent extends React.Component<any> {
+          state = { count: 0 };
+
+          UNSAFE_componentWillMount() {
+            this.setState({ count: 1 });
+          }
+
+          componentWillMount() {
+            throw new Error(
+              "`componentWillMount` shouldn't be called when " +
+                '`UNSAFE_componentWillMount` is available',
+            );
+          }
+
+          render() {
+            expect(this.state.count).toBe(1);
+            return <div>{this.state.count}</div>;
+          }
+        }
+        walkTree(<MyComponent />, {}, () => {
+          // noop
+        });
+      });
+
       it('basic classes with React 16.3 context', () => {
         if (!React.createContext) {
           // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963
@@ -692,6 +747,87 @@ describe('SSR', () => {
       });
     });
 
+    it('should return multiple errors in nested wrapped components without circular reference to wrapper error', () => {
+      const lastNameQuery = gql`
+        {
+          currentUser {
+            lastName
+          }
+        }
+      `;
+      interface LastNameData {
+        currentUser: {
+          lastName: string;
+        };
+      }
+      const firstNameQuery = gql`
+        {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+      interface FirstNameData {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
+      const userData = { currentUser: { lastName: 'Tester', firstName: 'James' } };
+      const link = mockSingleLink(
+        {
+          request: { query: lastNameQuery },
+          result: { data: userData },
+          delay: 50,
+        },
+        {
+          request: { query: firstNameQuery },
+          result: { data: userData },
+          delay: 50,
+        },
+      );
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      interface Props {}
+
+      type WithLastNameProps = ChildProps<Props, LastNameData>;
+      const withLastName = graphql<Props, LastNameData>(lastNameQuery);
+
+      const BorkedComponent = () => {
+        throw new Error('foo');
+      };
+
+      const WrappedBorkedComponent = withLastName(BorkedComponent);
+
+      const ContainerComponent: React.StatelessComponent<WithLastNameProps> = ({ data }) => (
+        <div>
+          {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.lastName}
+          <WrappedBorkedComponent />
+          <WrappedBorkedComponent />
+        </div>
+      );
+
+      type WithFirstNameProps = ChildProps<Props, FirstNameData>;
+      const withFirstName = graphql<Props, FirstNameData>(firstNameQuery);
+
+      const WrappedContainerComponent = withFirstName(ContainerComponent);
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <WrappedContainerComponent />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).catch(e => {
+        expect(e.toString()).toEqual(expect.stringContaining('2 errors were thrown'));
+        expect(e.queryErrors.length).toBeGreaterThan(1);
+        expect(e.toString()).not.toEqual(e.queryErrors[0].toString());
+      });
+    });
+
     it('should handle errors thrown by queries', () => {
       const query = gql`
         {
@@ -737,7 +873,7 @@ describe('SSR', () => {
 
       return getDataFromTree(app).catch(e => {
         expect(e).toBeTruthy();
-        expect(e.queryErrors.length).toEqual(1);
+        expect(e.queryErrors).toBeUndefined();
 
         // But we can still render the app if we want to
         const markup = ReactDOM.renderToString(app);

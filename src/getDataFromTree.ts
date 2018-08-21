@@ -73,9 +73,14 @@ export function walkTree(
       // Are we are a react class?
       if (isComponentClass(Comp)) {
         const instance = new Comp(props, context);
-        // In case the user doesn't pass these to super in the constructor
-        instance.props = instance.props || props;
+        // In case the user doesn't pass these to super in the constructor.
+        // Note: `Component.props` are now readonly in `@types/react`, so
+        // we're using `defineProperty` as a workaround (for now).
+        Object.defineProperty(instance, 'props', {
+          value: instance.props || props,
+        });
         instance.context = instance.context || context;
+
         // Set the instance state to null (not undefined) if not set, to match React behaviour
         instance.state = instance.state || null;
 
@@ -93,7 +98,14 @@ export function walkTree(
           instance.state = Object.assign({}, instance.state, newState);
         };
 
-        if (instance.componentWillMount) {
+        if (Comp.getDerivedStateFromProps) {
+          const result = Comp.getDerivedStateFromProps(instance.props, instance.state);
+          if (result !== null) {
+            instance.state = Object.assign({}, instance.state, result);
+          }
+        } else if (instance.UNSAFE_componentWillMount) {
+          instance.UNSAFE_componentWillMount();
+        } else if (instance.componentWillMount) {
           instance.componentWillMount();
         }
 
@@ -193,9 +205,10 @@ function getPromisesFromTree({
   return promises;
 }
 
-export default function getDataFromTree(
+function getDataAndErrorsFromTree(
   rootElement: React.ReactNode,
   rootContext: any = {},
+  storeError: Function,
 ): Promise<any> {
   const promises = getPromisesFromTree({ rootElement, rootContext });
 
@@ -203,24 +216,38 @@ export default function getDataFromTree(
     return Promise.resolve();
   }
 
-  const errors: any[] = [];
-
   const mappedPromises = promises.map(({ promise, context, instance }) => {
     return promise
-      .then(_ => getDataFromTree(instance.render(), context))
-      .catch(e => errors.push(e));
+      .then(_ => getDataAndErrorsFromTree(instance.render(), context, storeError))
+      .catch(e => storeError(e));
   });
 
-  return Promise.all(mappedPromises).then(_ => {
-    if (errors.length > 0) {
-      const error =
-        errors.length === 1
-          ? errors[0]
-          : new Error(
-              `${errors.length} errors were thrown when executing your fetchData functions.`,
-            );
-      error.queryErrors = errors;
-      throw error;
-    }
-  });
+  return Promise.all(mappedPromises);
+}
+
+function processErrors(errors: any[]) {
+  switch (errors.length) {
+    case 0:
+      break;
+    case 1:
+      throw errors.pop();
+    default:
+      const wrapperError: any = new Error(
+        `${errors.length} errors were thrown when executing your fetchData functions.`,
+      );
+      wrapperError.queryErrors = errors;
+      throw wrapperError;
+  }
+}
+
+export default function getDataFromTree(
+  rootElement: React.ReactNode,
+  rootContext: any = {},
+): Promise<any> {
+  const errors: any[] = [];
+  const storeError = (error: any) => errors.push(error);
+
+  return getDataAndErrorsFromTree(rootElement, rootContext, storeError).then(_ =>
+    processErrors(errors),
+  );
 }
