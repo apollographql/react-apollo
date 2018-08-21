@@ -1,5 +1,10 @@
 # Change log
 
+## vNext
+
+- Added an example app that shows how to test mutations. <br/>
+  [@excitement-engineer](https://github.com/excitement-engineer) in [#1998](https://github.com/apollographql/react-apollo/pull/1998)
+
 ## 2.1.11 (August 9, 2018)
 
 - Fixed an issue in `getDataFromTree` where queries that threw more than one
