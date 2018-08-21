@@ -4,6 +4,12 @@
 
 - Added an example app that shows how to test mutations. <br/>
   [@excitement-engineer](https://github.com/excitement-engineer) in [#1998](https://github.com/apollographql/react-apollo/pull/1998)
+- The `<Subscription />` component now allows the registration of a callback
+  function, that will be triggered each time the component receives data. The
+  callback `options` object param consists of the current Apollo Client
+  instance in `client`, and the received subscription data in
+  `subscriptionData`. <br/>
+  [@jedwards1211](https://github.com/jedwards1211) in [#1966](https://github.com/apollographql/react-apollo/pull/1966)
 
 ## 2.1.11 (August 9, 2018)
 
