@@ -95,7 +95,7 @@ export function subscribe<
               const name = operationOptions.name || 'data';
               let childProps = { [name]: result };
               if (operationOptions.props) {
-                const newResult: OptionProps<TProps, TData> = {
+                const newResult: OptionProps<TProps, TData, TGraphQLVariables> = {
                   [name]: result,
                   ownProps: props as TProps,
                 };

@@ -16,11 +16,17 @@ export interface SubscriptionResult<TData = any> {
   error?: ApolloError;
 }
 
+export interface OnSubscriptionDataOptions<TData = any> {
+  client: ApolloClient<Object>;
+  subscriptionData: SubscriptionResult<TData>;
+}
+
 export interface SubscriptionProps<TData = any, TVariables = OperationVariables> {
   subscription: DocumentNode;
   variables?: TVariables;
   shouldResubscribe?: any;
-  children: (result: SubscriptionResult<TData>) => React.ReactNode;
+  onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
+  children?: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
 
 export interface SubscriptionState<TData = any> {
@@ -44,13 +50,14 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   static propTypes = {
     subscription: PropTypes.object.isRequired,
     variables: PropTypes.object,
-    children: PropTypes.func.isRequired,
+    children: PropTypes.func,
+    onSubscriptionData: PropTypes.func,
     shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   };
 
   private client: ApolloClient<any>;
-  private queryObservable: Observable<any>;
-  private querySubscription: ZenObservable.Subscription;
+  private queryObservable?: Observable<any>;
+  private querySubscription?: ZenObservable.Subscription;
 
   constructor(props: SubscriptionProps<TData, TVariables>, context: SubscriptionContext) {
     super(props, context);
@@ -106,10 +113,12 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   }
 
   render() {
+    const renderFn: any = this.props.children;
+    if (!renderFn) return null;
     const result = Object.assign({}, this.state, {
       variables: this.props.variables,
     });
-    return this.props.children(result);
+    return renderFn(result);
   }
 
   private initialize = (props: SubscriptionProps<TData, TVariables>) => {
@@ -122,7 +131,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
 
   private startSubscription = () => {
     if (this.querySubscription) return;
-    this.querySubscription = this.queryObservable.subscribe({
+    this.querySubscription = this.queryObservable!.subscribe({
       next: this.updateCurrentData,
       error: this.updateError,
     });
@@ -135,6 +144,8 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   });
 
   private updateCurrentData = (result: SubscriptionResult<TData>) => {
+    const {client, props: {onSubscriptionData}} = this;
+    if (onSubscriptionData) onSubscriptionData({client, subscriptionData: result});
     this.setState({
       data: result.data,
       loading: false,

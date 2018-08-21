@@ -46,7 +46,7 @@ describe('withCharacter', () => {
     const mocks = [{ request: { query, variables }, result: { data: { hero: empty } } }];
     renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <ContainerWithData {...variables} />
         </MockedProvider>
       </ErrorBoundary>,

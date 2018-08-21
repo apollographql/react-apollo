@@ -603,4 +603,92 @@ describe('[queries] observableQuery', () => {
       }, 20);
     }, 5);
   });
+
+  it('does rerender if query returns differnt result', done => {
+    const query: DocumentNode = gql`
+      query people($first: Int!) {
+        allPeople(first: $first) {
+          people {
+            name
+            friends(id: $first) {
+              name
+            }
+          }
+        }
+      }
+    `;
+
+    const variables = { first: 1 };
+    const dataOne = {
+      allPeople: {
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
+      },
+    };
+    const dataTwo = {
+      allPeople: {
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'Leia Skywalker' }] }],
+      },
+    };
+
+    type Data = typeof dataOne;
+    type Vars = typeof variables;
+
+    const link = mockSingleLink(
+      {
+        request: { query, variables },
+        result: { data: dataOne },
+      },
+      {
+        request: { query, variables },
+        result: { data: dataTwo },
+      },
+    );
+
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+    let remount: any;
+
+    let count = 0;
+    const Container = graphql<Vars, Data, Vars>(query)(
+      class extends React.Component<ChildProps<Vars, Data, Vars>> {
+        render() {
+          count++;
+          try {
+            const { loading, allPeople, refetch } = this.props.data!;
+            // first variable render
+            if (count === 1) {
+              expect(loading).toBe(true);
+            }
+            if (count === 2) {
+              expect(loading).toBe(false);
+              expect(stripSymbols(allPeople)).toEqual(dataOne.allPeople);
+              refetch();
+            }
+            if (count === 3) {
+              expect(loading).toBe(false);
+              expect(stripSymbols(allPeople)).toEqual(dataTwo.allPeople);
+              done();
+            }
+            if (count > 3) {
+              throw new Error('too many renders');
+            }
+          } catch (e) {
+            done.fail(e);
+          }
+
+          return null;
+        }
+      },
+    );
+
+    // the initial mount fires off the query
+    // the same as episode id = 1
+    const wrapper = renderer.create(
+      <ApolloProvider client={client}>
+        <Container first={1} />
+      </ApolloProvider>,
+    );
+  });
 });
