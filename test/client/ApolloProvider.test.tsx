@@ -122,7 +122,7 @@ describe('<ApolloProvider /> Component', () => {
         </ApolloProvider>,
       );
     }).toThrowError(
-      'ApolloClient was not passed a client instance. Make ' +
+      'ApolloProvider was not passed a client instance. Make ' +
         'sure you pass in your client via the "client" prop.',
     );
     console.error = originalConsoleError;

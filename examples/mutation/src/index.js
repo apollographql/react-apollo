@@ -3,15 +3,15 @@ import { render } from 'react-dom';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 
-import { App } from './App';
+import AddUser from './addUser';
 
 const client = new ApolloClient({
-  uri: 'https://mpjk0plp9.lp.gql.zone/graphql',
+  uri: 'https://kqpk9j3kz7.lp.gql.zone/graphql',
 });
 
 const WrappedApp = (
   <ApolloProvider client={client}>
-    <App episode="EMPIRE" />
+    <AddUser />
   </ApolloProvider>
 );
 
