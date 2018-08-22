@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { ApolloError } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 const hoistNonReactStatics = require('hoist-non-react-statics');

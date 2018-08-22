@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 const invariant = require('invariant');
 
 import { OperationVariables } from './types';

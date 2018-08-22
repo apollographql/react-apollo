@@ -1,6 +1,6 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import PropTypes from 'prop-types';
+import renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
