@@ -10,6 +10,11 @@
   instance in `client`, and the received subscription data in
   `subscriptionData`. <br/>
   [@jedwards1211](https://github.com/jedwards1211) in [#1966](https://github.com/apollographql/react-apollo/pull/1966)
+- The `graphql` `options` object is no longer mutated, when calculating
+  variables from props. This now prevents an issue where components created
+  with `graphql` were not having their query variables updated properly, when
+  props changed.
+  [@ksmth](https://github.com/ksmth) in [#1968](https://github.com/apollographql/react-apollo/pull/1968)
 
 ## 2.1.11 (August 9, 2018)
 
