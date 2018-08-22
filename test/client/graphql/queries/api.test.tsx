@@ -273,8 +273,8 @@ describe('[queries] api', () => {
               variables: { cursor },
               updateQuery(prev, { fetchMoreResult }) {
                 const {
-                  allPeople: { cursor, people },
-                } = fetchMoreResult!; // tslint:disable-line:no-shadowed-variable
+                  allPeople: { cursor, people }, // tslint:disable-line:no-shadowed-variable
+                } = fetchMoreResult!;
                 return {
                   allPeople: {
                     cursor,
