@@ -144,8 +144,11 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   });
 
   private updateCurrentData = (result: SubscriptionResult<TData>) => {
-    const {client, props: {onSubscriptionData}} = this;
-    if (onSubscriptionData) onSubscriptionData({client, subscriptionData: result});
+    const {
+      client,
+      props: { onSubscriptionData },
+    } = this;
+    if (onSubscriptionData) onSubscriptionData({ client, subscriptionData: result });
     this.setState({
       data: result.data,
       loading: false,
