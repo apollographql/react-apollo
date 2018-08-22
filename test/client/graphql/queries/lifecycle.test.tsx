@@ -414,7 +414,6 @@ describe('[queries] lifecycle', () => {
           }
 
           if (count === 10) {
-            wrapper.unmount();
             done();
           }
           count++;
