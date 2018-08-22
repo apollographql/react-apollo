@@ -24,6 +24,9 @@
   to see if any query errors have occurred. A better (and supported) way to
   check for errors is to use the result `errors` property. <br/>
   [@TLadd](https://github.com/TLadd) in [#1983](https://github.com/apollographql/react-apollo/pull/1983)
+- Allow a custom `cache` object to be passed into the test-utils
+  `MockedProvider`.  <br/>
+  [@palmfjord](https://github.com/palmfjord) in [#2254](https://github.com/apollographql/react-apollo/pull/2254)
 
 ## 2.1.11 (August 9, 2018)
 
