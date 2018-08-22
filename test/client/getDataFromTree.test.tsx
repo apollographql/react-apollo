@@ -1,6 +1,6 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom/server';
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import {
   graphql,
@@ -12,7 +12,7 @@ import {
   ChildProps,
 } from '../../src';
 import gql from 'graphql-tag';
-import * as _ from 'lodash';
+import times from 'lodash/times';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../src/test-utils';
 import { DocumentNode } from 'graphql';
@@ -83,7 +83,7 @@ describe('SSR', () => {
         let elementCount = 0;
         const MyComponent = ({ n }: { n: number }) => (
           <div>
-            {_.times(n, i => (
+            {times(n, (i: any) => (
               <span key={i} />
             ))}
           </div>
@@ -103,7 +103,7 @@ describe('SSR', () => {
         }
         const MyComponent = ({ n, children }: Props) => (
           <div>
-            {_.times(n, i => (
+            {times(n, (i: any) => (
               <span key={i} />
             ))}
             {children}
@@ -135,7 +135,7 @@ describe('SSR', () => {
         let elementCount = 0;
         const MyComponent = ({ n, children = null }: { n: number; children: React.ReactNode }) => (
           <div>
-            {_.times(n, i => (
+            {times(n, (i: any) => (
               <span key={i} />
             ))}
             {children}
@@ -238,7 +238,7 @@ describe('SSR', () => {
           render() {
             return (
               <div>
-                {_.times(this.props.n, i => (
+                {times(this.props.n, (i: any) => (
                   <span key={i} />
                 ))}
               </div>
@@ -300,7 +300,7 @@ describe('SSR', () => {
           render() {
             return (
               <div>
-                {_.times(this.props.n, i => (
+                {times(this.props.n, (i: any) => (
                   <span key={i} />
                 ))}
               </div>
@@ -319,7 +319,7 @@ describe('SSR', () => {
           render() {
             return (
               <div>
-                {_.times(this.props.n, i => (
+                {times(this.props.n, (i: any) => (
                   <span key={i} />
                 ))}
                 {this.props.children}
@@ -345,7 +345,7 @@ describe('SSR', () => {
           render = () => {
             return (
               <div>
-                {_.times(this.props.n, i => (
+                {times(this.props.n, (i: any) => (
                   <span key={i} />
                 ))}
               </div>

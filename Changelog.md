@@ -32,8 +32,10 @@
 - Remove duplicate `FetchMoreOptions` and `FetchMoreQueryOptions` types, and
   instead import them from Apollo Client. <br/>
   [@skovy](https://github.com/skovy) in [#2281](https://github.com/apollographql/react-apollo/pull/2281)
-- Type changes for the `graphql` HOC `options.skip` property.  <br/>
+- Type changes for the `graphql` HOC `options.skip` property. <br/>
   [@jameslaneconkling](https://github.com/jameslaneconkling) in [#2208](https://github.com/apollographql/react-apollo/pull/2208)
+- Avoid importing `lodash` directly. <br/>
+  [@shahyar](https://github.com/shahyar) in [#2045](https://github.com/apollographql/react-apollo/pull/2045)
 
 ## 2.1.11 (August 9, 2018)
 

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ApolloClient from 'apollo-client';
 import { DefaultOptions } from 'apollo-client/ApolloClient';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
