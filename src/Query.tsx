@@ -18,8 +18,6 @@ import { parser, DocumentType, IDocumentDefinition } from './parser';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 
-// XXX open types improvement PR to AC
-// Improved ObservableQuery field types, need to port them back to Apollo Client
 export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData>,
   'startPolling' | 'stopPolling' | 'subscribeToMore' | 'updateQuery' | 'refetch' | 'variables'
