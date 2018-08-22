@@ -82,7 +82,11 @@ describe('SSR', () => {
       it('functional stateless components', () => {
         let elementCount = 0;
         const MyComponent = ({ n }: { n: number }) => (
-          <div>{_.times(n, i => <span key={i} />)}</div>
+          <div>
+            {_.times(n, i => (
+              <span key={i} />
+            ))}
+          </div>
         );
         walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
@@ -99,7 +103,9 @@ describe('SSR', () => {
         }
         const MyComponent = ({ n, children }: Props) => (
           <div>
-            {_.times(n, i => <span key={i} />)}
+            {_.times(n, i => (
+              <span key={i} />
+            ))}
             {children}
           </div>
         );
@@ -129,7 +135,9 @@ describe('SSR', () => {
         let elementCount = 0;
         const MyComponent = ({ n, children = null }: { n: number; children: React.ReactNode }) => (
           <div>
-            {_.times(n, i => <span key={i} />)}
+            {_.times(n, i => (
+              <span key={i} />
+            ))}
             {children}
           </div>
         );
@@ -228,7 +236,13 @@ describe('SSR', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
           render() {
-            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+            return (
+              <div>
+                {_.times(this.props.n, i => (
+                  <span key={i} />
+                ))}
+              </div>
+            );
           }
         }
         walkTree(<MyComponent n={5} />, {}, () => {
@@ -284,7 +298,13 @@ describe('SSR', () => {
             super(null); // note doesn't pass props or context
           }
           render() {
-            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+            return (
+              <div>
+                {_.times(this.props.n, i => (
+                  <span key={i} />
+                ))}
+              </div>
+            );
           }
         }
         walkTree(<MyComponent n={5} />, {}, () => {
@@ -299,7 +319,9 @@ describe('SSR', () => {
           render() {
             return (
               <div>
-                {_.times(this.props.n, i => <span key={i} />)}
+                {_.times(this.props.n, i => (
+                  <span key={i} />
+                ))}
                 {this.props.children}
               </div>
             );
@@ -321,7 +343,13 @@ describe('SSR', () => {
         let elementCount = 0;
         class MyComponent extends (React.Component as any) {
           render = () => {
-            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+            return (
+              <div>
+                {_.times(this.props.n, i => (
+                  <span key={i} />
+                ))}
+              </div>
+            );
           };
         }
         const MyCompAsAny = MyComponent as any;
@@ -503,17 +531,19 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser: {
+        currentUser?: {
           firstName: string;
         };
       }
 
       class CurrentUserQuery extends Query<Data> {}
 
+      const hasOwn = Object.prototype.hasOwnProperty;
+
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
-          {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+          {({ data, loading }: { data: Data; loading: boolean }) => (
+            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>
       );
@@ -1252,7 +1282,7 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser: {
+        currentUser?: {
           firstName: string;
         };
       }
@@ -1261,8 +1291,8 @@ describe('SSR', () => {
 
       const Element = (props: { id: string }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
-          {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+          {({ data, loading }: { data: Data; loading: boolean }) => (
+            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>
       );
