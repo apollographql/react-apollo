@@ -119,7 +119,7 @@ export interface OperationOption<
     props: OptionProps<TProps, TData, TGraphQLVariables>,
     lastProps?: TChildProps | void,
   ) => TChildProps;
-  skip?: boolean | ((props: any) => boolean);
+  skip?: boolean | ((props: TProps) => boolean);
   name?: string;
   withRef?: boolean;
   shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;

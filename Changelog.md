@@ -1,5 +1,42 @@
 # Change log
 
+## vNext
+
+- Added an example app that shows how to test mutations. <br/>
+  [@excitement-engineer](https://github.com/excitement-engineer) in [#1998](https://github.com/apollographql/react-apollo/pull/1998)
+- The `<Subscription />` component now allows the registration of a callback
+  function, that will be triggered each time the component receives data. The
+  callback `options` object param consists of the current Apollo Client
+  instance in `client`, and the received subscription data in
+  `subscriptionData`. <br/>
+  [@jedwards1211](https://github.com/jedwards1211) in [#1966](https://github.com/apollographql/react-apollo/pull/1966)
+- The `graphql` `options` object is no longer mutated, when calculating
+  variables from props. This now prevents an issue where components created
+  with `graphql` were not having their query variables updated properly, when
+  props changed. <br/>
+  [@ksmth](https://github.com/ksmth) in [#1968](https://github.com/apollographql/react-apollo/pull/1968)
+- When a query failed on the first result, the query result `data` was being
+  returned as `undefined`. This behavior has been changed so that `data` is
+  returned as an empty object. This makes checking for data (e.g.
+  instead of `data && data.user` you can just check `data.user`) and
+  destructring (e.g. `{ data: { user } }`) easier. **Note:** this could
+  potentially hurt applications that are relying on a falsey check of `data`
+  to see if any query errors have occurred. A better (and supported) way to
+  check for errors is to use the result `errors` property. <br/>
+  [@TLadd](https://github.com/TLadd) in [#1983](https://github.com/apollographql/react-apollo/pull/1983)
+- Allow a custom `cache` object to be passed into the test-utils
+  `MockedProvider`. <br/>
+  [@palmfjord](https://github.com/palmfjord) in [#2254](https://github.com/apollographql/react-apollo/pull/2254)
+- Make the `MockedProvider` `mocks` prop read only. <br/>
+  [@amacleay](https://github.com/amacleay) in [#2284](https://github.com/apollographql/react-apollo/pull/2284)
+- Remove duplicate `FetchMoreOptions` and `FetchMoreQueryOptions` types, and
+  instead import them from Apollo Client. <br/>
+  [@skovy](https://github.com/skovy) in [#2281](https://github.com/apollographql/react-apollo/pull/2281)
+- Type changes for the `graphql` HOC `options.skip` property. <br/>
+  [@jameslaneconkling](https://github.com/jameslaneconkling) in [#2208](https://github.com/apollographql/react-apollo/pull/2208)
+- Avoid importing `lodash` directly. <br/>
+  [@shahyar](https://github.com/shahyar) in [#2045](https://github.com/apollographql/react-apollo/pull/2045)
+
 ## 2.1.11 (August 9, 2018)
 
 - Fixed an issue in `getDataFromTree` where queries that threw more than one
@@ -11,13 +48,13 @@
   in `refetchQueries` will be completed before the mutation itself is
   completed. `awaitRefetchQueries` is `false` by default, which means
   `refetchQueries` are usually completed after the mutation has resolved.
-  Relates to Apollo Client
+  Relates to Apollo Client. <br/>
   [PR #3169](https://github.com/apollographql/apollo-client/pull/3169). <br/>
   [@hwillson](https://github.com/hwillson) in [#2214](https://github.com/apollographql/react-apollo/pull/2214)
 - Typings adjustment: pass `TData` along into `MutationUpdaterFn` when using
   `MutationOpts`, to ensure that the updater function is properly typed. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2227](https://github.com/apollographql/react-apollo/pull/2227)
-- Check if queryManager is set before accessing it.
+- Check if queryManager is set before accessing it. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2165](https://github.com/apollographql/react-apollo/pull/2165)
 
 ## 2.1.9 (July 4, 2018)

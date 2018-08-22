@@ -1,12 +1,13 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import PropTypes from 'prop-types';
+import renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql, DataProps, ChildProps } from '../../../../src';
+import { mount } from 'enzyme';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import catchAsyncError from '../../../test-utils/catchAsyncError';
@@ -110,6 +111,72 @@ describe('queries', () => {
         <ContainerWithData first={1} />
       </ApolloProvider>,
     );
+  });
+
+  it('should update query variables when props change', () => {
+    const query: DocumentNode = gql`
+      query people($someId: ID) {
+        allPeople(someId: $someId) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const link = mockSingleLink(
+      {
+        request: { query, variables: { someId: 1 } },
+        result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
+      },
+      {
+        request: { query, variables: { someId: 2 } },
+        result: { data: { allPeople: { people: [{ name: 'Darth Vader' }] } } },
+      },
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false }),
+    });
+
+    interface Data {
+      allPeople: {
+        people: {
+          name: string;
+        };
+      };
+    }
+
+    interface Variables {
+      someId: number;
+    }
+
+    const options = {
+      options: {},
+    };
+
+    let count = 0;
+    const ContainerWithData = graphql<Variables, Data, Variables>(query, options)(
+      ({ data }: ChildProps<Variables, Data, Variables>) => {
+        expect(data).toBeTruthy();
+        if (count === 0) {
+          expect(data!.variables.someId).toEqual(1);
+        } else if (count === 1) {
+          expect(data!.variables.someId).toEqual(2);
+        }
+        count += 1;
+        return null;
+      },
+    );
+
+    const wrapper = mount(
+      <ApolloProvider client={client}>
+        <ContainerWithData someId={1} />
+      </ApolloProvider>,
+    );
+    wrapper.setProps({
+      children: React.cloneElement(wrapper.props().children, { someId: 2 }),
+    });
   });
 
   it("shouldn't warn about fragments", () => {
@@ -584,7 +651,7 @@ describe('queries', () => {
       // tslint:disable-next-line:no-shadowed-variable
       class Container extends React.Component<ChildProps<{}, Data>> {
         componentWillReceiveProps() {
-          const queries = client.queryManager.queryStore.getStore();
+          const queries = client.queryManager!.queryStore.getStore();
           const queryIds = Object.keys(queries);
           expect(queryIds.length).toEqual(1);
           const queryFirst = queries[queryIds[0]];

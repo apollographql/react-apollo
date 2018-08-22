@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ApolloClient, { ApolloError, NetworkStatus } from 'apollo-client';
 import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -163,6 +163,7 @@ describe('Query component', () => {
               return null;
             }
             catchAsyncError(done, () => {
+              expect(result.data).toEqual({});
               expect(result.error).toEqual(new Error('Network error: error occurred'));
               done();
             });
@@ -1233,7 +1234,7 @@ describe('Query component', () => {
     function Container() {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
-          {result => {
+          {(result: any) => {
             try {
               switch (count++) {
                 case 0:
