@@ -9,7 +9,7 @@ import { ApolloCache } from 'apollo-cache';
 export * from './test-links';
 
 export interface MockedProviderProps<TSerializedCache = {}> {
-  mocks?: MockedResponse[];
+  mocks?: ReadonlyArray<MockedResponse>;
   addTypename?: boolean;
   defaultOptions?: DefaultOptions;
   cache?: ApolloCache<TSerializedCache>;

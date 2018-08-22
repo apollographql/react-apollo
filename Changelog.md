@@ -27,6 +27,8 @@
 - Allow a custom `cache` object to be passed into the test-utils
   `MockedProvider`.  <br/>
   [@palmfjord](https://github.com/palmfjord) in [#2254](https://github.com/apollographql/react-apollo/pull/2254)
+- Make the `MockedProvider` `mocks` prop read only.  <br/>
+  [@amacleay](https://github.com/amacleay) in [#2284](https://github.com/apollographql/react-apollo/pull/2284)
 
 ## 2.1.11 (August 9, 2018)
 

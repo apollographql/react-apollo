@@ -6,6 +6,7 @@ import gql from 'graphql-tag';
 
 import { graphql, ChildProps } from '../src';
 import { MockedProvider, mockSingleLink } from '../src/test-utils';
+import { MockedResponse } from '../src/test-links';
 import { DocumentNode } from 'graphql';
 
 const variables = {
@@ -53,7 +54,7 @@ const withUser = graphql<Variables, Data, Variables>(query, {
   }),
 });
 
-const mocks = [
+const mocks: ReadonlyArray<MockedResponse> = [
   {
     request: {
       query,
