@@ -754,7 +754,7 @@ describe('SSR', () => {
 
       type WithUserChildProps = ChildProps<Props, UserQueryData, UserQueryVariables>;
       const withUser = graphql<WithIdChildProps, UserQueryData, UserQueryVariables>(userQuery, {
-        skip: ({ data: { loading } }) => loading,
+        skip: ({ data }) => data!.loading,
         options: ({ data }) => ({
           variables: { id: data!.currentUser!.id },
         }),
