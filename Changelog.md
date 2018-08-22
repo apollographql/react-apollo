@@ -25,10 +25,13 @@
   check for errors is to use the result `errors` property. <br/>
   [@TLadd](https://github.com/TLadd) in [#1983](https://github.com/apollographql/react-apollo/pull/1983)
 - Allow a custom `cache` object to be passed into the test-utils
-  `MockedProvider`.  <br/>
+  `MockedProvider`. <br/>
   [@palmfjord](https://github.com/palmfjord) in [#2254](https://github.com/apollographql/react-apollo/pull/2254)
-- Make the `MockedProvider` `mocks` prop read only.  <br/>
+- Make the `MockedProvider` `mocks` prop read only. <br/>
   [@amacleay](https://github.com/amacleay) in [#2284](https://github.com/apollographql/react-apollo/pull/2284)
+- Remove duplicate `FetchMoreOptions` and `FetchMoreQueryOptions` types, and
+  instead import them from Apollo Client. <br/>
+  [@skovy](https://github.com/skovy) in [#2281](https://github.com/apollographql/react-apollo/pull/2281)
 
 ## 2.1.11 (August 9, 2018)
 
