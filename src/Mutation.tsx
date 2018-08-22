@@ -45,6 +45,7 @@ export declare type MutationOptions<TData = any, TVariables = OperationVariables
   variables?: TVariables;
   optimisticResponse?: Object;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
+  awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
 };
 
@@ -58,6 +59,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   optimisticResponse?: Object;
   variables?: TVariables;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
+  awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: MutationFn<TData, TVariables>,
@@ -100,6 +102,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.object])),
       PropTypes.func,
     ]),
+    awaitRefetchQueries: PropTypes.bool,
     update: PropTypes.func,
     children: PropTypes.func.isRequired,
     onCompleted: PropTypes.func,
@@ -190,7 +193,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const { mutation, variables, optimisticResponse, update, context = {} } = this.props;
+    const {
+      mutation,
+      variables,
+      optimisticResponse,
+      update,
+      context = {},
+      awaitRefetchQueries = false,
+    } = this.props;
     let refetchQueries = options.refetchQueries || this.props.refetchQueries;
     // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
     // support refectching of named queries which just pulls the latest
@@ -214,6 +224,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       variables,
       optimisticResponse,
       refetchQueries,
+      awaitRefetchQueries,
       update,
       context,
       ...options,

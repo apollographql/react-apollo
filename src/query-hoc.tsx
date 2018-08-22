@@ -33,10 +33,14 @@ export function query<
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOpts;
-  if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options as QueryOpts;
+  if (typeof mapPropsToOptions !== 'function') {
+    mapPropsToOptions = () => options as QueryOpts;
+  }
 
   let mapPropsToSkip = skip as (props: any) => boolean;
-  if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = () => skip as any;
+  if (typeof mapPropsToSkip !== 'function') {
+    mapPropsToSkip = () => skip as any;
+  }
 
   // allow for advanced referential equality checks
   let lastResultProps: TChildProps | void;
@@ -51,7 +55,7 @@ export function query<
       render() {
         let props = this.props;
         const shouldSkip = mapPropsToSkip(props);
-        const opts = shouldSkip ? Object.create(null) : mapPropsToOptions(props);
+        const opts = shouldSkip ? Object.create(null) : { ...mapPropsToOptions(props) };
 
         if (!shouldSkip && !opts.variables && operation.variables.length > 0) {
           opts.variables = calculateVariablesFromProps(

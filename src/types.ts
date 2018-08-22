@@ -25,8 +25,9 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
   variables?: TGraphQLVariables;
   optimisticResponse?: TData;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
+  awaitRefetchQueries?: boolean;
   errorPolicy?: ErrorPolicy;
-  update?: MutationUpdaterFn;
+  update?: MutationUpdaterFn<TData>;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Record<string, any>;

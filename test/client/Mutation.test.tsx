@@ -1017,7 +1017,7 @@ it('errors if a query is passed instead of a mutation', () => {
     );
   }).toThrowError('The <Mutation /> component requires a graphql mutation, but got a query.');
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('errors when changing from mutation to a query', done => {
@@ -1066,7 +1066,7 @@ it('errors when changing from mutation to a query', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; //tslint:disable-line
 });
 
 it('errors if a subscription is passed instead of a mutation', () => {
@@ -1092,7 +1092,7 @@ it('errors if a subscription is passed instead of a mutation', () => {
     'The <Mutation /> component requires a graphql mutation, but got a subscription.',
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('errors when changing from mutation to a subscription', done => {
@@ -1143,7 +1143,7 @@ it('errors when changing from mutation to a subscription', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('does not update state after receiving data after it has been unmounted', done => {
