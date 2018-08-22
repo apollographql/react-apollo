@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ApolloClient, { ApolloError } from 'apollo-client';
+import ApolloClient, { ApolloError, FetchPolicy } from 'apollo-client';
 import { Observable } from 'apollo-link';
 
 import { DocumentNode } from 'graphql';
@@ -24,6 +24,7 @@ export interface OnSubscriptionDataOptions<TData = any> {
 export interface SubscriptionProps<TData = any, TVariables = OperationVariables> {
   subscription: DocumentNode;
   variables?: TVariables;
+  fetchPolicy?: FetchPolicy;
   shouldResubscribe?: any;
   onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
   children?: (result: SubscriptionResult<TData>) => React.ReactNode;
@@ -126,6 +127,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     this.queryObservable = this.client.subscribe({
       query: props.subscription,
       variables: props.variables,
+      fetchPolicy: props.fetchPolicy,
     });
   };
 
