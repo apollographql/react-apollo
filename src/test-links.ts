@@ -9,6 +9,7 @@ import {
 
 import { print } from 'graphql/language/printer';
 import { addTypenameToDocument } from 'apollo-utilities';
+import { isEqual } from 'lodash';
 
 export interface MockedResponse {
   request: GraphQLRequest;
@@ -53,8 +54,18 @@ export class MockLink extends ApolloLink {
 
   public request(operation: Operation) {
     const key = requestToKey(operation, this.addTypename);
-    const responses = this.mockedResponsesByKey[key];
-    if (!responses || responses.length === 0) {
+    let responseIndex;
+    const response = (this.mockedResponsesByKey[key] || []).find((res, index) => {
+      const requestVariables = operation.variables || {};
+      const mockedResponseVariables = res.request.variables || {};
+      if (!isEqual(requestVariables, mockedResponseVariables)) {
+        return false;
+      }
+      responseIndex = index;
+      return true;
+    });
+
+    if (!response || typeof responseIndex === 'undefined') {
       throw new Error(
         `No more mocked responses for the query: ${print(
           operation.query,
@@ -62,13 +73,15 @@ export class MockLink extends ApolloLink {
       );
     }
 
-    const original = [...this.mockedResponsesByKey[key]];
-    const { result, error, delay, newData } = this.mockedResponsesByKey[key].shift() || ({} as any);
+    this.mockedResponsesByKey[key].splice(responseIndex, 1);
+
+    const { result, error, delay, newData } = response;
 
     if (newData) {
-      original[0].result = newData();
-      this.mockedResponsesByKey[key].push(original[0]);
+      response.result = newData();
+      this.mockedResponsesByKey[key].push(response);
     }
+
     if (!result && !error) {
       throw new Error(`Mocked response should contain either result or error: ${key}`);
     }
@@ -133,10 +146,7 @@ function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
   const queryString =
     request.query && print(addTypename ? addTypenameToDocument(request.query) : request.query);
 
-  const requestKey = {
-    variables: request.variables || {},
-    query: queryString,
-  };
+  const requestKey = { query: queryString };
 
   return JSON.stringify(requestKey);
 }

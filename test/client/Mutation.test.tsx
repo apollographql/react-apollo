@@ -108,7 +108,7 @@ it('can bind only the mutation and not rerender by props', done => {
           expect(result.loading).toEqual(false);
           expect(result.called).toEqual(false);
           setTimeout(() => {
-            createTodo().then(r => {
+            createTodo().then((r: any) => {
               expect(r!.data).toEqual(data);
               done();
             });
@@ -136,7 +136,7 @@ it('returns a resolved promise when calling the mutation function', done => {
       {createTodo => {
         if (!called) {
           setTimeout(() => {
-            createTodo().then(result => {
+            createTodo().then((result: any) => {
               expect(result!.data).toEqual(data);
               done();
             });
@@ -779,7 +779,7 @@ it('has an update prop for updating the store after the mutation', done => {
       {createTodo => {
         if (count === 0) {
           setTimeout(() => {
-            createTodo().then(response => {
+            createTodo().then((response: any) => {
               expect(response!.data).toEqual(data);
               done();
             });
@@ -809,7 +809,7 @@ it('allows update to be passed to the mutate function', done => {
       {createTodo => {
         if (count === 0) {
           setTimeout(() => {
-            createTodo({ update }).then(response => {
+            createTodo({ update }).then((response: any) => {
               expect(response!.data).toEqual(data);
               done();
             });
@@ -1017,7 +1017,7 @@ it('errors if a query is passed instead of a mutation', () => {
     );
   }).toThrowError('The <Mutation /> component requires a graphql mutation, but got a query.');
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('errors when changing from mutation to a query', done => {
@@ -1066,7 +1066,7 @@ it('errors when changing from mutation to a query', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; //tslint:disable-line
 });
 
 it('errors if a subscription is passed instead of a mutation', () => {
@@ -1092,7 +1092,7 @@ it('errors if a subscription is passed instead of a mutation', () => {
     'The <Mutation /> component requires a graphql mutation, but got a subscription.',
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('errors when changing from mutation to a subscription', done => {
@@ -1143,7 +1143,7 @@ it('errors when changing from mutation to a subscription', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('does not update state after receiving data after it has been unmounted', done => {
