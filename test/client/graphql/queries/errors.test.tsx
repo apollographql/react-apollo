@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -551,7 +551,9 @@ describe('[queries] errors', () => {
         };
       }
       render() {
-        const { state: { showContainer } } = this;
+        const {
+          state: { showContainer },
+        } = this;
         if (showContainer) {
           return <Container hideContainer={() => this.setState({ showContainer: false })} />;
         }
