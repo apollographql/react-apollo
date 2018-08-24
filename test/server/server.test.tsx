@@ -275,7 +275,7 @@ describe('SSR', () => {
             <Context.Consumer>{val => val}</Context.Consumer>
           </React.Fragment>,
         ),
-      ).toBe('default');
+      ).toBe(defaultValue);
 
       expect(
         await renderToStringWithData(
