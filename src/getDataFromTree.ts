@@ -140,8 +140,14 @@ export function walkTree(
         return;
       }
 
+      let isProvider = !!(element.type as any)._context;
+      let previousContextValue: any;
+      if (isProvider) {
+        previousContextValue = ((element.type as any)._context as any)._currentValue;
+      }
+
       let child;
-      if ((element.type as any)._context) {
+      if (isProvider) {
         // A provider - sets the context value before rendering children
         ((element.type as any)._context as any)._currentValue = element.props.value;
         child = element.props.children;
@@ -156,6 +162,9 @@ export function walkTree(
         } else {
           walkTree(child, context, visitor);
         }
+      }
+      if (isProvider) {
+        ((element.type as any)._context as any)._currentValue = previousContextValue;
       }
     } else {
       // A basic string or dom element, just get children

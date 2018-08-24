@@ -262,5 +262,32 @@ describe('SSR', () => {
         expect(markup).toMatch(/Tatooine/);
       });
     });
+    it('should work with React.createContext', async () => {
+      let defaultValue = 'default';
+      let Context = React.createContext(defaultValue);
+
+      let providerValue = 'provider';
+
+      expect(
+        await renderToStringWithData(
+          <React.Fragment>
+            <Context.Provider value={providerValue} />
+            <Context.Consumer>{val => val}</Context.Consumer>
+          </React.Fragment>,
+        ),
+      ).toBe('default');
+
+      expect(
+        await renderToStringWithData(
+          <Context.Provider value={providerValue}>
+            <Context.Consumer>{val => val}</Context.Consumer>
+          </Context.Provider>,
+        ),
+      ).toBe(providerValue);
+
+      expect(await renderToStringWithData(<Context.Consumer>{val => val}</Context.Consumer>)).toBe(
+        defaultValue,
+      );
+    });
   });
 });
