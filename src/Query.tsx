@@ -65,15 +65,7 @@ function observableQueryFields<TData, TVariables>(
 export interface QueryResult<TData = any, TVariables = OperationVariables>
   extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
-  // we create an empty object to make checking for data
-  // easier for consumers (i.e. instead of data && data.user
-  // you can just check data.user) this also makes destructring
-  // easier (i.e. { data: { user } })
-  // however, this isn't realy possible with TypeScript that
-  // I'm aware of. So intead we enforce checking for data
-  // like so result.data!.user. This tells TS to use TData
-  // XXX is there a better way to do this?
-  data: TData | {};
+  data: Partial<TData>;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
@@ -92,7 +84,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   skip?: boolean;
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
-  onCompleted?: (data: TData | {}) => void;
+  onCompleted?: (data: Partial<TData>) => void;
   onError?: (error: ApolloError) => void;
 }
 
