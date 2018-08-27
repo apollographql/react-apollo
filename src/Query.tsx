@@ -84,7 +84,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   skip?: boolean;
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
-  onCompleted?: (data: Partial<TData>) => void;
+  onCompleted?: (data: TData | {}) => void;
   onError?: (error: ApolloError) => void;
 }
 
