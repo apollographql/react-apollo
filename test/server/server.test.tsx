@@ -262,35 +262,49 @@ describe('SSR', () => {
         expect(markup).toMatch(/Tatooine/);
       });
     });
-    it('should work with React.createContext', async () => {
-      // Preact doesn't support createContext so this test won't run in Preact
-      if (React.createContext) {
-        let defaultValue = 'default';
-        let Context = React.createContext(defaultValue);
+  });
 
-        let providerValue = 'provider';
-
-        expect(
-          await renderToStringWithData(
-            <React.Fragment>
-              <Context.Provider value={providerValue} />
-              <Context.Consumer>{val => val}</Context.Consumer>
-            </React.Fragment>,
-          ),
-        ).toBe(defaultValue);
-
-        expect(
-          await renderToStringWithData(
-            <Context.Provider value={providerValue}>
-              <Context.Consumer>{val => val}</Context.Consumer>
-            </Context.Provider>,
-          ),
-        ).toBe(providerValue);
-
-        expect(
-          await renderToStringWithData(<Context.Consumer>{val => val}</Context.Consumer>),
-        ).toBe(defaultValue);
-      }
-    });
+  it('should work with React.createContext', async () => {
+    // Preact doesn't support createContext so this test won't run in Preact
+    if (React.createContext) {
+      let defaultValue = 'default';
+      let Context = React.createContext(defaultValue);
+      let providerValue = 'provider';
+      expect(
+        await renderToStringWithData(
+          <React.Fragment>
+            <Context.Provider value={providerValue} />
+            <Context.Consumer>
+              {val => {
+                expect(val).toBe(defaultValue);
+                return val;
+              }}
+            </Context.Consumer>
+          </React.Fragment>,
+        ),
+      ).toBe(defaultValue);
+      expect(
+        await renderToStringWithData(
+          <Context.Provider value={providerValue}>
+            <Context.Consumer>
+              {val => {
+                expect(val).toBe(providerValue);
+                return val;
+              }}
+            </Context.Consumer>
+          </Context.Provider>,
+        ),
+      ).toBe(providerValue);
+      expect(
+        await renderToStringWithData(
+          <Context.Consumer>
+            {val => {
+              expect(val).toBe(defaultValue);
+              return val;
+            }}
+          </Context.Consumer>,
+        ),
+      ).toBe(defaultValue);
+    }
   });
 });
