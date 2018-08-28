@@ -1,8 +1,7 @@
 import React from 'react';
+import { ApolloProviderContext } from './ApolloProvider';
 
-export interface Context {
-  [key: string]: any;
-}
+export interface Context extends ApolloProviderContext {}
 
 interface PromiseTreeArgument {
   rootElement: React.ReactNode;
@@ -139,15 +138,21 @@ export function walkTree(
       if (visitor(element, null, context) === false) {
         return;
       }
+      const isProvider = !!(element.type as any)._context;
 
       let child;
-      if ((element.type as any)._context) {
+      if (isProvider) {
         // A provider - sets the context value before rendering children
-        ((element.type as any)._context as any)._currentValue = element.props.value;
+        context.subContexts = context.subContexts || new Map();
+        context.subContexts.set(element.type, element.props.value);
         child = element.props.children;
       } else {
+        let currentValue = (element.type as any)._currentValue;
+        if (context.subContexts && context.subContexts.has((element.type as any).Provider)) {
+          currentValue = context.subContexts.get((element.type as any).Provider);
+        }
         // A consumer
-        child = element.props.children((element.type as any)._currentValue);
+        child = element.props.children(currentValue);
       }
 
       if (child) {
