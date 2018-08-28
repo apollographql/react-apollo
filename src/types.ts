@@ -32,6 +32,8 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Record<string, any>;
+  onCompleted?: (data: TData) => void;
+  onError?: (error: ApolloError) => void;
 }
 
 export interface QueryOpts<TGraphQLVariables = OperationVariables> {
