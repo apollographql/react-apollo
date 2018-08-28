@@ -14,7 +14,6 @@ export interface ApolloProviderProps<TCache> {
 export interface ApolloProviderContext {
   client?: ApolloClient<any>;
   operations?: Map<string, { query: DocumentNode; variables: any }>;
-  subContexts?: Map<any, any>;
 }
 
 export default class ApolloProvider<TCache> extends Component<ApolloProviderProps<TCache>> {
@@ -26,7 +25,6 @@ export default class ApolloProvider<TCache> extends Component<ApolloProviderProp
   static childContextTypes = {
     client: PropTypes.object.isRequired,
     operations: PropTypes.object,
-    subContexts: PropTypes.object,
   };
 
   private operations: Map<string, { query: DocumentNode; variables: any }> = new Map();
@@ -52,7 +50,6 @@ export default class ApolloProvider<TCache> extends Component<ApolloProviderProp
     return {
       client: this.props.client,
       operations: (this.props.client as any).__operations_cache__,
-      subContexts: new Map(),
     };
   }
 
