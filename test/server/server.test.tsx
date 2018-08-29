@@ -305,6 +305,20 @@ describe('SSR', () => {
           </Context.Consumer>,
         ),
       ).toBe(defaultValue);
+      let ContextForUndefined = React.createContext<void | string>(defaultValue);
+
+      expect(
+        await renderToStringWithData(
+          <ContextForUndefined.Provider value={undefined}>
+            <ContextForUndefined.Consumer>
+              {val => {
+                expect(val).toBeUndefined();
+                return val === undefined ? 'works' : 'broken';
+              }}
+            </ContextForUndefined.Consumer>
+          </ContextForUndefined.Provider>,
+        ),
+      ).toBe('works');
 
       const apolloClient = new ApolloClient({
         link: new ApolloLink(config => {

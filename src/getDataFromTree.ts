@@ -148,14 +148,16 @@ export function walkTree(
       if (!!(element.type as any)._context) {
         // A provider - sets the context value before rendering children
         // this needs to clone the map because this value should only apply to children of the provider
-        newContext = new Map(newContext.entries());
+        newContext = new Map(newContext);
         newContext.set(element.type, element.props.value);
         child = element.props.children;
       } else {
         // A consumer
-        child = element.props.children(
-          newContext.get((element.type as any).Provider) || (element.type as any)._currentValue,
-        );
+        let value = (element.type as any)._currentValue;
+        if (newContext.has((element.type as any).Provider)) {
+          value = newContext.get((element.type as any).Provider);
+        }
+        child = element.props.children(value);
       }
 
       if (child) {
