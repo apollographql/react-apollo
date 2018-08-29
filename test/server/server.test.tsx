@@ -11,97 +11,97 @@ import {
   GraphQLID,
   DocumentNode,
 } from 'graphql';
-import { graphql, ApolloProvider, renderToStringWithData, ChildProps } from '../../src';
+import { graphql, ApolloProvider, renderToStringWithData, ChildProps, Query } from '../../src';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+
+const planetMap = new Map([['Planet:1', { id: 'Planet:1', name: 'Tatooine' }]]);
+
+const shipMap = new Map([
+  [
+    'Ship:2',
+    {
+      id: 'Ship:2',
+      name: 'CR90 corvette',
+      films: ['Film:4', 'Film:6', 'Film:3'],
+    },
+  ],
+  [
+    'Ship:3',
+    {
+      id: 'Ship:3',
+      name: 'Star Destroyer',
+      films: ['Film:4', 'Film:5', 'Film:6'],
+    },
+  ],
+]);
+
+const filmMap = new Map([
+  ['Film:3', { id: 'Film:3', title: 'Revenge of the Sith' }],
+  ['Film:4', { id: 'Film:4', title: 'A New Hope' }],
+  ['Film:5', { id: 'Film:5', title: 'the Empire Strikes Back' }],
+  ['Film:6', { id: 'Film:6', title: 'Return of the Jedi' }],
+]);
+
+const PlanetType = new GraphQLObjectType({
+  name: 'Planet',
+  fields: {
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+  },
+});
+
+const FilmType = new GraphQLObjectType({
+  name: 'Film',
+  fields: {
+    id: { type: GraphQLID },
+    title: { type: GraphQLString },
+  },
+});
+
+const ShipType = new GraphQLObjectType({
+  name: 'Ship',
+  fields: {
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    films: {
+      type: new GraphQLList(FilmType),
+      resolve: ({ films }) => films.map((id: string) => filmMap.get(id)),
+    },
+  },
+});
+
+const QueryType = new GraphQLObjectType({
+  name: 'Query',
+  fields: {
+    allPlanets: {
+      type: new GraphQLList(PlanetType),
+      resolve: () => Array.from(planetMap.values()),
+    },
+    allShips: {
+      type: new GraphQLList(ShipType),
+      resolve: () => Array.from(shipMap.values()),
+    },
+    ship: {
+      type: ShipType,
+      args: { id: { type: GraphQLID } },
+      resolve: (_, { id }) => shipMap.get(id),
+    },
+    film: {
+      type: FilmType,
+      args: { id: { type: GraphQLID } },
+      resolve: (_, { id }) => filmMap.get(id),
+    },
+  },
+});
+
+const Schema = new GraphQLSchema({ query: QueryType });
 
 describe('SSR', () => {
   describe('`renderToStringWithData`', () => {
     // XXX break into smaller tests
     // XXX mock all queries
     it('should work on a non trivial example', function() {
-      const planetMap = new Map([['Planet:1', { id: 'Planet:1', name: 'Tatooine' }]]);
-
-      const shipMap = new Map([
-        [
-          'Ship:2',
-          {
-            id: 'Ship:2',
-            name: 'CR90 corvette',
-            films: ['Film:4', 'Film:6', 'Film:3'],
-          },
-        ],
-        [
-          'Ship:3',
-          {
-            id: 'Ship:3',
-            name: 'Star Destroyer',
-            films: ['Film:4', 'Film:5', 'Film:6'],
-          },
-        ],
-      ]);
-
-      const filmMap = new Map([
-        ['Film:3', { id: 'Film:3', title: 'Revenge of the Sith' }],
-        ['Film:4', { id: 'Film:4', title: 'A New Hope' }],
-        ['Film:5', { id: 'Film:5', title: 'the Empire Strikes Back' }],
-        ['Film:6', { id: 'Film:6', title: 'Return of the Jedi' }],
-      ]);
-
-      const PlanetType = new GraphQLObjectType({
-        name: 'Planet',
-        fields: {
-          id: { type: GraphQLID },
-          name: { type: GraphQLString },
-        },
-      });
-
-      const FilmType = new GraphQLObjectType({
-        name: 'Film',
-        fields: {
-          id: { type: GraphQLID },
-          title: { type: GraphQLString },
-        },
-      });
-
-      const ShipType = new GraphQLObjectType({
-        name: 'Ship',
-        fields: {
-          id: { type: GraphQLID },
-          name: { type: GraphQLString },
-          films: {
-            type: new GraphQLList(FilmType),
-            resolve: ({ films }) => films.map((id: string) => filmMap.get(id)),
-          },
-        },
-      });
-
-      const QueryType = new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          allPlanets: {
-            type: new GraphQLList(PlanetType),
-            resolve: () => Array.from(planetMap.values()),
-          },
-          allShips: {
-            type: new GraphQLList(ShipType),
-            resolve: () => Array.from(shipMap.values()),
-          },
-          ship: {
-            type: ShipType,
-            args: { id: { type: GraphQLID } },
-            resolve: (_, { id }) => shipMap.get(id),
-          },
-          film: {
-            type: FilmType,
-            args: { id: { type: GraphQLID } },
-            resolve: (_, { id }) => filmMap.get(id),
-          },
-        },
-      });
-
-      const Schema = new GraphQLSchema({ query: QueryType });
-
       const apolloClient = new ApolloClient({
         link: new ApolloLink(config => {
           return new Observable(observer => {
@@ -305,6 +305,49 @@ describe('SSR', () => {
           </Context.Consumer>,
         ),
       ).toBe(defaultValue);
+
+      const apolloClient = new ApolloClient({
+        link: new ApolloLink(config => {
+          return new Observable(observer => {
+            execute(Schema, print(config.query), null, null, config.variables, config.operationName)
+              .then(result => {
+                observer.next(result);
+                observer.complete();
+              })
+              .catch(e => {
+                observer.error(e);
+              });
+          });
+        }),
+        cache: new Cache(),
+      });
+
+      expect(
+        await renderToStringWithData(
+          <ApolloProvider client={apolloClient}>
+            <Context.Provider value={providerValue}>
+              <Query
+                query={gql`
+                  query ShipIds {
+                    allShips {
+                      id
+                    }
+                  }
+                `}
+              >
+                {() => (
+                  <Context.Consumer>
+                    {val => {
+                      expect(val).toBe(providerValue);
+                      return val;
+                    }}
+                  </Context.Consumer>
+                )}
+              </Query>
+            </Context.Provider>
+          </ApolloProvider>,
+        ),
+      ).toBe(providerValue);
     }
   });
 });
