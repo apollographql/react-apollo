@@ -43,7 +43,7 @@ export declare type FetchResult<C = Record<string, any>, E = Record<string, any>
 
 export declare type MutationOptions<TData = any, TVariables = OperationVariables> = {
   variables?: TVariables;
-  optimisticResponse?: Object;
+  optimisticResponse?: TData;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
@@ -56,7 +56,7 @@ export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   mutation: DocumentNode;
   ignoreResults?: boolean;
-  optimisticResponse?: Object;
+  optimisticResponse?: TData;
   variables?: TVariables;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   awaitRefetchQueries?: boolean;
