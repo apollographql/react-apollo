@@ -176,7 +176,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     return children(this.runMutation, result);
   }
 
-  private runMutation = (options: MutationOptions<TVariables> = {}) => {
+  private runMutation = (options: MutationOptions<TData, TVariables> = {}) => {
     this.onMutationStart();
 
     const mutationId = this.generateNewMutationId();
@@ -192,7 +192,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       });
   };
 
-  private mutate = (options: MutationOptions<TVariables>) => {
+  private mutate = (options: MutationOptions<TData, TVariables>) => {
     const {
       mutation,
       variables,
