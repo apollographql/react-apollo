@@ -9,6 +9,7 @@ import ApolloClient, {
   NetworkStatus,
   FetchMoreOptions,
   FetchMoreQueryOptions,
+  ApolloCurrentResult,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
@@ -289,7 +290,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       .catch(() => null);
   }
 
-  private startQuerySubscription = () => {
+  private startQuerySubscription() {
     if (this.querySubscription) return;
     // store the initial renders worth of result
     let initial: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
@@ -313,14 +314,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         this.updateCurrentData();
       },
     });
-  };
+  }
 
-  private removeQuerySubscription = () => {
+  private removeQuerySubscription() {
     if (this.querySubscription) {
       this.querySubscription.unsubscribe();
       delete this.querySubscription;
     }
-  };
+  }
 
   private resubscribeToQuery() {
     this.removeQuerySubscription();
@@ -336,11 +337,11 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     Object.assign(this.queryObservable!, { lastError, lastResult });
   }
 
-  private updateCurrentData = () => {
+  private updateCurrentData() {
     const { onCompleted, onError } = this.props;
     if (onCompleted || onError) {
       const currentResult = this.queryObservable!.currentResult();
-      const { loading, error, data } = currentResult;
+      const { loading, error, data } = this.prepareCurrentResult(currentResult);
       if (onCompleted && !loading && !error) {
         onCompleted(data);
       } else if (onError && !loading && error) {
@@ -350,22 +351,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
     // force a rerender that goes through shouldComponentUpdate
     if (this.hasMounted) this.forceUpdate();
-  };
+  }
 
-  private getQueryResult = (): QueryResult<TData, TVariables> => {
-    let data = { data: Object.create(null) as TData } as any;
-    // attach bound methods
-    Object.assign(data, observableQueryFields(this.queryObservable!));
+  private getQueryResult(): QueryResult<TData, TVariables> {
     // fetch the current result (if any) from the store
     const currentResult = this.queryObservable!.currentResult();
-    const { loading, networkStatus, errors } = currentResult;
-    let { error } = currentResult;
-    // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
-    if (errors && errors.length > 0) {
-      error = new ApolloError({ graphQLErrors: errors });
-    }
+    const data = this.prepareCurrentResult(currentResult) as QueryResult<TData, TVariables>;
 
-    Object.assign(data, { loading, networkStatus, error });
+    const { loading, error } = data;
 
     if (loading) {
       Object.assign(data.data, this.previousData, currentResult.data);
@@ -416,5 +409,21 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     data.client = this.client;
 
     return data;
-  };
+  }
+
+  private prepareCurrentResult(
+    currentResult: ApolloCurrentResult<TData>,
+  ): Pick<QueryResult<TData, TVariables>, 'data' | 'loading' | 'networkStatus' | 'error'> {
+    let data = { data: Object.create(null) as TData } as any;
+    // attach bound methods
+    Object.assign(data, observableQueryFields(this.queryObservable!));
+    const { loading, networkStatus, errors } = currentResult;
+    let { error } = currentResult;
+    // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
+    if (errors && errors.length > 0) {
+      error = new ApolloError({ graphQLErrors: errors });
+    }
+
+    return Object.assign(data, { loading, networkStatus, error });
+  }
 }
