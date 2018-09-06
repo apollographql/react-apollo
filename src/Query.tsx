@@ -358,6 +358,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     const currentResult = this.queryObservable!.currentResult();
     const data = this.prepareCurrentResult(currentResult) as QueryResult<TData, TVariables>;
 
+    // attach bound methods
+    Object.assign(data, observableQueryFields(this.queryObservable!));
+
     const { loading, error } = data;
 
     if (loading) {
@@ -415,8 +418,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     currentResult: ApolloCurrentResult<TData>,
   ): Pick<QueryResult<TData, TVariables>, 'data' | 'loading' | 'networkStatus' | 'error'> {
     let data = { data: Object.create(null) as TData } as any;
-    // attach bound methods
-    Object.assign(data, observableQueryFields(this.queryObservable!));
     const { loading, networkStatus, errors } = currentResult;
     let { error } = currentResult;
     // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
