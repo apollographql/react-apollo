@@ -8,5 +8,5 @@ export function renderToStringWithData(component: ReactElement<any>): Promise<st
 }
 
 export function renderToStreamWithData(component) {
-  return getDataFromTree(component).then(() => renderToNodeStream(component));
+  return getDataFromTree(component).then(() => ReactDOM.renderToNodeStream(component));
 };
