@@ -16,7 +16,7 @@
     "@types/jest": "23.3.2",
     "@types/node": "10.9.4",
     "@types/prop-types": "15.5.5",
-    "@types/react": "16.4.13",
+    "@types/react": "16.4.14",
     "@types/react-dom": "16.0.7",
     "@types/react-test-renderer": "16.0.2",
     "apollo-codegen": "0.20.2",
