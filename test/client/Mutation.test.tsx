@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import { ApolloClient } from 'apollo-client';
+import { ApolloClient, ApolloError } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { DataProxy } from 'apollo-cache';
 import { ExecutionResult, GraphQLError } from 'graphql';
@@ -380,8 +380,11 @@ it('renders an error state', done => {
   );
 });
 
-it('renders an error state when encountering graphql errors', done => {
+it('renders an error state and throws when encountering graphql errors', done => {
   let count = 0;
+
+  const expectedError = new ApolloError({ graphQLErrors: [new GraphQLError('error occurred')] });
+
   const Component = () => (
     <Mutation mutation={mutation}>
       {(createTodo, result) => {
@@ -392,13 +395,13 @@ it('renders an error state when encountering graphql errors', done => {
                 done.fail('Did not expect a result');
               })
               .catch(e => {
-                expect(e).toEqual(new Error('GraphQL error: error occurred'));
+                expect(e).toEqual(expectedError);
               }),
           );
         } else if (count === 1) {
           expect(result.loading).toBeTruthy();
         } else if (count === 2) {
-          expect(result.error).toEqual(new Error('GraphQL error: error occurred'));
+          expect(result.error).toEqual(expectedError);
           done();
         }
         count++;
@@ -423,7 +426,7 @@ it('renders an error state when encountering graphql errors', done => {
   );
 });
 
-it('renders an error state when encountering graphql errors when errorPolicy=all', done => {
+it('renders an error state and does not throw when encountering graphql errors when errorPolicy=all', done => {
   let count = 0;
   const Component = () => (
     <Mutation mutation={mutation}>
@@ -446,7 +449,9 @@ it('renders an error state when encountering graphql errors when errorPolicy=all
         } else if (count === 1) {
           expect(result.loading).toBeTruthy();
         } else if (count === 2) {
-          expect(result.error).toEqual(new Error('GraphQL error: error occurred'));
+          expect(result.error).toEqual(
+            new ApolloError({ graphQLErrors: [new GraphQLError('error occurred')] }),
+          );
           done();
         }
         count++;
@@ -461,6 +466,48 @@ it('renders an error state when encountering graphql errors when errorPolicy=all
       result: {
         errors: [new GraphQLError('error occurred')],
       },
+    },
+  ];
+
+  mount(
+    <MockedProvider defaultOptions={{ mutate: { errorPolicy: 'all' } }} mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('renders an error state and throws when encountering network errors when errorPolicy=all', done => {
+  let count = 0;
+  const expectedError = new ApolloError({ networkError: new Error('network error') });
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          setTimeout(() =>
+            createTodo()
+              .then(() => {
+                done.fail('Did not expect a result');
+              })
+              .catch(e => {
+                expect(e).toEqual(expectedError);
+              }),
+          );
+        } else if (count === 1) {
+          expect(result.loading).toBeTruthy();
+        } else if (count === 2) {
+          expect(result.error).toEqual(expectedError);
+          done();
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  const mockError = [
+    {
+      request: { query: mutation },
+      error: new Error('network error'),
     },
   ];
 
