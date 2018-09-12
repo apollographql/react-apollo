@@ -109,7 +109,7 @@
     "apollo-client": "2.4.1",
     "apollo-link": "1.2.1",
     "babel-core": "6.26.3",
-    "babel-jest": "23.4.2",
+    "babel-jest": "23.6.0",
     "babel-preset-env": "1.7.0",
     "bundlesize": "0.17.0",
     "coveralls": "3.0.2",
