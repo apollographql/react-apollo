@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { DocumentNode } from 'graphql';
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
@@ -95,7 +95,7 @@ export function subscribe<
               const name = operationOptions.name || 'data';
               let childProps = { [name]: result };
               if (operationOptions.props) {
-                const newResult: OptionProps<TProps, TData> = {
+                const newResult: OptionProps<TProps, TData, TGraphQLVariables> = {
                   [name]: result,
                   ownProps: props as TProps,
                 };

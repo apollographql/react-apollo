@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import renderer from 'react-test-renderer';
 import { MockedProvider } from 'react-apollo/test-utils';
 
 import { HERO_QUERY, withCharacter, CharacterWithoutData, App } from '../App';
@@ -46,7 +46,7 @@ describe('withCharacter', () => {
     const mocks = [{ request: { query, variables }, result: { data: { hero: empty } } }];
     renderer.create(
       <ErrorBoundary>
-        <MockedProvider mocks={mocks} removeTypename>
+        <MockedProvider mocks={mocks}>
           <ContainerWithData {...variables} />
         </MockedProvider>
       </ErrorBoundary>,

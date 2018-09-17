@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { DocumentNode } from 'graphql';
 const hoistNonReactStatics = require('hoist-non-react-statics');
 
@@ -62,7 +62,7 @@ export function mutation<
               const name = operationOptions.name || 'mutate';
               let childProps = { [name]: mutate };
               if (operationOptions.props) {
-                const newResult: OptionProps<TProps, TData> = {
+                const newResult: OptionProps<TProps, TData, TGraphQLVariables> = {
                   [name]: mutate,
                   ownProps: props,
                 };

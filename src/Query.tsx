@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
   ApolloError,
@@ -7,6 +7,8 @@ import ApolloClient, {
   ErrorPolicy,
   ApolloQueryResult,
   NetworkStatus,
+  FetchMoreOptions,
+  FetchMoreQueryOptions,
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
@@ -16,30 +18,10 @@ import { parser, DocumentType, IDocumentDefinition } from './parser';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 
-// Improved FetchMoreOptions type, need to port them back to Apollo Client
-export interface FetchMoreOptions<TData, TVariables> {
-  updateQuery: (
-    previousQueryResult: TData,
-    options: {
-      fetchMoreResult?: TData;
-      variables: TVariables;
-    },
-  ) => TData;
-}
-
-// Improved FetchMoreQueryOptions type, need to port them back to Apollo Client
-export interface FetchMoreQueryOptions<TVariables, K extends keyof TVariables> {
-  variables: Pick<TVariables, K>;
-}
-
-// XXX open types improvement PR to AC
-// Improved ObservableQuery field types, need to port them back to Apollo Client
 export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData>,
-  'startPolling' | 'stopPolling' | 'subscribeToMore'
+  'startPolling' | 'stopPolling' | 'subscribeToMore' | 'updateQuery' | 'refetch' | 'variables'
 > & {
-  variables: TVariables;
-  refetch: (variables?: TVariables) => Promise<ApolloQueryResult<TData>>;
   fetchMore: (<K extends keyof TVariables>(
     fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> & FetchMoreOptions<TData, TVariables>,
   ) => Promise<ApolloQueryResult<TData>>) &
@@ -47,9 +29,6 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
       fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<TVariables2, K> &
         FetchMoreOptions<TData2, TVariables2>,
     ) => Promise<ApolloQueryResult<TData2>>);
-  updateQuery: (
-    mapFn: (previousQueryResult: TData, options: { variables?: TVariables }) => TData,
-  ) => void;
 };
 
 function compact(obj: any) {
@@ -94,7 +73,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   // I'm aware of. So intead we enforce checking for data
   // like so result.data!.user. This tells TS to use TData
   // XXX is there a better way to do this?
-  data: TData | undefined;
+  data: TData | {};
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
@@ -114,6 +93,8 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
   disablePartialRefetch?: boolean;
+  onCompleted?: (data: TData | {}) => void;
+  onError?: (error: ApolloError) => void;
 }
 
 export interface QueryContext {
@@ -133,6 +114,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     children: PropTypes.func.isRequired,
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
+    onCompleted: PropTypes.func,
+    onError: PropTypes.func,
     pollInterval: PropTypes.number,
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
@@ -140,24 +123,24 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     disablePartialRefetch: PropTypes.bool,
   };
 
-  context: QueryContext;
+  context: QueryContext | undefined;
 
   private client: ApolloClient<Object>;
 
   // request / action storage. Note that we delete querySubscription if we
   // unsubscribe but never delete queryObservable once it is created. We
   // only delete queryObservable when we unmount the component.
-  private queryObservable: ObservableQuery<TData> | null;
-  private querySubscription: ZenObservable.Subscription;
+  private queryObservable?: ObservableQuery<TData> | null;
+  private querySubscription?: ZenObservable.Subscription;
   private previousData: any = {};
-  private refetcherQueue: {
+  private refetcherQueue?: {
     args: any;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
   };
 
-  private hasMounted: boolean;
-  private operation: IDocumentDefinition;
+  private hasMounted: boolean = false;
+  private operation?: IDocumentDefinition;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -173,8 +156,19 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   // For server-side rendering (see getDataFromTree.ts)
   fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.props.skip) return false;
+
     // pull off react options
-    const { children, ssr, displayName, skip, client, disablePartialRefetch, ...opts } = this.props;
+    const {
+      children,
+      ssr,
+      displayName,
+      skip,
+      client,
+      onCompleted,
+      onError,
+      disablePartialRefetch,
+      ...opts
+    } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -286,8 +280,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {
     const opts = this.extractOptsFromProps(props);
     // save for backwards compat of refetcherQueries without a recycler
-    if (this.context.operations) {
-      this.context.operations.set(this.operation.name, {
+    if (this.context!.operations) {
+      this.context!.operations!.set(this.operation!.name, {
         query: opts.query,
         variables: opts.variables,
       });
@@ -309,17 +303,18 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private startQuerySubscription = () => {
     if (this.querySubscription) return;
-    // store the inital renders worth of result
-    let current: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
+    // store the initial renders worth of result
+    let initial: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
     this.querySubscription = this.queryObservable!.subscribe({
-      next: () => {
+      next: ({ data }) => {
         // to prevent a quick second render from the subscriber
-        // we compare to see if the original started finished (from cache)
-        if (current && current.networkStatus === 7) {
-          // remove this for future rerenders (i.e. polling)
-          current = undefined;
+        // we compare to see if the original started finished (from cache) and is unchanged
+        if (initial && initial.networkStatus === 7 && shallowEqual(initial.data, data)) {
+          initial = undefined;
           return;
         }
+
+        initial = undefined;
         this.updateCurrentData();
       },
       error: error => {
@@ -354,6 +349,17 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
+    const { onCompleted, onError } = this.props;
+    if (onCompleted || onError) {
+      const currentResult = this.queryObservable!.currentResult();
+      const { loading, error, data } = currentResult;
+      if (onCompleted && !loading && !error) {
+        onCompleted(data);
+      } else if (onError && !loading && error) {
+        onError(error);
+      }
+    }
+
     // force a rerender that goes through shouldComponentUpdate
     if (this.hasMounted) this.forceUpdate();
   };
@@ -377,9 +383,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     if (loading) {
       Object.assign(data.data, this.previousData, currentResult.data);
     } else if (error) {
-      Object.assign(data, {
-        data: (this.queryObservable!.getLastResult() || {}).data,
-      });
+      const lastResult = this.queryObservable!.getLastResult();
+      if (lastResult) {
+        Object.assign(data, {
+          data: lastResult.data,
+        });
+      }
     } else {
       const { fetchPolicy } = this.queryObservable!.options;
       const { disablePartialRefetch } = this.props;
@@ -419,7 +428,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // If a subscription has not started, then the synchronous call to refetch
     // must be made at a time when an active network request is being made, so
     // we ensure that the network requests are deduped, to avoid an
-    // inconsistant UI state that displays different data for the current query
+    // inconsistent UI state that displays different data for the current query
     // alongside a refetched query.
     //
     // Once the Query component is mounted and the subscription is made, we
