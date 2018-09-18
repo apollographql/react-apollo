@@ -1,11 +1,12 @@
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import renderer from 'react-test-renderer';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 
 import { graphql, ChildProps } from '../src';
 import { MockedProvider, mockSingleLink } from '../src/test-utils';
+import { MockedResponse } from '../src/test-links';
 import { DocumentNode } from 'graphql';
 
 const variables = {
@@ -53,7 +54,7 @@ const withUser = graphql<Variables, Data, Variables>(query, {
   }),
 });
 
-const mocks = [
+const mocks: ReadonlyArray<MockedResponse> = [
   {
     request: {
       query,
@@ -116,6 +117,28 @@ it('allows for querying with the typename', done => {
 
   renderer.create(
     <MockedProvider mocks={mocksWithTypename}>
+      <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});
+
+it('allows for using a custom cache', done => {
+  const cache = new InMemoryCache();
+  cache.writeQuery({
+    query,
+    variables,
+    data: { user },
+  });
+
+  const Container: React.SFC<ChildProps<Variables, Data, Variables>> = props => {
+    expect(props.data).toMatchObject({ user });
+    done();
+
+    return null;
+  };
+  const ContainerWithData = withUser(Container);
+  renderer.create(
+    <MockedProvider mocks={[]} cache={cache}>
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
@@ -317,6 +340,7 @@ it('doesnt crash on unmount if there is no query manager', () => {
       return null;
     }
   }
+
   renderer
     .create(
       <MockedProvider>

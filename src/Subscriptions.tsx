@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ApolloClient, { ApolloError } from 'apollo-client';
 import { Observable } from 'apollo-link';
 
@@ -144,8 +144,11 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   });
 
   private updateCurrentData = (result: SubscriptionResult<TData>) => {
-    const {client, props: {onSubscriptionData}} = this;
-    if (onSubscriptionData) onSubscriptionData({client, subscriptionData: result});
+    const {
+      client,
+      props: { onSubscriptionData },
+    } = this;
+    if (onSubscriptionData) onSubscriptionData({ client, subscriptionData: result });
     this.setState({
       data: result.data,
       loading: false,
