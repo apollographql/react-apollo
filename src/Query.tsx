@@ -354,33 +354,49 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     let data = { data: Object.create(null) as TData } as any;
-    // attach bound methods
+    // Attach bound methods
     Object.assign(data, observableQueryFields(this.queryObservable!));
-    // fetch the current result (if any) from the store
-    const currentResult = this.queryObservable!.currentResult();
-    const { loading, networkStatus, errors } = currentResult;
-    let { error } = currentResult;
-    // until a set naming convention for networkError and graphQLErrors is decided upon, we map errors (graphQLErrors) to the error props
-    if (errors && errors.length > 0) {
-      error = new ApolloError({ graphQLErrors: errors });
-    }
 
-    Object.assign(data, { loading, networkStatus, error });
-
-    if (loading) {
-      Object.assign(data.data, this.previousData, currentResult.data);
-    } else if (error) {
-      const lastResult = this.queryObservable!.getLastResult();
-      if (lastResult) {
-        Object.assign(data, {
-          data: lastResult.data,
-        });
-      }
+    // When skipping a query (ie. we're not querying for data but still want
+    // to render children), make sure the `data` is cleared out and
+    // `loading` is set to `false` (since we aren't loading anything).
+    if (this.props.skip) {
+      data = {
+        ...data,
+        data: undefined,
+        error: undefined,
+        loading: false,
+      };
     } else {
-      Object.assign(data.data, currentResult.data);
-      this.previousData = currentResult.data;
+      // Fetch the current result (if any) from the store.
+      const currentResult = this.queryObservable!.currentResult();
+      const { loading, networkStatus, errors } = currentResult;
+      let { error } = currentResult;
+
+      // Until a set naming convention for networkError and graphQLErrors is
+      // decided upon, we map errors (graphQLErrors) to the error props.
+      if (errors && errors.length > 0) {
+        error = new ApolloError({ graphQLErrors: errors });
+      }
+
+      Object.assign(data, { loading, networkStatus, error });
+
+      if (loading) {
+        Object.assign(data.data, this.previousData, currentResult.data);
+      } else if (error) {
+        const lastResult = this.queryObservable!.getLastResult();
+        if (lastResult) {
+          Object.assign(data, {
+            data: lastResult.data,
+          });
+        }
+      } else {
+        Object.assign(data.data, currentResult.data);
+        this.previousData = currentResult.data;
+      }
     }
-    // handle race condition where refetch is called on child mount or later
+
+    // Handle race condition where refetch is called on child mount or later.
     // Normal execution model:
     // render(loading) -> mount -> start subscription -> get data -> render(with data)
     //
@@ -398,7 +414,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     //
     // Once the Query component is mounted and the subscription is made, we
     // always hit the network with refetch, since the components data will be
-    // updated and a network request is not currently active
+    // updated and a network request is not currently active.
     if (!this.querySubscription) {
       const oldRefetch = (data as GraphqlQueryControls).refetch;
 
@@ -414,7 +430,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
 
     data.client = this.client;
-
     return data;
   };
 }
