@@ -36,6 +36,10 @@
   [@jameslaneconkling](https://github.com/jameslaneconkling) in [#2208](https://github.com/apollographql/react-apollo/pull/2208)
 - Avoid importing `lodash` directly. <br/>
   [@shahyar](https://github.com/shahyar) in [#2045](https://github.com/apollographql/react-apollo/pull/2045)
+- When the `Query` `skip` prop is set to `true`, make sure the render prop
+  `loading` param is set to `false`, since we're not actually loading
+  anything. <br/>
+  [@edorivai](https://github.com/edorivai) in [#1916](https://github.com/apollographql/react-apollo/pull/1916)
 
 ## 2.1.11 (August 9, 2018)
 
@@ -100,6 +104,7 @@
   [@amneacsu](https://github.com/amneacsu) in [#1890](https://github.com/apollographql/react-apollo/pull/1890)
 - The `ApolloClient` instance used by a Mutation is now available in that
   Mutation's result.
+  [PR #1945](https://github.com/apollographql/react-apollo/pull/1945)
   [@cooperka](https://github.com/cooperka) in [#1945](https://github.com/apollographql/react-apollo/pull/1945)
 
 ## 2.1.5
