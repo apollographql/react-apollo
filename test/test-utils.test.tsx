@@ -1,11 +1,12 @@
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import renderer from 'react-test-renderer';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 
 import { graphql, ChildProps } from '../src';
 import { MockedProvider, mockSingleLink } from '../src/test-utils';
+import { MockedResponse } from '../src/test-links';
 import { DocumentNode } from 'graphql';
 
 const variables = {
@@ -53,7 +54,7 @@ const withUser = graphql<Variables, Data, Variables>(query, {
   }),
 });
 
-const mocks = [
+const mocks: ReadonlyArray<MockedResponse> = [
   {
     request: {
       query,
@@ -121,6 +122,28 @@ it('allows for querying with the typename', done => {
   );
 });
 
+it('allows for using a custom cache', done => {
+  const cache = new InMemoryCache();
+  cache.writeQuery({
+    query,
+    variables,
+    data: { user },
+  });
+
+  const Container: React.SFC<ChildProps<Variables, Data, Variables>> = props => {
+    expect(props.data).toMatchObject({ user });
+    done();
+
+    return null;
+  };
+  const ContainerWithData = withUser(Container);
+  renderer.create(
+    <MockedProvider mocks={[]} cache={cache}>
+      <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});
+
 it('errors if the variables in the mock and component do not match', done => {
   class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
     componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
@@ -146,6 +169,89 @@ it('errors if the variables in the mock and component do not match', done => {
 
   renderer.create(
     <MockedProvider mocks={mocks}>
+      <ContainerWithData {...variables2} />
+    </MockedProvider>,
+  );
+});
+
+it('errors if the variables do not deep equal', done => {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      try {
+        expect(nextProps.data!.user).toBeUndefined();
+        expect(nextProps.data!.error).toMatchSnapshot();
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUser(Container);
+
+  const mocks2 = [
+    {
+      request: {
+        query,
+        variables: {
+          age: 13,
+          username: 'some_user',
+        },
+      },
+      result: { data: { user } },
+    },
+  ];
+
+  const variables2 = {
+    username: 'some_user',
+    age: 42,
+  };
+
+  renderer.create(
+    <MockedProvider mocks={mocks2}>
+      <ContainerWithData {...variables2} />
+    </MockedProvider>,
+  );
+});
+
+it('does not error if the variables match but have different order', done => {
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      expect(nextProps.data!.user).toMatchSnapshot();
+      done();
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUser(Container);
+
+  const mocks2 = [
+    {
+      request: {
+        query,
+        variables: {
+          age: 13,
+          username: 'some_user',
+        },
+      },
+      result: { data: { user } },
+    },
+  ];
+
+  const variables2 = {
+    username: 'some_user',
+    age: 13,
+  };
+
+  renderer.create(
+    <MockedProvider mocks={mocks2}>
       <ContainerWithData {...variables2} />
     </MockedProvider>,
   );
@@ -226,4 +332,20 @@ it('errors if the query in the mock and component do not match', done => {
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
+});
+
+it('doesnt crash on unmount if there is no query manager', () => {
+  class Container extends React.Component {
+    render() {
+      return null;
+    }
+  }
+
+  renderer
+    .create(
+      <MockedProvider>
+        <Container />
+      </MockedProvider>,
+    )
+    .unmount();
 });

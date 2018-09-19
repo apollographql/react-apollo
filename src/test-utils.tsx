@@ -1,29 +1,56 @@
-import * as React from 'react';
+import React from 'react';
 import ApolloClient from 'apollo-client';
+import { DefaultOptions } from 'apollo-client/ApolloClient';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { ApolloProvider } from './index';
-import { MockLink } from './test-links';
+import { MockedResponse, MockLink } from './test-links';
+import { ApolloCache } from 'apollo-cache';
 export * from './test-links';
 
-export class MockedProvider extends React.Component<any, any> {
-  static defaultProps = {
+export interface MockedProviderProps<TSerializedCache = {}> {
+  mocks?: ReadonlyArray<MockedResponse>;
+  addTypename?: boolean;
+  defaultOptions?: DefaultOptions;
+  cache?: ApolloCache<TSerializedCache>;
+}
+
+export interface MockedProviderState {
+  client: ApolloClient<any>;
+}
+
+export class MockedProvider extends React.Component<MockedProviderProps, MockedProviderState> {
+  public static defaultProps: MockedProviderProps = {
     addTypename: true,
   };
 
-  private client: any;
+  constructor(props: MockedProviderProps) {
+    super(props);
 
-  constructor(props: any, context: any) {
-    super(props, context);
-    const link = new MockLink(this.props.mocks, this.props.addTypename);
-    this.client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: this.props.addTypename }),
-      defaultOptions: this.props.defaultOptions,
+    const { mocks, addTypename, defaultOptions, cache } = this.props;
+    const client = new ApolloClient({
+      cache: cache || new Cache({ addTypename }),
+      defaultOptions,
+      link: new MockLink(mocks || [], addTypename),
     });
+
+    this.state = { client };
   }
 
-  render() {
-    return <ApolloProvider client={this.client}>{this.props.children}</ApolloProvider>;
+  public render() {
+    return <ApolloProvider client={this.state.client}>{this.props.children}</ApolloProvider>;
+  }
+
+  public componentWillUnmount() {
+    if (!this.state.client.queryManager) {
+      return;
+    }
+    const scheduler = this.state.client.queryManager.scheduler;
+    Object.keys(scheduler.registeredQueries).forEach(queryId => {
+      scheduler.stopPollingQuery(queryId);
+    });
+    Object.keys(scheduler.intervalQueries).forEach((interval: any) => {
+      scheduler.fetchQueriesOnInterval(interval);
+    });
   }
 }
