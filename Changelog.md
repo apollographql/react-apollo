@@ -2,6 +2,10 @@
 
 ## vNext
 
+- Improved TypeScript Typings:
+  Deprecated `MutationFunc` in favor of `MutationFn`.
+  Added missing `onCompleted` and `onError` callbacks to `MutationOpts`. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2322](https://github.com/apollographql/react-apollo/pull/2322)
 - Added an example app that shows how to test mutations. <br/>
   [@excitement-engineer](https://github.com/excitement-engineer) in [#1998](https://github.com/apollographql/react-apollo/pull/1998)
 - The `<Subscription />` component now allows the registration of a callback
