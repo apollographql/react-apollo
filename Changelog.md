@@ -40,6 +40,19 @@
   [@jameslaneconkling](https://github.com/jameslaneconkling) in [#2208](https://github.com/apollographql/react-apollo/pull/2208)
 - Avoid importing `lodash` directly. <br/>
   [@shahyar](https://github.com/shahyar) in [#2045](https://github.com/apollographql/react-apollo/pull/2045)
+- When the `Query` `skip` prop is set to `true`, make sure the render prop
+  `loading` param is set to `false`, since we're not actually loading
+  anything. <br/>
+  [@edorivai](https://github.com/edorivai) in [#1916](https://github.com/apollographql/react-apollo/pull/1916)
+- No longer building against Node 9 <br/>
+  [@hwillson](https://github.com/hwillson) in [#2404](https://github.com/apollographql/react-apollo/pull/2404)
+- Make sure `<Subscription />`, `<Query />` & `<Mutation />` all support
+  using an Apollo Client instance configured in the `context` or via
+  props. <br/>
+  [@quentin-](https://github.com/quentin-) in [#1956](https://github.com/apollographql/react-apollo/pull/1956)
+- Typescript: use `Partial<TData>` instead of `TData | {}`, for the
+  `QueryResult` `data` property. <br/>
+  [@tgriesser](https://github.com/tgriesser) in [#2313](https://github.com/apollographql/react-apollo/pull/2313)
 
 ## 2.1.11 (August 9, 2018)
 
@@ -104,6 +117,7 @@
   [@amneacsu](https://github.com/amneacsu) in [#1890](https://github.com/apollographql/react-apollo/pull/1890)
 - The `ApolloClient` instance used by a Mutation is now available in that
   Mutation's result.
+  [PR #1945](https://github.com/apollographql/react-apollo/pull/1945)
   [@cooperka](https://github.com/cooperka) in [#1945](https://github.com/apollographql/react-apollo/pull/1945)
 
 ## 2.1.5
