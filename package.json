@@ -142,7 +142,7 @@
     "tslint": "5.11.0",
     "typescript": "3.0.3",
     "typescript-require": "0.2.10",
-    "zen-observable-ts": "0.8.9"
+    "zen-observable-ts": "0.8.10"
   },
   "dependencies": {
     "fbjs": "^0.8.16",
