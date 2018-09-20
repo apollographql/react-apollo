@@ -13,16 +13,16 @@
   },
   "devDependencies": {
     "@types/graphql": "0.12.7",
-    "@types/jest": "22.2.3",
-    "@types/node": "9.6.20",
-    "@types/prop-types": "15.5.3",
-    "@types/react": "16.3.16",
-    "@types/react-dom": "16.0.6",
-    "@types/react-test-renderer": "16.0.1",
-    "apollo-codegen": "0.19.1",
-    "react-scripts-ts": "2.16.0",
-    "react-test-renderer": "16.4.0",
-    "typescript": "2.6.2"
+    "@types/jest": "23.3.2",
+    "@types/node": "10.10.1",
+    "@types/prop-types": "15.5.5",
+    "@types/react": "16.4.14",
+    "@types/react-dom": "16.0.7",
+    "@types/react-test-renderer": "16.0.2",
+    "apollo-codegen": "0.20.2",
+    "react-scripts-ts": "2.17.0",
+    "react-test-renderer": "16.5.1",
+    "typescript": "3.0.3"
   },
   "scripts": {
     "start": "react-scripts-ts start",

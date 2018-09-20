@@ -1,5 +1,5 @@
 import ApolloClient from 'apollo-client';
-const invariant = require('invariant');
+import invariant from 'invariant';
 
 export interface CommonComponentProps {
   client?: ApolloClient<Object>;
@@ -17,10 +17,10 @@ export function getClient(
 
   invariant(
     !!client,
-    'Could not find "client" in the context or as passed props.',
-    'Wrap the root component in an <ApolloProvider>',
+    'Could not find "client" in the context or passed in as a prop. ' +
+      'Wrap the root component in an <ApolloProvider>, or pass an ' +
+      'ApolloClient instance in via props.',
   );
 
-  // fixme: TS doesn't infer that the type cannot be undefined after the invariant.
   return client as ApolloClient<Object>;
 }

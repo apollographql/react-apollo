@@ -1,5 +1,4 @@
-// pacify typescript (we have to turn off no unused locals though :cry:)
-import * as React from 'react';
+import React from 'react';
 import { DocumentNode } from 'graphql';
 import { parser, DocumentType } from './parser';
 import { OperationOption, DataProps, MutateProps } from './types';

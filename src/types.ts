@@ -19,14 +19,15 @@ export type OperationVariables = {
  * Function which returns an array of query names or query objects for refetchQueries option.
  * Allows conditional refetches.
  */
-export type RefetchQueriesProviderFn = (...args: any[]) => string[] | PureQueryOptions[];
+export type RefetchQueriesProviderFn = (...args: any[]) => Array<string | PureQueryOptions>;
 
 export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariables> {
   variables?: TGraphQLVariables;
   optimisticResponse?: TData;
-  refetchQueries?: string[] | PureQueryOptions[] | RefetchQueriesProviderFn;
+  refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
+  awaitRefetchQueries?: boolean;
   errorPolicy?: ErrorPolicy;
-  update?: MutationUpdaterFn;
+  update?: MutationUpdaterFn<TData>;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Record<string, any>;
@@ -49,13 +50,13 @@ export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {
   loading: boolean;
   variables: TGraphQLVariables;
   fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions & FetchMoreOptions,
+    fetchMoreOptions: FetchMoreQueryOptions<any, any> & FetchMoreOptions,
   ) => Promise<ApolloQueryResult<any>>;
   refetch: (variables?: TGraphQLVariables) => Promise<ApolloQueryResult<any>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions) => any) => void;
+  updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions<any>) => any) => void;
 }
 
 export type MutationFunc<TData = any, TGraphQLVariables = OperationVariables> = (
@@ -114,8 +115,11 @@ export interface OperationOption<
     | QueryOpts<TGraphQLVariables>
     | MutationOpts<TData, TGraphQLVariables>
     | ((props: TProps) => QueryOpts<TGraphQLVariables> | MutationOpts<TData, TGraphQLVariables>);
-  props?: (props: OptionProps<TProps, TData>, lastProps?: TChildProps | void) => TChildProps;
-  skip?: boolean | ((props: any) => boolean);
+  props?: (
+    props: OptionProps<TProps, TData, TGraphQLVariables>,
+    lastProps?: TChildProps | void,
+  ) => TChildProps;
+  skip?: boolean | ((props: TProps) => boolean);
   name?: string;
   withRef?: boolean;
   shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;

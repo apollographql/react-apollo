@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import renderer from 'react-test-renderer';
 import { shallow } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';

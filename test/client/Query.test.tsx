@@ -1,5 +1,5 @@
-import * as React from 'react';
-import ApolloClient, { NetworkStatus } from 'apollo-client';
+import React from 'react';
+import ApolloClient, { ApolloError, NetworkStatus } from 'apollo-client';
 import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloProvider, Query } from '../../src';
@@ -163,6 +163,7 @@ describe('Query component', () => {
               return null;
             }
             catchAsyncError(done, () => {
+              expect(result.data).toEqual({});
               expect(result.error).toEqual(new Error('Network error: error occurred'));
               done();
             });
@@ -688,6 +689,92 @@ describe('Query component', () => {
         done();
       });
     });
+
+    it('skip', done => {
+      const Component = () => (
+        <Query query={allPeopleQuery} skip>
+          {result => {
+            catchAsyncError(done, () => {
+              expect(result.loading).toBeFalsy();
+              expect(result.data).toBe(undefined);
+              expect(result.error).toBe(undefined);
+              done();
+            });
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={allPeopleMocks} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
+    it('onCompleted with data', done => {
+      const mocks = [
+        {
+          request: { query: allPeopleQuery },
+          result: { data: allPeopleData },
+        },
+      ];
+
+      const onCompleted = (queryData: Data | {}) => {
+        expect(stripSymbols(queryData)).toEqual(allPeopleData);
+        done();
+      };
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onCompleted={onCompleted}>
+          {() => {
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
+    it('onError with data', done => {
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+      const mocks = [
+        {
+          request: { query: allPeopleQuery },
+          result: { data: data },
+        },
+      ];
+
+      const onErrorFunc = (queryError: ApolloError) => {
+        expect(queryError).toEqual(null);
+        done();
+      };
+
+      const onError = jest.fn();
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onError={onErrorFunc}>
+          {({ loading }) => {
+            if (!loading) {
+              expect(onError).not.toHaveBeenCalled();
+              done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
   });
 
   describe('props disallow', () => {
@@ -736,6 +823,64 @@ describe('Query component', () => {
       }).toThrowError('The <Query /> component requires a graphql query, but got a subscription.');
 
       console.error = errorLogger;
+    });
+
+    it('onCompleted with error', done => {
+      const mockError = [
+        {
+          request: { query: allPeopleQuery },
+          error: new Error('error occurred'),
+        },
+      ];
+
+      const onCompleted = jest.fn();
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onCompleted={onCompleted}>
+          {({ error }) => {
+            if (error) {
+              expect(onCompleted).not.toHaveBeenCalled();
+              done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mockError} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
+    it('onError with error', done => {
+      const error = new Error('error occurred');
+      const mockError = [
+        {
+          request: { query: allPeopleQuery },
+          error: error,
+        },
+      ];
+
+      const onErrorFunc = (queryError: ApolloError) => {
+        expect(queryError.networkError).toEqual(error);
+        done();
+      };
+
+      const Component = () => (
+        <Query query={allPeopleQuery} onError={onErrorFunc}>
+          {() => {
+            return null;
+          }}
+        </Query>
+      );
+
+      wrapper = mount(
+        <MockedProvider mocks={mockError} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
     });
   });
 
@@ -1129,7 +1274,7 @@ describe('Query component', () => {
     function Container() {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
-          {result => {
+          {(result: any) => {
             try {
               switch (count++) {
                 case 0:
