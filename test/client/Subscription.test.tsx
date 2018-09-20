@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import gql from 'graphql-tag';
 import { mount, ReactWrapper } from 'enzyme';
 
@@ -93,6 +93,38 @@ it('executes the subscription', done => {
   const interval = setInterval(() => {
     link.simulateResult(results[count - 1]);
     if (count > 3) clearInterval(interval);
+  }, 10);
+
+  jest.runTimersToTime(40);
+});
+
+it('calls onSubscriptionData if given', done => {
+  jest.useFakeTimers();
+
+  let count = 0;
+
+  const Component = () => (
+    <Subscription
+      subscription={subscription}
+      onSubscriptionData={opts => {
+        expect(opts.client).toBeInstanceOf(ApolloClient);
+        const { data } = opts.subscriptionData;
+        expect(data).toEqual(results[count].result.data);
+        if (count === 3) done();
+        count++;
+      }}
+    />
+  );
+
+  wrapper = mount(
+    <ApolloProvider client={client}>
+      <Component />
+    </ApolloProvider>,
+  );
+
+  const interval = setInterval(() => {
+    link.simulateResult(results[count]);
+    if (count >= 3) clearInterval(interval);
   }, 10);
 
   jest.runTimersToTime(40);

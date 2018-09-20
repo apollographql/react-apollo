@@ -1,6 +1,6 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import * as ReactDOM from 'react-dom/server';
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import {
   graphql,
@@ -12,7 +12,7 @@ import {
   ChildProps,
 } from '../../src';
 import gql from 'graphql-tag';
-import * as _ from 'lodash';
+import times from 'lodash/times';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../src/test-utils';
 import { DocumentNode } from 'graphql';
@@ -82,7 +82,11 @@ describe('SSR', () => {
       it('functional stateless components', () => {
         let elementCount = 0;
         const MyComponent = ({ n }: { n: number }) => (
-          <div>{_.times(n, i => <span key={i} />)}</div>
+          <div>
+            {times(n, (i: any) => (
+              <span key={i} />
+            ))}
+          </div>
         );
         walkTree(<MyComponent n={5} />, {}, () => {
           elementCount += 1;
@@ -99,7 +103,9 @@ describe('SSR', () => {
         }
         const MyComponent = ({ n, children }: Props) => (
           <div>
-            {_.times(n, i => <span key={i} />)}
+            {times(n, (i: any) => (
+              <span key={i} />
+            ))}
             {children}
           </div>
         );
@@ -129,7 +135,9 @@ describe('SSR', () => {
         let elementCount = 0;
         const MyComponent = ({ n, children = null }: { n: number; children: React.ReactNode }) => (
           <div>
-            {_.times(n, i => <span key={i} />)}
+            {times(n, (i: any) => (
+              <span key={i} />
+            ))}
             {children}
           </div>
         );
@@ -228,7 +236,13 @@ describe('SSR', () => {
         let elementCount = 0;
         class MyComponent extends React.Component<any, any> {
           render() {
-            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+            return (
+              <div>
+                {times(this.props.n, (i: any) => (
+                  <span key={i} />
+                ))}
+              </div>
+            );
           }
         }
         walkTree(<MyComponent n={5} />, {}, () => {
@@ -284,7 +298,13 @@ describe('SSR', () => {
             super(null); // note doesn't pass props or context
           }
           render() {
-            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+            return (
+              <div>
+                {times(this.props.n, (i: any) => (
+                  <span key={i} />
+                ))}
+              </div>
+            );
           }
         }
         walkTree(<MyComponent n={5} />, {}, () => {
@@ -299,7 +319,9 @@ describe('SSR', () => {
           render() {
             return (
               <div>
-                {_.times(this.props.n, i => <span key={i} />)}
+                {times(this.props.n, (i: any) => (
+                  <span key={i} />
+                ))}
                 {this.props.children}
               </div>
             );
@@ -321,7 +343,13 @@ describe('SSR', () => {
         let elementCount = 0;
         class MyComponent extends (React.Component as any) {
           render = () => {
-            return <div>{_.times(this.props.n, i => <span key={i} />)}</div>;
+            return (
+              <div>
+                {times(this.props.n, (i: any) => (
+                  <span key={i} />
+                ))}
+              </div>
+            );
           };
         }
         const MyCompAsAny = MyComponent as any;
@@ -503,17 +531,19 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser: {
+        currentUser?: {
           firstName: string;
         };
       }
 
       class CurrentUserQuery extends Query<Data> {}
 
+      const hasOwn = Object.prototype.hasOwnProperty;
+
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
           {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>
       );
@@ -724,7 +754,7 @@ describe('SSR', () => {
 
       type WithUserChildProps = ChildProps<Props, UserQueryData, UserQueryVariables>;
       const withUser = graphql<WithIdChildProps, UserQueryData, UserQueryVariables>(userQuery, {
-        skip: ({ data: { loading } }) => loading,
+        skip: ({ data }) => data!.loading,
         options: ({ data }) => ({
           variables: { id: data!.currentUser!.id },
         }),
@@ -744,6 +774,87 @@ describe('SSR', () => {
       return getDataFromTree(app).then(() => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
+      });
+    });
+
+    it('should return multiple errors in nested wrapped components without circular reference to wrapper error', () => {
+      const lastNameQuery = gql`
+        {
+          currentUser {
+            lastName
+          }
+        }
+      `;
+      interface LastNameData {
+        currentUser: {
+          lastName: string;
+        };
+      }
+      const firstNameQuery = gql`
+        {
+          currentUser {
+            firstName
+          }
+        }
+      `;
+      interface FirstNameData {
+        currentUser: {
+          firstName: string;
+        };
+      }
+
+      const userData = { currentUser: { lastName: 'Tester', firstName: 'James' } };
+      const link = mockSingleLink(
+        {
+          request: { query: lastNameQuery },
+          result: { data: userData },
+          delay: 50,
+        },
+        {
+          request: { query: firstNameQuery },
+          result: { data: userData },
+          delay: 50,
+        },
+      );
+      const apolloClient = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      interface Props {}
+
+      type WithLastNameProps = ChildProps<Props, LastNameData>;
+      const withLastName = graphql<Props, LastNameData>(lastNameQuery);
+
+      const BorkedComponent = () => {
+        throw new Error('foo');
+      };
+
+      const WrappedBorkedComponent = withLastName(BorkedComponent);
+
+      const ContainerComponent: React.StatelessComponent<WithLastNameProps> = ({ data }) => (
+        <div>
+          {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.lastName}
+          <WrappedBorkedComponent />
+          <WrappedBorkedComponent />
+        </div>
+      );
+
+      type WithFirstNameProps = ChildProps<Props, FirstNameData>;
+      const withFirstName = graphql<Props, FirstNameData>(firstNameQuery);
+
+      const WrappedContainerComponent = withFirstName(ContainerComponent);
+
+      const app = (
+        <ApolloProvider client={apolloClient}>
+          <WrappedContainerComponent />
+        </ApolloProvider>
+      );
+
+      return getDataFromTree(app).catch(e => {
+        expect(e.toString()).toEqual(expect.stringContaining('2 errors were thrown'));
+        expect(e.queryErrors.length).toBeGreaterThan(1);
+        expect(e.toString()).not.toEqual(e.queryErrors[0].toString());
       });
     });
 
@@ -792,7 +903,7 @@ describe('SSR', () => {
 
       return getDataFromTree(app).catch(e => {
         expect(e).toBeTruthy();
-        expect(e.queryErrors.length).toEqual(1);
+        expect(e.queryErrors).toBeUndefined();
 
         // But we can still render the app if we want to
         const markup = ReactDOM.renderToString(app);
@@ -1171,7 +1282,7 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser: {
+        currentUser?: {
           firstName: string;
         };
       }
@@ -1181,7 +1292,7 @@ describe('SSR', () => {
       const Element = (props: { id: string }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
           {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>
       );

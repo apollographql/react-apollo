@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -175,8 +175,8 @@ describe('[queries] api', () => {
           if (count === 0) {
             expect(props.data!.fetchMore).toBeTruthy();
             expect(props.data!.fetchMore instanceof Function).toBeTruthy();
-            props.data!
-              .fetchMore({
+            props
+              .data!.fetchMore({
                 variables: { skip: 2 },
                 updateQuery: (prev, { fetchMoreResult }) => ({
                   allPeople: {
@@ -272,7 +272,9 @@ describe('[queries] api', () => {
             fetchMore({
               variables: { cursor },
               updateQuery(prev, { fetchMoreResult }) {
-                const { allPeople: { cursor, people } } = fetchMoreResult!; // tslint:disable-line:no-shadowed-variable
+                const {
+                  allPeople: { cursor, people }, // tslint:disable-line:no-shadowed-variable
+                } = fetchMoreResult!;
                 return {
                   allPeople: {
                     cursor,

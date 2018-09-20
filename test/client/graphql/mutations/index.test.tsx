@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
+import renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import { ApolloProvider, ChildProps, graphql } from '../../../../src';
 import stripSymbols from '../../../test-utils/stripSymbols';
@@ -115,7 +115,7 @@ describe('graphql(mutation)', () => {
       class extends React.Component<ChildProps> {
         componentDidMount() {
           this.props.mutate!().then(result => {
-            expect(stripSymbols(result.data)).toEqual(expectedData);
+            expect(stripSymbols(result && result.data)).toEqual(expectedData);
             done();
           });
         }
@@ -152,7 +152,7 @@ describe('graphql(mutation)', () => {
       class extends React.Component<ChildProps<Props>> {
         componentDidMount() {
           this.props.mutate!().then(result => {
-            expect(stripSymbols(result.data)).toEqual(expectedData);
+            expect(stripSymbols(result && result.data)).toEqual(expectedData);
             done();
           });
         }

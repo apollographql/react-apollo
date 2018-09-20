@@ -1,6 +1,6 @@
 // Removed import
-import { includes } from 'lodash';
-import * as fs from 'fs';
+import includes from 'lodash/includes';
+import fs from 'fs';
 
 // Setup
 const pr = danger.github.pr;

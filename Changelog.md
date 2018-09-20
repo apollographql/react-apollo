@@ -1,5 +1,79 @@
 # Change log
 
+## vNext
+
+- Improved TypeScript Typings:
+  Deprecated `MutationFunc` in favor of `MutationFn`.
+  Added missing `onCompleted` and `onError` callbacks to `MutationOpts`. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2322](https://github.com/apollographql/react-apollo/pull/2322)
+- Added an example app that shows how to test mutations. <br/>
+  [@excitement-engineer](https://github.com/excitement-engineer) in [#1998](https://github.com/apollographql/react-apollo/pull/1998)
+- The `<Subscription />` component now allows the registration of a callback
+  function, that will be triggered each time the component receives data. The
+  callback `options` object param consists of the current Apollo Client
+  instance in `client`, and the received subscription data in
+  `subscriptionData`. <br/>
+  [@jedwards1211](https://github.com/jedwards1211) in [#1966](https://github.com/apollographql/react-apollo/pull/1966)
+- The `graphql` `options` object is no longer mutated, when calculating
+  variables from props. This now prevents an issue where components created
+  with `graphql` were not having their query variables updated properly, when
+  props changed. <br/>
+  [@ksmth](https://github.com/ksmth) in [#1968](https://github.com/apollographql/react-apollo/pull/1968)
+- When a query failed on the first result, the query result `data` was being
+  returned as `undefined`. This behavior has been changed so that `data` is
+  returned as an empty object. This makes checking for data (e.g.
+  instead of `data && data.user` you can just check `data.user`) and
+  destructring (e.g. `{ data: { user } }`) easier. **Note:** this could
+  potentially hurt applications that are relying on a falsey check of `data`
+  to see if any query errors have occurred. A better (and supported) way to
+  check for errors is to use the result `errors` property. <br/>
+  [@TLadd](https://github.com/TLadd) in [#1983](https://github.com/apollographql/react-apollo/pull/1983)
+- Allow a custom `cache` object to be passed into the test-utils
+  `MockedProvider`. <br/>
+  [@palmfjord](https://github.com/palmfjord) in [#2254](https://github.com/apollographql/react-apollo/pull/2254)
+- Make the `MockedProvider` `mocks` prop read only. <br/>
+  [@amacleay](https://github.com/amacleay) in [#2284](https://github.com/apollographql/react-apollo/pull/2284)
+- Remove duplicate `FetchMoreOptions` and `FetchMoreQueryOptions` types, and
+  instead import them from Apollo Client. <br/>
+  [@skovy](https://github.com/skovy) in [#2281](https://github.com/apollographql/react-apollo/pull/2281)
+- Type changes for the `graphql` HOC `options.skip` property. <br/>
+  [@jameslaneconkling](https://github.com/jameslaneconkling) in [#2208](https://github.com/apollographql/react-apollo/pull/2208)
+- Avoid importing `lodash` directly. <br/>
+  [@shahyar](https://github.com/shahyar) in [#2045](https://github.com/apollographql/react-apollo/pull/2045)
+- When the `Query` `skip` prop is set to `true`, make sure the render prop
+  `loading` param is set to `false`, since we're not actually loading
+  anything. <br/>
+  [@edorivai](https://github.com/edorivai) in [#1916](https://github.com/apollographql/react-apollo/pull/1916)
+- No longer building against Node 9 <br/>
+  [@hwillson](https://github.com/hwillson) in [#2404](https://github.com/apollographql/react-apollo/pull/2404)
+- Make sure `<Subscription />`, `<Query />` & `<Mutation />` all support
+  using an Apollo Client instance configured in the `context` or via
+  props. <br/>
+  [@quentin-](https://github.com/quentin-) in [#1956](https://github.com/apollographql/react-apollo/pull/1956)
+- Typescript: use `Partial<TData>` instead of `TData | {}`, for the
+  `QueryResult` `data` property. <br/>
+  [@tgriesser](https://github.com/tgriesser) in [#2313](https://github.com/apollographql/react-apollo/pull/2313)
+
+## 2.1.11 (August 9, 2018)
+
+- Fixed an issue in `getDataFromTree` where queries that threw more than one
+  error had error messages swallowed, and returned an invalid error object
+  with circular references. Multiple errors are now preserved. <br/>
+  [@anand-sundaram-zocdoc](https://github.com/anand-sundaram-zocdoc) in [#2133](https://github.com/apollographql/react-apollo/pull/2133)
+- Update both the `<Mutation />` component and `graphql` HOC to accept a new
+  `awaitRefetchQueries` prop (boolean). When set to `true`, queries specified
+  in `refetchQueries` will be completed before the mutation itself is
+  completed. `awaitRefetchQueries` is `false` by default, which means
+  `refetchQueries` are usually completed after the mutation has resolved.
+  Relates to Apollo Client. <br/>
+  [PR #3169](https://github.com/apollographql/apollo-client/pull/3169). <br/>
+  [@hwillson](https://github.com/hwillson) in [#2214](https://github.com/apollographql/react-apollo/pull/2214)
+- Typings adjustment: pass `TData` along into `MutationUpdaterFn` when using
+  `MutationOpts`, to ensure that the updater function is properly typed. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2227](https://github.com/apollographql/react-apollo/pull/2227)
+- Check if queryManager is set before accessing it. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2165](https://github.com/apollographql/react-apollo/pull/2165)
+
 ## 2.1.9 (July 4, 2018)
 
 - Added `onCompleted` and `onError` props to the `Query` component, than can
@@ -8,6 +82,8 @@
   [@jeshep](https://github.com/jeshep) in [#1922](https://github.com/apollographql/react-apollo/pull/1922)
 - Add `UNSAFE_componentWillMount` SSR support.
   [@leops](https://github.com/leops) in [#2152](https://github.com/apollographql/react-apollo/pull/2152)
+- Clear out scheduler on MockedProvider unmount.
+  [@danilobuerger](https://github.com/danilobuerger) in [#2151](https://github.com/apollographql/react-apollo/pull/2151)
 
 ## 2.1.8 (June 28, 2018)
 
@@ -16,31 +92,32 @@
 ## 2.1.7 (June 27, 2018)
 
 - The `ApolloProvider` `children` prop type has been changed from `element`
-  to `node`, to allow multiple children.  
+  to `node`, to allow multiple children.
   [@quentin-](https://github.com/quentin-) in [#1955](https://github.com/apollographql/react-apollo/pull/1955)
-- Properly support the new `getDerivedStateFromProps` lifecycle method.  
+- Properly support the new `getDerivedStateFromProps` lifecycle method.
   [@amannn](https://github.com/amannn) in [#2076](https://github.com/apollographql/react-apollo/pull/2076)
-- `lodash` is no longer pinned to version 4.17.10.  
+- `lodash` is no longer pinned to version 4.17.10.
   [@cherewaty](https://github.com/cherewaty) in [#1951](https://github.com/apollographql/react-apollo/pull/1951)
-- README updates to replace `apollo-client-preset` with `apollo-boost`.  
+- README updates to replace `apollo-client-preset` with `apollo-boost`.
   [@JamesTheHacker](https://github.com/JamesTheHacker) in [#1925](https://github.com/apollographql/react-apollo/pull/1925)
-- README updates to fix broken links.  
+- README updates to fix broken links.
   [@DennisKo](https://github.com/DennisKo) in [#1935](https://github.com/apollographql/react-apollo/pull/1935)
-- Project README has been updated to show a `<Query />` example.  
+- Project README has been updated to show a `<Query />` example.
   [@petetnt](https://github.com/petetnt) in [#2102](https://github.com/apollographql/react-apollo/pull/2102)
 
 ## 2.1.6 (June 19, 2018)
 
 - Adjust `getDataFromTree` to properly traverse React 16.3's context API
-  provider/consumer approach.  
+  provider/consumer approach.
   [@marnusw](https://github.com/marnusw) in [#1978](https://github.com/apollographql/react-apollo/pull/1978)
 - An `ApolloClient` instance can now be passed into a `Mutation`
   component via a prop named `client`. This prop will override
   an `ApolloClient` instance set via `context`, by the `ApolloProvider`
-  component.  
+  component.
   [@amneacsu](https://github.com/amneacsu) in [#1890](https://github.com/apollographql/react-apollo/pull/1890)
 - The `ApolloClient` instance used by a Mutation is now available in that
-  Mutation's result.  
+  Mutation's result.
+  [PR #1945](https://github.com/apollographql/react-apollo/pull/1945)
   [@cooperka](https://github.com/cooperka) in [#1945](https://github.com/apollographql/react-apollo/pull/1945)
 
 ## 2.1.5

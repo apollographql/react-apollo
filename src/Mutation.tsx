@@ -1,13 +1,14 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ApolloClient, { PureQueryOptions, ApolloError } from 'apollo-client';
 import { DataProxy } from 'apollo-cache';
-const invariant = require('invariant');
+import invariant from 'invariant';
 import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
 import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';
+import { getClient } from './component-utils';
 
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
@@ -17,7 +18,7 @@ export interface MutationResult<TData = Record<string, any>> {
   client: ApolloClient<Object>;
 }
 export interface MutationContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
   operations: Map<string, { query: DocumentNode; variables: any }>;
 }
 
@@ -45,6 +46,7 @@ export declare type MutationOptions<TData = any, TVariables = OperationVariables
   variables?: TVariables;
   optimisticResponse?: Object;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
+  awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
 };
 
@@ -53,11 +55,13 @@ export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
 ) => Promise<void | FetchResult<TData>>;
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
+  client?: ApolloClient<Object>;
   mutation: DocumentNode;
   ignoreResults?: boolean;
   optimisticResponse?: Object;
   variables?: TVariables;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
+  awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
   children: (
     mutateFn: MutationFn<TData, TVariables>,
@@ -65,7 +69,6 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
-  client?: ApolloClient<Object>;
   context?: Record<string, any>;
 }
 
@@ -100,6 +103,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.object])),
       PropTypes.func,
     ]),
+    awaitRefetchQueries: PropTypes.bool,
     update: PropTypes.func,
     children: PropTypes.func.isRequired,
     onCompleted: PropTypes.func,
@@ -113,17 +117,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
-
-    this.client = props.client || context.client;
-    invariant(
-      !!this.client,
-      'Could not find "client" in the context or props of Mutation. Wrap ' +
-        'the root component in an <ApolloProvider>, or pass an ApolloClient ' +
-        'instance in via props.',
-    );
-
+    this.client = getClient(props, context);
     this.verifyDocumentIsMutation(props.mutation);
-
     this.mostRecentMutationId = 0;
     this.state = initialState;
   }
@@ -140,11 +135,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     nextProps: MutationProps<TData, TVariables>,
     nextContext: MutationContext,
   ) {
-    const { client } = nextProps;
-    if (
-      shallowEqual(this.props, nextProps) &&
-      (this.client === client || this.client === nextContext.client)
-    ) {
+    const nextClient = getClient(nextProps, nextContext);
+    if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
     }
 
@@ -152,8 +144,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       this.verifyDocumentIsMutation(nextProps.mutation);
     }
 
-    if (this.client !== client && this.client !== nextContext.client) {
-      this.client = client || nextContext.client;
+    if (this.client !== nextClient) {
+      this.client = nextClient;
       this.setState(initialState);
     }
   }
@@ -175,7 +167,6 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   private runMutation = (options: MutationOptions<TVariables> = {}) => {
     this.onMutationStart();
-
     const mutationId = this.generateNewMutationId();
 
     return this.mutate(options)
@@ -190,7 +181,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private mutate = (options: MutationOptions<TVariables>) => {
-    const { mutation, variables, optimisticResponse, update, context = {} } = this.props;
+    const {
+      mutation,
+      variables,
+      optimisticResponse,
+      update,
+      context = {},
+      awaitRefetchQueries = false,
+    } = this.props;
     let refetchQueries = options.refetchQueries || this.props.refetchQueries;
     // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
     // support refectching of named queries which just pulls the latest
@@ -214,6 +212,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       variables,
       optimisticResponse,
       refetchQueries,
+      awaitRefetchQueries,
       update,
       context,
       ...options,

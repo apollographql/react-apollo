@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import { ApolloClient } from 'apollo-client';
@@ -7,7 +7,7 @@ import { DataProxy } from 'apollo-cache';
 import { ExecutionResult } from 'graphql';
 
 import { ApolloProvider, Mutation, Query } from '../../src';
-import { MockedProvider, mockSingleLink } from '../../src/test-utils';
+import { MockedProvider, MockLink, mockSingleLink } from '../../src/test-utils';
 
 import stripSymbols from '../test-utils/stripSymbols';
 
@@ -65,6 +65,91 @@ const mocks = [
 ];
 
 const cache = new Cache({ addTypename: false });
+
+it('pick prop client over context client', async done => {
+  const mock = (text: string) => [
+    {
+      request: { query: mutation },
+      result: {
+        data: {
+          createTodo: {
+            __typename: 'Todo',
+            id: '99',
+            text,
+            completed: true,
+          },
+          __typename: 'Mutation',
+        },
+      },
+    },
+    {
+      request: { query: mutation },
+      result: {
+        data: {
+          createTodo: {
+            __typename: 'Todo',
+            id: '100',
+            text,
+            completed: true,
+          },
+          __typename: 'Mutation',
+        },
+      },
+    },
+  ];
+
+  const mocksProps = mock('This is the result of the prop client mutation.');
+  const mocksContext = mock('This is the result of the context client mutation.');
+
+  function mockClient(m: any) {
+    return new ApolloClient({
+      link: new MockLink(m, false),
+      cache: new Cache({ addTypename: false }),
+    });
+  }
+
+  const contextClient = mockClient(mocksContext);
+  const propsClient = mockClient(mocksProps);
+  const spy = jest.fn();
+
+  const Component = (props: any) => {
+    return (
+      <ApolloProvider client={contextClient}>
+        <Mutation client={props.propsClient} mutation={mutation}>
+          {createTodo => <button onClick={() => createTodo().then(spy)} />}
+        </Mutation>
+      </ApolloProvider>
+    );
+  };
+
+  const wrapper = mount(<Component />);
+  const button = wrapper.find('button').first();
+
+  // context client mutation
+  button.simulate('click');
+
+  // props client mutation
+  wrapper.setProps({ propsClient });
+  button.simulate('click');
+
+  // context client mutation
+  wrapper.setProps({ propsClient: undefined });
+  button.simulate('click');
+
+  // props client mutation
+  wrapper.setProps({ propsClient });
+  button.simulate('click');
+
+  setTimeout(() => {
+    expect(spy).toHaveBeenCalledTimes(4);
+    expect(spy).toHaveBeenCalledWith(mocksContext[0].result);
+    expect(spy).toHaveBeenCalledWith(mocksProps[0].result);
+    expect(spy).toHaveBeenCalledWith(mocksContext[1].result);
+    expect(spy).toHaveBeenCalledWith(mocksProps[1].result);
+
+    done();
+  }, 10);
+});
 
 it('performs a mutation', done => {
   let count = 0;
@@ -1017,7 +1102,7 @@ it('errors if a query is passed instead of a mutation', () => {
     );
   }).toThrowError('The <Mutation /> component requires a graphql mutation, but got a query.');
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('errors when changing from mutation to a query', done => {
@@ -1066,7 +1151,7 @@ it('errors when changing from mutation to a query', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; //tslint:disable-line
 });
 
 it('errors if a subscription is passed instead of a mutation', () => {
@@ -1092,7 +1177,7 @@ it('errors if a subscription is passed instead of a mutation', () => {
     'The <Mutation /> component requires a graphql mutation, but got a subscription.',
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('errors when changing from mutation to a subscription', done => {
@@ -1143,7 +1228,7 @@ it('errors when changing from mutation to a subscription', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger;
+  console.log = errorLogger; // tslint:disable-line
 });
 
 it('does not update state after receiving data after it has been unmounted', done => {

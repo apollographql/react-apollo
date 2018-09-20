@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ApolloClient from 'apollo-client';
 import { ApolloLink, Observable } from 'apollo-link';
 import {
@@ -223,7 +223,9 @@ describe('SSR', () => {
           return (
             <div>
               <h1>Planets</h1>
-              {(data.allPlanets || []).map((planet, key) => <div key={key}>{planet.name}</div>)}
+              {(data.allPlanets || []).map((planet, key) => (
+                <div key={key}>{planet.name}</div>
+              ))}
             </div>
           );
         }
