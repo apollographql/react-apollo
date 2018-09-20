@@ -40,6 +40,8 @@
   `loading` param is set to `false`, since we're not actually loading
   anything. <br/>
   [@edorivai](https://github.com/edorivai) in [#1916](https://github.com/apollographql/react-apollo/pull/1916)
+- No longer building against Node 9 <br/>
+  [@hwillson](https://github.com/hwillson) in [#2404](https://github.com/apollographql/react-apollo/pull/2404)
 
 ## 2.1.11 (August 9, 2018)
 
