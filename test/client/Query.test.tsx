@@ -1274,7 +1274,7 @@ describe('Query component', () => {
     function Container() {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
-          {(result: any) => {
+          {result => {
             try {
               switch (count++) {
                 case 0:
