@@ -42,6 +42,10 @@
   [@edorivai](https://github.com/edorivai) in [#1916](https://github.com/apollographql/react-apollo/pull/1916)
 - No longer building against Node 9 <br/>
   [@hwillson](https://github.com/hwillson) in [#2404](https://github.com/apollographql/react-apollo/pull/2404)
+- Make sure `<Subscription />`, `<Query />` & `<Mutation />` all support
+  using an Apollo Client instance configured in the `context` or via
+  props. <br/>
+  [@quentin-](https://github.com/quentin-) in [#1956](https://github.com/apollographql/react-apollo/pull/1956)
 
 ## 2.1.11 (August 9, 2018)
 
