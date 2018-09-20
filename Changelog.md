@@ -46,6 +46,9 @@
   using an Apollo Client instance configured in the `context` or via
   props. <br/>
   [@quentin-](https://github.com/quentin-) in [#1956](https://github.com/apollographql/react-apollo/pull/1956)
+- Typescript: use `Partial<TData>` instead of `TData | {}`, for the
+  `QueryResult` `data` property. <br/>
+  [@tgriesser](https://github.com/tgriesser) in [#2313](https://github.com/apollographql/react-apollo/pull/2313)
 
 ## 2.1.11 (August 9, 2018)
 
