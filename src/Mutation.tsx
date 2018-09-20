@@ -118,12 +118,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   constructor(props: MutationProps<TData, TVariables>, context: any) {
     super(props, context);
-
-    this.verifyContext(context);
     this.client = getClient(props, context);
-
     this.verifyDocumentIsMutation(props.mutation);
-
     this.mostRecentMutationId = 0;
     this.state = initialState;
   }
