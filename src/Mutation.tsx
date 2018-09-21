@@ -69,6 +69,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   ) => React.ReactNode;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
+  onStart?: () => void;
   context?: Record<string, any>;
 }
 
@@ -108,6 +109,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     children: PropTypes.func.isRequired,
     onCompleted: PropTypes.func,
     onError: PropTypes.func,
+    onStart: PropTypes.func,
   };
 
   private client: ApolloClient<any>;
@@ -166,6 +168,12 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   }
 
   private runMutation = (options: MutationOptions<TVariables> = {}) => {
+    const { onStart, onError } = this.props;
+
+    if (typeof onStart === 'function') {
+      onStart();
+    }
+
     this.onMutationStart();
     const mutationId = this.generateNewMutationId();
 
