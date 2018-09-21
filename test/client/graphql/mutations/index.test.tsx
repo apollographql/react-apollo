@@ -193,7 +193,7 @@ describe('graphql(mutation)', () => {
           this.props.mutate!({
             variables: { second: 2 },
           }).then(result => {
-            expect(stripSymbols(result.data)).toEqual(expectedData);
+            expect(stripSymbols(result && result.data)).toEqual(expectedData);
             done();
           });
         }
