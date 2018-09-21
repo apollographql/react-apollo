@@ -14,6 +14,7 @@ import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables, GraphqlQueryControls } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
+import { getClient } from './component-utils';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -65,15 +66,7 @@ function observableQueryFields<TData, TVariables>(
 export interface QueryResult<TData = any, TVariables = OperationVariables>
   extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
-  // we create an empty object to make checking for data
-  // easier for consumers (i.e. instead of data && data.user
-  // you can just check data.user) this also makes destructring
-  // easier (i.e. { data: { user } })
-  // however, this isn't realy possible with TypeScript that
-  // I'm aware of. So intead we enforce checking for data
-  // like so result.data!.user. This tells TS to use TData
-  // XXX is there a better way to do this?
-  data: TData | {};
+  data: Partial<TData>;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
@@ -97,7 +90,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
 }
 
 export interface QueryContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
   operations?: Map<string, { query: DocumentNode; variables: any }>;
 }
 
@@ -105,11 +98,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   QueryProps<TData, TVariables>
 > {
   static contextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
     operations: PropTypes.object,
   };
 
   static propTypes = {
+    client: PropTypes.object,
     children: PropTypes.func.isRequired,
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
@@ -143,11 +137,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
 
-    this.client = props.client || context.client;
-    invariant(
-      !!this.client,
-      `Could not find "client" in the context of Query or as passed props. Wrap the root component in an <ApolloProvider>`,
-    );
+    this.client = getClient(props, context);
     this.initializeQueryObservable(props);
   }
 
@@ -176,6 +166,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentDidMount() {
     this.hasMounted = true;
     if (this.props.skip) return;
+
     this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
@@ -192,26 +183,20 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       return;
     }
 
-    const { client } = nextProps;
-    if (
-      shallowEqual(this.props, nextProps) &&
-      (this.client === client || this.client === nextContext.client)
-    ) {
+    const nextClient = getClient(nextProps, nextContext);
+
+    if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
     }
 
-    if (this.client !== client && this.client !== nextContext.client) {
-      if (client) {
-        this.client = client;
-      } else {
-        this.client = nextContext.client;
-      }
+    if (this.client !== nextClient) {
+      this.client = nextClient;
       this.removeQuerySubscription();
       this.queryObservable = null;
       this.previousData = {};
-
       this.updateQuery(nextProps);
     }
+
     if (this.props.query !== nextProps.query) {
       this.removeQuerySubscription();
     }
@@ -224,6 +209,19 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentWillUnmount() {
     this.removeQuerySubscription();
     this.hasMounted = false;
+  }
+
+  componentDidUpdate() {
+    const { onCompleted, onError } = this.props;
+    if (onCompleted || onError) {
+      const currentResult = this.queryObservable!.currentResult();
+      const { loading, error, data } = currentResult;
+      if (onCompleted && !loading && !error) {
+        onCompleted(data);
+      } else if (onError && !loading && error) {
+        onError(error);
+      }
+    }
   }
 
   render() {
@@ -337,17 +335,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
-    const { onCompleted, onError } = this.props;
-    if (onCompleted || onError) {
-      const currentResult = this.queryObservable!.currentResult();
-      const { loading, error, data } = currentResult;
-      if (onCompleted && !loading && !error) {
-        onCompleted(data);
-      } else if (onError && !loading && error) {
-        onError(error);
-      }
-    }
-
     // force a rerender that goes through shouldComponentUpdate
     if (this.hasMounted) this.forceUpdate();
   };

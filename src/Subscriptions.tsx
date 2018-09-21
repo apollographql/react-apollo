@@ -6,6 +6,7 @@ import { Observable } from 'apollo-link';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
+import { getClient } from './component-utils';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -26,6 +27,7 @@ export interface SubscriptionProps<TData = any, TVariables = OperationVariables>
   variables?: TVariables;
   fetchPolicy?: FetchPolicy;
   shouldResubscribe?: any;
+  client?: ApolloClient<Object>;
   onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
   children?: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
@@ -37,7 +39,7 @@ export interface SubscriptionState<TData = any> {
 }
 
 export interface SubscriptionContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
 }
 
 class Subscription<TData = any, TVariables = any> extends React.Component<
@@ -63,11 +65,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   constructor(props: SubscriptionProps<TData, TVariables>, context: SubscriptionContext) {
     super(props, context);
 
-    invariant(
-      !!context.client,
-      `Could not find "client" in the context of Subscription. Wrap the root component in an <ApolloProvider>`,
-    );
-    this.client = context.client;
+    this.client = getClient(props, context);
     this.initialize(props);
     this.state = this.getInitialState();
   }
@@ -80,9 +78,11 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     nextProps: SubscriptionProps<TData, TVariables>,
     nextContext: SubscriptionContext,
   ) {
+    const nextClient = getClient(nextProps, nextContext);
+
     if (
       shallowEqual(this.props.variables, nextProps.variables) &&
-      this.client === nextContext.client &&
+      this.client === nextClient &&
       this.props.subscription === nextProps.subscription
     ) {
       return;
@@ -93,8 +93,8 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
       shouldResubscribe = !!shouldResubscribe(this.props, nextProps);
     }
     const shouldNotResubscribe = shouldResubscribe === false;
-    if (this.client !== nextContext.client) {
-      this.client = nextContext.client;
+    if (this.client !== nextClient) {
+      this.client = nextClient;
     }
 
     if (!shouldNotResubscribe) {
