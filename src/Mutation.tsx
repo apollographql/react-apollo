@@ -189,7 +189,9 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       context = {},
       awaitRefetchQueries = false,
     } = this.props;
-    let refetchQueries = options.refetchQueries || this.props.refetchQueries;
+    const mutateOptions = { ...options };
+
+    let refetchQueries = mutateOptions.refetchQueries || this.props.refetchQueries;
     // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
     // support refectching of named queries which just pulls the latest
     // variables to match. This forces us to either a) keep all queries around
@@ -204,18 +206,21 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
           return this.context.operations.get(x) || x;
         return x;
       });
-      delete options.refetchQueries;
+      delete mutateOptions.refetchQueries;
     }
+
+    const mutateVariables = Object.assign({}, variables, mutateOptions.variables);
+    delete mutateOptions.variables;
 
     return this.client.mutate({
       mutation,
-      variables,
       optimisticResponse,
       refetchQueries,
       awaitRefetchQueries,
       update,
       context,
-      ...options,
+      variables: mutateVariables,
+      ...mutateOptions,
     });
   };
 

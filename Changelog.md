@@ -61,6 +61,9 @@
   [@olistic](https://github.com/olistic) in [#2190](https://github.com/apollographql/react-apollo/pull/2190)
 - Import `lodash/flowRight` using ES import to allow for treeshaking. <br/>
   [@Pajn](https://github.com/Pajn) in [#2332](https://github.com/apollographql/react-apollo/pull/2332)
+- Fixed a regression where `variables` passed in `graphql` HOC `options` were
+  not merged with mutation `variables`. <br/>
+  [@samginn](https://github.com/samginn) in [#2216](https://github.com/apollographql/react-apollo/pull/2216)
 
 ## 2.1.11 (August 9, 2018)
 
