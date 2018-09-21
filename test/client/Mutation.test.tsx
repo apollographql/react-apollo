@@ -152,17 +152,20 @@ it('pick prop client over context client', async done => {
 });
 
 it('performs a mutation', done => {
+  const onStartSpy = jest.fn();
   let count = 0;
   const Component = () => (
-    <Mutation mutation={mutation}>
+    <Mutation mutation={mutation} onStart={onStartSpy}>
       {(createTodo, result) => {
         if (count === 0) {
+          expect(onStartSpy).not.toHaveBeenCalled();
           expect(result.loading).toEqual(false);
           expect(result.called).toEqual(false);
           setTimeout(() => {
             createTodo();
           });
         } else if (count === 1) {
+          expect(onStartSpy).toBeCalled();
           expect(result.called).toEqual(true);
           expect(result.loading).toEqual(true);
         } else if (count === 2) {
