@@ -168,4 +168,45 @@ describe('graphql(mutation)', () => {
       </ApolloProvider>,
     );
   });
+
+  it('can execute a mutation with variables from BOTH options and arguments', done => {
+    const queryWithVariables = gql`
+      mutation addPerson($first: Int!, $second: Int!) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+    client = createClient(expectedData, queryWithVariables, { first: 1, second: 2 });
+
+    interface Props {}
+
+    const Container = graphql<Props>(queryWithVariables, {
+      options: () => ({
+        variables: { first: 1 },
+      }),
+    })(
+      class extends React.Component<ChildProps<Props>> {
+        componentDidMount() {
+          this.props.mutate!({
+            variables: { second: 2 },
+          }).then(result => {
+            expect(stripSymbols(result && result.data)).toEqual(expectedData);
+            done();
+          });
+        }
+        render() {
+          return null;
+        }
+      },
+    );
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <Container />
+      </ApolloProvider>,
+    );
+  });
 });
