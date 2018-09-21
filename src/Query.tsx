@@ -166,6 +166,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentDidMount() {
     this.hasMounted = true;
     if (this.props.skip) return;
+
     this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
@@ -208,6 +209,19 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentWillUnmount() {
     this.removeQuerySubscription();
     this.hasMounted = false;
+  }
+
+  componentDidUpdate() {
+    const { onCompleted, onError } = this.props;
+    if (onCompleted || onError) {
+      const currentResult = this.queryObservable!.currentResult();
+      const { loading, error, data } = currentResult;
+      if (onCompleted && !loading && !error) {
+        onCompleted(data);
+      } else if (onError && !loading && error) {
+        onError(error);
+      }
+    }
   }
 
   render() {
@@ -321,17 +335,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
-    const { onCompleted, onError } = this.props;
-    if (onCompleted || onError) {
-      const currentResult = this.queryObservable!.currentResult();
-      const { loading, error, data } = currentResult;
-      if (onCompleted && !loading && !error) {
-        onCompleted(data);
-      } else if (onError && !loading && error) {
-        onError(error);
-      }
-    }
-
     // force a rerender that goes through shouldComponentUpdate
     if (this.hasMounted) this.forceUpdate();
   };

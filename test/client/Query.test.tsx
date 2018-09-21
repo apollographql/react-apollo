@@ -713,25 +713,82 @@ describe('Query component', () => {
     });
 
     it('onCompleted with data', done => {
+      const query = gql`
+        query people($first: Int) {
+          allPeople(first: $first) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
       const mocks = [
         {
-          request: { query: allPeopleQuery },
-          result: { data: allPeopleData },
+          request: { query, variables: { first: 1 } },
+          result: { data: data1 },
+        },
+        {
+          request: { query, variables: { first: 2 } },
+          result: { data: data2 },
         },
       ];
 
-      const onCompleted = (queryData: Data | {}) => {
-        expect(stripSymbols(queryData)).toEqual(allPeopleData);
-        done();
-      };
+      let count = 0;
 
-      const Component = () => (
-        <Query query={allPeopleQuery} onCompleted={onCompleted}>
-          {() => {
-            return null;
-          }}
-        </Query>
-      );
+      class Component extends React.Component {
+        state = {
+          variables: {
+            first: 1,
+          },
+        };
+
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({
+              variables: {
+                first: 2,
+              },
+            });
+            setTimeout(() => {
+              this.setState({
+                variables: {
+                  first: 1,
+                },
+              });
+            }, 50);
+          }, 50);
+        }
+
+        // Make sure `onCompleted` is called both when new data is being
+        // fetched over the network, and when data is coming back from
+        // the cache.
+        onCompleted(data: Data | {}) {
+          if (count === 0) {
+            expect(stripSymbols(data)).toEqual(data1);
+          }
+          if (count === 1) {
+            expect(stripSymbols(data)).toEqual(data2);
+          }
+          if (count === 2) {
+            expect(stripSymbols(data)).toEqual(data1);
+            done();
+          }
+          count += 1;
+        }
+
+        render() {
+          const { variables } = this.state;
+
+          return (
+            <AllPeopleQuery query={query} variables={variables} onCompleted={this.onCompleted}>
+              {() => null}
+            </AllPeopleQuery>
+          );
+        }
+      }
 
       wrapper = mount(
         <MockedProvider mocks={mocks} addTypename={false}>

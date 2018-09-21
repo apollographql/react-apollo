@@ -53,6 +53,12 @@
 - Typescript: use `Partial<TData>` instead of `TData | {}`, for the
   `QueryResult` `data` property. <br/>
   [@tgriesser](https://github.com/tgriesser) in [#2313](https://github.com/apollographql/react-apollo/pull/2313)
+- Adjust `<Query />` `onCompleted` and `onError` callbacks to be triggered
+  via the `componentDidUpdate` lifecycle method. This ensures these callbacks
+  can be used when data is fetched over the network, and when data is
+  fetched from the local store (previsouly these callbacks were only being
+  triggered when data was fetched over the network).
+  [@olistic](https://github.com/olistic) in [#2190](https://github.com/apollographql/react-apollo/pull/2190)
 
 ## 2.1.11 (August 9, 2018)
 
