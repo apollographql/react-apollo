@@ -49,7 +49,7 @@ describe('graphql(mutation) query integration', () => {
             },
           };
           this.props.mutate!({ optimisticResponse }).then(result => {
-            expect(stripSymbols(result.data)).toEqual(data);
+            expect(stripSymbols(result && result.data)).toEqual(data);
             done();
           });
 
@@ -154,7 +154,7 @@ describe('graphql(mutation) query integration', () => {
         if (!props.data || !props.data.todo_list) return;
         if (!props.data.todo_list.tasks.length) {
           props.mutate!().then(result => {
-            expect(stripSymbols(result.data)).toEqual(mutationData);
+            expect(stripSymbols(result && result.data)).toEqual(mutationData);
           });
 
           const dataInStore = cache.extract(true);
@@ -261,7 +261,7 @@ describe('graphql(mutation) query integration', () => {
           if (count === 1) {
             props.mutate!()
               .then(result => {
-                expect(stripSymbols(result.data)).toEqual(mutationData);
+                expect(stripSymbols(result && result.data)).toEqual(mutationData);
               })
               .catch(done.fail);
           }

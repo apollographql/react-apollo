@@ -8,6 +8,6 @@
   "prCreation": "not-pending",
   "automerge": "minor",
   "labels": ["tooling", "dependencies"],
-  "assignees": ["@jbaxleyiii"],
-  "reviewers": ["@jbaxleyiii"]
+  "assignees": ["@hwillson"],
+  "reviewers": ["@hwillson"]
 }
