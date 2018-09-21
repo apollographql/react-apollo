@@ -33,6 +33,7 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
   notifyOnNetworkStatusChange?: boolean;
   context?: Record<string, any>;
   onCompleted?: (data: TData) => void;
+  onStart?: () => void;
   onError?: (error: ApolloError) => void;
 }
 
