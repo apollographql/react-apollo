@@ -59,6 +59,8 @@
   fetched from the local store (previsouly these callbacks were only being
   triggered when data was fetched over the network).
   [@olistic](https://github.com/olistic) in [#2190](https://github.com/apollographql/react-apollo/pull/2190)
+- Import `lodash/flowRight` using ES import to allow for treeshaking. <br/>
+  [@Pajn](https://github.com/Pajn) in [#2332](https://github.com/apollographql/react-apollo/pull/2332)
 
 ## 2.1.11 (August 9, 2018)
 
