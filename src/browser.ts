@@ -19,7 +19,7 @@ export * from './Subscriptions';
 export { graphql } from './graphql';
 
 export { default as withApollo } from './withApollo';
-export * from './withApollo'
+export * from './withApollo';
 
 export * from './types';
 

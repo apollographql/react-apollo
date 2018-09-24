@@ -64,6 +64,20 @@
 - Fixed a regression where `variables` passed in `graphql` HOC `options` were
   not merged with mutation `variables`. <br/>
   [@samginn](https://github.com/samginn) in [#2216](https://github.com/apollographql/react-apollo/pull/2216)
+- Added a new `partialRefetch` prop (`false` by default).
+  When a `Query` component is mounted, and a mutation is executed
+  that returns the same ID as the mounted `Query`, but has less
+  fields in its result, Apollo Client's `QueryManager` returns the
+  data as an empty Object since a hit can't be found in the cache.
+  This can lead to application errors when the UI elements rendered by
+  the original `Query` component are expecting certain data values to
+  exist, and they're all of a sudden stripped away. The recommended way to
+  handle this is to use the mutations `update` prop to reconcile the mutation
+  result with the data in the cache, getting everything into the expected
+  state. This can definitely be a cumbersome process however, so to help
+  address this the `partialRefetch` prop can be used to automatically
+  `refetch` the original query and update the cache. <br/>
+  [@steelbrain](https://github.com/steelbrain) in [#2003](https://github.com/apollographql/react-apollo/pull/2003)
 
 ## 2.1.11 (August 9, 2018)
 
