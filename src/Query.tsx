@@ -85,7 +85,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   skip?: boolean;
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
-  disablePartialRefetch?: boolean;
+  partialRefetch?: boolean;
   onCompleted?: (data: TData | {}) => void;
   onError?: (error: ApolloError) => void;
 }
@@ -114,7 +114,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
     ssr: PropTypes.bool,
-    disablePartialRefetch: PropTypes.bool,
+    partialRefetch: PropTypes.bool,
   };
 
   context: QueryContext | undefined;
@@ -156,7 +156,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       client,
       onCompleted,
       onError,
-      disablePartialRefetch,
+      partialRefetch,
       ...opts
     } = this.props;
 
@@ -391,9 +391,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         }
       } else {
         const { fetchPolicy } = this.queryObservable!.options;
-        const { disablePartialRefetch } = this.props;
+        const { partialRefetch } = this.props;
         if (
-          !disablePartialRefetch &&
+          partialRefetch &&
           Object.keys(currentResult.data).length === 0 &&
           partial &&
           fetchPolicy !== 'cache-only'
@@ -416,7 +416,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       }
     }
 
-    // handle race condition where refetch is called on child mount or later
+    // Handle race condition where refetch is called on child mount or later
     // Normal execution model:
     // render(loading) -> mount -> start subscription -> get data -> render(with data)
     //

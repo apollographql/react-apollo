@@ -1406,8 +1406,9 @@ describe('Query component', () => {
   describe('Partial refetching', () => {
     it(
       'should attempt a refetch when the query result was marked as being ' +
-        'partial, but the returned data was reset to an empty Object by the ' +
-        'Apollo Client QueryManager (due to a cache miss)',
+        'partial, the returned data was reset to an empty Object by the ' +
+        'Apollo Client QueryManager (due to a cache miss), and the ' +
+        '`partialRefetch` prop is `true`',
       done => {
         const query = allPeopleQuery;
         const link = mockSingleLink(
@@ -1422,7 +1423,7 @@ describe('Query component', () => {
 
         let count = 0;
         const Component = () => (
-          <Query query={allPeopleQuery}>
+          <Query query={allPeopleQuery} partialRefetch>
             {result => {
               const { data, loading } = result;
               if (!loading) {
@@ -1444,7 +1445,7 @@ describe('Query component', () => {
 
     it(
       'should not refetch when an empty partial is returned if the ' +
-        '`disablePartialRefetch` prop is true',
+        '`partialRefetch` prop is false/not set',
       done => {
         const query = allPeopleQuery;
         const link = mockSingleLink({ request: { query }, result: { data: {} } });
@@ -1456,7 +1457,7 @@ describe('Query component', () => {
 
         let count = 0;
         const Component = () => (
-          <Query query={allPeopleQuery} disablePartialRefetch>
+          <Query query={allPeopleQuery}>
             {result => {
               const { data, loading } = result;
               if (!loading) {
