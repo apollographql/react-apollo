@@ -127,7 +127,7 @@
     "prettier": "1.14.3",
     "pretty-quick": "1.7.0",
     "react": "16.5.2",
-    "react-dom": "16.5.1",
+    "react-dom": "16.5.2",
     "react-test-renderer": "16.5.1",
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
