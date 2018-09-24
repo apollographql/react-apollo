@@ -19,10 +19,9 @@ export * from './Subscriptions';
 export { graphql } from './graphql';
 
 export { default as withApollo } from './withApollo';
-export * from './withApollo'
+export * from './withApollo';
 
 export * from './types';
 
 // XXX remove in the next breaking semver change (3.0)
-const compose = require('lodash/flowRight');
-export { compose };
+export { default as compose } from 'lodash/flowRight';

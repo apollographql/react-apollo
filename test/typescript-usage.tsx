@@ -35,7 +35,7 @@ interface Data {
 }
 
 // interface Mutation {
-//   updateHistory?: MutationFunc<MutationPayload, MutationInput>;
+//   updateHistory?: MutationFn<MutationPayload, MutationInput>;
 // }
 //
 // interface MutationPayload {

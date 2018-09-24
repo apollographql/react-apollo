@@ -690,26 +690,105 @@ describe('Query component', () => {
       });
     });
 
-    it('onCompleted with data', done => {
-      const mocks = [
-        {
-          request: { query: allPeopleQuery },
-          result: { data: allPeopleData },
-        },
-      ];
-
-      const onCompleted = (queryData: Data | {}) => {
-        expect(stripSymbols(queryData)).toEqual(allPeopleData);
-        done();
-      };
-
+    it('skip', done => {
       const Component = () => (
-        <Query query={allPeopleQuery} onCompleted={onCompleted}>
-          {() => {
+        <Query query={allPeopleQuery} skip>
+          {result => {
+            catchAsyncError(done, () => {
+              expect(result.loading).toBeFalsy();
+              expect(result.data).toBe(undefined);
+              expect(result.error).toBe(undefined);
+              done();
+            });
             return null;
           }}
         </Query>
       );
+
+      wrapper = mount(
+        <MockedProvider mocks={allPeopleMocks} addTypename={false}>
+          <Component />
+        </MockedProvider>,
+      );
+    });
+
+    it('onCompleted with data', done => {
+      const query = gql`
+        query people($first: Int) {
+          allPeople(first: $first) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+
+      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+      const mocks = [
+        {
+          request: { query, variables: { first: 1 } },
+          result: { data: data1 },
+        },
+        {
+          request: { query, variables: { first: 2 } },
+          result: { data: data2 },
+        },
+      ];
+
+      let count = 0;
+
+      class Component extends React.Component {
+        state = {
+          variables: {
+            first: 1,
+          },
+        };
+
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({
+              variables: {
+                first: 2,
+              },
+            });
+            setTimeout(() => {
+              this.setState({
+                variables: {
+                  first: 1,
+                },
+              });
+            }, 50);
+          }, 50);
+        }
+
+        // Make sure `onCompleted` is called both when new data is being
+        // fetched over the network, and when data is coming back from
+        // the cache.
+        onCompleted(data: Data | {}) {
+          if (count === 0) {
+            expect(stripSymbols(data)).toEqual(data1);
+          }
+          if (count === 1) {
+            expect(stripSymbols(data)).toEqual(data2);
+          }
+          if (count === 2) {
+            expect(stripSymbols(data)).toEqual(data1);
+            done();
+          }
+          count += 1;
+        }
+
+        render() {
+          const { variables } = this.state;
+
+          return (
+            <AllPeopleQuery query={query} variables={variables} onCompleted={this.onCompleted}>
+              {() => null}
+            </AllPeopleQuery>
+          );
+        }
+      }
 
       wrapper = mount(
         <MockedProvider mocks={mocks} addTypename={false}>
@@ -1011,66 +1090,84 @@ describe('Query component', () => {
       );
     });
 
-    it('if the client changes in the context', done => {
-      const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-      const link1 = mockSingleLink({
-        request: { query: allPeopleQuery },
-        result: { data: data1 },
-      });
-      const client1 = new ApolloClient({
-        link: link1,
-        cache: new Cache({ addTypename: false }),
-      });
+    it('use client from props or context', done => {
+      jest.useFakeTimers();
 
-      const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
-      const link2 = mockSingleLink({
-        request: { query: allPeopleQuery },
-        result: { data: data2 },
-      });
-      const client2 = new ApolloClient({
-        link: link2,
-        cache: new Cache({ addTypename: false }),
-      });
+      function newClient(name: string) {
+        const link = mockSingleLink({
+          request: { query: allPeopleQuery },
+          result: { data: { allPeople: { people: [{ name }] } } },
+        });
 
-      let count = 0;
-      class Component extends React.Component {
-        state = {
-          client: client1,
-        };
+        return new ApolloClient({ link, cache: new Cache({ addTypename: false }) });
+      }
 
+      const skywalker = newClient('Luke Skywalker');
+      const ackbar = newClient('Admiral Ackbar');
+      const solo = newClient('Han Solo');
+
+      const propsChanges = [
+        {
+          propsClient: null,
+          contextClient: ackbar,
+          renderedName: (name: string) => expect(name).toEqual('Admiral Ackbar'),
+        },
+        {
+          propsClient: null,
+          contextClient: skywalker,
+          renderedName: (name: string) => expect(name).toEqual('Luke Skywalker'),
+        },
+        {
+          propsClient: solo,
+          contextClient: skywalker,
+          renderedName: (name: string) => expect(name).toEqual('Han Solo'),
+        },
+        {
+          propsClient: null,
+          contextClient: ackbar,
+          renderedName: (name: string) => expect(name).toEqual('Admiral Ackbar'),
+        },
+        {
+          propsClient: skywalker,
+          contextClient: null,
+          renderedName: (name: string) => expect(name).toEqual('Luke Skywalker'),
+        },
+      ];
+
+      class Component extends React.Component<any, any> {
         render() {
-          return (
-            <ApolloProvider client={this.state.client}>
-              <Query query={allPeopleQuery}>
-                {result => {
-                  if (result.loading) {
-                    return null;
-                  }
-                  catchAsyncError(done, () => {
-                    if (count === 0) {
-                      expect(stripSymbols(result.data)).toEqual(data1);
-                      setTimeout(() => {
-                        this.setState({
-                          client: client2,
-                        });
-                      }, 0);
-                    }
-                    if (count === 1) {
-                      expect(stripSymbols(result.data)).toEqual(data2);
-                      done();
-                    }
-                    count++;
-                  });
+          if (Object.keys(this.props).length === 0) {
+            return null;
+          }
 
-                  return null;
-                }}
-              </Query>
-            </ApolloProvider>
+          const query = (
+            <Query query={allPeopleQuery} client={this.props.propsClient}>
+              {result => {
+                if (result.data && result.data.allPeople) {
+                  this.props.renderedName(result.data.allPeople.people[0].name);
+                }
+
+                return null;
+              }}
+            </Query>
           );
+
+          if (this.props.contextClient) {
+            return <ApolloProvider client={this.props.contextClient}>{query}</ApolloProvider>;
+          }
+
+          return query;
         }
       }
 
-      wrapper = mount(<Component />);
+      const component = mount(<Component />);
+
+      propsChanges.forEach(props => {
+        component.setProps(props);
+        jest.runAllTimers();
+      });
+
+      done();
     });
 
     it('with data while loading', done => {
@@ -1234,7 +1331,7 @@ describe('Query component', () => {
     function Container() {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
-          {(result: any) => {
+          {result => {
             try {
               switch (count++) {
                 case 0:

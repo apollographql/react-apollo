@@ -14,6 +14,7 @@ import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables, GraphqlQueryControls } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
+import { getClient } from './component-utils';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -65,15 +66,7 @@ function observableQueryFields<TData, TVariables>(
 export interface QueryResult<TData = any, TVariables = OperationVariables>
   extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
-  // we create an empty object to make checking for data
-  // easier for consumers (i.e. instead of data && data.user
-  // you can just check data.user) this also makes destructring
-  // easier (i.e. { data: { user } })
-  // however, this isn't realy possible with TypeScript that
-  // I'm aware of. So intead we enforce checking for data
-  // like so result.data!.user. This tells TS to use TData
-  // XXX is there a better way to do this?
-  data: TData | {};
+  data: Partial<TData>;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
@@ -98,7 +91,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
 }
 
 export interface QueryContext {
-  client: ApolloClient<Object>;
+  client?: ApolloClient<Object>;
   operations?: Map<string, { query: DocumentNode; variables: any }>;
 }
 
@@ -106,11 +99,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   QueryProps<TData, TVariables>
 > {
   static contextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
     operations: PropTypes.object,
   };
 
   static propTypes = {
+    client: PropTypes.object,
     children: PropTypes.func.isRequired,
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
@@ -145,11 +139,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
 
-    this.client = props.client || context.client;
-    invariant(
-      !!this.client,
-      `Could not find "client" in the context of Query or as passed props. Wrap the root component in an <ApolloProvider>`,
-    );
+    this.client = getClient(props, context);
     this.initializeQueryObservable(props);
   }
 
@@ -188,6 +178,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentDidMount() {
     this.hasMounted = true;
     if (this.props.skip) return;
+
     this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
@@ -204,26 +195,20 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       return;
     }
 
-    const { client } = nextProps;
-    if (
-      shallowEqual(this.props, nextProps) &&
-      (this.client === client || this.client === nextContext.client)
-    ) {
+    const nextClient = getClient(nextProps, nextContext);
+
+    if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
     }
 
-    if (this.client !== client && this.client !== nextContext.client) {
-      if (client) {
-        this.client = client;
-      } else {
-        this.client = nextContext.client;
-      }
+    if (this.client !== nextClient) {
+      this.client = nextClient;
       this.removeQuerySubscription();
       this.queryObservable = null;
       this.previousData = {};
-
       this.updateQuery(nextProps);
     }
+
     if (this.props.query !== nextProps.query) {
       this.removeQuerySubscription();
     }
@@ -236,6 +221,19 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentWillUnmount() {
     this.removeQuerySubscription();
     this.hasMounted = false;
+  }
+
+  componentDidUpdate() {
+    const { onCompleted, onError } = this.props;
+    if (onCompleted || onError) {
+      const currentResult = this.queryObservable!.currentResult();
+      const { loading, error, data } = currentResult;
+      if (onCompleted && !loading && !error) {
+        onCompleted(data);
+      } else if (onError && !loading && error) {
+        onError(error);
+      }
+    }
   }
 
   render() {
@@ -349,17 +347,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
-    const { onCompleted, onError } = this.props;
-    if (onCompleted || onError) {
-      const currentResult = this.queryObservable!.currentResult();
-      const { loading, error, data } = currentResult;
-      if (onCompleted && !loading && !error) {
-        onCompleted(data);
-      } else if (onError && !loading && error) {
-        onError(error);
-      }
-    }
-
     // force a rerender that goes through shouldComponentUpdate
     if (this.hasMounted) this.forceUpdate();
   };
@@ -368,51 +355,65 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     let data = { data: Object.create(null) as TData } as any;
     // Attach bound methods
     Object.assign(data, observableQueryFields(this.queryObservable!));
-    // Fetch the current result (if any) from the store
-    const currentResult = this.queryObservable!.currentResult();
-    const { loading, partial, networkStatus, errors } = currentResult;
-    let { error } = currentResult;
-    // Until a set naming convention for networkError and graphQLErrors is
-    // decided upon, we map errors (graphQLErrors) to the error props
-    if (errors && errors.length > 0) {
-      error = new ApolloError({ graphQLErrors: errors });
-    }
 
-    Object.assign(data, { loading, networkStatus, error });
-
-    if (loading) {
-      Object.assign(data.data, this.previousData, currentResult.data);
-    } else if (error) {
-      const lastResult = this.queryObservable!.getLastResult();
-      if (lastResult) {
-        Object.assign(data, {
-          data: lastResult.data,
-        });
-      }
+    // When skipping a query (ie. we're not querying for data but still want
+    // to render children), make sure the `data` is cleared out and
+    // `loading` is set to `false` (since we aren't loading anything).
+    if (this.props.skip) {
+      data = {
+        ...data,
+        data: undefined,
+        error: undefined,
+        loading: false,
+      };
     } else {
-      const { fetchPolicy } = this.queryObservable!.options;
-      const { disablePartialRefetch } = this.props;
-      if (
-        !disablePartialRefetch &&
-        Object.keys(currentResult.data).length === 0 &&
-        partial &&
-        fetchPolicy !== 'cache-only'
-      ) {
-        // When a `Query` component is mounted, and a mutation is executed
-        // that returns the same ID as the mounted `Query`, but has less
-        // fields in its result, Apollo Client's `QueryManager` returns the
-        // data as an empty Object since a hit can't be found in the cache.
-        // This can lead to application errors when the UI elements rendered by
-        // the original `Query` component are expecting certain data values to
-        // exist, and they're all of a sudden stripped away. To help avoid
-        // this we'll attempt to refetch the `Query` data.
-        Object.assign(data, { loading: true });
-        data.refetch();
-        return data;
+      // Fetch the current result (if any) from the store.
+      const currentResult = this.queryObservable!.currentResult();
+      const { loading, partial, networkStatus, errors } = currentResult;
+      let { error } = currentResult;
+
+      // Until a set naming convention for networkError and graphQLErrors is
+      // decided upon, we map errors (graphQLErrors) to the error props.
+      if (errors && errors.length > 0) {
+        error = new ApolloError({ graphQLErrors: errors });
       }
 
-      Object.assign(data.data, currentResult.data);
-      this.previousData = currentResult.data;
+      Object.assign(data, { loading, networkStatus, error });
+
+      if (loading) {
+        Object.assign(data.data, this.previousData, currentResult.data);
+      } else if (error) {
+        const lastResult = this.queryObservable!.getLastResult();
+        if (lastResult) {
+          Object.assign(data, {
+            data: lastResult.data,
+          });
+        }
+      } else {
+        const { fetchPolicy } = this.queryObservable!.options;
+        const { disablePartialRefetch } = this.props;
+        if (
+          !disablePartialRefetch &&
+          Object.keys(currentResult.data).length === 0 &&
+          partial &&
+          fetchPolicy !== 'cache-only'
+        ) {
+          // When a `Query` component is mounted, and a mutation is executed
+          // that returns the same ID as the mounted `Query`, but has less
+          // fields in its result, Apollo Client's `QueryManager` returns the
+          // data as an empty Object since a hit can't be found in the cache.
+          // This can lead to application errors when the UI elements rendered by
+          // the original `Query` component are expecting certain data values to
+          // exist, and they're all of a sudden stripped away. To help avoid
+          // this we'll attempt to refetch the `Query` data.
+          Object.assign(data, { loading: true });
+          data.refetch();
+          return data;
+        }
+
+        Object.assign(data.data, currentResult.data);
+        this.previousData = currentResult.data;
+      }
     }
 
     // handle race condition where refetch is called on child mount or later
@@ -433,7 +434,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     //
     // Once the Query component is mounted and the subscription is made, we
     // always hit the network with refetch, since the components data will be
-    // updated and a network request is not currently active
+    // updated and a network request is not currently active.
     if (!this.querySubscription) {
       const oldRefetch = (data as GraphqlQueryControls).refetch;
 
@@ -449,7 +450,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
 
     data.client = this.client;
-
     return data;
   };
 }
