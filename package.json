@@ -145,7 +145,7 @@
     "zen-observable-ts": "0.8.10"
   },
   "dependencies": {
-    "fbjs": "^0.8.16",
+    "fbjs": "^1.0.0",
     "hoist-non-react-statics": "^3.0.0",
     "invariant": "^2.2.2",
     "lodash": "^4.17.10",
