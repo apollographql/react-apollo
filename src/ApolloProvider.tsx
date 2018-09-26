@@ -11,6 +11,11 @@ export interface ApolloProviderProps<TCache> {
   children: React.ReactNode;
 }
 
+export interface ApolloProviderContext {
+  client?: ApolloClient<any>;
+  operations?: Map<string, { query: DocumentNode; variables: any }>;
+}
+
 export default class ApolloProvider<TCache> extends Component<ApolloProviderProps<TCache>> {
   static propTypes = {
     client: PropTypes.object.isRequired,
