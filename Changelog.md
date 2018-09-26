@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.2.0 (September 26, 2018)
 
 - Improved TypeScript Typings:
   Deprecated `MutationFunc` in favor of `MutationFn`.
