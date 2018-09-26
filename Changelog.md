@@ -1,5 +1,10 @@
 # Change log
 
+## 2.2.1 (September 26, 2018)
+
+- Revert: "Typescript: use `Partial<TData>` instead of `TData | {}`, for the
+  `QueryResult` `data` property."
+
 ## 2.2.0 (September 26, 2018)
 
 - Improved TypeScript Typings:
