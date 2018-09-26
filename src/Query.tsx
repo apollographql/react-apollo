@@ -93,6 +93,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   skip?: boolean;
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
+  partialRefetch?: boolean;
   onCompleted?: (data: TData | {}) => void;
   onError?: (error: ApolloError) => void;
 }
@@ -121,6 +122,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
     ssr: PropTypes.bool,
+    partialRefetch: PropTypes.bool,
   };
 
   context: QueryContext | undefined;
@@ -154,7 +156,17 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     if (this.props.skip) return false;
 
     // pull off react options
-    const { children, ssr, displayName, skip, client, onCompleted, onError, ...opts } = this.props;
+    const {
+      children,
+      ssr,
+      displayName,
+      skip,
+      client,
+      onCompleted,
+      onError,
+      partialRefetch,
+      ...opts
+    } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -365,7 +377,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     } else {
       // Fetch the current result (if any) from the store.
       const currentResult = this.queryObservable!.currentResult();
-      const { loading, networkStatus, errors } = currentResult;
+      const { loading, partial, networkStatus, errors } = currentResult;
       let { error } = currentResult;
 
       // Until a set naming convention for networkError and graphQLErrors is
@@ -386,12 +398,33 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
           });
         }
       } else {
+        const { fetchPolicy } = this.queryObservable!.options;
+        const { partialRefetch } = this.props;
+        if (
+          partialRefetch &&
+          Object.keys(currentResult.data).length === 0 &&
+          partial &&
+          fetchPolicy !== 'cache-only'
+        ) {
+          // When a `Query` component is mounted, and a mutation is executed
+          // that returns the same ID as the mounted `Query`, but has less
+          // fields in its result, Apollo Client's `QueryManager` returns the
+          // data as an empty Object since a hit can't be found in the cache.
+          // This can lead to application errors when the UI elements rendered by
+          // the original `Query` component are expecting certain data values to
+          // exist, and they're all of a sudden stripped away. To help avoid
+          // this we'll attempt to refetch the `Query` data.
+          Object.assign(data, { loading: true });
+          data.refetch();
+          return data;
+        }
+
         Object.assign(data.data, currentResult.data);
         this.previousData = currentResult.data;
       }
     }
 
-    // Handle race condition where refetch is called on child mount or later.
+    // Handle race condition where refetch is called on child mount or later
     // Normal execution model:
     // render(loading) -> mount -> start subscription -> get data -> render(with data)
     //
