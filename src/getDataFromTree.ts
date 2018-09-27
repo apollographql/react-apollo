@@ -55,7 +55,7 @@ export function walkTree(
     context: Context,
     childContext?: Context,
   ) => boolean | void,
-  newContext: Map<any, any>,
+  newContext: Map<any, any> = new Map(),
 ) {
   if (Array.isArray(element)) {
     element.forEach(item => walkTree(item, context, visitor, newContext));
