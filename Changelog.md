@@ -1,5 +1,12 @@
 # Change log
 
+## vNext
+
+- When using `React.createContext` and SSR, we now make sure the context
+  provider value is reset to the previous value it had after its children are
+  walked. <br/>
+  [@mitchellhamilton](https://github.com/mitchellhamilton) in [#2304](https://github.com/apollographql/react-apollo/pull/2304)
+
 ## 2.2.1 (September 26, 2018)
 
 - Revert: "Typescript: use `Partial<TData>` instead of `TData | {}`, for the
