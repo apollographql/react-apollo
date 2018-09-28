@@ -18,6 +18,8 @@
 - Small `getDataFromTree.ts` logic adjustment to avoid unnecessary calls
   when a falsy `element` is encountered. <br/>
   [@HOUCe](https://github.com/HOUCe) in [#2429](https://github.com/apollographql/react-apollo/pull/2429)
+- `graphql` 14 updates. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2437](https://github.com/apollographql/react-apollo/pull/2437)
 
 ## 2.2.2 (September 28, 2018)
 
