@@ -403,7 +403,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
           data: (this.queryObservable!.getLastResult() || {}).data,
         });
       } else {
-        const { fetchPolicy } = this.queryObservable!.options;
+        const options = this.queryObservable!.options;
+        const fetchPolicy = options && options.fetchPolicy;
         const { partialRefetch } = this.props;
         if (
           partialRefetch &&
