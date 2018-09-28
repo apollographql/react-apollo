@@ -9,6 +9,8 @@
   dependencies have also been updated to use their individual module
   equivalent. <br/>
   [@hwillson](https://github.com/hwillson) in [#2435](https://github.com/apollographql/react-apollo/pull/2435)
+- Typings: added `context` to `MutationOptions`. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2354](https://github.com/apollographql/react-apollo/pull/2354)
 
 ## 2.2.2 (September 28, 2018)
 
