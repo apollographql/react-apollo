@@ -14,7 +14,10 @@
 - Typings: added `context` to `MutationOptions`. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2354](https://github.com/apollographql/react-apollo/pull/2354)
 - Typings: more `MutationOptions` changes/fixes. <br/>
-  [@danilobuerger](https://github.com/danilobuerger) in [#2340](https://github.com/apollographql/react-apollo/pull/2340)
+  [@danilobuerger](https://github.com/danilobuerger) in [#2340](https://github.com/apollographql/react-apollo/pul/2340)
+- Small `getDataFromTree.ts` logic adjustment to avoid unnecessary calls
+  when a falsy `element` is encountered. <br/>
+  [@HOUCe](https://github.com/HOUCe) in [#2429](https://github.com/apollographql/react-apollo/pull/2429)
 
 ## 2.2.2 (September 28, 2018)
 
