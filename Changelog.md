@@ -112,7 +112,7 @@
   in `refetchQueries` will be completed before the mutation itself is
   completed. `awaitRefetchQueries` is `false` by default, which means
   `refetchQueries` are usually completed after the mutation has resolved.
-  Relates to Apollo Client <br/>
+  Relates to Apollo Client. <br/>
   [PR #3169](https://github.com/apollographql/apollo-client/pull/3169). <br/>
   [@hwillson](https://github.com/hwillson) in [#2214](https://github.com/apollographql/react-apollo/pull/2214)
 - Typings adjustment: pass `TData` along into `MutationUpdaterFn` when using
