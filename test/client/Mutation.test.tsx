@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import gql from 'graphql-tag';
-import { ApolloClient } from 'apollo-client';
+import { ApolloClient, ApolloError } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { DataProxy } from 'apollo-cache';
-import { ExecutionResult } from 'graphql';
+import { ExecutionResult, GraphQLError } from 'graphql';
 
 import { ApolloProvider, Mutation, Query } from '../../src';
 import { MockedProvider, MockLink, mockSingleLink } from '../../src/test-utils';
@@ -465,6 +465,144 @@ it('renders an error state', done => {
   );
 });
 
+it('renders an error state and throws when encountering graphql errors', done => {
+  let count = 0;
+
+  const expectedError = new ApolloError({ graphQLErrors: [new GraphQLError('error occurred')] });
+
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          setTimeout(() =>
+            createTodo()
+              .then(() => {
+                done.fail('Did not expect a result');
+              })
+              .catch(e => {
+                expect(e).toEqual(expectedError);
+              }),
+          );
+        } else if (count === 1) {
+          expect(result.loading).toBeTruthy();
+        } else if (count === 2) {
+          expect(result.error).toEqual(expectedError);
+          done();
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  const mockError = [
+    {
+      request: { query: mutation },
+      result: {
+        errors: [new GraphQLError('error occurred')],
+      },
+    },
+  ];
+
+  mount(
+    <MockedProvider mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('renders an error state and does not throw when encountering graphql errors when errorPolicy=all', done => {
+  let count = 0;
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          setTimeout(() =>
+            createTodo()
+              .then(fetchResult => {
+                if (fetchResult && fetchResult.errors) {
+                  expect(fetchResult.errors.length).toEqual(1);
+                  expect(fetchResult.errors[0]).toEqual(new GraphQLError('error occurred'));
+                } else {
+                  done.fail(`Expected an object with array of errors but got ${fetchResult}`);
+                }
+              })
+              .catch(e => {
+                done.fail(e);
+              }),
+          );
+        } else if (count === 1) {
+          expect(result.loading).toBeTruthy();
+        } else if (count === 2) {
+          expect(result.error).toEqual(
+            new ApolloError({ graphQLErrors: [new GraphQLError('error occurred')] }),
+          );
+          done();
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  const mockError = [
+    {
+      request: { query: mutation },
+      result: {
+        errors: [new GraphQLError('error occurred')],
+      },
+    },
+  ];
+
+  mount(
+    <MockedProvider defaultOptions={{ mutate: { errorPolicy: 'all' } }} mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('renders an error state and throws when encountering network errors when errorPolicy=all', done => {
+  let count = 0;
+  const expectedError = new ApolloError({ networkError: new Error('network error') });
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          setTimeout(() =>
+            createTodo()
+              .then(() => {
+                done.fail('Did not expect a result');
+              })
+              .catch(e => {
+                expect(e).toEqual(expectedError);
+              }),
+          );
+        } else if (count === 1) {
+          expect(result.loading).toBeTruthy();
+        } else if (count === 2) {
+          expect(result.error).toEqual(expectedError);
+          done();
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  const mockError = [
+    {
+      request: { query: mutation },
+      error: new Error('network error'),
+    },
+  ];
+
+  mount(
+    <MockedProvider defaultOptions={{ mutate: { errorPolicy: 'all' } }} mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('calls the onError prop if the mutation encounters an error', done => {
   let onRenderCalled = false;
 
@@ -768,6 +906,113 @@ it('allows a refetchQueries prop', done => {
 
   mount(
     <MockedProvider mocks={mocksWithQuery}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
+it('allows a refetchQueries prop as string and variables have updated', done => {
+  const query = gql`
+    query people($first: Int) {
+      allPeople(first: $first) {
+        people {
+          name
+        }
+      }
+    }
+  `;
+
+  const peopleData1 = {
+    allPeople: { people: [{ name: 'Luke Skywalker', __typename: 'Person' }], __typename: 'People' },
+  };
+  const peopleData2 = {
+    allPeople: { people: [{ name: 'Han Solo', __typename: 'Person' }], __typename: 'People' },
+  };
+  const peopleData3 = {
+    allPeople: { people: [{ name: 'Lord Vader', __typename: 'Person' }], __typename: 'People' },
+  };
+  const peopleMocks = [
+    ...mocks,
+    {
+      request: { query, variables: { first: 1 } },
+      result: { data: peopleData1 },
+    },
+    {
+      request: { query, variables: { first: 2 } },
+      result: { data: peopleData2 },
+    },
+    {
+      request: { query, variables: { first: 2 } },
+      result: { data: peopleData3 },
+    },
+  ];
+
+  const refetchQueries = ['people'];
+
+  let count = 0;
+  class Component extends React.Component {
+    state = {
+      variables: {
+        first: 1,
+      },
+    };
+    componentDidMount() {
+      setTimeout(() => {
+        this.setState({
+          variables: {
+            first: 2,
+          },
+        });
+      }, 50);
+    }
+    render() {
+      const { variables } = this.state;
+
+      return (
+        <Mutation mutation={mutation} refetchQueries={refetchQueries}>
+          {(createTodo, resultMutation) => (
+            <Query query={query} variables={variables}>
+              {resultQuery => {
+                if (count === 0) {
+                  // initial loading
+                  expect(resultQuery.loading).toBe(true);
+                } else if (count === 1) {
+                  // initial loaded
+                  expect(resultQuery.loading).toBe(false);
+                } else if (count === 2) {
+                  // first: 2 loading
+                  expect(resultQuery.loading).toBe(true);
+                } else if (count === 3) {
+                  // first: 2 loaded
+                  expect(resultQuery.loading).toBe(false);
+                  setTimeout(() => {
+                    createTodo();
+                  });
+                } else if (count === 4) {
+                  // mutation loading
+                  expect(resultMutation.loading).toBe(true);
+                } else if (count === 5) {
+                  // mutation loaded
+                  expect(resultMutation.loading).toBe(false);
+                } else if (count === 6) {
+                  // query refetched
+                  expect(resultQuery.loading).toBe(false);
+                  expect(resultMutation.loading).toBe(false);
+                  expect(stripSymbols(resultQuery.data)).toEqual(peopleData3);
+                  done();
+                }
+                count++;
+                return null;
+              }}
+            </Query>
+          )}
+        </Mutation>
+      );
+    }
+  }
+
+  mount(
+    <MockedProvider mocks={peopleMocks}>
       <Component />
     </MockedProvider>,
   );

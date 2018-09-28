@@ -1,5 +1,5 @@
 // Removed import
-import includes from 'lodash/includes';
+import includes from 'lodash.includes';
 import fs from 'fs';
 
 // Setup

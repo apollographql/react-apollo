@@ -4,12 +4,12 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { mockSingleLink } from '../../../src/test-utils';
-import { ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
 import TestUtils from 'react-dom/test-utils';
 import { DocumentNode } from 'graphql';
+import compose from 'lodash.flowright';
 
-const compose = require('lodash/flowRight');
+import { mockSingleLink } from '../../../src/test-utils';
+import { ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
 
 describe('shared operations', () => {
   describe('withApollo', () => {
