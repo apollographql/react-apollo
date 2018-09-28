@@ -240,16 +240,23 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     if (this.hasMounted === false) {
       return;
     }
-    const { onCompleted, ignoreResults } = this.props;
+    const { onCompleted, onError, ignoreResults } = this.props;
 
-    const data = response.data as TData;
+    const { data, errors } = response;
+    // In case of errorPolicy:all errors will be in the response.
+    let error: ApolloError | undefined;
+    if (errors) {
+      error = new ApolloError({ graphQLErrors: errors });
+    }
 
-    const callOncomplete = () => (onCompleted ? onCompleted(data) : null);
+    const callOnCompleteOrError = error
+      ? () => (onError ? onError(error as ApolloError) : null)
+      : () => (onCompleted ? onCompleted(data as TData) : null);
 
     if (this.isMostRecentMutation(mutationId) && !ignoreResults) {
-      this.setState({ loading: false, data }, callOncomplete);
+      this.setState({ loading: false, data, error }, callOnCompleteOrError);
     } else {
-      callOncomplete();
+      callOnCompleteOrError();
     }
   };
 
