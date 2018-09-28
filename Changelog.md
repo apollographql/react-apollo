@@ -9,6 +9,8 @@
   dependencies have also been updated to use their individual module
   equivalent. <br/>
   [@hwillson](https://github.com/hwillson) in [#2435](https://github.com/apollographql/react-apollo/pull/2435)
+- Removed `rollup-plugin-babel-minify` as it's no longer being used. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2436](https://github.com/apollographql/react-apollo/pull/2436)
 
 ## 2.2.2 (September 28, 2018)
 
