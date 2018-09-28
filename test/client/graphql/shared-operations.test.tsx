@@ -6,7 +6,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import TestUtils from 'react-dom/test-utils';
 import { DocumentNode } from 'graphql';
-import compose from 'lodash.flowRight';
+import compose from 'lodash.flowright';
 
 import { mockSingleLink } from '../../../src/test-utils';
 import { ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
