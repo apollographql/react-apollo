@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.2.2 (September 28, 2018)
 
 - When using `React.createContext` and SSR, we now make sure the context
   provider value is reset to the previous value it had after its children are
