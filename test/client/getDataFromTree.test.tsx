@@ -531,7 +531,7 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser: {
+        currentUser?: {
           firstName: string;
         };
       }
@@ -541,7 +541,7 @@ describe('SSR', () => {
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
           {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>
       );
@@ -1280,7 +1280,7 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser: {
+        currentUser?: {
           firstName: string;
         };
       }
@@ -1290,7 +1290,7 @@ describe('SSR', () => {
       const Element = (props: { id: string }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
           {({ data, loading }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
+            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>
       );
