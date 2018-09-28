@@ -2,6 +2,52 @@
 
 ## vNext
 
+- Fix `lodash` typings. <br/>
+  [@williamboman](https://github.com/williamboman) in [#2430](https://github.com/apollographql/react-apollo/pull/2430)
+- Replace the `lodash` dependency with `lodash.flowright` (since that's the
+  only non-dev `lodash` function we're dependent on). Dev `lodash`
+  dependencies have also been updated to use their individual module
+  equivalent. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2435](https://github.com/apollographql/react-apollo/pull/2435)
+- Removed `rollup-plugin-babel-minify` as it's no longer being used. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2436](https://github.com/apollographql/react-apollo/pull/2436)
+- Typings: added `context` to `MutationOptions`. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2354](https://github.com/apollographql/react-apollo/pull/2354)
+- Typings: more `MutationOptions` changes/fixes. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2340](https://github.com/apollographql/react-apollo/pul/2340)
+- Small `getDataFromTree.ts` logic adjustment to avoid unnecessary calls
+  when a falsy `element` is encountered. <br/>
+  [@HOUCe](https://github.com/HOUCe) in [#2429](https://github.com/apollographql/react-apollo/pull/2429)
+- `graphql` 14 updates. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2437](https://github.com/apollographql/react-apollo/pull/2437)
+- Mutation errors are now properly returned as a render prop, when using 
+  a default `errorPolicy` of `all`.  <br/>
+  [@amacleay](https://github.com/amacleay) in [#2374](https://github.com/apollographql/react-apollo/pull/2374)
+
+## 2.2.2 (September 28, 2018)
+
+- When using `React.createContext` and SSR, we now make sure the context
+  provider value is reset to the previous value it had after its children are
+  walked. <br/>
+  [@mitchellhamilton](https://github.com/mitchellhamilton) in [#2304](https://github.com/apollographql/react-apollo/pull/2304)
+- Revert: <br/>
+  When a query failed on the first result, the query result `data` was being
+  returned as `undefined`. This behavior has been changed so that `data` is
+  returned as an empty object. This makes checking for data (e.g.
+  instead of `data && data.user` you can just check `data.user`) and
+  destructring (e.g. `{ data: { user } }`) easier. **Note:** this could
+  potentially hurt applications that are relying on a falsey check of `data`
+  to see if any query errors have occurred. A better (and supported) way to
+  check for errors is to use the result `errors` property. <br/>
+  [#1983](https://github.com/apollographql/react-apollo/pull/1983)
+
+## 2.2.1 (September 26, 2018)
+
+- Revert: "Typescript: use `Partial<TData>` instead of `TData | {}`, for the
+  `QueryResult` `data` property."
+
+## 2.2.0 (September 26, 2018)
+
 - Improved TypeScript Typings:
   Deprecated `MutationFunc` in favor of `MutationFn`.
   Added missing `onCompleted` and `onError` callbacks to `MutationOpts`. <br/>
