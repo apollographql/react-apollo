@@ -911,6 +911,113 @@ it('allows a refetchQueries prop', done => {
   );
 });
 
+it('allows a refetchQueries prop as string and variables have updated', done => {
+  const query = gql`
+    query people($first: Int) {
+      allPeople(first: $first) {
+        people {
+          name
+        }
+      }
+    }
+  `;
+
+  const peopleData1 = {
+    allPeople: { people: [{ name: 'Luke Skywalker', __typename: 'Person' }], __typename: 'People' },
+  };
+  const peopleData2 = {
+    allPeople: { people: [{ name: 'Han Solo', __typename: 'Person' }], __typename: 'People' },
+  };
+  const peopleData3 = {
+    allPeople: { people: [{ name: 'Lord Vader', __typename: 'Person' }], __typename: 'People' },
+  };
+  const peopleMocks = [
+    ...mocks,
+    {
+      request: { query, variables: { first: 1 } },
+      result: { data: peopleData1 },
+    },
+    {
+      request: { query, variables: { first: 2 } },
+      result: { data: peopleData2 },
+    },
+    {
+      request: { query, variables: { first: 2 } },
+      result: { data: peopleData3 },
+    },
+  ];
+
+  const refetchQueries = ['people'];
+
+  let count = 0;
+  class Component extends React.Component {
+    state = {
+      variables: {
+        first: 1,
+      },
+    };
+    componentDidMount() {
+      setTimeout(() => {
+        this.setState({
+          variables: {
+            first: 2,
+          },
+        });
+      }, 50);
+    }
+    render() {
+      const { variables } = this.state;
+
+      return (
+        <Mutation mutation={mutation} refetchQueries={refetchQueries}>
+          {(createTodo, resultMutation) => (
+            <Query query={query} variables={variables}>
+              {resultQuery => {
+                if (count === 0) {
+                  // initial loading
+                  expect(resultQuery.loading).toBe(true);
+                } else if (count === 1) {
+                  // initial loaded
+                  expect(resultQuery.loading).toBe(false);
+                } else if (count === 2) {
+                  // first: 2 loading
+                  expect(resultQuery.loading).toBe(true);
+                } else if (count === 3) {
+                  // first: 2 loaded
+                  expect(resultQuery.loading).toBe(false);
+                  setTimeout(() => {
+                    createTodo();
+                  });
+                } else if (count === 4) {
+                  // mutation loading
+                  expect(resultMutation.loading).toBe(true);
+                } else if (count === 5) {
+                  // mutation loaded
+                  expect(resultMutation.loading).toBe(false);
+                } else if (count === 6) {
+                  // query refetched
+                  expect(resultQuery.loading).toBe(false);
+                  expect(resultMutation.loading).toBe(false);
+                  expect(stripSymbols(resultQuery.data)).toEqual(peopleData3);
+                  done();
+                }
+                count++;
+                return null;
+              }}
+            </Query>
+          )}
+        </Mutation>
+      );
+    }
+  }
+
+  mount(
+    <MockedProvider mocks={peopleMocks}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('allows refetchQueries to be passed to the mutate function', done => {
   const query = gql`
     query getTodo {
