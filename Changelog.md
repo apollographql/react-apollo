@@ -2,8 +2,13 @@
 
 ## vNext
 
-- Fix `lodash` typings.  <br/>
+- Fix `lodash` typings. <br/>
   [@williamboman](https://github.com/williamboman) in [#2430](https://github.com/apollographql/react-apollo/pull/2430)
+- Replace the `lodash` dependency with `lodash.flowright` (since that's the
+  only non-dev `lodash` function we're dependent on). Dev `lodash`
+  dependencies have also been updated to use their individual module
+  equivalent. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2435](https://github.com/apollographql/react-apollo/pull/2435)
 
 ## 2.2.2 (September 28, 2018)
 
