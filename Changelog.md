@@ -1,5 +1,10 @@
 # Change log
 
+## vNext
+
+- Fix `lodash` typings.  <br/>
+  [@williamboman](https://github.com/williamboman) in [#2430](https://github.com/apollographql/react-apollo/pull/2430)
+
 ## 2.2.2 (September 28, 2018)
 
 - When using `React.createContext` and SSR, we now make sure the context
