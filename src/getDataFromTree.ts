@@ -6,7 +6,8 @@ export interface Context {
 
 interface PromiseTreeArgument {
   rootElement: React.ReactNode;
-  rootContext?: Context;
+  rootContext: Context;
+  rootNewContext: Map<any, any>;
 }
 interface FetchComponent extends React.Component<any> {
   fetchData(): Promise<void>;
@@ -16,6 +17,7 @@ interface PromiseTreeResult {
   promise: Promise<any>;
   context: Context;
   instance: FetchComponent;
+  newContext: Map<any, any>;
 }
 
 interface PreactElement<P> {
@@ -49,12 +51,14 @@ export function walkTree(
   visitor: (
     element: React.ReactNode,
     instance: React.Component<any> | null,
+    newContextMap: Map<any, any>,
     context: Context,
     childContext?: Context,
   ) => boolean | void,
+  newContext: Map<any, any> = new Map(),
 ) {
   if (Array.isArray(element)) {
-    element.forEach(item => walkTree(item, context, visitor));
+    element.forEach(item => walkTree(item, context, visitor, newContext));
     return;
   }
 
@@ -113,14 +117,14 @@ export function walkTree(
           childContext = Object.assign({}, context, instance.getChildContext());
         }
 
-        if (visitor(element, instance, context, childContext) === false) {
+        if (visitor(element, instance, newContext, context, childContext) === false) {
           return;
         }
 
         child = instance.render();
       } else {
         // Just a stateless functional
-        if (visitor(element, null, context) === false) {
+        if (visitor(element, null, newContext, context) === false) {
           return;
         }
 
@@ -129,51 +133,57 @@ export function walkTree(
 
       if (child) {
         if (Array.isArray(child)) {
-          child.forEach(item => walkTree(item, childContext, visitor));
+          child.forEach(item => walkTree(item, childContext, visitor, newContext));
         } else {
-          walkTree(child, childContext, visitor);
+          walkTree(child, childContext, visitor, newContext);
         }
       }
     } else if ((element.type as any)._context || (element.type as any).Consumer) {
       // A React context provider or consumer
-      if (visitor(element, null, context) === false) {
+      if (visitor(element, null, newContext, context) === false) {
         return;
       }
 
       let child;
-      if ((element.type as any)._context) {
+      if (!!(element.type as any)._context) {
         // A provider - sets the context value before rendering children
-        ((element.type as any)._context as any)._currentValue = element.props.value;
+        // this needs to clone the map because this value should only apply to children of the provider
+        newContext = new Map(newContext);
+        newContext.set(element.type, element.props.value);
         child = element.props.children;
       } else {
         // A consumer
-        child = element.props.children((element.type as any)._currentValue);
+        let value = (element.type as any)._currentValue;
+        if (newContext.has((element.type as any).Provider)) {
+          value = newContext.get((element.type as any).Provider);
+        }
+        child = element.props.children(value);
       }
 
       if (child) {
         if (Array.isArray(child)) {
-          child.forEach(item => walkTree(item, context, visitor));
+          child.forEach(item => walkTree(item, context, visitor, newContext));
         } else {
-          walkTree(child, context, visitor);
+          walkTree(child, context, visitor, newContext);
         }
       }
     } else {
       // A basic string or dom element, just get children
-      if (visitor(element, null, context) === false) {
+      if (visitor(element, null, newContext, context) === false) {
         return;
       }
 
       if (element.props && element.props.children) {
         React.Children.forEach(element.props.children, (child: any) => {
           if (child) {
-            walkTree(child, context, visitor);
+            walkTree(child, context, visitor, newContext);
           }
         });
       }
     }
   } else if (typeof element === 'string' || typeof element === 'number') {
     // Just visit these, they are leaves so we don't keep traversing.
-    visitor(element, null, context);
+    visitor(element, null, newContext, context);
   }
   // TODO: Portals?
 }
@@ -188,37 +198,49 @@ function isPromise<T>(promise: Object): promise is Promise<T> {
 
 function getPromisesFromTree({
   rootElement,
-  rootContext = {},
+  rootContext,
+  rootNewContext,
 }: PromiseTreeArgument): PromiseTreeResult[] {
   const promises: PromiseTreeResult[] = [];
 
-  walkTree(rootElement, rootContext, (_, instance, context, childContext) => {
-    if (instance && hasFetchDataFunction(instance)) {
-      const promise = instance.fetchData();
-      if (isPromise<Object>(promise)) {
-        promises.push({ promise, context: childContext || context, instance });
-        return false;
+  walkTree(
+    rootElement,
+    rootContext,
+    (_, instance, newContext, context, childContext) => {
+      if (instance && hasFetchDataFunction(instance)) {
+        const promise = instance.fetchData();
+        if (isPromise<Object>(promise)) {
+          promises.push({
+            promise,
+            context: childContext || context,
+            instance,
+            newContext,
+          });
+          return false;
+        }
       }
-    }
-  });
+    },
+    rootNewContext,
+  );
 
   return promises;
 }
 
 function getDataAndErrorsFromTree(
   rootElement: React.ReactNode,
-  rootContext: any = {},
+  rootContext: Object,
   storeError: Function,
+  rootNewContext: Map<any, any> = new Map(),
 ): Promise<any> {
-  const promises = getPromisesFromTree({ rootElement, rootContext });
+  const promises = getPromisesFromTree({ rootElement, rootContext, rootNewContext });
 
   if (!promises.length) {
     return Promise.resolve();
   }
 
-  const mappedPromises = promises.map(({ promise, context, instance }) => {
+  const mappedPromises = promises.map(({ promise, context, instance, newContext }) => {
     return promise
-      .then(_ => getDataAndErrorsFromTree(instance.render(), context, storeError))
+      .then(_ => getDataAndErrorsFromTree(instance.render(), context, storeError, newContext))
       .catch(e => storeError(e));
   });
 
