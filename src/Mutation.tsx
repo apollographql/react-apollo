@@ -48,6 +48,7 @@ export declare type MutationOptions<TData = any, TVariables = OperationVariables
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
+  context?: Record<string, any>;
 };
 
 export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
