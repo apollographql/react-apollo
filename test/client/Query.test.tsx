@@ -1476,4 +1476,24 @@ describe('Query component', () => {
       },
     );
   });
+
+  // https://github.com/apollographql/react-apollo/issues/2424
+  it('should be able to access data keys without a type guard', () => {
+    const Component = () => (
+      <AllPeopleQuery query={allPeopleQuery}>
+        {result => {
+          if (result.data && result.data.allPeople) {
+            return null;
+          }
+
+          if (result.data && result.data!.allPeople) {
+            return null;
+          }
+
+          const { allPeople } = result.data!;
+          return null;
+        }}
+      </AllPeopleQuery>
+    );
+  });
 });
