@@ -12,7 +12,7 @@ import {
   ChildProps,
 } from '../../src';
 import gql from 'graphql-tag';
-import times from 'lodash/times';
+import times from 'lodash.times';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../src/test-utils';
 import { DocumentNode } from 'graphql';
