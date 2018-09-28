@@ -13,6 +13,8 @@
   [@hwillson](https://github.com/hwillson) in [#2436](https://github.com/apollographql/react-apollo/pull/2436)
 - Typings: added `context` to `MutationOptions`. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2354](https://github.com/apollographql/react-apollo/pull/2354)
+- Typings: more `MutationOptions` changes/fixes. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2340](https://github.com/apollographql/react-apollo/pull/2340)
 
 ## 2.2.2 (September 28, 2018)
 
