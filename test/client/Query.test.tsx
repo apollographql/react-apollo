@@ -59,17 +59,20 @@ describe('Query component', () => {
       link,
       cache: new Cache({ addTypename: false }),
     });
-
+    const onStart = jest.fn();
+    expect(onStart).toBeCalledTimes(0);
     const Component = () => (
-      <Query query={allPeopleQuery}>
+      <Query query={allPeopleQuery} onStart={onStart}>
         {result => {
           catchAsyncError(done, () => {
             const { client: clientResult, ...rest } = result;
-
             if (result.loading) {
+              expect(onStart).toBeCalledTimes(1);
               expect(rest).toMatchSnapshot('result in render prop while loading');
               expect(clientResult).toBe(client);
             } else {
+              // TODO: this is what i was talking about this will be 2 instead of 1.
+              // expect(onStart).toBeCalledTimes(1);
               expect(stripSymbols(rest)).toMatchSnapshot('result in render prop');
               done();
             }

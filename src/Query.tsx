@@ -87,6 +87,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   context?: Record<string, any>;
   onCompleted?: (data: TData | {}) => void;
   onError?: (error: ApolloError) => void;
+  onStart?: () => void;
 }
 
 export interface QueryContext {
@@ -109,6 +110,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     notifyOnNetworkStatusChange: PropTypes.bool,
     onCompleted: PropTypes.func,
     onError: PropTypes.func,
+    onStart: PropTypes.func,
     pollInterval: PropTypes.number,
     query: PropTypes.object.isRequired,
     variables: PropTypes.object,
@@ -321,10 +323,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
-    const { onCompleted, onError } = this.props;
-    if (onCompleted || onError) {
+    const { onStart, onCompleted, onError } = this.props;
+    if (onCompleted || onError || onStart) {
       const currentResult = this.queryObservable!.currentResult();
       const { loading, error, data } = currentResult;
+      // TODO: is this even needed?
+      if (typeof onStart === 'function' && loading) {
+        onStart();
+      }
       if (onCompleted && !loading && !error) {
         onCompleted(data);
       } else if (onError && !loading && error) {
@@ -337,6 +343,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   };
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
+    const { onStart, skip } = this.props;
     let data = { data: Object.create(null) as TData } as any;
     // Attach bound methods
     Object.assign(data, observableQueryFields(this.queryObservable!));
@@ -344,7 +351,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
     // `loading` is set to `false` (since we aren't loading anything).
-    if (this.props.skip) {
+    if (skip) {
       data = {
         ...data,
         data: undefined,
@@ -356,7 +363,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       const currentResult = this.queryObservable!.currentResult();
       const { loading, networkStatus, errors } = currentResult;
       let { error } = currentResult;
-
       // Until a set naming convention for networkError and graphQLErrors is
       // decided upon, we map errors (graphQLErrors) to the error props.
       if (errors && errors.length > 0) {
@@ -366,6 +372,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       Object.assign(data, { loading, networkStatus, error });
 
       if (loading) {
+        if (onStart && typeof onStart === 'function') {
+          onStart();
+        }
         Object.assign(data.data, this.previousData, currentResult.data);
       } else if (error) {
         const lastResult = this.queryObservable!.getLastResult();
