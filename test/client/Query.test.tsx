@@ -163,7 +163,6 @@ describe('Query component', () => {
               return null;
             }
             catchAsyncError(done, () => {
-              expect(result.data).toEqual({});
               expect(result.error).toEqual(new Error('Network error: error occurred'));
               done();
             });
@@ -1331,7 +1330,7 @@ describe('Query component', () => {
     function Container() {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
-          {(result: any) => {
+          {result => {
             try {
               switch (count++) {
                 case 0:

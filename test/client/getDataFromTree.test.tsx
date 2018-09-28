@@ -531,19 +531,17 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser?: {
+        currentUser: {
           firstName: string;
         };
       }
 
       class CurrentUserQuery extends Query<Data> {}
 
-      const hasOwn = Object.prototype.hasOwnProperty;
-
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
-          {({ data, loading }: { data: Data; loading: boolean }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
+          {({ data, loading }) => (
+            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
           )}
         </CurrentUserQuery>
       );
@@ -1282,7 +1280,7 @@ describe('SSR', () => {
       });
 
       interface Data {
-        currentUser?: {
+        currentUser: {
           firstName: string;
         };
       }
@@ -1291,8 +1289,8 @@ describe('SSR', () => {
 
       const Element = (props: { id: string }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
-          {({ data, loading }: { data: Data; loading: boolean }) => (
-            <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
+          {({ data, loading }) => (
+            <div>{loading || !data ? 'loading' : data.currentUser.firstName}</div>
           )}
         </CurrentUserQuery>
       );

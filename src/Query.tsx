@@ -74,7 +74,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   // I'm aware of. So intead we enforce checking for data
   // like so result.data!.user. This tells TS to use TData
   // XXX is there a better way to do this?
-  data: TData | {};
+  data: TData | undefined;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
@@ -391,12 +391,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       if (loading) {
         Object.assign(data.data, this.previousData, currentResult.data);
       } else if (error) {
-        const lastResult = this.queryObservable!.getLastResult();
-        if (lastResult) {
-          Object.assign(data, {
-            data: lastResult.data,
-          });
-        }
+        Object.assign(data, {
+          data: (this.queryObservable!.getLastResult() || {}).data,
+        });
       } else {
         const { fetchPolicy } = this.queryObservable!.options;
         const { partialRefetch } = this.props;

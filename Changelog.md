@@ -6,6 +6,16 @@
   provider value is reset to the previous value it had after its children are
   walked. <br/>
   [@mitchellhamilton](https://github.com/mitchellhamilton) in [#2304](https://github.com/apollographql/react-apollo/pull/2304)
+- Revert: <br/>
+  When a query failed on the first result, the query result `data` was being
+  returned as `undefined`. This behavior has been changed so that `data` is
+  returned as an empty object. This makes checking for data (e.g.
+  instead of `data && data.user` you can just check `data.user`) and
+  destructring (e.g. `{ data: { user } }`) easier. **Note:** this could
+  potentially hurt applications that are relying on a falsey check of `data`
+  to see if any query errors have occurred. A better (and supported) way to
+  check for errors is to use the result `errors` property. <br/>
+  [#1983](https://github.com/apollographql/react-apollo/pull/1983)
 
 ## 2.2.1 (September 26, 2018)
 
@@ -29,7 +39,7 @@
 - The `graphql` `options` object is no longer mutated, when calculating
   variables from props. This now prevents an issue where components created
   with `graphql` were not having their query variables updated properly, when
-  props changed. <br/>
+  props changed.
   [@ksmth](https://github.com/ksmth) in [#1968](https://github.com/apollographql/react-apollo/pull/1968)
 - When a query failed on the first result, the query result `data` was being
   returned as `undefined`. This behavior has been changed so that `data` is
@@ -102,13 +112,13 @@
   in `refetchQueries` will be completed before the mutation itself is
   completed. `awaitRefetchQueries` is `false` by default, which means
   `refetchQueries` are usually completed after the mutation has resolved.
-  Relates to Apollo Client. <br/>
+  Relates to Apollo Client
   [PR #3169](https://github.com/apollographql/apollo-client/pull/3169). <br/>
   [@hwillson](https://github.com/hwillson) in [#2214](https://github.com/apollographql/react-apollo/pull/2214)
 - Typings adjustment: pass `TData` along into `MutationUpdaterFn` when using
   `MutationOpts`, to ensure that the updater function is properly typed. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2227](https://github.com/apollographql/react-apollo/pull/2227)
-- Check if queryManager is set before accessing it. <br/>
+- Check if queryManager is set before accessing it.
   [@danilobuerger](https://github.com/danilobuerger) in [#2165](https://github.com/apollographql/react-apollo/pull/2165)
 
 ## 2.1.9 (July 4, 2018)
