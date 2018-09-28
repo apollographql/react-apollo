@@ -20,6 +20,9 @@
   [@HOUCe](https://github.com/HOUCe) in [#2429](https://github.com/apollographql/react-apollo/pull/2429)
 - `graphql` 14 updates. <br/>
   [@hwillson](https://github.com/hwillson) in [#2437](https://github.com/apollographql/react-apollo/pull/2437)
+- Mutation errors are now properly returned as a render prop, when using 
+  a default `errorPolicy` of `all`.  <br/>
+  [@amacleay](https://github.com/amacleay) in [#2374](https://github.com/apollographql/react-apollo/pull/2374)
 
 ## 2.2.2 (September 28, 2018)
 
