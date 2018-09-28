@@ -148,7 +148,17 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     if (this.props.skip) return false;
 
     // pull off react options
-    const { children, ssr, displayName, skip, client, onCompleted, onError, ...opts } = this.props;
+    const {
+      children,
+      ssr,
+      displayName,
+      skip,
+      client,
+      onStart,
+      onCompleted,
+      onError,
+      ...opts
+    } = this.props;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
