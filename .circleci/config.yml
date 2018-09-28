@@ -2,7 +2,7 @@ version: 2
 
 jobs:
   Node.js 8:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
@@ -10,32 +10,29 @@ jobs:
           name: Jest suite
           command: npm run jest -- --ci --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
           path: reports/junit
       - store_artifacts:
           path: reports/junit
 
-
-  Node.js 9:
-    docker: [ { image: 'circleci/node:9' } ]
-    steps: 
+  Node.js 10:
+    docker: [{ image: 'circleci/node:10' }]
+    steps:
       - checkout
-      - run: npm i 
+      - run: npm i
       - run:
           name: Jest suite
           command: npm run jest -- --ci --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
           path: reports/junit
       - store_artifacts:
           path: reports/junit
 
-
-
   Linting:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
@@ -43,14 +40,14 @@ jobs:
       - run: npm run lint
 
   Typecheck:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
       - run: npm run type-check
 
   Preact:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
@@ -58,16 +55,14 @@ jobs:
           name: Jest suite
           command: npm run test-preact -- --ci --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
           path: reports/junit
       - store_artifacts:
           path: reports/junit
 
-
-
   Browser:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
@@ -76,15 +71,14 @@ jobs:
           name: Jest suite
           command: npm run test:compiled:browser:umd -- --ci --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
           path: reports/junit
       - store_artifacts:
           path: reports/junit
 
-
   Server:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
@@ -93,15 +87,14 @@ jobs:
           name: Jest suite
           command: npm run test:compiled:server:umd -- --ci --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
           path: reports/junit
       - store_artifacts:
           path: reports/junit
 
-
   Commonjs:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
@@ -110,14 +103,14 @@ jobs:
           name: Jest suite
           command: npm run test:compiled:cjs -- --ci --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
           path: reports/junit
       - store_artifacts:
           path: reports/junit
 
   Filesize:
-    docker: [ { image: 'circleci/node:8' } ]
+    docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
@@ -129,12 +122,11 @@ workflows:
   Build and Test:
     jobs:
       - Node.js 8
-      - Node.js 9
+      - Node.js 10
       - Linting
-      - Typecheck 
+      - Typecheck
       - Preact
       - Browser
       - Server
       - Commonjs
       - Filesize
-
