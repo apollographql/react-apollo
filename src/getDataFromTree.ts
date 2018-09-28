@@ -57,12 +57,12 @@ export function walkTree(
   ) => boolean | void,
   newContext: Map<any, any> = new Map(),
 ) {
-  if (Array.isArray(element)) {
-    element.forEach(item => walkTree(item, context, visitor, newContext));
+  if (!element) {
     return;
   }
-
-  if (!element) {
+                       
+  if (Array.isArray(element)) {
+    element.forEach(item => walkTree(item, context, visitor, newContext));
     return;
   }
 
