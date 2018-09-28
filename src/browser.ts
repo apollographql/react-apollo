@@ -24,5 +24,5 @@ export * from './withApollo';
 export * from './types';
 
 // XXX remove in the next breaking semver change (3.0)
-import compose from 'lodash/flowRight';
+import compose from 'lodash.flowright';
 export { compose };
