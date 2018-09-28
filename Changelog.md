@@ -6,6 +6,16 @@
   provider value is reset to the previous value it had after its children are
   walked. <br/>
   [@mitchellhamilton](https://github.com/mitchellhamilton) in [#2304](https://github.com/apollographql/react-apollo/pull/2304)
+- Revert: <br/>
+  When a query failed on the first result, the query result `data` was being
+  returned as `undefined`. This behavior has been changed so that `data` is
+  returned as an empty object. This makes checking for data (e.g.
+  instead of `data && data.user` you can just check `data.user`) and
+  destructring (e.g. `{ data: { user } }`) easier. **Note:** this could
+  potentially hurt applications that are relying on a falsey check of `data`
+  to see if any query errors have occurred. A better (and supported) way to
+  check for errors is to use the result `errors` property. <br/>
+  [#1983](https://github.com/apollographql/react-apollo/pull/1983)
 
 ## 2.2.1 (September 26, 2018)
 
