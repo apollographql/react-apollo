@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { OperationOption } from './types';
 import ApolloConsumer from './ApolloConsumer';
 import { ApolloClient } from 'apollo-client';

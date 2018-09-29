@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 export interface Context {
   [key: string]: any;
@@ -60,7 +60,7 @@ export function walkTree(
   if (!element) {
     return;
   }
-                       
+
   if (Array.isArray(element)) {
     element.forEach(item => walkTree(item, context, visitor, newContext));
     return;

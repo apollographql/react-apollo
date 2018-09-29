@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import ApolloClient, { PureQueryOptions, ApolloError } from 'apollo-client';
 import { DataProxy } from 'apollo-cache';
-import invariant from 'invariant';
+const invariant = require('invariant');
 import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
