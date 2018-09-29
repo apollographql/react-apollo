@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
   ApolloError,
@@ -286,18 +286,26 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {
     const opts = this.extractOptsFromProps(props);
     // save for backwards compat of refetcherQueries without a recycler
+    this.setOperations(opts);
+    this.queryObservable = this.client.watchQuery(opts);
+  }
+
+  private setOperations(props: QueryProps<TData, TVariables>) {
     if (this.context!.operations) {
       this.context!.operations!.set(this.operation!.name, {
-        query: opts.query,
-        variables: opts.variables,
+        query: props.query,
+        variables: props.variables,
       });
     }
-    this.queryObservable = this.client.watchQuery(opts);
   }
 
   private updateQuery(props: QueryProps<TData, TVariables>) {
     // if we skipped initially, we may not have yet created the observable
-    if (!this.queryObservable) this.initializeQueryObservable(props);
+    if (!this.queryObservable) {
+      this.initializeQueryObservable(props);
+    } else {
+      this.setOperations(props);
+    }
 
     this.queryObservable!.setOptions(this.extractOptsFromProps(props))
       // The error will be passed to the child container, so we don't

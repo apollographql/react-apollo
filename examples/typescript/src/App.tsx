@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Character from './Character';
 import { Episode } from './__generated__/types';
 

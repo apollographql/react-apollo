@@ -9,7 +9,7 @@ import {
 
 import { print } from 'graphql/language/printer';
 import { addTypenameToDocument } from 'apollo-utilities';
-import isEqual from 'lodash.isequal';
+const isEqual = require('lodash.isequal');
 
 export interface MockedResponse {
   request: GraphQLRequest;

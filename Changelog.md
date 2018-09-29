@@ -23,6 +23,8 @@
 - Mutation errors are now properly returned as a render prop, when using
   a default `errorPolicy` of `all`. <br/>
   [@amacleay](https://github.com/amacleay) in [#2374](https://github.com/apollographql/react-apollo/pull/2374)
+- `<Mutation />` `refetchQueries` triggered by name (string) will now use the correct variables. <br/>
+  [@fracmal](https://github.com/fracmak) in [#2422](https://github.com/apollographql/react-apollo/pull/2422)
 - Remove `allowSyntheticDefaultImports` use. Typescript's
   `allowSyntheticDefaultImports` compiler option is something we'd like to
   start using, but we jumped the gun a bit by introducing it in

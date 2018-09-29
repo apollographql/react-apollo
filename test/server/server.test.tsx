@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { ApolloLink, Observable } from 'apollo-link';
 import {
