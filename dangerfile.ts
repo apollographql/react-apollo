@@ -1,6 +1,6 @@
 // Removed import
-import includes from 'lodash.includes';
-import fs from 'fs';
+const includes = require('lodash.includes');
+import * as fs from 'fs';
 
 // Setup
 const pr = danger.github.pr;

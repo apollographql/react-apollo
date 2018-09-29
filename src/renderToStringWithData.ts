@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import ReactDOM from 'react-dom/server';
+import * as ReactDOM from 'react-dom/server';
 
 import { default as getDataFromTree } from './getDataFromTree';
 

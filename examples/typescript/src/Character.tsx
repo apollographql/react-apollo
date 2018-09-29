@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { GetCharacterQuery, GetCharacterQueryVariables, Episode } from './__generated__/types';
 import { GetCharacter as QUERY } from './queries';
 import { Query } from 'react-apollo';
