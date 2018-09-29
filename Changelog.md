@@ -20,9 +20,22 @@
   [@HOUCe](https://github.com/HOUCe) in [#2429](https://github.com/apollographql/react-apollo/pull/2429)
 - `graphql` 14 updates. <br/>
   [@hwillson](https://github.com/hwillson) in [#2437](https://github.com/apollographql/react-apollo/pull/2437)
-- Mutation errors are now properly returned as a render prop, when using 
-  a default `errorPolicy` of `all`.  <br/>
+- Mutation errors are now properly returned as a render prop, when using
+  a default `errorPolicy` of `all`. <br/>
   [@amacleay](https://github.com/amacleay) in [#2374](https://github.com/apollographql/react-apollo/pull/2374)
+- Remove `allowSyntheticDefaultImports` use. Typescript's
+  `allowSyntheticDefaultImports` compiler option is something we'd like to
+  start using, but we jumped the gun a bit by introducing it in
+  https://github.com/apollographql/react-apollo/commit/9a96519d390783dfd9a431dc2dbaa476a24f7b80.
+  Including it means that anyone who wants to use Typescript with React
+  Apollo would have to also include it in their own local `tsconfig.json`, to
+  be able to handle default imports properly. This is because we're also using
+  Typescript's `es2015` `module` option, which means
+  `allowSyntheticDefaultImports` has to be enabled explicitly. We've
+  switched back to using a combination of `import * as X` and `require`
+  syntax, to work with default imports. We'll re-introduce
+  `allowSyntheticDefaultImports` use in React Apollo 3. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2438](https://github.com/apollographql/react-apollo/pull/2438)
 
 ## 2.2.2 (September 28, 2018)
 
