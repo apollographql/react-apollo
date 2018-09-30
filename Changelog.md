@@ -38,6 +38,9 @@
   syntax, to work with default imports. We'll re-introduce
   `allowSyntheticDefaultImports` use in React Apollo 3. <br/>
   [@hwillson](https://github.com/hwillson) in [#2438](https://github.com/apollographql/react-apollo/pull/2438)
+- All example apps (included in the repo) have been updated to work with the
+  latest version of React Apollo. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2439](https://github.com/apollographql/react-apollo/pull/2439)
 
 ## 2.2.2 (September 28, 2018)
 
