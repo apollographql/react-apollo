@@ -53,7 +53,7 @@ export declare type MutationOptions<TData = any, TVariables = OperationVariables
 
 export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
   options?: MutationOptions<TData, TVariables>,
-) => Promise<void | FetchResult<TData>>;
+) => Promise<FetchResult<TData>>;
 
 export interface MutationProps<TData = any, TVariables = OperationVariables> {
   client?: ApolloClient<Object>;
