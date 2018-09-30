@@ -1,9 +1,17 @@
 # Change log
 
-## vNext
+## 2.2.3 (September 30, 2018)
 
-- Fix `lodash` typings. <br/>
-  [@williamboman](https://github.com/williamboman) in [#2430](https://github.com/apollographql/react-apollo/pull/2430)
+### Bug Fixes
+
+- Mutation errors are now properly returned as a render prop, when using
+  a default `errorPolicy` of `all`. <br/>
+  [@amacleay](https://github.com/amacleay) in [#2374](https://github.com/apollographql/react-apollo/pull/2374)
+- `<Mutation />` `refetchQueries` triggered by name (string) will now use the correct variables. <br/>
+  [@fracmal](https://github.com/fracmak) in [#2422](https://github.com/apollographql/react-apollo/pull/2422)
+
+### Improvements
+
 - Replace the `lodash` dependency with `lodash.flowright` (since that's the
   only non-dev `lodash` function we're dependent on). Dev `lodash`
   dependencies have also been updated to use their individual module
@@ -11,20 +19,23 @@
   [@hwillson](https://github.com/hwillson) in [#2435](https://github.com/apollographql/react-apollo/pull/2435)
 - Removed `rollup-plugin-babel-minify` as it's no longer being used. <br/>
   [@hwillson](https://github.com/hwillson) in [#2436](https://github.com/apollographql/react-apollo/pull/2436)
-- Typings: added `context` to `MutationOptions`. <br/>
-  [@danilobuerger](https://github.com/danilobuerger) in [#2354](https://github.com/apollographql/react-apollo/pull/2354)
-- Typings: more `MutationOptions` changes/fixes. <br/>
-  [@danilobuerger](https://github.com/danilobuerger) in [#2340](https://github.com/apollographql/react-apollo/pul/2340)
 - Small `getDataFromTree.ts` logic adjustment to avoid unnecessary calls
   when a falsy `element` is encountered. <br/>
   [@HOUCe](https://github.com/HOUCe) in [#2429](https://github.com/apollographql/react-apollo/pull/2429)
 - `graphql` 14 updates. <br/>
   [@hwillson](https://github.com/hwillson) in [#2437](https://github.com/apollographql/react-apollo/pull/2437)
-- Mutation errors are now properly returned as a render prop, when using
-  a default `errorPolicy` of `all`. <br/>
-  [@amacleay](https://github.com/amacleay) in [#2374](https://github.com/apollographql/react-apollo/pull/2374)
-- `<Mutation />` `refetchQueries` triggered by name (string) will now use the correct variables. <br/>
-  [@fracmal](https://github.com/fracmak) in [#2422](https://github.com/apollographql/react-apollo/pull/2422)
+- All example apps (included in the repo) have been updated to work with the
+  latest version of React Apollo. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2439](https://github.com/apollographql/react-apollo/pull/2439)
+
+### Typescript
+
+- Fix `lodash` typings. <br/>
+  [@williamboman](https://github.com/williamboman) in [#2430](https://github.com/apollographql/react-apollo/pull/2430)
+- Typings: added `context` to `MutationOptions`. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2354](https://github.com/apollographql/react-apollo/pull/2354)
+- Typings: more `MutationOptions` changes/fixes. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2340](https://github.com/apollographql/react-apollo/pul/2340)
 - Remove `allowSyntheticDefaultImports` use. Typescript's
   `allowSyntheticDefaultImports` compiler option is something we'd like to
   start using, but we jumped the gun a bit by introducing it in
@@ -38,9 +49,6 @@
   syntax, to work with default imports. We'll re-introduce
   `allowSyntheticDefaultImports` use in React Apollo 3. <br/>
   [@hwillson](https://github.com/hwillson) in [#2438](https://github.com/apollographql/react-apollo/pull/2438)
-- All example apps (included in the repo) have been updated to work with the
-  latest version of React Apollo. <br/>
-  [@hwillson](https://github.com/hwillson) in [#2439](https://github.com/apollographql/react-apollo/pull/2439)
 
 ## 2.2.2 (September 28, 2018)
 
