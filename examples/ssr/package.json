@@ -7,17 +7,22 @@
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
   "dependencies": {
-    "apollo-client": "^2.0.0",
-    "babel-runtime": "^6.20.0",
-    "body-parser": "^1.17.2",
-    "express": "^4.15.3",
-    "graphql-server-express": "^1.0.4",
-    "graphql-tag": "^2.4.2",
+    "@babel/runtime": "7.0.0-beta.55",
+    "apollo-cache-inmemory": "^1.2.10",
+    "apollo-client": "^2.4.2",
+    "apollo-link-http": "^1.5.5",
+    "apollo-server": "^2.1.0",
+    "apollo-server-express": "^2.1.0",
+    "babel-runtime": "^6.26.0",
+    "body-parser": "^1.18.3",
+    "graphql": "^14.0.2",
+    "graphql-tag": "^2.9.2",
     "graphql-tools": "^4.0.0",
-    "meteor-node-stubs": "^0.4.0",
-    "react": "^16.0.0",
-    "react-apollo": "^2.0.0",
-    "react-dom": "^16.0.0"
+    "meteor-node-stubs": "^0.4.1",
+    "node-fetch": "^2.2.0",
+    "react": "^16.5.2",
+    "react-apollo": "^2.2.1",
+    "react-dom": "^16.5.2"
   },
   "devDependencies": {
     "assert": "1.4.1",
@@ -26,6 +31,6 @@
     "cheerio": "1.0.0-rc.2",
     "chromedriver": "2.42.0",
     "nightwatch": "0.9.21",
-    "selenium-webdriver": "3.6.0"
+    "selenium-webdriver": "4.0.0-alpha.1"
   }
 }

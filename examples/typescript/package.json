@@ -8,7 +8,7 @@
     "apollo-link-http": "latest",
     "graphql-tag": "^2.6.1",
     "react": "^16.2.0",
-    "react-apollo": "../../lib",
+    "react-apollo": "file:../..",
     "react-dom": "^16.2.0"
   },
   "devDependencies": {

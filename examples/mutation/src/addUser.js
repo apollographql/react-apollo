@@ -49,11 +49,7 @@ export default class AddUser extends React.Component {
           if (createUser) {
             const { username, id } = createUser;
 
-            return (
-              <div>
-                Created {username} with id {id}
-              </div>
-            );
+            return <div>{`Created ${username} with id ${id}`}</div>;
           } else {
             return null;
           }

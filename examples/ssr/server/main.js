@@ -1,21 +1,23 @@
 import { renderToString } from 'react-dom/server';
 import { onPageLoad } from 'meteor/server-render';
-import { createApolloServer } from 'meteor/apollo';
-import { graphql } from 'graphql';
-import { print } from 'graphql/language/printer';
+import { ApolloClient } from 'apollo-client';
+import { getDataFromTree, ApolloProvider } from 'react-apollo';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
+import { WebApp } from 'meteor/webapp';
+import { ApolloServer } from 'apollo-server-express';
+import fetch from 'node-fetch';
 
-import { ApolloClient, getDataFromTree, ApolloProvider } from 'react-apollo';
-
-import { schema } from '/imports/schema';
+import { typeDefs, resolvers } from '/imports/schema';
 import { App } from '/imports/app';
 
 export const render = async sink => {
   const client = new ApolloClient({
-    // simple local interface to query graphql directly
-    networkInterface: {
-      query: ({ query, variables, operationName }) =>
-        graphql(schema, print(query), {}, {}, variables, operationName),
-    },
+    link: new HttpLink({
+      uri: 'http://localhost:3000/graphql',
+      fetch,
+    }),
+    cache: new InMemoryCache(),
     ssrMode: true,
   });
 
@@ -25,18 +27,24 @@ export const render = async sink => {
     </ApolloProvider>
   );
 
-  // load all data from local server;
+  // Load all data from local server
   await getDataFromTree(WrappedApp);
 
   const body = renderToString(WrappedApp);
   sink.renderIntoElementById('app', body);
   sink.appendToBody(`
-    <script>window.__APOLLO_STATE__=${JSON.stringify(client.getInitialState())};</script>
+    <script>
+      window.__APOLLO_STATE__=${JSON.stringify(client.extract())};
+    </script>
   `);
 };
 
-// hanlde SSR
+// Handle SSR
 onPageLoad(render);
 
-// expose graphql endpoint
-createApolloServer({ schema });
+// Expose graphql endpoint
+const server = new ApolloServer({ typeDefs, resolvers });
+server.applyMiddleware({
+  app: WebApp.connectHandlers,
+  path: '/graphql',
+});

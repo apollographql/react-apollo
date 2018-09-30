@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "apollo-boost": "^0.1.4",
-    "graphql-tag": "^2.6.0",
-    "react": "^16.2.0",
+    "apollo-boost": "^0.1.16",
+    "graphql-tag": "^2.9.2",
+    "react": "^16.5.2",
     "react-apollo": "../../lib",
-    "react-dom": "^16.2.0",
+    "react-dom": "^16.5.2",
     "react-scripts": "1.1.5"
   },
   "scripts": {
@@ -17,6 +17,6 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "react-testing-library": "5.0.0"
+    "react-testing-library": "5.1.0"
   }
 }
