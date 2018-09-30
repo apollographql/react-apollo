@@ -1,15 +1,15 @@
-import React from 'react';
-import renderer from 'react-test-renderer';
+import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
+import * as TestUtils from 'react-dom/test-utils';
+import { DocumentNode } from 'graphql';
+const compose = require('lodash.flowright');
+
 import { mockSingleLink } from '../../../src/test-utils';
 import { ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
-import TestUtils from 'react-dom/test-utils';
-import { DocumentNode } from 'graphql';
-
-const compose = require('lodash/flowRight');
 
 describe('shared operations', () => {
   describe('withApollo', () => {

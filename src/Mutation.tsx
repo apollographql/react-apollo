@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import ApolloClient, { PureQueryOptions, ApolloError } from 'apollo-client';
 import { DataProxy } from 'apollo-cache';
-import invariant from 'invariant';
+const invariant = require('invariant');
 import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
 
@@ -44,10 +44,11 @@ export declare type FetchResult<C = Record<string, any>, E = Record<string, any>
 
 export declare type MutationOptions<TData = any, TVariables = OperationVariables> = {
   variables?: TVariables;
-  optimisticResponse?: Object;
+  optimisticResponse?: TData;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
+  context?: Record<string, any>;
 };
 
 export declare type MutationFn<TData = any, TVariables = OperationVariables> = (
@@ -58,7 +59,7 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
   client?: ApolloClient<Object>;
   mutation: DocumentNode;
   ignoreResults?: boolean;
-  optimisticResponse?: Object;
+  optimisticResponse?: TData;
   variables?: TVariables;
   refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesProviderFn;
   awaitRefetchQueries?: boolean;
@@ -165,7 +166,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     return children(this.runMutation, result);
   }
 
-  private runMutation = (options: MutationOptions<TVariables> = {}) => {
+  private runMutation = (options: MutationOptions<TData, TVariables> = {}) => {
     this.onMutationStart();
     const mutationId = this.generateNewMutationId();
 
@@ -180,7 +181,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       });
   };
 
-  private mutate = (options: MutationOptions<TVariables>) => {
+  private mutate = (options: MutationOptions<TData, TVariables>) => {
     const {
       mutation,
       variables,
@@ -241,12 +242,14 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     }
     const { onCompleted, ignoreResults } = this.props;
 
-    const data = response.data as TData;
+    const { data, errors } = response;
+    const error =
+      errors && errors.length > 0 ? new ApolloError({ graphQLErrors: errors }) : undefined;
 
-    const callOncomplete = () => (onCompleted ? onCompleted(data) : null);
+    const callOncomplete = () => (onCompleted ? onCompleted(data as TData) : null);
 
     if (this.isMostRecentMutation(mutationId) && !ignoreResults) {
-      this.setState({ loading: false, data }, callOncomplete);
+      this.setState({ loading: false, data, error }, callOncomplete);
     } else {
       callOncomplete();
     }

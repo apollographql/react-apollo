@@ -1,5 +1,5 @@
 import ApolloClient from 'apollo-client';
-import invariant from 'invariant';
+const invariant = require('invariant');
 
 export interface CommonComponentProps {
   client?: ApolloClient<Object>;
