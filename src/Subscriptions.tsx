@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import ApolloClient, { ApolloError, FetchPolicy } from 'apollo-client';
 import { Observable } from 'apollo-link';
-
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
+
 import { OperationVariables } from './types';
 import { getClient } from './component-utils';
 

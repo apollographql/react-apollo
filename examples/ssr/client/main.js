@@ -1,13 +1,18 @@
-import { render } from 'react-dom';
+import { hydrate } from 'react-dom';
 import { onPageLoad } from 'meteor/server-render';
-import { ApolloProvider, ApolloClient, createNetworkInterface } from 'react-apollo';
+import { ApolloProvider } from 'react-apollo';
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
 
 import { App } from '/imports/app';
 
 export const start = () => {
   const client = new ApolloClient({
-    networkInterface: createNetworkInterface({ uri: 'http://localhost:3000' }),
-    initialState: { apollo: window.__APOLLO_STATE__ },
+    link: new HttpLink({
+      uri: 'http://localhost:3000/graphql',
+    }),
+    cache: new InMemoryCache().restore(window.__APOLLO_STATE__),
   });
 
   const WrappedApp = (
@@ -16,7 +21,7 @@ export const start = () => {
     </ApolloProvider>
   );
 
-  render(WrappedApp, document.getElementById('app'));
+  hydrate(WrappedApp, document.getElementById('app'));
 };
 
 onPageLoad(start);

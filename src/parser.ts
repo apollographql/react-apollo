@@ -16,7 +16,7 @@ export enum DocumentType {
 export interface IDocumentDefinition {
   type: DocumentType;
   name: string;
-  variables: VariableDefinitionNode[];
+  variables: ReadonlyArray<VariableDefinitionNode>;
 }
 
 const cache = new Map();

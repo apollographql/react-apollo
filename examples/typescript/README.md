@@ -1,4 +1,4 @@
-# Base Example
+# Typescript Example
 
 ```
 npm install

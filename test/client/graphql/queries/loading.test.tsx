@@ -1,6 +1,6 @@
-import React from 'react';
-import renderer from 'react-test-renderer';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as renderer from 'react-test-renderer';
+import * as ReactDOM from 'react-dom';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { mount, ReactWrapper } from 'enzyme';

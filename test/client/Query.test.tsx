@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import ApolloClient, { ApolloError, NetworkStatus } from 'apollo-client';
 import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -163,7 +163,6 @@ describe('Query component', () => {
               return null;
             }
             catchAsyncError(done, () => {
-              expect(result.data).toEqual({});
               expect(result.error).toEqual(new Error('Network error: error occurred'));
               done();
             });
@@ -1331,7 +1330,7 @@ describe('Query component', () => {
     function Container() {
       return (
         <AllPeopleQuery2 query={query} notifyOnNetworkStatusChange>
-          {result => {
+          {(result: any) => {
             try {
               switch (count++) {
                 case 0:
@@ -1400,6 +1399,101 @@ describe('Query component', () => {
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,
+    );
+  });
+
+  describe('Partial refetching', () => {
+    it(
+      'should attempt a refetch when the query result was marked as being ' +
+        'partial, the returned data was reset to an empty Object by the ' +
+        'Apollo Client QueryManager (due to a cache miss), and the ' +
+        '`partialRefetch` prop is `true`',
+      done => {
+        const query = allPeopleQuery;
+        const link = mockSingleLink(
+          { request: { query }, result: { data: {} } },
+          { request: { query }, result: { data: allPeopleData } },
+        );
+
+        const client = new ApolloClient({
+          link,
+          cache: new Cache({ addTypename: false }),
+        });
+
+        let count = 0;
+        const Component = () => (
+          <Query query={allPeopleQuery} partialRefetch>
+            {result => {
+              const { data, loading } = result;
+              if (!loading) {
+                expect(stripSymbols(data)).toEqual(allPeopleData);
+                done();
+              }
+              return null;
+            }}
+          </Query>
+        );
+
+        wrapper = mount(
+          <ApolloProvider client={client}>
+            <Component />
+          </ApolloProvider>,
+        );
+      },
+    );
+
+    it(
+      'should not refetch when an empty partial is returned if the ' +
+        '`partialRefetch` prop is false/not set',
+      done => {
+        const query = allPeopleQuery;
+        const link = mockSingleLink({ request: { query }, result: { data: {} } });
+
+        const client = new ApolloClient({
+          link,
+          cache: new Cache({ addTypename: false }),
+        });
+
+        let count = 0;
+        const Component = () => (
+          <Query query={allPeopleQuery}>
+            {result => {
+              const { data, loading } = result;
+              if (!loading) {
+                expect(data).toEqual({});
+                done();
+              }
+              return null;
+            }}
+          </Query>
+        );
+
+        wrapper = mount(
+          <ApolloProvider client={client}>
+            <Component />
+          </ApolloProvider>,
+        );
+      },
+    );
+  });
+
+  // https://github.com/apollographql/react-apollo/issues/2424
+  it('should be able to access data keys without a type guard', () => {
+    const Component = () => (
+      <AllPeopleQuery query={allPeopleQuery}>
+        {result => {
+          if (result.data && result.data.allPeople) {
+            return null;
+          }
+
+          if (result.data && result.data!.allPeople) {
+            return null;
+          }
+
+          const { allPeople } = result.data!;
+          return null;
+        }}
+      </AllPeopleQuery>
     );
   });
 });

@@ -1,6 +1,86 @@
 # Change log
 
-## vNext
+## 2.2.4 (September 30, 2018)
+
+### Bug Fixes
+
+- `lodash.isequal` was improperly set as a dev dependency for
+  `MockLink` / `MockedProvider`. It is now a dependency. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2449](https://github.com/apollographql/react-apollo/pull/2449)
+
+## 2.2.3 (September 30, 2018)
+
+### Bug Fixes
+
+- Mutation errors are now properly returned as a render prop, when using
+  a default `errorPolicy` of `all`. <br/>
+  [@amacleay](https://github.com/amacleay) in [#2374](https://github.com/apollographql/react-apollo/pull/2374)
+- `<Mutation />` `refetchQueries` triggered by name (string) will now use the correct variables. <br/>
+  [@fracmal](https://github.com/fracmak) in [#2422](https://github.com/apollographql/react-apollo/pull/2422)
+
+### Improvements
+
+- Replace the `lodash` dependency with `lodash.flowright` (since that's the
+  only non-dev `lodash` function we're dependent on). Dev `lodash`
+  dependencies have also been updated to use their individual module
+  equivalent. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2435](https://github.com/apollographql/react-apollo/pull/2435)
+- Removed `rollup-plugin-babel-minify` as it's no longer being used. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2436](https://github.com/apollographql/react-apollo/pull/2436)
+- Small `getDataFromTree.ts` logic adjustment to avoid unnecessary calls
+  when a falsy `element` is encountered. <br/>
+  [@HOUCe](https://github.com/HOUCe) in [#2429](https://github.com/apollographql/react-apollo/pull/2429)
+- `graphql` 14 updates. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2437](https://github.com/apollographql/react-apollo/pull/2437)
+- All example apps (included in the repo) have been updated to work with the
+  latest version of React Apollo. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2439](https://github.com/apollographql/react-apollo/pull/2439)
+
+### Typescript
+
+- Fix `lodash` typings. <br/>
+  [@williamboman](https://github.com/williamboman) in [#2430](https://github.com/apollographql/react-apollo/pull/2430)
+- Typings: added `context` to `MutationOptions`. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2354](https://github.com/apollographql/react-apollo/pull/2354)
+- Typings: more `MutationOptions` changes/fixes. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2340](https://github.com/apollographql/react-apollo/pul/2340)
+- Remove `allowSyntheticDefaultImports` use. Typescript's
+  `allowSyntheticDefaultImports` compiler option is something we'd like to
+  start using, but we jumped the gun a bit by introducing it in
+  https://github.com/apollographql/react-apollo/commit/9a96519d390783dfd9a431dc2dbaa476a24f7b80.
+  Including it means that anyone who wants to use Typescript with React
+  Apollo would have to also include it in their own local `tsconfig.json`, to
+  be able to handle default imports properly. This is because we're also using
+  Typescript's `es2015` `module` option, which means
+  `allowSyntheticDefaultImports` has to be enabled explicitly. We've
+  switched back to using a combination of `import * as X` and `require`
+  syntax, to work with default imports. We'll re-introduce
+  `allowSyntheticDefaultImports` use in React Apollo 3. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2438](https://github.com/apollographql/react-apollo/pull/2438)
+
+## 2.2.2 (September 28, 2018)
+
+- When using `React.createContext` and SSR, we now make sure the context
+  provider value is reset to the previous value it had after its children are
+  walked. <br/>
+  [@mitchellhamilton](https://github.com/mitchellhamilton) in [#2304](https://github.com/apollographql/react-apollo/pull/2304)
+- Revert: <br/>
+  When a query failed on the first result, the query result `data` was being
+  returned as `undefined`. This behavior has been changed so that `data` is
+  returned as an empty object. This makes checking for data (e.g.
+  instead of `data && data.user` you can just check `data.user`) and
+  destructring (e.g. `{ data: { user } }`) easier. **Note:** this could
+  potentially hurt applications that are relying on a falsey check of `data`
+  to see if any query errors have occurred. A better (and supported) way to
+  check for errors is to use the result `errors` property. <br/>
+  [#1983](https://github.com/apollographql/react-apollo/pull/1983)
+
+## 2.2.1 (September 26, 2018)
+
+- Revert: "Typescript: use `Partial<TData>` instead of `TData | {}`, for the
+  `QueryResult` `data` property."
+
+## 2.2.0 (September 26, 2018)
 
 - Improved TypeScript Typings:
   Deprecated `MutationFunc` in favor of `MutationFn`.
@@ -64,6 +144,20 @@
 - Fixed a regression where `variables` passed in `graphql` HOC `options` were
   not merged with mutation `variables`. <br/>
   [@samginn](https://github.com/samginn) in [#2216](https://github.com/apollographql/react-apollo/pull/2216)
+- Added a new `partialRefetch` prop (`false` by default).
+  When a `Query` component is mounted, and a mutation is executed
+  that returns the same ID as the mounted `Query`, but has less
+  fields in its result, Apollo Client's `QueryManager` returns the
+  data as an empty Object since a hit can't be found in the cache.
+  This can lead to application errors when the UI elements rendered by
+  the original `Query` component are expecting certain data values to
+  exist, and they're all of a sudden stripped away. The recommended way to
+  handle this is to use the mutations `update` prop to reconcile the mutation
+  result with the data in the cache, getting everything into the expected
+  state. This can definitely be a cumbersome process however, so to help
+  address this the `partialRefetch` prop can be used to automatically
+  `refetch` the original query and update the cache. <br/>
+  [@steelbrain](https://github.com/steelbrain) in [#2003](https://github.com/apollographql/react-apollo/pull/2003)
 
 ## 2.1.11 (August 9, 2018)
 

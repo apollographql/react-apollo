@@ -424,14 +424,7 @@ const resolvers = {
   },
 };
 
-/**
- * Finally, we construct our schema (whose starting query type is the query
- * type we defined above) and export it.
- */
-export const schema = makeExecutableSchema({
-  typeDefs: [schemaString],
-  resolvers,
-});
+export { schemaString as typeDefs, resolvers };
 
 /*
 License from https://github.com/graphql/graphql.github.io/blob/source/LICENSE

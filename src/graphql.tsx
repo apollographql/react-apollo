@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { DocumentNode } from 'graphql';
 import { parser, DocumentType } from './parser';
 import { OperationOption, DataProps, MutateProps } from './types';

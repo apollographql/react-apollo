@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, Simulate, wait } from 'react-testing-library';
+import { render, fireEvent, wait } from 'react-testing-library';
 import { MockedProvider } from 'react-apollo/test-utils';
 
-import AddUser, { ADD_USER } from './addUser';
+import AddUser, { ADD_USER } from './AddUser';
 
 const request = {
   query: ADD_USER,
@@ -17,6 +17,7 @@ const mocks = [
         createUser: {
           id: '1',
           username: 'peter',
+          __typename: 'User',
         },
       },
     },
@@ -45,18 +46,18 @@ it('renders content if the mutation has not been called', () => {
 });
 
 it('fires the mutation', async () => {
-  const { container, getByPlaceholderText, getByTestId, getByText, queryByText } = render(
+  const { container, getByPlaceholderText, getByTestId, getByText, queryByText, debug } = render(
     <MockedProvider mocks={mocks} addTypename={false}>
       <AddUser />
     </MockedProvider>,
   );
 
   const inputNode = getByPlaceholderText('Username');
-  inputNode.value = 'peter';
-  Simulate.change(inputNode);
+  inputNode.defaultValue = 'peter';
+  fireEvent.change(inputNode);
 
   const buttonNode = getByTestId('add-user-button');
-  Simulate.click(buttonNode);
+  fireEvent.click(buttonNode);
 
   getByText('LOADING');
 
@@ -74,11 +75,10 @@ it('errors', async () => {
 
   const inputNode = getByPlaceholderText('Username');
   inputNode.value = 'peter';
-  Simulate.change(inputNode);
+  fireEvent.change(inputNode);
 
   const buttonNode = getByTestId('add-user-button');
-
-  Simulate.click(buttonNode);
+  fireEvent.click(buttonNode);
 
   await waitUntilLoadingIsFinished(queryByText);
 

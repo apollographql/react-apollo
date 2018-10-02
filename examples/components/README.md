@@ -1,4 +1,4 @@
-# Base Example
+# Components Example
 
 ```
 npm install
