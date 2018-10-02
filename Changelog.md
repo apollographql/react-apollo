@@ -1,5 +1,13 @@
 # Change log
 
+## 2.2.4 (September 30, 2018)
+
+### Bug Fixes
+
+- `lodash.isequal` was improperly set as a dev dependency for
+  `MockLink` / `MockedProvider`. It is now a dependency. <br/>
+  [@danilobuerger](https://github.com/danilobuerger) in [#2449](https://github.com/apollographql/react-apollo/pull/2449)
+
 ## 2.2.3 (September 30, 2018)
 
 ### Bug Fixes
