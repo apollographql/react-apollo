@@ -8,6 +8,11 @@
   `MockLink` / `MockedProvider`. It is now a dependency. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2449](https://github.com/apollographql/react-apollo/pull/2449)
 
+### Improvements
+
+- The `Subscription` component now accepts a `fetchPolicy` prop. <br/>
+  [@MatthieuLemoine](https://github.com/MatthieuLemoine) in [#2298](https://github.com/apollographql/react-apollo/pull/2298)
+
 ### Typescript
 
 - Make sure the `TVariables` generic is passed to `ObservableQuery`. <br/>
