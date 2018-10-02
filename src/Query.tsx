@@ -20,7 +20,7 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
 
 export type ObservableQueryFields<TData, TVariables> = Pick<
-  ObservableQuery<TData>,
+  ObservableQuery<TData, TVariables>,
   'startPolling' | 'stopPolling' | 'subscribeToMore' | 'updateQuery' | 'refetch' | 'variables'
 > & {
   fetchMore: (<K extends keyof TVariables>(

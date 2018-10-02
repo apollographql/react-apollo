@@ -8,6 +8,11 @@
   `MockLink` / `MockedProvider`. It is now a dependency. <br/>
   [@danilobuerger](https://github.com/danilobuerger) in [#2449](https://github.com/apollographql/react-apollo/pull/2449)
 
+### Typescript
+
+- Make sure the `TVariables` generic is passed to `ObservableQuery`. <br/>
+  [@tgriesser](https://github.com/tgriesser) in [#2311](https://github.com/apollographql/react-apollo/pull/2311)
+
 ## 2.2.3 (September 30, 2018)
 
 ### Bug Fixes
