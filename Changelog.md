@@ -1,6 +1,6 @@
 # Change log
 
-## 2.2.4 (September 30, 2018)
+## 2.2.4 (October 2, 2018)
 
 ### Bug Fixes
 
