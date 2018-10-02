@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { DocumentNode } from 'graphql';
 const hoistNonReactStatics = require('hoist-non-react-statics');
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/server';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import {
   graphql,
@@ -12,7 +12,7 @@ import {
   ChildProps,
 } from '../../src';
 import gql from 'graphql-tag';
-import times from 'lodash/times';
+const times = require('lodash.times');
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../src/test-utils';
 import { DocumentNode } from 'graphql';
@@ -538,11 +538,9 @@ describe('SSR', () => {
 
       class CurrentUserQuery extends Query<Data> {}
 
-      const hasOwn = Object.prototype.hasOwnProperty;
-
       const WrappedElement = () => (
         <CurrentUserQuery query={query}>
-          {({ data, loading }: { data: Data; loading: boolean }) => (
+          {({ data, loading }) => (
             <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>
@@ -1291,7 +1289,7 @@ describe('SSR', () => {
 
       const Element = (props: { id: string }) => (
         <CurrentUserQuery query={query} ssr={false} variables={props}>
-          {({ data, loading }: { data: Data; loading: boolean }) => (
+          {({ data, loading }) => (
             <div>{loading || !data ? 'loading' : data.currentUser!.firstName}</div>
           )}
         </CurrentUserQuery>

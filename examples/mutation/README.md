@@ -1,4 +1,4 @@
-# Base Example
+# Mutation Example
 
 ```
 npm install

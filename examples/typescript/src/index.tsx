@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { render } from 'react-dom';
 import { ApolloClient } from 'apollo-client';
 import { createHttpLink } from 'apollo-link-http';

@@ -11,7 +11,7 @@
 
 // @flow
 import gql from 'graphql-tag';
-import React from 'react';
+import * as React from 'react';
 import { withApollo, graphql } from '../src';
 import type { OperationComponent, GraphqlQueryControls, ChildProps, GraphqlData } from '../src';
 

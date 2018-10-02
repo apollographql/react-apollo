@@ -3,10 +3,10 @@ import { render } from 'react-dom';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 
-import AddUser from './addUser';
+import AddUser from './AddUser';
 
 const client = new ApolloClient({
-  uri: 'https://kqpk9j3kz7.lp.gql.zone/graphql',
+  uri: 'https://n1k5mkl017.lp.gql.zone/graphql',
 });
 
 const WrappedApp = (

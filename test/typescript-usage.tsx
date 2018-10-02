@@ -2,7 +2,7 @@
 // we intentionally don't enforce TS compilation on the rest of the tests so we can
 // test things like improper argument calling / etc to cause errors and ensure
 // that they are handled
-import React from 'react';
+import * as React from 'react';
 import gql from 'graphql-tag';
 import { graphql, DataValue } from '../src';
 import { ChildProps } from '../src';
@@ -35,7 +35,7 @@ interface Data {
 }
 
 // interface Mutation {
-//   updateHistory?: MutationFunc<MutationPayload, MutationInput>;
+//   updateHistory?: MutationFn<MutationPayload, MutationInput>;
 // }
 //
 // interface MutationPayload {
