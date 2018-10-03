@@ -17,7 +17,7 @@ export interface MockedResponse {
   error?: Error;
   delay?: number;
   newData?: () => FetchResult;
-  dynamicVariables: boolean;
+  dynamicVariables?: boolean;
 }
 
 export interface MockedSubscriptionResult {
