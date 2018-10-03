@@ -58,7 +58,8 @@ export class MockLink extends ApolloLink {
     const response = (this.mockedResponsesByKey[key] || []).find((res, index) => {
       const requestVariables = operation.variables || {};
       const mockedResponseVariables = res.request.variables || {};
-      if (!isEqual(requestVariables, mockedResponseVariables)) {
+      const dynamicVariables = res.request.dynamicVariables || false;
+      if (!dynamicVariables && !isEqual(requestVariables, mockedResponseVariables)) {
         return false;
       }
       responseIndex = index;
