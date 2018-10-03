@@ -17,6 +17,7 @@ export interface MockedResponse {
   error?: Error;
   delay?: number;
   newData?: () => FetchResult;
+  dynamicVariables: boolean;
 }
 
 export interface MockedSubscriptionResult {
@@ -58,7 +59,7 @@ export class MockLink extends ApolloLink {
     const response = (this.mockedResponsesByKey[key] || []).find((res, index) => {
       const requestVariables = operation.variables || {};
       const mockedResponseVariables = res.request.variables || {};
-      const dynamicVariables = res.request.dynamicVariables || false;
+      const dynamicVariables = res.dynamicVariables || false;
       if (!dynamicVariables && !isEqual(requestVariables, mockedResponseVariables)) {
         return false;
       }
