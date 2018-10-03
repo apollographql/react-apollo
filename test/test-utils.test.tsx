@@ -61,6 +61,7 @@ const mocks: ReadonlyArray<MockedResponse> = [
       variables,
     },
     result: { data: { user } },
+    dynamicVariables: false,
   },
 ];
 
