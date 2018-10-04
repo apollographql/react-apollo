@@ -105,7 +105,6 @@
     "@types/recompose": "0.27.0",
     "@types/zen-observable": "0.8.0",
     "apollo-cache": "1.1.17",
-    "apollo-cache-inmemory": "1.2.10",
     "apollo-client": "2.4.2",
     "apollo-link": "1.2.1",
     "babel-core": "6.26.3",
@@ -146,6 +145,7 @@
     "zen-observable-ts": "0.8.10"
   },
   "dependencies": {
+    "apollo-cache-inmemory": "1.2.10",
     "fbjs": "^1.0.0",
     "hoist-non-react-statics": "^3.0.0",
     "invariant": "^2.2.2",
