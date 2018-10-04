@@ -48,6 +48,18 @@ export default [
     },
     onwarn,
   },
+  // for test-links
+  {
+    input: 'lib/test-links.js',
+    output: {
+      file: 'lib/test-links.js',
+      format: 'umd',
+      name: 'react-apollo',
+      sourcemap: false,
+      exports: 'named',
+    },
+    onwarn,
+  },
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',
