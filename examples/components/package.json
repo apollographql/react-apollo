@@ -17,6 +17,6 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "react-testing-library": "5.1.0"
+    "react-testing-library": "5.2.0"
   }
 }
