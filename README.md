@@ -66,7 +66,7 @@ const client = new ApolloClient({
 If you're using [apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost), you can create an `ApolloClient` that uses `HttpLink` and `InMemoryCache` like so:
 
 ```js
-import { ApolloClient } from 'apollo-boost';
+import ApolloClient from 'apollo-boost';
 
 const client = new ApolloClient();
 ```
