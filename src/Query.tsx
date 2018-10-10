@@ -419,7 +419,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
           // the original `Query` component are expecting certain data values to
           // exist, and they're all of a sudden stripped away. To help avoid
           // this we'll attempt to refetch the `Query` data.
-          Object.assign(data, { loading: true });
+          Object.assign(data, { loading: true, networkStatus: NetworkStatus.loading });
           data.refetch();
           return data;
         }
