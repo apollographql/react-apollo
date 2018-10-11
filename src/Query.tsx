@@ -94,7 +94,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
   client?: ApolloClient<Object>;
   context?: Record<string, any>;
   partialRefetch?: boolean;
-  onCompleted?: (data: TData | {}) => void;
+  onCompleted?: (data: TData & { [key: string]: any }) => void;
   onError?: (error: ApolloError) => void;
 }
 
