@@ -237,7 +237,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       const currentResult = this.queryObservable!.currentResult();
       const { loading, error, data } = currentResult;
       if (onCompleted && !loading && !error) {
-        onCompleted(data);
+        onCompleted(data as TData);
       } else if (onError && !loading && error) {
         onError(error);
       }
