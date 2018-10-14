@@ -662,6 +662,7 @@ describe('Query component', () => {
             if (result.loading) {
               return null;
             }
+            expect(result.isSkipping).toBeFalsy();
             if (count === 0) {
               expect(stripSymbols(result.data)).toEqual(data1);
             } else if (count === 1) {
@@ -697,6 +698,7 @@ describe('Query component', () => {
               expect(result.loading).toBeFalsy();
               expect(result.data).toBe(undefined);
               expect(result.error).toBe(undefined);
+              expect(result.isSkipping).toBeTruthy();
               done();
             });
             return null;

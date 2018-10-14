@@ -77,6 +77,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   data: TData | undefined;
   error?: ApolloError;
   loading: boolean;
+  isSkipping: boolean;
   networkStatus: NetworkStatus;
 }
 
@@ -381,6 +382,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         data: undefined,
         error: undefined,
         loading: false,
+        isSkipping: true,
       };
     } else {
       // Fetch the current result (if any) from the store.
@@ -394,7 +396,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         error = new ApolloError({ graphQLErrors: errors });
       }
 
-      Object.assign(data, { loading, networkStatus, error });
+      Object.assign(data, { loading, networkStatus, error, isSkipping: false });
 
       if (loading) {
         Object.assign(data.data, this.previousData, currentResult.data);
