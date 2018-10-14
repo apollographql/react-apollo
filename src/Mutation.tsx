@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, { PureQueryOptions, ApolloError } from 'apollo-client';
 import { DataProxy } from 'apollo-cache';
+const merge = require('lodash.merge');
 const invariant = require('invariant');
 import { DocumentNode, GraphQLError } from 'graphql';
 const shallowEqual = require('fbjs/lib/shallowEqual');
@@ -210,7 +211,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       delete mutateOptions.refetchQueries;
     }
 
-    const mutateVariables = Object.assign({}, variables, mutateOptions.variables);
+    const mutateVariables = merge(variables, mutateOptions.variables);
     delete mutateOptions.variables;
 
     return this.client.mutate({
