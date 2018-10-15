@@ -210,8 +210,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       });
       delete mutateOptions.refetchQueries;
     }
-
-    const mutateVariables = merge(variables, mutateOptions.variables);
+    const mutateVariables = merge({}, variables, mutateOptions.variables);
     delete mutateOptions.variables;
 
     return this.client.mutate({
