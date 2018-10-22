@@ -8,7 +8,7 @@ import {
 } from 'apollo-link';
 
 import { print } from 'graphql/language/printer';
-import { addTypenameToDocument } from 'apollo-utilities';
+import { addTypenameToDocument, removeConnectionDirectiveFromDocument } from 'apollo-utilities';
 const isEqual = require('lodash.isequal');
 
 export interface MockedResponse {
@@ -43,13 +43,14 @@ export class MockLink extends ApolloLink {
   }
 
   public addMockedResponse(mockedResponse: MockedResponse) {
-    const key = requestToKey(mockedResponse.request, this.addTypename);
+    const normalizedMock = this.normalizeMockResponse(mockedResponse);
+    const key = requestToKey(normalizedMock.request, this.addTypename);
     let mockedResponses = this.mockedResponsesByKey[key];
     if (!mockedResponses) {
       mockedResponses = [];
       this.mockedResponsesByKey[key] = mockedResponses;
     }
-    mockedResponses.push(mockedResponse);
+    mockedResponses.push(normalizedMock);
   }
 
   public request(operation: Operation) {
@@ -100,6 +101,12 @@ export class MockLink extends ApolloLink {
         clearTimeout(timer);
       };
     });
+  }
+
+  private normalizeMockResponse(mockedResponse: MockedResponse): MockedResponse {
+    const newMock = { ...mockedResponse };
+    newMock.request.query = removeConnectionDirectiveFromDocument(newMock.request.query);
+    return newMock;
   }
 }
 
