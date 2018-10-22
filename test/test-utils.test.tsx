@@ -349,3 +349,139 @@ it('doesnt crash on unmount if there is no query manager', () => {
     )
     .unmount();
 });
+
+it('allows for @connection queries', done => {
+  const feedQuery: DocumentNode = gql`
+    query GetUserFeed($username: String!, $offset: Int, $limit: Int) {
+      userFeed(username: $username, offset: $offset, limit: $limit)
+        @connection(key: "userFeed", filter: ["username"]) {
+        title
+      }
+    }
+  `;
+
+  interface FeedData {
+    userFeed: Array<{
+      __typename: 'UserFeedItem';
+      title: string;
+    }>;
+  }
+
+  interface FeedVariables {
+    username: string;
+    offset: number;
+    limit: number;
+  }
+
+  const withUserFeed = graphql<FeedVariables, FeedData, FeedVariables>(feedQuery, {
+    options: props => ({
+      variables: props,
+    }),
+  });
+
+  const feedVariables = { username: 'another_user', offset: 0, limit: 10 };
+  const feedMocks: MockedResponse[] = [
+    {
+      request: {
+        query: feedQuery,
+        variables: feedVariables,
+      },
+      result: {
+        data: {
+          userFeed: [
+            {
+              __typename: 'UserFeedItem',
+              title: 'First!',
+            },
+          ],
+        },
+      },
+    },
+  ];
+
+  class Container extends React.Component<ChildProps<FeedVariables, FeedData, FeedVariables>> {
+    componentWillReceiveProps(nextProps: ChildProps<FeedVariables, FeedData, FeedVariables>) {
+      try {
+        expect(nextProps.data).toBeDefined();
+        expect(nextProps.data!.userFeed).toHaveLength(1);
+        expect(nextProps.data!.userFeed![0].title).toEqual('First!');
+        expect(nextProps.data!.variables).toEqual(feedVariables);
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUserFeed(Container);
+
+  renderer.create(
+    <MockedProvider mocks={feedMocks}>
+      <ContainerWithData {...feedVariables} />
+    </MockedProvider>,
+  );
+});
+
+it('allows for @client queries', done => {
+  const networkStatusQuery: DocumentNode = gql`
+    query NetworkStatus {
+      networkStatus @client {
+        isOnline
+      }
+    }
+  `;
+
+  interface NetworkStatus {
+    networkStatus: {
+      __typename: 'NetworkStatus';
+      isOnline: boolean;
+    };
+  }
+
+  const withNetworkStatus = graphql<{}, NetworkStatus>(networkStatusQuery);
+
+  const networkStatusMocks: MockedResponse[] = [
+    {
+      request: {
+        query: networkStatusQuery,
+      },
+      result: {
+        data: {
+          networkStatus: {
+            __typename: 'NetworkStatus',
+            isOnline: true,
+          },
+        },
+      },
+    },
+  ];
+
+  class Container extends React.Component<ChildProps<{}, NetworkStatus>> {
+    componentWillReceiveProps(nextProps: ChildProps<{}, NetworkStatus>) {
+      try {
+        expect(nextProps.data).toBeDefined();
+        expect(nextProps.data!.networkStatus.__typename).toEqual('NetworkStatus');
+        expect(nextProps.data!.networkStatus.isOnline).toEqual(true);
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withNetworkStatus(Container);
+
+  renderer.create(
+    <MockedProvider mocks={networkStatusMocks}>
+      <ContainerWithData />
+    </MockedProvider>,
+  );
+});
