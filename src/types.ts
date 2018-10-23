@@ -47,15 +47,16 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   context?: Record<string, any>;
 }
 
-export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {
+export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables, TData = any> {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
   variables: TGraphQLVariables;
   fetchMore: (
-    fetchMoreOptions: FetchMoreQueryOptions<any, any> & FetchMoreOptions,
-  ) => Promise<ApolloQueryResult<any>>;
-  refetch: (variables?: TGraphQLVariables) => Promise<ApolloQueryResult<any>>;
+    fetchMoreOptions: FetchMoreQueryOptions<TGraphQLVariables, any> &
+      FetchMoreOptions<TData, TGraphQLVariables>,
+  ) => Promise<ApolloQueryResult<TData>>;
+  refetch: (variables?: TGraphQLVariables) => Promise<ApolloQueryResult<TData>>;
   startPolling: (pollInterval: number) => void;
   stopPolling: () => void;
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
@@ -69,7 +70,8 @@ export type MutationFunc<TData = any, TVariables = OperationVariables> = Mutatio
 >;
 
 export type DataValue<TData, TGraphQLVariables = OperationVariables> = GraphqlQueryControls<
-  TGraphQLVariables
+  TGraphQLVariables,
+  TData
 > &
   // data may not yet be loaded
   Partial<TData>;
