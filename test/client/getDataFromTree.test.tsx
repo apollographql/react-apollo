@@ -468,7 +468,7 @@ describe('SSR', () => {
   });
 
   describe('`getDataFromTree`', () => {
-    it('should run through all of the queries that want SSR', () => {
+    it('should run through all of the queries that want SSR', async () => {
       const query = gql`
         {
           currentUser {
@@ -505,8 +505,15 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
+      await getDataFromTree(app).then(html => {
+        const markup = ReactDOM.renderToStaticMarkup(app);
+        expect(markup).toEqual(html);
+        expect(markup).toMatch(/James/);
+      });
+
+      await getDataFromTree(app, ReactDOM.renderToString).then(html => {
         const markup = ReactDOM.renderToString(app);
+        expect(markup).toEqual(html);
         expect(markup).toMatch(/James/);
       });
     });
@@ -775,7 +782,7 @@ describe('SSR', () => {
       });
     });
 
-    it('should return multiple errors in nested wrapped components without circular reference to wrapper error', () => {
+    it('should return the first of multiple errors thrown by nested wrapped components', () => {
       const lastNameQuery = gql`
         {
           currentUser {
@@ -824,8 +831,9 @@ describe('SSR', () => {
       type WithLastNameProps = ChildProps<Props, LastNameData>;
       const withLastName = graphql<Props, LastNameData>(lastNameQuery);
 
+      const fooError = new Error('foo');
       const BorkedComponent = () => {
-        throw new Error('foo');
+        throw fooError;
       };
 
       const WrappedBorkedComponent = withLastName(BorkedComponent);
@@ -838,7 +846,6 @@ describe('SSR', () => {
         </div>
       );
 
-      type WithFirstNameProps = ChildProps<Props, FirstNameData>;
       const withFirstName = graphql<Props, FirstNameData>(firstNameQuery);
 
       const WrappedContainerComponent = withFirstName(ContainerComponent);
@@ -849,10 +856,11 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).catch(e => {
-        expect(e.toString()).toEqual(expect.stringContaining('2 errors were thrown'));
-        expect(e.queryErrors.length).toBeGreaterThan(1);
-        expect(e.toString()).not.toEqual(e.queryErrors[0].toString());
+      return getDataFromTree(app).then(() => {
+        throw new Error('Should have thrown an error');
+      }, e => {
+        expect(e.toString()).toEqual('Error: foo');
+        expect(e).toBe(fooError);
       });
     });
 
@@ -901,7 +909,7 @@ describe('SSR', () => {
 
       return getDataFromTree(app).catch(e => {
         expect(e).toBeTruthy();
-        expect(e.queryErrors).toBeUndefined();
+        expect(e.toString()).toMatch(/Failed to fetch/);
 
         // But we can still render the app if we want to
         const markup = ReactDOM.renderToString(app);
@@ -1155,14 +1163,14 @@ describe('SSR', () => {
         };
 
         componentWillMount() {
-          this.setState(
-            (state: State, props: Props, context: { client: ApolloClient<any> }) =>
-              ({
-                thing: state.thing + 1,
-                userId: props.id,
-                client: context.client,
-              } as any),
-          );
+          this.setState((
+            state: State,
+            props: Props,
+          ) => ({
+            thing: state.thing + 1,
+            userId: props.id,
+            client: apolloClient,
+          } as any));
         }
 
         render() {
