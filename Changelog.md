@@ -1,5 +1,13 @@
 # Change log
 
+## vNext
+
+### Bug Fixes
+
+- Fix `networkStatus` to reflect the loading state correctly for partial 
+  refetching.  <br/>
+  [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
+
 ## 2.2.4 (October 2, 2018)
 
 ### Bug Fixes
