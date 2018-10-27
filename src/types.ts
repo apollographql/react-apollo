@@ -42,9 +42,10 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   fetchPolicy?: FetchPolicy;
   errorPolicy?: ErrorPolicy;
   pollInterval?: number;
-  client?: ApolloClient<any>;
+  client?: ApolloClient<Object>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Record<string, any>;
+  partialRefetch?: boolean;
 }
 
 export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {
