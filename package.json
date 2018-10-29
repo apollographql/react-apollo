@@ -126,7 +126,7 @@
     "preact-compat": "3.18.4",
     "prettier": "1.14.3",
     "react": "16.5.2",
-    "react-dom": "16.5.2",
+    "react-dom": "16.6.0",
     "react-test-renderer": "16.5.2",
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
