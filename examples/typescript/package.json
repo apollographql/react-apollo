@@ -21,7 +21,7 @@
     "@types/react-test-renderer": "16.0.3",
     "apollo-codegen": "0.20.2",
     "react-scripts-ts": "2.17.0",
-    "react-test-renderer": "16.5.2",
+    "react-test-renderer": "16.6.0",
     "typescript": "3.1.3"
   },
   "scripts": {
