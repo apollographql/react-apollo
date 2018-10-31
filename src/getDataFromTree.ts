@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactIs from 'react-is'; // Can also be used for portals.
 
 export interface Context {
   [key: string]: any;
@@ -145,19 +146,17 @@ export function walkTree(
       }
 
       let child;
-      if (!!(element.type as any)._context) {
+      if (ReactIs.isContextProvider(element)) {
         // A provider - sets the context value before rendering children
         // this needs to clone the map because this value should only apply to children of the provider
         newContext = new Map(newContext);
         newContext.set(element.type, element.props.value);
         child = element.props.children;
-      } else {
+      } else if (ReactIs.isContextConsumer(element)) {
         // A consumer
-        let value = (element.type as any)._currentValue;
-        if (newContext.has((element.type as any).Provider)) {
-          value = newContext.get((element.type as any).Provider);
-        }
-        child = element.props.children(value);
+        const { type: { _context: { _currentValue, Provider } } } = (element as any);
+        let value = _currentValue;
+        child = (element as any).props.children(value);
       }
 
       if (child) {
