@@ -179,7 +179,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       fetchPolicy,
     });
     const result = this.queryObservable!.currentResult();
-
     return result.loading ? observable.result() : false;
   }
 

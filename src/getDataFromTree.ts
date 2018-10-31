@@ -61,12 +61,10 @@ export function walkTree(
   if (!element) {
     return;
   }
-
   if (Array.isArray(element)) {
     element.forEach(item => walkTree(item, context, visitor, newContext));
     return;
   }
-
   // A stateless functional component or a class
   if (isReactElement(element)) {
     if (typeof element.type === 'function') {
@@ -139,14 +137,17 @@ export function walkTree(
           walkTree(child, childContext, visitor, newContext);
         }
       }
-    } else if ((element.type as any)._context || (element.type as any).Consumer) {
+    } else if (
+      (element.type as any)._context || (element.type as any).Consumer ||
+      ReactIs.isContextConsumer(element) || ReactIs.isContextProvider(element)
+    ) {
       // A React context provider or consumer
       if (visitor(element, null, newContext, context) === false) {
         return;
       }
 
       let child;
-      if (ReactIs.isContextProvider(element)) {
+      if (ReactIs.isContextProvider(element) ||(!!(element as any).type._context && !ReactIs.isContextConsumer(element))) {
         // A provider - sets the context value before rendering children
         // this needs to clone the map because this value should only apply to children of the provider
         newContext = new Map(newContext);
@@ -154,7 +155,6 @@ export function walkTree(
         child = element.props.children;
       } else if (ReactIs.isContextConsumer(element)) {
         // A consumer
-        console.dir(element)
         const { type: { _currentValue, _context } } = (element as any);
         let value;
         if (_context) {
@@ -181,8 +181,8 @@ export function walkTree(
         return;
       }
 
-      if (element.props && element.props.children) {
-        React.Children.forEach(element.props.children, (child: any) => {
+      if ((element as any).props && (element as any).props.children) {
+        React.Children.forEach((element as any).props.children, (child: any) => {
           if (child) {
             walkTree(child, context, visitor, newContext);
           }
@@ -230,7 +230,6 @@ function getPromisesFromTree({
     },
     rootNewContext,
   );
-
   return promises;
 }
 
