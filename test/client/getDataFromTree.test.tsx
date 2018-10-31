@@ -17,7 +17,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../src/test-utils';
 import { DocumentNode } from 'graphql';
 
-describe.only('SSR', () => {
+describe('SSR', () => {
   describe('`walkTree`', () => {
     describe('traversal', () => {
       it('basic element trees', () => {
