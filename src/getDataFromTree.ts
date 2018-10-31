@@ -154,8 +154,17 @@ export function walkTree(
         child = element.props.children;
       } else if (ReactIs.isContextConsumer(element)) {
         // A consumer
-        const { type: { _context: { _currentValue, Provider } } } = (element as any);
-        let value = _currentValue;
+        console.dir(element)
+        const { type: { _currentValue, _context } } = (element as any);
+        let value;
+        if (_context) {
+          value = _context._currentValue;
+        } else {
+          value = _currentValue;
+        }
+        if (newContext.has((element as any).type.Provider)) {
+          value = newContext.get((element as any).type.Provider);
+        }
         child = (element as any).props.children(value);
       }
 
