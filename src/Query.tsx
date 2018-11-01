@@ -15,6 +15,7 @@ import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables, GraphqlQueryControls } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
+import { RenderPromises } from './getDataFromTree';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -101,6 +102,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
 export interface QueryContext {
   client?: ApolloClient<Object>;
   operations?: Map<string, { query: DocumentNode; variables: any }>;
+  renderPromises?: RenderPromises;
 }
 
 export default class Query<TData = any, TVariables = OperationVariables> extends React.Component<
@@ -109,6 +111,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   static contextTypes = {
     client: PropTypes.object,
     operations: PropTypes.object,
+    renderPromises: PropTypes.object,
   };
 
   static propTypes = {
@@ -244,10 +247,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
   }
 
-  render() {
-    const { children } = this.props;
-    const queryResult = this.getQueryResult();
-    return children(queryResult);
+  render(): React.ReactNode {
+    const { context } = this;
+    const finish = () => this.props.children(this.getQueryResult());
+    if (context && context.renderPromises) {
+      return context.renderPromises.addQueryPromise(this, finish);
+    }
+    return finish();
   }
 
   private extractOptsFromProps(props: QueryProps<TData, TVariables>) {

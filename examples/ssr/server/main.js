@@ -27,10 +27,11 @@ export const render = async sink => {
     </ApolloProvider>
   );
 
+  const start = +new Date;
   // Load all data from local server
   await getDataFromTree(WrappedApp);
-
   const body = renderToString(WrappedApp);
+  console.log("server rendering took", new Date - start, "ms");
   sink.renderIntoElementById('app', body);
   sink.appendToBody(`
     <script>
