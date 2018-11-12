@@ -84,46 +84,60 @@ export class RenderPromises {
   }
 }
 
-class RenderPromisesProvider extends React.Component<{
-  renderPromises: RenderPromises;
-}> {
-  static childContextTypes = {
-    renderPromises: PropTypes.object,
-  };
-
-  getChildContext() {
-    return {
-      renderPromises: this.props.renderPromises,
-    };
-  }
-
-  render() {
-    return this.props.children;
-  }
+export default function getDataFromTree(
+  tree: React.ReactNode,
+  context: { [key: string]: any } = {},
+) {
+  return getMarkupFromTree({
+    tree,
+    context,
+    // If you need to configure this renderFunction, call getMarkupFromTree
+    // directly instead of getDataFromTree.
+    renderFunction: renderToStaticMarkup,
+  });
 }
 
-export default function getDataFromTree(
-  rootElement: React.ReactNode,
+export type GetMarkupFromTreeOptions = {
+  tree: React.ReactNode;
+  context?: { [key: string]: any };
+  renderFunction?: typeof renderToStaticMarkup;
+};
+
+export function getMarkupFromTree({
+  tree,
+  context = {},
   // The rendering function is configurable! We use renderToStaticMarkup as
   // the default, because it's a little less expensive than renderToString,
   // and legacy usage of getDataFromTree ignores the return value anyway.
   renderFunction = renderToStaticMarkup,
-): Promise<string> {
+}: GetMarkupFromTreeOptions): Promise<string> {
   const renderPromises = new RenderPromises();
 
-  function process(): Promise<string> | string {
-    const html = renderFunction(
-      React.createElement(RenderPromisesProvider, {
-        renderPromises,
-        // Always re-render from the rootElement, even though it might seem
-        // better to render the children of the component responsible for the
-        // promise, because it is not possible to reconstruct the full context
-        // of the original rendering (including all unknown context provider
-        // elements) for a subtree of the orginal component tree.
-        children: rootElement,
-      })
-    );
+  class RenderPromisesProvider extends React.Component {
+    static childContextTypes: { [key: string]: any } = {
+      renderPromises: PropTypes.object,
+    };
 
+    getChildContext() {
+      return { ...context, renderPromises };
+    }
+
+    render() {
+      // Always re-render from the rootElement, even though it might seem
+      // better to render the children of the component responsible for the
+      // promise, because it is not possible to reconstruct the full context
+      // of the original rendering (including all unknown context provider
+      // elements) for a subtree of the orginal component tree.
+      return tree;
+    }
+  }
+
+  Object.keys(context).forEach(key => {
+    RenderPromisesProvider.childContextTypes[key] = PropTypes.any;
+  });
+
+  function process(): Promise<string> | string {
+    const html = renderFunction(React.createElement(RenderPromisesProvider));
     return renderPromises.hasPromises()
       ? renderPromises.consumeAndAwaitPromises().then(process)
       : html;
