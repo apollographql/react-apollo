@@ -21,6 +21,35 @@
   necessary anymore.
   [PR #2533](https://github.com/apollographql/react-apollo/pull/2533)
 
+- Restore original `getDataFromTree(tree, context)` API, and introduce a
+  new function called `getMarkupFromTree` to enable custom rendering
+  functions:
+  ```typescript
+  export default function getDataFromTree(
+    tree: React.ReactNode,
+    context: { [key: string]: any } = {},
+  ) {
+    return getMarkupFromTree({
+      tree,
+      context,
+      renderFunction: renderToStaticMarkup,
+    });
+  }
+
+  export type GetMarkupFromTreeOptions = {
+    tree: React.ReactNode;
+    context?: { [key: string]: any };
+    renderFunction?: typeof renderToStaticMarkup;
+  };
+
+  export function getMarkupFromTree({
+    tree,
+    context = {},
+    renderFunction = renderToStaticMarkup,
+  }: GetMarkupFromTreeOptions): Promise<string> {...}
+  ```
+  [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
+
 ## 2.2.4 (October 2, 2018)
 
 ### Bug Fixes
