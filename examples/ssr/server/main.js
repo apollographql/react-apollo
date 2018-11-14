@@ -1,7 +1,7 @@
 import { renderToString } from 'react-dom/server';
 import { onPageLoad } from 'meteor/server-render';
 import { ApolloClient } from 'apollo-client';
-import { getDataFromTree, ApolloProvider } from 'react-apollo';
+import { getMarkupFromTree, ApolloProvider } from 'react-apollo';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
 import { WebApp } from 'meteor/webapp';
@@ -27,12 +27,14 @@ export const render = async sink => {
     </ApolloProvider>
   );
 
-  const start = +new Date;
+  const start = Date.now();
   // Load all data from local server
-  await getDataFromTree(WrappedApp);
-  const body = renderToString(WrappedApp);
-  console.log("server rendering took", new Date - start, "ms");
-  sink.renderIntoElementById('app', body);
+  const markup = await getMarkupFromTree({
+    tree: WrappedApp,
+    renderFunction: renderToString,
+  });
+  console.log("server rendering took", Date.now() - start, "ms");
+  sink.renderIntoElementById('app', markup);
   sink.appendToBody(`
     <script>
       window.__APOLLO_STATE__=${JSON.stringify(client.extract())};

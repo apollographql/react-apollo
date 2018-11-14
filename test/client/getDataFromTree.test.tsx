@@ -8,6 +8,7 @@ import {
   ApolloProvider,
   walkTree,
   getDataFromTree,
+  getMarkupFromTree,
   DataValue,
   ChildProps,
 } from '../../src';
@@ -511,10 +512,31 @@ describe('SSR', () => {
         expect(markup).toMatch(/James/);
       });
 
-      await getDataFromTree(app, ReactDOM.renderToString).then(html => {
+      await getMarkupFromTree({
+        tree: app,
+        renderFunction: ReactDOM.renderToString,
+      }).then(html => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toEqual(html);
         expect(markup).toMatch(/James/);
+      });
+    });
+
+    it('should support passing a root context', () => {
+      class Consumer extends React.Component {
+        static contextTypes = {
+          text: PropTypes.string.isRequired,
+        };
+
+        render() {
+          return <div>{this.context.text}</div>;
+        }
+      }
+
+      return getDataFromTree(<Consumer/>, {
+        text: "oyez"
+      }).then(html => {
+        expect(html).toEqual('<div>oyez</div>');
       });
     });
 
