@@ -4,10 +4,10 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 
-import { graphql, ChildProps } from '../src';
+import { graphql, ChildProps, Mutation } from '../src';
 import { MockedProvider, mockSingleLink, AutoMockedProvider } from '../src/test-utils';
 import { MockedResponse } from '../src/test-links';
-import { DocumentNode } from 'graphql';
+import { DocumentNode, isNullableType } from 'graphql';
 
 const variables = {
   username: 'mock_username',
@@ -355,6 +355,10 @@ describe('AutoMockedProvider', () => {
     type Query {
       user(username: String!): User!
     }
+
+    type Mutation {
+      echo(message: String!): String!
+    }
     
     type User {
       id: ID!
@@ -366,6 +370,12 @@ describe('AutoMockedProvider', () => {
       id: () => 'harambe',
     }),
   };
+
+  const mutation = gql`
+    mutation echo($message: String!) {
+      echo(message: $message)
+    }
+  `;
 
   it('allows for querying', done => {
     class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
@@ -390,6 +400,28 @@ describe('AutoMockedProvider', () => {
     renderer.create(
       <AutoMockedProvider schema={schema} mocks={mocks}>
         <ContainerWithData {...variables} />
+      </AutoMockedProvider>,
+    );
+  });
+
+  it('allows for mutations', done => {
+    renderer.create(
+      <AutoMockedProvider schema={schema} mocks={mocks}>
+        <Mutation
+          mutation={mutation}
+          onCompleted={({ echo }) => {
+            expect(echo).toEqual('Hello World');
+            done();
+          }}
+        >
+          {(mutate, { data, loading, error }) => {
+            if (!data && !loading && !error) {
+              mutate({ variables: { message: 'ohh hai' } });
+            }
+
+            return null;
+          }}
+        </Mutation>
       </AutoMockedProvider>,
     );
   });
