@@ -117,6 +117,7 @@
     "enzyme-adapter-react-16": "1.7.0",
     "graphql": "14.0.2",
     "graphql-tag": "2.10.0",
+    "graphql-tools": "^4.0.3",
     "jest": "23.6.0",
     "jest-junit": "5.2.0",
     "jsdom": "12.2.0",

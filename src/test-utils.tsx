@@ -2,9 +2,12 @@ import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { DefaultOptions } from 'apollo-client/ApolloClient';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { DocumentNode } from 'graphql';
+import { IMocks } from 'graphql-tools';
 
 import { ApolloProvider } from './index';
-import { MockedResponse, MockLink } from './test-links';
+// import { MockedResponse, MockLink } from './test-links';
+import { MockedResponse, MockLink, AutoMockLink } from './test-links';
 import { ApolloCache } from 'apollo-cache';
 export * from './test-links';
 
@@ -32,6 +35,50 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
       cache: cache || new Cache({ addTypename }),
       defaultOptions,
       link: new MockLink(mocks || [], addTypename),
+    });
+
+    this.state = { client };
+  }
+
+  public render() {
+    return <ApolloProvider client={this.state.client}>{this.props.children}</ApolloProvider>;
+  }
+
+  public componentWillUnmount() {
+    if (!this.state.client.queryManager) {
+      return;
+    }
+    const scheduler = this.state.client.queryManager.scheduler;
+    Object.keys(scheduler.registeredQueries).forEach(queryId => {
+      scheduler.stopPollingQuery(queryId);
+    });
+    Object.keys(scheduler.intervalQueries).forEach((interval: any) => {
+      scheduler.fetchQueriesOnInterval(interval);
+    });
+  }
+}
+
+export interface AutoMockedProviderProps<TSerializedCache = {}> {
+  schema: string | DocumentNode;
+  mocks?: IMocks;
+  addTypename?: boolean;
+  defaultOptions?: DefaultOptions;
+  cache?: ApolloCache<TSerializedCache>;
+  log?: boolean;
+}
+
+export class AutoMockedProvider extends React.Component<
+  AutoMockedProviderProps,
+  MockedProviderState
+> {
+  constructor(props: AutoMockedProviderProps) {
+    super(props);
+
+    const { addTypename = true, defaultOptions, cache, schema, mocks } = this.props;
+    const client = new ApolloClient({
+      cache: cache || new Cache({ addTypename }),
+      defaultOptions,
+      link: new AutoMockLink({ schema, addTypename, mocks }),
     });
 
     this.state = { client };

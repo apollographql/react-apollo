@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 
 import { graphql, ChildProps } from '../src';
-import { MockedProvider, mockSingleLink } from '../src/test-utils';
+import { MockedProvider, mockSingleLink, AutoMockedProvider } from '../src/test-utils';
 import { MockedResponse } from '../src/test-links';
 import { DocumentNode } from 'graphql';
 
@@ -348,4 +348,49 @@ it('doesnt crash on unmount if there is no query manager', () => {
       </MockedProvider>,
     )
     .unmount();
+});
+
+describe('AutoMockedProvider', () => {
+  const schema = `
+    type Query {
+      user(username: String!): User!
+    }
+    
+    type User {
+      id: ID!
+    }    
+  `;
+
+  const mocks = {
+    User: () => ({
+      id: () => 'harambe',
+    }),
+  };
+
+  it('allows for querying', done => {
+    class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+      componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+        expect(nextProps.data!.user).toMatchSnapshot();
+        done();
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    const withUserAndTypename = graphql<Variables, Data, Variables>(query, {
+      options: props => ({
+        variables: props,
+      }),
+    });
+
+    const ContainerWithData = withUserAndTypename(Container);
+
+    renderer.create(
+      <AutoMockedProvider schema={schema} mocks={mocks}>
+        <ContainerWithData {...variables} />
+      </AutoMockedProvider>,
+    );
+  });
 });

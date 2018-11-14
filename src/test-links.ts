@@ -8,7 +8,9 @@ import {
 } from 'apollo-link';
 
 import { print } from 'graphql/language/printer';
+import { makeExecutableSchema, addMockFunctionsToSchema, IMocks } from 'graphql-tools';
 import { addTypenameToDocument } from 'apollo-utilities';
+import { graphql, DocumentNode } from 'graphql';
 const isEqual = require('lodash.isequal');
 
 export interface MockedResponse {
@@ -87,14 +89,17 @@ export class MockLink extends ApolloLink {
     }
 
     return new Observable<FetchResult>(observer => {
-      let timer = setTimeout(() => {
-        if (error) {
-          observer.error(error);
-        } else {
-          if (result) observer.next(result);
-          observer.complete();
-        }
-      }, delay ? delay : 0);
+      let timer = setTimeout(
+        () => {
+          if (error) {
+            observer.error(error);
+          } else {
+            if (result) observer.next(result);
+            observer.complete();
+          }
+        },
+        delay ? delay : 0,
+      );
 
       return () => {
         clearTimeout(timer);
@@ -169,4 +174,49 @@ export function mockSingleLink(...mockedResponses: Array<any>): ApolloLink {
 
 export function mockObservableLink(): MockSubscriptionLink {
   return new MockSubscriptionLink();
+}
+
+/**
+ * AutoMockLink
+ */
+
+export interface AutoMockLinkArgs {
+  schema: string | DocumentNode;
+  addTypename?: Boolean;
+  mocks?: IMocks;
+}
+
+export class AutoMockLink extends ApolloLink {
+  public addTypename?: Boolean;
+  private executableSchema: any;
+
+  // schema: string || DocumentAST
+  constructor({ schema, addTypename = true, mocks }: AutoMockLinkArgs) {
+    super();
+    this.addTypename = addTypename;
+
+    // TODO: allow for schema.json files if this doesn't work
+    // const schemaString = typeof schema === 'string' ? schema : print(schema);
+    const executableSchema = makeExecutableSchema({ typeDefs: schema });
+    addMockFunctionsToSchema({ schema: executableSchema, mocks });
+    this.executableSchema = executableSchema;
+  }
+
+  public request(operation: Operation) {
+    const result = graphql({
+      schema: this.executableSchema,
+      source: print(operation.query),
+      variableValues: operation.variables,
+    });
+
+    return new Observable<FetchResult>(observer => {
+      result.then(({ errors, data }) => {
+        if (errors) observer.error(errors);
+        else {
+          if (data) observer.next({ data });
+          observer.complete();
+        }
+      });
+    });
+  }
 }

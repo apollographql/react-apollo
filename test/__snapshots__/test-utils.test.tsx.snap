@@ -1,5 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`AutoMockedProvider allows for querying 1`] = `
+Object {
+  "__typename": "User",
+  "id": "harambe",
+  Symbol(id): "User:harambe",
+}
+`;
+
 exports[`allows for querying with the typename 1`] = `
 Object {
   "__typename": "User",
