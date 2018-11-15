@@ -1,5 +1,68 @@
 # Change log
 
+## vNext
+
+## 2.3.1 (November 15, 2018)
+
+### Improvements
+
+- Restore original `getDataFromTree(tree, context)` API, and introduce a
+  new alternative called `getMarkupFromTree` to enable custom rendering
+  functions:
+  ```typescript
+  export default function getDataFromTree(
+    tree: React.ReactNode,
+    context: { [key: string]: any } = {},
+  ) {
+    return getMarkupFromTree({
+      tree,
+      context,
+      renderFunction: renderToStaticMarkup,
+    });
+  }
+
+  export type GetMarkupFromTreeOptions = {
+    tree: React.ReactNode;
+    context?: { [key: string]: any };
+    renderFunction?: typeof renderToStaticMarkup;
+  };
+
+  export function getMarkupFromTree({
+    tree,
+    context = {},
+    renderFunction = renderToStaticMarkup,
+  }: GetMarkupFromTreeOptions): Promise<string> {...}
+  ```
+  [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
+
+### Bug Fixes
+
+- Version 2.3.0 was published incorrectly, breaking nested
+  `react-apollo/...` imports. This problem was fixed in version 2.3.1 by
+  running `npm publish` from the `lib/` directory, as intended.
+  [Issue #2591](https://github.com/apollographql/react-apollo/issues/2591)
+
+## 2.3.0
+
+### Bug Fixes
+
+- Fix `networkStatus` to reflect the loading state correctly for partial
+  refetching.  <br/>
+  [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
+
+### Improvements
+
+- Reimplement `getDataFromTree` using `ReactDOM.renderToStaticMarkup` to
+  make asynchronous server-side rendering compatible with
+  [React hooks](https://reactjs.org/docs/hooks-intro.html).
+  Although the rendering function used by `getDataFromTree` defaults to
+  `renderToStaticMarkup`, any suitable rendering function can be passed as
+  the optional second argument to `getDataFromTree`, which now returns a
+  `Promise<string>` that resolves to The HTML rendered in the final pass,
+  which means calling `renderToString` after `getDataFromTree` may not be
+  necessary anymore.
+  [PR #2533](https://github.com/apollographql/react-apollo/pull/2533)
+
 ## 2.2.4 (October 2, 2018)
 
 ### Bug Fixes
