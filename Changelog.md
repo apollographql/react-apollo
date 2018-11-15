@@ -2,7 +2,9 @@
 
 ## vNext
 
-## 2.3.1
+## 2.3.1 (November 15, 2018)
+
+### Improvements
 
 - Restore original `getDataFromTree(tree, context)` API, and introduce a
   new alternative called `getMarkupFromTree` to enable custom rendering
@@ -32,6 +34,13 @@
   }: GetMarkupFromTreeOptions): Promise<string> {...}
   ```
   [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
+
+### Bug Fixes
+
+- Version 2.3.0 was published incorrectly, breaking nested
+  `react-apollo/...` imports. This problem was fixed in version 2.3.1 by
+  running `npm publish` from the `lib/` directory, as intended.
+  [Issue #2591](https://github.com/apollographql/react-apollo/issues/2591)
 
 ## 2.3.0
 
