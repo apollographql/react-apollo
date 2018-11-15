@@ -2,6 +2,7 @@
   "name": "react-apollo",
   "version": "2.3.1",
   "author": "opensource@apollographql.com",
+  "private": true,
   "browser": "lib/react-apollo.browser.umd.js",
   "description": "React data container for Apollo Client",
   "keywords": [
