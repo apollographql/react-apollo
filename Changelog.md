@@ -2,27 +2,10 @@
 
 ## vNext
 
-### Bug Fixes
-
-- Fix `networkStatus` to reflect the loading state correctly for partial 
-  refetching.  <br/>
-  [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
-
-### Improvements
-
-- Reimplement `getDataFromTree` using `ReactDOM.renderToStaticMarkup` to
-  make asynchronous server-side rendering compatible with
-  [React hooks](https://reactjs.org/docs/hooks-intro.html).
-  Although the rendering function used by `getDataFromTree` defaults to
-  `renderToStaticMarkup`, any suitable rendering function can be passed as
-  the optional second argument to `getDataFromTree`, which now returns a
-  `Promise<string>` that resolves to The HTML rendered in the final pass,
-  which means calling `renderToString` after `getDataFromTree` may not be
-  necessary anymore.
-  [PR #2533](https://github.com/apollographql/react-apollo/pull/2533)
+## 2.3.1
 
 - Restore original `getDataFromTree(tree, context)` API, and introduce a
-  new function called `getMarkupFromTree` to enable custom rendering
+  new alternative called `getMarkupFromTree` to enable custom rendering
   functions:
   ```typescript
   export default function getDataFromTree(
@@ -49,6 +32,27 @@
   }: GetMarkupFromTreeOptions): Promise<string> {...}
   ```
   [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
+
+## 2.3.0
+
+### Bug Fixes
+
+- Fix `networkStatus` to reflect the loading state correctly for partial
+  refetching.  <br/>
+  [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
+
+### Improvements
+
+- Reimplement `getDataFromTree` using `ReactDOM.renderToStaticMarkup` to
+  make asynchronous server-side rendering compatible with
+  [React hooks](https://reactjs.org/docs/hooks-intro.html).
+  Although the rendering function used by `getDataFromTree` defaults to
+  `renderToStaticMarkup`, any suitable rendering function can be passed as
+  the optional second argument to `getDataFromTree`, which now returns a
+  `Promise<string>` that resolves to The HTML rendered in the final pass,
+  which means calling `renderToString` after `getDataFromTree` may not be
+  necessary anymore.
+  [PR #2533](https://github.com/apollographql/react-apollo/pull/2533)
 
 ## 2.2.4 (October 2, 2018)
 
