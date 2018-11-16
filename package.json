@@ -127,7 +127,6 @@
     "preact-compat": "3.18.4",
     "prettier": "1.15.2",
     "react": "16.5.2",
-    "react-dom": "16.6.1",
     "react-test-renderer": "16.6.1",
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
@@ -149,6 +148,7 @@
     "invariant": "^2.2.2",
     "lodash.flowright": "^3.5.0",
     "lodash.isequal": "^4.5.0",
-    "prop-types": "^15.6.0"
+    "prop-types": "^15.6.0",
+    "react-dom": "16.6.1"
   }
 }
