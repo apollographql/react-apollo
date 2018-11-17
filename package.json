@@ -12,6 +12,9 @@
   ],
   "license": "MIT",
   "main": "lib/react-apollo.umd.js",
+  "react-native": {
+    "./lib/react-apollo.umd.js": "./lib/react-apollo.umd.native.js"
+  },
   "module": "src/index.ts",
   "typings": "lib/index.d.ts",
   "repository": {
