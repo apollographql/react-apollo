@@ -36,6 +36,30 @@ export default [
     },
     onwarn,
   },
+  // for React Native
+  {
+    input: 'lib/index.js',
+    output: {
+      // https://facebook.github.io/react-native/docs/platform-specific-code#platform-specific-extensions
+      file: 'lib/react-apollo.umd.native.js',
+      format: 'umd',
+      name: 'react-apollo',
+      sourcemap: false,
+      exports: 'named',
+    },
+    plugins: [{
+      resolveId(id, parentId) {
+        if (id.split('/').pop().split('.').shift() === 'defaultRenderFunction') {
+          // Don't try to include lib/defaultRenderFunction.* in the bundle.
+          // The React Native bundler should pick up lib/defaultRenderFunction.native.js
+          // instead of lib/defaultRenderFunction.js because of this override.
+          return false;
+        }
+        // Return nothing to fall through to default resolution logic.
+      }
+    }],
+    onwarn,
+  },
   // for test-utils
   {
     input: 'lib/test-utils.js',
