@@ -39,7 +39,9 @@ export class MockLink extends ApolloLink {
     super();
     this.addTypename = addTypename;
     if (mockedResponses)
-      mockedResponses.forEach(mockedResponse => {
+      mockedResponses.forEach((mockedResponse, index) => {
+        if (!mockedResponse.request.query)
+          console.warn(`Mock at index ${index} is missing a 'query'`);
         this.addMockedResponse(mockedResponse);
       });
   }
