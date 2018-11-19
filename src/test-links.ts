@@ -10,7 +10,7 @@ import {
 import { print } from 'graphql/language/printer';
 import { makeExecutableSchema, addMockFunctionsToSchema, IMocks } from 'graphql-tools';
 import { addTypenameToDocument } from 'apollo-utilities';
-import { graphql, DocumentNode } from 'graphql';
+import { graphql, DocumentNode, buildClientSchema, printSchema } from 'graphql';
 const isEqual = require('lodash.isequal');
 
 export interface MockedResponse {
@@ -181,7 +181,8 @@ export function mockObservableLink(): MockSubscriptionLink {
  */
 
 export interface AutoMockLinkArgs {
-  schema: string | DocumentNode;
+  // schema: string | DocumentNode;
+  schema: any;
   addTypename?: Boolean;
   mocks?: IMocks;
 }
@@ -195,9 +196,10 @@ export class AutoMockLink extends ApolloLink {
     super();
     this.addTypename = addTypename;
 
-    // TODO: allow for schema.json files if this doesn't work
-    // const schemaString = typeof schema === 'string' ? schema : print(schema);
-    const executableSchema = makeExecutableSchema({ typeDefs: schema });
+    const schemaString =
+      schema && schema.__schema ? printSchema(buildClientSchema(schema)) : schema;
+
+    const executableSchema = makeExecutableSchema({ typeDefs: schemaString });
     addMockFunctionsToSchema({ schema: executableSchema, mocks });
     this.executableSchema = executableSchema;
   }

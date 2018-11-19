@@ -59,7 +59,8 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
 }
 
 export interface AutoMockedProviderProps<TSerializedCache = {}> {
-  schema: string | DocumentNode;
+  // schema: string | DocumentNode;
+  schema: any;
   mocks?: IMocks;
   addTypename?: boolean;
   defaultOptions?: DefaultOptions;

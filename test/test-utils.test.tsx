@@ -4,10 +4,22 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
 import gql from 'graphql-tag';
 
-import { graphql, ChildProps, Mutation } from '../src';
+import { graphql, ChildProps, Mutation, Query } from '../src';
 import { MockedProvider, mockSingleLink, AutoMockedProvider } from '../src/test-utils';
 import { MockedResponse } from '../src/test-links';
 import { DocumentNode, isNullableType } from 'graphql';
+
+import * as fs from 'fs';
+import path from 'path';
+
+// get the json file and parse it to a js object
+const jsonSchema = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, 'fixtures/schema.json'), {
+    encoding: 'utf-8',
+  }),
+);
+
+// import { execute, buildSchema, introspectionQuery } from 'graphql';
 
 const variables = {
   username: 'mock_username',
@@ -377,10 +389,37 @@ describe('AutoMockedProvider', () => {
     }
   `;
 
-  it('allows for querying', done => {
+  it('allows for querying with autoMocks', done => {
     class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
       componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
-        expect(nextProps.data!.user).toMatchSnapshot();
+        expect(nextProps.data!.user!.id).toBeDefined();
+        done();
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    const withUserAndTypename = graphql<Variables, Data, Variables>(query, {
+      options: props => ({
+        variables: props,
+      }),
+    });
+
+    const ContainerWithData = withUserAndTypename(Container);
+
+    renderer.create(
+      <AutoMockedProvider schema={schema}>
+        <ContainerWithData {...variables} />
+      </AutoMockedProvider>,
+    );
+  });
+
+  it('allows for manual mocks', done => {
+    class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+      componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+        expect(nextProps.data!.user!.id).toEqual('harambe');
         done();
       }
 
@@ -422,6 +461,48 @@ describe('AutoMockedProvider', () => {
             return null;
           }}
         </Mutation>
+      </AutoMockedProvider>,
+    );
+  });
+
+  it('works with json schemas', done => {
+    class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+      componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+        expect(nextProps.data!.user!.id).toEqual('harambe');
+        done();
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    const withUserAndTypename = graphql<Variables, Data, Variables>(query, {
+      options: props => ({
+        variables: props,
+      }),
+    });
+
+    const ContainerWithData = withUserAndTypename(Container);
+
+    // THIS WILL WORK WHEN AC 2.x bugs are fixed
+    // const TestComponent = () => (
+    //   <Query query={query}>
+    //     {({ data }) => {
+    //       console.log({ data });
+    //       if (data && data.user) {
+    //         expect(data!.user!.id).toEqual('harambe');
+    //         done();
+    //       }
+    //       return null;
+    //     }}
+    //   </Query>
+    // );
+
+    renderer.create(
+      <AutoMockedProvider schema={jsonSchema} mocks={mocks}>
+        <ContainerWithData {...variables} />
+        {/* <TestComponent /> */}
       </AutoMockedProvider>,
     );
   });
