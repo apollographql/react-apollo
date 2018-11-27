@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { renderToStaticMarkup } from 'react-dom/server';
 import Query from './Query';
 
 // Like a Set, but for tuples. In practice, this class is used to store
@@ -93,14 +92,14 @@ export default function getDataFromTree(
     context,
     // If you need to configure this renderFunction, call getMarkupFromTree
     // directly instead of getDataFromTree.
-    renderFunction: renderToStaticMarkup,
+    renderFunction: require("react-dom/server").renderToStaticMarkup,
   });
 }
 
 export type GetMarkupFromTreeOptions = {
   tree: React.ReactNode;
   context?: { [key: string]: any };
-  renderFunction?: typeof renderToStaticMarkup;
+  renderFunction?: (tree: React.ReactElement<any>) => string;
 };
 
 export function getMarkupFromTree({
@@ -109,7 +108,7 @@ export function getMarkupFromTree({
   // The rendering function is configurable! We use renderToStaticMarkup as
   // the default, because it's a little less expensive than renderToString,
   // and legacy usage of getDataFromTree ignores the return value anyway.
-  renderFunction = renderToStaticMarkup,
+  renderFunction = require("react-dom/server").renderToStaticMarkup,
 }: GetMarkupFromTreeOptions): Promise<string> {
   const renderPromises = new RenderPromises();
 
