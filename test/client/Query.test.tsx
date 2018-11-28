@@ -695,7 +695,7 @@ describe('Query component', () => {
           {result => {
             catchAsyncError(done, () => {
               expect(result.loading).toBeFalsy();
-              expect(result.data).toBe(undefined);
+              expect(result.data).toBeDefined();
               expect(result.error).toBe(undefined);
               done();
             });

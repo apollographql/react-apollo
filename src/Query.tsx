@@ -379,12 +379,11 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     Object.assign(data, observableQueryFields(this.queryObservable!));
 
     // When skipping a query (ie. we're not querying for data but still want
-    // to render children), make sure the `data` is cleared out and
-    // `loading` is set to `false` (since we aren't loading anything).
+    // to render children), make sure `loading` is set to `false`
+    // (since we aren't loading anything).
     if (this.props.skip) {
       data = {
         ...data,
-        data: undefined,
         error: undefined,
         loading: false,
       };
