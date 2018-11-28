@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.3.2-beta.4",
+  "version": "2.3.2",
   "author": "opensource@apollographql.com",
   "private": true,
   "browser": "lib/react-apollo.browser.umd.js",
