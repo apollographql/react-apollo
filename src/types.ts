@@ -46,6 +46,7 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Record<string, any>;
+  partialRefetch?: boolean;
 }
 
 export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables> {

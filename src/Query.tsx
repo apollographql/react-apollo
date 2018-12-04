@@ -12,7 +12,7 @@ import ApolloClient, {
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
-import { OperationVariables, GraphqlQueryControls } from './types';
+import { OperationVariables, GraphqlQueryControls, QueryOpts } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
@@ -81,20 +81,11 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   networkStatus: NetworkStatus;
 }
 
-export interface QueryProps<TData = any, TVariables = OperationVariables> {
+export interface QueryProps<TData = any, TVariables = OperationVariables> extends QueryOpts<TVariables> {
   children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
-  fetchPolicy?: FetchPolicy;
-  errorPolicy?: ErrorPolicy;
-  notifyOnNetworkStatusChange?: boolean;
-  pollInterval?: number;
   query: DocumentNode;
-  variables?: TVariables;
-  ssr?: boolean;
   displayName?: string;
   skip?: boolean;
-  client?: ApolloClient<Object>;
-  context?: Record<string, any>;
-  partialRefetch?: boolean;
   onCompleted?: (data: TData | {}) => void;
   onError?: (error: ApolloError) => void;
 }
