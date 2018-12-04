@@ -34,6 +34,7 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
   context?: Record<string, any>;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
+  fetchPolicy?: FetchPolicy;
 }
 
 export interface QueryOpts<TGraphQLVariables = OperationVariables> {
