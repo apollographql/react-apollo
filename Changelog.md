@@ -2,6 +2,21 @@
 
 ## vNext
 
+## 2.3.2
+
+### Improvements
+
+### Bug Fixes
+
+- This package no longer imports `react-dom/server` unconditionally at the
+  top level, making `react-apollo` safer to use in environments like React
+  Native that are neither browser-like nor Node-like, and thus struggle to
+  import `react-dom/server` and its dependencies. Additionally, the React
+  Native bundler has been instructed to ignore all `react-dom/server`
+  dependencies within `react-apollo`, so `react-dom` will not be bundled
+  in React Native apps simply because they import `react-apollo`.
+  [PR #2627](https://github.com/apollographql/react-apollo/pull/2627)
+
 ## 2.3.1 (November 15, 2018)
 
 ### Improvements
