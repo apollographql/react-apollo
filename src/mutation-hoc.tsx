@@ -12,11 +12,11 @@ import {
   GraphQLBase,
 } from './hoc-utils';
 
-export function mutation<
+export function withMutation<
   TProps extends TGraphQLVariables | {} = {},
   TData = {},
   TGraphQLVariables = {},
-  TChildProps = Partial<MutateProps<TData, TGraphQLVariables>>
+  TChildProps = MutateProps<TData, TGraphQLVariables>
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
