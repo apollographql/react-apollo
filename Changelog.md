@@ -2,9 +2,66 @@
 
 ## vNext
 
+## 2.3.2
+
+### Improvements
+
 ### Bug Fixes
 
-- Fix `networkStatus` to reflect the loading state correctly for partial 
+- This package no longer imports `react-dom/server` unconditionally at the
+  top level, making `react-apollo` safer to use in environments like React
+  Native that are neither browser-like nor Node-like, and thus struggle to
+  import `react-dom/server` and its dependencies. Additionally, the React
+  Native bundler has been instructed to ignore all `react-dom/server`
+  dependencies within `react-apollo`, so `react-dom` will not be bundled
+  in React Native apps simply because they import `react-apollo`.
+  [PR #2627](https://github.com/apollographql/react-apollo/pull/2627)
+
+## 2.3.1 (November 15, 2018)
+
+### Improvements
+
+- Restore original `getDataFromTree(tree, context)` API, and introduce a
+  new alternative called `getMarkupFromTree` to enable custom rendering
+  functions:
+  ```typescript
+  export default function getDataFromTree(
+    tree: React.ReactNode,
+    context: { [key: string]: any } = {},
+  ) {
+    return getMarkupFromTree({
+      tree,
+      context,
+      renderFunction: renderToStaticMarkup,
+    });
+  }
+
+  export type GetMarkupFromTreeOptions = {
+    tree: React.ReactNode;
+    context?: { [key: string]: any };
+    renderFunction?: typeof renderToStaticMarkup;
+  };
+
+  export function getMarkupFromTree({
+    tree,
+    context = {},
+    renderFunction = renderToStaticMarkup,
+  }: GetMarkupFromTreeOptions): Promise<string> {...}
+  ```
+  [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
+
+### Bug Fixes
+
+- Version 2.3.0 was published incorrectly, breaking nested
+  `react-apollo/...` imports. This problem was fixed in version 2.3.1 by
+  running `npm publish` from the `lib/` directory, as intended.
+  [Issue #2591](https://github.com/apollographql/react-apollo/issues/2591)
+
+## 2.3.0
+
+### Bug Fixes
+
+- Fix `networkStatus` to reflect the loading state correctly for partial
   refetching.  <br/>
   [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
 
