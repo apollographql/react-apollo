@@ -1,7 +1,7 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import Character from './Character';
+import Character from './character';
 
 export const HERO_QUERY = gql`
   query GetCharacter($episode: Episode!) {

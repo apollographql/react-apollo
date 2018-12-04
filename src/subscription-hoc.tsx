@@ -13,11 +13,11 @@ import {
   defaultMapPropsToSkip,
 } from './hoc-utils';
 
-export function subscribe<
+export function withSubscription<
   TProps extends TGraphQLVariables | {} = {},
   TData = {},
   TGraphQLVariables = {},
-  TChildProps = Partial<DataProps<TData, TGraphQLVariables>>
+  TChildProps = DataProps<TData, TGraphQLVariables>
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
