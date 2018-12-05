@@ -1,8 +1,9 @@
 {
-  "name": "@shopify/react-apollo",
-  "version": "2.0.7",
+  "name": "@goodforonefare/react-apollo",
+  "version": "2.0.7-tree-shake-7",
   "description": "React data container for Apollo Client",
   "module": "src/index.ts",
+  "sideEffects": false,
   "scripts": {
     "danger": "danger run --verbose",
     "deploy": "./scripts/prepare-package.sh && cd npm && npm publish",
@@ -119,7 +120,7 @@
     "fbjs": "^0.8.16",
     "hoist-non-react-statics": "^2.3.1",
     "invariant": "^2.2.2",
-    "lodash": "4.17.4",
+    "lodash": "^4.17.4",
     "prop-types": "^15.6.0"
   }
 }
