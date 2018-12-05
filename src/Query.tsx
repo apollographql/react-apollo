@@ -12,9 +12,10 @@ import ApolloClient, {
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
-import { OperationVariables, GraphqlQueryControls } from './types';
+import { OperationVariables, GraphqlQueryControls, QueryOpts } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
+import { RenderPromises } from './getDataFromTree';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -80,20 +81,11 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   networkStatus: NetworkStatus;
 }
 
-export interface QueryProps<TData = any, TVariables = OperationVariables> {
+export interface QueryProps<TData = any, TVariables = OperationVariables> extends QueryOpts<TVariables> {
   children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
-  fetchPolicy?: FetchPolicy;
-  errorPolicy?: ErrorPolicy;
-  notifyOnNetworkStatusChange?: boolean;
-  pollInterval?: number;
   query: DocumentNode;
-  variables?: TVariables;
-  ssr?: boolean;
   displayName?: string;
   skip?: boolean;
-  client?: ApolloClient<Object>;
-  context?: Record<string, any>;
-  partialRefetch?: boolean;
   onCompleted?: (data: TData | {}) => void;
   onError?: (error: ApolloError) => void;
 }
@@ -101,6 +93,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> {
 export interface QueryContext {
   client?: ApolloClient<Object>;
   operations?: Map<string, { query: DocumentNode; variables: any }>;
+  renderPromises?: RenderPromises;
 }
 
 export default class Query<TData = any, TVariables = OperationVariables> extends React.Component<
@@ -109,6 +102,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   static contextTypes = {
     client: PropTypes.object,
     operations: PropTypes.object,
+    renderPromises: PropTypes.object,
   };
 
   static propTypes = {
@@ -244,10 +238,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
   }
 
-  render() {
-    const { children } = this.props;
-    const queryResult = this.getQueryResult();
-    return children(queryResult);
+  render(): React.ReactNode {
+    const { context } = this;
+    const finish = () => this.props.children(this.getQueryResult());
+    if (context && context.renderPromises) {
+      return context.renderPromises.addQueryPromise(this, finish);
+    }
+    return finish();
   }
 
   private extractOptsFromProps(props: QueryProps<TData, TVariables>) {
@@ -419,7 +416,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
           // the original `Query` component are expecting certain data values to
           // exist, and they're all of a sudden stripped away. To help avoid
           // this we'll attempt to refetch the `Query` data.
-          Object.assign(data, { loading: true });
+          Object.assign(data, { loading: true, networkStatus: NetworkStatus.loading });
           data.refetch();
           return data;
         }
