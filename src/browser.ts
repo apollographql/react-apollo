@@ -28,4 +28,4 @@ export * from './types';
 
 export * from './walkTree';
 
-export { default as compose } from './utils/flowRight';
+export { compose } from './utils/flowRight';
