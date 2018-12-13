@@ -1,4 +1,4 @@
-export default(...funcs: any[]) => {
+export function compose(...funcs: Function[]) {
   const functions = funcs.reverse();
   functions.forEach((fnc, i) => {
     if (typeof fnc !== 'function') {
