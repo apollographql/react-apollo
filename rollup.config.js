@@ -11,55 +11,39 @@ function onwarn(message) {
   }
 }
 
-export default [
-  // for browser
-  {
-    input: 'lib/browser.js',
+function umd(inputFile, outputFile) {
+  return {
+    input: inputFile,
     output: {
-      file: 'lib/react-apollo.browser.umd.js',
+      file: outputFile,
       format: 'umd',
       name: 'react-apollo',
       sourcemap: true,
       exports: 'named',
     },
+    plugins: [
+      node({
+        module: true,
+        only: ['tslib']
+      })
+    ],
     onwarn,
-  },
+  };
+}
+
+export default [
+  // for browser
+  umd("lib/browser.js",
+      "lib/react-apollo.browser.umd.js"),
   // for server
-  {
-    input: 'lib/index.js',
-    output: {
-      file: 'lib/react-apollo.umd.js',
-      format: 'umd',
-      name: 'react-apollo',
-      sourcemap: false,
-      exports: 'named',
-    },
-    onwarn,
-  },
+  umd("lib/index.js",
+      "lib/react-apollo.umd.js"),
   // for test-utils
-  {
-    input: 'lib/test-utils.js',
-    output: {
-      file: 'lib/test-utils.js',
-      format: 'umd',
-      name: 'react-apollo',
-      sourcemap: false,
-      exports: 'named',
-    },
-    onwarn,
-  },
+  umd("lib/test-utils.js",
+      "lib/test-utils.js"),
   // for test-links
-  {
-    input: 'lib/test-links.js',
-    output: {
-      file: 'lib/test-links.js',
-      format: 'umd',
-      name: 'react-apollo',
-      sourcemap: false,
-      exports: 'named',
-    },
-    onwarn,
-  },
+  umd("lib/test-links.js",
+      "lib/test-links.js"),
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',

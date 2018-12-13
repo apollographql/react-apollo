@@ -153,6 +153,7 @@
     "hoist-non-react-statics": "^3.0.0",
     "invariant": "^2.2.2",
     "lodash.isequal": "^4.5.0",
-    "prop-types": "^15.6.0"
+    "prop-types": "^15.6.0",
+    "tslib": "^1.9.3"
   }
 }
