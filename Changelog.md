@@ -4,6 +4,12 @@
 
 ### Bug Fixes
 
+### Improvements
+
+## 2.3.3
+
+### Bug Fixes
+
 - Add `react-dom` as a peer dependency (since it's used by `getDataFromTree`
   and `renderToStringWithData`).  <br/>
   [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
