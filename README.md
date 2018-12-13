@@ -139,6 +139,14 @@ To learn more about querying with React Apollo be sure to start reading the [doc
 [documentation article on queries]: http://dev.apollodata.com/react/queries.html
 [complete api reference]: https://www.apollographql.com/docs/react/api/react-apollo.html
 
+## Polyfills
+
+React Apollo makes use of `Object.assign`, which is not supported in certain browsers (most prominently, IE11). If you wish to support legacy browsers, you will need to import a polyfill. As an example, you could use `core-js`'s polyfill like so:
+
+```js
+import 'core-js/fn/object/assign';
+```
+
 ## Documentation
 
 For a complete React Apollo API reference visit the documentation website at: [https://www.apollographql.com/docs/react/api/react-apollo.html](https://www.apollographql.com/docs/react/api/react-apollo.html)
