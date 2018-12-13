@@ -2,6 +2,18 @@
 
 ## vNext
 
+### Bug Fixes
+
+- Add `react-dom` as a peer dependency (since it's used by `getDataFromTree`
+  and `renderToStringWithData`).  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
+
+### Improvements
+
+- Drop `react` 14.x support, since the 14.x release line is 2 years old now,
+  and `react-apollo` is no longer tested against it.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
+
 ## 2.3.2
 
 ### Improvements
