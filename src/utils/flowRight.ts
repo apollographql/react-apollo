@@ -8,7 +8,7 @@ export default(...funcs: any[]) => {
   return function (...args: any[]) {
     const [firstFunction, ...restFunctions] = functions
     let result = firstFunction.apply(null, args);
-    (restFunctions || []).forEach((fnc) => {
+    restFunctions.forEach((fnc) => {
       result = fnc.call(null, result)
     });
     return result;
