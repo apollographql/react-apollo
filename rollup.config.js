@@ -44,6 +44,9 @@ export default [
   // for test-links
   umd("lib/test-links.js",
       "lib/test-links.js"),
+  // Enable `import { walkTree } from "react-apollo/walkTree"`
+  umd("lib/walkTree.js",
+      "lib/walkTree.js"),
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',

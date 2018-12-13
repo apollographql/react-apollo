@@ -6,6 +6,14 @@
 
 ### Improvements
 
+- The `walkTree` function has been deprecated, since there's no way to
+  make its behavior consistent with the latest versions of React. To save
+  bundle size, `walkTree` is no longer exported from `react-apollo`,
+  though you can still access it as follows:
+  ```js
+  import { walkTree } from "react-apollo/walkTree"
+  ```
+
 ## 2.3.3
 
 ### Bug Fixes

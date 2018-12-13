@@ -6,12 +6,12 @@ import {
   graphql,
   Query,
   ApolloProvider,
-  walkTree,
   getDataFromTree,
   getMarkupFromTree,
   DataValue,
   ChildProps,
 } from '../../src';
+import { walkTree } from "../../src/walkTree";
 import gql from 'graphql-tag';
 const times = require('lodash.times');
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';

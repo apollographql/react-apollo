@@ -26,6 +26,4 @@ export * from './withApollo';
 
 export * from './types';
 
-export * from './walkTree';
-
 export { compose } from './utils/flowRight';
