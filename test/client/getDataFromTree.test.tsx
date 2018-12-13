@@ -10,7 +10,7 @@ import {
   getMarkupFromTree,
   DataValue,
   ChildProps,
-  RenderPromisesContext,
+  ApolloContext,
 } from '../../src';
 import gql from 'graphql-tag';
 const times = require('lodash.times');
@@ -524,7 +524,7 @@ describe('SSR', () => {
 
     it('should support passing a root context', () => {
       class Consumer extends React.Component {
-        static contextType = RenderPromisesContext;
+        static contextType = ApolloContext;
 
         render() {
           return <div>{this.context.text}</div>;
@@ -1542,10 +1542,6 @@ describe('SSR', () => {
         constructor(props: {}) {
           super(props);
           this.state = { color: 'purple' };
-        }
-
-        getChildContext() {
-          return { color: this.state.color };
         }
 
         render() {

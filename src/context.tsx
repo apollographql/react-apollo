@@ -4,8 +4,9 @@ import ApolloClient from 'apollo-client';
 export interface ApolloContextType {
   client: ApolloClient<any> | null;
   operations?: any;
+  renderPromises?: any;
 }
 
-const ApolloContext = React.createContext<ApolloContextType>({ client: null});
+const ApolloContext = React.createContext<ApolloContextType>({ client: null });
 
 export default ApolloContext;

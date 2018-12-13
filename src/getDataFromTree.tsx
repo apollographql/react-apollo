@@ -1,5 +1,7 @@
 import * as React from 'react';
+import ApolloClient from 'apollo-client';
 import Query from './Query';
+import ApolloContext from './context';
 
 // Like a Set, but for tuples. In practice, this class is used to store
 // (query, JSON.stringify(variables)) tuples.
@@ -84,7 +86,7 @@ export class RenderPromises {
 
 export default function getDataFromTree(
   tree: React.ReactNode,
-  context: { [key: string]: any } = {},
+  context?: { [key: string]: any },
 ) {
   return getMarkupFromTree({
     tree,
@@ -101,18 +103,14 @@ export type GetMarkupFromTreeOptions = {
   renderFunction?: (tree: React.ReactElement<any>) => string;
 };
 
-export const RenderPromisesContext = React.createContext({});
-
 export function getMarkupFromTree({
   tree,
-  context = {},
   // The rendering function is configurable! We use renderToStaticMarkup as
   // the default, because it's a little less expensive than renderToString,
   // and legacy usage of getDataFromTree ignores the return value anyway.
   renderFunction = require("react-dom/server").renderToStaticMarkup,
 }: GetMarkupFromTreeOptions): Promise<string> {
   const renderPromises = new RenderPromises();
-  const value = { ...context, renderPromises }
   class RenderPromisesProvider extends React.Component {
 
     render() {
@@ -122,7 +120,15 @@ export function getMarkupFromTree({
       // of the original rendering (including all unknown context provider
       // elements) for a subtree of the orginal component tree.
       return (
-        <RenderPromisesContext.Provider value={value}>{tree}</RenderPromisesContext.Provider>
+        <ApolloContext.Consumer>
+          {(value: any) => (
+            // TODO: this is where the issue lives, we provide a tree
+            // that starts with an ApolloContext.Provider effectively overriding this one.
+            <ApolloContext.Provider value={{ ...value, renderPromises }}>
+              {tree}
+            </ApolloContext.Provider>
+          )}
+        </ApolloContext.Consumer>
       );
     }
   }
