@@ -9,6 +9,23 @@
 
 ### Improvements
 
+- The `walkTree` function has been deprecated, since there's no way to
+  make its behavior consistent with the latest versions of React. To save
+  bundle size, `walkTree` is no longer exported from `react-apollo`,
+  though you can still access it as follows:
+  ```js
+  import { walkTree } from "react-apollo/walkTree"
+  ```
+
+## 2.4.0
+
+### Bug Fixes
+
+- Invoke `onCompleted`/`onError` even if `Mutation` unmounts. <br/>
+  [PR #2710](https://github.com/apollographql/react-apollo/pull/2710)
+
+### Improvements
+
 - Update the typescript example app to use the raw Query component directly,
   with generics, to avoid generating the extra object that's created (in the
   compiled code) when extending the Query component as a class.  <br/>
