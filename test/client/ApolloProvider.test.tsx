@@ -1,11 +1,10 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { shallow } from 'enzyme';
 import * as TestUtils from 'react-dom/test-utils';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { ApolloProvider } from '../../src';
+import { ApolloContext, ApolloProvider } from '../../src';
 
 describe('<ApolloProvider /> Component', () => {
   const client = new ApolloClient({
@@ -18,9 +17,7 @@ describe('<ApolloProvider /> Component', () => {
   }
 
   class Child extends React.Component<any, { store: any; client: any }> {
-    static contextTypes: React.ValidationMap<any> = {
-      client: PropTypes.object.isRequired,
-    };
+    static contextType = ApolloContext;
 
     context: ChildContext = {
       client: {},

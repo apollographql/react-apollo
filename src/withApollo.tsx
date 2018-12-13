@@ -10,7 +10,7 @@ function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export type WithApolloClient<P> = P & { client: ApolloClient<any> };
+export type WithApolloClient<P> = P & { client: ApolloClient<any> | null };
 
 export default function withApollo<TProps, TResult = any>(
   WrappedComponent: React.ComponentType<WithApolloClient<TProps>>,

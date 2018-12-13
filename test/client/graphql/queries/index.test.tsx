@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
@@ -569,14 +568,12 @@ describe('queries', () => {
       },
     );
 
+    const Context = React.createContext({ color: 'purple' });
+
     class ContextContainer extends React.Component<{}, { color: string }> {
       constructor(props: {}) {
         super(props);
         this.state = { color: 'purple' };
-      }
-
-      getChildContext() {
-        return { color: this.state.color };
       }
 
       componentDidMount() {
@@ -586,13 +583,13 @@ describe('queries', () => {
       }
 
       render() {
-        return <div>{this.props.children}</div>;
+        return (
+          <Context.Provider value={this.state}>
+            <div>{this.props.children}</div>
+          </Context.Provider>
+        );
       }
     }
-
-    (ContextContainer as any).childContextTypes = {
-      color: PropTypes.string,
-    };
 
     let count = 0;
     class ChildContextContainer extends React.Component<any, any> {
@@ -609,9 +606,7 @@ describe('queries', () => {
       }
     }
 
-    (ChildContextContainer as any).contextTypes = {
-      color: PropTypes.string,
-    };
+    (ChildContextContainer as any).contextType = Context;
 
     renderer.create(
       <ApolloProvider client={client}>

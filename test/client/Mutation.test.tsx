@@ -111,12 +111,14 @@ it('pick prop client over context client', async done => {
   const contextClient = mockClient(mocksContext);
   const propsClient = mockClient(mocksProps);
   const spy = jest.fn();
-
   const Component = (props: any) => {
     return (
       <ApolloProvider client={contextClient}>
         <Mutation client={props.propsClient} mutation={mutation}>
-          {createTodo => <button onClick={() => createTodo().then(spy)} />}
+          {createTodo => <button onClick={() => {
+            createTodo().then(spy)
+            }
+          } />}
         </Mutation>
       </ApolloProvider>
     );

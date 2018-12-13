@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import ApolloClient, { ApolloError, FetchPolicy } from 'apollo-client';
 import { Observable } from 'apollo-link';
 import { DocumentNode } from 'graphql';
@@ -7,6 +6,7 @@ import { ZenObservable } from 'zen-observable-ts';
 
 import { OperationVariables } from './types';
 import { getClient } from './component-utils';
+import ApolloContext from './context';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -46,17 +46,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   SubscriptionProps<TData, TVariables>,
   SubscriptionState<TData>
 > {
-  static contextTypes = {
-    client: PropTypes.object.isRequired,
-  };
-
-  static propTypes = {
-    subscription: PropTypes.object.isRequired,
-    variables: PropTypes.object,
-    children: PropTypes.func,
-    onSubscriptionData: PropTypes.func,
-    shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
-  };
+  static contextType = ApolloContext;
 
   private client: ApolloClient<any>;
   private queryObservable?: Observable<any>;

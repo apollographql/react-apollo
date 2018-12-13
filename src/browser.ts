@@ -20,6 +20,8 @@ export { graphql } from './graphql';
 export { withQuery } from './query-hoc';
 export { withMutation } from './mutation-hoc';
 export { withSubscription } from './subscription-hoc';
+export { default as ApolloContext } from './context';
+
 
 export { default as withApollo } from './withApollo';
 export * from './withApollo';

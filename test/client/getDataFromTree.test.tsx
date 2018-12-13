@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
 import {
@@ -11,6 +10,7 @@ import {
   getMarkupFromTree,
   DataValue,
   ChildProps,
+  RenderPromisesContext,
 } from '../../src';
 import gql from 'graphql-tag';
 const times = require('lodash.times');
@@ -524,9 +524,7 @@ describe('SSR', () => {
 
     it('should support passing a root context', () => {
       class Consumer extends React.Component {
-        static contextTypes = {
-          text: PropTypes.string.isRequired,
-        };
+        static contextType = RenderPromisesContext;
 
         render() {
           return <div>{this.context.text}</div>;
@@ -1486,11 +1484,13 @@ describe('SSR', () => {
 
       const Element: React.StatelessComponent<
         ChildProps<ChildProps<Props, MutationData>, QueryData, {}>
-      > = ({ data }) => (
-        <div>
-          {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.firstName}
-        </div>
-      );
+      > = ({ data }) => {
+        return (
+          <div>
+            {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.firstName}
+          </div>
+        );
+      }
 
       const WrappedElement = withMutation(withQuery(Element));
 
@@ -1536,6 +1536,8 @@ describe('SSR', () => {
         </div>
       ));
 
+      const Context = React.createContext({ color: 'purple' });
+
       class MyRootContainer extends React.Component<{}, { color: string }> {
         constructor(props: {}) {
           super(props);
@@ -1547,13 +1549,15 @@ describe('SSR', () => {
         }
 
         render() {
-          return <div>{this.props.children}</div>;
+          return (
+            <Context.Provider value={this.state}>
+              <div>
+                {this.props.children}
+              </div>;
+            </Context.Provider>
+          );
         }
       }
-
-      (MyRootContainer as any).childContextTypes = {
-        color: PropTypes.string,
-      };
 
       const app = (
         <MyRootContainer>

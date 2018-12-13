@@ -1,8 +1,7 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { Component } from 'react';
 import ApolloClient from 'apollo-client';
 import { DocumentNode } from 'graphql';
+import ApolloContext from './context';
 
 const invariant = require('invariant');
 
@@ -11,16 +10,7 @@ export interface ApolloProviderProps<TCache> {
   children: React.ReactNode;
 }
 
-export default class ApolloProvider<TCache> extends Component<ApolloProviderProps<TCache>> {
-  static propTypes = {
-    client: PropTypes.object.isRequired,
-    children: PropTypes.node.isRequired,
-  };
-
-  static childContextTypes = {
-    client: PropTypes.object.isRequired,
-    operations: PropTypes.object,
-  };
+export default class ApolloProvider<TCache> extends React.Component<ApolloProviderProps<TCache>> {
 
   private operations: Map<string, { query: DocumentNode; variables: any }> = new Map();
 
@@ -41,14 +31,16 @@ export default class ApolloProvider<TCache> extends Component<ApolloProviderProp
     }
   }
 
-  getChildContext() {
-    return {
-      client: this.props.client,
-      operations: (this.props.client as any).__operations_cache__,
-    };
-  }
-
   render() {
-    return this.props.children;
+    const { children, client } = this.props;
+    return (
+      <ApolloContext.Provider
+        value={{
+          client: client,
+          operations: (client as any).__operations_cache__
+        }}>
+        {children}
+      </ApolloContext.Provider>
+    )
   }
 }

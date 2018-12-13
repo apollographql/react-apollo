@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Query from './Query';
 
 // Like a Set, but for tuples. In practice, this class is used to store
@@ -102,6 +101,8 @@ export type GetMarkupFromTreeOptions = {
   renderFunction?: (tree: React.ReactElement<any>) => string;
 };
 
+export const RenderPromisesContext = React.createContext({});
+
 export function getMarkupFromTree({
   tree,
   context = {},
@@ -111,15 +112,8 @@ export function getMarkupFromTree({
   renderFunction = require("react-dom/server").renderToStaticMarkup,
 }: GetMarkupFromTreeOptions): Promise<string> {
   const renderPromises = new RenderPromises();
-
+  const value = { ...context, renderPromises }
   class RenderPromisesProvider extends React.Component {
-    static childContextTypes: { [key: string]: any } = {
-      renderPromises: PropTypes.object,
-    };
-
-    getChildContext() {
-      return { ...context, renderPromises };
-    }
 
     render() {
       // Always re-render from the rootElement, even though it might seem
@@ -127,13 +121,11 @@ export function getMarkupFromTree({
       // promise, because it is not possible to reconstruct the full context
       // of the original rendering (including all unknown context provider
       // elements) for a subtree of the orginal component tree.
-      return tree;
+      return (
+        <RenderPromisesContext.Provider value={value}>{tree}</RenderPromisesContext.Provider>
+      );
     }
   }
-
-  Object.keys(context).forEach(key => {
-    RenderPromisesProvider.childContextTypes[key] = PropTypes.any;
-  });
 
   function process(): Promise<string> | string {
     const html = renderFunction(React.createElement(RenderPromisesProvider));

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import ApolloClient, { PureQueryOptions, ApolloError, FetchPolicy } from 'apollo-client';
 import { DataProxy } from 'apollo-cache';
 const invariant = require('invariant');
@@ -9,6 +8,7 @@ const shallowEqual = require('fbjs/lib/shallowEqual');
 import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';
 import { getClient } from './component-utils';
+import ApolloContext from './context';
 
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
@@ -93,26 +93,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   MutationProps<TData, TVariables>,
   MutationState<TData>
 > {
-  static contextTypes = {
-    client: PropTypes.object.isRequired,
-    operations: PropTypes.object,
-  };
-
-  static propTypes = {
-    mutation: PropTypes.object.isRequired,
-    variables: PropTypes.object,
-    optimisticResponse: PropTypes.object,
-    refetchQueries: PropTypes.oneOfType([
-      PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.object])),
-      PropTypes.func,
-    ]),
-    awaitRefetchQueries: PropTypes.bool,
-    update: PropTypes.func,
-    children: PropTypes.func.isRequired,
-    onCompleted: PropTypes.func,
-    onError: PropTypes.func,
-    fetchPolicy: PropTypes.string,
-  };
+  static contextType = ApolloContext;
 
   private client: ApolloClient<any>;
   private mostRecentMutationId: number;

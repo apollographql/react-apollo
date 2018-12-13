@@ -1,10 +1,7 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
   ApolloError,
-  FetchPolicy,
-  ErrorPolicy,
   ApolloQueryResult,
   NetworkStatus,
   FetchMoreOptions,
@@ -16,6 +13,7 @@ import { OperationVariables, GraphqlQueryControls, QueryOpts } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
+import ApolloContext from './context';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
@@ -99,25 +97,7 @@ export interface QueryContext {
 export default class Query<TData = any, TVariables = OperationVariables> extends React.Component<
   QueryProps<TData, TVariables>
 > {
-  static contextTypes = {
-    client: PropTypes.object,
-    operations: PropTypes.object,
-    renderPromises: PropTypes.object,
-  };
-
-  static propTypes = {
-    client: PropTypes.object,
-    children: PropTypes.func.isRequired,
-    fetchPolicy: PropTypes.string,
-    notifyOnNetworkStatusChange: PropTypes.bool,
-    onCompleted: PropTypes.func,
-    onError: PropTypes.func,
-    pollInterval: PropTypes.number,
-    query: PropTypes.object.isRequired,
-    variables: PropTypes.object,
-    ssr: PropTypes.bool,
-    partialRefetch: PropTypes.bool,
-  };
+  static contextType = ApolloContext;
 
   context: QueryContext | undefined;
 
@@ -140,7 +120,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
-
     this.client = getClient(props, context);
     this.initializeQueryObservable(props);
   }
