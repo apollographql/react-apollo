@@ -7,9 +7,8 @@ import { ApolloLink } from 'apollo-link';
 import * as TestUtils from 'react-dom/test-utils';
 import { DocumentNode } from 'graphql';
 
-import compose from '../../../src/utils/flowRight';
 import { mockSingleLink } from '../../../src/test-utils';
-import { ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
+import { compose, ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
 
 describe('shared operations', () => {
   describe('withApollo', () => {

@@ -1,10 +1,10 @@
-import flowRight from '../../../src/utils/flowRight';
+import { compose } from '../../../src';
 
-describe('flowRight', () => {
+describe('compose', () => {
   it('Should reverse execute the array of functions', () => {
     const add = (x: number, y: number) => x + y;
     const square = (x: number) =>  x * x;
-    const flow = flowRight(square, add);
+    const flow = compose(square, add);
     const result = flow(2, 2);
     expect(result).toBe(16);
   });
@@ -12,7 +12,7 @@ describe('flowRight', () => {
   it('Should error when an argument is not a function', () => {
     try {
       const square = (x: number) => x * x;
-      const flow = flowRight('x', square);
+      const flow = compose('x', square);
       expect(false).toBeTruthy();
     } catch (e) {
       expect(true).toBeTruthy();
