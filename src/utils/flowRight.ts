@@ -2,12 +2,13 @@ export default(...funcs: any[]) => {
   const functions = funcs.reverse();
   functions.forEach((fnc, i) => {
     if (typeof fnc !== 'function') {
-      throw new Error(`flowRight at index ${i} is not a function`);
+      throw new Error(`In "compose" the argument at index "${i}" is not a function.`);
     }
   });
-  return function (...args: [any]) {
-    let result = functions[0].apply(null, args);
-    functions.forEach((fnc) => {
+  return function (...args: any[]) {
+    const [firstFunction, ...restFunctions] = functions
+    let result = firstFunction.apply(null, args);
+    (restFunctions || []).forEach((fnc) => {
       result = fnc.call(null, result)
     });
     return result;
