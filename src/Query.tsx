@@ -3,8 +3,6 @@ import * as PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
   ApolloError,
-  FetchPolicy,
-  ErrorPolicy,
   ApolloQueryResult,
   NetworkStatus,
   FetchMoreOptions,

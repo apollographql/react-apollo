@@ -152,7 +152,6 @@
     "fbjs": "^1.0.0",
     "hoist-non-react-statics": "^3.0.0",
     "invariant": "^2.2.2",
-    "lodash.flowright": "^3.5.0",
     "lodash.isequal": "^4.5.0",
     "prop-types": "^15.6.0"
   }

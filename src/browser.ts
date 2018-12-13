@@ -28,6 +28,4 @@ export * from './types';
 
 export * from './walkTree';
 
-// XXX remove in the next breaking semver change (3.0)
-const compose = require('lodash.flowright');
-export { compose };
+export { compose } from './utils/flowRight';
