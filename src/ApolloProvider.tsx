@@ -12,6 +12,7 @@ export interface ApolloProviderProps<TCache> {
 
 export default class ApolloProvider<TCache> extends React.Component<ApolloProviderProps<TCache>> {
 
+  static contextType = ApolloContext;
   private operations: Map<string, { query: DocumentNode; variables: any }> = new Map();
 
   constructor(props: ApolloProviderProps<TCache>, context: any) {
@@ -36,6 +37,7 @@ export default class ApolloProvider<TCache> extends React.Component<ApolloProvid
     return (
       <ApolloContext.Provider
         value={{
+          ...this.context,
           client: client,
           operations: (client as any).__operations_cache__
         }}>

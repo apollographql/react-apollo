@@ -105,6 +105,7 @@ export type GetMarkupFromTreeOptions = {
 
 export function getMarkupFromTree({
   tree,
+  context = {},
   // The rendering function is configurable! We use renderToStaticMarkup as
   // the default, because it's a little less expensive than renderToString,
   // and legacy usage of getDataFromTree ignores the return value anyway.
@@ -124,7 +125,7 @@ export function getMarkupFromTree({
           {(value: any) => (
             // TODO: this is where the issue lives, we provide a tree
             // that starts with an ApolloContext.Provider effectively overriding this one.
-            <ApolloContext.Provider value={{ ...value, renderPromises }}>
+            <ApolloContext.Provider value={{ ...context, ...value, renderPromises }}>
               {tree}
             </ApolloContext.Provider>
           )}
