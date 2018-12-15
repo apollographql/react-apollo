@@ -17,11 +17,16 @@ export { default as Subscription } from './Subscriptions';
 export * from './Subscriptions';
 
 export { graphql } from './graphql';
+export { withQuery } from './query-hoc';
+export { withMutation } from './mutation-hoc';
+export { withSubscription } from './subscription-hoc';
 
 export { default as withApollo } from './withApollo';
 export * from './withApollo';
 
 export * from './types';
+
+export * from './walkTree';
 
 // XXX remove in the next breaking semver change (3.0)
 const compose = require('lodash.flowright');
