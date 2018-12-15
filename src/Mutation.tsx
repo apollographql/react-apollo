@@ -35,9 +35,9 @@ export declare type MutationUpdaterFn<
   }
 > = (proxy: DataProxy, mutationResult: FetchResult<T>) => void;
 
-export declare type FetchResult<C = Record<string, any>, E = Record<string, any>> = ExecutionResult<
-  C
-> & {
+export declare type FetchResult<TData = {
+  [key: string]: any;
+}, C = Record<string, any>, E = Record<string, any>> = ExecutionResult<TData> & {
   extensions?: E;
   context?: C;
 };
@@ -174,11 +174,11 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     const mutationId = this.generateNewMutationId();
 
     return this.mutate(options)
-      .then(response => {
+      .then((response: FetchResult) => {
         this.onMutationCompleted(response, mutationId);
         return response;
       })
-      .catch(e => {
+      .catch((e: ApolloError) => {
         this.onMutationError(e, mutationId);
         if (!this.props.onError) throw e;
       });
