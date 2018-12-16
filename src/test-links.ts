@@ -4,13 +4,12 @@ import {
   ApolloLink,
   FetchResult,
   Observable,
+  // Observer,
 } from 'apollo-link';
 
 import { print } from 'graphql/language/printer';
 import { addTypenameToDocument } from 'apollo-utilities';
-import isEqual from './utils/isEqual';
-
-export { isEqual };
+const isEqual = require('lodash.isequal');
 
 export interface MockedResponse {
   request: GraphQLRequest;

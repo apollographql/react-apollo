@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "author": "opensource@apollographql.com",
   "private": true,
   "browser": "lib/react-apollo.browser.umd.js",
@@ -91,7 +91,8 @@
   },
   "peerDependencies": {
     "apollo-client": "^2.3.8",
-    "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0",
+    "react": "^15.0.0 || ^16.0.0",
+    "react-dom": "^15.0.0 || ^16.0.0",
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
   },
   "sideEffects": false,
@@ -151,6 +152,8 @@
     "fbjs": "^1.0.0",
     "hoist-non-react-statics": "^3.0.0",
     "invariant": "^2.2.2",
-    "prop-types": "^15.6.0"
+    "lodash.isequal": "^4.5.0",
+    "prop-types": "^15.6.0",
+    "tslib": "^1.9.3"
   }
 }
