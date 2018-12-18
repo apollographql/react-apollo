@@ -2,6 +2,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import node from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
+import babel from 'rollup-plugin-babel';
 
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
@@ -25,7 +26,16 @@ function umd(inputFile, outputFile) {
       node({
         module: true,
         only: ['tslib']
-      })
+      }),
+      babel({
+        // babelrc: false,
+        // presets: [['@babel/env']],
+        exclude: /node_modules/,
+        plugins: [
+          'annotate-pure-calls',
+          'dev-expression',
+        ],
+      }),
     ],
     onwarn,
   };
@@ -56,7 +66,19 @@ export default [
       exports: 'named',
     },
     plugins: [
-      node(),
+      node({
+        module: true,
+        only: ['tslib']
+      }),
+      babel({
+        // babelrc: false,
+        // presets: [['@babel/env']],
+        exclude: /node_modules/,
+        plugins: [
+          'annotate-pure-calls',
+          'dev-expression',
+        ],
+      }),
       commonjs({
         ignore: [
           'react',
