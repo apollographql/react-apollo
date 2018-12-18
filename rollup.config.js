@@ -28,8 +28,6 @@ function umd(inputFile, outputFile) {
         only: ['tslib']
       }),
       babel({
-        // babelrc: false,
-        // presets: [['@babel/env']],
         exclude: /node_modules/,
         plugins: [
           'annotate-pure-calls',
@@ -71,8 +69,6 @@ export default [
         only: ['tslib']
       }),
       babel({
-        // babelrc: false,
-        // presets: [['@babel/env']],
         exclude: /node_modules/,
         plugins: [
           'annotate-pure-calls',
