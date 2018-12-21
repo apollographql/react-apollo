@@ -49,14 +49,7 @@
   "babel": {
     "presets": [
       "@babel/preset-env"
-    ],
-    "env": {
-      "test": {
-        "presets": [
-          "env"
-        ]
-      }
-    }
+    ]
   },
   "bundlesize": [
     {
@@ -67,8 +60,8 @@
   "jest": {
     "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.jsx?$": "babel-jest",
-      ".(ts|tsx)": "ts-jest"
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.jsx?$": "babel-jest"
     },
     "moduleFileExtensions": [
       "ts",
