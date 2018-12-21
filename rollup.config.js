@@ -27,13 +27,7 @@ function umd(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
-      babel({
-        exclude: 'node_modules/**',
-        plugins: [
-          'annotate-pure-calls',
-          'dev-expression',
-        ],
-      }),
+      babel({ exclude: 'node_modules/**' }),
     ],
     onwarn,
   };
@@ -68,13 +62,7 @@ export default [
         module: true,
         only: ['tslib']
       }),
-      babel({
-        exclude: 'node_modules/**',
-        plugins: [
-          'annotate-pure-calls',
-          'dev-expression',
-        ],
-      }),
+      babel({ exclude: 'node_modules/**' }),
       commonjs({
         ignore: [
           'react',
