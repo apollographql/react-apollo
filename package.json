@@ -137,7 +137,7 @@
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
     "rimraf": "2.6.2",
-    "rollup": "0.68.0",
+    "rollup": "0.68.1",
     "rollup-plugin-commonjs": "9.2.0",
     "rollup-plugin-node-resolve": "3.4.0",
     "rollup-plugin-replace": "2.1.0",
