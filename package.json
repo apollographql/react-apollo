@@ -46,11 +46,6 @@
     "type-check": "tsc --project tsconfig.json --noEmit ",
     "watch": "tsc -w"
   },
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
-  },
   "bundlesize": [
     {
       "path": "./dist/bundlesize.js",
