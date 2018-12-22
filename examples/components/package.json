@@ -17,7 +17,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "react-testing-library": "5.4.0"
+    "react-testing-library": "5.4.2"
   },
   "browserslist": [
     ">0.2%",
