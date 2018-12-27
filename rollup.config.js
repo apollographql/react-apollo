@@ -48,6 +48,18 @@ export default [
     },
     onwarn,
   },
+  // for test-links
+  {
+    input: 'lib/test-links.js',
+    output: {
+      file: 'lib/test-links.js',
+      format: 'umd',
+      name: 'react-apollo',
+      sourcemap: false,
+      exports: 'named',
+    },
+    onwarn,
+  },
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',
@@ -59,7 +71,13 @@ export default [
     plugins: [
       node(),
       commonjs({
-        ignore: ['react', 'apollo-client', 'graphql', 'graphql-tag'],
+        ignore: [
+          'react',
+          'react-dom/server',
+          'apollo-client',
+          'graphql',
+          'graphql-tag',
+        ],
       }),
       replace({
         'process.env.NODE_ENV': JSON.stringify('production'),
