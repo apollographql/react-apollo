@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 
-import AddUser from './AddUser';
+import AddUser from './addUser';
 
 const client = new ApolloClient({
   uri: 'https://n1k5mkl017.lp.gql.zone/graphql',
