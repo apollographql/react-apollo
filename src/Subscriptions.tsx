@@ -47,7 +47,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   SubscriptionState<TData>
 > {
   static contextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
   };
 
   static propTypes = {

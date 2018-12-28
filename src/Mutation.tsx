@@ -94,7 +94,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   MutationState<TData>
 > {
   static contextTypes = {
-    client: PropTypes.object.isRequired,
+    client: PropTypes.object,
     operations: PropTypes.object,
   };
 
