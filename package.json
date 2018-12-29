@@ -117,7 +117,7 @@
     "babel-preset-env": "1.7.0",
     "bundlesize": "0.17.0",
     "coveralls": "3.0.2",
-    "danger": "6.1.12",
+    "danger": "6.1.13",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.7.1",
     "graphql": "14.0.2",
