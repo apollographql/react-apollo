@@ -19,7 +19,7 @@ node -e "var package = require('./package.json'); \
   delete package.options; \
   delete package.prettier; \
   delete package.devDependencies; \
-  package.main = 'index.js'; \
+  package.main = 'react-apollo.cjs.js'; \
   package.module = 'react-apollo.esm.js'; \
   package.typings = 'index.d.ts'; \
   var origVersion = 'local';

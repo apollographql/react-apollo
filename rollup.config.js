@@ -11,8 +11,25 @@ function onwarn(message) {
   }
 }
 
-// TODO: add CJS explicit CJS bundle or is the tsc generated one sufficient?
+function cjs(inputFile, outputFile) {
+  return {
+    input: inputFile,
+    output: {
+      file: outputFile,
+      format: 'cjs',
+    },
+    plugins: [
+      node({
+        module: true,
+        only: ['tslib']
+      }),
+      commonjs({ exclude: 'node_modules/**'})
+    ],
+    onwarn,
+  }
+}
 
+// TODO: add CJS explicit CJS bundle or is the tsc generated one sufficient?
 function esm(inputFile, outputFile) {
   return {
     input: inputFile,
@@ -26,7 +43,8 @@ function esm(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
-    ]
+    ],
+    onwarn,
   }
 }
 
@@ -67,6 +85,7 @@ export default [
   umd("lib/walkTree.js",
       "lib/walkTree.js"),
   esm('lib/index.js', 'lib/react-apollo.esm.js'),
+  cjs('lib/index.js', 'lib/react-apollo.cjs.js'),
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',
