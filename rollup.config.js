@@ -2,13 +2,31 @@ import commonjs from 'rollup-plugin-commonjs';
 import node from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
-import babel from 'rollup-plugin-babel';
 
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
 
   if (!suppressed.find(code => message.code === code)) {
     return console.warn(message.message);
+  }
+}
+
+// TODO: add CJS explicit CJS bundle or is the tsc generated one sufficient?
+
+function esm(inputFile, outputFile) {
+  return {
+    input: inputFile,
+    output: {
+      file: outputFile,
+      format: 'esm',
+      sourcemap: true,
+    },
+    plugins: [
+      node({
+        module: true,
+        only: ['tslib']
+      }),
+    ]
   }
 }
 
@@ -27,7 +45,6 @@ function umd(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
-      babel({ exclude: 'node_modules/**' }),
     ],
     onwarn,
   };
@@ -49,6 +66,7 @@ export default [
   // Enable `import { walkTree } from "react-apollo/walkTree"`
   umd("lib/walkTree.js",
       "lib/walkTree.js"),
+  esm('lib/index.js', 'lib/react-apollo.esm.js'),
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',
@@ -62,7 +80,6 @@ export default [
         module: true,
         only: ['tslib']
       }),
-      babel({ exclude: 'node_modules/**' }),
       commonjs({
         ignore: [
           'react',
