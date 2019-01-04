@@ -105,7 +105,7 @@ export default [
       exports: 'named',
     },
     plugins: [
-      // Is there a reason for not reporting filesize here?
+      // Is there a reason for not adding tslib here?
       node(),
       commonjs({
         ignore: [
