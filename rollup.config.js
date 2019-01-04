@@ -2,6 +2,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import node from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
+import filesize from 'rollup-plugin-filesize';
 
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
@@ -23,13 +24,21 @@ function cjs(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
-      commonjs({ exclude: 'node_modules/**'})
+      commonjs({
+        ignore: [
+          'react',
+          'react-dom/server',
+          'apollo-client',
+          'graphql',
+          'graphql-tag',
+        ],
+      }),
+      filesize(),
     ],
     onwarn,
   }
 }
 
-// TODO: add CJS explicit CJS bundle or is the tsc generated one sufficient?
 function esm(inputFile, outputFile) {
   return {
     input: inputFile,
@@ -43,6 +52,7 @@ function esm(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
+      filesize(),
     ],
     onwarn,
   }
@@ -95,10 +105,8 @@ export default [
       exports: 'named',
     },
     plugins: [
-      node({
-        module: true,
-        only: ['tslib']
-      }),
+      // Is there a reason for not reporting filesize here?
+      node(),
       commonjs({
         ignore: [
           'react',
