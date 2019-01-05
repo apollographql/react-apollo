@@ -2,6 +2,8 @@ import commonjs from 'rollup-plugin-commonjs';
 import node from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
+import typescript from 'typescript';
+import typescriptPlugin from 'rollup-plugin-typescript2';
 import filesize from 'rollup-plugin-filesize';
 
 function onwarn(message) {
@@ -9,33 +11,6 @@ function onwarn(message) {
 
   if (!suppressed.find(code => message.code === code)) {
     return console.warn(message.message);
-  }
-}
-
-function cjs(inputFile, outputFile) {
-  return {
-    input: inputFile,
-    output: {
-      file: outputFile,
-      format: 'cjs',
-    },
-    plugins: [
-      node({
-        module: true,
-        only: ['tslib']
-      }),
-      commonjs({
-        ignore: [
-          'react',
-          'react-dom/server',
-          'apollo-client',
-          'graphql',
-          'graphql-tag',
-        ],
-      }),
-      filesize(),
-    ],
-    onwarn,
   }
 }
 
@@ -52,6 +27,7 @@ function esm(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
+      typescriptPlugin({ typescript }),
       filesize(),
     ],
     onwarn,
@@ -73,6 +49,7 @@ function umd(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
+      typescriptPlugin({ typescript }),
     ],
     onwarn,
   };
@@ -80,22 +57,21 @@ function umd(inputFile, outputFile) {
 
 export default [
   // for browser
-  umd("lib/browser.js",
+  umd("src/browser.ts",
       "lib/react-apollo.browser.umd.js"),
   // for server
-  umd("lib/index.js",
+  umd("src/index.ts",
       "lib/react-apollo.umd.js"),
   // for test-utils
-  umd("lib/test-utils.js",
+  umd("src/test-utils.tsx",
       "lib/test-utils.js"),
   // for test-links
-  umd("lib/test-links.js",
+  umd("src/test-links.ts",
       "lib/test-links.js"),
   // Enable `import { walkTree } from "react-apollo/walkTree"`
-  umd("lib/walkTree.js",
+  umd("src/walkTree.ts",
       "lib/walkTree.js"),
-  esm('lib/index.js', 'lib/react-apollo.esm.js'),
-  cjs('lib/index.js', 'lib/react-apollo.cjs.js'),
+  esm('src/index.ts', 'lib/react-apollo.esm.js'),
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',
