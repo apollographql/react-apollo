@@ -242,9 +242,6 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onMutationCompleted = (response: ExecutionResult<TData>, mutationId: number) => {
-    if (this.hasMounted === false) {
-      return;
-    }
     const { onCompleted, ignoreResults } = this.props;
 
     const { data, errors } = response;
@@ -253,7 +250,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
     const callOncomplete = () => (onCompleted ? onCompleted(data as TData) : null);
 
-    if (this.isMostRecentMutation(mutationId) && !ignoreResults) {
+    if (this.hasMounted && this.isMostRecentMutation(mutationId) && !ignoreResults) {
       this.setState({ loading: false, data, error }, callOncomplete);
     } else {
       callOncomplete();
@@ -261,13 +258,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   };
 
   private onMutationError = (error: ApolloError, mutationId: number) => {
-    if (this.hasMounted === false) {
-      return;
-    }
     const { onError } = this.props;
     const callOnError = () => (onError ? onError(error) : null);
 
-    if (this.isMostRecentMutation(mutationId)) {
+    if (this.hasMounted && this.isMostRecentMutation(mutationId)) {
       this.setState({ loading: false, error }, callOnError);
     } else {
       callOnError();

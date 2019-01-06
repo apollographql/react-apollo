@@ -1477,11 +1477,13 @@ it('errors when changing from mutation to a subscription', done => {
 });
 
 it('does not update state after receiving data after it has been unmounted', done => {
+  const onCompleted = jest.fn();
   let success = false;
   let original = console.error;
   console.error = jest.fn();
   const checker = () => {
     setTimeout(() => {
+      expect(onCompleted).toHaveBeenCalled();
       expect(console.error).not.toHaveBeenCalled();
       console.error = original;
       success = true;
@@ -1500,7 +1502,7 @@ it('does not update state after receiving data after it has been unmounted', don
         return null;
       } else {
         return (
-          <Mutation mutation={mutation}>
+          <Mutation mutation={mutation} onCompleted={onCompleted}>
             {(createTodo, result) => {
               if (!result.called) {
                 setTimeout(() => {
@@ -1529,10 +1531,12 @@ it('does not update state after receiving data after it has been unmounted', don
 });
 
 it('does not update state after receiving error after it has been unmounted', done => {
+  const onError = jest.fn();
   let original = console.error;
   console.error = jest.fn();
   const checker = () => {
     setTimeout(() => {
+      expect(onError).toHaveBeenCalled();
       expect(console.error).not.toHaveBeenCalled();
       console.error = original;
       done();
@@ -1550,7 +1554,7 @@ it('does not update state after receiving error after it has been unmounted', do
         return null;
       } else {
         return (
-          <Mutation mutation={mutation}>
+          <Mutation mutation={mutation} onError={onError}>
             {(createTodo, result) => {
               if (!result.called) {
                 setTimeout(() => {
