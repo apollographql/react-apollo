@@ -184,19 +184,19 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       });
   };
 
-  private mutate = (options: MutationOptions<TData, TVariables>) => {
+  private mutate = (options: MutationOptions<TData, TVariables> = {}) => {
     const {
       mutation,
       variables,
       optimisticResponse,
       update,
       context = {},
-      awaitRefetchQueries = false,
+      awaitRefetchQueries = (this.client.defaultOptions.mutate && this.client.defaultOptions.mutate.awaitRefetchQueries) || false,
       fetchPolicy,
     } = this.props;
-    const mutateOptions = { ...options };
 
-    let refetchQueries = mutateOptions.refetchQueries || this.props.refetchQueries;
+    const mutateOptions = { ...options };
+    let refetchQueries =  mutateOptions.refetchQueries || this.props.refetchQueries;
     // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
     // support refectching of named queries which just pulls the latest
     // variables to match. This forces us to either a) keep all queries around

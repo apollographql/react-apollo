@@ -561,6 +561,37 @@ it('renders an error state and does not throw when encountering graphql errors w
   );
 });
 
+it('does not override the defaultOptions.awaitRefetchQueries by defaults.', done => {
+  let count = 0;
+  const mutateSpy = jest.fn().mockImplementation(() => Promise.resolve({ data: {} }));;
+  const mockClient: unknown = {
+    defaultOptions: { mutate: { awaitRefetchQueries: true } },
+    mutate: mutateSpy,
+  }
+  const Component = () => (
+    <Mutation client={mockClient as ApolloClient<Cache>} mutation={mutation}>
+      {(mutate, result) => {
+        if (count === 0) {
+          setTimeout(() => mutate());
+        } else if (count === 1) {
+          expect(result.loading).toBeTruthy();
+        } else {
+          expect((mutateSpy.mock.calls[0][0] as any).awaitRefetchQueries).toBeTruthy();
+          done();
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  mount(
+    <MockedProvider defaultOptions={{ mutate: { awaitRefetchQueries: true } }}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('renders an error state and throws when encountering network errors when errorPolicy=all', done => {
   let count = 0;
   const expectedError = new ApolloError({ networkError: new Error('network error') });
