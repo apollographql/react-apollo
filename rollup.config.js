@@ -2,12 +2,35 @@ import commonjs from 'rollup-plugin-commonjs';
 import node from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
+import typescript from 'typescript';
+import typescriptPlugin from 'rollup-plugin-typescript2';
+import filesize from 'rollup-plugin-filesize';
 
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
 
   if (!suppressed.find(code => message.code === code)) {
     return console.warn(message.message);
+  }
+}
+
+function esm(inputFile, outputFile) {
+  return {
+    input: inputFile,
+    output: {
+      file: outputFile,
+      format: 'esm',
+      sourcemap: true,
+    },
+    plugins: [
+      node({
+        module: true,
+        only: ['tslib']
+      }),
+      typescriptPlugin({ typescript }),
+      filesize(),
+    ],
+    onwarn,
   }
 }
 
@@ -25,7 +48,8 @@ function umd(inputFile, outputFile) {
       node({
         module: true,
         only: ['tslib']
-      })
+      }),
+      typescriptPlugin({ typescript }),
     ],
     onwarn,
   };
@@ -33,20 +57,21 @@ function umd(inputFile, outputFile) {
 
 export default [
   // for browser
-  umd("lib/browser.js",
+  umd("src/browser.ts",
       "lib/react-apollo.browser.umd.js"),
   // for server
-  umd("lib/index.js",
+  umd("src/index.ts",
       "lib/react-apollo.umd.js"),
   // for test-utils
-  umd("lib/test-utils.js",
+  umd("src/test-utils.tsx",
       "lib/test-utils.js"),
   // for test-links
-  umd("lib/test-links.js",
+  umd("src/test-links.ts",
       "lib/test-links.js"),
   // Enable `import { walkTree } from "react-apollo/walkTree"`
-  umd("lib/walkTree.js",
+  umd("src/walkTree.ts",
       "lib/walkTree.js"),
+  esm('src/index.ts', 'lib/react-apollo.esm.js'),
   // for filesize
   {
     input: 'lib/react-apollo.browser.umd.js',
@@ -56,6 +81,7 @@ export default [
       exports: 'named',
     },
     plugins: [
+      // Is there a reason for not adding tslib here?
       node(),
       commonjs({
         ignore: [

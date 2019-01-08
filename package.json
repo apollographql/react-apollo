@@ -22,7 +22,7 @@
     "url": "apollographql/react-apollo"
   },
   "scripts": {
-    "compile": "tsc && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "compile": "tsc -p ./tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
     "danger": "danger run --verbose",
     "deploy": "cd lib && npm publish",
     "filesize": "bundlesize",
@@ -139,8 +139,10 @@
     "rimraf": "2.6.3",
     "rollup": "0.68.2",
     "rollup-plugin-commonjs": "9.2.0",
+    "rollup-plugin-filesize": "^6.0.0",
     "rollup-plugin-node-resolve": "3.4.0",
     "rollup-plugin-replace": "2.1.0",
+    "rollup-plugin-typescript2": "^0.18.1",
     "rollup-plugin-uglify": "6.0.1",
     "ts-jest": "23.10.5",
     "tslint": "5.12.1",
