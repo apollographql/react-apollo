@@ -100,7 +100,7 @@
     "@types/enzyme-adapter-react-16": "1.0.3",
     "@types/graphql": "14.0.4",
     "@types/invariant": "2.2.29",
-    "@types/jest": "23.3.11",
+    "@types/jest": "23.3.12",
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.5.8",
     "@types/react": "16.4.18",
