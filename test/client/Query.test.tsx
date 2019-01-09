@@ -1402,6 +1402,75 @@ describe('Query component', () => {
     );
   });
 
+  it('should reset error state after props change variables to accepted ones', done => {
+    const query: DocumentNode = gql`
+      query somethingelse ($variable: Boolean) {
+        allPeople(first: 1, yetisArePeople: $variable) {
+          people {
+          name
+        }
+      }
+     }`;
+
+    const data = {allPeople: {people: [{name: 'Luke Skywalker'}]}};
+    const variableGood = {variable: true}
+    const variableBad = {variable: false}
+    const link = mockSingleLink(
+      {request: {query, variables: variableGood}, result: {data}},
+      {request: {query, variables: variableBad}, result: {errors: [new Error('This is an error!')]}},
+      {request: {query, variables: variableGood}, result: {data}},
+    );
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({addTypename: false}),
+    });
+
+    let count = 0
+    // @ts-ignore
+    const DummyComp = (props) => {
+      if (!props.loading) {
+        try {
+          switch (count++) {
+            case 0:
+              expect(props.data.allPeople).toBeTruthy()
+              expect(props.error).toBeFalsy()
+              // set graphql-variables for query to a non accepted set
+              // @ts-ignore
+              setTimeout(() => wrapper.setProps({variables: variableBad}), 0)
+              break
+            case 1:
+              // @ts-ignore
+              expect(props.error).toBeTruthy()
+              // Changed variables => different props to query => no data should be passed in as prop
+              expect(props.data.allPeople).toBeFalsy()
+              // set graphql-variables for query back to an accepted set
+              // @ts-ignore
+              setTimeout(() => wrapper.setProps({variables: variableGood}), 0)
+              break
+            case 2:
+              // good variables are passed in again, data should be retrieved
+              expect(props.data.allPeople).toBeTruthy()
+              expect(props.error).toBeFalsy()
+              done()
+              break
+            default:
+              done.fail('Unknown count')
+          }
+        } catch(e) {done.fail(e)}
+      }
+      return <div />
+    }
+
+    wrapper = mount(
+      // @ts-ignore
+      <Query client={client} query={query} variables={variableGood}>
+        {(result: any) => {
+          return <DummyComp id='dummyId' {...result}/>
+        }}
+      </Query>
+    )
+  });
+
   describe('Partial refetching', () => {
     it(
       'should attempt a refetch when the query result was marked as being ' +
