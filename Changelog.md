@@ -6,6 +6,12 @@
 
 ### Improvements
 
+- Update the typescript example app to use the raw Query component directly,
+  with generics, to avoid generating the extra object that's created (in the 
+  compiled code) when extending the Query component as a class.  <br/>
+  [@evans](https://github.com/evans) in [#2721](https://github.com/apollographql/react-apollo/pull/2721)
+
+
 ## 2.3.3
 
 ### Bug Fixes
