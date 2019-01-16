@@ -115,7 +115,7 @@
     "babel-core": "6.26.3",
     "babel-jest": "23.6.0",
     "babel-preset-env": "1.7.0",
-    "bundlesize": "0.17.0",
+    "bundlesize": "0.17.1",
     "coveralls": "3.0.2",
     "danger": "6.1.13",
     "enzyme": "3.8.0",
