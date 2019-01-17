@@ -27,7 +27,7 @@ function esm(inputFile, outputFile) {
         module: true,
         only: ['tslib']
       }),
-      typescriptPlugin({ typescript }),
+      typescriptPlugin({ typescript, tsconfig: './tsconfig.modern.json' }),
       filesize(),
     ],
     onwarn,
