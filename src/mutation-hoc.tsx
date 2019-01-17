@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DocumentNode } from 'graphql';
-const hoistNonReactStatics = require('hoist-non-react-statics');
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import { parser } from './parser';
 import { MutationOpts, OperationOption, OptionProps, MutateProps } from './types';
