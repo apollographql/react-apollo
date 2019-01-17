@@ -75,13 +75,14 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   // I'm aware of. So intead we enforce checking for data
   // like so result.data!.user. This tells TS to use TData
   // XXX is there a better way to do this?
-  data: TData | undefined;
+  data: Partial<TData>;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
 }
 
-export interface QueryProps<TData = any, TVariables = OperationVariables> extends QueryOpts<TVariables> {
+export interface QueryProps<TData = any, TVariables = OperationVariables>
+  extends QueryOpts<TVariables> {
   children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
   query: DocumentNode;
   displayName?: string;

@@ -87,7 +87,7 @@ export function withQuery<
               // we massage the Query components shape here to replicate that
               const result = Object.assign(r, data || {});
               const name = operationOptions.name || 'data';
-              let childProps = { [name]: result };
+              let childProps: { [x: string]: any | undefined } = { [name]: result };
               if (operationOptions.props) {
                 const newResult: OptionProps<TProps, TData, TGraphQLVariables> = {
                   [name]: result,
