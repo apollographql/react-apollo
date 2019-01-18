@@ -49,7 +49,10 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   partialRefetch?: boolean;
 }
 
-export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables, TData = any> {
+export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables>
+  extends QueryControls<any, TGraphQLVariables> {}
+
+export interface QueryControls<TData = any, TGraphQLVariables = OperationVariables> {
   error?: ApolloError;
   networkStatus: number;
   loading: boolean;
@@ -71,9 +74,9 @@ export type MutationFunc<TData = any, TVariables = OperationVariables> = Mutatio
   TVariables
 >;
 
-export type DataValue<TData, TGraphQLVariables = OperationVariables> = GraphqlQueryControls<
-  TGraphQLVariables,
-  TData
+export type DataValue<TData, TGraphQLVariables = OperationVariables> = QueryControls<
+  TData,
+  TGraphQLVariables
 > &
   // data may not yet be loaded
   Partial<TData>;
