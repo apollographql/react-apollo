@@ -65,6 +65,7 @@ export interface QueryControls<TData = any, TGraphQLVariables = OperationVariabl
   updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions<any>) => any) => void;
 }
 
+// XXX remove in the next breaking semver change (3.0)
 export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables>
   extends QueryControls<any, TGraphQLVariables> {}
 
