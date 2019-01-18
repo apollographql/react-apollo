@@ -6,7 +6,7 @@ import { ApolloProvider } from 'react-apollo';
 import AddUser from './AddUser';
 
 const client = new ApolloClient({
-  uri: 'https://n1k5mkl017.lp.gql.zone/graphql',
+  uri: 'https://j1wv1z179v.sse.codesandbox.io',
 });
 
 const WrappedApp = (

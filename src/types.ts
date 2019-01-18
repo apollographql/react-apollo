@@ -34,6 +34,7 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
   context?: Record<string, any>;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
+  fetchPolicy?: FetchPolicy;
 }
 
 export interface QueryOpts<TGraphQLVariables = OperationVariables> {
@@ -45,6 +46,7 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Record<string, any>;
+  partialRefetch?: boolean;
 }
 
 export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables, TData = any> {

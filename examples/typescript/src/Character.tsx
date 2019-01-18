@@ -3,8 +3,6 @@ import { GetCharacterQuery, GetCharacterQueryVariables, Episode } from './__gene
 import { GetCharacter as QUERY } from './queries';
 import { Query } from 'react-apollo';
 
-class CharacterQuery extends Query<GetCharacterQuery, GetCharacterQueryVariables> {}
-
 export interface CharacterProps {
   episode: Episode;
 }
@@ -13,7 +11,7 @@ export const Character: React.SFC<CharacterProps> = props => {
   const { episode } = props;
 
   return (
-    <CharacterQuery query={QUERY} variables={{ episode }}>
+    <Query<GetCharacterQuery, GetCharacterQueryVariables> query={QUERY} variables={{ episode }}>
       {({ loading, data, error }) => {
         if (loading) return <div>Loading</div>;
         if (error) return <h1>ERROR</h1>;
@@ -40,7 +38,7 @@ export const Character: React.SFC<CharacterProps> = props => {
           </div>
         );
       }}
-    </CharacterQuery>
+    </Query>
   );
 };
 

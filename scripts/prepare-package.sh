@@ -9,6 +9,7 @@
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
 node -e "var package = require('./package.json'); \
+  delete package.private; \
   delete package.babel; \
   delete package[\"lint-staged\"]; \
   delete package.jest; \
