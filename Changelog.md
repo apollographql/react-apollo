@@ -4,9 +4,103 @@
 
 ### Bug Fixes
 
-- Fix `networkStatus` to reflect the loading state correctly for partial 
+### Improvements
+
+- Update the typescript example app to use the raw Query component directly,
+  with generics, to avoid generating the extra object that's created (in the 
+  compiled code) when extending the Query component as a class.  <br/>
+  [@evans](https://github.com/evans) in [#2721](https://github.com/apollographql/react-apollo/pull/2721)
+
+
+## 2.3.3
+
+### Bug Fixes
+
+- Add `react-dom` as a peer dependency (since it's used by `getDataFromTree`
+  and `renderToStringWithData`).  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
+
+### Improvements
+
+- Drop `react` 14.x support, since the 14.x release line is 2 years old now,
+  and `react-apollo` is no longer tested against it.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
+
+## 2.3.2
+
+### Improvements
+
+### Bug Fixes
+
+- This package no longer imports `react-dom/server` unconditionally at the
+  top level, making `react-apollo` safer to use in environments like React
+  Native that are neither browser-like nor Node-like, and thus struggle to
+  import `react-dom/server` and its dependencies. Additionally, the React
+  Native bundler has been instructed to ignore all `react-dom/server`
+  dependencies within `react-apollo`, so `react-dom` will not be bundled
+  in React Native apps simply because they import `react-apollo`.
+  [PR #2627](https://github.com/apollographql/react-apollo/pull/2627)
+
+## 2.3.1 (November 15, 2018)
+
+### Improvements
+
+- Restore original `getDataFromTree(tree, context)` API, and introduce a
+  new alternative called `getMarkupFromTree` to enable custom rendering
+  functions:
+  ```typescript
+  export default function getDataFromTree(
+    tree: React.ReactNode,
+    context: { [key: string]: any } = {},
+  ) {
+    return getMarkupFromTree({
+      tree,
+      context,
+      renderFunction: renderToStaticMarkup,
+    });
+  }
+
+  export type GetMarkupFromTreeOptions = {
+    tree: React.ReactNode;
+    context?: { [key: string]: any };
+    renderFunction?: typeof renderToStaticMarkup;
+  };
+
+  export function getMarkupFromTree({
+    tree,
+    context = {},
+    renderFunction = renderToStaticMarkup,
+  }: GetMarkupFromTreeOptions): Promise<string> {...}
+  ```
+  [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
+
+### Bug Fixes
+
+- Version 2.3.0 was published incorrectly, breaking nested
+  `react-apollo/...` imports. This problem was fixed in version 2.3.1 by
+  running `npm publish` from the `lib/` directory, as intended.
+  [Issue #2591](https://github.com/apollographql/react-apollo/issues/2591)
+
+## 2.3.0
+
+### Bug Fixes
+
+- Fix `networkStatus` to reflect the loading state correctly for partial
   refetching.  <br/>
   [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
+
+### Improvements
+
+- Reimplement `getDataFromTree` using `ReactDOM.renderToStaticMarkup` to
+  make asynchronous server-side rendering compatible with
+  [React hooks](https://reactjs.org/docs/hooks-intro.html).
+  Although the rendering function used by `getDataFromTree` defaults to
+  `renderToStaticMarkup`, any suitable rendering function can be passed as
+  the optional second argument to `getDataFromTree`, which now returns a
+  `Promise<string>` that resolves to The HTML rendered in the final pass,
+  which means calling `renderToString` after `getDataFromTree` may not be
+  necessary anymore.
+  [PR #2533](https://github.com/apollographql/react-apollo/pull/2533)
 
 ## 2.2.4 (October 2, 2018)
 
