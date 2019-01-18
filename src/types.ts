@@ -49,9 +49,6 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   partialRefetch?: boolean;
 }
 
-export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables>
-  extends QueryControls<any, TGraphQLVariables> {}
-
 export interface QueryControls<TData = any, TGraphQLVariables = OperationVariables> {
   error?: ApolloError;
   networkStatus: number;
@@ -67,6 +64,9 @@ export interface QueryControls<TData = any, TGraphQLVariables = OperationVariabl
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
   updateQuery: (mapFn: (previousQueryResult: any, options: UpdateQueryOptions<any>) => any) => void;
 }
+
+export interface GraphqlQueryControls<TGraphQLVariables = OperationVariables>
+  extends QueryControls<any, TGraphQLVariables> {}
 
 // XXX remove in the next breaking semver change (3.0)
 export type MutationFunc<TData = any, TVariables = OperationVariables> = MutationFn<
