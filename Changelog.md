@@ -4,13 +4,26 @@
 
 ### Bug Fixes
 
+- Invoke `onCompleted`/`onError` even if `Mutation` unmounts. <br/>
+  [PR #2710](https://github.com/apollographql/react-apollo/pull/2710)
+
 ### Improvements
 
 - Update the typescript example app to use the raw Query component directly,
-  with generics, to avoid generating the extra object that's created (in the 
+  with generics, to avoid generating the extra object that's created (in the
   compiled code) when extending the Query component as a class.  <br/>
   [@evans](https://github.com/evans) in [#2721](https://github.com/apollographql/react-apollo/pull/2721)
 
+- Use new `ApolloClient#stop` method to dispose of `MockedProvider` client
+  instance.  <br/>
+  [PR #2741](https://github.com/apollographql/react-apollo/pull/2741)
+
+- The `apollo-client` peer dependency version constraint has been updated
+  to require the latest version, 2.4.12. Although this update is
+  recommended, and we believe it is backwards compatible with other
+  apollo-client@2.4.x versions, we decided to bump the minor version of
+  `react-apollo` (to 2.4.0) because of this new `apollo-client` version
+  requirement.
 
 ## 2.3.3
 
