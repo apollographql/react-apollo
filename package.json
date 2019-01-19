@@ -89,7 +89,7 @@
     "trailingComma": "all"
   },
   "peerDependencies": {
-    "apollo-client": "^2.3.8",
+    "apollo-client": "^2.4.12",
     "react": "^15.0.0 || ^16.0.0",
     "react-dom": "^15.0.0 || ^16.0.0",
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
@@ -111,7 +111,7 @@
     "@types/zen-observable": "0.8.0",
     "apollo-cache": "^1.1.25",
     "apollo-cache-inmemory": "^1.4.2",
-    "apollo-client": "^2.4.11",
+    "apollo-client": "^2.4.12",
     "apollo-link": "1.2.1",
     "babel-core": "6.26.3",
     "babel-jest": "23.6.0",
