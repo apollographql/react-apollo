@@ -8,7 +8,7 @@ import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
 import { getClient } from './component-utils';
 
-const shallowEqual = require('fbjs/lib/shallowEqual');
+import shallowEqual from './utils/shallowEqual';
 const invariant = require('invariant');
 
 export interface SubscriptionResult<TData = any> {
