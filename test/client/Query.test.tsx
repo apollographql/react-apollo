@@ -1478,22 +1478,55 @@ describe('Query component', () => {
   });
 
   // https://github.com/apollographql/react-apollo/issues/2424
-  it('should be able to access data keys without a type guard', () => {
+  it('should be able to access data keys without a type guard', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data = {
+      allPeople: {
+        people: [{ name: 'Luke Skywalker' }],
+      },
+    };
+    const mocks = [
+      {
+        request: { query, variables: { first: 1 } },
+        result: { data: data },
+      },
+    ];
+
     const Component = () => (
       <AllPeopleQuery query={allPeopleQuery}>
         {result => {
           if (result.data && result.data.allPeople.people) {
+            done();
             return null;
           }
 
           if (result.data && result.data!.allPeople.people) {
+            done();
             return null;
           }
 
-          const { allPeople } = result.data!;
+          const {
+            allPeople: { people },
+          } = result.data!;
+          done();
           return null;
         }}
       </AllPeopleQuery>
+    );
+
+    wrapper = mount(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <Component />
+      </MockedProvider>,
     );
   });
 });
