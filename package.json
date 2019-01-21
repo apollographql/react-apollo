@@ -98,7 +98,7 @@
   "devDependencies": {
     "@types/enzyme": "3.1.15",
     "@types/enzyme-adapter-react-16": "1.0.3",
-    "@types/graphql": "14.0.4",
+    "@types/graphql": "14.0.5",
     "@types/hoist-non-react-statics": "^3.0.1",
     "@types/invariant": "2.2.29",
     "@types/jest": "23.3.12",
@@ -121,7 +121,7 @@
     "danger": "6.1.13",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.7.1",
-    "graphql": "14.0.2",
+    "graphql": "14.1.1",
     "graphql-tag": "2.10.0",
     "jest": "23.6.0",
     "jest-junit": "5.2.0",
