@@ -42,15 +42,8 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
   }
 
   public componentWillUnmount() {
-    if (!this.state.client.queryManager) {
-      return;
-    }
-    const scheduler = this.state.client.queryManager.scheduler;
-    Object.keys(scheduler.registeredQueries).forEach(queryId => {
-      scheduler.stopPollingQuery(queryId);
-    });
-    Object.keys(scheduler.intervalQueries).forEach((interval: any) => {
-      scheduler.fetchQueriesOnInterval(interval);
-    });
+    // Since this.state.client was created in the constructor, it's this
+    // MockedProvider's responsibility to terminate it.
+    this.state.client.stop();
   }
 }

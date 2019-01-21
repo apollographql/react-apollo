@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "author": "opensource@apollographql.com",
   "private": true,
   "browser": "lib/react-apollo.browser.umd.js",
@@ -89,7 +89,7 @@
     "trailingComma": "all"
   },
   "peerDependencies": {
-    "apollo-client": "^2.3.8",
+    "apollo-client": "^2.4.12",
     "react": "^15.0.0 || ^16.0.0",
     "react-dom": "^15.0.0 || ^16.0.0",
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
@@ -109,9 +109,9 @@
     "@types/react-test-renderer": "16.0.3",
     "@types/recompose": "0.30.2",
     "@types/zen-observable": "0.8.0",
-    "apollo-cache": "1.1.22",
-    "apollo-cache-inmemory": "1.2.10",
-    "apollo-client": "2.4.8",
+    "apollo-cache": "^1.1.25",
+    "apollo-cache-inmemory": "^1.4.2",
+    "apollo-client": "^2.4.12",
     "apollo-link": "1.2.1",
     "babel-core": "6.26.3",
     "babel-jest": "23.6.0",
