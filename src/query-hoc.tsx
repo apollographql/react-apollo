@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ApolloError } from 'apollo-client';
 import { DocumentNode } from 'graphql';
-const hoistNonReactStatics = require('hoist-non-react-statics');
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import { parser } from './parser';
 import { OperationOption, QueryOpts, OptionProps, DataProps } from './types';
