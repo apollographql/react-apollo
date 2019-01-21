@@ -1482,11 +1482,11 @@ describe('Query component', () => {
     const Component = () => (
       <AllPeopleQuery query={allPeopleQuery}>
         {result => {
-          if (result.data && result.data.allPeople) {
+          if (result.data && result.data.allPeople.people) {
             return null;
           }
 
-          if (result.data && result.data!.allPeople) {
+          if (result.data && result.data!.allPeople.people) {
             return null;
           }
 
