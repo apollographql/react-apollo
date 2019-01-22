@@ -227,16 +227,10 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   componentDidUpdate(prevProps: QueryProps<TData, TVariables>) {
-    const { onCompleted, onError } = this.props;
-    if (onCompleted || onError) {
-      const currentResult = this.queryObservable!.currentResult();
-      const { loading, error, data } = currentResult;
-      const isDiffRequest = !isEqual(prevProps.query, this.props.query) || !isEqual(prevProps.variables, this.props.variables);
-      if (onCompleted && !loading && !error && isDiffRequest) {
-        onCompleted(data);
-      } else if (onError && !loading && error && isDiffRequest) {
-        onError(error);
-      }
+    const isDiffRequest = !isEqual(prevProps.query, this.props.query) || !isEqual(prevProps.variables, this.props.variables);
+    if (isDiffRequest) {
+      // call onError / onCompleted here for local cache result
+      this.handleErrorOrCompleted();
     }
   }
 
@@ -362,7 +356,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
+    // call onError / onCompleted here for network result
+    this.handleErrorOrCompleted();
     // force a rerender that goes through shouldComponentUpdate
+    if (this.hasMounted) this.forceUpdate();
+  };
+
+  private handleErrorOrCompleted = () => {
     const result = this.queryObservable!.currentResult();
     const { data, loading, error } = result;
     const { onCompleted, onError } = this.props;
@@ -371,8 +371,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     } else if (onError && !loading && error) {
       onError(error);
     }
-    if (this.hasMounted) this.forceUpdate();
-  };
+  }
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     let data = { data: Object.create(null) as TData } as any;
