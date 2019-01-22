@@ -1548,6 +1548,52 @@ describe('Query component', () => {
     );
   });
 
+
+  it('should not repeatedly call onError if setState in it', done => {
+    const mockError = [
+      {
+        request: { query: allPeopleQuery },
+        error: new Error('error occurred'),
+      },
+    ];
+
+    let onErrorCallCount = 0, updateCount = 0;
+    class Component extends React.Component {
+      state = {
+        variables: {
+          first: 1
+        }
+      }
+      onError = () => {
+        onErrorCallCount += 1;
+        this.setState({ causeUpdate: true });
+      }
+      componentDidUpdate() {
+        updateCount += 1;
+        if (updateCount === 1) {
+          // the cDU in Query is triggered by setState in onError
+          // will be called before cDU in Component
+          // onError should have been called only once in whole lifecycle
+          expect(onErrorCallCount).toBe(1);
+          done();
+        }
+      }
+      render() {
+        return (
+          <Query query={allPeopleQuery} variables={this.state.variables} onError={this.onError}>
+            {() => null}
+          </Query>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <MockedProvider mocks={mockError} addTypename={false}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
   describe('Partial refetching', () => {
     it(
       'should attempt a refetch when the query result was marked as being ' +

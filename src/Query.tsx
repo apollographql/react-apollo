@@ -234,7 +234,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       const isDiffRequest = !isEqual(prevProps.query, this.props.query) || !isEqual(prevProps.variables, this.props.variables);
       if (onCompleted && !loading && !error && isDiffRequest) {
         onCompleted(data);
-      } else if (onError && !loading && error) {
+      } else if (onError && !loading && error && isDiffRequest) {
         onError(error);
       }
     }
