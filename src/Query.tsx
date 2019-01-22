@@ -19,6 +19,7 @@ import { RenderPromises } from './getDataFromTree';
 
 const shallowEqual = require('fbjs/lib/shallowEqual');
 const invariant = require('invariant');
+const isEqual = require('lodash.isequal');
 
 export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData, TVariables>,
@@ -225,12 +226,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.hasMounted = false;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: QueryProps<TData, TVariables>) {
     const { onCompleted, onError } = this.props;
     if (onCompleted || onError) {
       const currentResult = this.queryObservable!.currentResult();
       const { loading, error, data } = currentResult;
-      if (onCompleted && !loading && !error) {
+      const isDiffRequest = !isEqual(prevProps.query, this.props.query) || !isEqual(prevProps.variables, this.props.variables);
+      if (onCompleted && !loading && !error && isDiffRequest) {
         onCompleted(data);
       } else if (onError && !loading && error) {
         onError(error);
@@ -361,6 +363,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private updateCurrentData = () => {
     // force a rerender that goes through shouldComponentUpdate
+    const result = this.queryObservable!.currentResult();
+    const { data, loading, error } = result;
+    const { onCompleted, onError } = this.props;
+    if (onCompleted && !loading && !error) {
+      onCompleted(data);
+    } else if (onError && !loading && error) {
+      onError(error);
+    }
     if (this.hasMounted) this.forceUpdate();
   };
 
