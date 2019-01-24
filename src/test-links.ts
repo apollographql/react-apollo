@@ -128,7 +128,7 @@ export class MockSubscriptionLink extends ApolloLink {
     setTimeout(() => {
       const { observer } = this;
       if (!observer) throw new Error('subscription torn down');
-      if (complete) observer.complete();
+      if (complete && observer.complete) observer.complete();
       if (result.result && observer.next) observer.next(result.result);
       if (result.error && observer.error) observer.error(result.error);
     }, result.delay || 0);
