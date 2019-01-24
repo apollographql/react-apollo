@@ -29,6 +29,7 @@ export interface SubscriptionProps<TData = any, TVariables = OperationVariables>
   shouldResubscribe?: any;
   client?: ApolloClient<Object>;
   onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
+  onSubscriptionComplete?: () => void;
   children?: (result: SubscriptionResult<TData>) => React.ReactNode;
 }
 
@@ -55,6 +56,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     variables: PropTypes.object,
     children: PropTypes.func,
     onSubscriptionData: PropTypes.func,
+    onSubscriptionComplete: PropTypes.func,
     shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   };
 
@@ -136,6 +138,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     this.querySubscription = this.queryObservable!.subscribe({
       next: this.updateCurrentData,
       error: this.updateError,
+      complete: this.completeSubscription
     });
   };
 
@@ -163,6 +166,12 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
       error,
       loading: false,
     });
+  };
+
+  private completeSubscription = () => {
+    const { onSubscriptionComplete } = this.props;
+    if (onSubscriptionComplete) onSubscriptionComplete();
+    this.endSubscription();
   };
 
   private endSubscription = () => {
