@@ -2,6 +2,13 @@
 
 ## vNext
 
+### Improvements
+
+- Adds a `onSubscriptionComplete` prop to the `Subscription` component, that
+  can be passed a callback to be called when the subscription observable
+  is completed.  <br/>
+  [@sujeetsr](https://github.com/sujeetsr) in [#2716](https://github.com/apollographql/react-apollo/pull/2716)
+
 ## 2.4.0
 
 ### Bug Fixes
