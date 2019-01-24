@@ -2,6 +2,8 @@
 
 ## vNext
 
+## 2.4.0
+
 ### Bug Fixes
 
 - Invoke `onCompleted`/`onError` even if `Mutation` unmounts. <br/>
