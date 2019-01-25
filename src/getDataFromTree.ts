@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Query from './Query';
+import { ObservableQuery } from 'apollo-client';
+import { DocumentNode } from 'graphql';
 
 // Like a Set, but for tuples. In practice, this class is used to store
 // (query, JSON.stringify(variables)) tuples.
@@ -31,13 +33,53 @@ class Trie {
   }
 }
 
+interface ObservableCacheEntry {
+  variablesString: string; // Stringified query variables.
+  observable: ObservableQuery<any, any>; // Observable used to issue the fetch.
+}
+
 export class RenderPromises {
   // Map from Query component instances to pending fetchData promises.
   private queryPromises = new Map<Query<any, any>, Promise<any>>();
 
+  // Stores ObservableQueries by a query and variables combination.
+  private ssrObservable = new Map<DocumentNode, ObservableCacheEntry[]>();
+
   // A way of remembering queries we've seen during previous renderings,
   // so that we never attempt to fetch them again in future renderings.
   private queryGraveyard = new Trie();
+
+  // Registers the server side rendered observable.
+  public registerSSRObservable<TData, TVariables>(
+    queryInstance: Query<TData, TVariables>,
+    observable: ObservableQuery<any, TVariables>,
+  ) {
+    const { query, variables } = queryInstance.props;
+    const variablesString = JSON.stringify(variables);
+    // Cache the Observable so new instances of the Query Component
+    // can use the original observable. Necessary for errorPolicy="all".
+    let mapEntry = this.ssrObservable.get(query);
+    if (!mapEntry) {
+      mapEntry = [];
+      this.ssrObservable.set(query, mapEntry);
+    }
+    mapEntry.push({ variablesString, observable });
+  }
+
+  // Get's the cached observable that matches the SSR Query instances query and variables.
+  public getSSRObservable<TData, TVariables>(queryInstance: Query<TData, TVariables>) {
+    const { query, variables } = queryInstance.props;
+    const variablesString = JSON.stringify(variables);
+    const mapEntry = this.ssrObservable.get(query);
+    if (mapEntry) {
+      const observableEntry = mapEntry.find(entry => entry.variablesString === variablesString);
+      if (observableEntry) {
+        return observableEntry.observable;
+      }
+    }
+
+    return null;
+  }
 
   public addQueryPromise<TData, TVariables>(
     queryInstance: Query<TData, TVariables>,
