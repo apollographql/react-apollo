@@ -120,7 +120,7 @@
     "coveralls": "3.0.2",
     "danger": "6.1.13",
     "enzyme": "3.8.0",
-    "enzyme-adapter-react-16": "1.7.1",
+    "enzyme-adapter-react-16": "1.8.0",
     "graphql": "14.1.1",
     "graphql-tag": "2.10.1",
     "jest": "23.6.0",
