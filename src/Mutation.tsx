@@ -4,7 +4,7 @@ import ApolloClient, { PureQueryOptions, ApolloError, FetchPolicy } from 'apollo
 import { DataProxy } from 'apollo-cache';
 const invariant = require('invariant');
 import { DocumentNode, GraphQLError } from 'graphql';
-const shallowEqual = require('fbjs/lib/shallowEqual');
+import shallowEqual from './utils/shallowEqual';
 
 import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';

@@ -3,8 +3,6 @@ import * as PropTypes from 'prop-types';
 import ApolloClient, {
   ObservableQuery,
   ApolloError,
-  FetchPolicy,
-  ErrorPolicy,
   ApolloQueryResult,
   NetworkStatus,
   FetchMoreOptions,
@@ -17,7 +15,7 @@ import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
 
-const shallowEqual = require('fbjs/lib/shallowEqual');
+import shallowEqual from './utils/shallowEqual';
 const invariant = require('invariant');
 
 export type ObservableQueryFields<TData, TVariables> = Pick<
