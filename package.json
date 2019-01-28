@@ -21,7 +21,7 @@
     "url": "apollographql/react-apollo"
   },
   "scripts": {
-    "compile": "tsc -p ./tsconfig.cjs.json && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "compile": "tsc -p ./tsconfig.cjs.json",
     "danger": "danger run --verbose",
     "deploy": "cd lib && npm publish",
     "filesize": "bundlesize",
