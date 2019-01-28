@@ -4,89 +4,47 @@ import Query from './Query';
 import { ObservableQuery } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 
-// Like a Set, but for tuples. In practice, this class is used to store
-// (query, JSON.stringify(variables)) tuples.
-class Trie {
-  private children: Map<any, Trie> | null = null;
-  private added = false;
-
-  has(...keys: any[]) {
-    let node: Trie = this;
-    return keys.every(key => {
-      const child = node.children && node.children.get(key);
-      return !!(child && (node = child));
-    }) && node.added;
-  }
-
-  add(...keys: any[]) {
-    let node: Trie = this;
-    keys.forEach(key => {
-      const map = node.children || (node.children = new Map);
-      const child = map.get(key);
-      if (child) {
-        node = child;
-      } else {
-        map.set(key, node = new Trie());
-      }
-    });
-    node.added = true;
-  }
+type QueryInfo = {
+  seen: boolean;
+  observable: ObservableQuery<any, any> | null;
 }
 
-interface ObservableCacheEntry {
-  variablesString: string; // Stringified query variables.
-  observable: ObservableQuery<any, any>; // Observable used to issue the fetch.
+function makeDefaultQueryInfo(): QueryInfo {
+  return {
+    seen: false,
+    observable: null,
+  };
 }
 
 export class RenderPromises {
   // Map from Query component instances to pending fetchData promises.
   private queryPromises = new Map<Query<any, any>, Promise<any>>();
 
-  // Stores ObservableQueries by a query and variables combination.
-  private ssrObservable = new Map<DocumentNode, ObservableCacheEntry[]>();
-
-  // A way of remembering queries we've seen during previous renderings,
-  // so that we never attempt to fetch them again in future renderings.
-  private queryGraveyard = new Trie();
+  // Two-layered map from (query document, stringified variables) to QueryInfo
+  // objects. These QueryInfo objects are intended to survive through the whole
+  // getMarkupFromTree process, whereas specific Query instances do not survive
+  // beyond a single call to renderToStaticMarkup.
+  private queryInfoTrie = new Map<DocumentNode, Map<string, QueryInfo>>();
 
   // Registers the server side rendered observable.
   public registerSSRObservable<TData, TVariables>(
     queryInstance: Query<TData, TVariables>,
     observable: ObservableQuery<any, TVariables>,
   ) {
-    const { query, variables } = queryInstance.props;
-    const variablesString = JSON.stringify(variables);
-    // Cache the Observable so new instances of the Query Component
-    // can use the original observable. Necessary for errorPolicy="all".
-    let mapEntry = this.ssrObservable.get(query);
-    if (!mapEntry) {
-      mapEntry = [];
-      this.ssrObservable.set(query, mapEntry);
-    }
-    mapEntry.push({ variablesString, observable });
+    this.lookupQueryInfo(queryInstance).observable = observable;
   }
 
   // Get's the cached observable that matches the SSR Query instances query and variables.
   public getSSRObservable<TData, TVariables>(queryInstance: Query<TData, TVariables>) {
-    const { query, variables } = queryInstance.props;
-    const variablesString = JSON.stringify(variables);
-    const mapEntry = this.ssrObservable.get(query);
-    if (mapEntry) {
-      const observableEntry = mapEntry.find(entry => entry.variablesString === variablesString);
-      if (observableEntry) {
-        return observableEntry.observable;
-      }
-    }
-
-    return null;
+    return this.lookupQueryInfo(queryInstance).observable;
   }
 
   public addQueryPromise<TData, TVariables>(
     queryInstance: Query<TData, TVariables>,
     finish: () => React.ReactNode,
   ): React.ReactNode {
-    const { query, variables } = queryInstance.props;
-    if (!this.queryGraveyard.has(query, JSON.stringify(variables))) {
+    const info = this.lookupQueryInfo(queryInstance);
+    if (!info.seen) {
       this.queryPromises.set(
         queryInstance,
         new Promise(resolve => {
@@ -107,7 +65,6 @@ export class RenderPromises {
   public consumeAndAwaitPromises() {
     const promises: Promise<any>[] = [];
     this.queryPromises.forEach((promise, queryInstance) => {
-      const { query, variables } = queryInstance.props;
       // Make sure we never try to call fetchData for this query document and
       // these variables again. Since the queryInstance objects change with
       // every rendering, deduplicating them by query and variables is the
@@ -117,11 +74,24 @@ export class RenderPromises {
       // rendering of an unwanted loading state, but that's not nearly as bad
       // as getting stuck in an infinite rendering loop because we kept calling
       // queryInstance.fetchData for the same Query component indefinitely.
-      this.queryGraveyard.add(query, JSON.stringify(variables));
+      this.lookupQueryInfo(queryInstance).seen = true;
       promises.push(promise);
     });
     this.queryPromises.clear();
     return Promise.all(promises);
+  }
+
+  private lookupQueryInfo<TData, TVariables>(
+    queryInstance: Query<TData, TVariables>,
+  ): QueryInfo {
+    const { queryInfoTrie } = this;
+    const { query, variables } = queryInstance.props;
+    const varMap = queryInfoTrie.get(query) || new Map<string, QueryInfo>();
+    if (!queryInfoTrie.has(query)) queryInfoTrie.set(query, varMap);
+    const variablesString = JSON.stringify(variables);
+    const info = varMap.get(variablesString) || makeDefaultQueryInfo();
+    if (!varMap.has(variablesString)) varMap.set(variablesString, info);
+    return info;
   }
 }
 
