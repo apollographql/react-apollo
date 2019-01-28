@@ -170,6 +170,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       ...opts,
       fetchPolicy,
     });
+
+    // Register the SSR observable, so it can be re-used once the value comes back.
+    if (this.context && this.context.renderPromises) {
+      this.context.renderPromises.registerSSRObservable(this, observable);
+    }
+
     const result = this.queryObservable!.currentResult();
 
     return result.loading ? observable.result() : false;
@@ -282,7 +288,16 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     const opts = this.extractOptsFromProps(props);
     // save for backwards compat of refetcherQueries without a recycler
     this.setOperations(opts);
-    this.queryObservable = this.client.watchQuery(opts);
+
+    // See if there is an existing observable that was used to fetch the same data and
+    // if so, use it instead since it will contain the proper queryId to fetch
+    // the result set. This is used during SSR.
+    if (this.context && this.context.renderPromises) {
+      this.queryObservable = this.context.renderPromises.getSSRObservable(this);
+    }
+    if (!this.queryObservable) {
+      this.queryObservable = this.client.watchQuery(opts);
+    }
   }
 
   private setOperations(props: QueryProps<TData, TVariables>) {

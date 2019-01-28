@@ -54,7 +54,7 @@
   "bundlesize": [
     {
       "path": "./dist/bundlesize.js",
-      "maxSize": "11.5 KB"
+      "maxSize": "10 KB"
     }
   ],
   "jest": {
@@ -98,10 +98,10 @@
   "devDependencies": {
     "@types/enzyme": "3.1.15",
     "@types/enzyme-adapter-react-16": "1.0.3",
-    "@types/graphql": "14.0.4",
+    "@types/graphql": "14.0.5",
     "@types/hoist-non-react-statics": "^3.0.1",
     "@types/invariant": "2.2.29",
-    "@types/jest": "23.3.12",
+    "@types/jest": "23.3.13",
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.5.8",
     "@types/react": "16.4.18",
@@ -120,17 +120,17 @@
     "coveralls": "3.0.2",
     "danger": "6.1.13",
     "enzyme": "3.8.0",
-    "enzyme-adapter-react-16": "1.7.1",
-    "graphql": "14.0.2",
-    "graphql-tag": "2.10.0",
+    "enzyme-adapter-react-16": "1.8.0",
+    "graphql": "14.1.1",
+    "graphql-tag": "2.10.1",
     "jest": "23.6.0",
     "jest-junit": "5.2.0",
-    "jsdom": "13.1.0",
+    "jsdom": "13.2.0",
     "lodash.includes": "4.3.0",
     "lodash.times": "4.3.2",
     "preact": "8.4.2",
     "preact-compat": "3.18.4",
-    "prettier": "1.15.3",
+    "prettier": "1.16.1",
     "react": "16.5.2",
     "react-dom": "16.7.0",
     "react-test-renderer": "16.7.0",

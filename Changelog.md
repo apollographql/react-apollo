@@ -4,6 +4,27 @@
 
 ### Bug Fixes
 
+### Improvements
+
+## 2.4.1
+
+### Improvements
+
+- Adds a `onSubscriptionComplete` prop to the `Subscription` component, that
+  can be passed a callback to be called when the subscription observable
+  is completed.  <br/>
+  [@sujeetsr](https://github.com/sujeetsr) in [#2716](https://github.com/apollographql/react-apollo/pull/2716)
+
+- During server-side rendering, `ObservableQuery` objects created in
+  previous rendering passes will now be preserved in later passes (within
+  the same `getDataFromTree` or `getMarkupFromTree` call), so that errors
+  can be handled properly when using the `errorPolicy: "all"` option. <br/>
+  [PR #2753](https://github.com/apollographql/react-apollo/pull/2753)
+
+## 2.4.0
+
+### Bug Fixes
+
 - Invoke `onCompleted`/`onError` even if `Mutation` unmounts. <br/>
   [PR #2710](https://github.com/apollographql/react-apollo/pull/2710)
 
