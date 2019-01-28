@@ -57,17 +57,7 @@ function umd(inputFile, outputFile) {
 
 export default [
   // for server
-  umd("src/index.ts",
-      "lib/react-apollo.umd.js"),
-  // for test-utils
-  umd("src/test-utils.tsx",
-      "lib/test-utils.js"),
-  // for test-links
-  umd("src/test-links.ts",
-      "lib/test-links.js"),
-  // Enable `import { walkTree } from "react-apollo/walkTree"`
-  umd("src/walkTree.ts",
-      "lib/walkTree.js"),
+  umd("src/index.ts", 'lib/react-apollo.umd.js'),
   esm('src/index.ts', 'lib/react-apollo.esm.js'),
   // for filesize
   {
