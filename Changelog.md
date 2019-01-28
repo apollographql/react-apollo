@@ -2,6 +2,12 @@
 
 ## vNext
 
+### Bug Fixes
+
+### Improvements
+
+## 2.4.1
+
 ### Improvements
 
 - Adds a `onSubscriptionComplete` prop to the `Subscription` component, that
