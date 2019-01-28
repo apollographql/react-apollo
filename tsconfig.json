@@ -16,6 +16,6 @@
     "target": "es5",
     "esModuleInterop": true
   },
-  "include": ["./typings/**/*", "./src/**/*", "./test/**/*"],
+  "include": ["./src/**/*", "./test/**/*"],
   "exclude": ["./node_modules", "./dist", "./lib"]
 }
