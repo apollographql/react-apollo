@@ -3,7 +3,6 @@
   "version": "2.5.0-bundle-size.0",
   "author": "opensource@apollographql.com",
   "private": true,
-  "browser": "lib/react-apollo.browser.umd.js",
   "description": "React data container for Apollo Client",
   "keywords": [
     "apollo",
@@ -11,11 +10,11 @@
     "react"
   ],
   "license": "MIT",
-  "main": "lib/react-apollo.umd.js",
+  "main": "lib/index.js",
+  "module": "lib/react-apollo.esm.js",
   "react-native": {
     "react-dom/server": false
   },
-  "module": "src/index.ts",
   "typings": "lib/index.d.ts",
   "repository": {
     "type": "git",
@@ -39,8 +38,7 @@
     "test-examples": ". ./test-examples.sh",
     "test-preact": "jest --config ./jest.preact.config.json --runInBand",
     "test-watch": "jest --watch",
-    "test:compiled": "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
-    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js --runInBand",
+    "test:compiled": "npm run test:compiled:server:umd && npm run test:compiled:cjs",
     "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
     "test:compiled:server:umd": "jest --config jest.server.umd.config.js --runInBand",
     "type-check": "tsc --project tsconfig.json --noEmit ",

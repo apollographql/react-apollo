@@ -56,9 +56,6 @@ function umd(inputFile, outputFile) {
 }
 
 export default [
-  // for browser
-  umd("src/browser.ts",
-      "lib/react-apollo.browser.umd.js"),
   // for server
   umd("src/index.ts",
       "lib/react-apollo.umd.js"),
@@ -74,7 +71,7 @@ export default [
   esm('src/index.ts', 'lib/react-apollo.esm.js'),
   // for filesize
   {
-    input: 'lib/react-apollo.browser.umd.js',
+    input: 'lib/react-apollo.umd.js',
     output: {
       file: 'dist/bundlesize.js',
       format: 'cjs',
