@@ -9,6 +9,12 @@
   is completed.  <br/>
   [@sujeetsr](https://github.com/sujeetsr) in [#2716](https://github.com/apollographql/react-apollo/pull/2716)
 
+- During server-side rendering, `ObservableQuery` objects created in
+  previous rendering passes will now be preserved in later passes (within
+  the same `getDataFromTree` or `getMarkupFromTree` call), so that errors
+  can be handled properly when using the `errorPolicy: "all"` option. <br/>
+  [PR #2753](https://github.com/apollographql/react-apollo/pull/2753)
+
 ## 2.4.0
 
 ### Bug Fixes
