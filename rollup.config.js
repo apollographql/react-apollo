@@ -44,6 +44,15 @@ export default [
   {
     input: 'lib/react-apollo.esm.js',
     output: {
+      file: 'lib/react-apollo.umd.js',
+      format: 'umd',
+      name: 'react-apollo'
+    },
+    onwarn,
+  },
+  {
+    input: 'lib/react-apollo.esm.js',
+    output: {
       file: 'dist/bundlesize.js',
       format: 'cjs',
       name: 'react-apollo'
