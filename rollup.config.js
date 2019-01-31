@@ -3,7 +3,7 @@ import { uglify } from 'rollup-plugin-uglify';
 import typescript from 'typescript';
 import typescriptPlugin from 'rollup-plugin-typescript2';
 import filesize from 'rollup-plugin-filesize';
-import invariantPlugin from './rollup/plugin-invariant';
+import invariantPlugin from 'rollup-plugin-invariant';
 
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
