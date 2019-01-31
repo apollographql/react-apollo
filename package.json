@@ -10,7 +10,7 @@
     "react"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "lib/react-apollo.cjs.js",
   "module": "lib/react-apollo.esm.js",
   "react-native": {
     "react-dom/server": false
@@ -38,9 +38,9 @@
     "test-examples": ". ./test-examples.sh",
     "test-preact": "jest --config ./jest.preact.config.json --runInBand",
     "test-watch": "jest --watch",
-    "test:compiled": "npm run test:compiled:server:umd && npm run test:compiled:cjs",
+    "test:compiled": "npm run test:compiled:cjs && npm run test:compiled:umd",
     "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
-    "test:compiled:server:umd": "jest --config jest.server.umd.config.js --runInBand",
+    "test:compiled:umd": "jest --config jest.umd.config.js --runInBand",
     "type-check": "tsc --project tsconfig.json --noEmit ",
     "watch": "tsc -w"
   },
@@ -138,8 +138,8 @@
     "rollup": "0.68.2",
     "rollup-plugin-commonjs": "9.2.0",
     "rollup-plugin-filesize": "^6.0.0",
+    "rollup-plugin-invariant": "^0.1.2",
     "rollup-plugin-node-resolve": "3.4.0",
-    "rollup-plugin-replace": "2.1.0",
     "rollup-plugin-typescript2": "^0.18.1",
     "rollup-plugin-uglify": "6.0.1",
     "ts-jest": "23.10.5",
@@ -150,7 +150,6 @@
   },
   "dependencies": {
     "hoist-non-react-statics": "^3.0.0",
-    "invariant": "^2.2.2",
     "lodash.isequal": "^4.5.0",
     "prop-types": "^15.6.0",
     "tslib": "^1.9.3"

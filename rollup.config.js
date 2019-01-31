@@ -1,9 +1,9 @@
 import node from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
-import replace from 'rollup-plugin-replace';
 import typescript from 'typescript';
 import typescriptPlugin from 'rollup-plugin-typescript2';
 import filesize from 'rollup-plugin-filesize';
+import invariantPlugin from 'rollup-plugin-invariant';
 
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
@@ -27,8 +27,18 @@ export default [
         only: ['tslib']
       }),
       typescriptPlugin({ typescript }),
+      invariantPlugin(),
       filesize(),
     ],
+    onwarn,
+  },
+  {
+    input: 'lib/react-apollo.esm.js',
+    output: {
+      file: 'lib/react-apollo.cjs.js',
+      format: 'cjs',
+      name: 'react-apollo'
+    },
     onwarn,
   },
   {
@@ -45,12 +55,19 @@ export default [
     output: {
       file: 'dist/bundlesize.js',
       format: 'cjs',
+      name: 'react-apollo'
     },
     plugins: [
-      replace({
-        'process.env.NODE_ENV': JSON.stringify('production'),
+      uglify({
+        mangle: {
+          toplevel: true,
+        },
+        compress: {
+          global_defs: {
+            "@process.env.NODE_ENV": JSON.stringify("production"),
+          },
+        }
       }),
-      uglify(),
     ],
     onwarn,
   },

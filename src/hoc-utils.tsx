@@ -1,5 +1,5 @@
 import * as React from 'react';
-const invariant = require('invariant');
+import invariant from './utils/invariant';
 
 import { OperationVariables } from './types';
 import { DocumentType, IDocumentDefinition } from './parser';

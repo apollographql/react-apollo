@@ -9,7 +9,7 @@ import { OperationVariables } from './types';
 import { getClient } from './component-utils';
 
 import shallowEqual from './utils/shallowEqual';
-const invariant = require('invariant');
+import invariant from './utils/invariant';
 
 export interface SubscriptionResult<TData = any> {
   loading: boolean;
