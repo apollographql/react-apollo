@@ -35,8 +35,8 @@ export default [
   {
     input: 'lib/react-apollo.esm.js',
     output: {
-      file: 'lib/react-apollo.umd.js',
-      format: 'umd',
+      file: 'lib/react-apollo.cjs.js',
+      format: 'cjs',
       name: 'react-apollo'
     },
     onwarn,
