@@ -8,7 +8,10 @@ import {
 } from 'apollo-link';
 
 import { print } from 'graphql/language/printer';
-import { addTypenameToDocument } from 'apollo-utilities';
+import {
+  addTypenameToDocument,
+  removeClientSetsFromDocument,
+} from 'apollo-utilities';
 const isEqual = require('lodash.isequal');
 
 export interface MockedResponse {
@@ -144,11 +147,10 @@ export class MockSubscriptionLink extends ApolloLink {
 }
 
 function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
+  const query = removeClientSetsFromDocument(request.query);
   const queryString =
-    request.query && print(addTypename ? addTypenameToDocument(request.query) : request.query);
-
+    query && print(addTypename ? addTypenameToDocument(query) : query);
   const requestKey = { query: queryString };
-
   return JSON.stringify(requestKey);
 }
 
