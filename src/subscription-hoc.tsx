@@ -67,8 +67,6 @@ export function withSubscription<
           opts.variables = calculateVariablesFromProps(
             operation,
             props,
-            graphQLDisplayName,
-            getDisplayName(WrappedComponent),
           );
         }
         return (
