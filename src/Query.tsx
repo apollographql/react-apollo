@@ -81,7 +81,8 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   networkStatus: NetworkStatus;
 }
 
-export interface QueryProps<TData = any, TVariables = OperationVariables> extends QueryOpts<TVariables> {
+export interface QueryProps<TData = any, TVariables = OperationVariables>
+  extends QueryOpts<TVariables> {
   children: (result: QueryResult<TData, TVariables>) => React.ReactNode;
   query: DocumentNode;
   displayName?: string;

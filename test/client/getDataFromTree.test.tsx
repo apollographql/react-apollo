@@ -533,8 +533,8 @@ describe('SSR', () => {
         }
       }
 
-      return getDataFromTree(<Consumer/>, {
-        text: "oyez"
+      return getDataFromTree(<Consumer />, {
+        text: 'oyez',
       }).then(html => {
         expect(html).toEqual('<div>oyez</div>');
       });
@@ -878,12 +878,15 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        throw new Error('Should have thrown an error');
-      }, e => {
-        expect(e.toString()).toEqual('Error: foo');
-        expect(e).toBe(fooError);
-      });
+      return getDataFromTree(app).then(
+        () => {
+          throw new Error('Should have thrown an error');
+        },
+        e => {
+          expect(e.toString()).toEqual('Error: foo');
+          expect(e).toBe(fooError);
+        },
+      );
     });
 
     it('should handle errors thrown by queries', () => {
@@ -1185,14 +1188,14 @@ describe('SSR', () => {
         };
 
         componentWillMount() {
-          this.setState((
-            state: State,
-            props: Props,
-          ) => ({
-            thing: state.thing + 1,
-            userId: props.id,
-            client: apolloClient,
-          } as any));
+          this.setState(
+            (state: State, props: Props) =>
+              ({
+                thing: state.thing + 1,
+                userId: props.id,
+                client: apolloClient,
+              } as any),
+          );
         }
 
         render() {

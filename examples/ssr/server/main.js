@@ -33,7 +33,7 @@ export const render = async sink => {
     tree: WrappedApp,
     renderFunction: renderToString,
   });
-  console.log("server rendering took", Date.now() - start, "ms");
+  console.log('server rendering took', Date.now() - start, 'ms');
   sink.renderIntoElementById('app', markup);
   sink.appendToBody(`
     <script>

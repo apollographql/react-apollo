@@ -14,14 +14,14 @@ The 2.1 of react-apollo will feature quite a lot of new features while being 100
 
 The 2.1 will split up this project into a lerna repository with both examples and multiple packages. What is currently react-apollo will be split into the following new (planned) packages:
 
-* apollo-component
-* react-apollo
-* preact-apollo
-* inferno-apollo
-* react-server-async (getDataFromTree and improved versions)
-* preact-server-async (if needed to be different from ^^)
-* reason-react-apollo (Bucklescript bindings)
-* apollo-component-test-utils
+- apollo-component
+- react-apollo
+- preact-apollo
+- inferno-apollo
+- react-server-async (getDataFromTree and improved versions)
+- preact-server-async (if needed to be different from ^^)
+- reason-react-apollo (Bucklescript bindings)
+- apollo-component-test-utils
 
 ### Apollo Component
 

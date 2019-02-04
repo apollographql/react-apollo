@@ -7,7 +7,7 @@ import { DocumentNode } from 'graphql';
 type QueryInfo = {
   seen: boolean;
   observable: ObservableQuery<any, any> | null;
-}
+};
 
 function makeDefaultQueryInfo(): QueryInfo {
   return {
@@ -81,9 +81,7 @@ export class RenderPromises {
     return Promise.all(promises);
   }
 
-  private lookupQueryInfo<TData, TVariables>(
-    queryInstance: Query<TData, TVariables>,
-  ): QueryInfo {
+  private lookupQueryInfo<TData, TVariables>(queryInstance: Query<TData, TVariables>): QueryInfo {
     const { queryInfoTrie } = this;
     const { query, variables } = queryInstance.props;
     const varMap = queryInfoTrie.get(query) || new Map<string, QueryInfo>();
@@ -104,7 +102,7 @@ export default function getDataFromTree(
     context,
     // If you need to configure this renderFunction, call getMarkupFromTree
     // directly instead of getDataFromTree.
-    renderFunction: require("react-dom/server").renderToStaticMarkup,
+    renderFunction: require('react-dom/server').renderToStaticMarkup,
   });
 }
 
@@ -120,7 +118,7 @@ export function getMarkupFromTree({
   // The rendering function is configurable! We use renderToStaticMarkup as
   // the default, because it's a little less expensive than renderToString,
   // and legacy usage of getDataFromTree ignores the return value anyway.
-  renderFunction = require("react-dom/server").renderToStaticMarkup,
+  renderFunction = require('react-dom/server').renderToStaticMarkup,
 }: GetMarkupFromTreeOptions): Promise<string> {
   const renderPromises = new RenderPromises();
 

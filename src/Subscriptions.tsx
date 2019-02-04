@@ -138,7 +138,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     this.querySubscription = this.queryObservable!.subscribe({
       next: this.updateCurrentData,
       error: this.updateError,
-      complete: this.completeSubscription
+      complete: this.completeSubscription,
     });
   };
 

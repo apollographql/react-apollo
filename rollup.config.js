@@ -71,13 +71,7 @@ export default [
     plugins: [
       node(),
       commonjs({
-        ignore: [
-          'react',
-          'react-dom/server',
-          'apollo-client',
-          'graphql',
-          'graphql-tag',
-        ],
+        ignore: ['react', 'react-dom/server', 'apollo-client', 'graphql', 'graphql-tag'],
       }),
       replace({
         'process.env.NODE_ENV': JSON.stringify('production'),

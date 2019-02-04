@@ -12,7 +12,7 @@
 
 - Adds a `onSubscriptionComplete` prop to the `Subscription` component, that
   can be passed a callback to be called when the subscription observable
-  is completed.  <br/>
+  is completed. <br/>
   [@sujeetsr](https://github.com/sujeetsr) in [#2716](https://github.com/apollographql/react-apollo/pull/2716)
 
 - During server-side rendering, `ObservableQuery` objects created in
@@ -32,11 +32,11 @@
 
 - Update the typescript example app to use the raw Query component directly,
   with generics, to avoid generating the extra object that's created (in the
-  compiled code) when extending the Query component as a class.  <br/>
+  compiled code) when extending the Query component as a class. <br/>
   [@evans](https://github.com/evans) in [#2721](https://github.com/apollographql/react-apollo/pull/2721)
 
 - Use new `ApolloClient#stop` method to dispose of `MockedProvider` client
-  instance.  <br/>
+  instance. <br/>
   [PR #2741](https://github.com/apollographql/react-apollo/pull/2741)
 
 - The `apollo-client` peer dependency version constraint has been updated
@@ -51,13 +51,13 @@
 ### Bug Fixes
 
 - Add `react-dom` as a peer dependency (since it's used by `getDataFromTree`
-  and `renderToStringWithData`).  <br/>
+  and `renderToStringWithData`). <br/>
   [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
 
 ### Improvements
 
 - Drop `react` 14.x support, since the 14.x release line is 2 years old now,
-  and `react-apollo` is no longer tested against it.  <br/>
+  and `react-apollo` is no longer tested against it. <br/>
   [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
 
 ## 2.3.2
@@ -82,6 +82,7 @@
 - Restore original `getDataFromTree(tree, context)` API, and introduce a
   new alternative called `getMarkupFromTree` to enable custom rendering
   functions:
+
   ```typescript
   export default function getDataFromTree(
     tree: React.ReactNode,
@@ -106,6 +107,7 @@
     renderFunction = renderToStaticMarkup,
   }: GetMarkupFromTreeOptions): Promise<string> {...}
   ```
+
   [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
 
 ### Bug Fixes
@@ -120,7 +122,7 @@
 ### Bug Fixes
 
 - Fix `networkStatus` to reflect the loading state correctly for partial
-  refetching.  <br/>
+  refetching. <br/>
   [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
 
 ### Improvements
