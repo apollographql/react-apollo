@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient, { PureQueryOptions, ApolloError, FetchPolicy } from 'apollo-client';
 import { DataProxy } from 'apollo-cache';
-import invariant from './utils/invariant';
+import { invariant } from 'ts-invariant';
 import { DocumentNode, GraphQLError } from 'graphql';
 import shallowEqual from './utils/shallowEqual';
 

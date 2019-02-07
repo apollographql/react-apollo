@@ -16,7 +16,7 @@ import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
 
 import shallowEqual from './utils/shallowEqual';
-import invariant from './utils/invariant';
+import { invariant } from 'ts-invariant';
 
 export type ObservableQueryFields<TData, TVariables> = Pick<
   ObservableQuery<TData, TVariables>,

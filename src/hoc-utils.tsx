@@ -1,5 +1,5 @@
 import * as React from 'react';
-import invariant from './utils/invariant';
+import { invariant } from 'ts-invariant';
 
 import { OperationVariables } from './types';
 import { DocumentType, IDocumentDefinition } from './parser';

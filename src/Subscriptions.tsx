@@ -9,7 +9,7 @@ import { OperationVariables } from './types';
 import { getClient } from './component-utils';
 
 import shallowEqual from './utils/shallowEqual';
-import invariant from './utils/invariant';
+import { invariant } from 'ts-invariant';
 
 export interface SubscriptionResult<TData = any> {
   loading: boolean;
