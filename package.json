@@ -42,7 +42,7 @@
     "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
     "test:compiled:umd": "jest --config jest.umd.config.js --runInBand",
     "type-check": "tsc --project tsconfig.json --noEmit ",
-    "watch": "tsc -w"
+    "watch": "tsc-watch --onSuccess \"npm run postcompile\""
   },
   "babel": {
     "presets": [
@@ -143,6 +143,7 @@
     "rollup-plugin-typescript2": "^0.18.1",
     "rollup-plugin-uglify": "6.0.2",
     "ts-jest": "23.10.5",
+    "tsc-watch": "^1.1.35",
     "tslint": "5.12.1",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
