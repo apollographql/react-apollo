@@ -95,7 +95,7 @@ export class MockLink extends ApolloLink {
         } else {
           if (result) {
             observer.next(
-              Object.prototype.toString.call(result) === '[object Function]'
+              typeof result === 'function'
                 ? (result as ResultFunction<FetchResult>)()
                 : result
             );
