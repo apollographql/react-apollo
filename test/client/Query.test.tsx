@@ -411,7 +411,6 @@ describe('Query component', () => {
     });
 
     it('stopPolling', done => {
-      jest.useFakeTimers();
       expect.assertions(3);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -434,7 +433,7 @@ describe('Query component', () => {
       ];
 
       const POLL_COUNT = 2;
-      const POLL_INTERVAL = 30;
+      const POLL_INTERVAL = 5;
       let count = 0;
 
       const Component = () => (
@@ -448,6 +447,10 @@ describe('Query component', () => {
             } else if (count === 1) {
               expect(stripSymbols(result.data)).toEqual(data2);
               result.stopPolling();
+              setTimeout(() => {
+                expect(count).toBe(POLL_COUNT);
+                done();
+              }, 10);
             }
             count++;
             return null;
@@ -460,13 +463,6 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('updateQuery', done => {
@@ -624,7 +620,6 @@ describe('Query component', () => {
     });
 
     it('pollInterval', done => {
-      jest.useFakeTimers();
       expect.assertions(4);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -662,6 +657,9 @@ describe('Query component', () => {
               expect(stripSymbols(result.data)).toEqual(data2);
             } else if (count === 2) {
               expect(stripSymbols(result.data)).toEqual(data3);
+            } else {
+              expect(count).toBe(POLL_COUNT);
+              done();
             }
             count++;
             return null;
@@ -674,13 +672,6 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('skip', done => {
