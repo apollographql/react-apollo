@@ -97,7 +97,7 @@
   "sideEffects": false,
   "devDependencies": {
     "@types/enzyme": "3.1.17",
-    "@types/enzyme-adapter-react-16": "1.0.3",
+    "@types/enzyme-adapter-react-16": "1.0.4",
     "@types/graphql": "14.0.5",
     "@types/hoist-non-react-statics": "^3.0.1",
     "@types/invariant": "2.2.29",
