@@ -135,6 +135,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private hasMounted: boolean = false;
   private operation?: IDocumentDefinition;
+  private lastResult?: ApolloQueryResult<TData> | null;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -197,6 +198,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>, nextContext: QueryContext) {
     // the next render wants to skip
     if (nextProps.skip && !this.props.skip) {
+      this.lastResult = this.queryObservable!.getLastResult();
       this.removeQuerySubscription();
       return;
     }
@@ -220,7 +222,10 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
 
     this.updateQuery(nextProps);
+
     if (nextProps.skip) return;
+
+    this.lastResult = this.queryObservable!.getLastResult();
     this.startQuerySubscription();
   }
 
@@ -329,12 +334,22 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     if (this.querySubscription) return;
     // store the initial renders worth of result
     let initial: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
+
     this.querySubscription = this.queryObservable!.subscribe({
-      next: ({ data }) => {
+      next: ({ loading, networkStatus, data }) => {
         // to prevent a quick second render from the subscriber
         // we compare to see if the original started finished (from cache) and is unchanged
         if (initial && initial.networkStatus === 7 && shallowEqual(initial.data, data)) {
           initial = undefined;
+          return;
+        }
+
+        if (
+          this.lastResult &&
+          this.lastResult.loading === loading &&
+          this.lastResult.networkStatus === networkStatus &&
+          shallowEqual(this.lastResult.data, data)
+        ) {
           return;
         }
 
@@ -355,6 +370,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     if (this.querySubscription) {
       this.querySubscription.unsubscribe();
       delete this.querySubscription;
+      this.lastResult = null;
     }
   };
 
