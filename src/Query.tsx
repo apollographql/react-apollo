@@ -198,7 +198,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>, nextContext: QueryContext) {
     // the next render wants to skip
     if (nextProps.skip && !this.props.skip) {
-      this.lastResult = this.queryObservable!.getLastResult();
       this.removeQuerySubscription();
       return;
     }
