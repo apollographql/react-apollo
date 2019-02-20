@@ -45,7 +45,7 @@ export declare type FetchResult<
 };
 
 export declare type MutationOptions<
-  TData = { [key: string]: any },
+  TData = Record<string, any>,
   TVariables = OperationVariables
 > = {
   variables?: TVariables;
