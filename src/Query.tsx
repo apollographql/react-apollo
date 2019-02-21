@@ -135,6 +135,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private hasMounted: boolean = false;
   private operation?: IDocumentDefinition;
+  private lastResult: ApolloQueryResult<TData> | null = null;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -185,7 +186,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.hasMounted = true;
     if (this.props.skip) return;
 
-    this.startQuerySubscription();
+    this.startQuerySubscription(true);
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
       this.queryObservable!.refetch(args)
@@ -325,16 +326,45 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       .catch(() => null);
   }
 
-  private startQuerySubscription = () => {
+  private startQuerySubscription = (justMounted: boolean = false) => {
+    // When the `Query` component receives new props, or when we explicitly
+    // re-subscribe to a query using `resubscribeToQuery`, we start a new
+    // subscription in this method. To avoid un-necessary re-renders when
+    // receiving new props or re-subscribing, we track the full last
+    // observable result so it can be compared against incoming new data.
+    // We only trigger a re-render if the incoming result is different than
+    // the stored `lastResult`.
+    //
+    // It's important to note that when a component is first mounted,
+    // the `startQuerySubscription` method is also triggered. During a first
+    // mount, we don't want to store or use the last result, as we always
+    // need the first render to happen, even if there was a previous last
+    // result (which can happen when the same component is mounted, unmounted,
+    // and mounted again).
+    if (!justMounted) {
+      this.lastResult = this.queryObservable!.getLastResult();
+    }
+
     if (this.querySubscription) return;
+
     // store the initial renders worth of result
     let initial: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
+
     this.querySubscription = this.queryObservable!.subscribe({
-      next: ({ data }) => {
+      next: ({ loading, networkStatus, data }) => {
         // to prevent a quick second render from the subscriber
         // we compare to see if the original started finished (from cache) and is unchanged
         if (initial && initial.networkStatus === 7 && shallowEqual(initial.data, data)) {
           initial = undefined;
+          return;
+        }
+
+        if (
+          this.lastResult &&
+          this.lastResult.loading === loading &&
+          this.lastResult.networkStatus === networkStatus &&
+          shallowEqual(this.lastResult.data, data)
+        ) {
           return;
         }
 
@@ -353,6 +383,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private removeQuerySubscription = () => {
     if (this.querySubscription) {
+      this.lastResult = this.queryObservable!.getLastResult();
       this.querySubscription.unsubscribe();
       delete this.querySubscription;
     }
@@ -362,7 +393,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.removeQuerySubscription();
 
     const lastError = this.queryObservable!.getLastError();
-    const lastResult = this.queryObservable!.getLastResult();
+    const lastResult = this.lastResult;
+
     // If lastError is set, the observable will immediately
     // send it, causing the stream to terminate on initialization.
     // We clear everything here and restore it afterward to

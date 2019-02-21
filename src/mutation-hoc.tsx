@@ -51,8 +51,6 @@ export function withMutation<
           opts.variables = calculateVariablesFromProps(
             operation,
             props,
-            graphQLDisplayName,
-            getDisplayName(WrappedComponent),
           );
         }
 
