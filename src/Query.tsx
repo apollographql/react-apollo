@@ -135,7 +135,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private hasMounted: boolean = false;
   private operation?: IDocumentDefinition;
-  private lastResult?: ApolloQueryResult<TData> | null;
+  private lastResult: ApolloQueryResult<TData> | null = null;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
