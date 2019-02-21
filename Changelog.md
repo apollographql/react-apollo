@@ -6,6 +6,13 @@
 
 ### Improvements
 
+- A function can now be set as a `MockedResponse` `result` when using
+  `MockedProvider`, such that every time the mocked result is returned,
+  the function is run to calculate the result. This opens up new testing
+  possibilities, like being able to verify if a mocked result was actually
+  requested and received by a test.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2788](https://github.com/apollographql/react-apollo/pull/2788)
+
 ## 2.4.1
 
 ### Improvements

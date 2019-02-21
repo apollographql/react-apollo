@@ -14,12 +14,14 @@ import {
 } from 'apollo-utilities';
 const isEqual = require('lodash.isequal');
 
+type ResultFunction<T> = () => T;
+
 export interface MockedResponse {
   request: GraphQLRequest;
-  result?: FetchResult;
+  result?: FetchResult | ResultFunction<FetchResult>;
   error?: Error;
   delay?: number;
-  newData?: () => FetchResult;
+  newData?: ResultFunction<FetchResult>;
 }
 
 export interface MockedSubscriptionResult {
@@ -89,12 +91,18 @@ export class MockLink extends ApolloLink {
       throw new Error(`Mocked response should contain either result or error: ${key}`);
     }
 
-    return new Observable<FetchResult>(observer => {
+    return new Observable(observer => {
       let timer = setTimeout(() => {
         if (error) {
           observer.error(error);
         } else {
-          if (result) observer.next(result);
+          if (result) {
+            observer.next(
+              typeof result === 'function'
+                ? (result as ResultFunction<FetchResult>)()
+                : result
+            );
+          }
           observer.complete();
         }
       }, delay ? delay : 0);
