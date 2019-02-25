@@ -80,7 +80,7 @@ export function parser(document: DocumentNode): IDocumentDefinition {
   invariant(
     definitions.length === 1,
     // tslint:disable-line
-    `react-apollo only supports one defintion per HOC. ${document} had ` +
+    `react-apollo only supports one definition per HOC. ${document} had ` +
       `${definitions.length} definitions. ` +
       `You can use 'compose' to join multiple operation types to a component`,
   );
