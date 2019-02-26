@@ -136,7 +136,7 @@
     "recursive-rename": "2.0.0",
     "rimraf": "2.6.3",
     "rollup": "0.68.2",
-    "rollup-plugin-commonjs": "9.2.0",
+    "rollup-plugin-commonjs": "9.2.1",
     "rollup-plugin-filesize": "^6.0.0",
     "rollup-plugin-invariant": "^0.3.2",
     "rollup-plugin-node-resolve": "3.4.0",
@@ -144,7 +144,7 @@
     "rollup-plugin-uglify": "6.0.2",
     "ts-jest": "23.10.5",
     "tsc-watch": "^1.1.35",
-    "tslint": "5.12.1",
+    "tslint": "5.13.0",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
     "zen-observable-ts": "0.8.15"
