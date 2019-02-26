@@ -23,7 +23,7 @@
   "scripts": {
     "compile": "tsc -p ./tsconfig.cjs.json",
     "danger": "danger run --verbose",
-    "deploy": "cd lib && npm publish --tag next",
+    "deploy": "cd lib && npm publish",
     "filesize": "bundlesize",
     "jest": "jest --runInBand --coverage",
     "lint": "tslint --project tsconfig.json --config tslint.json",
