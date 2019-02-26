@@ -1,11 +1,13 @@
 # Change log
 
-## vNext
-
-### Bug Fixes
+## 2.5.0
 
 ### Improvements
 
+- Ready to be used with Apollo Client 2.5 and its new local state management
+  features, as well as many overall code improvements to help reduce the React
+  Apollo bundle size.  <br/>
+  [#2758](https://github.com/apollographql/react-apollo/pull/2758)
 - A function can now be set as a `MockedResponse` `result` when using
   `MockedProvider`, such that every time the mocked result is returned,
   the function is run to calculate the result. This opens up new testing
