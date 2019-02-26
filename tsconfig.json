@@ -6,6 +6,7 @@
     "lib": ["es2015", "esnext.asynciterable", "dom"],
     "module": "es2015",
     "moduleResolution": "node",
+    "importHelpers": true,
     "noUnusedParameters": true,
     "outDir": "lib",
     "pretty": true,
@@ -15,6 +16,6 @@
     "target": "es5",
     "esModuleInterop": true
   },
-  "include": ["./typings/**/*", "./src/**/*", "./test/**/*"],
+  "include": ["./src/**/*"],
   "exclude": ["./node_modules", "./dist", "./lib"]
 }

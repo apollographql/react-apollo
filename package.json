@@ -1,9 +1,8 @@
 {
   "name": "react-apollo",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "author": "opensource@apollographql.com",
   "private": true,
-  "browser": "lib/react-apollo.browser.umd.js",
   "description": "React data container for Apollo Client",
   "keywords": [
     "apollo",
@@ -11,20 +10,20 @@
     "react"
   ],
   "license": "MIT",
-  "main": "lib/react-apollo.umd.js",
+  "main": "lib/react-apollo.cjs.js",
+  "module": "lib/react-apollo.esm.js",
   "react-native": {
     "react-dom/server": false
   },
-  "module": "src/index.ts",
   "typings": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "apollographql/react-apollo"
   },
   "scripts": {
-    "compile": "tsc && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "compile": "tsc -p ./tsconfig.cjs.json",
     "danger": "danger run --verbose",
-    "deploy": "cd lib && npm publish",
+    "deploy": "cd lib && npm publish --tag next",
     "filesize": "bundlesize",
     "jest": "jest --runInBand --coverage",
     "lint": "tslint --project tsconfig.json --config tslint.json",
@@ -39,12 +38,11 @@
     "test-examples": ". ./test-examples.sh",
     "test-preact": "jest --config ./jest.preact.config.json --runInBand",
     "test-watch": "jest --watch",
-    "test:compiled": "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
-    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js --runInBand",
+    "test:compiled": "npm run test:compiled:cjs && npm run test:compiled:umd",
     "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
-    "test:compiled:server:umd": "jest --config jest.server.umd.config.js --runInBand",
+    "test:compiled:umd": "jest --config jest.umd.config.js --runInBand",
     "type-check": "tsc --project tsconfig.json --noEmit ",
-    "watch": "tsc -w"
+    "watch": "tsc-watch --onSuccess \"npm run postcompile\""
   },
   "babel": {
     "presets": [
@@ -54,7 +52,7 @@
   "bundlesize": [
     {
       "path": "./dist/bundlesize.js",
-      "maxSize": "10 KB"
+      "maxSize": "6.4 KB"
     }
   ],
   "jest": {
@@ -89,7 +87,7 @@
     "trailingComma": "all"
   },
   "peerDependencies": {
-    "apollo-client": "^2.4.12",
+    "apollo-client": "^2.5.0",
     "react": "^15.0.0 || ^16.0.0",
     "react-dom": "^15.0.0 || ^16.0.0",
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
@@ -109,10 +107,10 @@
     "@types/react-test-renderer": "16.8.0",
     "@types/recompose": "0.30.3",
     "@types/zen-observable": "0.8.0",
-    "apollo-cache": "^1.1.25",
-    "apollo-cache-inmemory": "^1.4.2",
-    "apollo-client": "^2.4.12",
-    "apollo-link": "1.2.1",
+    "apollo-cache": "^1.2.0",
+    "apollo-cache-inmemory": "^1.5.0",
+    "apollo-client": "^2.5.0",
+    "apollo-link": "1.2.8",
     "babel-core": "6.26.3",
     "babel-jest": "23.6.0",
     "babel-preset-env": "1.7.0",
@@ -139,21 +137,24 @@
     "rimraf": "2.6.3",
     "rollup": "0.68.2",
     "rollup-plugin-commonjs": "9.2.1",
+    "rollup-plugin-filesize": "^6.0.0",
+    "rollup-plugin-invariant": "^0.3.2",
     "rollup-plugin-node-resolve": "3.4.0",
-    "rollup-plugin-replace": "2.1.0",
+    "rollup-plugin-typescript2": "^0.18.1",
     "rollup-plugin-uglify": "6.0.2",
     "ts-jest": "23.10.5",
+    "tsc-watch": "^1.1.35",
     "tslint": "5.13.0",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
     "zen-observable-ts": "0.8.15"
   },
   "dependencies": {
-    "fbjs": "^1.0.0",
+    "apollo-utilities": "^1.2.0",
     "hoist-non-react-statics": "^3.0.0",
-    "invariant": "^2.2.2",
-    "lodash.flowright": "^3.5.0",
     "lodash.isequal": "^4.5.0",
-    "prop-types": "^15.6.0"
+    "prop-types": "^15.6.0",
+    "ts-invariant": "^0.2.1",
+    "tslib": "^1.9.3"
   }
 }

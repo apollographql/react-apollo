@@ -1,7 +1,9 @@
-import commonjs from 'rollup-plugin-commonjs';
 import node from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
-import replace from 'rollup-plugin-replace';
+import typescript from 'typescript';
+import typescriptPlugin from 'rollup-plugin-typescript2';
+import filesize from 'rollup-plugin-filesize';
+import invariantPlugin from 'rollup-plugin-invariant';
 
 function onwarn(message) {
   const suppressed = ['UNRESOLVED_IMPORT', 'THIS_IS_UNDEFINED'];
@@ -12,77 +14,60 @@ function onwarn(message) {
 }
 
 export default [
-  // for browser
   {
-    input: 'lib/browser.js',
+    input: 'src/index.ts',
     output: {
-      file: 'lib/react-apollo.browser.umd.js',
-      format: 'umd',
-      name: 'react-apollo',
+      file: 'lib/react-apollo.esm.js',
+      format: 'esm',
       sourcemap: true,
-      exports: 'named',
+    },
+    plugins: [
+      node({
+        module: true,
+        only: ['tslib']
+      }),
+      typescriptPlugin({ typescript }),
+      invariantPlugin(),
+      filesize(),
+    ],
+    onwarn,
+  },
+  {
+    input: 'lib/react-apollo.esm.js',
+    output: {
+      file: 'lib/react-apollo.cjs.js',
+      format: 'cjs',
+      name: 'react-apollo'
     },
     onwarn,
   },
-  // for server
   {
-    input: 'lib/index.js',
+    input: 'lib/react-apollo.esm.js',
     output: {
       file: 'lib/react-apollo.umd.js',
       format: 'umd',
-      name: 'react-apollo',
-      sourcemap: false,
-      exports: 'named',
+      name: 'react-apollo'
     },
     onwarn,
   },
-  // for test-utils
   {
-    input: 'lib/test-utils.js',
-    output: {
-      file: 'lib/test-utils.js',
-      format: 'umd',
-      name: 'react-apollo',
-      sourcemap: false,
-      exports: 'named',
-    },
-    onwarn,
-  },
-  // for test-links
-  {
-    input: 'lib/test-links.js',
-    output: {
-      file: 'lib/test-links.js',
-      format: 'umd',
-      name: 'react-apollo',
-      sourcemap: false,
-      exports: 'named',
-    },
-    onwarn,
-  },
-  // for filesize
-  {
-    input: 'lib/react-apollo.browser.umd.js',
+    input: 'lib/react-apollo.esm.js',
     output: {
       file: 'dist/bundlesize.js',
       format: 'cjs',
-      exports: 'named',
+      name: 'react-apollo'
     },
     plugins: [
-      node(),
-      commonjs({
-        ignore: [
-          'react',
-          'react-dom/server',
-          'apollo-client',
-          'graphql',
-          'graphql-tag',
-        ],
+      uglify({
+        mangle: {
+          toplevel: true,
+        },
+        compress: {
+          global_defs: {
+            "@process.env.NODE_ENV": JSON.stringify("production"),
+          },
+        }
       }),
-      replace({
-        'process.env.NODE_ENV': JSON.stringify('production'),
-      }),
-      uglify(),
     ],
     onwarn,
   },

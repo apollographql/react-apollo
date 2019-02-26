@@ -1,11 +1,13 @@
 # Change log
 
-## vNext
-
-### Bug Fixes
+## 2.5.0
 
 ### Improvements
 
+- Ready to be used with Apollo Client 2.5 and its new local state management
+  features, as well as many overall code improvements to help reduce the React
+  Apollo bundle size.  <br/>
+  [#2758](https://github.com/apollographql/react-apollo/pull/2758)
 - A function can now be set as a `MockedResponse` `result` when using
   `MockedProvider`, such that every time the mocked result is returned,
   the function is run to calculate the result. This opens up new testing
@@ -27,6 +29,23 @@
   the same `getDataFromTree` or `getMarkupFromTree` call), so that errors
   can be handled properly when using the `errorPolicy: "all"` option. <br/>
   [PR #2753](https://github.com/apollographql/react-apollo/pull/2753)
+
+## 2.4.0
+
+### Bug Fixes
+
+- Invoke `onCompleted`/`onError` even if `Mutation` unmounts. <br/>
+  [PR #2710](https://github.com/apollographql/react-apollo/pull/2710)
+
+### Improvements
+
+- The `walkTree` function has been deprecated, since there's no way to
+  make its behavior consistent with the latest versions of React. To save
+  bundle size, `walkTree` is no longer exported from `react-apollo`,
+  though you can still access it as follows:
+  ```js
+  import { walkTree } from "react-apollo/walkTree"
+  ```
 
 ## 2.4.0
 
