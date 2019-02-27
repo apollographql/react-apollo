@@ -61,8 +61,6 @@ export function withQuery<
           opts.variables = calculateVariablesFromProps(
             operation,
             props,
-            graphQLDisplayName,
-            getDisplayName(WrappedComponent),
           );
         }
         return (

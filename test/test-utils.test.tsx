@@ -349,3 +349,67 @@ it('doesnt crash on unmount if there is no query manager', () => {
     )
     .unmount();
 });
+
+it('should support returning mocked results from a function', done => {
+  let resultReturned = false;
+
+  const testUser = {
+    __typename: 'User',
+    id: 12345,
+  };
+
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      try {
+        expect(nextProps.data!.user).toEqual(testUser);
+        expect(resultReturned).toBe(true);
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUser(Container);
+
+  const testQuery: DocumentNode = gql`
+    query GetUser($username: String!) {
+      user(username: $username) {
+        id
+      }
+    }
+  `;
+
+  const testVariables = {
+    username: 'jsmith',
+  };
+  const testMocks = [
+    {
+      request: {
+        query: testQuery,
+        variables: testVariables,
+      },
+      result() {
+        resultReturned = true;
+        return {
+          data: {
+            user: {
+              __typename: 'User',
+              id: 12345,
+            },
+          },
+        };
+      },
+    },
+  ];
+
+  renderer.create(
+    <MockedProvider mocks={testMocks}>
+      <ContainerWithData {...testVariables} />
+    </MockedProvider>,
+  );
+});
