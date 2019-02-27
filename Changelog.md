@@ -1,5 +1,15 @@
 # Change log
 
+## 2.5.1
+
+### Bug Fixes
+
+- Make sure `MockedProvider` enables Apollo Client 2.5's local state handling,
+  and allow custom / mocked resolvers to be passed in as props, and used with
+  the created test `ApolloClient` instance.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2825](https://github.com/apollographql/react-apollo/pull/2825)
+
+
 ## 2.5.0
 
 ### Improvements
