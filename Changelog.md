@@ -1,5 +1,14 @@
 # Change log
 
+## vNext
+
+### Bug Fixes
+
+- Fix an infinite loop caused by using `setState` in the
+  `onError` / `onCompleted` callbacks of the `Query` component.  <br/>
+  [@chenesan](https://github.com/chenesan) in [#2751](https://github.com/apollographql/react-apollo/pull/2751)
+
+
 ## 2.5.1
 
 ### Bug Fixes
