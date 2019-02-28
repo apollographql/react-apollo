@@ -101,7 +101,7 @@
     "@types/invariant": "2.2.29",
     "@types/jest": "23.3.14",
     "@types/object-assign": "4.0.30",
-    "@types/prop-types": "15.5.9",
+    "@types/prop-types": "15.7.0",
     "@types/react": "16.4.18",
     "@types/react-dom": "16.8.0",
     "@types/react-test-renderer": "16.8.0",
