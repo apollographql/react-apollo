@@ -15,7 +15,7 @@ import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
 
-const isEqual = require('lodash.isequal');
+import isEqual from 'lodash.isequal';
 import shallowEqual from './utils/shallowEqual';
 import { invariant } from 'ts-invariant';
 
