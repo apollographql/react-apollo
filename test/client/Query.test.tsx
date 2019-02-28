@@ -1425,9 +1425,10 @@ describe('Query component', () => {
       componentDidUpdate() {
         updateCount += 1;
         if (updateCount === 1) {
-          // the cDU in Query is triggered by setState in onCompleted
-          // will be called before cDU in Component
-          // onCompleted should have been called only once in whole lifecycle
+          // `componentDidUpdate` in `Query` is triggered by the `setState`
+          // in `onCompleted`. It will be called before `componentDidUpdate`
+          // in `Component`. `onCompleted` should have been called only once
+          // in the entire lifecycle.
           expect(onCompletedCallCount).toBe(1);
           done();
         }
@@ -1509,7 +1510,7 @@ describe('Query component', () => {
       componentDidUpdate() {
         updateCount += 1;
         if (updateCount === 2) {
-          // should be 3 since we change variables twice + initial variables
+          // Should be 3 since we change variables twice + initial variables.
           expect(onCompletedCallCount).toBe(3);
           done();
         }
@@ -1532,7 +1533,6 @@ describe('Query component', () => {
       </MockedProvider>,
     );
   });
-
 
   it('should not repeatedly call onError if setState in it', done => {
     const mockError = [

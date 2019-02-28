@@ -232,9 +232,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   componentDidUpdate(prevProps: QueryProps<TData, TVariables>) {
-    const isDiffRequest = !isEqual(prevProps.query, this.props.query) || !isEqual(prevProps.variables, this.props.variables);
+    const isDiffRequest =
+      !isEqual(prevProps.query, this.props.query) ||
+      !isEqual(prevProps.variables, this.props.variables);
     if (isDiffRequest) {
-      // call onError / onCompleted here for local cache result
+      // If specified, `onError` / `onCompleted` callbacks are called here
+      // after local cache results are loaded.
       this.handleErrorOrCompleted();
     }
   }
@@ -401,9 +404,11 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
-    // call onError / onCompleted here for network result
+    // If specified, `onError` / `onCompleted` callbacks are called here
+    // after a network based Query result has been received.
     this.handleErrorOrCompleted();
-    // force a rerender that goes through shouldComponentUpdate
+
+    // Force a rerender that goes through shouldComponentUpdate.
     if (this.hasMounted) this.forceUpdate();
   };
 
