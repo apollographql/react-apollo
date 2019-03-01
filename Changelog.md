@@ -1,5 +1,14 @@
 # Change log
 
+## vNEXT
+
+### Bug Fixes
+
+- Export `Context` type from `types.ts` instead of `walkTree.ts`,
+  to reenable `import { Context } from 'react-apollo'` (which has been
+  broken since 2.4.0). <br/>
+  [@benjamn](https://github.com/benjamn) in [#2825](https://github.com/apollographql/react-apollo/pull/2832)
+
 ## 2.5.1
 
 ### Bug Fixes
@@ -8,7 +17,6 @@
   and allow custom / mocked resolvers to be passed in as props, and used with
   the created test `ApolloClient` instance.  <br/>
   [@hwillson](https://github.com/hwillson) in [#2825](https://github.com/apollographql/react-apollo/pull/2825)
-
 
 ## 2.5.0
 
