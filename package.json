@@ -144,7 +144,7 @@
     "rollup-plugin-uglify": "6.0.2",
     "ts-jest": "23.10.5",
     "tsc-watch": "^1.1.35",
-    "tslint": "5.13.0",
+    "tslint": "5.13.1",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
     "zen-observable-ts": "0.8.15"
