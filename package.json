@@ -55,6 +55,12 @@
       "maxSize": "6.4 KB"
     }
   ],
+  "renovate": {
+    "extends": [
+      "config:base",
+      "schedule:nonOfficeHours"
+    ]
+  },
   "jest": {
     "testEnvironment": "jsdom",
     "transform": {
