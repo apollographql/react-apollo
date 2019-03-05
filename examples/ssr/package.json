@@ -30,7 +30,7 @@
     "babel-preset-react": "6.24.1",
     "cheerio": "1.0.0-rc.2",
     "chromedriver": "2.46.0",
-    "nightwatch": "0.9.21",
+    "nightwatch": "1.0.19",
     "selenium-webdriver": "4.0.0-alpha.1"
   }
 }
