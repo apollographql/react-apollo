@@ -128,7 +128,7 @@
     "graphql": "14.1.1",
     "graphql-tag": "2.10.1",
     "jest": "24.1.0",
-    "jest-junit": "5.2.0",
+    "jest-junit": "6.3.0",
     "jsdom": "13.2.0",
     "lodash.includes": "4.3.0",
     "lodash.times": "4.3.2",
