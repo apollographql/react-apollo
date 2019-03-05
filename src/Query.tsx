@@ -31,21 +31,8 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
     ) => Promise<ApolloQueryResult<TData2>>);
 };
 
-function compact(obj: any) {
-  return Object.keys(obj).reduce(
-    (acc, key) => {
-      if (obj[key] !== undefined) {
-        acc[key] = obj[key];
-      }
-
-      return acc;
-    },
-    {} as any,
-  );
-}
-
 function observableQueryFields<TData, TVariables>(
-  observable: ObservableQuery<TData>,
+  observable: ObservableQuery<TData, TVariables>,
 ): ObservableQueryFields<TData, TVariables> {
   const fields = {
     variables: observable.variables,
@@ -124,7 +111,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   // request / action storage. Note that we delete querySubscription if we
   // unsubscribe but never delete queryObservable once it is created. We
   // only delete queryObservable when we unmount the component.
-  private queryObservable?: ObservableQuery<TData> | null;
+  private queryObservable?: ObservableQuery<TData, TVariables> | null;
   private querySubscription?: ZenObservable.Subscription;
   private previousData: any = {};
   private refetcherQueue?: {
@@ -253,18 +240,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private extractOptsFromProps(props: QueryProps<TData, TVariables>) {
-    const {
-      variables,
-      pollInterval,
-      fetchPolicy,
-      errorPolicy,
-      notifyOnNetworkStatusChange,
-      query,
-      displayName = 'Query',
-      context = {},
-    } = props;
-
-    this.operation = parser(query);
+    this.operation = parser(props.query);
 
     invariant(
       this.operation.type === DocumentType.Query,
@@ -273,16 +249,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       }.`,
     );
 
-    return compact({
-      variables,
-      pollInterval,
-      query,
-      fetchPolicy,
-      errorPolicy,
-      notifyOnNetworkStatusChange,
-      metadata: { reactComponent: { displayName } },
-      context,
-    });
+    const displayName = props.displayName || 'Query';
+
+    return {
+      ...props,
+      displayName,
+      context: props.context || {},
+      metadata: { reactComponent: { displayName }},
+    };
   }
 
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {

@@ -52,7 +52,7 @@
   "bundlesize": [
     {
       "path": "./dist/bundlesize.js",
-      "maxSize": "6.4 KB"
+      "maxSize": "5.2 KB"
     }
   ],
   "renovate": {
