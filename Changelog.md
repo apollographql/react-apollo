@@ -2,12 +2,23 @@
 
 ## vNEXT
 
+## v2.5.2
+
 ### Bug Fixes
 
 - Export `Context` type from `types.ts` instead of `walkTree.ts`,
   to reenable `import { Context } from 'react-apollo'` (which has been
   broken since 2.4.0). <br/>
   [@benjamn](https://github.com/benjamn) in [#2825](https://github.com/apollographql/react-apollo/pull/2832)
+
+### Improvements
+
+- Add [`examples/rollup`](https://github.com/apollographql/react-apollo/tree/master/examples/rollup)
+  to enable application-level bundle measurement and demonstrate Rollup configuration best practices. <br/>
+  [@benjamn](https://github.com/benjamn) in [#2839](https://github.com/apollographql/react-apollo/pull/2839)
+
+- Bundle size reductions inspired by `examples/rollup` app. <br/>
+  [@benjamn](https://github.com/benjamn) in [#2842](https://github.com/apollographql/react-apollo/pull/2842)
 
 ## 2.5.1
 
