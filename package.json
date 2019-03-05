@@ -58,7 +58,14 @@
   "renovate": {
     "extends": [
       "config:base",
-      "schedule:nonOfficeHours"
+      "schedule:nonOfficeHours",
+      ":pinOnlyDevDependencies"
+    ],
+    "semanticCommits": true,
+    "timezone": "America/New_York",
+    "automerge": false,
+    "labels": [
+      "dependencies"
     ]
   },
   "jest": {
