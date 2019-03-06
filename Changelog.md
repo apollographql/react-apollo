@@ -9,6 +9,10 @@
   [@miachenmtl](https://github.com/miachenmtl) in [#2482](https://github.com/apollographql/react-apollo/pull/2482)
 - `onCompleted` callbacks now use a destructuring-friendly type definition.  <br/>
   [@jozanza](https://github.com/jozanza) in [#2496](https://github.com/apollographql/react-apollo/pull/2496)
+- `@connection` directives are now properly stripped from `MockedResponse`'s,
+  when using `MockedProvider`.  <br/>
+  [@ajmath](https://github.com/ajmath) in [#2523](https://github.com/apollographql/react-apollo/pull/2523)
+
 
 ## v2.5.2
 
