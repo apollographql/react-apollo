@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ApolloClient from 'apollo-client';
-import { DefaultOptions } from 'apollo-client/ApolloClient';
+import { DefaultOptions, Resolvers } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { ApolloProvider } from './index';
@@ -13,6 +13,7 @@ export interface MockedProviderProps<TSerializedCache = {}> {
   addTypename?: boolean;
   defaultOptions?: DefaultOptions;
   cache?: ApolloCache<TSerializedCache>;
+  resolvers?: Resolvers;
   childProps?: object;
 }
 
@@ -28,11 +29,18 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
   constructor(props: MockedProviderProps) {
     super(props);
 
-    const { mocks, addTypename, defaultOptions, cache } = this.props;
+    const {
+      mocks,
+      addTypename,
+      defaultOptions,
+      cache,
+      resolvers = {},
+    } = this.props;
     const client = new ApolloClient({
       cache: cache || new Cache({ addTypename }),
       defaultOptions,
       link: new MockLink(mocks || [], addTypename),
+      resolvers,
     });
 
     this.state = { client };
@@ -49,15 +57,8 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
   }
 
   public componentWillUnmount() {
-    if (!this.state.client.queryManager) {
-      return;
-    }
-    const scheduler = this.state.client.queryManager.scheduler;
-    Object.keys(scheduler.registeredQueries).forEach(queryId => {
-      scheduler.stopPollingQuery(queryId);
-    });
-    Object.keys(scheduler.intervalQueries).forEach((interval: any) => {
-      scheduler.fetchQueriesOnInterval(interval);
-    });
+    // Since this.state.client was created in the constructor, it's this
+    // MockedProvider's responsibility to terminate it.
+    this.state.client.stop();
   }
 }

@@ -442,42 +442,31 @@ describe('[queries] lifecycle', () => {
       }
     `;
     const link1 = mockSingleLink(
+      // Data for "Load 1" below
       {
         request: { query },
         result: { data: { a: 1, b: 2, c: 3 } },
       },
-      {
-        request: { query },
-        result: { data: { a: 1, b: 2, c: 3 } },
-      },
+      // Data for "Load 2" below
       {
         request: { query },
         result: { data: { a: 1, b: 2, c: 3 } },
       },
     );
     const link2 = mockSingleLink(
+      // Data for "Load 3" below
       {
         request: { query },
         result: { data: { a: 4, b: 5, c: 6 } },
       },
-      {
-        request: { query },
-        result: { data: { a: 4, b: 5, c: 6 } },
-      },
+      // Data for "Load 4" below
       {
         request: { query },
         result: { data: { a: 4, b: 5, c: 6 } },
       },
     );
     const link3 = mockSingleLink(
-      {
-        request: { query },
-        result: { data: { a: 7, b: 8, c: 9 } },
-      },
-      {
-        request: { query },
-        result: { data: { a: 7, b: 8, c: 9 } },
-      },
+      // Data for "Load 5" below
       {
         request: { query },
         result: { data: { a: 7, b: 8, c: 9 } },
@@ -543,15 +532,26 @@ describe('[queries] lifecycle', () => {
 
     renderer.create(<ClientSwitcher />);
 
+    // Load 1
     await wait(1);
+
+    // Load 2
     refetchQuery!();
     await wait(1);
+
+    // Load 3
     switchClient!(client2);
     await wait(1);
+
+    // Load 4
     refetchQuery!();
     await wait(1);
+
+    // Load 5
     switchClient!(client3);
     await wait(1);
+
+    // Load 6
     switchClient!(client1);
     await wait(1);
     switchClient!(client2);
@@ -560,18 +560,41 @@ describe('[queries] lifecycle', () => {
     await wait(1);
 
     expect(renders).toEqual([
-      { loading: true },
+      // Load 1
+      { loading: true, a: undefined, b: undefined, c: undefined },
       { loading: false, a: 1, b: 2, c: 3 },
+
+      // Load 2
       { loading: true, a: 1, b: 2, c: 3 },
       { loading: false, a: 1, b: 2, c: 3 },
-      { loading: true },
+
+      // Load 3
+      { loading: true,a: undefined, b: undefined, c: undefined },
       { loading: false, a: 4, b: 5, c: 6 },
+
+      // Load 4
       { loading: true, a: 4, b: 5, c: 6 },
       { loading: false, a: 4, b: 5, c: 6 },
-      { loading: true },
+
+      // Load 5
+      { loading: true, a: undefined, b: undefined, c: undefined },
       { loading: false, a: 7, b: 8, c: 9 },
+
+      // Load 6
+
+      // The first render is caused by the component having its state updated
+      // when switching the client. The 2nd and 3rd renders are caused by the
+      // component re-subscribing to get data from Apollo Client.
       { loading: false, a: 1, b: 2, c: 3 },
+      { loading: false, a: 1, b: 2, c: 3 },
+      { loading: false, a: 1, b: 2, c: 3 },
+
       { loading: false, a: 4, b: 5, c: 6 },
+      { loading: false, a: 4, b: 5, c: 6 },
+      { loading: false, a: 4, b: 5, c: 6 },
+
+      { loading: false, a: 7, b: 8, c: 9 },
+      { loading: false, a: 7, b: 8, c: 9 },
       { loading: false, a: 7, b: 8, c: 9 },
     ]);
   });

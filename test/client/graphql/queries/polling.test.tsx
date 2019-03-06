@@ -19,9 +19,9 @@ describe('[queries] polling', () => {
   });
   // polling
   it('allows a polling query to be created', done => {
-    jest.useFakeTimers();
+    expect.assertions(4);
 
-    const POLL_INTERVAL = 250;
+    const POLL_INTERVAL = 5;
     const POLL_COUNT = 4;
     const query: DocumentNode = gql`
       query people {
@@ -52,6 +52,10 @@ describe('[queries] polling', () => {
       }),
     })(() => {
       count++;
+      expect(true).toBe(true);
+      if (count === 4) {
+        done();
+      }
       return null;
     });
 
@@ -60,17 +64,6 @@ describe('[queries] polling', () => {
         <Container />
       </ApolloProvider>,
     );
-
-    jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-    try {
-      expect(count).toEqual(POLL_COUNT);
-      done();
-    } catch (e) {
-      done.fail(e);
-    } finally {
-      (wrapper as any).unmount();
-    }
   });
 
   it('exposes stopPolling as part of the props api', done => {

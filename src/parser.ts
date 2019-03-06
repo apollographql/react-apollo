@@ -5,7 +5,7 @@ import {
   OperationDefinitionNode,
 } from 'graphql';
 
-const invariant = require('invariant');
+import { invariant } from 'ts-invariant';
 
 export enum DocumentType {
   Query,
@@ -80,7 +80,7 @@ export function parser(document: DocumentNode): IDocumentDefinition {
   invariant(
     definitions.length === 1,
     // tslint:disable-line
-    `react-apollo only supports one defintion per HOC. ${document} had ` +
+    `react-apollo only supports one definition per HOC. ${document} had ` +
       `${definitions.length} definitions. ` +
       `You can use 'compose' to join multiple operation types to a component`,
   );

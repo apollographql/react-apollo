@@ -66,7 +66,7 @@ const client = new ApolloClient({
 If you're using [apollo-boost](https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost), you can create an `ApolloClient` that uses `HttpLink` and `InMemoryCache` like so:
 
 ```js
-import { ApolloClient } from 'apollo-boost';
+import ApolloClient from 'apollo-boost';
 
 const client = new ApolloClient();
 ```
@@ -139,6 +139,22 @@ To learn more about querying with React Apollo be sure to start reading the [doc
 [documentation article on queries]: http://dev.apollodata.com/react/queries.html
 [complete api reference]: https://www.apollographql.com/docs/react/api/react-apollo.html
 
+## Polyfills
+
+React Apollo makes use of `Object.assign`, which is not supported in certain browsers (most prominently, IE11). If you wish to support legacy browsers, you will need to import a polyfill. As an example, you could use `core-js`'s polyfill like so:
+
+```js
+import 'core-js/fn/object/assign';
+```
+
+## Building for production
+
+The `react-apollo` package is designed to be effectively consumed by bundlers that understand either CommonJS `require` syntax or ECMASCript `import` and `export` syntax, such as [Rollup](https://rollupjs.org), [Webpack](https://webpack.js.org), or [Parcel](https://parceljs.org). If your bundler supports tree-shaking, it should be able to eliminate unused code from the `react-apollo` package, regardless of which module syntax you're using.
+
+You should (almost) never need to reach into the `react-apollo/...` internals to import specific modules. The only supported exceptions are `react-apollo/test-links`, `react-apollo/test-utils`, and `react-apollo/walkTree` (deprecated).
+
+When minifying your application, you can make the `react-apollo` package noticeably smaller by configuring your minifier to replace the expression `process.env.NODE_ENV` with a string literal (typically `"production"`). Other packages such as [React](https://reactjs.org) use the same convention, so there's a good chance you already have your minifier configured in this way.
+
 ## Documentation
 
 For a complete React Apollo API reference visit the documentation website at: [https://www.apollographql.com/docs/react/api/react-apollo.html](https://www.apollographql.com/docs/react/api/react-apollo.html)
@@ -151,3 +167,8 @@ All of the documentation for React Apollo including usage articles and helpful r
 - [Pagination](http://dev.apollodata.com/react/pagination.html)
 - [Optimistic UI](http://dev.apollodata.com/react/optimistic-ui.html)
 - [Server Side Rendering](https://www.apollographql.com/docs/react/recipes/server-side-rendering.html)
+
+## Maintainers
+
+- [@benjamn](https://github.com/benjamn) (Apollo)
+- [@hwillson](https://github.com/hwillson) (Apollo)
