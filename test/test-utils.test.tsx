@@ -365,7 +365,7 @@ it('passes down props prop in mock as props for the component', done => {
   const ContainerWithData = withUser2(Container);
 
   renderer.create(
-    <MockedProvider mocks={mocks} props={{ foo: 'bar', baz: 'qux' }}>
+    <MockedProvider mocks={mocks} childProps={{ foo: 'bar', baz: 'qux' }}>
       <ContainerWithData {...variables} />
     </MockedProvider>,
   );
