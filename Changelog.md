@@ -7,7 +7,8 @@
 - `MockedProvider` now accepts a `childProps` prop that can be used to pass
   props down to a child component.  <br/>
   [@miachenmtl](https://github.com/miachenmtl) in [#2482](https://github.com/apollographql/react-apollo/pull/2482)
-
+- `onCompleted` callbacks now use a destructuring-friendly type definition.  <br/>
+  [@jozanza](https://github.com/jozanza) in [#2496](https://github.com/apollographql/react-apollo/pull/2496)
 
 ## v2.5.2
 
