@@ -4,7 +4,7 @@ import { Component } from 'react';
 import ApolloClient from 'apollo-client';
 import { DocumentNode } from 'graphql';
 
-const invariant = require('invariant');
+import { invariant } from 'ts-invariant';
 
 export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;

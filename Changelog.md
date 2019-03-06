@@ -1,16 +1,112 @@
 # Change log
 
-## vNext
+## vNEXT
+
+### Improvements
+
+- `MockedProvider` now accepts a `childProps` prop that can be used to pass
+  props down to a child component.  <br/>
+  [@miachenmtl](https://github.com/miachenmtl) in [#2482](https://github.com/apollographql/react-apollo/pull/2482)
+
+
+## v2.5.2
 
 ### Bug Fixes
+
+- Export `Context` type from `types.ts` instead of `walkTree.ts`,
+  to reenable `import { Context } from 'react-apollo'` (which has been
+  broken since 2.4.0). <br/>
+  [@benjamn](https://github.com/benjamn) in [#2825](https://github.com/apollographql/react-apollo/pull/2832)
+
+### Improvements
+
+- Add [`examples/rollup`](https://github.com/apollographql/react-apollo/tree/master/examples/rollup)
+  to enable application-level bundle measurement and demonstrate Rollup configuration best practices. <br/>
+  [@benjamn](https://github.com/benjamn) in [#2839](https://github.com/apollographql/react-apollo/pull/2839)
+
+- Bundle size reductions inspired by `examples/rollup` app. <br/>
+  [@benjamn](https://github.com/benjamn) in [#2842](https://github.com/apollographql/react-apollo/pull/2842)
+
+## 2.5.1
+
+### Bug Fixes
+
+- Make sure `MockedProvider` enables Apollo Client 2.5's local state handling,
+  and allow custom / mocked resolvers to be passed in as props, and used with
+  the created test `ApolloClient` instance.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2825](https://github.com/apollographql/react-apollo/pull/2825)
+
+## 2.5.0
+
+### Improvements
+
+- Ready to be used with Apollo Client 2.5 and its new local state management
+  features, as well as many overall code improvements to help reduce the React
+  Apollo bundle size.  <br/>
+  [#2758](https://github.com/apollographql/react-apollo/pull/2758)
+- A function can now be set as a `MockedResponse` `result` when using
+  `MockedProvider`, such that every time the mocked result is returned,
+  the function is run to calculate the result. This opens up new testing
+  possibilities, like being able to verify if a mocked result was actually
+  requested and received by a test.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2788](https://github.com/apollographql/react-apollo/pull/2788)
+
+## 2.4.1
+
+### Improvements
+
+- Adds a `onSubscriptionComplete` prop to the `Subscription` component, that
+  can be passed a callback to be called when the subscription observable
+  is completed.  <br/>
+  [@sujeetsr](https://github.com/sujeetsr) in [#2716](https://github.com/apollographql/react-apollo/pull/2716)
+
+- During server-side rendering, `ObservableQuery` objects created in
+  previous rendering passes will now be preserved in later passes (within
+  the same `getDataFromTree` or `getMarkupFromTree` call), so that errors
+  can be handled properly when using the `errorPolicy: "all"` option. <br/>
+  [PR #2753](https://github.com/apollographql/react-apollo/pull/2753)
+
+## 2.4.0
+
+### Bug Fixes
+
+- Invoke `onCompleted`/`onError` even if `Mutation` unmounts. <br/>
+  [PR #2710](https://github.com/apollographql/react-apollo/pull/2710)
+
+### Improvements
+
+- The `walkTree` function has been deprecated, since there's no way to
+  make its behavior consistent with the latest versions of React. To save
+  bundle size, `walkTree` is no longer exported from `react-apollo`,
+  though you can still access it as follows:
+  ```js
+  import { walkTree } from "react-apollo/walkTree"
+  ```
+
+## 2.4.0
+
+### Bug Fixes
+
+- Invoke `onCompleted`/`onError` even if `Mutation` unmounts. <br/>
+  [PR #2710](https://github.com/apollographql/react-apollo/pull/2710)
 
 ### Improvements
 
 - Update the typescript example app to use the raw Query component directly,
-  with generics, to avoid generating the extra object that's created (in the 
+  with generics, to avoid generating the extra object that's created (in the
   compiled code) when extending the Query component as a class.  <br/>
   [@evans](https://github.com/evans) in [#2721](https://github.com/apollographql/react-apollo/pull/2721)
 
+- Use new `ApolloClient#stop` method to dispose of `MockedProvider` client
+  instance.  <br/>
+  [PR #2741](https://github.com/apollographql/react-apollo/pull/2741)
+
+- The `apollo-client` peer dependency version constraint has been updated
+  to require the latest version, 2.4.12. Although this update is
+  recommended, and we believe it is backwards compatible with other
+  apollo-client@2.4.x versions, we decided to bump the minor version of
+  `react-apollo` (to 2.4.0) because of this new `apollo-client` version
+  requirement.
 
 ## 2.3.3
 
