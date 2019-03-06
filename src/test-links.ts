@@ -131,7 +131,6 @@ export class MockLink extends ApolloLink {
 }
 
 export class MockSubscriptionLink extends ApolloLink {
-  // private observer: Observer<any>;
   public unsubscribers: any[] = [];
   public setups: any[] = [];
 
@@ -176,12 +175,6 @@ function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
     print(addTypename ? addTypenameToDocument(request.query) : request.query);
   const requestKey = { query: queryString };
   return JSON.stringify(requestKey);
-
-  // const query = removeClientSetsFromDocument(request.query);
-  // const queryString =
-  //   query && print(addTypename ? addTypenameToDocument(query) : query);
-  // const requestKey = { query: queryString };
-  // return JSON.stringify(requestKey);
 }
 
 // Pass in multiple mocked responses, so that you can test flows that end up
