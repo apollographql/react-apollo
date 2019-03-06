@@ -8,15 +8,22 @@ import {
 } from 'apollo-link';
 
 import { print } from 'graphql/language/printer';
-import { addTypenameToDocument, removeConnectionDirectiveFromDocument } from 'apollo-utilities';
+import {
+  addTypenameToDocument,
+  removeClientSetsFromDocument,
+  removeConnectionDirectiveFromDocument,
+  cloneDeep,
+} from 'apollo-utilities';
 const isEqual = require('lodash.isequal');
+
+type ResultFunction<T> = () => T;
 
 export interface MockedResponse {
   request: GraphQLRequest;
-  result?: FetchResult;
+  result?: FetchResult | ResultFunction<FetchResult>;
   error?: Error;
   delay?: number;
-  newData?: () => FetchResult;
+  newData?: ResultFunction<FetchResult>;
 }
 
 export interface MockedSubscriptionResult {
@@ -43,14 +50,14 @@ export class MockLink extends ApolloLink {
   }
 
   public addMockedResponse(mockedResponse: MockedResponse) {
-    const normalizedMock = this.normalizeMockResponse(mockedResponse);
-    const key = requestToKey(normalizedMock.request, this.addTypename);
+    const normalizedMockedResponse = this.normalizeMockResponse(mockedResponse);
+    const key = requestToKey(normalizedMockedResponse.request, this.addTypename);
     let mockedResponses = this.mockedResponsesByKey[key];
     if (!mockedResponses) {
       mockedResponses = [];
       this.mockedResponsesByKey[key] = mockedResponses;
     }
-    mockedResponses.push(normalizedMock);
+    mockedResponses.push(normalizedMockedResponse);
   }
 
   public request(operation: Operation) {
@@ -87,12 +94,18 @@ export class MockLink extends ApolloLink {
       throw new Error(`Mocked response should contain either result or error: ${key}`);
     }
 
-    return new Observable<FetchResult>(observer => {
+    return new Observable(observer => {
       let timer = setTimeout(() => {
         if (error) {
           observer.error(error);
         } else {
-          if (result) observer.next(result);
+          if (result) {
+            observer.next(
+              typeof result === 'function'
+                ? (result as ResultFunction<FetchResult>)()
+                : result
+            );
+          }
           observer.complete();
         }
       }, delay ? delay : 0);
@@ -103,10 +116,17 @@ export class MockLink extends ApolloLink {
     });
   }
 
-  private normalizeMockResponse(mockedResponse: MockedResponse): MockedResponse {
-    const newMock = { ...mockedResponse };
-    newMock.request.query = removeConnectionDirectiveFromDocument(newMock.request.query);
-    return newMock;
+  private normalizeMockResponse(
+    mockedResponse: MockedResponse
+  ): MockedResponse {
+    const newMockedResponse = cloneDeep(mockedResponse);
+    newMockedResponse.request.query =
+      removeConnectionDirectiveFromDocument(newMockedResponse.request.query);
+    const query = removeClientSetsFromDocument(newMockedResponse.request.query);
+    if (query) {
+      newMockedResponse.request.query = query;
+    }
+    return newMockedResponse;
   }
 }
 
@@ -131,10 +151,11 @@ export class MockSubscriptionLink extends ApolloLink {
     });
   }
 
-  public simulateResult(result: MockedSubscriptionResult) {
+  public simulateResult(result: MockedSubscriptionResult, complete = false) {
     setTimeout(() => {
       const { observer } = this;
       if (!observer) throw new Error('subscription torn down');
+      if (complete && observer.complete) observer.complete();
       if (result.result && observer.next) observer.next(result.result);
       if (result.error && observer.error) observer.error(result.error);
     }, result.delay || 0);
@@ -151,11 +172,16 @@ export class MockSubscriptionLink extends ApolloLink {
 
 function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
   const queryString =
-    request.query && print(addTypename ? addTypenameToDocument(request.query) : request.query);
-
+    request.query &&
+    print(addTypename ? addTypenameToDocument(request.query) : request.query);
   const requestKey = { query: queryString };
-
   return JSON.stringify(requestKey);
+
+  // const query = removeClientSetsFromDocument(request.query);
+  // const queryString =
+  //   query && print(addTypename ? addTypenameToDocument(query) : query);
+  // const requestKey = { query: queryString };
+  // return JSON.stringify(requestKey);
 }
 
 // Pass in multiple mocked responses, so that you can test flows that end up

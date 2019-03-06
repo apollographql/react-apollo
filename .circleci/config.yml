@@ -61,38 +61,6 @@ jobs:
       - store_artifacts:
           path: reports/junit
 
-  Browser:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run: npm run compile
-      - run:
-          name: Jest suite
-          command: npm run test:compiled:browser:umd -- --ci --testResultsProcessor="jest-junit"
-          environment:
-            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
-      - store_test_results:
-          path: reports/junit
-      - store_artifacts:
-          path: reports/junit
-
-  Server:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run: npm run compile
-      - run:
-          name: Jest suite
-          command: npm run test:compiled:server:umd -- --ci --testResultsProcessor="jest-junit"
-          environment:
-            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
-      - store_test_results:
-          path: reports/junit
-      - store_artifacts:
-          path: reports/junit
-
   Commonjs:
     docker: [{ image: 'circleci/node:8' }]
     steps:
@@ -102,6 +70,22 @@ jobs:
       - run:
           name: Jest suite
           command: npm run test:compiled:cjs -- --ci --testResultsProcessor="jest-junit"
+          environment:
+            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports/junit
+
+  UMD:
+    docker: [{ image: 'circleci/node:8' }]
+    steps:
+      - checkout
+      - run: npm i
+      - run: npm run compile
+      - run:
+          name: Jest suite
+          command: npm run test:compiled:umd -- --ci --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
@@ -126,7 +110,6 @@ workflows:
       - Linting
       - Typecheck
       - Preact
-      - Browser
-      - Server
+      - UMD
       - Commonjs
       - Filesize

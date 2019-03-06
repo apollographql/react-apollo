@@ -1476,107 +1476,210 @@ it('errors when changing from mutation to a subscription', done => {
   console.log = errorLogger; // tslint:disable-line
 });
 
-it('does not update state after receiving data after it has been unmounted', done => {
-  let success = false;
-  let original = console.error;
-  console.error = jest.fn();
-  const checker = () => {
-    setTimeout(() => {
-      expect(console.error).not.toHaveBeenCalled();
-      console.error = original;
-      success = true;
-      done();
-    }, 100);
-  };
-
-  class Component extends React.Component {
-    state = {
-      called: false,
+describe('after it has been unmounted', () => {
+  it('calls the onCompleted prop after the mutation is complete', done => {
+    let success = false;
+    const onCompletedFn = jest.fn();
+    const checker = () => {
+      setTimeout(() => {
+        success = true;
+        expect(onCompletedFn).toHaveBeenCalledWith(data);
+        done();
+      }, 100);
     };
 
-    render() {
-      const { called } = this.state;
-      if (called === true) {
-        return null;
-      } else {
-        return (
-          <Mutation mutation={mutation}>
-            {(createTodo, result) => {
-              if (!result.called) {
+    class Component extends React.Component {
+      state = {
+        called: false,
+      };
+
+      render() {
+        const { called } = this.state;
+        if (called === true) {
+          return null;
+        } else {
+          return (
+            <Mutation mutation={mutation} onCompleted={onCompletedFn}>
+              {createTodo => {
                 setTimeout(() => {
                   createTodo();
                   this.setState({ called: true }, checker);
                 });
-              }
-
-              return null;
-            }}
-          </Mutation>
-        );
+                return null;
+              }}
+            </Mutation>
+          );
+        }
       }
     }
-  }
 
-  mount(
-    <MockedProvider mocks={mocks}>
-      <Component />
-    </MockedProvider>,
-  );
+    mount(
+      <MockedProvider mocks={mocks}>
+        <Component />
+      </MockedProvider>,
+    );
 
-  setTimeout(() => {
-    if (!success) done.fail('timeout passed');
-  }, 200);
-});
-
-it('does not update state after receiving error after it has been unmounted', done => {
-  let original = console.error;
-  console.error = jest.fn();
-  const checker = () => {
     setTimeout(() => {
-      expect(console.error).not.toHaveBeenCalled();
-      console.error = original;
-      done();
-    }, 100);
-  };
+      if (!success) done.fail('timeout passed');
+    }, 500);
+  });
 
-  class Component extends React.Component {
-    state = {
-      called: false,
+  it('calls the onError prop if the mutation encounters an error', done => {
+    let success = false;
+    const onErrorFn = jest.fn();
+    const checker = () => {
+      setTimeout(() => {
+        success = true;
+        expect(onErrorFn).toHaveBeenCalledWith(
+          expect.objectContaining({ message: 'Network error: error occurred' }),
+        );
+        done();
+      }, 100);
     };
 
-    render() {
-      const { called } = this.state;
-      if (called === true) {
-        return null;
-      } else {
-        return (
-          <Mutation mutation={mutation}>
-            {(createTodo, result) => {
-              if (!result.called) {
-                setTimeout(() => {
-                  createTodo().catch(() => {}); // tslint:disable-line
-                  this.setState({ called: true }, checker);
-                }, 10);
-              }
+    class Component extends React.Component {
+      state = {
+        called: false,
+      };
 
-              return null;
-            }}
-          </Mutation>
-        );
+      render() {
+        const { called } = this.state;
+        if (called === true) {
+          return null;
+        } else {
+          return (
+            <Mutation mutation={mutation} onError={onErrorFn}>
+              {createTodo => {
+                setTimeout(() => {
+                  createTodo();
+                  this.setState({ called: true }, checker);
+                });
+                return null;
+              }}
+            </Mutation>
+          );
+        }
       }
     }
-  }
 
-  const mockError = [
-    {
-      request: { query: mutation },
-      error: new Error('error occurred'),
-    },
-  ];
+    const mockError = [
+      {
+        request: { query: mutation },
+        error: new Error('error occurred'),
+      },
+    ];
 
-  const wrapper = mount(
-    <MockedProvider mocks={mockError}>
-      <Component />
-    </MockedProvider>,
-  );
+    mount(
+      <MockedProvider mocks={mockError}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
+  it('does not update state after receiving data', done => {
+    let success = false;
+    let original = console.error;
+    console.error = jest.fn();
+    const checker = () => {
+      setTimeout(() => {
+        expect(console.error).not.toHaveBeenCalled();
+        console.error = original;
+        success = true;
+        done();
+      }, 100);
+    };
+
+    class Component extends React.Component {
+      state = {
+        called: false,
+      };
+
+      render() {
+        const { called } = this.state;
+        if (called === true) {
+          return null;
+        } else {
+          return (
+            <Mutation mutation={mutation}>
+              {(createTodo, result) => {
+                if (!result.called) {
+                  setTimeout(() => {
+                    createTodo();
+                    this.setState({ called: true }, checker);
+                  });
+                }
+
+                return null;
+              }}
+            </Mutation>
+          );
+        }
+      }
+    }
+
+    mount(
+      <MockedProvider mocks={mocks}>
+        <Component />
+      </MockedProvider>,
+    );
+
+    setTimeout(() => {
+      if (!success) done.fail('timeout passed');
+    }, 200);
+  });
+
+  it('does not update state after receiving error', done => {
+    const onError = jest.fn();
+    let original = console.error;
+    console.error = jest.fn();
+    const checker = () => {
+      setTimeout(() => {
+        expect(onError).toHaveBeenCalled();
+        expect(console.error).not.toHaveBeenCalled();
+        console.error = original;
+        done();
+      }, 100);
+    };
+
+    class Component extends React.Component {
+      state = {
+        called: false,
+      };
+
+      render() {
+        const { called } = this.state;
+        if (called === true) {
+          return null;
+        } else {
+          return (
+            <Mutation mutation={mutation} onError={onError}>
+              {(createTodo, result) => {
+                if (!result.called) {
+                  setTimeout(() => {
+                    createTodo().catch(() => {}); // tslint:disable-line
+                    this.setState({ called: true }, checker);
+                  }, 10);
+                }
+
+                return null;
+              }}
+            </Mutation>
+          );
+        }
+      }
+    }
+
+    const mockError = [
+      {
+        request: { query: mutation },
+        error: new Error('error occurred'),
+      },
+    ];
+
+    const wrapper = mount(
+      <MockedProvider mocks={mockError}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
 });

@@ -6,11 +6,12 @@ import {
   graphql,
   Query,
   ApolloProvider,
-  walkTree,
   getDataFromTree,
+  getMarkupFromTree,
   DataValue,
   ChildProps,
 } from '../../src';
+import { walkTree } from "../../src/walkTree";
 import gql from 'graphql-tag';
 const times = require('lodash.times');
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -468,7 +469,7 @@ describe('SSR', () => {
   });
 
   describe('`getDataFromTree`', () => {
-    it('should run through all of the queries that want SSR', () => {
+    it('should run through all of the queries that want SSR', async () => {
       const query = gql`
         {
           currentUser {
@@ -505,9 +506,37 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      await getDataFromTree(app).then(html => {
+        const markup = ReactDOM.renderToStaticMarkup(app);
+        expect(markup).toEqual(html);
         expect(markup).toMatch(/James/);
+      });
+
+      await getMarkupFromTree({
+        tree: app,
+        renderFunction: ReactDOM.renderToString,
+      }).then(html => {
+        const markup = ReactDOM.renderToString(app);
+        expect(markup).toEqual(html);
+        expect(markup).toMatch(/James/);
+      });
+    });
+
+    it('should support passing a root context', () => {
+      class Consumer extends React.Component {
+        static contextTypes = {
+          text: PropTypes.string.isRequired,
+        };
+
+        render() {
+          return <div>{this.context.text}</div>;
+        }
+      }
+
+      return getDataFromTree(<Consumer/>, {
+        text: "oyez"
+      }).then(html => {
+        expect(html).toEqual('<div>oyez</div>');
       });
     });
 
@@ -775,7 +804,7 @@ describe('SSR', () => {
       });
     });
 
-    it('should return multiple errors in nested wrapped components without circular reference to wrapper error', () => {
+    it('should return the first of multiple errors thrown by nested wrapped components', () => {
       const lastNameQuery = gql`
         {
           currentUser {
@@ -824,8 +853,9 @@ describe('SSR', () => {
       type WithLastNameProps = ChildProps<Props, LastNameData>;
       const withLastName = graphql<Props, LastNameData>(lastNameQuery);
 
+      const fooError = new Error('foo');
       const BorkedComponent = () => {
-        throw new Error('foo');
+        throw fooError;
       };
 
       const WrappedBorkedComponent = withLastName(BorkedComponent);
@@ -838,7 +868,6 @@ describe('SSR', () => {
         </div>
       );
 
-      type WithFirstNameProps = ChildProps<Props, FirstNameData>;
       const withFirstName = graphql<Props, FirstNameData>(firstNameQuery);
 
       const WrappedContainerComponent = withFirstName(ContainerComponent);
@@ -849,10 +878,11 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).catch(e => {
-        expect(e.toString()).toEqual(expect.stringContaining('2 errors were thrown'));
-        expect(e.queryErrors.length).toBeGreaterThan(1);
-        expect(e.toString()).not.toEqual(e.queryErrors[0].toString());
+      return getDataFromTree(app).then(() => {
+        throw new Error('Should have thrown an error');
+      }, e => {
+        expect(e.toString()).toEqual('Error: foo');
+        expect(e).toBe(fooError);
       });
     });
 
@@ -901,7 +931,7 @@ describe('SSR', () => {
 
       return getDataFromTree(app).catch(e => {
         expect(e).toBeTruthy();
-        expect(e.queryErrors).toBeUndefined();
+        expect(e.toString()).toMatch(/Failed to fetch/);
 
         // But we can still render the app if we want to
         const markup = ReactDOM.renderToString(app);
@@ -1155,14 +1185,14 @@ describe('SSR', () => {
         };
 
         componentWillMount() {
-          this.setState(
-            (state: State, props: Props, context: { client: ApolloClient<any> }) =>
-              ({
-                thing: state.thing + 1,
-                userId: props.id,
-                client: context.client,
-              } as any),
-          );
+          this.setState((
+            state: State,
+            props: Props,
+          ) => ({
+            thing: state.thing + 1,
+            userId: props.id,
+            client: apolloClient,
+          } as any));
         }
 
         render() {
@@ -1537,6 +1567,50 @@ describe('SSR', () => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
       });
+    });
+
+    it('should pass any GraphQL errors in props along with data during a SSR when errorPolicy="all"', done => {
+      const query: DocumentNode = gql`
+        query people {
+          allPeople {
+            people {
+              name
+            }
+          }
+        }
+      `;
+      const link = mockSingleLink({
+        request: { query },
+        result: {
+          data: {
+            allPeople: {
+              people: null,
+            },
+          },
+          errors: [new Error('this is an error')],
+        },
+      });
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      const app = (
+        <ApolloProvider client={client}>
+          <Query query={query} errorPolicy="all">
+            {({ data, error }: any) => {
+              expect(data).toMatchObject({ allPeople: { people: null } });
+              expect(error).toBeDefined();
+              expect(error.graphQLErrors[0].message).toEqual('this is an error');
+              done();
+              return null;
+            }}
+          </Query>
+        </ApolloProvider>
+      );
+
+      getDataFromTree(app);
     });
   });
 });

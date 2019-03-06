@@ -9,6 +9,7 @@
 # Ensure a vanilla package.json before deploying so other tools do not interpret
 # The built output as requiring any further transformation.
 node -e "var package = require('./package.json'); \
+  delete package.private; \
   delete package.babel; \
   delete package[\"lint-staged\"]; \
   delete package.jest; \
@@ -18,9 +19,8 @@ node -e "var package = require('./package.json'); \
   delete package.options; \
   delete package.prettier; \
   delete package.devDependencies; \
-  package.main = 'react-apollo.umd.js'; \
-  package.browser = 'react-apollo.browser.umd.js'; \
-  package.module = 'index.js'; \
+  package.main = 'react-apollo.cjs.js'; \
+  package.module = 'react-apollo.esm.js'; \
   package.typings = 'index.d.ts'; \
   var origVersion = 'local';
   var fs = require('fs'); \
