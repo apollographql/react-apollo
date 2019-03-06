@@ -2,6 +2,13 @@
 
 ## vNEXT
 
+### Improvements
+
+- `MockedProvider` now accepts a `childProps` prop that can be used to pass
+  props down to a child component.  <br/>
+  [@miachenmtl](https://github.com/miachenmtl) in [#2482](https://github.com/apollographql/react-apollo/pull/2482)
+
+
 ## v2.5.2
 
 ### Bug Fixes

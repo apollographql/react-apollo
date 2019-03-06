@@ -334,6 +334,43 @@ it('errors if the query in the mock and component do not match', done => {
   );
 });
 
+it('passes down props prop in mock as props for the component', done => {
+  interface VariablesWithProps {
+    username: string;
+    [propName: string]: any;
+  }
+
+  class Container extends React.Component<ChildProps<VariablesWithProps, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<VariablesWithProps, Data, Variables>) {
+      try {
+        expect(nextProps.foo).toBe('bar');
+        expect(nextProps.baz).toBe('qux');
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const withUser2 = graphql<VariablesWithProps, Data, Variables>(query, {
+    options: props => ({
+      variables: { username: props.username },
+    }),
+  });
+
+  const ContainerWithData = withUser2(Container);
+
+  renderer.create(
+    <MockedProvider mocks={mocks} childProps={{ foo: 'bar', baz: 'qux' }}>
+      <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});
+
 it('doesnt crash on unmount if there is no query manager', () => {
   class Container extends React.Component {
     render() {
