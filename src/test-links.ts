@@ -50,7 +50,8 @@ export class MockLink extends ApolloLink {
   }
 
   public addMockedResponse(mockedResponse: MockedResponse) {
-    const normalizedMockedResponse = this.normalizeMockResponse(mockedResponse);
+    const normalizedMockedResponse =
+      this.normalizeMockedResponse(mockedResponse);
     const key = requestToKey(normalizedMockedResponse.request, this.addTypename);
     let mockedResponses = this.mockedResponsesByKey[key];
     if (!mockedResponses) {
@@ -116,7 +117,7 @@ export class MockLink extends ApolloLink {
     });
   }
 
-  private normalizeMockResponse(
+  private normalizeMockedResponse(
     mockedResponse: MockedResponse
   ): MockedResponse {
     const newMockedResponse = cloneDeep(mockedResponse);
