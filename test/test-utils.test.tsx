@@ -526,3 +526,156 @@ it('allows for @connection queries', done => {
     </MockedProvider>,
   );
 });
+
+describe('@client testing', () => {
+  it(
+    'should support using @client fields in the mocked link chain, when not ' +
+    'using local resolvers',
+    done => {
+      const networkStatusQuery: DocumentNode = gql`
+        query NetworkStatus {
+          networkStatus @client {
+            isOnline
+          }
+        }
+      `;
+
+      interface NetworkStatus {
+        networkStatus: {
+          __typename: 'NetworkStatus';
+          isOnline: boolean;
+        };
+      }
+
+      const withNetworkStatus = graphql<{}, NetworkStatus>(networkStatusQuery);
+
+      const networkStatusMocks: MockedResponse[] = [
+        {
+          request: {
+            query: networkStatusQuery,
+          },
+          result: {
+            data: {
+              networkStatus: {
+                __typename: 'NetworkStatus',
+                isOnline: true,
+              },
+            },
+          },
+        },
+      ];
+
+      class Container extends React.Component<ChildProps<{}, NetworkStatus>> {
+        componentWillReceiveProps(nextProps: ChildProps<{}, NetworkStatus>) {
+          try {
+            expect(nextProps.data).toBeDefined();
+            expect(nextProps.data!.networkStatus.__typename).toEqual('NetworkStatus');
+            expect(nextProps.data!.networkStatus.isOnline).toEqual(true);
+            done();
+          } catch (e) {
+            done.fail(e);
+          }
+        }
+
+        render() {
+          return null;
+        }
+      }
+
+      const ContainerWithData = withNetworkStatus(Container);
+
+      renderer.create(
+        <MockedProvider mocks={networkStatusMocks}>
+          <ContainerWithData />
+        </MockedProvider>,
+      );
+    }
+  );
+
+  it(
+    'should prevent @client fields from being sent through the mocked link ' +
+    'chain, when using local resolvers',
+    done => {
+      const productQuery: DocumentNode = gql`
+        query FindProduct($name: String!) {
+          product(name: $name) {
+            name
+            isInCart @client
+          }
+        }
+      `;
+
+      interface ProductData {
+        product: Array<{
+          __typename: 'Product';
+          name: string;
+        }>;
+      }
+
+      interface ProductVariables {
+        name: string;
+      }
+
+      const withProduct =
+        graphql<ProductVariables, ProductData, ProductVariables>(productQuery, {
+          options: props => ({
+            variables: props,
+          }),
+        });
+
+      const productVariables = { name: 'ACME 1' };
+      const productMocks: MockedResponse[] = [
+        {
+          request: {
+            query: productQuery,
+            variables: productVariables,
+          },
+          result: {
+            data: {
+              product: [
+                {
+                  __typename: 'Product',
+                  name: 'ACME 1',
+                },
+              ],
+            },
+          },
+        },
+      ];
+
+      class Container extends React.Component<ChildProps<ProductVariables, ProductData, ProductVariables>> {
+        componentWillReceiveProps(nextProps: ChildProps<ProductVariables, ProductData, ProductVariables>) {
+          try {
+            expect(nextProps.data).toBeDefined();
+            expect(nextProps.data!.product).toHaveLength(1);
+            expect(nextProps.data!.product![0].name).toEqual('ACME 1');
+            expect(nextProps.data!.variables).toEqual(productVariables);
+            done();
+          } catch (e) {
+            done.fail(e);
+          }
+        }
+
+        render() {
+          return null;
+        }
+      }
+
+      const ContainerWithData = withProduct(Container);
+
+      const resolvers = {
+        Product: {
+          isInCart() {
+            return true;
+          },
+        },
+      };
+
+      renderer.create(
+        <MockedProvider mocks={productMocks} resolvers={resolvers}>
+          <ContainerWithData {...productVariables} />
+        </MockedProvider>,
+      );
+    }
+  );
+});

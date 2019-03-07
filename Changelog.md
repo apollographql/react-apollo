@@ -12,6 +12,21 @@
 - `@connection` directives are now properly stripped from `MockedResponse`'s,
   when using `MockedProvider`.  <br/>
   [@ajmath](https://github.com/ajmath) in [#2523](https://github.com/apollographql/react-apollo/pull/2523)
+- `MockedProvider` has been updated to stop setting a default `resolvers`
+  value of `{}`, which means by default Apollo Client 2.5 local resolver
+  functionality is not enabled when mocking with `MockedProvider`. This allows
+  `@client` fields to be passed through the mocked link chain, like people
+  were used to before AC 2.5. When using this default mode you will see a
+  dev only warning message about this like:
+
+  > Found @client directives in query but no client resolvers were specified.
+  > You can now pass apollo-link-state resolvers to the ApolloClient
+  > constructor.
+
+  This message can be safely ignored. If you want to use `MockedProvider`
+  with AC 2.5's new local resolver functionality, you can pass your local
+  resolver map into the `MockedProvider` `resolvers` prop.  <br/>
+  [@ajmath](https://github.com/ajmath) in [#2524](https://github.com/apollographql/react-apollo/pull/2524)
 
 
 ## v2.5.2

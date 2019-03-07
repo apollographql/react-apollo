@@ -34,7 +34,7 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
       addTypename,
       defaultOptions,
       cache,
-      resolvers = {},
+      resolvers,
     } = this.props;
     const client = new ApolloClient({
       cache: cache || new Cache({ addTypename }),
