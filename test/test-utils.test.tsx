@@ -334,6 +334,43 @@ it('errors if the query in the mock and component do not match', done => {
   );
 });
 
+it('passes down props prop in mock as props for the component', done => {
+  interface VariablesWithProps {
+    username: string;
+    [propName: string]: any;
+  }
+
+  class Container extends React.Component<ChildProps<VariablesWithProps, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<VariablesWithProps, Data, Variables>) {
+      try {
+        expect(nextProps.foo).toBe('bar');
+        expect(nextProps.baz).toBe('qux');
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const withUser2 = graphql<VariablesWithProps, Data, Variables>(query, {
+    options: props => ({
+      variables: { username: props.username },
+    }),
+  });
+
+  const ContainerWithData = withUser2(Container);
+
+  renderer.create(
+    <MockedProvider mocks={mocks} childProps={{ foo: 'bar', baz: 'qux' }}>
+      <ContainerWithData {...variables} />
+    </MockedProvider>,
+  );
+});
+
 it('doesnt crash on unmount if there is no query manager', () => {
   class Container extends React.Component {
     render() {
@@ -348,6 +385,70 @@ it('doesnt crash on unmount if there is no query manager', () => {
       </MockedProvider>,
     )
     .unmount();
+});
+
+it('should support returning mocked results from a function', done => {
+  let resultReturned = false;
+
+  const testUser = {
+    __typename: 'User',
+    id: 12345,
+  };
+
+  class Container extends React.Component<ChildProps<Variables, Data, Variables>> {
+    componentWillReceiveProps(nextProps: ChildProps<Variables, Data, Variables>) {
+      try {
+        expect(nextProps.data!.user).toEqual(testUser);
+        expect(resultReturned).toBe(true);
+        done();
+      } catch (e) {
+        done.fail(e);
+      }
+    }
+
+    render() {
+      return null;
+    }
+  }
+
+  const ContainerWithData = withUser(Container);
+
+  const testQuery: DocumentNode = gql`
+    query GetUser($username: String!) {
+      user(username: $username) {
+        id
+      }
+    }
+  `;
+
+  const testVariables = {
+    username: 'jsmith',
+  };
+  const testMocks = [
+    {
+      request: {
+        query: testQuery,
+        variables: testVariables,
+      },
+      result() {
+        resultReturned = true;
+        return {
+          data: {
+            user: {
+              __typename: 'User',
+              id: 12345,
+            },
+          },
+        };
+      },
+    },
+  ];
+
+  renderer.create(
+    <MockedProvider mocks={testMocks}>
+      <ContainerWithData {...testVariables} />
+    </MockedProvider>,
+  );
 });
 
 it('allows for @connection queries', done => {

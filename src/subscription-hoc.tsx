@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DocumentNode } from 'graphql';
-const hoistNonReactStatics = require('hoist-non-react-statics');
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import { parser } from './parser';
 import { OperationOption, QueryOpts, OptionProps, DataProps } from './types';
@@ -13,11 +13,11 @@ import {
   defaultMapPropsToSkip,
 } from './hoc-utils';
 
-export function subscribe<
+export function withSubscription<
   TProps extends TGraphQLVariables | {} = {},
   TData = {},
   TGraphQLVariables = {},
-  TChildProps = Partial<DataProps<TData, TGraphQLVariables>>
+  TChildProps = DataProps<TData, TGraphQLVariables>
 >(
   document: DocumentNode,
   operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {},
@@ -67,8 +67,6 @@ export function subscribe<
           opts.variables = calculateVariablesFromProps(
             operation,
             props,
-            graphQLDisplayName,
-            getDisplayName(WrappedComponent),
           );
         }
         return (

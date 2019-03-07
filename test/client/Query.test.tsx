@@ -348,8 +348,7 @@ describe('Query component', () => {
     });
 
     it('startPolling', done => {
-      jest.useFakeTimers();
-      expect.assertions(4);
+      expect.assertions(3);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
       const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
@@ -373,8 +372,7 @@ describe('Query component', () => {
       let count = 0;
       let isPolling = false;
 
-      const POLL_INTERVAL = 30;
-      const POLL_COUNT = 3;
+      const POLL_INTERVAL = 5;
 
       const Component = () => (
         <Query query={allPeopleQuery}>
@@ -386,6 +384,7 @@ describe('Query component', () => {
               isPolling = true;
               result.startPolling(POLL_INTERVAL);
             }
+
             catchAsyncError(done, () => {
               if (count === 0) {
                 expect(stripSymbols(result.data)).toEqual(data1);
@@ -393,6 +392,8 @@ describe('Query component', () => {
                 expect(stripSymbols(result.data)).toEqual(data2);
               } else if (count === 2) {
                 expect(stripSymbols(result.data)).toEqual(data3);
+              } else if (count === 3) {
+                done();
               }
             });
 
@@ -407,17 +408,9 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('stopPolling', done => {
-      jest.useFakeTimers();
       expect.assertions(3);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -440,7 +433,7 @@ describe('Query component', () => {
       ];
 
       const POLL_COUNT = 2;
-      const POLL_INTERVAL = 30;
+      const POLL_INTERVAL = 5;
       let count = 0;
 
       const Component = () => (
@@ -454,6 +447,10 @@ describe('Query component', () => {
             } else if (count === 1) {
               expect(stripSymbols(result.data)).toEqual(data2);
               result.stopPolling();
+              setTimeout(() => {
+                expect(count).toBe(POLL_COUNT);
+                done();
+              }, 10);
             }
             count++;
             return null;
@@ -466,13 +463,6 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('updateQuery', done => {
@@ -630,7 +620,6 @@ describe('Query component', () => {
     });
 
     it('pollInterval', done => {
-      jest.useFakeTimers();
       expect.assertions(4);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -668,6 +657,9 @@ describe('Query component', () => {
               expect(stripSymbols(result.data)).toEqual(data2);
             } else if (count === 2) {
               expect(stripSymbols(result.data)).toEqual(data3);
+            } else {
+              expect(count).toBe(POLL_COUNT);
+              done();
             }
             count++;
             return null;
@@ -680,13 +672,6 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('skip', done => {
