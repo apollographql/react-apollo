@@ -1521,7 +1521,7 @@ describe('after it has been unmounted', () => {
 
     setTimeout(() => {
       if (!success) done.fail('timeout passed');
-    }, 200);
+    }, 500);
   });
 
   it('calls the onError prop if the mutation encounters an error', done => {
