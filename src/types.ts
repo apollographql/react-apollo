@@ -12,6 +12,10 @@ import ApolloClient, {
 } from 'apollo-client';
 import { MutationFn } from './Mutation';
 
+export interface Context {
+  [key: string]: any;
+};
+
 export type OperationVariables = {
   [key: string]: any;
 };
@@ -31,7 +35,7 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
   update?: MutationUpdaterFn<TData>;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
-  context?: Record<string, any>;
+  context?: Context;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
   fetchPolicy?: FetchPolicy;
@@ -45,7 +49,7 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   pollInterval?: number;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
-  context?: Record<string, any>;
+  context?: Context;
   partialRefetch?: boolean;
 }
 

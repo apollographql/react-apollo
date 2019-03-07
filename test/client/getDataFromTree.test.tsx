@@ -6,12 +6,12 @@ import {
   graphql,
   Query,
   ApolloProvider,
-  walkTree,
   getDataFromTree,
   getMarkupFromTree,
   DataValue,
   ChildProps,
 } from '../../src';
+import { walkTree } from "../../src/walkTree";
 import gql from 'graphql-tag';
 const times = require('lodash.times');
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -1567,6 +1567,50 @@ describe('SSR', () => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
       });
+    });
+
+    it('should pass any GraphQL errors in props along with data during a SSR when errorPolicy="all"', done => {
+      const query: DocumentNode = gql`
+        query people {
+          allPeople {
+            people {
+              name
+            }
+          }
+        }
+      `;
+      const link = mockSingleLink({
+        request: { query },
+        result: {
+          data: {
+            allPeople: {
+              people: null,
+            },
+          },
+          errors: [new Error('this is an error')],
+        },
+      });
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      const app = (
+        <ApolloProvider client={client}>
+          <Query query={query} errorPolicy="all">
+            {({ data, error }: any) => {
+              expect(data).toMatchObject({ allPeople: { people: null } });
+              expect(error).toBeDefined();
+              expect(error.graphQLErrors[0].message).toEqual('this is an error');
+              done();
+              return null;
+            }}
+          </Query>
+        </ApolloProvider>
+      );
+
+      getDataFromTree(app);
     });
   });
 });

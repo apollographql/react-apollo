@@ -1,7 +1,7 @@
 import { mockSingleLink } from '../../src/test-utils';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import ApolloClient from 'apollo-client';
-import { NormalizedCacheObject } from 'apollo-cache-inmemory/src/types';
+import { NormalizedCacheObject } from 'apollo-cache-inmemory';
 import { DocumentNode } from 'graphql';
 
 /**

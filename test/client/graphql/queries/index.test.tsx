@@ -484,56 +484,6 @@ describe('queries', () => {
     expect(errorCaught).toBeNull();
   });
 
-  // note this should log an error in the console until they are all cleaned up with react 16
-  it("errors if the passed props don't contain the needed variables", done => {
-    const query: DocumentNode = gql`
-      query people($first: Int!) {
-        allPeople(first: $first) {
-          people {
-            name
-          }
-        }
-      }
-    `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    type Data = typeof data;
-
-    const variables = { first: 1 };
-    type Vars = typeof variables;
-
-    const link = mockSingleLink({
-      request: { query, variables },
-      result: { data },
-    });
-    const client = new ApolloClient({
-      link,
-      cache: new Cache({ addTypename: false }),
-    });
-
-    interface WrongProps {
-      frst: number;
-    }
-    const Container = graphql<WrongProps, Data, Vars>(query)(() => null);
-    class ErrorBoundary extends React.Component {
-      componentDidCatch(e: Error) {
-        expect(e.name).toMatch(/Invariant Violation/);
-        expect(e.message).toMatch(/The operation 'people'/);
-        done();
-      }
-
-      render() {
-        return this.props.children;
-      }
-    }
-    renderer.create(
-      <ApolloProvider client={client}>
-        <ErrorBoundary>
-          <Container frst={1} />
-        </ErrorBoundary>
-      </ApolloProvider>,
-    );
-  });
-
   // context
   it('allows context through updates', done => {
     const query: DocumentNode = gql`
