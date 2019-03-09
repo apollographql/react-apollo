@@ -786,7 +786,7 @@ describe('SSR', () => {
           variables: { id: data!.currentUser!.id },
         }),
       });
-      const Component: React.StatelessComponent<WithUserChildProps> = ({ data }) => (
+      const Component: React.FC<WithUserChildProps> = ({ data }) => (
         <div>{!data || data.loading || !data.user ? 'loading' : data.user.firstName}</div>
       );
 
@@ -860,7 +860,7 @@ describe('SSR', () => {
 
       const WrappedBorkedComponent = withLastName(BorkedComponent);
 
-      const ContainerComponent: React.StatelessComponent<WithLastNameProps> = ({ data }) => (
+      const ContainerComponent: React.FC<WithLastNameProps> = ({ data }) => (
         <div>
           {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.lastName}
           <WrappedBorkedComponent />
@@ -1408,7 +1408,7 @@ describe('SSR', () => {
         },
       });
 
-      const Element: React.StatelessComponent<
+      const Element: React.FC<
         QueryChildProps & { action: (variables: {}) => Promise<any> }
       > = ({ data }) => (
         <div>{data.loading || !data.currentUser ? 'loading' : data.currentUser.firstName}</div>
@@ -1484,7 +1484,7 @@ describe('SSR', () => {
         },
       });
 
-      const Element: React.StatelessComponent<
+      const Element: React.FC<
         ChildProps<ChildProps<Props, MutationData>, QueryData, {}>
       > = ({ data }) => (
         <div>

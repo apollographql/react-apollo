@@ -130,7 +130,7 @@ it('allows for using a custom cache', done => {
     data: { user },
   });
 
-  const Container: React.SFC<ChildProps<Variables, Data, Variables>> = props => {
+  const Container: React.FC<ChildProps<Variables, Data, Variables>> = props => {
     expect(props.data).toMatchObject({ user });
     done();
 

@@ -7,7 +7,7 @@ export interface CharacterProps {
   episode: Episode;
 }
 
-export const Character: React.SFC<CharacterProps> = props => {
+export const Character: React.FC<CharacterProps> = props => {
   const { episode } = props;
 
   return (
