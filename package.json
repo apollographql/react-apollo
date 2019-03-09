@@ -123,7 +123,7 @@
     "apollo-cache": "1.2.1",
     "apollo-cache-inmemory": "1.5.1",
     "apollo-client": "2.5.1",
-    "apollo-link": "1.2.8",
+    "apollo-link": "1.2.9",
     "babel-core": "6.26.3",
     "babel-jest": "24.1.0",
     "babel-preset-env": "1.7.0",
@@ -151,16 +151,16 @@
     "rollup": "0.68.2",
     "rollup-plugin-commonjs": "9.2.1",
     "rollup-plugin-filesize": "6.0.1",
-    "rollup-plugin-invariant": "0.3.2",
+    "rollup-plugin-invariant": "0.4.2",
     "rollup-plugin-node-resolve": "3.4.0",
-    "rollup-plugin-typescript2": "0.18.1",
+    "rollup-plugin-typescript2": "0.19.3",
     "rollup-plugin-uglify": "6.0.2",
     "ts-jest": "24.0.0",
     "tsc-watch": "1.1.39",
     "tslint": "5.13.1",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
-    "zen-observable-ts": "0.8.15"
+    "zen-observable-ts": "0.8.16"
   },
   "dependencies": {
     "apollo-utilities": "^1.2.1",
