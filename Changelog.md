@@ -2,6 +2,12 @@
 
 ## vNEXT
 
+### Bug Fixes
+
+- Fix an infinite loop caused by using `setState` in the
+  `onError` / `onCompleted` callbacks of the `Query` component.  <br/>
+  [@chenesan](https://github.com/chenesan) in [#2751](https://github.com/apollographql/react-apollo/pull/2751)
+
 ### Improvements
 
 - `MockedProvider` now accepts a `childProps` prop that can be used to pass

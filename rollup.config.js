@@ -21,6 +21,7 @@ const globals = {
   'ts-invariant': 'invariant',
   'tslib': 'tslib',
   'create-react-context': 'createReactContext',
+  'lodash.isequal': 'isEqual',
 };
 
 function external(id) {
