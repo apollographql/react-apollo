@@ -3,7 +3,6 @@ import * as PropTypes from 'prop-types';
 import { Component } from 'react';
 import ApolloClient from 'apollo-client';
 import { DocumentNode } from 'graphql';
-import memoizeOne from 'memoize-one';
 import ApolloContext, { ApolloContextValue } from './ApolloContext';
 
 import { invariant } from 'ts-invariant';
@@ -12,11 +11,6 @@ export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;
   children: React.ReactNode;
 }
-
-const memoizedGetChildContext = memoizeOne((client: ApolloClient<Object>): ApolloContextValue => ({
-  client: client,
-  operations: (client as any).__operations_cache__,
-}));
 
 export default class ApolloProvider<TCache> extends Component<ApolloProviderProps<TCache>> {
   static propTypes = {
@@ -49,12 +43,15 @@ export default class ApolloProvider<TCache> extends Component<ApolloProviderProp
   }
 
   getChildContext() {
-    return memoizedGetChildContext(this.props.client);
+    return {
+      client: this.props.client,
+      operations: (this.props.client as any).__operations_cache__,
+    };
   }
 
   render() {
     return (
-      <ApolloContext.Provider value={memoizedGetChildContext(this.props.client)}>
+      <ApolloContext.Provider value={this.getChildContext()}>
         {this.props.children}
       </ApolloContext.Provider>
     );
