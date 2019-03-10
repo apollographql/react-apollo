@@ -348,8 +348,7 @@ describe('Query component', () => {
     });
 
     it('startPolling', done => {
-      jest.useFakeTimers();
-      expect.assertions(4);
+      expect.assertions(3);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
       const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
@@ -373,8 +372,7 @@ describe('Query component', () => {
       let count = 0;
       let isPolling = false;
 
-      const POLL_INTERVAL = 30;
-      const POLL_COUNT = 3;
+      const POLL_INTERVAL = 5;
 
       const Component = () => (
         <Query query={allPeopleQuery}>
@@ -386,6 +384,7 @@ describe('Query component', () => {
               isPolling = true;
               result.startPolling(POLL_INTERVAL);
             }
+
             catchAsyncError(done, () => {
               if (count === 0) {
                 expect(stripSymbols(result.data)).toEqual(data1);
@@ -393,6 +392,8 @@ describe('Query component', () => {
                 expect(stripSymbols(result.data)).toEqual(data2);
               } else if (count === 2) {
                 expect(stripSymbols(result.data)).toEqual(data3);
+              } else if (count === 3) {
+                done();
               }
             });
 
@@ -407,17 +408,9 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('stopPolling', done => {
-      jest.useFakeTimers();
       expect.assertions(3);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -440,7 +433,7 @@ describe('Query component', () => {
       ];
 
       const POLL_COUNT = 2;
-      const POLL_INTERVAL = 30;
+      const POLL_INTERVAL = 5;
       let count = 0;
 
       const Component = () => (
@@ -454,6 +447,10 @@ describe('Query component', () => {
             } else if (count === 1) {
               expect(stripSymbols(result.data)).toEqual(data2);
               result.stopPolling();
+              setTimeout(() => {
+                expect(count).toBe(POLL_COUNT);
+                done();
+              }, 10);
             }
             count++;
             return null;
@@ -466,13 +463,6 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('updateQuery', done => {
@@ -630,7 +620,6 @@ describe('Query component', () => {
     });
 
     it('pollInterval', done => {
-      jest.useFakeTimers();
       expect.assertions(4);
 
       const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
@@ -668,6 +657,9 @@ describe('Query component', () => {
               expect(stripSymbols(result.data)).toEqual(data2);
             } else if (count === 2) {
               expect(stripSymbols(result.data)).toEqual(data3);
+            } else {
+              expect(count).toBe(POLL_COUNT);
+              done();
             }
             count++;
             return null;
@@ -680,13 +672,6 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>,
       );
-
-      jest.runTimersToTime(POLL_INTERVAL * POLL_COUNT);
-
-      catchAsyncError(done, () => {
-        expect(count).toBe(POLL_COUNT);
-        done();
-      });
     });
 
     it('skip', done => {
@@ -1469,6 +1454,198 @@ describe('Query component', () => {
         }}
       </Query>
     )
+  });
+
+  it('should not repeatedly call onCompleted if setState in it', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const mocks = [
+      {
+        request: { query, variables: { first: 1 } },
+        result: { data: data1 },
+      },
+      {
+        request: { query, variables: { first: 2 } },
+        result: { data: data2 },
+      },
+    ];
+
+    let onCompletedCallCount = 0, updateCount = 0;
+    class Component extends React.Component {
+      state = {
+        variables: {
+          first: 1
+        }
+      }
+      onCompleted = () => {
+        onCompletedCallCount += 1;
+        this.setState({ causeUpdate: true });
+      }
+      componentDidUpdate() {
+        updateCount += 1;
+        if (updateCount === 1) {
+          // `componentDidUpdate` in `Query` is triggered by the `setState`
+          // in `onCompleted`. It will be called before `componentDidUpdate`
+          // in `Component`. `onCompleted` should have been called only once
+          // in the entire lifecycle.
+          expect(onCompletedCallCount).toBe(1);
+          done();
+        }
+      }
+      render() {
+        return (
+          <Query query={query} variables={this.state.variables} onCompleted={this.onCompleted}>
+            {() => null}
+          </Query>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
+  it('should not repeatedly call onCompleted when cache exists if setState in it', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const mocks = [
+      {
+        request: { query, variables: { first: 1 } },
+        result: { data: data1 },
+      },
+      {
+        request: { query, variables: { first: 2 } },
+        result: { data: data2 },
+      },
+    ];
+
+    let onCompletedCallCount = 0, updateCount = 0;
+    expect.assertions(1);
+
+    class Component extends React.Component {
+      state = {
+        variables: {
+          first: 1,
+        },
+      };
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            variables: {
+              first: 2,
+            },
+          });
+          setTimeout(() => {
+            this.setState({
+              variables: {
+                first: 1,
+              },
+            });
+          }, 50);
+        }, 50);
+      }
+
+      // Make sure `onCompleted` is called both when new data is being
+      // fetched over the network, and when data is coming back from
+      // the cache.
+      onCompleted() {
+        onCompletedCallCount += 1;
+      }
+
+      componentDidUpdate() {
+        updateCount += 1;
+        if (updateCount === 2) {
+          // Should be 3 since we change variables twice + initial variables.
+          expect(onCompletedCallCount).toBe(3);
+          done();
+        }
+      }
+
+      render() {
+        const { variables } = this.state;
+
+        return (
+          <AllPeopleQuery query={query} variables={variables} onCompleted={this.onCompleted}>
+            {() => null}
+          </AllPeopleQuery>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
+  it('should not repeatedly call onError if setState in it', done => {
+    const mockError = [
+      {
+        request: { query: allPeopleQuery },
+        error: new Error('error occurred'),
+      },
+    ];
+
+    let onErrorCallCount = 0, updateCount = 0;
+    class Component extends React.Component {
+      state = {
+        variables: {
+          first: 1
+        }
+      }
+      onError = () => {
+        onErrorCallCount += 1;
+        this.setState({ causeUpdate: true });
+      }
+      componentDidUpdate() {
+        updateCount += 1;
+        if (updateCount === 1) {
+          // the cDU in Query is triggered by setState in onError
+          // will be called before cDU in Component
+          // onError should have been called only once in whole lifecycle
+          expect(onErrorCallCount).toBe(1);
+          done();
+        }
+      }
+      render() {
+        return (
+          <Query query={allPeopleQuery} variables={this.state.variables} onError={this.onError}>
+            {() => null}
+          </Query>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <MockedProvider mocks={mockError} addTypename={false}>
+        <Component />
+      </MockedProvider>,
+    );
   });
 
   describe('Partial refetching', () => {

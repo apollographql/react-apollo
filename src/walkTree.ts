@@ -1,8 +1,5 @@
 import * as React from 'react';
-
-export interface Context {
-  [key: string]: any;
-}
+import { Context } from './types';
 
 interface PreactElement<P> {
   attributes: P;
