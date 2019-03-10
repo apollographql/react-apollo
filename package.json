@@ -110,7 +110,7 @@
     "@types/enzyme": "3.1.17",
     "@types/enzyme-adapter-react-16": "1.0.5",
     "@types/graphql": "14.0.7",
-    "@types/hoist-non-react-statics": "3.0.1",
+    "@types/hoist-non-react-statics": "3.3.0",
     "@types/invariant": "2.2.29",
     "@types/jest": "24.0.9",
     "@types/object-assign": "4.0.30",
