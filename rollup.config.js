@@ -20,6 +20,7 @@ const globals = {
   'react': 'react',
   'ts-invariant': 'invariant',
   'tslib': 'tslib',
+  'create-react-context': 'createReactContext',
 };
 
 function external(id) {
