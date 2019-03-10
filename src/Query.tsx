@@ -10,7 +10,7 @@ import ApolloClient, {
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
-import { OperationVariables, GraphqlQueryControls, QueryOpts } from './types';
+import { OperationVariables, QueryControls, QueryOpts } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
@@ -465,9 +465,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // always hit the network with refetch, since the components data will be
     // updated and a network request is not currently active.
     if (!this.querySubscription) {
-      const oldRefetch = (data as GraphqlQueryControls).refetch;
+      const oldRefetch = (data as QueryControls<TData, TVariables>).refetch;
 
-      (data as GraphqlQueryControls).refetch = args => {
+      (data as QueryControls<TData, TVariables>).refetch = args => {
         if (this.querySubscription) {
           return oldRefetch(args);
         } else {
