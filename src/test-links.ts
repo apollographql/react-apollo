@@ -11,6 +11,8 @@ import { print } from 'graphql/language/printer';
 import {
   addTypenameToDocument,
   removeClientSetsFromDocument,
+  removeConnectionDirectiveFromDocument,
+  cloneDeep,
 } from 'apollo-utilities';
 const isEqual = require('lodash.isequal');
 
@@ -48,13 +50,15 @@ export class MockLink extends ApolloLink {
   }
 
   public addMockedResponse(mockedResponse: MockedResponse) {
-    const key = requestToKey(mockedResponse.request, this.addTypename);
+    const normalizedMockedResponse =
+      this.normalizeMockedResponse(mockedResponse);
+    const key = requestToKey(normalizedMockedResponse.request, this.addTypename);
     let mockedResponses = this.mockedResponsesByKey[key];
     if (!mockedResponses) {
       mockedResponses = [];
       this.mockedResponsesByKey[key] = mockedResponses;
     }
-    mockedResponses.push(mockedResponse);
+    mockedResponses.push(normalizedMockedResponse);
   }
 
   public request(operation: Operation) {
@@ -112,10 +116,22 @@ export class MockLink extends ApolloLink {
       };
     });
   }
+
+  private normalizeMockedResponse(
+    mockedResponse: MockedResponse
+  ): MockedResponse {
+    const newMockedResponse = cloneDeep(mockedResponse);
+    newMockedResponse.request.query =
+      removeConnectionDirectiveFromDocument(newMockedResponse.request.query);
+    const query = removeClientSetsFromDocument(newMockedResponse.request.query);
+    if (query) {
+      newMockedResponse.request.query = query;
+    }
+    return newMockedResponse;
+  }
 }
 
 export class MockSubscriptionLink extends ApolloLink {
-  // private observer: Observer<any>;
   public unsubscribers: any[] = [];
   public setups: any[] = [];
 
@@ -155,9 +171,9 @@ export class MockSubscriptionLink extends ApolloLink {
 }
 
 function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
-  const query = removeClientSetsFromDocument(request.query);
   const queryString =
-    query && print(addTypename ? addTypenameToDocument(query) : query);
+    request.query &&
+    print(addTypename ? addTypenameToDocument(request.query) : request.query);
   const requestKey = { query: queryString };
   return JSON.stringify(requestKey);
 }
