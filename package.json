@@ -156,7 +156,7 @@
     "rollup-plugin-typescript2": "0.19.3",
     "rollup-plugin-uglify": "6.0.2",
     "ts-jest": "24.0.0",
-    "tsc-watch": "1.1.39",
+    "tsc-watch": "2.1.2",
     "tslint": "5.13.1",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
