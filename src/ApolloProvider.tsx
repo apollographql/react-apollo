@@ -6,7 +6,7 @@ import { DocumentNode } from 'graphql';
 import memoizeOne from 'memoize-one';
 import ApolloContext, { ApolloContextValue } from './ApolloContext';
 
-const invariant = require('invariant');
+import { invariant } from 'ts-invariant';
 
 export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;

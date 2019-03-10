@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import ApolloClient from 'apollo-client';
 import ApolloContext from './ApolloContext';
 
-const invariant = require('invariant');
+import { invariant } from 'ts-invariant';
 
 export interface ApolloConsumerProps {
   children: (client: ApolloClient<any>) => React.ReactElement<any> | null;

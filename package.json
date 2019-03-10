@@ -1,8 +1,8 @@
 {
   "name": "react-apollo",
-  "version": "2.2.4",
+  "version": "2.5.2",
   "author": "opensource@apollographql.com",
-  "browser": "lib/react-apollo.browser.umd.js",
+  "private": true,
   "description": "React data container for Apollo Client",
   "keywords": [
     "apollo",
@@ -10,15 +10,18 @@
     "react"
   ],
   "license": "MIT",
-  "main": "lib/react-apollo.umd.js",
-  "module": "src/index.ts",
+  "main": "lib/react-apollo.cjs.js",
+  "module": "lib/react-apollo.esm.js",
+  "react-native": {
+    "react-dom/server": false
+  },
   "typings": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "apollographql/react-apollo"
   },
   "scripts": {
-    "compile": "tsc && rimraf lib/test && mv lib/src/* lib/. && rimraf lib/src",
+    "compile": "tsc -p ./tsconfig.cjs.json",
     "danger": "danger run --verbose",
     "deploy": "cd lib && npm publish",
     "filesize": "bundlesize",
@@ -35,12 +38,11 @@
     "test-examples": ". ./test-examples.sh",
     "test-preact": "jest --config ./jest.preact.config.json --runInBand",
     "test-watch": "jest --watch",
-    "test:compiled": "npm run test:compiled:browser:umd && npm run test:compiled:server:umd && npm run test:compiled:cjs",
-    "test:compiled:browser:umd": "jest --config jest.browser.umd.config.js --runInBand",
+    "test:compiled": "npm run test:compiled:cjs && npm run test:compiled:umd",
     "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
-    "test:compiled:server:umd": "jest --config jest.server.umd.config.js --runInBand",
+    "test:compiled:umd": "jest --config jest.umd.config.js --runInBand",
     "type-check": "tsc --project tsconfig.json --noEmit ",
-    "watch": "tsc -w"
+    "watch": "tsc-watch --onSuccess \"npm run postcompile\""
   },
   "babel": {
     "presets": [
@@ -50,9 +52,22 @@
   "bundlesize": [
     {
       "path": "./dist/bundlesize.js",
-      "maxSize": "11.5 KB"
+      "maxSize": "5.2 KB"
     }
   ],
+  "renovate": {
+    "extends": [
+      "config:base",
+      "schedule:nonOfficeHours",
+      ":pinOnlyDevDependencies"
+    ],
+    "semanticCommits": true,
+    "timezone": "America/New_York",
+    "automerge": false,
+    "labels": [
+      "dependencies"
+    ]
+  },
   "jest": {
     "testEnvironment": "jsdom",
     "transform": {
@@ -67,7 +82,6 @@
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/examples",
-      "<rootDir>/test/flow-usage.js",
       "<rootDir>/test/typescript-usage.tsx",
       "<rootDir>/test/fail-no-entry-point.js"
     ],
@@ -86,70 +100,76 @@
     "trailingComma": "all"
   },
   "peerDependencies": {
-    "apollo-client": "^2.3.8",
-    "react": "0.14.x || 15.* || ^15.0.0 || ^16.0.0",
+    "apollo-client": "^2.5.1",
+    "react": "^15.0.0 || ^16.0.0",
+    "react-dom": "^15.0.0 || ^16.0.0",
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
   },
+  "sideEffects": false,
   "devDependencies": {
-    "@types/enzyme": "3.1.14",
-    "@types/enzyme-adapter-react-16": "1.0.3",
-    "@types/graphql": "14.0.1",
+    "@types/enzyme": "3.1.17",
+    "@types/enzyme-adapter-react-16": "1.0.5",
+    "@types/graphql": "14.0.7",
+    "@types/hoist-non-react-statics": "3.0.1",
     "@types/invariant": "2.2.29",
-    "@types/jest": "23.3.7",
+    "@types/jest": "24.0.9",
     "@types/memoize-one": "^3.1.1",
     "@types/object-assign": "4.0.30",
-    "@types/prop-types": "15.5.6",
+    "@types/prop-types": "15.7.0",
     "@types/react": "16.4.18",
-    "@types/react-dom": "16.0.9",
-    "@types/react-test-renderer": "16.0.3",
-    "@types/recompose": "0.27.0",
+    "@types/react-dom": "16.8.0",
+    "@types/react-test-renderer": "16.8.0",
+    "@types/recompose": "0.30.3",
     "@types/zen-observable": "0.8.0",
-    "apollo-cache": "1.1.18",
-    "apollo-cache-inmemory": "1.2.10",
-    "apollo-client": "2.4.3",
-    "apollo-link": "1.2.1",
+    "apollo-cache": "1.2.1",
+    "apollo-cache-inmemory": "1.5.1",
+    "apollo-client": "2.5.1",
+    "apollo-link": "1.2.9",
     "babel-core": "6.26.3",
-    "babel-jest": "23.6.0",
+    "babel-jest": "24.1.0",
     "babel-preset-env": "1.7.0",
-    "bundlesize": "0.17.0",
-    "coveralls": "3.0.2",
-    "danger": "4.4.10",
-    "enzyme": "3.7.0",
-    "enzyme-adapter-react-16": "1.6.0",
-    "graphql": "14.0.2",
-    "graphql-tag": "2.10.0",
-    "jest": "23.6.0",
+    "bundlesize": "0.17.1",
+    "coveralls": "3.0.3",
+    "danger": "7.0.14",
+    "enzyme": "3.8.0",
+    "enzyme-adapter-react-16": "1.10.0",
+    "graphql": "14.1.1",
+    "graphql-tag": "2.10.1",
+    "jest": "24.1.0",
     "jest-junit": "5.2.0",
-    "jsdom": "12.2.0",
+    "jsdom": "13.2.0",
     "lodash.includes": "4.3.0",
     "lodash.times": "4.3.2",
-    "preact": "8.3.1",
+    "preact": "8.4.2",
     "preact-compat": "3.18.4",
-    "prettier": "1.14.3",
+    "prettier": "1.16.4",
     "react": "16.5.2",
-    "react-dom": "16.5.2",
-    "react-test-renderer": "16.5.2",
+    "react-dom": "16.8.1",
+    "react-test-renderer": "16.8.1",
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
-    "rimraf": "2.6.2",
-    "rollup": "0.66.6",
-    "rollup-plugin-commonjs": "9.2.0",
+    "rimraf": "2.6.3",
+    "rollup": "0.68.2",
+    "rollup-plugin-commonjs": "9.2.1",
+    "rollup-plugin-filesize": "6.0.1",
+    "rollup-plugin-invariant": "0.4.2",
     "rollup-plugin-node-resolve": "3.4.0",
-    "rollup-plugin-replace": "2.1.0",
-    "rollup-plugin-uglify": "6.0.0",
-    "ts-jest": "23.10.4",
-    "tslint": "5.11.0",
-    "typescript": "3.1.3",
+    "rollup-plugin-typescript2": "0.19.3",
+    "rollup-plugin-uglify": "6.0.2",
+    "ts-jest": "24.0.0",
+    "tsc-watch": "2.1.2",
+    "tslint": "5.13.1",
+    "typescript": "3.1.6",
     "typescript-require": "0.2.10",
-    "zen-observable-ts": "0.8.10"
+    "zen-observable-ts": "0.8.16"
   },
   "dependencies": {
-    "fbjs": "^1.0.0",
+    "apollo-utilities": "^1.2.1",
     "hoist-non-react-statics": "^3.0.0",
-    "invariant": "^2.2.2",
-    "lodash.flowright": "^3.5.0",
     "lodash.isequal": "^4.5.0",
     "memoize-one": "^4.0.2",
-    "prop-types": "^15.6.0"
+    "prop-types": "^15.6.0",
+    "ts-invariant": "^0.3.0",
+    "tslib": "^1.9.3"
   }
 }
