@@ -27,6 +27,8 @@
   with AC 2.5's new local resolver functionality, you can pass your local
   resolver map into the `MockedProvider` `resolvers` prop.  <br/>
   [@ajmath](https://github.com/ajmath) in [#2524](https://github.com/apollographql/react-apollo/pull/2524)
+- Improvements to the `graphql` HOC generics for `fetchMore` and `refetch`.  <br/>
+  [@EricMcRay](https://github.com/EricMcRay) in [#2525](https://github.com/apollographql/react-apollo/pull/2525)
 
 
 ## v2.5.2
