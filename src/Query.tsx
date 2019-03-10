@@ -15,6 +15,7 @@ import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
 
+import isEqual from 'lodash.isequal';
 import shallowEqual from './utils/shallowEqual';
 import { invariant } from 'ts-invariant';
 
@@ -217,16 +218,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.hasMounted = false;
   }
 
-  componentDidUpdate() {
-    const { onCompleted, onError } = this.props;
-    if (onCompleted || onError) {
-      const currentResult = this.queryObservable!.currentResult();
-      const { loading, error, data } = currentResult;
-      if (onCompleted && !loading && !error) {
-        onCompleted(data as TData);
-      } else if (onError && !loading && error) {
-        onError(error);
-      }
+  componentDidUpdate(prevProps: QueryProps<TData, TVariables>) {
+    const isDiffRequest =
+      !isEqual(prevProps.query, this.props.query) ||
+      !isEqual(prevProps.variables, this.props.variables);
+    if (isDiffRequest) {
+      // If specified, `onError` / `onCompleted` callbacks are called here
+      // after local cache results are loaded.
+      this.handleErrorOrCompleted();
     }
   }
 
@@ -379,9 +378,24 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private updateCurrentData = () => {
-    // force a rerender that goes through shouldComponentUpdate
+    // If specified, `onError` / `onCompleted` callbacks are called here
+    // after a network based Query result has been received.
+    this.handleErrorOrCompleted();
+
+    // Force a rerender that goes through shouldComponentUpdate.
     if (this.hasMounted) this.forceUpdate();
   };
+
+  private handleErrorOrCompleted = () => {
+    const result = this.queryObservable!.currentResult();
+    const { data, loading, error } = result;
+    const { onCompleted, onError } = this.props;
+    if (onCompleted && !loading && !error) {
+      onCompleted(data as TData);
+    } else if (onError && !loading && error) {
+      onError(error);
+    }
+  }
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
     let data = { data: Object.create(null) as TData } as any;

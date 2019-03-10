@@ -20,6 +20,7 @@ const globals = {
   'react': 'react',
   'ts-invariant': 'invariant',
   'tslib': 'tslib',
+  'lodash.isequal': 'isEqual',
 };
 
 function external(id) {
