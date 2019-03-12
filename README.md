@@ -164,7 +164,7 @@ All of the documentation for React Apollo including usage articles and helpful r
 ### Recipes
 
 - [Authentication](http://dev.apollodata.com/react/auth.html)
-- [Pagination](http://dev.apollodata.com/react/pagination.html)
+- [Pagination](https://www.apollographql.com/docs/react/features/pagination.html)
 - [Optimistic UI](http://dev.apollodata.com/react/optimistic-ui.html)
 - [Server Side Rendering](https://www.apollographql.com/docs/react/recipes/server-side-rendering.html)
 
