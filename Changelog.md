@@ -35,6 +35,9 @@
   [@ajmath](https://github.com/ajmath) in [#2524](https://github.com/apollographql/react-apollo/pull/2524)
 - Improvements to the `graphql` HOC generics for `fetchMore` and `refetch`.  <br/>
   [@EricMcRay](https://github.com/EricMcRay) in [#2525](https://github.com/apollographql/react-apollo/pull/2525)
+- The `ApolloProvider` / `ApolloConsumer` implementations have been refactored
+  to use [React 16.3's new context API](https://reactjs.org/docs/context.html).  <br/>
+  [@wzrdzl](https://github.com/wzrdzl) in [#2540](https://github.com/apollographql/react-apollo/pull/2540)
 
 
 ## v2.5.2
