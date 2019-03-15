@@ -1387,6 +1387,107 @@ describe('Query component', () => {
     );
   });
 
+  it(
+    'should not persist previous result errors when a subsequent valid ' +
+    'result is received',
+    done => {
+      const query: DocumentNode = gql`
+        query somethingelse ($variable: Boolean) {
+          allPeople(first: 1, yetisArePeople: $variable) {
+            people {
+            name
+          }
+        }
+      }`;
+
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const variableGood = { variable: true }
+      const variableBad = { variable: false }
+
+      const link = mockSingleLink(
+        {
+          request: {
+            query,
+            variables: variableGood,
+          },
+          result: {
+            data,
+          },
+        },
+        {
+          request: {
+            query,
+            variables: variableBad,
+          },
+          result: {
+            errors: [new Error('This is an error!')],
+          },
+        },
+        {
+          request: {
+            query,
+            variables: variableGood,
+          },
+          result: {
+            data,
+          },
+        },
+      );
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      let count = 0;
+      const DummyComp = (props: any) => {
+        if (!props.loading) {
+          try {
+            switch (count++) {
+              case 0:
+                expect(props.data.allPeople).toBeTruthy();
+                expect(props.error).toBeFalsy();
+                // Change query variables to trigger bad result.
+                setTimeout(() => {
+                  wrapper!.setProps({ variables: variableBad });
+                }, 0);
+                break;
+              case 1:
+                // Error should be received, but last known good value
+                // should still be accessible (in-case the UI needs it).
+                expect(props.error).toBeTruthy();
+                expect(props.data.allPeople).toBeTruthy();
+                // Change query variables to trigger a good result.
+                setTimeout(() => {
+                  wrapper!.setProps({ variables: variableGood });
+                }, 0);
+                break
+              case 2:
+                // Good result should be received without any errors.
+                expect(props.error).toBeFalsy();
+                expect(props.data.allPeople).toBeTruthy();
+                done();
+                break;
+              default:
+                done.fail('Unknown count');
+            }
+          } catch (error) {
+            done.fail(error);
+          }
+        }
+        return null;
+      }
+
+      wrapper = mount(
+        <Query client={client} query={query} variables={variableGood}>
+          {(result: any) => {
+            return <DummyComp id='dummyId' {...result} />;
+          }}
+        </Query>
+      );
+    }
+  );
+
   it('should not repeatedly call onCompleted if setState in it', done => {
     const query = gql`
       query people($first: Int) {

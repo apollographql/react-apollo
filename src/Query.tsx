@@ -345,10 +345,15 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         this.updateCurrentData();
       },
       error: error => {
-        this.resubscribeToQuery();
-        // Quick fix for https://github.com/apollostack/react-apollo/issues/378
+        if (!this.lastResult) {
+          // We only want to remove the old subscription, and start a new
+          // subscription, when an error was received and we don't have a
+          // previous result stored. This means either no previous result was
+          // received due to problems fetching data, or the previous result
+          // has been forcefully cleared out.
+          this.resubscribeToQuery();
+        }
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
-
         this.updateCurrentData();
       },
     });
@@ -365,13 +370,15 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private resubscribeToQuery() {
     this.removeQuerySubscription();
 
+    // Unfortunately, if `lastError` is set in the current
+    // `queryObservable` when the subscription is re-created,
+    // the subscription will immediately receive the error, which will
+    // cause it to terminate again. To avoid this, we first clear
+    // the last error/result from the `queryObservable` before re-starting
+    // the subscription, and restore it afterwards (so the subscription
+    // has a chance to stay open).
     const lastError = this.queryObservable!.getLastError();
-    const lastResult = this.lastResult;
-
-    // If lastError is set, the observable will immediately
-    // send it, causing the stream to terminate on initialization.
-    // We clear everything here and restore it afterward to
-    // make sure the new subscription sticks.
+    const lastResult = this.queryObservable!.getLastResult();
     this.queryObservable!.resetLastResults();
     this.startQuerySubscription();
     Object.assign(this.queryObservable!, { lastError, lastResult });

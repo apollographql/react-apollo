@@ -7,6 +7,10 @@
 - Fix an infinite loop caused by using `setState` in the
   `onError` / `onCompleted` callbacks of the `Query` component.  <br/>
   [@chenesan](https://github.com/chenesan) in [#2751](https://github.com/apollographql/react-apollo/pull/2751)
+- Fixed an issue that prevented good results from showing up in a `Query`
+  component, after an error was received, variables were adjusted, and then
+  the good data was fetched.  <br/>
+  [@MerzDaniel](https://github.com/MerzDaniel) in [#2718](https://github.com/apollographql/react-apollo/pull/2718)
 
 ### Improvements
 
