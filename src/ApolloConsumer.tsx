@@ -1,8 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ApolloClient from 'apollo-client';
-import ApolloContext from './ApolloContext';
-
+import { ApolloContext } from './ApolloContext';
 import { InvariantError } from 'ts-invariant';
 
 export interface ApolloConsumerProps {
@@ -10,19 +9,24 @@ export interface ApolloConsumerProps {
 }
 
 const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> =
-  (props) => {
-    return (
+  (props, legacyContext) => {
+    function finish(context: any) {
+      if (!context || !context.client) {
+        throw new InvariantError(
+          'Could not find "client" in the context of ApolloConsumer. ' +
+          'Wrap the root component in an <ApolloProvider>.'
+        );
+      }
+      return props.children(context.client);
+    }
+
+    return ApolloContext ? (
       <ApolloContext.Consumer>
-        {(context) => {
-          if (!context || !context.client) {
-            throw new InvariantError(
-              'Could not find "client" in the context of ApolloConsumer. ' +
-              'Wrap the root component in an <ApolloProvider>.'
-            );
-          }
-          return props.children(context.client);
-        }}
+        {finish}
       </ApolloContext.Consumer>
+    ) : (
+      // Fall back to legacy context API if React.createContext not available.
+      finish(legacyContext)
     );
   };
 

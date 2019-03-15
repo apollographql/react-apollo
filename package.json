@@ -165,7 +165,6 @@
   },
   "dependencies": {
     "apollo-utilities": "^1.2.1",
-    "create-react-context": "^0.2.3",
     "hoist-non-react-statics": "^3.0.0",
     "lodash.isequal": "^4.5.0",
     "prop-types": "^15.6.0",

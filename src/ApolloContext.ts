@@ -1,4 +1,4 @@
-import createReactContext from 'create-react-context';
+import React from 'react';
 import ApolloClient from 'apollo-client';
 import { DocumentNode } from 'graphql';
 
@@ -7,4 +7,6 @@ export interface ApolloContextValue {
   operations?: Map<string, { query: DocumentNode; variables: any }>;
 }
 
-export default createReactContext<ApolloContextValue | undefined>(undefined);
+export const ApolloContext = React.createContext
+  ? React.createContext<ApolloContextValue | undefined>(undefined)
+  : null;
