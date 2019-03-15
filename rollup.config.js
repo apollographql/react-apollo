@@ -20,7 +20,6 @@ const globals = {
   'react': 'react',
   'ts-invariant': 'invariant',
   'tslib': 'tslib',
-  'create-react-context': 'createReactContext',
   'lodash.isequal': 'isEqual',
 };
 
