@@ -186,7 +186,9 @@ describe('SSR', () => {
         expect(elementCount).toEqual(2);
       });
 
-      it('function stateless components with React 16.3 context', () => {
+      // `walkTree` is deprecated and will be removed in `react-apollo` 3.0.
+      // It is no longer being updated to work with newer versions of `react`.
+      xit('function stateless components with React 16.3 context', () => {
         if (!React.createContext) {
           // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963
           return;
@@ -415,7 +417,9 @@ describe('SSR', () => {
         });
       });
 
-      it('basic classes with React 16.3 context', () => {
+      // `walkTree` is deprecated and will be removed in `react-apollo` 3.0.
+      // It is no longer being updated to work with newer versions of `react`.
+      xit('basic classes with React 16.3 context', () => {
         if (!React.createContext) {
           // Preact doesn't support createContext yet, see https://github.com/developit/preact/pull/963
           return;
