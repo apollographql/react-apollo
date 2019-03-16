@@ -15,6 +15,7 @@ export interface MockedProviderProps<TSerializedCache = {}> {
   cache?: ApolloCache<TSerializedCache>;
   resolvers?: Resolvers;
   childProps?: object;
+  children?: React.ReactElement;
 }
 
 export interface MockedProviderState {
@@ -47,13 +48,14 @@ export class MockedProvider extends React.Component<MockedProviderProps, MockedP
   }
 
   public render() {
-    const { childProps } = this.props;
-
-    return (
-      <ApolloProvider client={this.state.client}>
-        {React.cloneElement(React.Children.only(this.props.children), { ...childProps })}
-      </ApolloProvider>
-    );
+    const { children, childProps } = this.props;
+    return children
+      ? (
+        <ApolloProvider client={this.state.client}>
+          {React.cloneElement(React.Children.only(children), { ...childProps })}
+        </ApolloProvider>
+      )
+      : null;
   }
 
   public componentWillUnmount() {

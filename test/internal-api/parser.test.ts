@@ -52,8 +52,9 @@ describe('parser', () => {
     const query = `
       query One { user { name } }
     `;
-
-    expect(parser.bind(null, query)).toThrowError(/not a valid GraphQL DocumentNode/);
+    expect(
+      parser.bind(null, query as any)
+    ).toThrowError(/not a valid GraphQL DocumentNode/);
   });
 
   it('should return the name of the operation', () => {
