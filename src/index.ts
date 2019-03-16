@@ -18,6 +18,8 @@ export { withQuery } from './query-hoc';
 export { withMutation } from './mutation-hoc';
 export { withSubscription } from './subscription-hoc';
 
+export { useApolloClient } from './useApolloClient';
+
 export { default as withApollo } from './withApollo';
 export * from './withApollo';
 
