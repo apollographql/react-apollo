@@ -161,7 +161,7 @@
     "tslint": "5.13.1",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
-    "zen-observable-ts": "0.8.16"
+    "zen-observable-ts": "0.8.18"
   },
   "dependencies": {
     "apollo-utilities": "^1.2.1",
