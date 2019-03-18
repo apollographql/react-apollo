@@ -130,7 +130,7 @@
     "babel-preset-env": "1.7.0",
     "bundlesize": "0.17.1",
     "coveralls": "3.0.3",
-    "danger": "7.0.14",
+    "danger": "7.0.15",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.10.0",
     "graphql": "14.1.1",
