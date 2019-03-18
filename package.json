@@ -124,7 +124,7 @@
     "apollo-cache": "1.2.1",
     "apollo-cache-inmemory": "1.5.1",
     "apollo-client": "2.5.1",
-    "apollo-link": "1.2.9",
+    "apollo-link": "1.2.11",
     "babel-core": "6.26.3",
     "babel-jest": "24.1.0",
     "babel-preset-env": "1.7.0",
