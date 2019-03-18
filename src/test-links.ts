@@ -8,13 +8,16 @@ import {
 } from 'apollo-link';
 
 import { print } from 'graphql/language/printer';
+import { getOperationAST } from 'graphql';
 import {
   addTypenameToDocument,
   removeClientSetsFromDocument,
   removeConnectionDirectiveFromDocument,
   cloneDeep,
 } from 'apollo-utilities';
-const isEqual = require('lodash.isequal');
+import values from 'lodash/values';
+import isEqual from 'lodash/isEqual';
+import diff from 'jest-diff';
 
 type ResultFunction<T> = () => T;
 
@@ -75,10 +78,18 @@ export class MockLink extends ApolloLink {
     });
 
     if (!response || typeof responseIndex === 'undefined') {
+      const queryDiffs = (<string[]> []).concat(
+        ...values(this.mockedResponsesByKey).map(mockedResponses =>
+          mockedResponses.map(mockedResponse =>
+            diffRequest(mockedResponse.request, operation, this.addTypename),
+          ),
+        ),
+      );
+
       throw new Error(
-        `No more mocked responses for the query: ${print(
-          operation.query,
-        )}, variables: ${JSON.stringify(operation.variables)}`,
+        `No more mocked responses for ${requestToString(operation)}${
+          queryDiffs.length ? `\n\nPossible matches:\n${queryDiffs.join('\n')}` : ''
+        }`,
       );
     }
 
@@ -176,6 +187,32 @@ function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
     print(addTypename ? addTypenameToDocument(request.query) : request.query);
   const requestKey = { query: queryString };
   return JSON.stringify(requestKey);
+}
+
+function diffRequest(
+  actualRequest: GraphQLRequest,
+  expectedRequest: GraphQLRequest,
+  addTypename?: Boolean
+): string {
+  return diff(
+    requestToString(actualRequest, addTypename),
+    requestToString(expectedRequest)
+  ) || '';
+}
+
+function requestToString(
+  request: GraphQLRequest,
+  addTypename?: Boolean
+): string {
+  const query = print(
+    addTypename ? addTypenameToDocument(request.query) : request.query
+  );
+  const variables = request.variables
+    ? JSON.stringify(request.variables, null, 2)
+    : '{}';
+  const operationAST = getOperationAST(request.query, null);
+  const operationName = operationAST ? operationAST.operation : 'query';
+  return `${operationName}:\n${query}variables:\n${variables}`;
 }
 
 // Pass in multiple mocked responses, so that you can test flows that end up
