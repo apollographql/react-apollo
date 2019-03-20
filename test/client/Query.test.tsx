@@ -1232,6 +1232,115 @@ describe('Query component', () => {
         </MockedProvider>,
       );
     });
+
+    it(
+      'should update if a manual `refetch` is triggered after a state change',
+      done => {
+        const query: DocumentNode = gql`
+          query {
+            allPeople {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+        const link = mockSingleLink(
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+        );
+
+        const client = new ApolloClient({
+          link,
+          cache: new Cache({ addTypename: false }),
+        });
+
+        let count = 0;
+
+        class SomeComponent extends React.Component {
+          constructor(props: any) {
+            super(props);
+            this.state = {
+              open: false,
+            };
+            this.toggle = this.toggle.bind(this);
+          }
+
+          toggle() {
+            this.setState((prevState: any) => ({
+              open: !prevState.open,
+            }));
+          }
+
+          render() {
+            const { open } = this.state as any;
+            return (
+              <Query client={client} query={query} notifyOnNetworkStatusChange>
+                {(props: any) => {
+                  try {
+                    switch (count) {
+                      case 0:
+                        // Loading first response
+                        expect(props.loading).toBe(true);
+                        expect(open).toBe(false);
+                        break;
+                      case 1:
+                        // First response loaded, change state value
+                        expect(stripSymbols(props.data)).toEqual(data1);
+                        expect(open).toBe(false);
+                        setTimeout(() => {
+                          this.toggle();
+                        }, 0);
+                        break;
+                      case 2:
+                        // State value changed, fire a refetch
+                        expect(open).toBe(true);
+                        setTimeout(() => {
+                          props.refetch();
+                        }, 0);
+                        break;
+                      case 3:
+                        // Second response received, fire another refetch
+                        expect(stripSymbols(props.data)).toEqual(data1);
+                        setTimeout(() => {
+                          props.refetch();
+                        }, 0);
+                        break;
+                      case 4:
+                        // Third response received
+                        expect(stripSymbols(props.data)).toEqual(data1);
+                        done();
+                        break;
+                      default:
+                        done.fail('Unknown count');
+                    }
+                    count += 1;
+                  } catch (error) {
+                    done.fail(error);
+                  }
+                  return null;
+                }}
+              </Query>
+            );
+          }
+        }
+
+        wrapper = mount(<SomeComponent />);
+      }
+    );
   });
 
   it('should error if the query changes type to a subscription', done => {
