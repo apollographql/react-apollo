@@ -11,6 +11,10 @@
   component, after an error was received, variables were adjusted, and then
   the good data was fetched.  <br/>
   [@MerzDaniel](https://github.com/MerzDaniel) in [#2718](https://github.com/apollographql/react-apollo/pull/2718)
+- Fixed an issue that prevented `Query` component updates from firing (under
+  certain circumstances) due to the internal `lastResult` value (that's used
+  to help prevent unnecessary re-renders) not being updated.  <br/>
+  [@Glennrs](https://github.com/Glennrs) in [#2840](https://github.com/apollographql/react-apollo/pull/2840)
 
 ### Improvements
 
