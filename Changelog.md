@@ -4,10 +4,63 @@
 
 ### Bug Fixes
 
+- Fix an infinite loop caused by using `setState` in the
+  `onError` / `onCompleted` callbacks of the `Query` component.  <br/>
+  [@chenesan](https://github.com/chenesan) in [#2751](https://github.com/apollographql/react-apollo/pull/2751)
+- Fixed an issue that prevented good results from showing up in a `Query`
+  component, after an error was received, variables were adjusted, and then
+  the good data was fetched.  <br/>
+  [@MerzDaniel](https://github.com/MerzDaniel) in [#2718](https://github.com/apollographql/react-apollo/pull/2718)
+
+### Improvements
+
+- `MockedProvider` now accepts a `childProps` prop that can be used to pass
+  props down to a child component.  <br/>
+  [@miachenmtl](https://github.com/miachenmtl) in [#2482](https://github.com/apollographql/react-apollo/pull/2482)
+- `onCompleted` callbacks now use a destructuring-friendly type definition.  <br/>
+  [@jozanza](https://github.com/jozanza) in [#2496](https://github.com/apollographql/react-apollo/pull/2496)
+- `@connection` directives are now properly stripped from `MockedResponse`'s,
+  when using `MockedProvider`.  <br/>
+  [@ajmath](https://github.com/ajmath) in [#2523](https://github.com/apollographql/react-apollo/pull/2523)
+- `MockedProvider` has been updated to stop setting a default `resolvers`
+  value of `{}`, which means by default Apollo Client 2.5 local resolver
+  functionality is not enabled when mocking with `MockedProvider`. This allows
+  `@client` fields to be passed through the mocked link chain, like people
+  were used to before AC 2.5. When using this default mode you will see a
+  dev only warning message about this like:
+
+  > Found @client directives in query but no client resolvers were specified.
+  > You can now pass apollo-link-state resolvers to the ApolloClient
+  > constructor.
+
+  This message can be safely ignored. If you want to use `MockedProvider`
+  with AC 2.5's new local resolver functionality, you can pass your local
+  resolver map into the `MockedProvider` `resolvers` prop.  <br/>
+  [@ajmath](https://github.com/ajmath) in [#2524](https://github.com/apollographql/react-apollo/pull/2524)
+- Improvements to the `graphql` HOC generics for `fetchMore` and `refetch`.  <br/>
+  [@EricMcRay](https://github.com/EricMcRay) in [#2525](https://github.com/apollographql/react-apollo/pull/2525)
+- The `ApolloProvider` / `ApolloConsumer` implementations have been refactored
+  to use [React 16.3's new context API](https://reactjs.org/docs/context.html).  <br/>
+  [@wzrdzl](https://github.com/wzrdzl) in [#2540](https://github.com/apollographql/react-apollo/pull/2540)
+
+
+## v2.5.2
+
+### Bug Fixes
+
 - Export `Context` type from `types.ts` instead of `walkTree.ts`,
   to reenable `import { Context } from 'react-apollo'` (which has been
   broken since 2.4.0). <br/>
   [@benjamn](https://github.com/benjamn) in [#2825](https://github.com/apollographql/react-apollo/pull/2832)
+
+### Improvements
+
+- Add [`examples/rollup`](https://github.com/apollographql/react-apollo/tree/master/examples/rollup)
+  to enable application-level bundle measurement and demonstrate Rollup configuration best practices. <br/>
+  [@benjamn](https://github.com/benjamn) in [#2839](https://github.com/apollographql/react-apollo/pull/2839)
+
+- Bundle size reductions inspired by `examples/rollup` app. <br/>
+  [@benjamn](https://github.com/benjamn) in [#2842](https://github.com/apollographql/react-apollo/pull/2842)
 
 ## 2.5.1
 

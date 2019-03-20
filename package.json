@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "author": "opensource@apollographql.com",
   "private": true,
   "description": "React data container for Apollo Client",
@@ -52,9 +52,22 @@
   "bundlesize": [
     {
       "path": "./dist/bundlesize.js",
-      "maxSize": "6.4 KB"
+      "maxSize": "5.4 KB"
     }
   ],
+  "renovate": {
+    "extends": [
+      "config:base",
+      "schedule:nonOfficeHours",
+      ":pinOnlyDevDependencies"
+    ],
+    "semanticCommits": true,
+    "timezone": "America/New_York",
+    "automerge": false,
+    "labels": [
+      "dependencies"
+    ]
+  },
   "jest": {
     "testEnvironment": "jsdom",
     "transform": {
@@ -97,9 +110,10 @@
     "@types/enzyme": "3.1.17",
     "@types/enzyme-adapter-react-16": "1.0.5",
     "@types/graphql": "14.0.7",
-    "@types/hoist-non-react-statics": "^3.0.1",
+    "@types/hoist-non-react-statics": "3.0.1",
     "@types/invariant": "2.2.29",
-    "@types/jest": "23.3.14",
+    "@types/jest": "24.0.11",
+    "@types/lodash.isequal": "4.5.5",
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.7.0",
     "@types/react": "16.4.18",
@@ -107,23 +121,23 @@
     "@types/react-test-renderer": "16.8.0",
     "@types/recompose": "0.30.3",
     "@types/zen-observable": "0.8.0",
-    "apollo-cache": "^1.2.1",
-    "apollo-cache-inmemory": "^1.5.1",
-    "apollo-client": "^2.5.1",
-    "apollo-link": "1.2.8",
+    "apollo-cache": "1.2.1",
+    "apollo-cache-inmemory": "1.5.1",
+    "apollo-client": "2.5.1",
+    "apollo-link": "1.2.11",
     "babel-core": "6.26.3",
-    "babel-jest": "23.6.0",
+    "babel-jest": "24.1.0",
     "babel-preset-env": "1.7.0",
     "bundlesize": "0.17.1",
     "coveralls": "3.0.3",
-    "danger": "6.1.13",
+    "danger": "7.0.14",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.10.0",
     "graphql": "14.1.1",
     "graphql-tag": "2.10.1",
-    "jest": "23.6.0",
+    "jest": "24.5.0",
     "jest-junit": "5.2.0",
-    "jsdom": "13.2.0",
+    "jsdom": "14.0.0",
     "lodash.includes": "4.3.0",
     "lodash.times": "4.3.2",
     "preact": "8.4.2",
@@ -135,19 +149,19 @@
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
     "rimraf": "2.6.3",
-    "rollup": "0.68.2",
+    "rollup": "1.6.0",
     "rollup-plugin-commonjs": "9.2.1",
-    "rollup-plugin-filesize": "^6.0.0",
-    "rollup-plugin-invariant": "^0.3.2",
+    "rollup-plugin-filesize": "6.0.1",
+    "rollup-plugin-invariant": "0.4.2",
     "rollup-plugin-node-resolve": "3.4.0",
-    "rollup-plugin-typescript2": "^0.18.1",
+    "rollup-plugin-typescript2": "0.20.1",
     "rollup-plugin-uglify": "6.0.2",
-    "ts-jest": "23.10.5",
-    "tsc-watch": "^1.1.35",
+    "ts-jest": "24.0.0",
+    "tsc-watch": "2.1.2",
     "tslint": "5.13.1",
     "typescript": "3.1.6",
     "typescript-require": "0.2.10",
-    "zen-observable-ts": "0.8.15"
+    "zen-observable-ts": "0.8.16"
   },
   "dependencies": {
     "apollo-utilities": "^1.2.1",

@@ -309,6 +309,7 @@ describe('[queries] loading', () => {
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
+      queryDeduplication: false,
     });
     let wrapper: ReactWrapper<any>,
       app: React.ReactElement<any>,

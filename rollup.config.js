@@ -13,6 +13,20 @@ function onwarn(message) {
   }
 }
 
+const globals = {
+  'apollo-client': 'apollo.core',
+  'hoist-non-react-statics': 'hoistNonReactStatics',
+  'prop-types': 'propTypes',
+  'react': 'react',
+  'ts-invariant': 'invariant',
+  'tslib': 'tslib',
+  'lodash.isequal': 'isEqual',
+};
+
+function external(id) {
+  return Object.prototype.hasOwnProperty.call(globals, id);
+}
+
 export default [
   {
     input: 'src/index.ts',
@@ -20,12 +34,11 @@ export default [
       file: 'lib/react-apollo.esm.js',
       format: 'esm',
       sourcemap: true,
+      globals,
     },
+    external,
     plugins: [
-      node({
-        module: true,
-        only: ['tslib']
-      }),
+      node({ module: true }),
       typescriptPlugin({ typescript }),
       invariantPlugin(),
       filesize(),
@@ -37,8 +50,10 @@ export default [
     output: {
       file: 'lib/react-apollo.cjs.js',
       format: 'cjs',
-      name: 'react-apollo'
+      name: 'react-apollo',
+      globals,
     },
+    external,
     onwarn,
   },
   {
@@ -46,8 +61,10 @@ export default [
     output: {
       file: 'lib/react-apollo.umd.js',
       format: 'umd',
-      name: 'react-apollo'
+      name: 'react-apollo',
+      globals,
     },
+    external,
     onwarn,
   },
   {
@@ -55,8 +72,10 @@ export default [
     output: {
       file: 'dist/bundlesize.js',
       format: 'cjs',
-      name: 'react-apollo'
+      name: 'react-apollo',
+      globals,
     },
+    external,
     plugins: [
       uglify({
         mangle: {

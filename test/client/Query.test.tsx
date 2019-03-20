@@ -1387,6 +1387,299 @@ describe('Query component', () => {
     );
   });
 
+  it(
+    'should not persist previous result errors when a subsequent valid ' +
+    'result is received',
+    done => {
+      const query: DocumentNode = gql`
+        query somethingelse ($variable: Boolean) {
+          allPeople(first: 1, yetisArePeople: $variable) {
+            people {
+            name
+          }
+        }
+      }`;
+
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const variableGood = { variable: true }
+      const variableBad = { variable: false }
+
+      const link = mockSingleLink(
+        {
+          request: {
+            query,
+            variables: variableGood,
+          },
+          result: {
+            data,
+          },
+        },
+        {
+          request: {
+            query,
+            variables: variableBad,
+          },
+          result: {
+            errors: [new Error('This is an error!')],
+          },
+        },
+        {
+          request: {
+            query,
+            variables: variableGood,
+          },
+          result: {
+            data,
+          },
+        },
+      );
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      let count = 0;
+      const DummyComp = (props: any) => {
+        if (!props.loading) {
+          try {
+            switch (count++) {
+              case 0:
+                expect(props.data.allPeople).toBeTruthy();
+                expect(props.error).toBeFalsy();
+                // Change query variables to trigger bad result.
+                setTimeout(() => {
+                  wrapper!.setProps({ variables: variableBad });
+                }, 0);
+                break;
+              case 1:
+                // Error should be received, but last known good value
+                // should still be accessible (in-case the UI needs it).
+                expect(props.error).toBeTruthy();
+                expect(props.data.allPeople).toBeTruthy();
+                // Change query variables to trigger a good result.
+                setTimeout(() => {
+                  wrapper!.setProps({ variables: variableGood });
+                }, 0);
+                break
+              case 2:
+                // Good result should be received without any errors.
+                expect(props.error).toBeFalsy();
+                expect(props.data.allPeople).toBeTruthy();
+                done();
+                break;
+              default:
+                done.fail('Unknown count');
+            }
+          } catch (error) {
+            done.fail(error);
+          }
+        }
+        return null;
+      }
+
+      wrapper = mount(
+        <Query client={client} query={query} variables={variableGood}>
+          {(result: any) => {
+            return <DummyComp id='dummyId' {...result} />;
+          }}
+        </Query>
+      );
+    }
+  );
+
+  it('should not repeatedly call onCompleted if setState in it', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const mocks = [
+      {
+        request: { query, variables: { first: 1 } },
+        result: { data: data1 },
+      },
+      {
+        request: { query, variables: { first: 2 } },
+        result: { data: data2 },
+      },
+    ];
+
+    let onCompletedCallCount = 0, updateCount = 0;
+    class Component extends React.Component {
+      state = {
+        variables: {
+          first: 1
+        }
+      }
+      onCompleted = () => {
+        onCompletedCallCount += 1;
+        this.setState({ causeUpdate: true });
+      }
+      componentDidUpdate() {
+        updateCount += 1;
+        if (updateCount === 1) {
+          // `componentDidUpdate` in `Query` is triggered by the `setState`
+          // in `onCompleted`. It will be called before `componentDidUpdate`
+          // in `Component`. `onCompleted` should have been called only once
+          // in the entire lifecycle.
+          expect(onCompletedCallCount).toBe(1);
+          done();
+        }
+      }
+      render() {
+        return (
+          <Query query={query} variables={this.state.variables} onCompleted={this.onCompleted}>
+            {() => null}
+          </Query>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
+  it('should not repeatedly call onCompleted when cache exists if setState in it', done => {
+    const query = gql`
+      query people($first: Int) {
+        allPeople(first: $first) {
+          people {
+            name
+          }
+        }
+      }
+    `;
+
+    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: 'Han Solo' }] } };
+    const mocks = [
+      {
+        request: { query, variables: { first: 1 } },
+        result: { data: data1 },
+      },
+      {
+        request: { query, variables: { first: 2 } },
+        result: { data: data2 },
+      },
+    ];
+
+    let onCompletedCallCount = 0, updateCount = 0;
+    expect.assertions(1);
+
+    class Component extends React.Component {
+      state = {
+        variables: {
+          first: 1,
+        },
+      };
+
+      componentDidMount() {
+        setTimeout(() => {
+          this.setState({
+            variables: {
+              first: 2,
+            },
+          });
+          setTimeout(() => {
+            this.setState({
+              variables: {
+                first: 1,
+              },
+            });
+          }, 50);
+        }, 50);
+      }
+
+      // Make sure `onCompleted` is called both when new data is being
+      // fetched over the network, and when data is coming back from
+      // the cache.
+      onCompleted() {
+        onCompletedCallCount += 1;
+      }
+
+      componentDidUpdate() {
+        updateCount += 1;
+        if (updateCount === 2) {
+          // Should be 3 since we change variables twice + initial variables.
+          expect(onCompletedCallCount).toBe(3);
+          done();
+        }
+      }
+
+      render() {
+        const { variables } = this.state;
+
+        return (
+          <AllPeopleQuery query={query} variables={variables} onCompleted={this.onCompleted}>
+            {() => null}
+          </AllPeopleQuery>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
+  it('should not repeatedly call onError if setState in it', done => {
+    const mockError = [
+      {
+        request: { query: allPeopleQuery },
+        error: new Error('error occurred'),
+      },
+    ];
+
+    let onErrorCallCount = 0, updateCount = 0;
+    class Component extends React.Component {
+      state = {
+        variables: {
+          first: 1
+        }
+      }
+      onError = () => {
+        onErrorCallCount += 1;
+        this.setState({ causeUpdate: true });
+      }
+      componentDidUpdate() {
+        updateCount += 1;
+        if (updateCount === 1) {
+          // the cDU in Query is triggered by setState in onError
+          // will be called before cDU in Component
+          // onError should have been called only once in whole lifecycle
+          expect(onErrorCallCount).toBe(1);
+          done();
+        }
+      }
+      render() {
+        return (
+          <Query query={allPeopleQuery} variables={this.state.variables} onError={this.onError}>
+            {() => null}
+          </Query>
+        );
+      }
+    }
+
+    wrapper = mount(
+      <MockedProvider mocks={mockError} addTypename={false}>
+        <Component />
+      </MockedProvider>,
+    );
+  });
+
   describe('Partial refetching', () => {
     it(
       'should attempt a refetch when the query result was marked as being ' +
