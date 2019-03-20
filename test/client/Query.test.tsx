@@ -1232,6 +1232,115 @@ describe('Query component', () => {
         </MockedProvider>,
       );
     });
+
+    it(
+      'should update if a manual `refetch` is triggered after a state change',
+      done => {
+        const query: DocumentNode = gql`
+          query {
+            allPeople {
+              people {
+                name
+              }
+            }
+          }
+        `;
+
+        const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+
+        const link = mockSingleLink(
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+          {
+            request: { query },
+            result: { data: data1 },
+          },
+        );
+
+        const client = new ApolloClient({
+          link,
+          cache: new Cache({ addTypename: false }),
+        });
+
+        let count = 0;
+
+        class SomeComponent extends React.Component {
+          constructor(props: any) {
+            super(props);
+            this.state = {
+              open: false,
+            };
+            this.toggle = this.toggle.bind(this);
+          }
+
+          toggle() {
+            this.setState((prevState: any) => ({
+              open: !prevState.open,
+            }));
+          }
+
+          render() {
+            const { open } = this.state as any;
+            return (
+              <Query client={client} query={query} notifyOnNetworkStatusChange>
+                {(props: any) => {
+                  try {
+                    switch (count) {
+                      case 0:
+                        // Loading first response
+                        expect(props.loading).toBe(true);
+                        expect(open).toBe(false);
+                        break;
+                      case 1:
+                        // First response loaded, change state value
+                        expect(stripSymbols(props.data)).toEqual(data1);
+                        expect(open).toBe(false);
+                        setTimeout(() => {
+                          this.toggle();
+                        }, 0);
+                        break;
+                      case 2:
+                        // State value changed, fire a refetch
+                        expect(open).toBe(true);
+                        setTimeout(() => {
+                          props.refetch();
+                        }, 0);
+                        break;
+                      case 3:
+                        // Second response received, fire another refetch
+                        expect(stripSymbols(props.data)).toEqual(data1);
+                        setTimeout(() => {
+                          props.refetch();
+                        }, 0);
+                        break;
+                      case 4:
+                        // Third response received
+                        expect(stripSymbols(props.data)).toEqual(data1);
+                        done();
+                        break;
+                      default:
+                        done.fail('Unknown count');
+                    }
+                    count += 1;
+                  } catch (error) {
+                    done.fail(error);
+                  }
+                  return null;
+                }}
+              </Query>
+            );
+          }
+        }
+
+        wrapper = mount(<SomeComponent />);
+      }
+    );
   });
 
   it('should error if the query changes type to a subscription', done => {
@@ -1386,6 +1495,107 @@ describe('Query component', () => {
       </ApolloProvider>,
     );
   });
+
+  it(
+    'should not persist previous result errors when a subsequent valid ' +
+    'result is received',
+    done => {
+      const query: DocumentNode = gql`
+        query somethingelse ($variable: Boolean) {
+          allPeople(first: 1, yetisArePeople: $variable) {
+            people {
+            name
+          }
+        }
+      }`;
+
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const variableGood = { variable: true }
+      const variableBad = { variable: false }
+
+      const link = mockSingleLink(
+        {
+          request: {
+            query,
+            variables: variableGood,
+          },
+          result: {
+            data,
+          },
+        },
+        {
+          request: {
+            query,
+            variables: variableBad,
+          },
+          result: {
+            errors: [new Error('This is an error!')],
+          },
+        },
+        {
+          request: {
+            query,
+            variables: variableGood,
+          },
+          result: {
+            data,
+          },
+        },
+      );
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      let count = 0;
+      const DummyComp = (props: any) => {
+        if (!props.loading) {
+          try {
+            switch (count++) {
+              case 0:
+                expect(props.data.allPeople).toBeTruthy();
+                expect(props.error).toBeFalsy();
+                // Change query variables to trigger bad result.
+                setTimeout(() => {
+                  wrapper!.setProps({ variables: variableBad });
+                }, 0);
+                break;
+              case 1:
+                // Error should be received, but last known good value
+                // should still be accessible (in-case the UI needs it).
+                expect(props.error).toBeTruthy();
+                expect(props.data.allPeople).toBeTruthy();
+                // Change query variables to trigger a good result.
+                setTimeout(() => {
+                  wrapper!.setProps({ variables: variableGood });
+                }, 0);
+                break
+              case 2:
+                // Good result should be received without any errors.
+                expect(props.error).toBeFalsy();
+                expect(props.data.allPeople).toBeTruthy();
+                done();
+                break;
+              default:
+                done.fail('Unknown count');
+            }
+          } catch (error) {
+            done.fail(error);
+          }
+        }
+        return null;
+      }
+
+      wrapper = mount(
+        <Query client={client} query={query} variables={variableGood}>
+          {(result: any) => {
+            return <DummyComp id='dummyId' {...result} />;
+          }}
+        </Query>
+      );
+    }
+  );
 
   it('should not repeatedly call onCompleted if setState in it', done => {
     const query = gql`
