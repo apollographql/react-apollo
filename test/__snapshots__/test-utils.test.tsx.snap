@@ -15,33 +15,100 @@ Object {
 `;
 
 exports[`errors if the query in the mock and component do not match 1`] = `
-[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+[Error: Network error: No more mocked responses for query:
+query GetUser($username: String!) {
   user(username: $username) {
     id
     __typename
   }
 }
-, variables: {"username":"mock_username"}]
+variables:
+{
+  "username": "mock_username"
+}
+
+Possible matches:
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  query:[22m
+[32m- query OtherQuery {[39m
+[32m-   otherQuery {[39m
+[31m+ query GetUser($username: String!) {[39m
+[31m+   user(username: $username) {[39m
+[2m      id[22m
+[2m      __typename[22m
+[2m    }[22m
+[2m  }[22m
+[2m  variables:[22m
+[2m  {[22m
+[2m    "username": "mock_username"[22m
+[2m  }[22m]
 `;
 
 exports[`errors if the variables do not deep equal 1`] = `
-[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+[Error: Network error: No more mocked responses for query:
+query GetUser($username: String!) {
   user(username: $username) {
     id
     __typename
   }
 }
-, variables: {"username":"some_user","age":42}]
+variables:
+{
+  "username": "some_user",
+  "age": 42
+}
+
+Possible matches:
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  query:[22m
+[2m  query GetUser($username: String!) {[22m
+[2m    user(username: $username) {[22m
+[2m      id[22m
+[2m      __typename[22m
+[2m    }[22m
+[2m  }[22m
+[2m  variables:[22m
+[2m  {[22m
+[32m-   "age": 13,[39m
+[32m-   "username": "some_user"[39m
+[31m+   "username": "some_user",[39m
+[31m+   "age": 42[39m
+[2m  }[22m]
 `;
 
 exports[`errors if the variables in the mock and component do not match 1`] = `
-[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+[Error: Network error: No more mocked responses for query:
+query GetUser($username: String!) {
   user(username: $username) {
     id
     __typename
   }
 }
-, variables: {"username":"other_user"}]
+variables:
+{
+  "username": "other_user"
+}
+
+Possible matches:
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  query:[22m
+[2m  query GetUser($username: String!) {[22m
+[2m    user(username: $username) {[22m
+[2m      id[22m
+[2m      __typename[22m
+[2m    }[22m
+[2m  }[22m
+[2m  variables:[22m
+[2m  {[22m
+[32m-   "username": "mock_username"[39m
+[31m+   "username": "other_user"[39m
+[2m  }[22m]
 `;
 
 exports[`mocks the data 1`] = `
