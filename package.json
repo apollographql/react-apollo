@@ -101,9 +101,9 @@
   },
   "peerDependencies": {
     "apollo-client": "^2.5.1",
-    "react": "^15.0.0 || ^16.0.0",
-    "react-dom": "^15.0.0 || ^16.0.0",
-    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
+    "graphql": "^14.1.0"
   },
   "sideEffects": false,
   "devDependencies": {
