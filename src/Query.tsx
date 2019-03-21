@@ -94,6 +94,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   static propTypes = {
     client: PropTypes.object,
     children: PropTypes.func.isRequired,
+    shouldInvalidatePreviousData: PropTypes.func,
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
     onCompleted: PropTypes.func,
@@ -202,6 +203,10 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       this.queryObservable = null;
       this.previousData = {};
       this.updateQuery(nextProps);
+    } else if (typeof nextProps.shouldInvalidatePreviousData === 'function') {
+      if (nextProps.shouldInvalidatePreviousData(nextProps.variables, this.props.variables)) {
+        this.previousData = {};
+      }
     }
 
     if (this.props.query !== nextProps.query) {
