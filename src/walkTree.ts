@@ -51,12 +51,12 @@ export function walkTree(
   if (isReactElement(element)) {
     if (typeof element.type === 'function') {
       const Comp = element.type;
-      const props = Object.assign({}, Comp.defaultProps, getProps(element));
       let childContext = context;
       let child;
 
       // Are we are a react class?
       if (isComponentClass(Comp)) {
+        const props = Object.assign({}, Comp.defaultProps, getProps(element));
         const instance = new Comp(props, context);
         // In case the user doesn't pass these to super in the constructor.
         // Note: `Component.props` are now readonly in `@types/react`, so
@@ -104,12 +104,14 @@ export function walkTree(
 
         child = instance.render();
       } else {
+
         // Just a stateless functional
         if (visitor(element, null, newContext, context) === false) {
           return;
         }
 
-        child = Comp(props, context);
+        const FC = Comp as React.FunctionComponent;
+        child = FC(getProps(element), context);
       }
 
       if (child) {

@@ -31,7 +31,7 @@ export function withMutation<
   if (typeof mapPropsToOptions !== 'function') mapPropsToOptions = () => options as MutationOpts;
 
   return (
-    WrappedComponent: React.ComponentType<TChildProps & TProps>,
+    WrappedComponent: React.ComponentType<TProps & TChildProps>,
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
     class GraphQL extends GraphQLBase<TProps, TChildProps> {
@@ -67,7 +67,12 @@ export function withMutation<
                 childProps = operationOptions.props(newResult) as any;
               }
 
-              return <WrappedComponent {...props} {...childProps} />;
+              return (
+                <WrappedComponent
+                  {...props as TProps}
+                  {...childProps as any}
+                />
+              );
             }}
           </Mutation>
         );
