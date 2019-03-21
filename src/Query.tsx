@@ -342,6 +342,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         }
 
         initial = undefined;
+        if (this.lastResult) {
+          this.lastResult = this.queryObservable!.getLastResult();
+        }
         this.updateCurrentData();
       },
       error: error => {

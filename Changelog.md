@@ -11,6 +11,10 @@
   component, after an error was received, variables were adjusted, and then
   the good data was fetched.  <br/>
   [@MerzDaniel](https://github.com/MerzDaniel) in [#2718](https://github.com/apollographql/react-apollo/pull/2718)
+- Fixed an issue that prevented `Query` component updates from firing (under
+  certain circumstances) due to the internal `lastResult` value (that's used
+  to help prevent unnecessary re-renders) not being updated.  <br/>
+  [@Glennrs](https://github.com/Glennrs) in [#2840](https://github.com/apollographql/react-apollo/pull/2840)
 
 ### Improvements
 
@@ -42,6 +46,9 @@
 - The `ApolloProvider` / `ApolloConsumer` implementations have been refactored
   to use [React 16.3's new context API](https://reactjs.org/docs/context.html).  <br/>
   [@wzrdzl](https://github.com/wzrdzl) in [#2540](https://github.com/apollographql/react-apollo/pull/2540)
+- All `dependencies` and `devDependencies` have been updated to their latest
+  versions, and related Typescript changes have been applied.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2873](https://github.com/apollographql/react-apollo/pull/2873)
 
 
 ## v2.5.2
