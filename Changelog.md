@@ -46,6 +46,9 @@
 - The `ApolloProvider` / `ApolloConsumer` implementations have been refactored
   to use [React 16.3's new context API](https://reactjs.org/docs/context.html).  <br/>
   [@wzrdzl](https://github.com/wzrdzl) in [#2540](https://github.com/apollographql/react-apollo/pull/2540)
+- All `dependencies` and `devDependencies` have been updated to their latest
+  versions, and related Typescript changes have been applied.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2873](https://github.com/apollographql/react-apollo/pull/2873)
 
 
 ## v2.5.2
