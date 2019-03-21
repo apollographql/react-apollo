@@ -9,7 +9,7 @@ export interface ApolloConsumerProps {
 }
 
 const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> =
-  (props, legacyContext) => {
+  (props) => {
     function finish(context: any) {
       if (!context || !context.client) {
         throw new InvariantError(
@@ -20,13 +20,10 @@ const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> =
       return props.children(context.client);
     }
 
-    return ApolloContext ? (
+    return (
       <ApolloContext.Consumer>
         {finish}
       </ApolloContext.Consumer>
-    ) : (
-      // Fall back to legacy context API if React.createContext not available.
-      finish(legacyContext)
     );
   };
 

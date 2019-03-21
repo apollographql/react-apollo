@@ -657,14 +657,7 @@ describe('SSR', () => {
     it('should correctly initialize an empty state to null', () => {
       class Element extends React.Component<any, any> {
         render() {
-          // this is a check for how react and preact differ. Preact (nicely)
-          // comes with a default state
-          if ((this as any).__d) {
-            // I'm preact
-            expect(this.state).toEqual({});
-          } else {
-            expect(this.state).toBeNull();
-          }
+          expect(this.state).toBeNull();
           return null;
         }
       }
