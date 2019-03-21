@@ -74,7 +74,7 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> extend
   skip?: boolean;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
-  shouldInvalidatePreviousData?: (nextVariables: TVariables, prevVariables: TVariables) => boolean;
+  shouldInvalidatePreviousData?: (nextVariables: TVariables | undefined, prevVariables: TVariables | undefined) => boolean;
 }
 
 export interface QueryContext {
