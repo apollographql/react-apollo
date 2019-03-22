@@ -6,6 +6,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import * as TestUtils from 'react-dom/test-utils';
 import { DocumentNode } from 'graphql';
+import { mount } from 'enzyme';
 
 import { mockSingleLink } from '../../../src/test-utils';
 import { compose, ApolloProvider, ChildProps, DataValue, graphql, withApollo } from '../../../src';
@@ -53,13 +54,13 @@ describe('shared operations', () => {
 
       const Decorated = withApollo(Container, { withRef: true });
 
-      const tree = TestUtils.renderIntoDocument(
+      const wrapped = mount(
         <ApolloProvider client={client}>
           <Decorated />
         </ApolloProvider>,
-      ) as any;
+      );
 
-      const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
+      const decorated = wrapped.find(Decorated).instance();
 
       expect(() => (decorated as any).someMethod()).toThrow();
       expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
@@ -70,16 +71,13 @@ describe('shared operations', () => {
         skip: true,
       });
 
-      const treeWithSkip = TestUtils.renderIntoDocument(
+      const treeWithSkip = mount(
         <ApolloProvider client={client}>
           <DecoratedWithSkip />
         </ApolloProvider>,
-      ) as any;
-
-      const decoratedWithSkip = TestUtils.findRenderedComponentWithType(
-        treeWithSkip,
-        DecoratedWithSkip,
       );
+
+      const decoratedWithSkip = treeWithSkip.find(DecoratedWithSkip).instance();
 
       expect(() => (decoratedWithSkip as any).someMethod()).toThrow();
       expect((decoratedWithSkip as any).getWrappedInstance().someMethod()).toEqual(testData);
@@ -336,13 +334,13 @@ describe('shared operations', () => {
 
     const Decorated = graphql(query, { withRef: true })(Container);
 
-    const tree = TestUtils.renderIntoDocument(
+    const wrapped = mount(
       <ApolloProvider client={client}>
         <Decorated />
       </ApolloProvider>,
-    ) as any;
+    );
 
-    const decorated = TestUtils.findRenderedComponentWithType(tree, Decorated);
+    const decorated = wrapped.find(Decorated).instance();
 
     expect(() => (decorated as any).someMethod()).toThrow();
     expect((decorated as any).getWrappedInstance().someMethod()).toEqual(testData);
@@ -350,16 +348,13 @@ describe('shared operations', () => {
 
     const DecoratedWithSkip = graphql(query, { withRef: true, skip: true })(Container);
 
-    const treeWithSkip = TestUtils.renderIntoDocument(
+    const treeWithSkip = mount(
       <ApolloProvider client={client}>
         <DecoratedWithSkip />
       </ApolloProvider>,
-    ) as any;
-
-    const decoratedWithSkip = TestUtils.findRenderedComponentWithType(
-      treeWithSkip,
-      DecoratedWithSkip,
     );
+
+    const decoratedWithSkip = treeWithSkip.find(DecoratedWithSkip).instance();
 
     expect(() => (decoratedWithSkip as any).someMethod()).toThrow();
     expect((decoratedWithSkip as any).getWrappedInstance().someMethod()).toEqual(testData);

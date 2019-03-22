@@ -4,11 +4,12 @@ import ApolloClient, { PureQueryOptions, ApolloError, FetchPolicy } from 'apollo
 import { DataProxy } from 'apollo-cache';
 import { invariant } from 'ts-invariant';
 import { DocumentNode, GraphQLError } from 'graphql';
-import shallowEqual from './utils/shallowEqual';
 
+import shallowEqual from './utils/shallowEqual';
 import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';
 import { getClient } from './component-utils';
+import { ApolloContext, ApolloContextValue } from './ApolloContext';
 
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
@@ -16,10 +17,6 @@ export interface MutationResult<TData = Record<string, any>> {
   loading: boolean;
   called: boolean;
   client: ApolloClient<Object>;
-}
-export interface MutationContext {
-  client?: ApolloClient<Object>;
-  operations: Map<string, { query: DocumentNode; variables: any }>;
 }
 
 export interface ExecutionResult<T = Record<string, any>> {
@@ -98,10 +95,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
   MutationProps<TData, TVariables>,
   MutationState<TData>
 > {
-  static contextTypes = {
-    client: PropTypes.object,
-    operations: PropTypes.object,
-  };
+  static contextType = ApolloContext;
 
   static propTypes = {
     mutation: PropTypes.object.isRequired,
@@ -124,7 +118,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
 
   private hasMounted: boolean = false;
 
-  constructor(props: MutationProps<TData, TVariables>, context: any) {
+  constructor(
+    props: MutationProps<TData, TVariables>,
+    context: ApolloContextValue,
+  ) {
     super(props, context);
     this.client = getClient(props, context);
     this.verifyDocumentIsMutation(props.mutation);
@@ -140,11 +137,8 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     this.hasMounted = false;
   }
 
-  componentWillReceiveProps(
-    nextProps: MutationProps<TData, TVariables>,
-    nextContext: MutationContext,
-  ) {
-    const nextClient = getClient(nextProps, nextContext);
+  componentWillReceiveProps(nextProps: MutationProps<TData, TVariables>) {
+    const nextClient = getClient(nextProps, this.context);
     if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
     }
@@ -202,23 +196,6 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     const mutateOptions = { ...options };
 
     let refetchQueries = mutateOptions.refetchQueries || this.props.refetchQueries;
-    // XXX this will be removed in the 3.0 of Apollo Client. Currently, we
-    // support refectching of named queries which just pulls the latest
-    // variables to match. This forces us to either a) keep all queries around
-    // to be able to iterate over and refetch, or b) [new in 2.1] keep a map of
-    // operations on the client where operation name => { query, variables }
-    //
-    // Going forward, we should only allow using the full operation + variables to
-    // refetch.
-    if (refetchQueries && refetchQueries.length && Array.isArray(refetchQueries)) {
-      refetchQueries = (refetchQueries as any).map((x: string | PureQueryOptions) => {
-        if (typeof x === 'string' && this.context.operations)
-          return this.context.operations.get(x) || x;
-        return x;
-      });
-      delete mutateOptions.refetchQueries;
-    }
-
     const mutateVariables = Object.assign({}, variables, mutateOptions.variables);
     delete mutateOptions.variables;
 

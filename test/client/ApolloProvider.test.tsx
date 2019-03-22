@@ -1,11 +1,11 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { shallow } from 'enzyme';
 import * as TestUtils from 'react-dom/test-utils';
+import { shallow, mount } from 'enzyme';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { ApolloProvider } from '../../src';
+
+import { ApolloProvider, ApolloContext } from '../../src';
 
 describe('<ApolloProvider /> Component', () => {
   const client = new ApolloClient({
@@ -13,25 +13,15 @@ describe('<ApolloProvider /> Component', () => {
     link: new ApolloLink((o, f) => (f ? f(o) : null)),
   });
 
-  interface ChildContext {
-    client: Object;
-  }
-
   class Child extends React.Component<any, { store: any; client: any }> {
-    static contextTypes: React.ValidationMap<any> = {
-      client: PropTypes.object.isRequired,
-    };
-
-    context: ChildContext = {
-      client: {},
-    };
-
-    render() {
-      return null;
-    }
+    static contextType = ApolloContext;
 
     componentDidUpdate() {
       if (this.props.data) this.props.data.refetch();
+    }
+
+    render() {
+      return null;
     }
   }
 
@@ -60,38 +50,8 @@ describe('<ApolloProvider /> Component', () => {
     }
   }
 
-  // --- unused ---
-  // const query = gql`
-  //   query {
-  //     authors {
-  //       id
-  //     }
-  //   }
-  // `;
-  // const GQLChild = graphql(query)(Child);
-  // class ConnectedContainer extends React.Component<any, any> {
-  //   constructor(props) {
-  //     super(props);
-  //     this.state = {};
-  //   }
-  //
-  //   componentDidMount() {
-  //     this.setState({
-  //       client: this.props.client,
-  //     });
-  //   }
-  //
-  //   render() {
-  //     return (
-  //       <ApolloProvider client={this.state.client || this.props.client}>
-  //         <GQLChild />
-  //       </ApolloProvider>
-  //     );
-  //   }
-  // }
-
   it('should render children components', () => {
-    const wrapper = shallow(
+    const wrapper = mount(
       <ApolloProvider client={client}>
         <div className="unique" />
       </ApolloProvider>,
@@ -101,7 +61,7 @@ describe('<ApolloProvider /> Component', () => {
   });
 
   it('should support the 2.0', () => {
-    const wrapper = shallow(
+    const wrapper = mount(
       <ApolloProvider client={{} as ApolloClient<any>}>
         <div className="unique" />
       </ApolloProvider>,
@@ -116,10 +76,14 @@ describe('<ApolloProvider /> Component', () => {
       /* noop */
     };
     expect(() => {
-      shallow(
-        <ApolloProvider client={undefined as any}>
-          <div className="unique" />
-        </ApolloProvider>,
+      // Before testing `ApolloProvider`, we first fully reset the
+      // existing context using `ApolloContext.Provider` directly.
+      mount(
+        <ApolloContext.Provider value={{}}>
+          <ApolloProvider client={undefined as any}>
+            <div className="unique" />
+          </ApolloProvider>
+        </ApolloContext.Provider>
       );
     }).toThrowError(
       'ApolloProvider was not passed a client instance. Make ' +
@@ -129,40 +93,26 @@ describe('<ApolloProvider /> Component', () => {
   });
 
   it('should not require a store', () => {
-    const wrapper = shallow(
+    const wrapper = mount(
       <ApolloProvider client={client}>
         <div className="unique" />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
-
     expect(wrapper.contains(<div className="unique" />)).toBeTruthy();
   });
 
-  // NOTE: now that we added types, this fails directly on type checking - we have no way to runtime check
-  //        something that cannot even be compiled.
-  // it('should throw if rendered without a child component', () => {
-  //   const originalConsoleError = console.error;
-  //   console.error = () => {
-  //     /* noop */
-  //   };
-  //   expect(() => {
-  //     shallow(<ApolloProvider client={client} />);
-  //   }).toThrowError(Error);
-  //   console.error = originalConsoleError;
-  // });
-
   it('should add the client to the children context', () => {
-    const tree = TestUtils.renderIntoDocument<React.Component<any, any>>(
+    const wrapper = mount(
       <ApolloProvider client={client}>
         <Child />
         <Child />
-      </ApolloProvider>,
-    ) as React.Component<any, any>;
-
-    const children = TestUtils.scryRenderedComponentsWithType(tree, Child);
-
+      </ApolloProvider>
+    );
+    const children = wrapper.find(Child);
     expect(children).toHaveLength(2);
-    children.forEach(child => expect(child.context.client).toEqual(client));
+    children.forEach((node) => {
+      expect(node.instance().context.client).toEqual(client);
+    });
   });
 
   it('should update props when the client changes', () => {

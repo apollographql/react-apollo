@@ -10,11 +10,11 @@ import ApolloClient, {
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
+
 import { OperationVariables, QueryControls, QueryOpts } from './types';
 import { parser, DocumentType, IDocumentDefinition } from './parser';
 import { getClient } from './component-utils';
-import { RenderPromises } from './getDataFromTree';
-
+import { ApolloContext, ApolloContextValue } from './ApolloContext';
 import isEqual from 'lodash.isequal';
 import shallowEqual from './utils/shallowEqual';
 import { invariant } from 'ts-invariant';
@@ -76,20 +76,10 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> extend
   onError?: (error: ApolloError) => void;
 }
 
-export interface QueryContext {
-  client?: ApolloClient<Object>;
-  operations?: Map<string, { query: DocumentNode; variables: any }>;
-  renderPromises?: RenderPromises;
-}
-
 export default class Query<TData = any, TVariables = OperationVariables> extends React.Component<
   QueryProps<TData, TVariables>
 > {
-  static contextTypes = {
-    client: PropTypes.object,
-    operations: PropTypes.object,
-    renderPromises: PropTypes.object,
-  };
+  static contextType = ApolloContext;
 
   static propTypes = {
     client: PropTypes.object,
@@ -104,8 +94,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     ssr: PropTypes.bool,
     partialRefetch: PropTypes.bool,
   };
-
-  context: QueryContext | undefined;
 
   private client: ApolloClient<Object>;
 
@@ -125,9 +113,11 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private operation?: IDocumentDefinition;
   private lastResult: ApolloQueryResult<TData> | null = null;
 
-  constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
+  constructor(
+    props: QueryProps<TData, TVariables>,
+    context: ApolloContextValue,
+  ) {
     super(props, context);
-
     this.client = getClient(props, context);
     this.initializeQueryObservable(props);
   }
@@ -183,14 +173,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
   }
 
-  componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>, nextContext: QueryContext) {
+  componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>) {
     // the next render wants to skip
     if (nextProps.skip && !this.props.skip) {
       this.removeQuerySubscription();
       return;
     }
 
-    const nextClient = getClient(nextProps, nextContext);
+    const nextClient = getClient(nextProps, this.context);
 
     if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
       return;
@@ -260,8 +250,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private initializeQueryObservable(props: QueryProps<TData, TVariables>) {
     const opts = this.extractOptsFromProps(props);
-    // save for backwards compat of refetcherQueries without a recycler
-    this.setOperations(opts);
 
     // See if there is an existing observable that was used to fetch the same data and
     // if so, use it instead since it will contain the proper queryId to fetch
@@ -274,21 +262,10 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     }
   }
 
-  private setOperations(props: QueryProps<TData, TVariables>) {
-    if (this.context!.operations) {
-      this.context!.operations!.set(this.operation!.name, {
-        query: props.query,
-        variables: props.variables,
-      });
-    }
-  }
-
   private updateQuery(props: QueryProps<TData, TVariables>) {
     // if we skipped initially, we may not have yet created the observable
     if (!this.queryObservable) {
       this.initializeQueryObservable(props);
-    } else {
-      this.setOperations(props);
     }
 
     this.queryObservable!.setOptions(this.extractOptsFromProps(props))

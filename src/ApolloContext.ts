@@ -1,11 +1,12 @@
 import React from 'react';
 import ApolloClient from 'apollo-client';
-import { DocumentNode } from 'graphql';
+
+import { RenderPromises } from './getDataFromTree';
 
 export interface ApolloContextValue {
   client?: ApolloClient<Object>;
-  operations?: Map<string, { query: DocumentNode; variables: any }>;
+  renderPromises?: RenderPromises;
 }
 
 export const ApolloContext =
-  React.createContext<ApolloContextValue | undefined>(undefined);
+  React.createContext<ApolloContextValue | undefined>({});

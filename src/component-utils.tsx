@@ -1,17 +1,15 @@
 import ApolloClient from 'apollo-client';
 import { invariant } from 'ts-invariant';
 
-export interface CommonComponentProps {
-  client?: ApolloClient<Object>;
-}
+import { ApolloContextValue } from './ApolloContext';
 
-export interface CommonComponentContext {
+export interface CommonComponentProps {
   client?: ApolloClient<Object>;
 }
 
 export function getClient(
   props: CommonComponentProps,
-  context: CommonComponentContext,
+  context: ApolloContextValue,
 ): ApolloClient<Object> {
   const client = props.client || context.client;
 
