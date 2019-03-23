@@ -159,7 +159,7 @@
     "ts-jest": "24.0.0",
     "tsc-watch": "2.1.2",
     "tslint": "5.14.0",
-    "typescript": "3.3.3333",
+    "typescript": "3.3.4000",
     "typescript-require": "0.2.10",
     "zen-observable-ts": "0.8.18"
   },
