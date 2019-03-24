@@ -1,5 +1,15 @@
 # Change log
 
+## 3.0.0
+
+### Improvements
+
+- `useApolloClient` can be used to return an `ApolloClient` instance from
+  React Apollo's context, assuming it was previously set using
+  `ApolloProvider`.  <br/>
+  [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
+
+
 ## vNEXT
 
 ### Bug Fixes
