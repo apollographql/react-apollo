@@ -7,9 +7,8 @@ import { ZenObservable } from 'zen-observable-ts';
 
 import { OperationVariables } from './types';
 import { getClient } from './component-utils';
-
 import shallowEqual from './utils/shallowEqual';
-import { invariant } from 'ts-invariant';
+import { ApolloContext, ApolloContextValue } from './ApolloContext';
 
 export interface SubscriptionResult<TData = any> {
   loading: boolean;
@@ -39,17 +38,11 @@ export interface SubscriptionState<TData = any> {
   error?: ApolloError;
 }
 
-export interface SubscriptionContext {
-  client?: ApolloClient<Object>;
-}
-
 class Subscription<TData = any, TVariables = any> extends React.Component<
   SubscriptionProps<TData, TVariables>,
   SubscriptionState<TData>
 > {
-  static contextTypes = {
-    client: PropTypes.object,
-  };
+  static contextType = ApolloContext;
 
   static propTypes = {
     subscription: PropTypes.object.isRequired,
@@ -64,10 +57,13 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   private queryObservable?: Observable<any>;
   private querySubscription?: ZenObservable.Subscription;
 
-  constructor(props: SubscriptionProps<TData, TVariables>, context: SubscriptionContext) {
+  constructor(
+    props: SubscriptionProps<TData, TVariables>,
+    context: ApolloContextValue,
+  ) {
     super(props, context);
-
     this.client = getClient(props, context);
+
     this.initialize(props);
     this.state = this.getInitialState();
   }
@@ -76,11 +72,8 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     this.startSubscription();
   }
 
-  componentWillReceiveProps(
-    nextProps: SubscriptionProps<TData, TVariables>,
-    nextContext: SubscriptionContext,
-  ) {
-    const nextClient = getClient(nextProps, nextContext);
+  componentWillReceiveProps(nextProps: SubscriptionProps<TData, TVariables>) {
+    const nextClient = getClient(nextProps, this.context);
 
     if (
       shallowEqual(this.props.variables, nextProps.variables) &&

@@ -1,8 +1,9 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import Query from './Query';
 import { ObservableQuery } from 'apollo-client';
 import { DocumentNode } from 'graphql';
+
+import Query from './Query';
+import { ApolloContext } from './ApolloContext';
 
 type QueryInfo = {
   seen: boolean;
@@ -124,31 +125,20 @@ export function getMarkupFromTree({
 }: GetMarkupFromTreeOptions): Promise<string> {
   const renderPromises = new RenderPromises();
 
-  class RenderPromisesProvider extends React.Component {
-    static childContextTypes: { [key: string]: any } = {
-      renderPromises: PropTypes.object,
-    };
-
-    getChildContext() {
-      return { ...context, renderPromises };
-    }
-
-    render() {
-      // Always re-render from the rootElement, even though it might seem
-      // better to render the children of the component responsible for the
-      // promise, because it is not possible to reconstruct the full context
-      // of the original rendering (including all unknown context provider
-      // elements) for a subtree of the orginal component tree.
-      return tree;
-    }
-  }
-
-  Object.keys(context).forEach(key => {
-    RenderPromisesProvider.childContextTypes[key] = PropTypes.any;
-  });
-
   function process(): Promise<string> | string {
-    const html = renderFunction(React.createElement(RenderPromisesProvider));
+    // Always re-render from the rootElement, even though it might seem
+    // better to render the children of the component responsible for the
+    // promise, because it is not possible to reconstruct the full context
+    // of the original rendering (including all unknown context provider
+    // elements) for a subtree of the orginal component tree.
+    const html = renderFunction(
+      React.createElement(
+        ApolloContext.Provider,
+        { value: { ...context, renderPromises } },
+        tree,
+      )
+    );
+
     return renderPromises.hasPromises()
       ? renderPromises.consumeAndAwaitPromises().then(process)
       : html;

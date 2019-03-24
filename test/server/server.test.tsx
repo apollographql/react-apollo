@@ -265,103 +265,100 @@ describe('SSR', () => {
   });
 
   it('should work with React.createContext', async () => {
-    // Preact doesn't support createContext so this test won't run in Preact
-    if (React.createContext) {
-      let defaultValue = 'default';
-      let Context = React.createContext(defaultValue);
-      let providerValue = 'provider';
-      expect(
-        await renderToStringWithData(
-          <React.Fragment>
-            <Context.Provider value={providerValue} />
-            <Context.Consumer>
-              {val => {
-                expect(val).toBe(defaultValue);
-                return val;
-              }}
-            </Context.Consumer>
-          </React.Fragment>,
-        ),
-      ).toBe(defaultValue);
-      expect(
-        await renderToStringWithData(
-          <Context.Provider value={providerValue}>
-            <Context.Consumer>
-              {val => {
-                expect(val).toBe(providerValue);
-                return val;
-              }}
-            </Context.Consumer>
-          </Context.Provider>,
-        ),
-      ).toBe(providerValue);
-      expect(
-        await renderToStringWithData(
+    let defaultValue = 'default';
+    let Context = React.createContext(defaultValue);
+    let providerValue = 'provider';
+    expect(
+      await renderToStringWithData(
+        <React.Fragment>
+          <Context.Provider value={providerValue} />
           <Context.Consumer>
             {val => {
               expect(val).toBe(defaultValue);
               return val;
             }}
-          </Context.Consumer>,
-        ),
-      ).toBe(defaultValue);
-      let ContextForUndefined = React.createContext<void | string>(defaultValue);
+          </Context.Consumer>
+        </React.Fragment>,
+      ),
+    ).toBe(defaultValue);
+    expect(
+      await renderToStringWithData(
+        <Context.Provider value={providerValue}>
+          <Context.Consumer>
+            {val => {
+              expect(val).toBe(providerValue);
+              return val;
+            }}
+          </Context.Consumer>
+        </Context.Provider>,
+      ),
+    ).toBe(providerValue);
+    expect(
+      await renderToStringWithData(
+        <Context.Consumer>
+          {val => {
+            expect(val).toBe(defaultValue);
+            return val;
+          }}
+        </Context.Consumer>,
+      ),
+    ).toBe(defaultValue);
+    let ContextForUndefined = React.createContext<void | string>(defaultValue);
 
-      expect(
-        await renderToStringWithData(
-          <ContextForUndefined.Provider value={undefined}>
-            <ContextForUndefined.Consumer>
-              {val => {
-                expect(val).toBeUndefined();
-                return val === undefined ? 'works' : 'broken';
-              }}
-            </ContextForUndefined.Consumer>
-          </ContextForUndefined.Provider>,
-        ),
-      ).toBe('works');
+    expect(
+      await renderToStringWithData(
+        <ContextForUndefined.Provider value={undefined}>
+          <ContextForUndefined.Consumer>
+            {val => {
+              expect(val).toBeUndefined();
+              return val === undefined ? 'works' : 'broken';
+            }}
+          </ContextForUndefined.Consumer>
+        </ContextForUndefined.Provider>,
+      ),
+    ).toBe('works');
 
-      const apolloClient = new ApolloClient({
-        link: new ApolloLink(config => {
-          return new Observable(observer => {
-            execute(Schema, print(config.query), null, null, config.variables, config.operationName)
-              .then(result => {
-                observer.next(result);
-                observer.complete();
-              })
-              .catch(e => {
-                observer.error(e);
-              });
-          });
-        }),
-        cache: new Cache(),
-      });
+    const apolloClient = new ApolloClient({
+      link: new ApolloLink(config => {
+        return new Observable(observer => {
+          execute(Schema, print(config.query), null, null, config.variables, config.operationName)
+            .then(result => {
+              observer.next(result);
+              observer.complete();
+            })
+            .catch(e => {
+              observer.error(e);
+            });
+        });
+      }),
+      cache: new Cache(),
+    });
 
-      expect(
-        await renderToStringWithData(
-          <ApolloProvider client={apolloClient}>
-            <Context.Provider value={providerValue}>
-              <Query
-                query={gql`
-                  query ShipIds {
-                    allShips {
-                      id
-                    }
+    expect(
+      await renderToStringWithData(
+        <ApolloProvider client={apolloClient}>
+          <Context.Provider value={providerValue}>
+            <Query
+              query={gql`
+                query ShipIds {
+                  allShips {
+                    id
                   }
-                `}
-              >
-                {() => (
-                  <Context.Consumer>
-                    {val => {
-                      expect(val).toBe(providerValue);
-                      return val;
-                    }}
-                  </Context.Consumer>
-                )}
-              </Query>
-            </Context.Provider>
-          </ApolloProvider>,
-        ),
-      ).toBe(providerValue);
-    }
+                }
+              `}
+            >
+              {() => (
+                <Context.Consumer>
+                  {val => {
+                    expect(val).toBe(providerValue);
+                    return val;
+                  }}
+                </Context.Consumer>
+              )}
+            </Query>
+          </Context.Provider>
+        </ApolloProvider>,
+      ),
+    ).toBe(providerValue);
   });
 });

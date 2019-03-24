@@ -2,7 +2,7 @@ import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { ApolloProvider, ApolloConsumer } from '../../src';
+import { ApolloProvider, ApolloConsumer, ApolloContext } from '../../src';
 import { mount } from 'enzyme';
 
 const client = new ApolloClient({
@@ -44,7 +44,14 @@ describe('<ApolloConsumer /> component', () => {
     const errorLogger = console.error;
     console.error = () => {}; // tslint:disable-line
     expect(() => {
-      mount(<ApolloConsumer>{() => null}</ApolloConsumer>);
+      // We're wrapping the `ApolloConsumer` component in a
+      // `ApolloContext.Provider` component, to reset the context before
+      // testing.
+      mount(
+        <ApolloContext.Provider value={{}}>
+          <ApolloConsumer>{() => null}</ApolloConsumer>
+        </ApolloContext.Provider>
+      );
     }).toThrowError(
       'Could not find "client" in the context of ApolloConsumer. Wrap the root component in an <ApolloProvider>',
     );
