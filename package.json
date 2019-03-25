@@ -104,7 +104,7 @@
   },
   "sideEffects": false,
   "devDependencies": {
-    "@types/enzyme": "3.9.0",
+    "@types/enzyme": "3.9.1",
     "@types/enzyme-adapter-react-16": "1.0.5",
     "@types/graphql": "14.0.7",
     "@types/hoist-non-react-statics": "3.3.0",
@@ -144,7 +144,7 @@
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
     "rimraf": "2.6.3",
-    "rollup": "1.6.0",
+    "rollup": "1.7.0",
     "rollup-plugin-commonjs": "9.2.1",
     "rollup-plugin-filesize": "6.0.1",
     "rollup-plugin-invariant": "0.4.2",
@@ -154,7 +154,7 @@
     "ts-jest": "24.0.0",
     "tsc-watch": "2.1.2",
     "tslint": "5.14.0",
-    "typescript": "3.3.3333",
+    "typescript": "3.3.4000",
     "typescript-require": "0.2.10",
     "zen-observable-ts": "0.8.18"
   },
