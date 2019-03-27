@@ -3,7 +3,7 @@ import ApolloClient from 'apollo-client';
 import { DefaultOptions, Resolvers } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
-import { ApolloProvider } from './index';
+import { ApolloProvider } from './react-apollo.cjs';
 import { MockedResponse, MockLink } from './test-links';
 import { ApolloCache } from 'apollo-cache';
 export * from './test-links';
