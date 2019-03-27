@@ -1,5 +1,14 @@
 # Change log
 
+## vNext
+
+### Bug Fixes
+
+- Fixes `Could not find "client" in the context of ApolloConsumer` errors when
+  using `MockedProvider`.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2907](https://github.com/apollographql/react-apollo/pull/2907)
+
+
 ## 2.5.3
 
 ### Bug Fixes
