@@ -434,6 +434,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         error = new ApolloError({ graphQLErrors: errors });
       }
 
+      const { fetchPolicy } = this.queryObservable!.options;
       Object.assign(data, { loading, networkStatus, error });
 
       if (loading) {
@@ -442,8 +443,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         Object.assign(data, {
           data: (this.queryObservable!.getLastResult() || {}).data,
         });
+      } else if (
+        fetchPolicy === 'no-cache' &&
+        Object.keys(currentResult.data).length === 0
+      ) {
+        // Make sure data pulled in by a `no-cache` query is preserved
+        // when the components parent tree is re-rendered.
+        data.data = this.previousData;
       } else {
-        const { fetchPolicy } = this.queryObservable!.options;
         const { partialRefetch } = this.props;
         if (
           partialRefetch &&

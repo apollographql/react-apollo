@@ -7,6 +7,9 @@
 - Fixes `Could not find "client" in the context of ApolloConsumer` errors when
   using `MockedProvider`.  <br/>
   [@hwillson](https://github.com/hwillson) in [#2907](https://github.com/apollographql/react-apollo/pull/2907)
+- Ensure `Query` components using a `fetchPolicy` of `no-cache` have their
+  data preserved when the components tree is re-rendered.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#TODO](https://github.com/apollographql/react-apollo/pull/TODO)
 
 
 ## 2.5.3
