@@ -144,7 +144,7 @@
     "preact-compat": "3.18.4",
     "prettier": "1.16.4",
     "react": "16.8.6",
-    "react-dom": "16.8.5",
+    "react-dom": "16.8.6",
     "react-test-renderer": "16.8.5",
     "recompose": "0.30.0",
     "recursive-rename": "2.0.0",
