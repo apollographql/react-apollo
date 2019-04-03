@@ -208,6 +208,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       if (nextProps.shouldInvalidatePreviousData(nextProps.variables, this.props.variables)) {
         this.previousData = {};
       }
+    } else if (!shallowEqual(nextProps.variables, this.props.variables)) {
+      this.previousData = {};
     }
 
     if (this.props.query !== nextProps.query) {
