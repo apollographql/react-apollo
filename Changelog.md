@@ -1,10 +1,22 @@
 # Change log
 
-## vNEXT
+## vNext
 
 ### Bug Fixes
 
-- Fix an infinite loop caused by using `setState` in the
+- Fixes `Could not find "client" in the context of ApolloConsumer` errors when
+  using `MockedProvider`.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2907](https://github.com/apollographql/react-apollo/pull/2907)
+- Ensure `Query` components using a `fetchPolicy` of `no-cache` have their
+  data preserved when the components tree is re-rendered.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#2914](https://github.com/apollographql/react-apollo/pull/2914)
+
+
+## 2.5.3
+
+### Bug Fixes
+
+- Fixed an infinite loop caused by using `setState` in the
   `onError` / `onCompleted` callbacks of the `Query` component.  <br/>
   [@chenesan](https://github.com/chenesan) in [#2751](https://github.com/apollographql/react-apollo/pull/2751)
 - Fixed an issue that prevented good results from showing up in a `Query`

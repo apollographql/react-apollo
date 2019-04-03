@@ -1883,4 +1883,88 @@ describe('Query component', () => {
       </AllPeopleQuery>
     );
   });
+
+  it(
+    'should keep data for a `Query` component using `no-cache` when the ' +
+    'tree is re-rendered',
+    done => {
+      const query1 = allPeopleQuery;
+
+      const query2: DocumentNode = gql`
+        query Things {
+          allThings {
+            thing {
+              description
+            }
+          }
+        }
+      `;
+
+      interface ThingData {
+        allThings: {
+          thing: Array<{ description: string }>;
+        };
+      }
+
+      const allThingsData: ThingData = {
+        allThings: {
+          thing: [
+            { description: 'Thing 1' },
+            { description: 'Thing 2' },
+          ],
+        },
+      };
+
+      const link = mockSingleLink(
+        { request: { query: query1 }, result: { data: allPeopleData } },
+        { request: { query: query2 }, result: { data: allThingsData } },
+      );
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false }),
+      });
+
+      let expectCount = 0;
+
+      const People = () => {
+        let renderCount = 0;
+        return (
+          <Query query={query1} fetchPolicy="no-cache">
+            {({ data, loading }) => {
+              if (renderCount > 0 && !loading) {
+                expect(data).toEqual(allPeopleData);
+                expectCount += 1;
+                if (expectCount === 2) done();
+              }
+              renderCount += 1;
+              return null;
+            }}
+          </Query>
+        );
+      };
+
+      const Things = () => (
+        <Query query={query2}>
+          {({ data, loading }) => {
+            if (!loading) {
+              expect(data).toEqual(allThingsData);
+              expectCount += 1;
+              if (expectCount === 2) done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      const App = () => (
+        <ApolloProvider client={client}>
+          <People />
+          <Things />
+        </ApolloProvider>
+      )
+
+      wrapper = mount(<App />);
+    },
+  );
 });

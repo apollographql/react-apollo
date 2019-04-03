@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { DocumentNode } from 'graphql';
 
