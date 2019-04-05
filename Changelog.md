@@ -11,6 +11,11 @@
   data preserved when the components tree is re-rendered.  <br/>
   [@hwillson](https://github.com/hwillson) in [#2914](https://github.com/apollographql/react-apollo/pull/2914)
 
+### Improvements
+
+- Documentation updates.  <br/>
+  [@afenton90](https://github.com/afenton90) in [#2932](https://github.com/apollographql/react-apollo/pull/2932)
+
 
 ## 2.5.3
 
