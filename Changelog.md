@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.5.4 (2019-04-05)
 
 ### Bug Fixes
 
