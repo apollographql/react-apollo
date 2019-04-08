@@ -885,9 +885,7 @@ it('allows a refetchQueries prop', done => {
         <Query query={query}>
           {resultQuery => {
             if (count === 0) {
-              setTimeout(() => {
-                createTodo();
-              });
+              createTodo();
             } else if (count === 1) {
               expect(resultMutation.loading).toBe(true);
               expect(resultQuery.loading).toBe(true);
@@ -949,71 +947,56 @@ it('allows a refetchQueries prop as string and variables have updated', done => 
 
   const refetchQueries = ['people'];
 
+  let wrapper: any;
   let count = 0;
-  class Component extends React.Component {
-    state = {
-      variables: {
-        first: 1,
-      },
-    };
-    componentDidMount() {
-      setTimeout(() => {
-        this.setState({
-          variables: {
-            first: 2,
-          },
-        });
-      }, 50);
-    }
-    render() {
-      const { variables } = this.state;
 
-      return (
-        <Mutation mutation={mutation} refetchQueries={refetchQueries}>
-          {(createTodo, resultMutation) => (
-            <Query query={query} variables={variables}>
-              {resultQuery => {
-                if (count === 0) {
-                  // initial loading
-                  expect(resultQuery.loading).toBe(true);
-                } else if (count === 1) {
-                  // initial loaded
-                  expect(resultQuery.loading).toBe(false);
-                } else if (count === 2) {
-                  // first: 2 loading
-                  expect(resultQuery.loading).toBe(true);
-                } else if (count === 3) {
-                  // first: 2 loaded
-                  expect(resultQuery.loading).toBe(false);
-                  setTimeout(() => {
-                    createTodo();
-                  });
-                } else if (count === 4) {
-                  // mutation loading
-                  expect(resultMutation.loading).toBe(true);
-                } else if (count === 5) {
-                  // mutation loaded
-                  expect(resultMutation.loading).toBe(false);
-                } else if (count === 6) {
-                  // query refetched
-                  expect(resultQuery.loading).toBe(false);
-                  expect(resultMutation.loading).toBe(false);
-                  expect(stripSymbols(resultQuery.data)).toEqual(peopleData3);
-                  done();
-                }
-                count++;
-                return null;
-              }}
-            </Query>
-          )}
-        </Mutation>
-      );
-    }
-  }
+  const Component: React.FC<any> = (props) => (
+    <Mutation mutation={mutation} refetchQueries={refetchQueries}>
+      {(createTodo, resultMutation) => (
+        <Query query={query} variables={props.variables}>
+          {resultQuery => {
+            if (count === 0) {
+              // "first: 1" loading
+              expect(resultQuery.loading).toBe(true);
+            } else if (count === 1) {
+              // "first: 1" loaded
+              expect(resultQuery.loading).toBe(false);
+              wrapper.setProps({
+                children: <Component variables={{ first: 2 }} />
+              });
+            } else if (count === 2) {
+              // "first: 2" loading
+              expect(resultQuery.loading).toBe(true);
+            } else if (count === 3) {
+              // "first: 2" loaded
+              expect(resultQuery.loading).toBe(false);
+              setTimeout(() => {
+                createTodo();
+              });
+            } else if (count === 4) {
+              // mutation loading
+              expect(resultMutation.loading).toBe(true);
+            } else if (count === 5) {
+              // mutation loaded
+              expect(resultMutation.loading).toBe(false);
+            } else if (count === 6) {
+              // query refetched
+              expect(resultQuery.loading).toBe(false);
+              expect(resultMutation.loading).toBe(false);
+              expect(stripSymbols(resultQuery.data)).toEqual(peopleData3);
+              done();
+            }
+            count++;
+            return null;
+          }}
+        </Query>
+      )}
+    </Mutation>
+  );
 
-  mount(
+  wrapper = mount(
     <MockedProvider mocks={peopleMocks}>
-      <Component />
+      <Component variables={{ first: 1 }} />
     </MockedProvider>,
   );
 });
@@ -1072,9 +1055,7 @@ it('allows refetchQueries to be passed to the mutate function', done => {
         <Query query={query}>
           {resultQuery => {
             if (count === 0) {
-              setTimeout(() => {
-                createTodo({ refetchQueries });
-              });
+              createTodo({ refetchQueries });
             } else if (count === 1) {
               expect(resultMutation.loading).toBe(true);
               expect(resultQuery.loading).toBe(true);
@@ -1260,7 +1241,6 @@ it('updates if the client changes', done => {
                   });
                 });
               } else if (count === 3) {
-                expect(result.called).toEqual(false);
                 expect(result.loading).toEqual(false);
                 setTimeout(() => {
                   createTodo();

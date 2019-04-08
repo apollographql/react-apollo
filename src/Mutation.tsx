@@ -5,11 +5,10 @@ import { DataProxy } from 'apollo-cache';
 import { invariant } from 'ts-invariant';
 import { DocumentNode, GraphQLError } from 'graphql';
 
-import shallowEqual from './utils/shallowEqual';
 import { OperationVariables, RefetchQueriesProviderFn } from './types';
 import { parser, DocumentType } from './parser';
 import { getClient } from './component-utils';
-import { ApolloContext, ApolloContextValue } from './ApolloContext';
+import { getApolloContext, ApolloContextValue } from './ApolloContext';
 
 export interface MutationResult<TData = Record<string, any>> {
   data?: TData;
@@ -25,7 +24,6 @@ export interface ExecutionResult<T = Record<string, any>> {
   errors?: GraphQLError[];
 }
 
-// Improved MutationUpdaterFn type, need to port them back to Apollo Client
 export declare type MutationUpdaterFn<
   T = {
     [key: string]: any;
@@ -79,23 +77,16 @@ export interface MutationProps<TData = any, TVariables = OperationVariables> {
 
 export interface MutationState<TData = any> {
   called: boolean;
+  loading: boolean;
   error?: ApolloError;
   data?: TData;
-  loading: boolean;
 }
-
-const initialState = {
-  loading: false,
-  called: false,
-  error: undefined,
-  data: undefined,
-};
 
 class Mutation<TData = any, TVariables = OperationVariables> extends React.Component<
   MutationProps<TData, TVariables>,
   MutationState<TData>
 > {
-  static contextType = ApolloContext;
+  static contextType = getApolloContext();
 
   static propTypes = {
     mutation: PropTypes.object.isRequired,
@@ -113,9 +104,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     fetchPolicy: PropTypes.string,
   };
 
-  private client: ApolloClient<any>;
   private mostRecentMutationId: number;
-
   private hasMounted: boolean = false;
 
   constructor(
@@ -123,34 +112,26 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     context: ApolloContextValue,
   ) {
     super(props, context);
-    this.client = getClient(props, context);
     this.verifyDocumentIsMutation(props.mutation);
     this.mostRecentMutationId = 0;
-    this.state = initialState;
+    this.state = {
+      called: false,
+      loading: false,
+    };
   }
 
   componentDidMount() {
     this.hasMounted = true;
   }
 
-  componentWillUnmount() {
-    this.hasMounted = false;
+  componentDidUpdate(prevProps: MutationProps<TData, TVariables>) {
+    if (this.props.mutation !== prevProps.mutation) {
+      this.verifyDocumentIsMutation(this.props.mutation);
+    }
   }
 
-  componentWillReceiveProps(nextProps: MutationProps<TData, TVariables>) {
-    const nextClient = getClient(nextProps, this.context);
-    if (shallowEqual(this.props, nextProps) && this.client === nextClient) {
-      return;
-    }
-
-    if (this.props.mutation !== nextProps.mutation) {
-      this.verifyDocumentIsMutation(nextProps.mutation);
-    }
-
-    if (this.client !== nextClient) {
-      this.client = nextClient;
-      this.setState(initialState);
-    }
+  componentWillUnmount() {
+    this.hasMounted = false;
   }
 
   render() {
@@ -162,7 +143,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       loading,
       data,
       error,
-      client: this.client,
+      client: this.currentClient(),
     };
 
     return children(this.runMutation, result);
@@ -199,7 +180,7 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
     const mutateVariables = Object.assign({}, variables, mutateOptions.variables);
     delete mutateOptions.variables;
 
-    return this.client.mutate({
+    return this.currentClient().mutate({
       mutation,
       optimisticResponse,
       refetchQueries,
@@ -268,6 +249,10 @@ class Mutation<TData = any, TVariables = OperationVariables> extends React.Compo
       }.`,
     );
   };
+
+  private currentClient() {
+    return getClient(this.props, this.context);
+  }
 }
 
 export default Mutation;

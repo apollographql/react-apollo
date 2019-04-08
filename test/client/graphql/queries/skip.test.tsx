@@ -551,9 +551,12 @@ describe('[queries] skip', () => {
         }
       }
     `;
+
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const nextData = { allPeople: { people: [{ name: 'Anakin Skywalker' }] } };
+
     let ranQuery = 0;
+
     const link = new ApolloLink((o, f) => {
       ranQuery++;
       return f ? f(o) : null;
@@ -582,29 +585,27 @@ describe('[queries] skip', () => {
       options: () => ({ fetchPolicy: 'network-only' }),
       skip: ({ skip }) => skip,
     })(
-      class extends React.Component<ChildProps<Props>> {
-        componentWillReceiveProps(newProps: ChildProps<Props>) {
-          if (newProps.skip) {
+      class extends React.Component<any> {
+        render() {
+          if (this.props.skip) {
             // Step 2. We shouldn't query again.
             expect(ranQuery).toBe(1);
             hasSkipped = true;
             this.props.setSkip(false);
           } else if (hasRequeried) {
             // Step 4. We need to actually get the data from the query into the component!
-            expect(newProps.data!.loading).toBeFalsy();
+            expect(this.props.data!.loading).toBeFalsy();
             done();
           } else if (hasSkipped) {
             // Step 3. We need to query again!
-            expect(newProps.data!.loading).toBeTruthy();
+            expect(this.props.data!.loading).toBeTruthy();
             expect(ranQuery).toBe(2);
             hasRequeried = true;
           } else {
-            // Step 1.  We've queried once.
+            // Step 1. We've queried once.
             expect(ranQuery).toBe(1);
             this.props.setSkip(true);
           }
-        }
-        render() {
           return null;
         }
       },

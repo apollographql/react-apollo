@@ -10,7 +10,7 @@ import {
   getMarkupFromTree,
   DataValue,
   ChildProps,
-  ApolloContext,
+  getApolloContext,
 } from '../../src';
 import gql from 'graphql-tag';
 const times = require('lodash.times');
@@ -75,7 +75,7 @@ describe('SSR', () => {
 
     it('should support passing a root context', () => {
       class Consumer extends React.Component {
-        static contextType = ApolloContext;
+        static contextType = getApolloContext();
 
         render() {
           return <div>{this.context.text}</div>;
@@ -192,7 +192,6 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         result: { data: { currentUser: { firstName: 'James' } } },
-        delay: 50,
       });
       const apolloClient = new ApolloClient({
         link,
@@ -209,7 +208,7 @@ describe('SSR', () => {
         options: { fetchPolicy: 'cache-and-network' },
       })(({ data }: ChildProps<Props, Data>) => (
         <div>
-          {!data || data.loading || !data.currentUser ? 'loading' : data.currentUser.firstName}
+          {data && data.currentUser ? data.currentUser.firstName : 'loading'}
         </div>
       ));
 
@@ -219,7 +218,8 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
+      return getDataFromTree(app).then((html) => {
+        expect(html).toMatch(/James/);
         const markup = ReactDOM.renderToString(app);
         expect(markup).toMatch(/James/);
       });

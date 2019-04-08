@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { ObservableQuery } from 'apollo-client';
+import { ApolloClient, ObservableQuery } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 
 import Query from './Query';
-import { ApolloContext } from './ApolloContext';
+import { getApolloContext, ApolloContextValue } from './ApolloContext';
 
 type QueryInfo = {
   seen: boolean;
@@ -43,13 +43,15 @@ export class RenderPromises {
   public addQueryPromise<TData, TVariables>(
     queryInstance: Query<TData, TVariables>,
     finish: () => React.ReactNode,
+    client: ApolloClient<object>,
+    context: ApolloContextValue,
   ): React.ReactNode {
     const info = this.lookupQueryInfo(queryInstance);
     if (!info.seen) {
       this.queryPromises.set(
         queryInstance,
         new Promise(resolve => {
-          resolve(queryInstance.fetchData());
+          resolve(queryInstance.fetchData(client, context));
         }),
       );
       // Render null to abandon this subtree for this rendering, so that we
@@ -131,6 +133,7 @@ export function getMarkupFromTree({
     // promise, because it is not possible to reconstruct the full context
     // of the original rendering (including all unknown context provider
     // elements) for a subtree of the orginal component tree.
+    const ApolloContext = getApolloContext();
     const html = renderFunction(
       React.createElement(
         ApolloContext.Provider,

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import { mount } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -118,7 +118,7 @@ describe('graphql(mutation) update queries', () => {
 
       const MyQuery = graphql<{}, QueryData>(query)(
         class extends React.Component<ChildProps<{}, QueryData>> {
-          componentWillMount() {
+          componentDidMount() {
             queryMountCount++;
           }
 
@@ -142,21 +142,6 @@ describe('graphql(mutation) update queries', () => {
                   break;
                 case 2:
                   expect(queryMountCount).toBe(1);
-                  expect(queryUnmountCount).toBe(0);
-                  expect(stripSymbols(this.props.data!.todo_list)).toEqual({
-                    id: '123',
-                    title: 'how to apollo',
-                    tasks: [
-                      {
-                        id: '99',
-                        text: 'This one was created with a mutation.',
-                        completed: true,
-                      },
-                    ],
-                  });
-                  break;
-                case 3:
-                  expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(1);
                   expect(stripSymbols(this.props.data!.todo_list)).toEqual({
                     id: '123',
@@ -175,7 +160,7 @@ describe('graphql(mutation) update queries', () => {
                     ],
                   });
                   break;
-                case 4:
+                case 3:
                   expect(stripSymbols(this.props.data!.todo_list)).toEqual({
                     id: '123',
                     title: 'how to apollo',
@@ -204,13 +189,13 @@ describe('graphql(mutation) update queries', () => {
         },
       );
 
-      const wrapperMutation = renderer.create(
+      const wrapperMutation = mount(
         <ApolloProvider client={client}>
           <MyMutation />
         </ApolloProvider>,
       );
 
-      const wrapperQuery1 = renderer.create(
+      const wrapperQuery1 = mount(
         <ApolloProvider client={client}>
           <MyQuery />
         </ApolloProvider>,
@@ -233,11 +218,13 @@ describe('graphql(mutation) update queries', () => {
             mutate();
 
             setTimeout(() => {
-              const wrapperQuery2 = renderer.create(
+              const wrapperQuery2 = mount(
                 <ApolloProvider client={client}>
                   <MyQuery />
                 </ApolloProvider>,
               );
+
+              resolve();
 
               setTimeout(() => {
                 wrapperMutation.unmount();
@@ -247,7 +234,7 @@ describe('graphql(mutation) update queries', () => {
                   expect(todoUpdateQueryCount).toBe(2);
                   expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(2);
-                  expect(queryRenderCount).toBe(4);
+                  expect(queryRenderCount).toBe(3);
                   resolve();
                 } catch (error) {
                   reject(error);
@@ -397,13 +384,13 @@ describe('graphql(mutation) update queries', () => {
         },
       );
 
-      renderer.create(
+      const wrapper = mount(
         <ApolloProvider client={client}>
           <Mutation />
         </ApolloProvider>,
       );
 
-      const wrapperQuery1 = renderer.create(
+      const wrapperQuery1 = mount(
         <ApolloProvider client={client}>
           <Query id="123" />
         </ApolloProvider>,
@@ -416,7 +403,7 @@ describe('graphql(mutation) update queries', () => {
           .then(() => {
             setTimeout(() => {
               // This re-renders the recycled query that should have been refetched while recycled.
-              renderer.create(
+              const wrapperQuery2 = mount(
                 <ApolloProvider client={client}>
                   <Query id="123" />
                 </ApolloProvider>,

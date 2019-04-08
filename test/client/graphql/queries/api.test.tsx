@@ -4,7 +4,11 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
-import { ApolloProvider, ChildProps, graphql } from '../../../../src';
+import {
+  ApolloProvider,
+  ChildProps,
+  graphql,
+} from '../../../../src';
 
 import wrap from '../../../test-utils/wrap';
 import stripSymbols from '../../../test-utils/stripSymbols';
@@ -202,7 +206,6 @@ describe('[queries] api', () => {
             throw new Error('should not reach this point');
           }
           count++;
-          done();
         }
         render() {
           return null;

@@ -1,4 +1,4 @@
-export * from './ApolloContext';
+export { getApolloContext, resetApolloContext } from './ApolloContext';
 
 export { default as ApolloConsumer } from './ApolloConsumer';
 export * from './ApolloConsumer';

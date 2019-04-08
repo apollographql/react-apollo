@@ -297,7 +297,6 @@ describe('[queries] loading', () => {
     const link = mockSingleLink({
       request: { query },
       result: { data },
-      delay: 10,
       newData: () => ({
         data: {
           allPeople: {
@@ -306,58 +305,51 @@ describe('[queries] loading', () => {
         },
       }),
     });
+
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
       queryDeduplication: false,
     });
-    let wrapper: ReactWrapper<any>,
-      app: React.ReactElement<any>,
-      count = 0;
+
+    let wrapper: ReactWrapper<any>;
+    let count = 0;
 
     const Container = graphql<{}, Data>(query, {
       options: { fetchPolicy: 'network-only' },
     })(
       class extends React.Component<ChildProps<{}, Data>> {
-        componentWillMount() {
-          if (count === 1) {
-            expect(this.props.data!.loading).toBeTruthy(); // on remount
-            count++;
-          }
-        }
-        componentWillReceiveProps(props: ChildProps<{}, Data>) {
-          try {
-            if (count === 0) {
-              // has data
-              wrapper.unmount();
-              setTimeout(() => {
-                wrapper = mount(app);
-              }, 5);
-            }
-            if (count === 3) {
-              // remounted data after fetch
-              expect(props.data!.loading).toBeFalsy();
-              expect(props.data!.allPeople!.people[0].name).toMatch(/Darth Skywalker - /);
-              done();
-            }
-          } catch (e) {
-            done.fail(e);
-          }
-          count++;
-        }
         render() {
+          if (count === 1) {
+            // Has data
+            setTimeout(() => {
+              wrapper.unmount();
+              wrapper = mount(App);
+            }, 0);
+          }
+          if (count === 2) {
+            // Loading after remount
+            expect(this.props.data!.loading).toBeTruthy();
+          }
+          if (count === 3) {
+            // Fetched data loading after remount
+            expect(this.props.data!.loading).toBeFalsy();
+            expect(this.props.data!.allPeople!.people[0].name).toMatch(/Darth Skywalker - /);
+            done();
+          }
+          count += 1;
           return null;
         }
       },
     );
 
-    app = (
+    const App: React.ReactElement<any> = (
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>
     );
 
-    wrapper = mount(app);
+    wrapper = mount(App);
   });
 
   it('correctly sets loading state on remounted component with changed variables', done => {
@@ -465,25 +457,36 @@ describe('[queries] loading', () => {
     type Vars = typeof variables;
 
     const link = mockSingleLink(
-      { request: { query, variables }, result: { data }, delay: 10 },
+      { request: { query, variables }, result: { data } },
       {
         request: { query, variables: variables2 },
         result: { data },
-        delay: 10,
       },
     );
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
     });
+
     let count = 0;
+    let wrapper: any;
 
     const Container = graphql<Vars, Data, Vars>(query)(
       class extends React.Component<ChildProps<Vars, Data, Vars>> {
         render() {
           const { loading } = this.props.data!;
           if (count === 0) expect(loading).toBeTruthy();
-          if (count === 1) expect(loading).toBeFalsy();
+          if (count === 1) {
+            expect(loading).toBeFalsy();
+            setTimeout(() => {
+              wrapper.unmount();
+              mount(
+                <ApolloProvider client={client}>
+                  <Container {...variables2} />
+                </ApolloProvider>
+              );
+            }, 0);
+          }
           if (count === 2) expect(loading).toBeTruthy();
           if (count === 3) {
             expect(loading).toBeFalsy();
@@ -494,24 +497,12 @@ describe('[queries] loading', () => {
         }
       },
     );
-    const main = document.createElement('DIV');
-    main.id = 'main';
-    document.body.appendChild(main);
 
-    const render = (props: Vars) => {
-      ReactDOM.render(
-        <ApolloProvider client={client}>
-          <Container {...props} />
-        </ApolloProvider>,
-        document.getElementById('main'),
-      );
-    };
-
-    // Initial render.
-    render(variables);
-
-    // Prop update: fetch.
-    setTimeout(() => render(variables2), 1000);
+    wrapper = mount(
+      <ApolloProvider client={client}>
+        <Container {...variables} />
+      </ApolloProvider>
+    )
   });
 
   it('correctly sets loading state on component with changed variables and unchanged result', done => {
@@ -536,11 +527,10 @@ describe('[queries] loading', () => {
 
     type Vars = typeof variables;
     const link = mockSingleLink(
-      { request: { query, variables }, result: { data }, delay: 10 },
+      { request: { query, variables }, result: { data } },
       {
         request: { query, variables: variables2 },
         result: { data },
-        delay: 10,
       },
     );
     const client = new ApolloClient({
@@ -582,26 +572,27 @@ describe('[queries] loading', () => {
         options: ({ first }) => ({ variables: { first } }),
       })(
         class extends React.Component<ChildProps<Props, Data, Vars>> {
-          componentWillReceiveProps(props: ChildProps<Props, Data, Vars>) {
+          render() {
             if (count === 0) {
-              expect(props.data!.loading).toBeFalsy(); // has initial data
-              setTimeout(() => {
-                this.props.setFirst(2);
-              }, 5);
+              expect(this.props.data!.loading).toBeTruthy(); // has initial data
             }
 
             if (count === 1) {
-              expect(props.data!.loading).toBeTruthy(); // on variables change
+              expect(this.props.data!.loading).toBeFalsy();
+              this.props.setFirst(2);
             }
 
             if (count === 2) {
+              expect(this.props.data!.loading).toBeTruthy(); // on variables change
+            }
+
+            if (count === 3) {
               // new data after fetch
-              expect(props.data!.loading).toBeFalsy();
+              expect(this.props.data!.loading).toBeFalsy();
               done();
             }
             count++;
-          }
-          render() {
+
             return null;
           }
         },

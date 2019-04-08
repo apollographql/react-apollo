@@ -1083,7 +1083,7 @@ describe('Query component', () => {
           result: { data: { allPeople: { people: [{ name }] } } },
         });
 
-        return new ApolloClient({ link, cache: new Cache({ addTypename: false }) });
+        return new ApolloClient({ link, cache: new Cache({ addTypename: false }), name });
       }
 
       const skywalker = newClient('Luke Skywalker');

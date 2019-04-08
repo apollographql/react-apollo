@@ -3,7 +3,6 @@ import * as renderer from 'react-test-renderer';
 import { mount, ReactWrapper } from 'enzyme';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
-import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql, ChildProps } from '../../../../src';
@@ -34,20 +33,12 @@ describe('[queries] observableQuery', () => {
       cache: new Cache({ addTypename: false }),
     });
 
-    // storage
-    // let queryObservable1: ObservableQuery<any>;
-    // let queryObservable2: ObservableQuery<any>;
-    // let originalOptions;
     let wrapper1: ReactWrapper<any>;
-    // let wrapper2;
     let count = 0;
-    // let recycledOptions;
 
     const assert1 = () => {
       const keys = Array.from((client.queryManager as any).queries.keys());
       expect(keys).toEqual(['1']);
-      // queryObservable1 = (client.queryManager as any).queries.get('1').observableQuery;
-      // originalOptions = Object.assign({}, queryObservable1.options);
     };
 
     const assert2 = () => {
@@ -59,30 +50,15 @@ describe('[queries] observableQuery', () => {
       options: { fetchPolicy: 'cache-and-network' },
     })(
       class extends React.Component<ChildProps<{}, Data>> {
-        componentWillMount() {
-          // during the first mount, the loading prop should be true;
-          if (count === 0) {
-            expect(this.props.data!.loading).toBeTruthy();
-          }
-
-          // during the second mount, the loading prop should be false, and data should
-          // be present;
-          if (count === 3) {
-            expect(this.props.data!.loading).toBeFalsy();
-            expect(stripSymbols(this.props.data!.allPeople)).toEqual(data.allPeople);
-          }
-        }
-
         componentDidMount() {
-          if (count === 4) {
+          if (count === 3) {
             wrapper1.unmount();
             done();
           }
         }
 
-        componentDidUpdate(prevProps: ChildProps<{}, Data>) {
-          if (count === 3) {
-            expect(prevProps.data!.loading).toBeTruthy();
+        componentDidUpdate() {
+          if (count === 2) {
             expect(this.props.data!.loading).toBeFalsy();
             expect(stripSymbols(this.props.data!.allPeople)).toEqual(data.allPeople);
 
@@ -96,7 +72,18 @@ describe('[queries] observableQuery', () => {
         }
 
         render() {
-          // side effect to keep track of render counts
+          // during the first mount, the loading prop should be true;
+          if (count === 0) {
+            expect(this.props.data!.loading).toBeTruthy();
+          }
+
+          // during the second mount, the loading prop should be false, and data should
+          // be present;
+          if (count === 2) {
+            expect(this.props.data!.loading).toBeTruthy();
+            expect(stripSymbols(this.props.data!.allPeople)).toEqual(data.allPeople);
+          }
+
           count++;
           return null;
         }

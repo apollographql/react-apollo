@@ -8,4 +8,15 @@ export interface ApolloContextValue {
   renderPromises?: RenderPromises;
 }
 
-export const ApolloContext = React.createContext<ApolloContextValue>({});
+let apolloContext: React.Context<ApolloContextValue>;
+
+export function getApolloContext() {
+  if (!apolloContext) {
+    apolloContext = React.createContext<ApolloContextValue>({});
+  }
+  return apolloContext;
+}
+
+export function resetApolloContext() {
+  apolloContext = React.createContext<ApolloContextValue>({});
+}

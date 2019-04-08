@@ -8,7 +8,7 @@ import { ZenObservable } from 'zen-observable-ts';
 import { OperationVariables } from './types';
 import { getClient } from './component-utils';
 import shallowEqual from './utils/shallowEqual';
-import { ApolloContext, ApolloContextValue } from './ApolloContext';
+import { getApolloContext, ApolloContextValue } from './ApolloContext';
 
 export interface SubscriptionResult<TData = any> {
   loading: boolean;
@@ -42,7 +42,7 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   SubscriptionProps<TData, TVariables>,
   SubscriptionState<TData>
 > {
-  static contextType = ApolloContext;
+  static contextType = getApolloContext();
 
   static propTypes = {
     subscription: PropTypes.object.isRequired,
@@ -53,9 +53,11 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   };
 
-  private client: ApolloClient<any>;
-  private queryObservable?: Observable<any>;
-  private querySubscription?: ZenObservable.Subscription;
+  private client: ApolloClient<object>;
+  private previousState?: Readonly<SubscriptionState<TData>>;
+  private previousProps?: Readonly<SubscriptionProps<TData, TVariables>>;
+  private observableQuery?: Observable<any>;
+  private observableQuerySubscription?: ZenObservable.Subscription;
 
   constructor(
     props: SubscriptionProps<TData, TVariables>,
@@ -63,7 +65,6 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   ) {
     super(props, context);
     this.client = getClient(props, context);
-
     this.initialize(props);
     this.state = this.getInitialState();
   }
@@ -72,54 +73,51 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
     this.startSubscription();
   }
 
-  componentWillReceiveProps(nextProps: SubscriptionProps<TData, TVariables>) {
-    const nextClient = getClient(nextProps, this.context);
-
-    if (
-      shallowEqual(this.props.variables, nextProps.variables) &&
-      this.client === nextClient &&
-      this.props.subscription === nextProps.subscription
-    ) {
-      return;
-    }
-
-    let shouldResubscribe = nextProps.shouldResubscribe;
-    if (typeof shouldResubscribe === 'function') {
-      shouldResubscribe = !!shouldResubscribe(this.props, nextProps);
-    }
-    const shouldNotResubscribe = shouldResubscribe === false;
-    if (this.client !== nextClient) {
-      this.client = nextClient;
-    }
-
-    if (!shouldNotResubscribe) {
-      this.endSubscription();
-      delete this.queryObservable;
-      this.initialize(nextProps);
-      this.startSubscription();
-      this.setState(this.getInitialState());
-      return;
-    }
-    this.initialize(nextProps);
-    this.startSubscription();
-  }
-
   componentWillUnmount() {
     this.endSubscription();
   }
 
   render() {
+    let currentState = this.state;
+
+    if (this.newClient()) {
+      currentState = this.getInitialState();
+    }
+
+    let { shouldResubscribe } = this.props;
+    if (typeof shouldResubscribe === 'function') {
+      shouldResubscribe = !!shouldResubscribe(this.props);
+    }
+
+    if (
+      shouldResubscribe !== false &&
+      this.previousProps &&
+      (!shallowEqual(this.previousProps.variables, this.props.variables) ||
+      this.previousProps.subscription !== this.props.subscription)
+    ) {
+      this.endSubscription();
+      delete this.observableQuery;
+
+      if (!this.previousState) {
+        currentState = this.getInitialState();
+      }
+    }
+
+    this.initialize(this.props);
+    this.startSubscription();
+
     const renderFn: any = this.props.children;
     if (!renderFn) return null;
-    const result = Object.assign({}, this.state, {
-      variables: this.props.variables,
-    });
+
+    const result = { ...currentState, variables: this.props.variables };
+    this.previousState = currentState;
+    this.previousProps = this.props;
     return renderFn(result);
   }
 
   private initialize = (props: SubscriptionProps<TData, TVariables>) => {
-    if (this.queryObservable) return;
-    this.queryObservable = this.client.subscribe({
+    if (this.observableQuery) return;
+    this.observableQuery = this.client.subscribe({
       query: props.subscription,
       variables: props.variables,
       fetchPolicy: props.fetchPolicy,
@@ -127,8 +125,8 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   };
 
   private startSubscription = () => {
-    if (this.querySubscription) return;
-    this.querySubscription = this.queryObservable!.subscribe({
+    if (this.observableQuerySubscription) return;
+    this.observableQuerySubscription = this.observableQuery!.subscribe({
       next: this.updateCurrentData,
       error: this.updateError,
       complete: this.completeSubscription
@@ -142,15 +140,21 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   });
 
   private updateCurrentData = (result: SubscriptionResult<TData>) => {
-    const {
-      client,
-      props: { onSubscriptionData },
-    } = this;
-    if (onSubscriptionData) onSubscriptionData({ client, subscriptionData: result });
+    const { props: { onSubscriptionData } } = this;
+
+    if (onSubscriptionData) {
+      onSubscriptionData({
+        client: this.client,
+        subscriptionData: result
+      });
+    }
+
     this.setState({
       data: result.data,
       loading: false,
       error: undefined,
+    }, () => {
+      delete this.previousState;
     });
   };
 
@@ -168,10 +172,22 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
   };
 
   private endSubscription = () => {
-    if (this.querySubscription) {
-      this.querySubscription.unsubscribe();
-      delete this.querySubscription;
+    if (this.observableQuerySubscription) {
+      this.observableQuerySubscription.unsubscribe();
+      delete this.observableQuerySubscription;
     }
+  };
+
+  private newClient = () => {
+    let clientChanged = false;
+    const client = getClient(this.props, this.context);
+    if (client !== this.client) {
+      clientChanged = true;
+      this.client = client;
+      this.endSubscription();
+      delete this.observableQuery;
+    }
+    return clientChanged;
   };
 }
 

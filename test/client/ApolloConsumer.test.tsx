@@ -2,7 +2,7 @@ import * as React from 'react';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { ApolloProvider, ApolloConsumer, ApolloContext } from '../../src';
+import { ApolloProvider, ApolloConsumer, getApolloContext } from '../../src';
 import { mount } from 'enzyme';
 
 const client = new ApolloClient({
@@ -47,6 +47,7 @@ describe('<ApolloConsumer /> component', () => {
       // We're wrapping the `ApolloConsumer` component in a
       // `ApolloContext.Provider` component, to reset the context before
       // testing.
+      const ApolloContext = getApolloContext();
       mount(
         <ApolloContext.Provider value={{}}>
           <ApolloConsumer>{() => null}</ApolloConsumer>

@@ -256,7 +256,6 @@ it('does not execute if variables have not changed', done => {
         <Subscription subscription={subscriptionWithVariables} variables={{ name }}>
           {result => {
             const { loading, data } = result;
-
             catchAsyncError(done, () => {
               if (count === 0) {
                 expect(loading).toBe(true);

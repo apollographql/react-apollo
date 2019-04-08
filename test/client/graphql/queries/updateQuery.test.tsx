@@ -1,15 +1,24 @@
 import * as React from 'react';
-import * as renderer from 'react-test-renderer';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { mount } from 'enzyme';
+
 import { mockSingleLink } from '../../../../src/test-utils';
 import { ApolloProvider, graphql, ChildProps } from '../../../../src';
 
 import stripSymbols from '../../../test-utils/stripSymbols';
 import { DocumentNode } from 'graphql';
 
+let wrapper: any;
+
 describe('[queries] updateQuery', () => {
+  afterEach(() => {
+    if (wrapper) {
+      wrapper.unmount();
+    }
+  })
+
   // updateQuery
   it('exposes updateQuery as part of the props api', done => {
     const query: DocumentNode = gql`
@@ -47,7 +56,7 @@ describe('[queries] updateQuery', () => {
       },
     );
 
-    renderer.create(
+    wrapper = mount(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,
@@ -86,7 +95,7 @@ describe('[queries] updateQuery', () => {
       },
     );
 
-    renderer.create(
+    wrapper = mount(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,
@@ -131,7 +140,7 @@ describe('[queries] updateQuery', () => {
       },
     );
 
-    renderer.create(
+    wrapper = mount(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,
@@ -185,7 +194,7 @@ describe('[queries] updateQuery', () => {
       },
     );
 
-    renderer.create(
+    wrapper = mount(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,
@@ -236,7 +245,7 @@ describe('[queries] updateQuery', () => {
       },
     );
 
-    renderer.create(
+    wrapper = mount(
       <ApolloProvider client={client}>
         <Container />
       </ApolloProvider>,

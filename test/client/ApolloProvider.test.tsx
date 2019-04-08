@@ -5,7 +5,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 
-import { ApolloProvider, ApolloContext } from '../../src';
+import { ApolloProvider, getApolloContext } from '../../src';
 
 describe('<ApolloProvider /> Component', () => {
   const client = new ApolloClient({
@@ -14,7 +14,7 @@ describe('<ApolloProvider /> Component', () => {
   });
 
   class Child extends React.Component<any, { store: any; client: any }> {
-    static contextType = ApolloContext;
+    static contextType = getApolloContext();
 
     componentDidUpdate() {
       if (this.props.data) this.props.data.refetch();
@@ -78,6 +78,7 @@ describe('<ApolloProvider /> Component', () => {
     expect(() => {
       // Before testing `ApolloProvider`, we first fully reset the
       // existing context using `ApolloContext.Provider` directly.
+      const ApolloContext = getApolloContext();
       mount(
         <ApolloContext.Provider value={{}}>
           <ApolloProvider client={undefined as any}>
