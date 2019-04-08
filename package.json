@@ -22,7 +22,6 @@
   },
   "scripts": {
     "compile": "tsc -p ./tsconfig.cjs.json",
-    "danger": "danger run --verbose",
     "deploy": "cd lib && npm publish",
     "filesize": "bundlesize",
     "jest": "jest --runInBand --coverage",
@@ -124,7 +123,6 @@
     "babel-preset-env": "1.7.0",
     "bundlesize": "0.17.1",
     "coveralls": "3.0.3",
-    "danger": "7.0.15",
     "enzyme": "3.9.0",
     "enzyme-adapter-react-16": "1.11.2",
     "graphql": "14.1.1",
