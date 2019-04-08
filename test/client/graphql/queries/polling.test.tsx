@@ -11,7 +11,7 @@ describe('[queries] polling', () => {
   let error: typeof console.error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {}); // tslint:disable-line
+    console.error = jest.fn(() => {});
     jest.useRealTimers();
   });
   afterEach(() => {

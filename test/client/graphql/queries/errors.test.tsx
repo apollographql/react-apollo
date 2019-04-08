@@ -21,7 +21,7 @@ describe('[queries] errors', () => {
   let error: typeof console.error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {}); // tslint:disable-line
+    console.error = jest.fn(() => {});
   });
   afterEach(() => {
     console.error = error;
@@ -203,7 +203,6 @@ describe('[queries] errors', () => {
         graphql<Props, Data, Vars>(query)(
           class extends React.Component<ChildProps<Props, Data, Vars>> {
             componentWillReceiveProps(props: ChildProps<Props, Data, Vars>) {
-              // tslint:disable-line
               iteration += 1;
               if (iteration === 1) {
                 // initial loading state is done, we have data

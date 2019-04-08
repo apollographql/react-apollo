@@ -119,7 +119,6 @@ describe('[queries] api', () => {
     const Container = graphql(query)(
       class extends React.Component<ChildProps> {
         componentWillReceiveProps({ data }: ChildProps) {
-          // tslint:disable-line
           expect(data!.subscribeToMore).toBeTruthy();
           expect(data!.subscribeToMore instanceof Function).toBeTruthy();
           done();
@@ -276,7 +275,7 @@ describe('[queries] api', () => {
               variables: { cursor },
               updateQuery(prev, { fetchMoreResult }) {
                 const {
-                  allPeople: { cursor, people }, // tslint:disable-line:no-shadowed-variable
+                  allPeople: { cursor, people },
                 } = fetchMoreResult!;
                 return {
                   allPeople: {

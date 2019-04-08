@@ -15,7 +15,7 @@ describe('subscriptions', () => {
   beforeEach(() => {
     jest.useRealTimers();
     error = console.error;
-    console.error = jest.fn(() => {}); // tslint:disable-line
+    console.error = jest.fn(() => {});
   });
   afterEach(() => {
     console.error = error;

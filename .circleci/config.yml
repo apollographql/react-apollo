@@ -31,14 +31,6 @@ jobs:
       - store_artifacts:
           path: reports/junit
 
-  Linting:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run: npm run danger
-      - run: npm run lint
-
   Typecheck:
     docker: [{ image: 'circleci/node:8' }]
     steps:
@@ -92,7 +84,6 @@ workflows:
     jobs:
       - Node.js 8
       - Node.js 10
-      - Linting
       - Typecheck
       - UMD
       - Commonjs

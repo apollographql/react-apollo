@@ -1317,7 +1317,7 @@ it('errors if a query is passed instead of a mutation', () => {
 
   // Prevent error from being logged in console of test.
   const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
+  console.error = () => {};
 
   expect(() => {
     mount(
@@ -1327,7 +1327,7 @@ it('errors if a query is passed instead of a mutation', () => {
     );
   }).toThrowError('The <Mutation /> component requires a graphql mutation, but got a query.');
 
-  console.log = errorLogger; // tslint:disable-line
+  console.log = errorLogger;
 });
 
 it('errors when changing from mutation to a query', done => {
@@ -1368,7 +1368,7 @@ it('errors when changing from mutation to a query', done => {
 
   // Prevent error from being logged in console of test.
   const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
+  console.error = () => {};
 
   mount(
     <MockedProvider>
@@ -1376,7 +1376,7 @@ it('errors when changing from mutation to a query', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger; //tslint:disable-line
+  console.log = errorLogger;
 });
 
 it('errors if a subscription is passed instead of a mutation', () => {
@@ -1390,7 +1390,7 @@ it('errors if a subscription is passed instead of a mutation', () => {
 
   // Prevent error from being logged in console of test.
   const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
+  console.error = () => {};
 
   expect(() => {
     mount(
@@ -1402,7 +1402,7 @@ it('errors if a subscription is passed instead of a mutation', () => {
     'The <Mutation /> component requires a graphql mutation, but got a subscription.',
   );
 
-  console.log = errorLogger; // tslint:disable-line
+  console.log = errorLogger;
 });
 
 it('errors when changing from mutation to a subscription', done => {
@@ -1445,7 +1445,7 @@ it('errors when changing from mutation to a subscription', done => {
 
   // Prevent error from being logged in console of test.
   const errorLogger = console.error;
-  console.error = () => {}; // tslint:disable-line
+  console.error = () => {};
 
   mount(
     <MockedProvider>
@@ -1453,7 +1453,7 @@ it('errors when changing from mutation to a subscription', done => {
     </MockedProvider>,
   );
 
-  console.log = errorLogger; // tslint:disable-line
+  console.log = errorLogger;
 });
 
 describe('after it has been unmounted', () => {
@@ -1636,7 +1636,7 @@ describe('after it has been unmounted', () => {
               {(createTodo, result) => {
                 if (!result.called) {
                   setTimeout(() => {
-                    createTodo().catch(() => {}); // tslint:disable-line
+                    createTodo().catch(() => {});
                     this.setState({ called: true }, checker);
                   }, 10);
                 }

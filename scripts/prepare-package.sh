@@ -11,7 +11,6 @@
 node -e "var package = require('./package.json'); \
   delete package.private; \
   delete package.babel; \
-  delete package[\"lint-staged\"]; \
   delete package.jest; \
   delete package.bundlesize; \
   delete package[\"husky\"]; \

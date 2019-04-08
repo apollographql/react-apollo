@@ -42,7 +42,7 @@ describe('<ApolloConsumer /> component', () => {
   it('errors if there is no client in the context', () => {
     // Prevent Error about missing context type from appearing in the console.
     const errorLogger = console.error;
-    console.error = () => {}; // tslint:disable-line
+    console.error = () => {};
     expect(() => {
       // We're wrapping the `ApolloConsumer` component in a
       // `ApolloContext.Provider` component, to reset the context before

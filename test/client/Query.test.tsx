@@ -830,7 +830,7 @@ describe('Query component', () => {
 
       // Prevent error from being logged in console of test.
       const errorLogger = console.error;
-      console.error = () => {}; // tslint:disable-line
+      console.error = () => {};
       expect(() => {
         mount(
           <MockedProvider>
@@ -854,7 +854,7 @@ describe('Query component', () => {
 
       // Prevent error from being logged in console of test.
       const errorLogger = console.error;
-      console.error = () => {}; // tslint:disable-line
+      console.error = () => {};
       expect(() => {
         mount(
           <MockedProvider>
@@ -1355,7 +1355,7 @@ describe('Query component', () => {
 
     // Prevent error from showing up in console.
     const errorLog = console.error;
-    console.error = () => {}; // tslint:disable-line
+    console.error = () => {};
 
     class Component extends React.Component {
       state = { query: allPeopleQuery };

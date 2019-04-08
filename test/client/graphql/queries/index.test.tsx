@@ -17,7 +17,7 @@ describe('queries', () => {
   let error: typeof console.error;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => {}); // tslint:disable-line
+    console.error = jest.fn(() => {});
   });
   afterEach(() => {
     console.error = error;
@@ -598,7 +598,6 @@ describe('queries', () => {
     });
 
     const Container = graphql<{}, Data>(query)(
-      // tslint:disable-next-line:no-shadowed-variable
       class Container extends React.Component<ChildProps<{}, Data>> {
         componentWillReceiveProps() {
           const queries = client.queryManager!.queryStore.getStore();

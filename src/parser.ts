@@ -35,7 +35,6 @@ export function parser(document: DocumentNode): IDocumentDefinition {
   */
   invariant(
     !!document && !!document.kind,
-    // tslint:disable-line
     `Argument of ${document} passed to parser was not a valid GraphQL ` +
       `DocumentNode. You may need to use 'graphql-tag' or another method ` +
       `to convert your operation into a document`,
@@ -65,7 +64,6 @@ export function parser(document: DocumentNode): IDocumentDefinition {
 
   invariant(
     queries.length + mutations.length + subscriptions.length <= 1,
-    // tslint:disable-line
     `react-apollo only supports a query, subscription, or a mutation per HOC. ` +
       `${document} had ${queries.length} queries, ${subscriptions.length} ` +
       `subscriptions and ${mutations.length} mutations. ` +
@@ -79,7 +77,6 @@ export function parser(document: DocumentNode): IDocumentDefinition {
 
   invariant(
     definitions.length === 1,
-    // tslint:disable-line
     `react-apollo only supports one definition per HOC. ${document} had ` +
       `${definitions.length} definitions. ` +
       `You can use 'compose' to join multiple operation types to a component`,

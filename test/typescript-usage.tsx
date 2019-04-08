@@ -74,7 +74,7 @@ class HistoryView extends React.Component<ChildProps<Props, Data>> {
 }
 
 const HistoryViewWithData = withHistory(HistoryView);
-<HistoryViewWithData solutionId="foo" />; // tslint:disable-line
+<HistoryViewWithData solutionId="foo" />;
 
 // --------------------------
 // stateless function with data
@@ -92,7 +92,7 @@ const HistoryViewSFC = graphql<Props, Data>(historyQuery, {
   }
 });
 
-<HistoryViewSFC solutionId="foo" />; // tslint:disable-line
+<HistoryViewSFC solutionId="foo" />;
 
 // --------------------------
 // decorator
@@ -107,7 +107,7 @@ class DecoratedHistoryView extends React.Component<ChildProps<Props, Data>> {
   }
 }
 
-<DecoratedHistoryView solutionId="foo" />; // tslint:disable-line
+<DecoratedHistoryView solutionId="foo" />;
 
 // --------------------------
 // with custom props
@@ -122,7 +122,7 @@ const withProps = graphql<Props, Data, {}, { organisationData: DataValue<Data> |
 
 const Foo = withProps(props => <div>Woot {props.organisationData!.history}</div>);
 
-<Foo solutionId="foo" />; // tslint:disable-line
+<Foo solutionId="foo" />;
 
 // --------------------------
 // variables with simple custom props
@@ -139,7 +139,7 @@ const simpleVarsAndProps = graphql<Props, Data, Variables>(historyQuery, {
 
 const HistorySimpleVarsAndProps = simpleVarsAndProps(props => <div>{props.data!.history}</div>);
 
-<HistorySimpleVarsAndProps solutionId="foo" />; // tslint:disable-line
+<HistorySimpleVarsAndProps solutionId="foo" />;
 
 // --------------------------
 // variables with advanced custom props
@@ -154,42 +154,4 @@ const advancedVarsAndProps = graphql<Props, Data, Variables, FlatProps>(historyQ
 
 const HistoryAdvancedVarsAndProps = advancedVarsAndProps(props => <div>{props.history}</div>);
 
-<HistoryAdvancedVarsAndProps solutionId="foo" />; // tslint:disable-line
-
-// --------------------------
-// It is not recommended to use `name` with Typescript, better to use props and map the property
-// explicitly so it can be type checked.
-// with using name
-// const withHistoryUsingName = graphql<Props, Data>(historyQuery, {
-//   name: 'organisationData',
-//   props: ({
-//     organisationData,
-//   }: NamedProps<{ organisationData: QueryControls<Data> & Data }, Props>) => ({
-//     ...organisationData,
-//   }),
-// });
-
-// const HistoryViewUsingName = withHistoryUsingName(HistoryView);
-// <HistoryViewUsingName solutionId="foo" />; // tslint:disable-line
-
-// --------------------------
-// mutation with name
-// class UpdateHistoryView extends React.Component<
-//   ChildProps<Props & Mutation, MutationPayload>,
-//   {}
-// > {
-//   updateHistory() {
-//     this.props.updateHistory({
-//       variables: {
-//         input: {
-//           id: 'historyId',
-//           newDelta: 'newDelta',
-//         },
-//       },
-//     });
-//   }
-//
-//   render() {
-//     return null;
-//   }
-// }
+<HistoryAdvancedVarsAndProps solutionId="foo" />;
