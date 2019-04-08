@@ -52,16 +52,9 @@
   ],
   "renovate": {
     "extends": [
-      "config:base",
-      "schedule:nonOfficeHours",
-      ":pinOnlyDevDependencies"
+      "apollo-open-source"
     ],
-    "semanticCommits": true,
-    "timezone": "America/New_York",
-    "automerge": false,
-    "labels": [
-      "dependencies"
-    ]
+    "automerge": false
   },
   "jest": {
     "testEnvironment": "jsdom",
