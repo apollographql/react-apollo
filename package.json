@@ -31,7 +31,6 @@
     "prefilesize": "npm run compile",
     "prettier": "prettier --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
     "test": "npm run type-check && npm run jest",
-    "test-examples": ". ./test-examples.sh",
     "test-watch": "jest --watch",
     "test:compiled": "npm run test:compiled:cjs && npm run test:compiled:umd",
     "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
