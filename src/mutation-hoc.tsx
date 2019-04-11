@@ -56,12 +56,16 @@ export function withMutation<
 
         return (
           <Mutation {...opts} mutation={document} ignoreResults>
-            {(mutate, _result) => {
+            {(mutate, result) => {
               const name = operationOptions.name || 'mutate';
-              let childProps = { [name]: mutate };
+              let childProps = {
+                [name]: mutate,
+                [`${name}Result`]: result,
+              };
               if (operationOptions.props) {
                 const newResult: OptionProps<TProps, TData, TGraphQLVariables> = {
                   [name]: mutate,
+                  [`${name}Result`]: result,
                   ownProps: props,
                 };
                 childProps = operationOptions.props(newResult) as any;
