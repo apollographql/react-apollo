@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.5.4 (2019-04-05)
 
 ### Bug Fixes
 
@@ -10,6 +10,11 @@
 - Ensure `Query` components using a `fetchPolicy` of `no-cache` have their
   data preserved when the components tree is re-rendered.  <br/>
   [@hwillson](https://github.com/hwillson) in [#2914](https://github.com/apollographql/react-apollo/pull/2914)
+
+### Improvements
+
+- Documentation updates.  <br/>
+  [@afenton90](https://github.com/afenton90) in [#2932](https://github.com/apollographql/react-apollo/pull/2932)
 
 
 ## 2.5.3
