@@ -1,3 +1,5 @@
+export { ApolloContext } from './ApolloContext'
+
 export { default as ApolloConsumer } from './ApolloConsumer';
 export * from './ApolloConsumer';
 
