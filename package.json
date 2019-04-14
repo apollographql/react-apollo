@@ -44,6 +44,7 @@
     "graphql-tag": "^2.10.1",
     "jest": "^24.7.1",
     "jest-junit": "^6.3.0",
+    "lerna": "^3.13.2",
     "lodash.times": "^4.3.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
