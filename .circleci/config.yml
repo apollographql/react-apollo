@@ -8,7 +8,7 @@ jobs:
       - run: npm i
       - run:
           name: Jest suite
-          command: npm run test:ci"
+          command: npm run test:ci
           environment:
             JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
