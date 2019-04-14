@@ -1,0 +1,24 @@
+{
+  "name": "@apollo/react-hooks",
+  "description": "React Apollo Hooks.",
+  "version": "0.0.1",
+  "author": "opensource@apollographql.com",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "react",
+    "hooks"
+  ],
+  "license": "MIT",
+  "main": "./lib/react-hooks.cjs.js",
+  "module": "./lib/react-hooks.esm.js",
+  "typings": "./lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "apollographql/react-apollo"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -Rf ./node_modules ./build"
+  }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"renderToStringWithData.js","sourceRoot":"","sources":["../../src/ssr/renderToStringWithData.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,iBAAiB,EAAE,MAAM,mBAAmB,CAAC;AAEtD,MAAM,UAAU,sBAAsB,CACpC,SAA4B;IAE5B,OAAO,iBAAiB,CAAC;QACvB,IAAI,EAAE,SAAS;QACf,cAAc,EAAE,OAAO,CAAC,kBAAkB,CAAC,CAAC,cAAc;KAC3D,CAAC,CAAC;AACL,CAAC"}

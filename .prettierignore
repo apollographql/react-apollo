@@ -1,8 +1,7 @@
 node_modules
-lib
+build
 coverage
 npm
 package.json
-dist
 *.snap
 package-lock.json

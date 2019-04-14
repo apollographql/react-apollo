@@ -1,29 +1,14 @@
 version: 2
 
 jobs:
-  Node.js 8:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run:
-          name: Jest suite
-          command: npm run jest -- --ci --testResultsProcessor="jest-junit"
-          environment:
-            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
-      - store_test_results:
-          path: reports/junit
-      - store_artifacts:
-          path: reports/junit
-
-  Node.js 10:
+  Tests:
     docker: [{ image: 'circleci/node:10' }]
     steps:
       - checkout
       - run: npm i
       - run:
           name: Jest suite
-          command: npm run jest -- --ci --testResultsProcessor="jest-junit"
+          command: npm run test:ci"
           environment:
             JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
       - store_test_results:
@@ -31,60 +16,16 @@ jobs:
       - store_artifacts:
           path: reports/junit
 
-  Typecheck:
+  Bundlesize:
     docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
       - run: npm i
-      - run: npm run type-check
-
-  Commonjs:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run: npm run compile
-      - run:
-          name: Jest suite
-          command: npm run test:compiled:cjs -- --ci --testResultsProcessor="jest-junit"
-          environment:
-            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
-      - store_test_results:
-          path: reports/junit
-      - store_artifacts:
-          path: reports/junit
-
-  UMD:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run: npm run compile
-      - run:
-          name: Jest suite
-          command: npm run test:compiled:umd -- --ci --testResultsProcessor="jest-junit"
-          environment:
-            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
-      - store_test_results:
-          path: reports/junit
-      - store_artifacts:
-          path: reports/junit
-
-  Filesize:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run: npm run compile
-      - run: npm run filesize
+      - run: npm run bundlesize
 
 workflows:
   version: 2
   Build and Test:
     jobs:
-      - Node.js 8
-      - Node.js 10
-      - Typecheck
-      - UMD
-      - Commonjs
-      - Filesize
+      - Tests
+      - Bundlesize

@@ -1,0 +1,58 @@
+{
+  "name": "@apollo/react-components",
+  "description": "React Apollo Query, Mutation and Subscription components.",
+  "version": "0.0.1",
+  "author": "opensource@apollographql.com",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "react",
+    "components"
+  ],
+  "license": "MIT",
+  "main": "./lib/react-components.cjs.js",
+  "module": "./lib/react-components.esm.js",
+  "typings": "./lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "apollographql/react-apollo"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -Rf ./node_modules ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
+    "prepare": "npm run build",
+    "prebuild": "npm run clean",
+    "build": "tsc -p ./config/tsconfig.json",
+    "postbuild": "../../node_modules/rollup/bin/rollup -c ./config/rollup.config.js",
+    "watch": "tsc-watch --onSuccess \"npm run postbuild\"",
+    "predeploy": "npm run build",
+    "deploy": "npm publish",
+    "test": "jest --config ./config/jest.config.js",
+    "test:watch": "jest --config ./config/jest.config.js --watch",
+    "test:full": "npm run type-check && jest --config ./config/jest.config.js --coverage"
+  },
+  "peerDependencies": {
+    "apollo-cache": "^1.2.1",
+    "apollo-client": "^2.5.1",
+    "apollo-link": "^1.2.11",
+    "graphql": "^14.2.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  },
+  "dependencies": {
+    "@apollo/react-common": "file:../common",
+    "hoist-non-react-statics": "^3.3.0",
+    "lodash.isequal": "^4.5.0",
+    "prop-types": "^15.7.2",
+    "ts-invariant": "^0.4.0",
+    "tslib": "^1.9.3"
+  },
+  "devDependencies": {
+    "@apollo/react-testing": "file:../common"
+  },
+  "files": [
+    "./README.md",
+    "./package.json",
+    "./lib"
+  ]
+}

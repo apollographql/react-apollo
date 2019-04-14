@@ -1,0 +1,52 @@
+{
+  "name": "@apollo/react-testing",
+  "description": "React Apollo testing utilities.",
+  "version": "0.0.1",
+  "author": "opensource@apollographql.com",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "react",
+    "testing"
+  ],
+  "license": "MIT",
+  "main": "./lib/react-testing.cjs.js",
+  "module": "./lib/react-testing.esm.js",
+  "typings": "./lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "apollographql/react-apollo"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -Rf ./node_modules ./lib/* ./meta/coverage/*",
+    "prepare": "npm run build",
+    "prebuild": "npm run clean",
+    "build": "tsc -p ./config/tsconfig.json",
+    "postbuild": "../../node_modules/rollup/bin/rollup -c ./config/rollup.config.js",
+    "watch": "tsc-watch --onSuccess \"npm run postbuild\"",
+    "predeploy": "npm run build",
+    "deploy": "npm publish",
+    "test": "jest --config ./config/jest.config.js",
+    "test:watch": "jest --config ./config/jest.config.js --watch",
+    "test:full": "npm run type-check && jest --config ./config/jest.config.js --coverage"
+  },
+  "peerDependencies": {
+    "apollo-cache-inmemory": "^1.5.1",
+    "apollo-client": "^2.5.1",
+    "apollo-link": "^1.2.11",
+    "apollo-utilities": "^1.2.1",
+    "graphql": "^14.2.1",
+    "react": "^16.8.6"
+  },
+  "dependencies": {
+    "@apollo/react-common": "file:../common",
+    "lodash.isequal": "^4.5.0",
+    "tslib": "^1.9.3"
+  },
+  "files": [
+    "./README.md",
+    "./package.json",
+    "./lib"
+  ]
+}
