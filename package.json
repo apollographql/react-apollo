@@ -142,7 +142,7 @@
     "lodash.times": "4.3.2",
     "preact": "8.4.2",
     "preact-compat": "3.18.4",
-    "prettier": "1.16.4",
+    "prettier": "1.17.0",
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "react-test-renderer": "16.8.6",
