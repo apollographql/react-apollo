@@ -119,7 +119,7 @@
     "@types/react": "16.8.12",
     "@types/react-dom": "16.8.4",
     "@types/react-test-renderer": "16.8.1",
-    "@types/recompose": "0.30.5",
+    "@types/recompose": "0.30.6",
     "@types/zen-observable": "0.8.0",
     "apollo-cache": "1.2.1",
     "apollo-cache-inmemory": "1.5.1",
