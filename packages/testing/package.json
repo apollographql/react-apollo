@@ -41,7 +41,6 @@
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
-    "lodash.isequal": "^4.5.0",
     "tslib": "^1.9.3"
   },
   "files": [

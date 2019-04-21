@@ -15,7 +15,6 @@ const globals = {
   'zen-observable': 'zenObservable',
   optimism: 'wrap',
   react: 'React',
-  'lodash.isequal': 'isEqual',
   'prop-types': 'PropTypes',
   'hoist-non-react-statics': 'hoistNonReactStatics',
   '@apollo/react-common': 'apolloReactCommon',

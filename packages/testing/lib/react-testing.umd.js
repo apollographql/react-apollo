@@ -1,13 +1,12 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('tslib'), require('react'), require('fast-json-stable-stringify'), require('zen-observable'), require('optimism'), require('@apollo/react-common'), require('lodash.isequal')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'tslib', 'react', 'fast-json-stable-stringify', 'zen-observable', 'optimism', '@apollo/react-common', 'lodash.isequal'], factory) :
-  (global = global || self, factory(global['react-testing'] = {}, global.tslib, global.React, global.stringify, global.zenObservable, global.wrap, global.apolloReactCommon, global.isEqual));
-}(this, function (exports, tslib, React, stringify, zenObservable, optimism, reactCommon, isEqual$1) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('tslib'), require('react'), require('fast-json-stable-stringify'), require('zen-observable'), require('optimism'), require('@apollo/react-common')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'tslib', 'react', 'fast-json-stable-stringify', 'zen-observable', 'optimism', '@apollo/react-common'], factory) :
+  (global = global || self, factory(global['react-testing'] = {}, global.tslib, global.React, global.stringify, global.zenObservable, global.wrap, global.apolloReactCommon));
+}(this, function (exports, tslib, React, stringify, zenObservable, optimism, reactCommon) { 'use strict';
 
   React = React && React.hasOwnProperty('default') ? React['default'] : React;
   stringify = stringify && stringify.hasOwnProperty('default') ? stringify['default'] : stringify;
   zenObservable = zenObservable && zenObservable.hasOwnProperty('default') ? zenObservable['default'] : zenObservable;
-  isEqual$1 = isEqual$1 && isEqual$1.hasOwnProperty('default') ? isEqual$1['default'] : isEqual$1;
 
   /**
    * Copyright (c) Facebook, Inc. and its affiliates.
@@ -5403,7 +5402,7 @@
           var response = (this.mockedResponsesByKey[key] || []).find(function (res, index) {
               var requestVariables = operation.variables || {};
               var mockedResponseVariables = res.request.variables || {};
-              if (!isEqual$1(requestVariables, mockedResponseVariables)) {
+              if (!isEqual(requestVariables, mockedResponseVariables)) {
                   return false;
               }
               responseIndex = index;

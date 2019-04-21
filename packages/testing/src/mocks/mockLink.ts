@@ -10,9 +10,9 @@ import {
   removeClientSetsFromDocument,
   removeConnectionDirectiveFromDocument,
   cloneDeep,
+  isEqual,
 } from 'apollo-utilities';
 import { print } from 'graphql/language/printer';
-import isEqual from 'lodash.isequal';
 
 type ResultFunction<T> = () => T;
 

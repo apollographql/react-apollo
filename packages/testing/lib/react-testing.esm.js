@@ -4,7 +4,6 @@ import stringify from 'fast-json-stable-stringify';
 import zenObservable from 'zen-observable';
 import { wrap as wrap$3 } from 'optimism';
 import { ApolloProvider } from '@apollo/react-common';
-import isEqual$1 from 'lodash.isequal';
 
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -5400,7 +5399,7 @@ var MockLink = (function (_super) {
         var response = (this.mockedResponsesByKey[key] || []).find(function (res, index) {
             var requestVariables = operation.variables || {};
             var mockedResponseVariables = res.request.variables || {};
-            if (!isEqual$1(requestVariables, mockedResponseVariables)) {
+            if (!isEqual(requestVariables, mockedResponseVariables)) {
                 return false;
             }
             responseIndex = index;

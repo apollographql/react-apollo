@@ -19,8 +19,8 @@ const globals = {
   react: 'React',
   'ts-invariant': 'invariant',
   tslib: 'tslib',
-  'lodash.isequal': 'isEqual',
   '@apollo/react-common': 'apolloReactCommon',
+  'fast-json-stable-stringify': 'stringify',
 };
 
 function external(id) {

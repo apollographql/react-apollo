@@ -16,7 +16,6 @@ const globals = {
   'hoist-non-react-statics': 'hoistNonReactStatics',
   'prop-types': 'PropTypes',
   react: 'React',
-  'lodash.isequal': 'isEqual',
   'fast-json-stable-stringify': 'stringify',
   'zen-observable': 'zenObservable',
   '@apollo/react-common': 'apolloReactCommon',

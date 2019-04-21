@@ -10,7 +10,6 @@ var stringify = _interopDefault(require('fast-json-stable-stringify'));
 var zenObservable = _interopDefault(require('zen-observable'));
 var optimism = require('optimism');
 var reactCommon = require('@apollo/react-common');
-var isEqual$1 = _interopDefault(require('lodash.isequal'));
 
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -5406,7 +5405,7 @@ var MockLink = (function (_super) {
         var response = (this.mockedResponsesByKey[key] || []).find(function (res, index) {
             var requestVariables = operation.variables || {};
             var mockedResponseVariables = res.request.variables || {};
-            if (!isEqual$1(requestVariables, mockedResponseVariables)) {
+            if (!isEqual(requestVariables, mockedResponseVariables)) {
                 return false;
             }
             responseIndex = index;

@@ -1,8 +1,7 @@
 import * as tslib_1 from "tslib";
 import { ApolloLink, Observable, } from 'apollo-link';
-import { addTypenameToDocument, removeClientSetsFromDocument, removeConnectionDirectiveFromDocument, cloneDeep, } from 'apollo-utilities';
+import { addTypenameToDocument, removeClientSetsFromDocument, removeConnectionDirectiveFromDocument, cloneDeep, isEqual, } from 'apollo-utilities';
 import { print } from 'graphql/language/printer';
-import isEqual from 'lodash.isequal';
 function requestToKey(request, addTypename) {
     var queryString = request.query &&
         print(addTypename ? addTypenameToDocument(request.query) : request.query);

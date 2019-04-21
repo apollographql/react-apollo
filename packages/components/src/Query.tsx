@@ -8,6 +8,7 @@ import ApolloClient, {
   FetchMoreOptions,
   FetchMoreQueryOptions,
 } from 'apollo-client';
+import { isEqual } from 'apollo-utilities';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
 import {
@@ -17,7 +18,6 @@ import {
   DocumentType,
   IDocumentDefinition,
 } from '@apollo/react-common';
-import isEqual from 'lodash.isequal';
 import { invariant } from 'ts-invariant';
 
 import { OperationVariables, QueryOpts } from './types';
