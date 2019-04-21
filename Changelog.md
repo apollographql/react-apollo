@@ -1,5 +1,13 @@
 # Change log
 
+## vNext
+
+### Improvements
+
+- Export the Apollo Context provider (`ApolloContext`).  <br/>
+  [@MrLoh](https://github.com/MrLoh) in [#2961](https://github.com/apollographql/react-apollo/pull/2961)
+
+
 ## 2.5.4 (2019-04-05)
 
 ### Bug Fixes
