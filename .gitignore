@@ -4,6 +4,7 @@ coverage
 node_modules
 build
 npm
+lib
 yarn.lock
 examples/**/package-lock.json
 packages/**/package-lock.json
