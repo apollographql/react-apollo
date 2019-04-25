@@ -465,6 +465,50 @@ it('renders an error state', done => {
   );
 });
 
+it('renders the graphQL error state', done => {
+  let count = 0;
+
+  const expectedError = {errors: [{message: "Error!"}]};
+
+  const Component = () => (
+    <Mutation mutation={mutation}>
+      {(createTodo, result) => {
+        if (count === 0) {
+          setTimeout(() =>
+            createTodo()
+              .then(() => {
+                done.fail('Did not expect a result');
+              })
+              .catch(e => {
+                expect(e).toEqual(expectedError);
+              }),
+          );
+        } else if (count === 1) {
+          expect(result.loading).toBeTruthy();
+        } else if (count === 2) {
+          expect(result.error).toEqual(expectedError);
+          done();
+        }
+        count++;
+        return <div />;
+      }}
+    </Mutation>
+  );
+
+  const mockError = [
+    {
+      request: { query: mutation },
+      result: expectedError,
+    },
+  ];
+
+  mount(
+    <MockedProvider mocks={mockError}>
+      <Component />
+    </MockedProvider>,
+  );
+});
+
 it('renders an error state and throws when encountering graphql errors', done => {
   let count = 0;
 
