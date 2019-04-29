@@ -40,14 +40,14 @@ export function withSubscription<
 
   // allow for advanced referential equality checks
   let lastResultProps: TChildProps | void;
-  return (
-    WrappedComponent: React.ComponentType<TProps & TChildProps>,
-  ): React.ComponentClass<TProps> => {
+  return <OwnProps extends {}>(
+    WrappedComponent: React.ComponentType<OwnProps & TProps & TChildProps>,
+  ): React.ComponentClass<OwnProps & TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
-    class GraphQL extends GraphQLBase<TProps, TChildProps, { resubscribe: boolean }> {
+    class GraphQL extends GraphQLBase<OwnProps & TProps, TChildProps, { resubscribe: boolean }> {
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
-      constructor(props: TProps) {
+      constructor(props: OwnProps & TProps) {
         super(props);
         this.state = { resubscribe: false };
       }
@@ -88,7 +88,7 @@ export function withSubscription<
               if (shouldSkip) {
                 return (
                   <WrappedComponent
-                    {...props as TProps}
+                    {...props as OwnProps & TProps}
                     {...{} as TChildProps}
                   />
                 );
@@ -103,7 +103,7 @@ export function withSubscription<
               if (operationOptions.props) {
                 const newResult: OptionProps<TProps, TData, TGraphQLVariables> = {
                   [name]: result,
-                  ownProps: props as TProps,
+                  ownProps: props as OwnProps & TProps,
                 };
                 lastResultProps = operationOptions.props(newResult, lastResultProps);
                 childProps = lastResultProps;
@@ -111,7 +111,7 @@ export function withSubscription<
 
               return (
                 <WrappedComponent
-                  {...props as TProps}
+                  {...props as OwnProps & TProps}
                   {...childProps as TChildProps}
                 />
               );
