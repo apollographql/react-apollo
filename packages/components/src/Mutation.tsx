@@ -22,20 +22,17 @@ export function Mutation<TData = any, TVariables = OperationVariables>(
       setResult
     })
   );
+  const mutationCore = mutationCoreRef.current;
 
   useEffect(() => {
-    mutationCoreRef.current.isMounted = true;
-
-    return function cleanup() {
-      mutationCoreRef.current.isMounted = false;
-    };
+    return mutationCore.afterRender();
   });
 
   const { children } = props;
   return (
     <Fragment>
       {children(
-        options => mutationCoreRef.current.runMutation(props, context, options),
+        options => mutationCore.render(props, context, options),
         result
       )}
     </Fragment>

@@ -20,20 +20,15 @@ export function Query<TData = any, TVariables = OperationVariables>(
       forceUpdate
     })
   );
+  const queryCore = queryCoreRef.current;
 
   const prevProps = usePreviousProps<TData, TVariables>(props);
 
   useEffect(() => {
-    queryCoreRef.current.isMounted = true;
-    queryCoreRef.current.afterRender(props, prevProps);
-
-    return function cleanup() {
-      queryCoreRef.current.isMounted = false;
-      // queryCoreRef.current.cleanup();
-    };
+    return queryCore.afterRender(props, prevProps);
   });
 
-  return <Fragment>{queryCoreRef.current.render(props, context)}</Fragment>;
+  return <Fragment>{queryCore.render(props, context)}</Fragment>;
 }
 
 function usePreviousProps<TData = any, TVariables = OperationVariables>(

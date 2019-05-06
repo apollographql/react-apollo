@@ -16,15 +16,15 @@ import {
   QueryPreviousData,
   QueryCurrentObservable
 } from '../types';
-import { getClient } from '../utils/getClient';
+import { OperationCore } from './OperationCore';
 
-export class QueryCore<TData, TVariables> {
-  public isMounted: boolean = true;
+export class QueryCore<TData, TVariables> extends OperationCore {
   public previousData: QueryPreviousData<TData> = {};
   public currentObservable: QueryCurrentObservable<TData, TVariables> = {};
   public forceUpdate: any;
 
   constructor({ forceUpdate }: any) {
+    super();
     this.forceUpdate = forceUpdate;
   }
 
@@ -32,7 +32,7 @@ export class QueryCore<TData, TVariables> {
     props: QueryProps<TData, TVariables>,
     context: ApolloContextValue
   ): React.ReactNode {
-    const client = this.currentClient(props, context);
+    const { client } = this.refreshClient(props, context);
 
     const { skip, query } = props;
     if (skip || query !== this.previousData.query) {
@@ -84,7 +84,7 @@ export class QueryCore<TData, TVariables> {
       fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
     }
 
-    const obs = this.currentClient(props, context).watchQuery({
+    const obs = this.refreshClient(props, context).client.watchQuery({
       ...opts,
       fetchPolicy
     });
@@ -102,22 +102,15 @@ export class QueryCore<TData, TVariables> {
     props: QueryProps<TData, TVariables>,
     prevProps?: QueryProps<TData, TVariables>
   ) {
+    this.isMounted = true;
     this.handleErrorOrCompleted(props, prevProps);
+    return this.unmount.bind(this);
   }
 
-  public cleanup() {
+  protected cleanup() {
     this.removeQuerySubscription();
-  }
-
-  private currentClient(props: QueryProps<TData, TVariables>, context: any) {
-    const client = getClient(props, context);
-    if (this.previousData.client !== client) {
-      this.previousData.client = client;
-      this.removeQuerySubscription();
-      this.currentObservable.query = null;
-      this.previousData.result = null;
-    }
-    return client;
+    this.currentObservable.query = null;
+    this.previousData.result = null;
   }
 
   private updateCurrentData() {
@@ -177,10 +170,10 @@ export class QueryCore<TData, TVariables> {
     if (!this.currentObservable.query) {
       const options = this.extractOptsFromProps(props);
       this.previousData.options = { ...options, children: null };
-      this.currentObservable.query = this.currentClient(
+      this.currentObservable.query = this.refreshClient(
         props,
         context
-      ).watchQuery(options);
+      ).client.watchQuery(options);
     }
   }
 

@@ -11,11 +11,12 @@ import {
   MutationState,
   ExecutionResult
 } from '../types';
-import { getClient } from '../utils/getClient';
+import { OperationCore } from './OperationCore';
 
-export class MutationCore<TData = any, TVariables = OperationVariables> {
-  public isMounted: boolean = true;
-
+export class MutationCore<
+  TData = any,
+  TVariables = OperationVariables
+> extends OperationCore {
   private mostRecentMutationId: number;
   private result: MutationState<TData>;
   private previousResult?: MutationState<TData>;
@@ -30,13 +31,14 @@ export class MutationCore<TData = any, TVariables = OperationVariables> {
     result: MutationState<TData>;
     setResult: any;
   }) {
+    super();
     this.verifyDocumentIsMutation(props.mutation);
     this.result = result;
     this.setResult = setResult;
     this.mostRecentMutationId = 0;
   }
 
-  public runMutation(
+  public render(
     props: MutationProps<TData, TVariables>,
     context: ApolloContextValue,
     options: MutationOptions<TData, TVariables> = {}
@@ -53,6 +55,15 @@ export class MutationCore<TData = any, TVariables = OperationVariables> {
         this.onMutationError(props, e, mutationId);
         if (!props.onError) throw e;
       });
+  }
+
+  public afterRender() {
+    this.isMounted = true;
+    return this.unmount.bind(this);
+  }
+
+  protected cleanup() {
+    // No cleanup required.
   }
 
   private mutate(
@@ -79,7 +90,7 @@ export class MutationCore<TData = any, TVariables = OperationVariables> {
     );
     delete mutateOptions.variables;
 
-    return this.currentClient(props, context).mutate({
+    return this.refreshClient(props, context).client.mutate({
       mutation,
       optimisticResponse,
       refetchQueries,
@@ -166,13 +177,6 @@ export class MutationCore<TData = any, TVariables = OperationVariables> {
         operation.type === DocumentType.Query ? 'query' : 'subscription'
       }.`
     );
-  }
-
-  private currentClient(
-    props: MutationProps<TData, TVariables>,
-    context: ApolloContextValue
-  ) {
-    return getClient(props, context);
   }
 
   private updateResult(result: MutationState<TData>) {

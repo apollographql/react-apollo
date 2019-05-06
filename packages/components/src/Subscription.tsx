@@ -13,20 +13,17 @@ export function Subscription<TData = any, TVariables = OperationVariables>(
     error: undefined,
     data: undefined
   });
-  const subCoreRef = useRef(
+  const subscriptionCoreRef = useRef(
     new SubscriptionCore<TData, TVariables>(props, context, setResult)
   );
+  const subscriptionCore = subscriptionCoreRef.current;
 
-  subCoreRef.current.setProps(props);
-  subCoreRef.current.setContext(context);
+  subscriptionCore.props = props;
+  subscriptionCore.context = context;
 
   useEffect(() => {
-    subCoreRef.current.isMounted = true;
-
-    return function cleanup() {
-      subCoreRef.current.isMounted = false;
-    };
+    return subscriptionCore.afterRender();
   });
 
-  return subCoreRef.current.render(result);
+  return subscriptionCore.render(result);
 }

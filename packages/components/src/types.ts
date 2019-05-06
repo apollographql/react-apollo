@@ -326,3 +326,5 @@ export interface QueryCurrentObservable<TData, TVariables> {
   query?: ObservableQuery<TData, TVariables> | null;
   subscription?: ZenObservable.Subscription;
 }
+
+export type CommonProps<TProps> = TProps & { client?: ApolloClient<object> };

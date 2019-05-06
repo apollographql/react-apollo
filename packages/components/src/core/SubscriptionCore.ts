@@ -1,22 +1,19 @@
-import { ApolloClient } from 'apollo-client';
 import { isEqual } from 'apollo-utilities';
 import { Observable } from 'apollo-link';
 import { ZenObservable } from 'zen-observable-ts';
 import { ApolloContextValue } from '@apollo/react-common';
 
-import { getClient } from '../utils/getClient';
 import {
   SubscriptionState,
   SubscriptionProps,
   SubscriptionResult
 } from '../types';
+import { OperationCore } from './OperationCore';
 
-export class SubscriptionCore<TData = any, TVariables = any> {
-  public isMounted: boolean = true;
-
-  private client: ApolloClient<object>;
-  private props: SubscriptionProps<TData, TVariables>;
-  private context: ApolloContextValue;
+export class SubscriptionCore<
+  TData = any,
+  TVariables = any
+> extends OperationCore<SubscriptionProps<TData, TVariables>> {
   private setResult: any;
   private previousProps?: Readonly<SubscriptionProps<TData, TVariables>>;
   private observableQuery?: Observable<any>;
@@ -27,19 +24,9 @@ export class SubscriptionCore<TData = any, TVariables = any> {
     context: ApolloContextValue,
     setResult: any
   ) {
-    this.props = props;
-    this.context = context;
+    super(props, context);
     this.setResult = setResult;
-    this.client = this.refreshClient().client;
     this.initialize(props);
-  }
-
-  public setProps(props: SubscriptionProps<TData, TVariables>) {
-    this.props = props;
-  }
-
-  public setContext(context: ApolloContextValue) {
-    this.context = context;
   }
 
   public render(result: SubscriptionState<TData>) {
@@ -75,8 +62,14 @@ export class SubscriptionCore<TData = any, TVariables = any> {
     return renderFn({ ...currentResult, variables: this.props.variables });
   }
 
-  public onAfterExecute() {
+  public afterRender() {
+    this.isMounted = true;
+    return this.unmount.bind(this);
+  }
+
+  protected cleanup() {
     this.endSubscription();
+    delete this.observableQuery;
   }
 
   private initialize(props: SubscriptionProps<TData, TVariables>) {
@@ -148,20 +141,5 @@ export class SubscriptionCore<TData = any, TVariables = any> {
       this.observableQuerySubscription.unsubscribe();
       delete this.observableQuerySubscription;
     }
-  }
-
-  private refreshClient() {
-    let isNew = false;
-    const client = getClient(this.props, this.context);
-    if (client !== this.client) {
-      isNew = true;
-      this.client = client;
-      this.endSubscription();
-      delete this.observableQuery;
-    }
-    return {
-      client: this.client,
-      isNew
-    };
   }
 }
