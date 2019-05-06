@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { DocumentNode } from 'graphql';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { parser } from '@apollo/react-common';
@@ -7,14 +7,14 @@ import {
   MutationOpts,
   OperationOption,
   OptionProps,
-  MutateProps,
+  MutateProps
 } from '@apollo/react-components';
 
 import {
   defaultMapPropsToOptions,
   getDisplayName,
   calculateVariablesFromProps,
-  GraphQLBase,
+  GraphQLBase
 } from './hoc-utils';
 
 export function withMutation<
@@ -29,7 +29,7 @@ export function withMutation<
     TData,
     TGraphQLVariables,
     TChildProps
-  > = {},
+  > = {}
 ) {
   // this is memoized so if coming from `graphql` there is nearly no extra cost
   const operation = parser(document);
@@ -37,7 +37,7 @@ export function withMutation<
 
   const {
     options = defaultMapPropsToOptions,
-    alias = 'Apollo',
+    alias = 'Apollo'
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => MutationOpts;
@@ -45,7 +45,7 @@ export function withMutation<
     mapPropsToOptions = () => options as MutationOpts;
 
   return (
-    WrappedComponent: React.ComponentType<TProps & TChildProps>,
+    WrappedComponent: React.ComponentType<TProps & TChildProps>
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
     class GraphQL extends GraphQLBase<TProps, TChildProps> {
@@ -58,7 +58,7 @@ export function withMutation<
         if (operationOptions.withRef) {
           this.withRef = true;
           props = Object.assign({}, props, {
-            ref: this.setWrappedInstance,
+            ref: this.setWrappedInstance
           });
         }
         if (!opts.variables && operation.variables.length > 0) {
@@ -77,7 +77,7 @@ export function withMutation<
                   TGraphQLVariables
                 > = {
                   [name]: mutate,
-                  ownProps: props,
+                  ownProps: props
                 };
                 childProps = operationOptions.props(newResult) as any;
               }

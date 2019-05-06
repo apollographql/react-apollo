@@ -1,8 +1,7 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
-import { mount, ReactWrapper } from 'enzyme';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { ApolloProvider, ChildProps } from '@apollo/react-components';
@@ -11,6 +10,8 @@ import { DocumentNode } from 'graphql';
 import { graphql } from '../../graphql';
 
 describe('[queries] loading', () => {
+  afterEach(cleanup);
+
   // networkStatus / loading
   it('exposes networkStatus as a part of the props api', done => {
     const query: DocumentNode = gql`
@@ -24,31 +25,32 @@ describe('[queries] loading', () => {
     `;
     const link = mockSingleLink({
       request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql(query, {
-      options: { notifyOnNetworkStatusChange: true },
+      options: { notifyOnNetworkStatusChange: true }
     })(
       class extends React.Component<ChildProps> {
-        componentWillReceiveProps({ data }: ChildProps) {
+        componentDidUpdate() {
+          const { data } = this.props;
           expect(data!.networkStatus).toBeTruthy();
           done();
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -65,11 +67,11 @@ describe('[queries] loading', () => {
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     @graphql(query, { options: { notifyOnNetworkStatusChange: true } })
@@ -86,10 +88,10 @@ describe('[queries] loading', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -106,32 +108,32 @@ describe('[queries] loading', () => {
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql(query, {
-      options: { notifyOnNetworkStatusChange: true },
+      options: { notifyOnNetworkStatusChange: true }
     })(
       class extends React.Component<ChildProps> {
-        componentWillReceiveProps(nextProps: ChildProps) {
-          expect(nextProps.data!.networkStatus).toBe(7);
+        componentDidUpdate() {
+          expect(this.props.data!.networkStatus).toBe(7);
           done();
         }
 
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -158,46 +160,39 @@ describe('[queries] loading', () => {
 
     const link = mockSingleLink(
       { request: { query, variables: variables1 }, result: { data: data1 } },
-      { request: { query, variables: variables2 }, result: { data: data2 } },
+      { request: { query, variables: variables2 }, result: { data: data2 } }
     );
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql<Vars, Data, Vars>(query, {
       options: props => ({
         variables: props,
-        notifyOnNetworkStatusChange: true,
-      }),
+        notifyOnNetworkStatusChange: true
+      })
     })(
       class extends React.Component<ChildProps<Vars, Data, Vars>> {
-        componentWillReceiveProps(nextProps: ChildProps<Vars, Data, Vars>) {
+        componentDidUpdate(prevProps: ChildProps<Vars, Data, Vars>) {
+          const { data } = this.props;
           // variables changed, new query is loading, but old data is still there
-          if (count === 1 && nextProps.data!.loading) {
-            expect(nextProps.data!.networkStatus).toBe(2);
-            expect(stripSymbols(nextProps.data!.allPeople)).toEqual(
-              data1.allPeople,
-            );
+          if (count === 1 && data!.loading) {
+            expect(data!.networkStatus).toBe(2);
+            expect(stripSymbols(data!.allPeople)).toEqual(data1.allPeople);
           }
           // query with new variables is loaded
-          if (
-            count === 1 &&
-            !nextProps.data!.loading &&
-            this.props.data!.loading
-          ) {
-            expect(nextProps.data!.networkStatus).toBe(7);
-            expect(stripSymbols(nextProps.data!.allPeople)).toEqual(
-              data2.allPeople,
-            );
+          if (count === 1 && !data!.loading && prevProps.data!.loading) {
+            expect(data!.networkStatus).toBe(7);
+            expect(stripSymbols(data!.allPeople)).toEqual(data2.allPeople);
             done();
           }
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
     class ChangingProps extends React.Component<any, any> {
@@ -215,10 +210,10 @@ describe('[queries] loading', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ChangingProps />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -240,38 +235,35 @@ describe('[queries] loading', () => {
 
       const link = mockSingleLink(
         { request: { query }, result: { data } },
-        { request: { query }, result: { data: data2 } },
+        { request: { query }, result: { data: data2 } }
       );
       const client = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       let count = 0;
       const Container = graphql<{}, Data>(query, {
-        options: { notifyOnNetworkStatusChange: true },
+        options: { notifyOnNetworkStatusChange: true }
       })(
         class extends React.Component<ChildProps<{}, Data>> {
-          componentWillReceiveProps(props: ChildProps<{}, Data>) {
+          componentDidUpdate() {
+            const { data } = this.props;
             switch (count++) {
               case 0:
-                expect(props.data!.networkStatus).toBe(7);
+                expect(data!.networkStatus).toBe(7);
                 // this isn't reloading fully
-                props.data!.refetch();
+                data!.refetch();
                 break;
               case 1:
-                expect(props.data!.loading).toBeTruthy();
-                expect(props.data!.networkStatus).toBe(4);
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data.allPeople,
-                );
+                expect(data!.loading).toBeTruthy();
+                expect(data!.networkStatus).toBe(4);
+                expect(stripSymbols(data!.allPeople)).toEqual(data!.allPeople);
                 break;
               case 2:
-                expect(props.data!.loading).toBeFalsy();
-                expect(props.data!.networkStatus).toBe(7);
-                expect(stripSymbols(props.data!.allPeople)).toEqual(
-                  data2.allPeople,
-                );
+                expect(data!.loading).toBeFalsy();
+                expect(data!.networkStatus).toBe(7);
+                expect(stripSymbols(data!.allPeople)).toEqual(data2.allPeople);
                 resolve();
                 break;
               default:
@@ -282,13 +274,13 @@ describe('[queries] loading', () => {
           render() {
             return null;
           }
-        },
+        }
       );
 
-      renderer.create(
+      render(
         <ApolloProvider client={client}>
           <Container />
-        </ApolloProvider>,
+        </ApolloProvider>
       );
     }));
 
@@ -311,31 +303,29 @@ describe('[queries] loading', () => {
       newData: () => ({
         data: {
           allPeople: {
-            people: [{ name: `Darth Skywalker - ${Math.random()}` }],
-          },
-        },
-      }),
+            people: [{ name: `Darth Skywalker - ${Math.random()}` }]
+          }
+        }
+      })
     });
 
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
-      queryDeduplication: false,
+      queryDeduplication: false
     });
 
-    let wrapper: ReactWrapper<any>;
     let count = 0;
 
     const Container = graphql<{}, Data>(query, {
-      options: { fetchPolicy: 'network-only' },
+      options: { fetchPolicy: 'network-only' }
     })(
       class extends React.Component<ChildProps<{}, Data>> {
         render() {
           if (count === 1) {
             // Has data
             setTimeout(() => {
-              wrapper.unmount();
-              wrapper = mount(App);
+              render(App);
             }, 0);
           }
           if (count === 2) {
@@ -346,14 +336,14 @@ describe('[queries] loading', () => {
             // Fetched data loading after remount
             expect(this.props.data!.loading).toBeFalsy();
             expect(this.props.data!.allPeople!.people[0].name).toMatch(
-              /Darth Skywalker - /,
+              /Darth Skywalker - /
             );
             done();
           }
           count += 1;
           return null;
         }
-      },
+      }
     );
 
     const App: React.ReactElement<any> = (
@@ -362,7 +352,7 @@ describe('[queries] loading', () => {
       </ApolloProvider>
     );
 
-    wrapper = mount(App);
+    render(App);
   });
 
   it('correctly sets loading state on remounted component with changed variables', done => {
@@ -392,59 +382,58 @@ describe('[queries] loading', () => {
       {
         request: { query, variables: variables2 },
         result: { data },
-        delay: 10,
-      },
+        delay: 10
+      }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
-    let wrapper: ReactWrapper<any>,
-      render: (num: number) => React.ReactElement<any>,
+    let renderFn: (num: number) => React.ReactElement<any>,
       count = 0;
 
     interface Props {
       first: number;
     }
     const Container = graphql<Props, Data, Vars>(query, {
-      options: ({ first }) => ({ variables: { first } }),
+      options: ({ first }) => ({ variables: { first } })
     })(
       class extends React.Component<ChildProps<Props, Data, Vars>> {
-        componentWillMount() {
-          if (count === 1) {
-            expect(this.props.data!.loading).toBeTruthy(); // on remount
-            count++;
-          }
-        }
-        componentWillReceiveProps(props: ChildProps<Props, Data, Vars>) {
+        componentDidUpdate() {
           if (count === 0) {
             // has data
-            wrapper.unmount();
+            unmount();
             setTimeout(() => {
-              wrapper = mount(render(2));
+              render(renderFn(2));
             }, 5);
           }
 
           if (count === 2) {
             // remounted data after fetch
-            expect(props.data!.loading).toBeFalsy();
+            expect(this.props.data!.loading).toBeFalsy();
             done();
           }
           count++;
         }
+
         render() {
+          if (count === 1) {
+            expect(this.props.data!.loading).toBeTruthy(); // on remount
+            count++;
+          }
+
           return null;
         }
-      },
+      }
     );
 
-    render = (first: number) => (
+    renderFn = (first: number) => (
       <ApolloProvider client={client}>
         <Container first={first} />
       </ApolloProvider>
     );
 
-    wrapper = mount(render(1));
+    const { unmount } = render(renderFn(1));
   });
 
   it('correctly sets loading state on remounted component with changed variables (alt)', done => {
@@ -473,12 +462,12 @@ describe('[queries] loading', () => {
       { request: { query, variables }, result: { data } },
       {
         request: { query, variables: variables2 },
-        result: { data },
-      },
+        result: { data }
+      }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let count = 0;
@@ -492,11 +481,11 @@ describe('[queries] loading', () => {
           if (count === 1) {
             expect(loading).toBeFalsy();
             setTimeout(() => {
-              wrapper.unmount();
-              mount(
+              unmount();
+              render(
                 <ApolloProvider client={client}>
                   <Container {...variables2} />
-                </ApolloProvider>,
+                </ApolloProvider>
               );
             }, 0);
           }
@@ -508,13 +497,13 @@ describe('[queries] loading', () => {
           count++;
           return null;
         }
-      },
+      }
     );
 
-    wrapper = mount(
+    const { unmount } = render(
       <ApolloProvider client={client}>
         <Container {...variables} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -543,12 +532,12 @@ describe('[queries] loading', () => {
       { request: { query, variables }, result: { data } },
       {
         request: { query, variables: variables2 },
-        result: { data },
-      },
+        result: { data }
+      }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
     let count = 0;
 
@@ -557,14 +546,14 @@ describe('[queries] loading', () => {
     }
 
     const connect = (
-      component: React.ComponentType<Props>,
+      component: React.ComponentType<Props>
     ): React.ComponentType<{}> => {
       return class extends React.Component<{}, { first: number }> {
         constructor(props: {}) {
           super(props);
 
           this.state = {
-            first: 1,
+            first: 1
           };
           this.setFirst = this.setFirst.bind(this);
         }
@@ -576,7 +565,7 @@ describe('[queries] loading', () => {
         render() {
           return React.createElement(component, {
             first: this.state.first,
-            setFirst: this.setFirst,
+            setFirst: this.setFirst
           });
         }
       };
@@ -584,7 +573,7 @@ describe('[queries] loading', () => {
 
     const Container = connect(
       graphql<Props, Data, Vars>(query, {
-        options: ({ first }) => ({ variables: { first } }),
+        options: ({ first }) => ({ variables: { first } })
       })(
         class extends React.Component<ChildProps<Props, Data, Vars>> {
           render() {
@@ -594,7 +583,9 @@ describe('[queries] loading', () => {
 
             if (count === 1) {
               expect(this.props.data!.loading).toBeFalsy();
-              this.props.setFirst(2);
+              setTimeout(() => {
+                this.props.setFirst(2);
+              });
             }
 
             if (count === 2) {
@@ -610,14 +601,14 @@ describe('[queries] loading', () => {
 
             return null;
           }
-        },
-      ),
+        }
+      )
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

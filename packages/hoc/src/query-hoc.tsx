@@ -7,7 +7,7 @@ import {
   OperationOption,
   QueryOpts,
   OptionProps,
-  DataProps,
+  DataProps
 } from '@apollo/react-components';
 
 import {
@@ -15,7 +15,7 @@ import {
   GraphQLBase,
   calculateVariablesFromProps,
   defaultMapPropsToOptions,
-  defaultMapPropsToSkip,
+  defaultMapPropsToSkip
 } from './hoc-utils';
 
 export function withQuery<
@@ -30,7 +30,7 @@ export function withQuery<
     TData,
     TGraphQLVariables,
     TChildProps
-  > = {},
+  > = {}
 ) {
   // this is memoized so if coming from `graphql` there is nearly no extra cost
   const operation = parser(document);
@@ -38,7 +38,7 @@ export function withQuery<
   const {
     options = defaultMapPropsToOptions,
     skip = defaultMapPropsToSkip,
-    alias = 'Apollo',
+    alias = 'Apollo'
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOpts;
@@ -54,7 +54,7 @@ export function withQuery<
   // allow for advanced referential equality checks
   let lastResultProps: TChildProps | void;
   return (
-    WrappedComponent: React.ComponentType<TProps & TChildProps>,
+    WrappedComponent: React.ComponentType<TProps & TChildProps>
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
     class GraphQL extends GraphQLBase<TProps, TChildProps> {
@@ -83,9 +83,10 @@ export function withQuery<
               if (operationOptions.withRef) {
                 this.withRef = true;
                 props = Object.assign({}, props, {
-                  ref: this.setWrappedInstance,
+                  ref: this.setWrappedInstance
                 });
               }
+
               // if we have skipped, no reason to manage any reshaping
               if (shouldSkip) {
                 return (
@@ -109,11 +110,11 @@ export function withQuery<
                   TGraphQLVariables
                 > = {
                   [name]: result,
-                  ownProps: props as TProps,
+                  ownProps: props as TProps
                 };
                 lastResultProps = operationOptions.props(
                   newResult,
-                  lastResultProps,
+                  lastResultProps
                 );
                 childProps = lastResultProps;
               }

@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -10,6 +10,8 @@ import { DocumentNode } from 'graphql';
 import { graphql } from '../graphql';
 
 describe('fragments', () => {
+  afterEach(cleanup);
+
   // XXX in a later version, we should support this for composition
   it('throws if you only pass a fragment', () => {
     const query: DocumentNode = gql`
@@ -20,38 +22,39 @@ describe('fragments', () => {
       }
     `;
     const expectedData = {
-      allPeople: { people: [{ name: 'Luke Skywalker' }] },
+      allPeople: { people: [{ name: 'Luke Skywalker' }] }
     };
     type Data = typeof expectedData;
 
     const link = mockSingleLink({
       request: { query },
-      result: { data: expectedData },
+      result: { data: expectedData }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     try {
       const Container = graphql<{}, Data>(query)(
         class extends React.Component<ChildProps<{}, Data>> {
-          componentWillReceiveProps(props: ChildProps<{}, Data>) {
+          componentDidUpdate() {
+            const { props } = this;
             expect(props.data!.loading).toBeFalsy();
             expect(stripSymbols(props.data!.allPeople)).toEqual(
-              expectedData.allPeople,
+              expectedData.allPeople
             );
           }
           render() {
             return null;
           }
-        },
+        }
       );
 
-      renderer.create(
+      render(
         <ApolloProvider client={client}>
           <Container />
-        </ApolloProvider>,
+        </ApolloProvider>
       );
       throw new Error();
     } catch (e) {
@@ -77,38 +80,40 @@ describe('fragments', () => {
     const data = {
       allPeople: {
         __typename: 'PeopleConnection',
-        people: [{ name: 'Luke Skywalker' }],
-      },
+        people: [{ name: 'Luke Skywalker' }]
+      }
     };
 
     type Data = typeof data;
 
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql<{}, Data>(query)(
       class extends React.Component<ChildProps<{}, Data>> {
-        componentWillReceiveProps(props: ChildProps<{}, Data>) {
-          expect(props.data!.loading).toBeFalsy();
-          expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
+        componentDidUpdate() {
+          expect(this.props.data!.loading).toBeFalsy();
+          expect(stripSymbols(this.props.data!.allPeople)).toEqual(
+            data.allPeople
+          );
           done();
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

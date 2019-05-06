@@ -2,7 +2,7 @@ import React from 'react';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { mount } from 'enzyme';
+import { render, cleanup } from 'react-testing-library';
 
 import { ApolloProvider } from '../ApolloProvider';
 import { ApolloConsumer } from '../ApolloConsumer';
@@ -10,12 +10,14 @@ import { getApolloContext } from '../ApolloContext';
 
 const client = new ApolloClient({
   cache: new Cache(),
-  link: new ApolloLink((o, f) => (f ? f(o) : null)),
+  link: new ApolloLink((o, f) => (f ? f(o) : null))
 });
 
 describe('<ApolloConsumer /> component', () => {
+  afterEach(cleanup);
+
   it('has a render prop', done => {
-    mount(
+    render(
       <ApolloProvider client={client}>
         <ApolloConsumer>
           {clientRender => {
@@ -28,18 +30,18 @@ describe('<ApolloConsumer /> component', () => {
             return null;
           }}
         </ApolloConsumer>
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
   it('renders the content in the children prop', () => {
-    const wrapper = mount(
+    const { getByText } = render(
       <ApolloProvider client={client}>
-        <ApolloConsumer>{() => <div />}</ApolloConsumer>
-      </ApolloProvider>,
+        <ApolloConsumer>{() => <div>Test</div>}</ApolloConsumer>
+      </ApolloProvider>
     );
 
-    expect(wrapper.find('div').exists()).toBeTruthy();
+    expect(getByText('Test')).toBeTruthy();
   });
 
   it('errors if there is no client in the context', () => {
@@ -51,13 +53,13 @@ describe('<ApolloConsumer /> component', () => {
       // `ApolloContext.Provider` component, to reset the context before
       // testing.
       const ApolloContext = getApolloContext();
-      mount(
+      render(
         <ApolloContext.Provider value={{}}>
           <ApolloConsumer>{() => null}</ApolloConsumer>
-        </ApolloContext.Provider>,
+        </ApolloContext.Provider>
       );
     }).toThrowError(
-      'Could not find "client" in the context of ApolloConsumer. Wrap the root component in an <ApolloProvider>',
+      'Could not find "client" in the context of ApolloConsumer. Wrap the root component in an <ApolloProvider>'
     );
 
     console.error = errorLogger;

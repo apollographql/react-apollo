@@ -8,10 +8,9 @@ import {
   getDataFromTree,
   getMarkupFromTree,
   DataValue,
-  ChildProps,
+  ChildProps
 } from '@apollo/react-components';
 import gql from 'graphql-tag';
-const times = require('lodash.times');
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
@@ -32,11 +31,11 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         result: { data: data1 },
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Props {}
@@ -52,7 +51,7 @@ describe('SSR', () => {
               ? 'loading'
               : data.currentUser.firstName}
           </div>
-        ),
+        )
       );
 
       const app = (
@@ -69,7 +68,7 @@ describe('SSR', () => {
 
       await getMarkupFromTree({
         tree: app,
-        renderFunction: ReactDOM.renderToString,
+        renderFunction: ReactDOM.renderToString
       }).then(html => {
         const markup = ReactDOM.renderToString(app);
         expect(markup).toEqual(html);
@@ -88,12 +87,12 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         result: { data: { currentUser: { firstName: 'James' } } },
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
         cache: new Cache({ addTypename: false }),
-        ssrMode: true,
+        ssrMode: true
       });
 
       interface Props {}
@@ -103,7 +102,7 @@ describe('SSR', () => {
         };
       }
       const WrappedElement = graphql<Props, Data>(query, {
-        options: { fetchPolicy: 'network-only' },
+        options: { fetchPolicy: 'network-only' }
       })(({ data }: ChildProps<Props, Data>) => (
         <div>
           {!data || data.loading || !data.currentUser
@@ -134,11 +133,11 @@ describe('SSR', () => {
       `;
       const link = mockSingleLink({
         request: { query },
-        result: { data: { currentUser: { firstName: 'James' } } },
+        result: { data: { currentUser: { firstName: 'James' } } }
       });
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Props {}
@@ -148,7 +147,7 @@ describe('SSR', () => {
         };
       }
       const WrappedElement = graphql<Props, Data>(query, {
-        options: { fetchPolicy: 'cache-and-network' },
+        options: { fetchPolicy: 'cache-and-network' }
       })(({ data }: ChildProps<Props, Data>) => (
         <div>
           {data && data.currentUser ? data.currentUser.firstName : 'loading'}
@@ -179,11 +178,11 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         result: { data: { currentUser: { firstName: 'James' } } },
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Props {}
@@ -200,7 +199,7 @@ describe('SSR', () => {
               ? 'loading'
               : data.currentUser.firstName}
           </div>
-        ),
+        )
       );
 
       const Page = () => (
@@ -247,12 +246,12 @@ describe('SSR', () => {
         {
           request: { query: userQuery, variables },
           result: { data: userData },
-          delay: 50,
-        },
+          delay: 50
+        }
       );
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Props {}
@@ -287,11 +286,11 @@ describe('SSR', () => {
       >(userQuery, {
         skip: ({ data }) => data!.loading,
         options: ({ data }) => ({
-          variables: { id: data!.currentUser!.id },
-        }),
+          variables: { id: data!.currentUser!.id }
+        })
       });
       const Component: React.StatelessComponent<WithUserChildProps> = ({
-        data,
+        data
       }) => (
         <div>
           {!data || data.loading || !data.user
@@ -341,23 +340,23 @@ describe('SSR', () => {
       }
 
       const userData = {
-        currentUser: { lastName: 'Tester', firstName: 'James' },
+        currentUser: { lastName: 'Tester', firstName: 'James' }
       };
       const link = mockSingleLink(
         {
           request: { query: lastNameQuery },
           result: { data: userData },
-          delay: 50,
+          delay: 50
         },
         {
           request: { query: firstNameQuery },
           result: { data: userData },
-          delay: 50,
-        },
+          delay: 50
+        }
       );
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Props {}
@@ -373,7 +372,7 @@ describe('SSR', () => {
       const WrappedBorkedComponent = withLastName(BorkedComponent);
 
       const ContainerComponent: React.StatelessComponent<WithLastNameProps> = ({
-        data,
+        data
       }) => (
         <div>
           {!data || data.loading || !data.currentUser
@@ -401,7 +400,7 @@ describe('SSR', () => {
         e => {
           expect(e.toString()).toEqual('Error: foo');
           expect(e).toBe(fooError);
-        },
+        }
       );
     });
 
@@ -416,11 +415,11 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         error: new Error('Failed to fetch'),
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Props {}
@@ -432,7 +431,7 @@ describe('SSR', () => {
       const WrappedElement = graphql<Props, Data>(query)(
         ({ data }: ChildProps<Props, Data>) => (
           <div>{!data || data.loading ? 'loading' : data.error}</div>
-        ),
+        )
       );
 
       const Page = () => (
@@ -473,11 +472,11 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         result: { data: { currentUser: { firstName: 'James' } } },
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Props {}
@@ -487,7 +486,7 @@ describe('SSR', () => {
         };
       }
       const WrappedElement = graphql<Props, Data>(query, {
-        skip: true,
+        skip: true
       })(({ data }: ChildProps<Props, Data>) => (
         <div>{!data ? 'skipped' : 'dang'}</div>
       ));
@@ -517,12 +516,12 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query, variables },
         result: { data: resultData },
-        delay: 50,
+        delay: 50
       });
       const cache = new Cache({ addTypename: false });
       const apolloClient = new ApolloClient({
         link,
-        cache,
+        cache
       });
 
       interface Props {
@@ -543,7 +542,7 @@ describe('SSR', () => {
               ? 'loading'
               : data.currentUser.firstName}
           </div>
-        ),
+        )
       );
 
       const app = (
@@ -556,7 +555,7 @@ describe('SSR', () => {
         const initialState = cache.extract();
         expect(initialState).toBeTruthy();
         expect(
-          initialState['$ROOT_QUERY.currentUser({"id":"1"})'],
+          initialState['$ROOT_QUERY.currentUser({"id":"1"})']
         ).toBeTruthy();
       });
     });
@@ -574,13 +573,13 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query, variables },
         result: { data: resultData },
-        delay: 50,
+        delay: 50
       });
 
       const cache = new Cache({ addTypename: false });
       const apolloClient = new ApolloClient({
         link,
-        cache,
+        cache
       });
 
       interface Props {
@@ -601,8 +600,10 @@ describe('SSR', () => {
       > {
         state = { thing: 1 };
 
-        componentWillMount() {
-          this.setState({ thing: this.state.thing + 1 });
+        static getDerivedStateFromProps() {
+          return {
+            thing: 2
+          };
         }
 
         render() {
@@ -631,7 +632,7 @@ describe('SSR', () => {
           const initialState = cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":"1"})'],
+            initialState['$ROOT_QUERY.currentUser({"id":"1"})']
           ).toBeTruthy();
           done();
         })
@@ -665,7 +666,7 @@ describe('SSR', () => {
       return getDataFromTree(<Element />);
     });
 
-    it('should allow for setting state via an updater function', done => {
+    it('should allow prepping state from props', done => {
       const query = gql`
         query user($id: ID) {
           currentUser(id: $id) {
@@ -678,13 +679,13 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query, variables },
         result: { data: resultData },
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
         cache: new Cache({
-          addTypename: false,
-        }),
+          addTypename: false
+        })
       });
       interface Props {
         id: string;
@@ -711,18 +712,15 @@ describe('SSR', () => {
         state: State = {
           thing: 1,
           userId: null,
-          client: null,
+          client: null
         };
 
-        componentWillMount() {
-          this.setState(
-            (state: State, props: Props) =>
-              ({
-                thing: state.thing + 1,
-                userId: props.id,
-                client: apolloClient,
-              } as any),
-          );
+        static getDerivedStateFromProps(props: Props, state: State) {
+          return {
+            thing: state.thing + 1,
+            userId: props.id,
+            client: apolloClient
+          };
         }
 
         render() {
@@ -753,7 +751,7 @@ describe('SSR', () => {
           const initialState = apolloClient.cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":"1"})'],
+            initialState['$ROOT_QUERY.currentUser({"id":"1"})']
           ).toBeTruthy();
           done();
         })
@@ -773,13 +771,13 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query, variables },
         result: { data: resultData },
-        delay: 50,
+        delay: 50
       });
 
       const cache = new Cache({ addTypename: false });
       const apolloClient = new ApolloClient({
         link,
-        cache,
+        cache
       });
 
       interface Data {
@@ -801,7 +799,7 @@ describe('SSR', () => {
       }
 
       const Element = graphql<Props, Data, Variables>(query, {
-        options: props => ({ variables: props, ssr: false }),
+        options: props => ({ variables: props, ssr: false })
       })(({ data }) => (
         <div>
           {!data || data.loading || !data.currentUser
@@ -836,13 +834,13 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query, variables },
         result: { data: resultData },
-        delay: 50,
+        delay: 50
       });
 
       const cache = new Cache({ addTypename: false });
       const apolloClient = new ApolloClient({
         link,
-        cache,
+        cache
       });
 
       interface Data {
@@ -851,16 +849,14 @@ describe('SSR', () => {
         };
       }
 
-      class CurrentUserQuery extends Query<Data, { id: string }> {}
-
       const Element = (props: { id: string }) => (
-        <CurrentUserQuery query={query} ssr={false} variables={props}>
+        <Query query={query} ssr={false} variables={props}>
           {({ data, loading }) => (
             <div>
               {loading || !data ? 'loading' : data.currentUser!.firstName}
             </div>
           )}
-        </CurrentUserQuery>
+        </Query>
       );
 
       const app = (
@@ -900,12 +896,12 @@ describe('SSR', () => {
         {
           request: { query: mutation },
           result: { data: mutationData },
-          delay: 5,
-        },
+          delay: 5
+        }
       );
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Data {
@@ -925,9 +921,9 @@ describe('SSR', () => {
           expect(data!.refetch).toBeTruthy();
           return {
             refetchQuery: data!.refetch,
-            data: data!,
+            data: data!
           };
-        },
+        }
       });
 
       const withMutation = graphql<
@@ -936,14 +932,14 @@ describe('SSR', () => {
         {},
         { action: (variables: {}) => Promise<any> }
       >(mutation, {
-        props: ({ ownProps, mutate }) => {
+        props: ({ ownProps, mutate }: any) => {
           expect(ownProps.refetchQuery).toBeTruthy();
           return {
             action(variables: {}) {
               return mutate!({ variables }).then(() => ownProps.refetchQuery());
-            },
+            }
           };
-        },
+        }
       });
 
       const Element: React.StatelessComponent<
@@ -1003,17 +999,17 @@ describe('SSR', () => {
         {
           request: { query },
           result: { data: { currentUser: { firstName: 'James' } } },
-          delay: 5,
+          delay: 5
         },
         {
           request: { query: mutation },
           result: { data: { logRoutes: { id: 'foo' } } },
-          delay: 5,
-        },
+          delay: 5
+        }
       );
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       const withMutation = graphql<Props, MutationData>(mutation);
@@ -1024,9 +1020,9 @@ describe('SSR', () => {
         props: ({ ownProps, data }) => {
           expect(ownProps.mutate).toBeTruthy();
           return {
-            data,
+            data
           };
-        },
+        }
       });
 
       const Element: React.StatelessComponent<
@@ -1070,11 +1066,11 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         result: { data: { currentUser: { firstName: 'James' } } },
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       const WrappedElement = graphql<{}, Data>(query)(
@@ -1084,7 +1080,7 @@ describe('SSR', () => {
               ? 'loading'
               : data.currentUser.firstName}
           </div>
-        ),
+        )
       );
 
       class MyRootContainer extends React.Component<{}, { color: string }> {
@@ -1103,7 +1099,7 @@ describe('SSR', () => {
       }
 
       (MyRootContainer as any).childContextTypes = {
-        color: PropTypes.string,
+        color: PropTypes.string
       };
 
       const app = (

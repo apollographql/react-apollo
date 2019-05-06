@@ -20,7 +20,7 @@ const globals = {
   'ts-invariant': 'invariant',
   tslib: 'tslib',
   '@apollo/react-common': 'apolloReactCommon',
-  'fast-json-stable-stringify': 'stringify',
+  'fast-json-stable-stringify': 'stringify'
 };
 
 function external(id) {
@@ -37,7 +37,7 @@ export default [
       file: `${LIB_DIR}/react-components.esm.js`,
       format: 'esm',
       sourcemap: true,
-      globals,
+      globals
     },
     external,
     plugins: [
@@ -45,11 +45,11 @@ export default [
       typescriptPlugin({
         typescript,
         tsconfig: './config/tsconfig.json',
-        clean: true,
+        clean: true
       }),
-      invariantPlugin(),
+      invariantPlugin()
     ],
-    onwarn,
+    onwarn
   },
   {
     input: `${LIB_DIR}/react-components.esm.js`,
@@ -57,10 +57,10 @@ export default [
       file: `${LIB_DIR}/react-components.cjs.js`,
       format: 'cjs',
       name: 'react-components',
-      globals,
+      globals
     },
     external,
-    onwarn,
+    onwarn
   },
   {
     input: `${LIB_DIR}/react-components.esm.js`,
@@ -68,10 +68,10 @@ export default [
       file: `${LIB_DIR}/react-components.umd.js`,
       format: 'umd',
       name: 'react-components',
-      globals,
+      globals
     },
     external,
-    onwarn,
+    onwarn
   },
   {
     input: `${LIB_DIR}/react-components.esm.js`,
@@ -79,21 +79,21 @@ export default [
       file: './meta/bundlesize/bundlesize.js',
       format: 'cjs',
       name: 'react-components',
-      globals,
+      globals
     },
     external,
     plugins: [
       uglify({
         mangle: {
-          toplevel: true,
+          toplevel: true
         },
         compress: {
           global_defs: {
-            '@process.env.NODE_ENV': JSON.stringify('production'),
-          },
-        },
-      }),
+            '@process.env.NODE_ENV': JSON.stringify('production')
+          }
+        }
+      })
     ],
-    onwarn,
-  },
+    onwarn
+  }
 ];

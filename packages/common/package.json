@@ -21,14 +21,11 @@
     "clean": "rm -Rf ./node_modules ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
     "prepare": "npm run build",
     "prebuild": "npm run clean",
-    "build": "tsc -p ./config/tsconfig.json",
-    "postbuild": "../../node_modules/rollup/bin/rollup -c ./config/rollup.config.js",
-    "watch": "tsc-watch --onSuccess \"npm run postbuild\"",
+    "build": "npx tsc -p ./config",
+    "postbuild": "npx rollup -c ./config/rollup.config.js",
+    "watch": "npx tsc-watch --onSuccess \"npm run postbuild\"",
     "predeploy": "npm run build",
-    "deploy": "npm publish",
-    "test": "jest --config ./config/jest.config.js",
-    "test:watch": "jest --config ./config/jest.config.js --watch",
-    "test:full": "npm run type-check && jest --config ./config/jest.config.js --coverage"
+    "deploy": "npm publish"
   },
   "peerDependencies": {
     "apollo-client": "^2.5.1",

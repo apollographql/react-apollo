@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import { ApolloProvider, ChildProps } from '@apollo/react-components';
 import { stripSymbols, createClient } from '@apollo/react-testing';
@@ -30,7 +30,7 @@ interface Variables {
 }
 
 const expectedData = {
-  allPeople: { people: [{ name: 'Luke Skywalker' }] },
+  allPeople: { people: [{ name: 'Luke Skywalker' }] }
 };
 
 describe('graphql(mutation)', () => {
@@ -41,8 +41,10 @@ describe('graphql(mutation)', () => {
     console.error = jest.fn(() => {});
     client = createClient(expectedData, query);
   });
+
   afterEach(() => {
     console.error = error;
+    cleanup();
   });
 
   it('binds a mutation to props', () => {
@@ -52,10 +54,10 @@ describe('graphql(mutation)', () => {
       return null;
     });
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -71,19 +73,19 @@ describe('graphql(mutation)', () => {
       {
         props: ({ ownProps, mutate: addPerson }) => ({
           [ownProps.methodName]: (name: string) =>
-            addPerson!({ variables: { name } }),
-        }),
-      },
+            addPerson!({ variables: { name } })
+        })
+      }
     )(({ myInjectedMutationMethod }) => {
       expect(myInjectedMutationMethod).toBeTruthy();
       expect(typeof myInjectedMutationMethod).toBe('function');
       return null;
     });
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData methodName="myInjectedMutationMethod" />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -106,12 +108,12 @@ describe('graphql(mutation)', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ErrorBoundary>
           <ContainerWithData />
         </ErrorBoundary>
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -127,13 +129,13 @@ describe('graphql(mutation)', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -164,13 +166,13 @@ describe('graphql(mutation)', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container first={1} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -186,20 +188,20 @@ describe('graphql(mutation)', () => {
     `;
     client = createClient(expectedData, queryWithVariables, {
       first: 1,
-      second: 2,
+      second: 2
     });
 
     interface Props {}
 
     const Container = graphql<Props>(queryWithVariables, {
       options: () => ({
-        variables: { first: 1 },
-      }),
+        variables: { first: 1 }
+      })
     })(
       class extends React.Component<ChildProps<Props>> {
         componentDidMount() {
           this.props.mutate!({
-            variables: { second: 2 },
+            variables: { second: 2 }
           }).then(result => {
             expect(stripSymbols(result && result.data)).toEqual(expectedData);
             done();
@@ -208,13 +210,13 @@ describe('graphql(mutation)', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

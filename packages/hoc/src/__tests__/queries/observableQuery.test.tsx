@@ -1,6 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { mount, ReactWrapper } from 'enzyme';
+import { render, cleanup, fireEvent } from 'react-testing-library';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -11,6 +10,8 @@ import { DocumentNode } from 'graphql';
 import { graphql } from '../../graphql';
 
 describe('[queries] observableQuery', () => {
+  afterEach(cleanup);
+
   // observableQuery
   it('will recycle `ObservableQuery`s when re-rendering the entire tree', done => {
     const query: DocumentNode = gql`
@@ -27,14 +28,15 @@ describe('[queries] observableQuery', () => {
 
     const link = mockSingleLink(
       { request: { query }, result: { data } },
-      { request: { query }, result: { data } },
+      { request: { query }, result: { data } }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
-    let wrapper1: ReactWrapper<any>;
+    let unmount: any;
+    let queryByText: any;
     let count = 0;
 
     const assert1 = () => {
@@ -48,12 +50,12 @@ describe('[queries] observableQuery', () => {
     };
 
     const Container = graphql<{}, Data>(query, {
-      options: { fetchPolicy: 'cache-and-network' },
+      options: { fetchPolicy: 'cache-and-network' }
     })(
       class extends React.Component<ChildProps<{}, Data>> {
         componentDidMount() {
           if (count === 3) {
-            wrapper1.unmount();
+            unmount();
             done();
           }
         }
@@ -62,12 +64,12 @@ describe('[queries] observableQuery', () => {
           if (count === 2) {
             expect(this.props.data!.loading).toBeFalsy();
             expect(stripSymbols(this.props.data!.allPeople)).toEqual(
-              data.allPeople,
+              data.allPeople
             );
 
             // ensure first assertion and umount tree
             assert1();
-            wrapper1.find('#break').simulate('click');
+            fireEvent.click(queryByText('Break things'));
 
             // ensure cleanup
             assert2();
@@ -85,18 +87,18 @@ describe('[queries] observableQuery', () => {
           if (count === 2) {
             expect(this.props.data!.loading).toBeTruthy();
             expect(stripSymbols(this.props.data!.allPeople)).toEqual(
-              data.allPeople,
+              data.allPeople
             );
           }
 
           count++;
           return null;
         }
-      },
+      }
     );
 
     class RedirectOnMount extends React.Component<{ onMount: () => void }> {
-      componentWillMount() {
+      componentDidMount() {
         this.props.onMount();
       }
 
@@ -107,7 +109,7 @@ describe('[queries] observableQuery', () => {
 
     class AppWrapper extends React.Component<{}, { renderRedirect: boolean }> {
       state = {
-        renderRedirect: false,
+        renderRedirect: false
       };
 
       goToRedirect = () => {
@@ -134,11 +136,13 @@ describe('[queries] observableQuery', () => {
       }
     }
 
-    wrapper1 = mount(
+    const result = render(
       <ApolloProvider client={client}>
         <AppWrapper />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
+    unmount = result.unmount;
+    queryByText = result.queryByText;
   });
 
   it("will recycle `ObservableQuery`s when re-rendering a portion of the tree but not return stale data if variables don't match", done => {
@@ -158,13 +162,13 @@ describe('[queries] observableQuery', () => {
     const variables2 = { first: 2 };
     const data = {
       allPeople: {
-        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
-      },
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }]
+      }
     };
     const data2 = {
       allPeople: {
-        people: [{ name: 'Leia Skywalker', friends: [{ name: 'luke' }] }],
-      },
+        people: [{ name: 'Leia Skywalker', friends: [{ name: 'luke' }] }]
+      }
     };
 
     type Data = typeof data;
@@ -172,11 +176,11 @@ describe('[queries] observableQuery', () => {
 
     const link = mockSingleLink(
       { request: { query, variables: variables1 }, result: { data } },
-      { request: { query, variables: variables2 }, result: { data: data2 } },
+      { request: { query, variables: variables2 }, result: { data: data2 } }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
     let remount: any;
 
@@ -205,7 +209,7 @@ describe('[queries] observableQuery', () => {
 
           return null;
         }
-      },
+      }
     );
 
     class Remounter extends React.Component<
@@ -214,7 +218,7 @@ describe('[queries] observableQuery', () => {
     > {
       state = {
         showChildren: true,
-        variables: variables1,
+        variables: variables1
       };
 
       componentDidMount() {
@@ -223,7 +227,7 @@ describe('[queries] observableQuery', () => {
             setTimeout(() => {
               this.setState({
                 showChildren: true,
-                variables: variables2,
+                variables: variables2
               });
             }, 10);
           });
@@ -239,10 +243,10 @@ describe('[queries] observableQuery', () => {
 
     // the initial mount fires off the query
     // the same as episode id = 1
-    const wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Remounter render={Container} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     // after the initial data has been returned
@@ -255,7 +259,6 @@ describe('[queries] observableQuery', () => {
         // move to a new "epsiode" page
         // epsiode id = 2
         // wait to verify the data isn't stale then end
-        wrapper.unmount();
         done();
       }, 20);
     }, 5);
@@ -278,20 +281,20 @@ describe('[queries] observableQuery', () => {
     const variables = { first: 1 };
     const data = {
       allPeople: {
-        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
-      },
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }]
+      }
     };
     type Data = typeof data;
     type Vars = typeof variables;
 
     const link = mockSingleLink({
       request: { query, variables },
-      result: { data },
+      result: { data }
     });
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
     let remount: any;
 
@@ -320,7 +323,7 @@ describe('[queries] observableQuery', () => {
 
           return null;
         }
-      },
+      }
     );
 
     class Remounter extends React.Component<
@@ -329,7 +332,7 @@ describe('[queries] observableQuery', () => {
     > {
       state = {
         showChildren: true,
-        variables,
+        variables
       };
 
       componentDidMount() {
@@ -351,10 +354,10 @@ describe('[queries] observableQuery', () => {
 
     // the initial mount fires off the query
     // the same as episode id = 1
-    const wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Remounter render={Container} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     // after the initial data has been returned
@@ -366,7 +369,6 @@ describe('[queries] observableQuery', () => {
       setTimeout(() => {
         // move to the same "episode" page
         // make sure we dont over render
-        wrapper.unmount();
         done();
       }, 20);
     }, 5);
@@ -389,15 +391,15 @@ describe('[queries] observableQuery', () => {
     const variables = { first: 1 };
     const dataOne = {
       allPeople: {
-        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }],
-      },
+        people: [{ name: 'Luke Skywalker', friends: [{ name: 'r2d2' }] }]
+      }
     };
     const dataTwo = {
       allPeople: {
         people: [
-          { name: 'Luke Skywalker', friends: [{ name: 'Leia Skywalker' }] },
-        ],
-      },
+          { name: 'Luke Skywalker', friends: [{ name: 'Leia Skywalker' }] }
+        ]
+      }
     };
 
     type Data = typeof dataOne;
@@ -406,17 +408,17 @@ describe('[queries] observableQuery', () => {
     const link = mockSingleLink(
       {
         request: { query, variables },
-        result: { data: dataOne },
+        result: { data: dataOne }
       },
       {
         request: { query, variables },
-        result: { data: dataTwo },
-      },
+        result: { data: dataTwo }
+      }
     );
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
     let remount: any;
 
@@ -450,15 +452,15 @@ describe('[queries] observableQuery', () => {
 
           return null;
         }
-      },
+      }
     );
 
     // the initial mount fires off the query
     // the same as episode id = 1
-    const wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container first={1} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

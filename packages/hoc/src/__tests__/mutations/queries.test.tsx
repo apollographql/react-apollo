@@ -1,12 +1,12 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import {
   mockSingleLink,
   stripSymbols,
-  createClient,
+  createClient
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import { ApolloProvider, ChildProps } from '@apollo/react-components';
@@ -14,6 +14,8 @@ import { ApolloProvider, ChildProps } from '@apollo/react-components';
 import { graphql } from '../../graphql';
 
 describe('graphql(mutation) query integration', () => {
+  afterEach(cleanup);
+
   it('allows for passing optimisticResponse for a mutation', done => {
     const query: DocumentNode = gql`
       mutation createTodo {
@@ -33,8 +35,8 @@ describe('graphql(mutation) query integration', () => {
         __typename: 'Todo',
         id: '99',
         text: 'This one was created with a mutation.',
-        completed: true,
-      },
+        completed: true
+      }
     };
 
     type Data = typeof data;
@@ -49,8 +51,8 @@ describe('graphql(mutation) query integration', () => {
               __typename: 'Todo',
               id: '99',
               text: 'Optimistically generated',
-              completed: true,
-            },
+              completed: true
+            }
           };
           this.props.mutate!({ optimisticResponse }).then(result => {
             expect(stripSymbols(result && result.data)).toEqual(data);
@@ -59,19 +61,19 @@ describe('graphql(mutation) query integration', () => {
 
           const dataInStore = client.cache.extract(true);
           expect(stripSymbols(dataInStore['Todo:99'])).toEqual(
-            optimisticResponse.createTodo,
+            optimisticResponse.createTodo
           );
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -104,8 +106,8 @@ describe('graphql(mutation) query integration', () => {
       createTodo: {
         id: '99',
         text: 'This one was created with a mutation.',
-        completed: true,
-      },
+        completed: true
+      }
     };
 
     type MutationData = typeof mutationData;
@@ -114,8 +116,8 @@ describe('graphql(mutation) query integration', () => {
       createTodo: {
         id: '99',
         text: 'Optimistically generated',
-        completed: true,
-      },
+        completed: true
+      }
     };
     interface QueryData {
       todo_list: {
@@ -132,15 +134,15 @@ describe('graphql(mutation) query integration', () => {
     };
 
     const expectedData = {
-      todo_list: { id: '123', title: 'how to apollo', tasks: [] },
+      todo_list: { id: '123', title: 'how to apollo', tasks: [] }
     };
 
     const link = mockSingleLink(
       {
         request: { query },
-        result: { data: expectedData },
+        result: { data: expectedData }
       },
-      { request: { query: mutation }, result: { data: mutationData } },
+      { request: { query: mutation }, result: { data: mutationData } }
     );
     const cache = new Cache({ addTypename: false });
     const client = new ApolloClient({ link, cache });
@@ -149,50 +151,49 @@ describe('graphql(mutation) query integration', () => {
 
     type WithQueryChildProps = ChildProps<{}, QueryData>;
     const withMutation = graphql<WithQueryChildProps, MutationData>(mutation, {
-      options: () => ({ optimisticResponse, update }),
+      options: () => ({ optimisticResponse, update })
     });
 
     let count = 0;
 
     type ContainerProps = ChildProps<WithQueryChildProps, MutationData>;
     class Container extends React.Component<ContainerProps> {
-      componentWillReceiveProps(props: ContainerProps) {
-        if (!props.data || !props.data.todo_list) return;
-        if (!props.data.todo_list.tasks.length) {
-          props.mutate!().then(result => {
+      render() {
+        if (!this.props.data || !this.props.data.todo_list) return null;
+        if (!this.props.data.todo_list.tasks.length) {
+          this.props.mutate!().then(result => {
             expect(stripSymbols(result && result.data)).toEqual(mutationData);
           });
 
           const dataInStore = cache.extract(true);
           expect(
-            stripSymbols(dataInStore['$ROOT_MUTATION.createTodo']),
+            stripSymbols(dataInStore['$ROOT_MUTATION.createTodo'])
           ).toEqual(optimisticResponse.createTodo);
-          return;
+          return null;
         }
 
         if (count === 0) {
           count++;
-          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([
-            optimisticResponse.createTodo,
+          expect(stripSymbols(this.props.data.todo_list.tasks)).toEqual([
+            optimisticResponse.createTodo
           ]);
         } else if (count === 1) {
-          expect(stripSymbols(props.data.todo_list.tasks)).toEqual([
-            mutationData.createTodo,
+          expect(stripSymbols(this.props.data.todo_list.tasks)).toEqual([
+            mutationData.createTodo
           ]);
           done();
         }
-      }
-      render() {
+
         return null;
       }
     }
 
     const ContainerWithData = withQuery(withMutation(Container));
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -211,8 +212,8 @@ describe('graphql(mutation) query integration', () => {
       mini: {
         id: 1,
         __typename: 'Mini',
-        cover: 'image1',
-      },
+        cover: 'image1'
+      }
     };
 
     type Data = typeof queryData;
@@ -235,8 +236,8 @@ describe('graphql(mutation) query integration', () => {
       mini: {
         id: 1,
         cover: 'image2',
-        __typename: 'Mini',
-      },
+        __typename: 'Mini'
+      }
     };
 
     type MutationData = typeof mutationData;
@@ -249,8 +250,8 @@ describe('graphql(mutation) query integration', () => {
       { request: { query, variables }, result: { data: queryData } },
       {
         request: { query: mutation, variables: { signature: '1233' } },
-        result: { data: mutationData },
-      },
+        result: { data: mutationData }
+      }
     );
     const cache = new Cache({ addTypename: false });
     const client = new ApolloClient({ link, cache });
@@ -266,56 +267,53 @@ describe('graphql(mutation) query integration', () => {
 
     let count = 0;
     const MutationContainer = graphql<MutationVariables, MutationData>(
-      mutation,
+      mutation
     )(
       class extends React.Component<
         ChildProps<MutationVariables, MutationData>
       > {
-        componentWillReceiveProps(
-          props: ChildProps<MutationVariables, MutationData>,
-        ) {
+        render() {
           if (count === 1) {
-            props.mutate!()
+            this.props.mutate!()
               .then(result => {
                 expect(stripSymbols(result && result.data)).toEqual(
-                  mutationData,
+                  mutationData
                 );
               })
               .catch(done.fail);
           }
-        }
-        render() {
           return null;
         }
-      },
+      }
     );
 
     const Container = graphql<Variables, Data>(query)(
       class extends React.Component<ChildProps<Variables, Data>> {
-        componentWillReceiveProps(props: ChildProps<Variables, Data>) {
-          if (count === 0) {
-            expect(stripSymbols(props.data!.mini)).toEqual(queryData.mini);
-          }
+        render() {
           if (count === 1) {
-            expect(stripSymbols(props.data!.mini)).toEqual(mutationData.mini);
+            expect(stripSymbols(this.props.data!.mini)).toEqual(queryData.mini);
+          }
+          if (count === 2) {
+            expect(stripSymbols(this.props.data!.mini)).toEqual(
+              mutationData.mini
+            );
             done();
           }
           count++;
-        }
-        render() {
+
           return (
             <MutationContainer {...this.props.data!.mini} signature="1233" />
           );
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Boundary>
           <Container id={1} />
         </Boundary>
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

@@ -1,9 +1,10 @@
 import React from 'react';
-import { ApolloClient, ObservableQuery } from 'apollo-client';
+import { ObservableQuery } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { getApolloContext, ApolloContextValue } from '@apollo/react-common';
 
-import { Query } from '../Query';
+import { QueryCore } from '../core/QueryCore';
+import { QueryProps } from '../types';
 
 type QueryInfo = {
   seen: boolean;
@@ -13,13 +14,13 @@ type QueryInfo = {
 function makeDefaultQueryInfo(): QueryInfo {
   return {
     seen: false,
-    observable: null,
+    observable: null
   };
 }
 
 export class RenderPromises {
   // Map from Query component instances to pending fetchData promises.
-  private queryPromises = new Map<Query<any, any>, Promise<any>>();
+  private queryPromises = new Map<QueryProps<any, any>, Promise<any>>();
 
   // Two-layered map from (query document, stringified variables) to QueryInfo
   // objects. These QueryInfo objects are intended to survive through the whole
@@ -29,32 +30,32 @@ export class RenderPromises {
 
   // Registers the server side rendered observable.
   public registerSSRObservable<TData, TVariables>(
-    queryInstance: Query<TData, TVariables>,
     observable: ObservableQuery<any, TVariables>,
+    props: QueryProps<TData, TVariables>
   ) {
-    this.lookupQueryInfo(queryInstance).observable = observable;
+    this.lookupQueryInfo(props).observable = observable;
   }
 
   // Get's the cached observable that matches the SSR Query instances query and variables.
   public getSSRObservable<TData, TVariables>(
-    queryInstance: Query<TData, TVariables>,
+    props: QueryProps<TData, TVariables>
   ) {
-    return this.lookupQueryInfo(queryInstance).observable;
+    return this.lookupQueryInfo(props).observable;
   }
 
   public addQueryPromise<TData, TVariables>(
-    queryInstance: Query<TData, TVariables>,
+    queryInstance: QueryCore<TData, TVariables>,
+    props: QueryProps<TData, TVariables>,
     finish: () => React.ReactNode,
-    client: ApolloClient<object>,
-    context: ApolloContextValue,
+    context: ApolloContextValue
   ): React.ReactNode {
-    const info = this.lookupQueryInfo(queryInstance);
+    const info = this.lookupQueryInfo(props);
     if (!info.seen) {
       this.queryPromises.set(
-        queryInstance,
+        props,
         new Promise(resolve => {
-          resolve(queryInstance.fetchData(client, context));
-        }),
+          resolve(queryInstance.fetchData(props, context));
+        })
       );
       // Render null to abandon this subtree for this rendering, so that we
       // can wait for the data to arrive.
@@ -87,10 +88,10 @@ export class RenderPromises {
   }
 
   private lookupQueryInfo<TData, TVariables>(
-    queryInstance: Query<TData, TVariables>,
+    props: QueryProps<TData, TVariables>
   ): QueryInfo {
     const { queryInfoTrie } = this;
-    const { query, variables } = queryInstance.props;
+    const { query, variables } = props;
     const varMap = queryInfoTrie.get(query) || new Map<string, QueryInfo>();
     if (!queryInfoTrie.has(query)) queryInfoTrie.set(query, varMap);
     const variablesString = JSON.stringify(variables);
@@ -102,14 +103,14 @@ export class RenderPromises {
 
 export function getDataFromTree(
   tree: React.ReactNode,
-  context: { [key: string]: any } = {},
+  context: { [key: string]: any } = {}
 ) {
   return getMarkupFromTree({
     tree,
     context,
     // If you need to configure this renderFunction, call getMarkupFromTree
     // directly instead of getDataFromTree.
-    renderFunction: require('react-dom/server').renderToStaticMarkup,
+    renderFunction: require('react-dom/server').renderToStaticMarkup
   });
 }
 
@@ -125,7 +126,7 @@ export function getMarkupFromTree({
   // The rendering function is configurable! We use renderToStaticMarkup as
   // the default, because it's a little less expensive than renderToString,
   // and legacy usage of getDataFromTree ignores the return value anyway.
-  renderFunction = require('react-dom/server').renderToStaticMarkup,
+  renderFunction = require('react-dom/server').renderToStaticMarkup
 }: GetMarkupFromTreeOptions): Promise<string> {
   const renderPromises = new RenderPromises();
 
@@ -140,8 +141,8 @@ export function getMarkupFromTree({
       React.createElement(
         ApolloContext.Provider,
         { value: { ...context, renderPromises } },
-        tree,
-      ),
+        tree
+      )
     );
 
     return renderPromises.hasPromises()

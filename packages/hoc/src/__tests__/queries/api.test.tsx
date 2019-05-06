@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -10,6 +10,8 @@ import { ApolloProvider, ChildProps } from '@apollo/react-components';
 import { graphql } from '../../graphql';
 
 describe('[queries] api', () => {
+  afterEach(cleanup);
+
   // api
   it('exposes refetch as part of the props api', done => {
     const query: DocumentNode = gql`
@@ -26,11 +28,11 @@ describe('[queries] api', () => {
     const link = mockSingleLink(
       { request: { query, variables }, result: { data: data1 } },
       { request: { query, variables }, result: { data: data1 } },
-      { request: { query, variables: { first: 2 } }, result: { data: data1 } },
+      { request: { query, variables: { first: 2 } }, result: { data: data1 } }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let hasRefetched = false,
@@ -45,11 +47,8 @@ describe('[queries] api', () => {
 
     const Container = graphql<Props, Data>(query)(
       class extends React.Component<ChildProps<Props, Data>> {
-        componentWillMount() {
-          expect(this.props.data!.refetch).toBeTruthy();
-          expect(this.props.data!.refetch instanceof Function).toBeTruthy();
-        }
-        componentWillReceiveProps({ data }: ChildProps<Props, Data>) {
+        componentDidUpdate() {
+          const { data } = this.props;
           try {
             if (count === 0) expect(data!.loading).toBeFalsy(); // first data
             if (count === 1) expect(data!.loading).toBeTruthy(); // first refetch
@@ -70,7 +69,7 @@ describe('[queries] api', () => {
                   .then(response => {
                     expect(stripSymbols(response.data)).toEqual(data1);
                     expect(stripSymbols(data!.allPeople)).toEqual(
-                      data1.allPeople,
+                      data1.allPeople
                     );
                     done();
                   });
@@ -80,16 +79,20 @@ describe('[queries] api', () => {
             done.fail(e);
           }
         }
+
         render() {
+          expect(this.props.data!.refetch).toBeTruthy();
+          expect(this.props.data!.refetch instanceof Function).toBeTruthy();
+
           return <div>{this.props.first}</div>;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container first={1} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -105,31 +108,32 @@ describe('[queries] api', () => {
     `;
     const link = mockSingleLink({
       request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     // example of loose typing
     const Container = graphql(query)(
       class extends React.Component<ChildProps> {
-        componentWillReceiveProps({ data }: ChildProps) {
-          expect(data!.subscribeToMore).toBeTruthy();
-          expect(data!.subscribeToMore instanceof Function).toBeTruthy();
-          done();
-        }
         render() {
+          const { data } = this.props;
+          if (data && !data.loading) {
+            expect(data!.subscribeToMore).toBeTruthy();
+            expect(data!.subscribeToMore instanceof Function).toBeTruthy();
+            done();
+          }
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -155,23 +159,20 @@ describe('[queries] api', () => {
 
     const link = mockSingleLink(
       { request: { query, variables }, result: { data } },
-      { request: { query, variables: variables2 }, result: { data: data1 } },
+      { request: { query, variables: variables2 }, result: { data: data1 } }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let count = 0;
     const Container = graphql<{}, Data, Variables>(query, {
-      options: () => ({ variables }),
+      options: () => ({ variables })
     })(
       class extends React.Component<ChildProps<{}, Data, Variables>> {
-        componentWillMount() {
-          expect(this.props.data!.fetchMore).toBeTruthy();
-          expect(this.props.data!.fetchMore instanceof Function).toBeTruthy();
-        }
-        componentWillReceiveProps(props: ChildProps<{}, Data, Variables>) {
+        componentDidUpdate() {
+          const { props } = this;
           if (count === 0) {
             expect(props.data!.fetchMore).toBeTruthy();
             expect(props.data!.fetchMore instanceof Function).toBeTruthy();
@@ -181,23 +182,23 @@ describe('[queries] api', () => {
                 updateQuery: (prev, { fetchMoreResult }) => ({
                   allPeople: {
                     people: prev.allPeople.people.concat(
-                      fetchMoreResult!.allPeople.people,
-                    ),
-                  },
-                }),
+                      fetchMoreResult!.allPeople.people
+                    )
+                  }
+                })
               })
               .then(
                 wrap(done, result => {
                   expect(stripSymbols(result.data.allPeople.people)).toEqual(
-                    data1.allPeople.people,
+                    data1.allPeople.people
                   );
-                }),
+                })
               );
           } else if (count === 1) {
             expect(stripSymbols(props.data!.variables)).toEqual(variables);
             expect(props.data!.loading).toBeFalsy();
             expect(stripSymbols(props.data!.allPeople!.people)).toEqual(
-              data.allPeople.people.concat(data1.allPeople.people),
+              data.allPeople.people.concat(data1.allPeople.people)
             );
             done();
           } else {
@@ -205,16 +206,20 @@ describe('[queries] api', () => {
           }
           count++;
         }
+
         render() {
+          expect(this.props.data!.fetchMore).toBeTruthy();
+          expect(this.props.data!.fetchMore instanceof Function).toBeTruthy();
+
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -231,11 +236,11 @@ describe('[queries] api', () => {
     `;
     const vars1 = { cursor: null };
     const data1 = {
-      allPeople: { cursor: 1, people: [{ name: 'Luke Skywalker' }] },
+      allPeople: { cursor: 1, people: [{ name: 'Luke Skywalker' }] }
     };
     const vars2 = { cursor: 1 };
     const data2 = {
-      allPeople: { cursor: 2, people: [{ name: 'Leia Skywalker' }] },
+      allPeople: { cursor: 2, people: [{ name: 'Leia Skywalker' }] }
     };
 
     type Data = typeof data1;
@@ -243,22 +248,20 @@ describe('[queries] api', () => {
 
     const link = mockSingleLink(
       { request: { query, variables: vars1 }, result: { data: data1 } },
-      { request: { query, variables: vars2 }, result: { data: data2 } },
+      { request: { query, variables: vars2 }, result: { data: data2 } }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let isUpdated = false;
 
-    type FinalProps =
-      | { loading: true }
-      | {
-          loading: false;
-          people: { name: string }[];
-          getMorePeople: () => void;
-        };
+    type FinalProps = {
+      loading: boolean;
+      people?: { name: string }[];
+      getMorePeople?: () => void;
+    };
 
     const Container = graphql<{}, Data, Variables, FinalProps>(query, {
       props({ data }) {
@@ -274,43 +277,43 @@ describe('[queries] api', () => {
               variables: { cursor },
               updateQuery(prev, { fetchMoreResult }) {
                 const {
-                  allPeople: { cursor, people },
+                  allPeople: { cursor, people }
                 } = fetchMoreResult!;
                 return {
                   allPeople: {
                     cursor,
-                    people: [...people, ...prev.allPeople.people],
-                  },
+                    people: [...people, ...prev.allPeople.people]
+                  }
                 };
-              },
-            }),
+              }
+            })
         };
-      },
+      }
     })(
       class extends React.Component<FinalProps> {
-        componentWillReceiveProps(props: FinalProps) {
-          if (props.loading) return;
-
-          if (isUpdated) {
-            expect(props.people.length).toBe(2);
-            done();
-            return;
+        render() {
+          if (!this.props.loading) {
+            if (isUpdated) {
+              expect(this.props.people!.length).toBe(2);
+              done();
+            } else {
+              isUpdated = true;
+              expect(stripSymbols(this.props.people)).toEqual(
+                data1.allPeople.people
+              );
+              this.props.getMorePeople!();
+            }
           }
 
-          isUpdated = true;
-          expect(stripSymbols(props.people)).toEqual(data1.allPeople.people);
-          props.getMorePeople();
-        }
-        render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

@@ -1,20 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`allows for querying with the typename 1`] = `
+exports[`General use allows for querying with the typename 1`] = `
 Object {
   "__typename": "User",
   "id": "user_id",
 }
 `;
 
-exports[`does not error if the variables match but have different order 1`] = `
+exports[`General use does not error if the variables match but have different order 1`] = `
 Object {
   "__typename": "User",
   "id": "user_id",
 }
 `;
 
-exports[`errors if the query in the mock and component do not match 1`] = `
+exports[`General use errors if the query in the mock and component do not match 1`] = `
 [Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
   user(username: $username) {
     id
@@ -24,7 +24,7 @@ exports[`errors if the query in the mock and component do not match 1`] = `
 , variables: {"username":"mock_username"}]
 `;
 
-exports[`errors if the variables do not deep equal 1`] = `
+exports[`General use errors if the variables do not deep equal 1`] = `
 [Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
   user(username: $username) {
     id
@@ -34,7 +34,7 @@ exports[`errors if the variables do not deep equal 1`] = `
 , variables: {"username":"some_user","age":42}]
 `;
 
-exports[`errors if the variables in the mock and component do not match 1`] = `
+exports[`General use errors if the variables in the mock and component do not match 1`] = `
 [Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
   user(username: $username) {
     id
@@ -44,7 +44,7 @@ exports[`errors if the variables in the mock and component do not match 1`] = `
 , variables: {"username":"other_user"}]
 `;
 
-exports[`mocks the data 1`] = `
+exports[`General use mocks the data 1`] = `
 Object {
   "__typename": "User",
   "id": "user_id",

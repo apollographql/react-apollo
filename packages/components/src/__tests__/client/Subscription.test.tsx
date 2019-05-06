@@ -1,11 +1,11 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { mount, ReactWrapper } from 'enzyme';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, Operation } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink, catchAsyncError } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
+import { render, cleanup } from 'react-testing-library';
 
 import { Subscription } from '../../Subscription';
 
@@ -13,23 +13,16 @@ const results = [
   'Luke Skywalker',
   'Han Solo',
   'Darth Vader',
-  'Leia Skywalker',
+  'Leia Skywalker'
 ].map(name => ({
-  result: { data: { user: { name } } },
+  result: { data: { user: { name } } }
 }));
-
-let wrapper: ReactWrapper<any, any> | null;
 
 beforeEach(() => {
   jest.useRealTimers();
 });
 
-afterEach(() => {
-  if (wrapper) {
-    wrapper.unmount();
-    wrapper = null;
-  }
-});
+afterEach(cleanup);
 
 const subscription = gql`
   subscription UserInfo {
@@ -43,7 +36,7 @@ const cache = new Cache({ addTypename: false });
 const link = new MockSubscriptionLink();
 const client = new ApolloClient({
   link,
-  cache,
+  cache
 });
 
 it('executes the subscription', done => {
@@ -87,10 +80,10 @@ it('executes the subscription', done => {
     </Subscription>
   );
 
-  wrapper = mount(
+  render(
     <ApolloProvider client={client}>
       <Component />
-    </ApolloProvider>,
+    </ApolloProvider>
   );
 
   const interval = setInterval(() => {
@@ -119,10 +112,10 @@ it('calls onSubscriptionData if given', done => {
     />
   );
 
-  wrapper = mount(
+  render(
     <ApolloProvider client={client}>
       <Component />
-    </ApolloProvider>,
+    </ApolloProvider>
   );
 
   const interval = setInterval(() => {
@@ -150,10 +143,10 @@ it('should call onSubscriptionComplete if specified', done => {
     />
   );
 
-  wrapper = mount(
+  render(
     <ApolloProvider client={client}>
       <Component />
-    </ApolloProvider>,
+    </ApolloProvider>
   );
 
   const interval = setInterval(() => {
@@ -189,7 +182,7 @@ it('executes subscription for the variables passed in the props', done => {
 
   const mockClient = new ApolloClient({
     link: mockLink,
-    cache,
+    cache
   });
 
   let count = 0;
@@ -217,10 +210,10 @@ it('executes subscription for the variables passed in the props', done => {
     </Subscription>
   );
 
-  wrapper = mount(
+  render(
     <ApolloProvider client={mockClient}>
       <Component />
-    </ApolloProvider>,
+    </ApolloProvider>
   );
 
   mockLink.simulateResult(results[0]);
@@ -251,7 +244,7 @@ it('does not execute if variables have not changed', done => {
 
   const mockClient = new ApolloClient({
     link: mockLink,
-    cache,
+    cache
   });
 
   let count = 0;
@@ -284,10 +277,10 @@ it('does not execute if variables have not changed', done => {
     }
   }
 
-  wrapper = mount(
+  render(
     <ApolloProvider client={mockClient}>
       <Component />
-    </ApolloProvider>,
+    </ApolloProvider>
   );
 
   mockLink.simulateResult(results[0]);
@@ -303,11 +296,11 @@ it('renders an error', done => {
   `;
 
   const variables = {
-    name: 'Luke Skywalker',
+    name: 'Luke Skywalker'
   };
 
   const subscriptionError = {
-    error: new Error('error occurred'),
+    error: new Error('error occurred')
   };
 
   let count = 0;
@@ -336,10 +329,10 @@ it('renders an error', done => {
     </Subscription>
   );
 
-  wrapper = mount(
+  render(
     <ApolloProvider client={client}>
       <Component />
-    </ApolloProvider>,
+    </ApolloProvider>
   );
 
   link.simulateResult(subscriptionError);
@@ -350,14 +343,14 @@ describe('should update', () => {
     const link2 = new MockSubscriptionLink();
     const client2 = new ApolloClient({
       link: link2,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let count = 0;
 
     class Component extends React.Component {
       state = {
-        client: client,
+        client: client
       };
 
       render() {
@@ -376,11 +369,11 @@ describe('should update', () => {
                     setTimeout(() => {
                       this.setState(
                         {
-                          client: client2,
+                          client: client2
                         },
                         () => {
                           link2.simulateResult(results[1]);
-                        },
+                        }
                       );
                     });
                   } else if (count === 2) {
@@ -402,7 +395,7 @@ describe('should update', () => {
       }
     }
 
-    wrapper = mount(<Component />);
+    render(<Component />);
 
     link.simulateResult(results[0]);
   });
@@ -420,10 +413,10 @@ describe('should update', () => {
       result: {
         data: {
           hero: {
-            name: 'Chewie',
-          },
-        },
-      },
+            name: 'Chewie'
+          }
+        }
+      }
     };
 
     const userLink = new MockSubscriptionLink();
@@ -431,19 +424,19 @@ describe('should update', () => {
     const linkCombined = new ApolloLink((o, f) => (f ? f(o) : null)).split(
       ({ operationName }) => operationName === 'HeroInfo',
       heroLink,
-      userLink,
+      userLink
     );
 
     const mockClient = new ApolloClient({
       link: linkCombined,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let count = 0;
 
     class Component extends React.Component {
       state = {
-        subscription,
+        subscription
       };
 
       render() {
@@ -461,11 +454,11 @@ describe('should update', () => {
                   setTimeout(() => {
                     this.setState(
                       {
-                        subscription: subscriptionHero,
+                        subscription: subscriptionHero
                       },
                       () => {
                         heroLink.simulateResult(heroResult);
-                      },
+                      }
                     );
                   });
                 } else if (count === 2) {
@@ -485,10 +478,10 @@ describe('should update', () => {
       }
     }
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={mockClient}>
         <Component />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     userLink.simulateResult(results[0]);
@@ -508,14 +501,14 @@ describe('should update', () => {
 
     const dataLuke = {
       user: {
-        name: 'Luke Skywalker',
-      },
+        name: 'Luke Skywalker'
+      }
     };
 
     const dataHan = {
       user: {
-        name: 'Han Solo',
-      },
+        name: 'Han Solo'
+      }
     };
 
     class MockSubscriptionLinkOverride extends MockSubscriptionLink {
@@ -529,14 +522,14 @@ describe('should update', () => {
         if (this.variables.name === 'Luke Skywalker') {
           return super.simulateResult({
             result: {
-              data: dataLuke,
-            },
+              data: dataLuke
+            }
           });
         } else if (this.variables.name === 'Han Solo') {
           return super.simulateResult({
             result: {
-              data: dataHan,
-            },
+              data: dataHan
+            }
           });
         }
       }
@@ -546,14 +539,14 @@ describe('should update', () => {
 
     const mockClient = new ApolloClient({
       link: mockLink,
-      cache,
+      cache
     });
 
     let count = 0;
 
     class Component extends React.Component {
       state = {
-        variables: variablesLuke,
+        variables: variablesLuke
       };
 
       render() {
@@ -574,11 +567,11 @@ describe('should update', () => {
                   setTimeout(() => {
                     this.setState(
                       {
-                        variables: variablesHan,
+                        variables: variablesHan
                       },
                       () => {
                         mockLink.simulateResult();
-                      },
+                      }
                     );
                   });
                 } else if (count === 2) {
@@ -599,10 +592,10 @@ describe('should update', () => {
       }
     }
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={mockClient}>
         <Component />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     mockLink.simulateResult();
@@ -615,14 +608,14 @@ describe('should not update', () => {
 
   const dataLuke = {
     user: {
-      name: 'Luke Skywalker',
-    },
+      name: 'Luke Skywalker'
+    }
   };
 
   const dataHan = {
     user: {
-      name: 'Han Solo',
-    },
+      name: 'Han Solo'
+    }
   };
 
   class MockSubscriptionLinkOverride extends MockSubscriptionLink {
@@ -636,14 +629,14 @@ describe('should not update', () => {
       if (this.variables.name === 'Luke Skywalker') {
         return super.simulateResult({
           result: {
-            data: dataLuke,
-          },
+            data: dataLuke
+          }
         });
       } else if (this.variables.name === 'Han Solo') {
         return super.simulateResult({
           result: {
-            data: dataHan,
-          },
+            data: dataHan
+          }
         });
       }
     }
@@ -662,14 +655,14 @@ describe('should not update', () => {
 
     const mockClient = new ApolloClient({
       link: mockLink,
-      cache,
+      cache
     });
 
     let count = 0;
 
     class Component extends React.Component {
       state = {
-        variables: variablesLuke,
+        variables: variablesLuke
       };
 
       render() {
@@ -691,11 +684,11 @@ describe('should not update', () => {
                   setTimeout(() => {
                     this.setState(
                       {
-                        variables: variablesHan,
+                        variables: variablesHan
                       },
                       () => {
                         mockLink.simulateResult();
-                      },
+                      }
                     );
                   });
                 } else if (count === 2) {
@@ -713,10 +706,10 @@ describe('should not update', () => {
       }
     }
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={mockClient}>
         <Component />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     mockLink.simulateResult();
@@ -735,14 +728,14 @@ describe('should not update', () => {
 
     const mockClient = new ApolloClient({
       link: mockLink,
-      cache,
+      cache
     });
 
     let count = 0;
 
     class Component extends React.Component {
       state = {
-        variables: variablesLuke,
+        variables: variablesLuke
       };
 
       render() {
@@ -764,11 +757,11 @@ describe('should not update', () => {
                   setTimeout(() => {
                     this.setState(
                       {
-                        variables: variablesHan,
+                        variables: variablesHan
                       },
                       () => {
                         mockLink.simulateResult();
-                      },
+                      }
                     );
                   });
                 } else if (count === 2) {
@@ -786,10 +779,10 @@ describe('should not update', () => {
       }
     }
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={mockClient}>
         <Component />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     mockLink.simulateResult();

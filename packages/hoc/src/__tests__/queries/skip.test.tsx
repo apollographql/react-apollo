@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
@@ -7,7 +7,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import {
   mockSingleLink,
   stripSymbols,
-  catchAsyncError,
+  catchAsyncError
 } from '@apollo/react-testing';
 import { ApolloProvider, ChildProps } from '@apollo/react-components';
 import { DocumentNode } from 'graphql';
@@ -15,6 +15,8 @@ import { DocumentNode } from 'graphql';
 import { graphql } from '../../graphql';
 
 describe('[queries] skip', () => {
+  afterEach(cleanup);
+
   it('allows you to skip a query without running it', done => {
     const query: DocumentNode = gql`
       query people {
@@ -28,11 +30,11 @@ describe('[queries] skip', () => {
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
     interface Props {
       skip: boolean;
@@ -40,23 +42,23 @@ describe('[queries] skip', () => {
 
     let queryExecuted = false;
     const Container = graphql<Props>(query, {
-      skip: ({ skip }) => skip,
+      skip: ({ skip }) => skip
     })(
       class extends React.Component<ChildProps<Props>> {
-        componentWillReceiveProps() {
+        componentDidUpdate() {
           queryExecuted = true;
         }
         render() {
           expect(this.props.data).toBeUndefined();
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container skip={true} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     setTimeout(() => {
@@ -86,7 +88,7 @@ describe('[queries] skip', () => {
     // const oldQuery = link.query;
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     interface Props {
@@ -95,13 +97,13 @@ describe('[queries] skip', () => {
 
     const Container = graphql<Props>(query, { skip: true })(
       class extends React.Component<ChildProps<Props>> {
-        componentWillReceiveProps() {
+        componentDidUpdate() {
           done();
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
     class Parent extends React.Component<{}, { foo: number }> {
@@ -115,10 +117,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Parent />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -134,7 +136,7 @@ describe('[queries] skip', () => {
     `;
 
     const data = {
-      allPeople: { people: { id: 1 } },
+      allPeople: { people: { id: 1 } }
     };
 
     type Data = typeof data;
@@ -144,12 +146,12 @@ describe('[queries] skip', () => {
 
     const link = mockSingleLink({
       request: { query, variables },
-      result: { data },
+      result: { data }
     });
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let count = 0;
@@ -162,18 +164,19 @@ describe('[queries] skip', () => {
       skip: ({ person }) => !person,
       options: ({ person }) => ({
         variables: {
-          id: person!.id,
-        },
-      }),
+          id: person!.id
+        }
+      })
     })(
       class extends React.Component<ChildProps<Props, Data, Vars>> {
-        componentWillReceiveProps(props: ChildProps<Props, Data, Vars>) {
+        componentDidUpdate() {
+          const { props } = this;
           count++;
           if (count === 1) expect(props.data!.loading).toBeTruthy();
           if (count === 2)
             expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
           if (count === 2) {
-            expect(renderCount).toBe(2);
+            expect(renderCount).toBe(3);
             done();
           }
         }
@@ -181,7 +184,7 @@ describe('[queries] skip', () => {
           renderCount++;
           return null;
         }
-      },
+      }
     );
 
     class Parent extends React.Component<
@@ -198,10 +201,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Parent />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -218,11 +221,11 @@ describe('[queries] skip', () => {
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let queryExecuted = false;
@@ -243,29 +246,29 @@ describe('[queries] skip', () => {
       options: props => {
         optionsCalled = true;
         return {
-          pollInterval: props.pollInterval,
+          pollInterval: props.pollInterval
         };
       },
       props: props => ({
         // intentionally incorrect
-        pollInterval: (props as any).willThrowIfAccesed.pollInterval,
-      }),
+        pollInterval: (props as any).willThrowIfAccesed.pollInterval
+      })
     })(
       class extends React.Component<FinalProps & Props> {
-        componentWillReceiveProps() {
+        componentDidUpdate() {
           queryExecuted = true;
         }
         render() {
           expect(this.props.data).toBeFalsy();
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container skip={true} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     setTimeout(() => {
@@ -294,12 +297,12 @@ describe('[queries] skip', () => {
 
     const link = mockSingleLink({
       request: { query },
-      result: {},
+      result: {}
     });
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let queryWasSkipped = true;
@@ -316,17 +319,17 @@ describe('[queries] skip', () => {
       props: () => {
         queryWasSkipped = false;
         return {};
-      },
+      }
     })(
       class extends React.Component<ChildProps<Props>> {
-        componentWillReceiveProps() {
+        componentDidUpdate() {
           expect(queryWasSkipped).toBeTruthy();
           done();
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
     class Parent extends React.Component<{}, { foo: string }> {
@@ -339,10 +342,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Parent />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -359,30 +362,30 @@ describe('[queries] skip', () => {
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let queryExecuted = false;
     const Container = graphql(query, { skip: true })(
       class extends React.Component<ChildProps> {
-        componentWillReceiveProps() {
+        componentDidUpdate() {
           queryExecuted = true;
         }
         render() {
           expect(this.props.data).toBeFalsy();
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     setTimeout(() => {
@@ -409,11 +412,11 @@ describe('[queries] skip', () => {
     const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
     const link = mockSingleLink({
       request: { query },
-      result: { data },
+      result: { data }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let hasSkipped = false;
@@ -425,22 +428,22 @@ describe('[queries] skip', () => {
 
     const Container = graphql<Props>(query, { skip: ({ skip }) => skip })(
       class extends React.Component<ChildProps<Props>> {
-        componentWillReceiveProps(newProps: ChildProps<Props>) {
-          if (newProps.skip) {
+        componentDidUpdate(prevProps: ChildProps<Props>) {
+          if (this.props.skip) {
             hasSkipped = true;
-            this.props.setSkip(false);
+            prevProps.setSkip(false);
           } else {
             if (hasSkipped) {
               done();
             } else {
-              this.props.setSkip(true);
+              prevProps.setSkip(true);
             }
           }
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
     class Parent extends React.Component<any, any> {
@@ -455,10 +458,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Parent />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -481,20 +484,20 @@ describe('[queries] skip', () => {
     const link = mockSingleLink(
       {
         request: { query, variables: { first: 1 } },
-        result: { data: dataOne },
+        result: { data: dataOne }
       },
       {
         request: { query, variables: { first: 2 } },
-        result: { data: dataTwo },
+        result: { data: dataTwo }
       },
       {
         request: { query, variables: { first: 2 } },
-        result: { data: dataTwo },
-      },
+        result: { data: dataTwo }
+      }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let hasSkipped = false;
@@ -503,38 +506,38 @@ describe('[queries] skip', () => {
       skip: boolean;
       first: number;
       setState: <K extends 'skip' | 'first'>(
-        state: Pick<{ skip: boolean; first: number }, K>,
+        state: Pick<{ skip: boolean; first: number }, K>
       ) => void;
     }
     const Container = graphql<Props, Data, Vars>(query, {
-      skip: ({ skip }) => skip,
+      skip: ({ skip }) => skip
     })(
       class extends React.Component<ChildProps<Props, Data, Vars>> {
-        componentWillReceiveProps(newProps: ChildProps<Props, Data, Vars>) {
-          if (newProps.skip) {
+        componentDidUpdate(prevProps: ChildProps<Props, Data, Vars>) {
+          if (this.props.skip) {
             hasSkipped = true;
             // change back to skip: false, with a different variable
-            this.props.setState({ skip: false, first: 2 });
+            prevProps.setState({ skip: false, first: 2 });
           } else {
             if (hasSkipped) {
-              if (!newProps.data!.loading) {
-                expect(stripSymbols(newProps.data!.allPeople)).toEqual(
-                  dataTwo.allPeople,
+              if (!this.props.data!.loading) {
+                expect(stripSymbols(this.props.data!.allPeople)).toEqual(
+                  dataTwo.allPeople
                 );
                 done();
               }
             } else {
-              expect(stripSymbols(newProps.data!.allPeople)).toEqual(
-                dataOne.allPeople,
+              expect(stripSymbols(this.props.data!.allPeople)).toEqual(
+                dataOne.allPeople
               );
-              this.props.setState({ skip: true });
+              prevProps.setState({ skip: true });
             }
           }
         }
         render() {
           return null;
         }
-      },
+      }
     );
 
     class Parent extends React.Component<{}, { skip: boolean; first: number }> {
@@ -550,10 +553,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Parent />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -580,51 +583,63 @@ describe('[queries] skip', () => {
       mockSingleLink({
         request: { query },
         result: { data },
-        newData: () => ({ data: nextData }),
-      }),
+        newData: () => ({ data: nextData })
+      })
     );
 
     const client = new ApolloClient({
       link,
       cache: new Cache({ addTypename: false }),
-      queryDeduplication: false,
+      queryDeduplication: false
     });
-
-    let hasSkipped = false;
-    let hasRequeried = false;
 
     interface Props {
       skip: boolean;
       setSkip: (skip: boolean) => void;
     }
+    let count = 0;
     const Container = graphql<Props>(query, {
-      options: () => ({ fetchPolicy: 'network-only' }),
-      skip: ({ skip }) => skip,
+      options: {
+        fetchPolicy: 'network-only',
+        notifyOnNetworkStatusChange: true
+      },
+      skip: ({ skip }) => skip
     })(
       class extends React.Component<any> {
         render() {
-          if (this.props.skip) {
-            // Step 2. We shouldn't query again.
-            expect(ranQuery).toBe(1);
-            hasSkipped = true;
-            this.props.setSkip(false);
-          } else if (hasRequeried) {
-            // Step 4. We need to actually get the data from the query into the component!
-            expect(this.props.data!.loading).toBeFalsy();
-            done();
-          } else if (hasSkipped) {
-            // Step 3. We need to query again!
-            expect(this.props.data!.loading).toBeTruthy();
-            expect(ranQuery).toBe(2);
-            hasRequeried = true;
-          } else {
-            // Step 1. We've queried once.
-            expect(ranQuery).toBe(1);
-            this.props.setSkip(true);
+          switch (count) {
+            case 0:
+              expect(this.props.data.loading).toBeTruthy();
+              expect(ranQuery).toBe(1);
+              break;
+            case 1:
+              expect(this.props.data.loading).toBeFalsy();
+              expect(ranQuery).toBe(1);
+              setTimeout(() => {
+                this.props.setSkip(true);
+              });
+              break;
+            case 2:
+              expect(this.props.data).toBeUndefined();
+              expect(ranQuery).toBe(1);
+              setTimeout(() => {
+                this.props.setSkip(false);
+              });
+              break;
+            case 3:
+              expect(this.props.data!.loading).toBeTruthy();
+              expect(ranQuery).toBe(2);
+              break;
+            case 4:
+              expect(this.props.data!.loading).toBeFalsy();
+              done();
+              break;
+            default:
           }
+          count += 1;
           return null;
         }
-      },
+      }
     );
 
     class Parent extends React.Component<{}, { skip: boolean }> {
@@ -639,10 +654,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Parent />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -673,19 +688,20 @@ describe('[queries] skip', () => {
     const link = mockSingleLink(
       { request: { query, variables: variables1 }, result: { data: data1 } },
       { request: { query, variables: variables2 }, result: { data: data2 } },
-      { request: { query, variables: variables3 }, result: { data: data3 } },
+      { request: { query, variables: variables3 }, result: { data: data3 } }
     );
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql<Vars, Data>(query, {
-      skip: () => count === 1,
+      skip: () => count === 1
     })(
       class extends React.Component<ChildProps<Vars, Data>> {
-        componentWillReceiveProps({ data }: ChildProps<Vars, Data>) {
+        componentDidUpdate() {
+          const { data } = this.props;
           catchAsyncError(done, () => {
             // loading is true, but data still there
             if (count === 0)
@@ -700,7 +716,7 @@ describe('[queries] skip', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
     class ChangingProps extends React.Component<{}, { first: number }> {
@@ -722,10 +738,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ChangingProps />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -742,7 +758,7 @@ describe('[queries] skip', () => {
     const link = mockSingleLink();
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     interface Props {
@@ -750,7 +766,7 @@ describe('[queries] skip', () => {
     }
 
     const Container = graphql<Props>(query, {
-      skip: true,
+      skip: true
     })(
       class extends React.Component<ChildProps<Props>> {
         componentDidMount() {
@@ -762,7 +778,7 @@ describe('[queries] skip', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
     class Hider extends React.Component<{}, { hide: boolean }> {
@@ -775,10 +791,10 @@ describe('[queries] skip', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Hider />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

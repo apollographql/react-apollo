@@ -2,21 +2,15 @@ import React from 'react';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mount } from 'enzyme';
+import { render, cleanup } from 'react-testing-library';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { ApolloProvider, ChildProps } from '@apollo/react-components';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
 
-let wrapper: any;
-
 describe('[queries] updateQuery', () => {
-  afterEach(() => {
-    if (wrapper) {
-      wrapper.unmount();
-    }
-  });
+  afterEach(cleanup);
 
   // updateQuery
   it('exposes updateQuery as part of the props api', done => {
@@ -31,16 +25,17 @@ describe('[queries] updateQuery', () => {
     `;
     const link = mockSingleLink({
       request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql(query)(
       class extends React.Component<ChildProps> {
-        componentWillReceiveProps({ data }: ChildProps) {
+        componentDidUpdate() {
+          const { data } = this.props;
           expect(data!.updateQuery).toBeTruthy();
           expect(data!.updateQuery instanceof Function).toBeTruthy();
           try {
@@ -52,13 +47,13 @@ describe('[queries] updateQuery', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -74,30 +69,28 @@ describe('[queries] updateQuery', () => {
     `;
     const link = mockSingleLink({
       request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql(query)(
       class extends React.Component<ChildProps> {
-        componentWillMount() {
+        render() {
           expect(this.props.data!.updateQuery).toBeTruthy();
           expect(this.props.data!.updateQuery instanceof Function).toBeTruthy();
           done();
-        }
-        render() {
           return null;
         }
-      },
+      }
     );
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -113,16 +106,16 @@ describe('[queries] updateQuery', () => {
     `;
     const link = mockSingleLink({
       request: { query },
-      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } },
+      result: { data: { allPeople: { people: [{ name: 'Luke Skywalker' }] } } }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     const Container = graphql(query)(
       class extends React.Component<ChildProps> {
-        componentWillMount() {
+        render() {
           expect(this.props.data!.updateQuery).toBeTruthy();
           expect(this.props.data!.updateQuery instanceof Function).toBeTruthy();
           try {
@@ -130,21 +123,20 @@ describe('[queries] updateQuery', () => {
             done();
           } catch (e) {
             expect(e.toString()).toMatch(
-              /ObservableQuery with this id doesn't exist:/,
+              /ObservableQuery with this id doesn't exist:/
             );
             done();
           }
-        }
-        render() {
+
           return null;
         }
-      },
+      }
     );
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -163,24 +155,21 @@ describe('[queries] updateQuery', () => {
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const link = mockSingleLink(
       { request: { query }, result: { data: data1 } },
-      { request: { query }, result: { data: data2 } },
+      { request: { query }, result: { data: data2 } }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let isUpdated = false;
     const Container = graphql<{}, Data>(query)(
       class extends React.Component<ChildProps<{}, Data>> {
         public updateQuery: any;
-        componentWillMount() {
-          this.updateQuery = this.props.data!.updateQuery;
-        }
-        componentWillReceiveProps(props: ChildProps<{}, Data>) {
+        componentDidUpdate() {
           if (isUpdated) {
-            expect(stripSymbols(props.data!.allPeople)).toEqual(
-              data2.allPeople,
+            expect(stripSymbols(this.props.data!.allPeople)).toEqual(
+              data2.allPeople
             );
             done();
             return;
@@ -192,15 +181,17 @@ describe('[queries] updateQuery', () => {
           }
         }
         render() {
+          this.updateQuery = this.props.data!.updateQuery;
+
           return null;
         }
-      },
+      }
     );
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -220,26 +211,26 @@ describe('[queries] updateQuery', () => {
     const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
     const link = mockSingleLink(
       { request: { query }, result: { data: data1 } },
-      { request: { query }, result: { data: data2 } },
+      { request: { query }, result: { data: data2 } }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let isUpdated = false;
     const Container = graphql<{}, Data>(query)(
       class extends React.Component<ChildProps<{}, Data>> {
-        componentWillReceiveProps(props: ChildProps<{}, Data>) {
+        componentDidUpdate() {
           if (isUpdated) {
-            expect(stripSymbols(props.data!.allPeople)).toEqual(
-              data2.allPeople,
+            expect(stripSymbols(this.props.data!.allPeople)).toEqual(
+              data2.allPeople
             );
             done();
             return;
           } else {
             isUpdated = true;
-            props.data!.updateQuery(() => {
+            this.props.data!.updateQuery(() => {
               return data2;
             });
           }
@@ -247,13 +238,13 @@ describe('[queries] updateQuery', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
-    wrapper = mount(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

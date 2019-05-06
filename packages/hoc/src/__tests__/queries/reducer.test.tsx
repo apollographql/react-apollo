@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -10,6 +10,8 @@ import { DocumentNode } from 'graphql';
 import { graphql } from '../../graphql';
 
 describe('[queries] reducer', () => {
+  afterEach(cleanup);
+
   // props reducer
   it('allows custom mapping of a result to props', done => {
     const query: DocumentNode = gql`
@@ -22,11 +24,11 @@ describe('[queries] reducer', () => {
     const result = { getThing: { thing: true } };
     const link = mockSingleLink({
       request: { query },
-      result: { data: result },
+      result: { data: result }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     type Data = typeof result;
@@ -35,7 +37,7 @@ describe('[queries] reducer', () => {
 
     let count = 0;
     const ContainerWithData = graphql<{}, Data, {}, ChildProps>(query, {
-      props: ({ data }) => ({ ...data! }),
+      props: ({ data }) => ({ ...data! })
     })(({ getThing, loading }) => {
       count++;
       if (count === 1) expect(loading).toBe(true);
@@ -46,10 +48,10 @@ describe('[queries] reducer', () => {
       return null;
     });
 
-    const wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -63,11 +65,11 @@ describe('[queries] reducer', () => {
     `;
     const link = mockSingleLink({
       request: { query },
-      result: { data: { getThing: { thing: true } } },
+      result: { data: { getThing: { thing: true } } }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     interface Data {
@@ -85,18 +87,17 @@ describe('[queries] reducer', () => {
       props: ({ data, ownProps }) => {
         expect(ownProps.sample).toBe(1);
         return { showSpinner: data!.loading };
-      },
+      }
     })(({ showSpinner }: FinalProps) => {
       expect(showSpinner).toBeTruthy();
       return null;
     });
 
-    const wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData sample={1} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
-    (wrapper as any).unmount();
   });
 
   it('allows custom mapping of a result to props 2', done => {
@@ -110,11 +111,11 @@ describe('[queries] reducer', () => {
     const expectedData = { getThing: { thing: true } };
     const link = mockSingleLink({
       request: { query },
-      result: { data: expectedData },
+      result: { data: expectedData }
     });
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     interface Data {
@@ -126,12 +127,12 @@ describe('[queries] reducer', () => {
     }
 
     const withData = graphql<{}, Data, {}, FinalProps>(query, {
-      props: ({ data }) => ({ thingy: data!.getThing! }),
+      props: ({ data }) => ({ thingy: data!.getThing! })
     });
 
     class Container extends React.Component<FinalProps> {
-      componentWillReceiveProps(props: FinalProps) {
-        expect(stripSymbols(props.thingy)).toEqual(expectedData.getThing);
+      componentDidUpdate() {
+        expect(stripSymbols(this.props.thingy)).toEqual(expectedData.getThing);
         done();
       }
       render() {
@@ -141,10 +142,10 @@ describe('[queries] reducer', () => {
 
     const ContainerWithData = withData(Container);
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -162,16 +163,16 @@ describe('[queries] reducer', () => {
     const link = mockSingleLink(
       {
         request: { query },
-        result: { data: expectedData },
+        result: { data: expectedData }
       },
       {
         request: { query },
-        result: { data: expectedDataAfterRefetch },
-      },
+        result: { data: expectedDataAfterRefetch }
+      }
     );
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     type Data = typeof expectedData;
@@ -192,21 +193,21 @@ describe('[queries] reducer', () => {
         }
 
         return { wrapper, refetch };
-      },
+      }
     });
 
     let counter = 0;
     class Container extends React.Component<FinalProps> {
-      componentWillReceiveProps(nextProps: FinalProps) {
-        expect(stripSymbols(nextProps.wrapper.thingy)).toEqual(
-          expectedData.getThing,
+      componentDidUpdate(nextProps: FinalProps) {
+        expect(stripSymbols(this.props.wrapper.thingy)).toEqual(
+          expectedData.getThing
         );
         if (counter === 1) {
-          expect(nextProps.wrapper).toEqual(this.props.wrapper);
+          expect(this.props.wrapper).toEqual(nextProps.wrapper);
           done();
         } else {
           counter++;
-          nextProps.refetch();
+          this.props.refetch();
         }
       }
       render() {
@@ -216,10 +217,10 @@ describe('[queries] reducer', () => {
 
     const ContainerWithData = withData(Container);
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

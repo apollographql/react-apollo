@@ -5,7 +5,7 @@ import {
   Query,
   ApolloProvider,
   getDataFromTree,
-  getApolloContext,
+  getApolloContext
 } from '../../';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -24,7 +24,7 @@ describe('SSR', () => {
       }
 
       return getDataFromTree(<Consumer />, {
-        text: 'oyez',
+        text: 'oyez'
       }).then(html => {
         expect(html).toEqual('<div>oyez</div>');
       });
@@ -42,11 +42,11 @@ describe('SSR', () => {
       const link = mockSingleLink({
         request: { query },
         result: { data: data1 },
-        delay: 50,
+        delay: 50
       });
       const apolloClient = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       interface Data {
@@ -55,16 +55,14 @@ describe('SSR', () => {
         };
       }
 
-      class CurrentUserQuery extends Query<Data> {}
-
       const WrappedElement = () => (
-        <CurrentUserQuery query={query}>
+        <Query query={query}>
           {({ data, loading }) => (
             <div>
               {loading || !data ? 'loading' : data.currentUser!.firstName}
             </div>
           )}
-        </CurrentUserQuery>
+        </Query>
       );
 
       const app = (
@@ -94,16 +92,16 @@ describe('SSR', () => {
         result: {
           data: {
             allPeople: {
-              people: null,
-            },
+              people: null
+            }
           },
-          errors: [new Error('this is an error')],
-        },
+          errors: [new Error('this is an error')]
+        }
       });
 
       const client = new ApolloClient({
         link,
-        cache: new Cache({ addTypename: false }),
+        cache: new Cache({ addTypename: false })
       });
 
       const app = (
@@ -113,7 +111,7 @@ describe('SSR', () => {
               expect(data).toMatchObject({ allPeople: { people: null } });
               expect(error).toBeDefined();
               expect(error.graphQLErrors[0].message).toEqual(
-                'this is an error',
+                'this is an error'
               );
               done();
               return null;

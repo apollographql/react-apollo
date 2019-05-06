@@ -7,7 +7,7 @@ import {
   QueryOpts,
   OptionProps,
   DataProps,
-  Subscription,
+  Subscription
 } from '@apollo/react-components';
 
 import {
@@ -15,7 +15,7 @@ import {
   GraphQLBase,
   calculateVariablesFromProps,
   defaultMapPropsToOptions,
-  defaultMapPropsToSkip,
+  defaultMapPropsToSkip
 } from './hoc-utils';
 
 export function withSubscription<
@@ -30,7 +30,7 @@ export function withSubscription<
     TData,
     TGraphQLVariables,
     TChildProps
-  > = {},
+  > = {}
 ) {
   // this is memoized so if coming from `graphql` there is nearly no extra cost
   const operation = parser(document);
@@ -39,7 +39,7 @@ export function withSubscription<
     options = defaultMapPropsToOptions,
     skip = defaultMapPropsToSkip,
     alias = 'Apollo',
-    shouldResubscribe,
+    shouldResubscribe
   } = operationOptions;
 
   let mapPropsToOptions = options as (props: any) => QueryOpts;
@@ -52,7 +52,7 @@ export function withSubscription<
   // allow for advanced referential equality checks
   let lastResultProps: TChildProps | void;
   return (
-    WrappedComponent: React.ComponentType<TProps & TChildProps>,
+    WrappedComponent: React.ComponentType<TProps & TChildProps>
   ): React.ComponentClass<TProps> => {
     const graphQLDisplayName = `${alias}(${getDisplayName(WrappedComponent)})`;
     class GraphQL extends GraphQLBase<
@@ -66,11 +66,13 @@ export function withSubscription<
         super(props);
         this.state = { resubscribe: false };
       }
-      componentWillReceiveProps(nextProps: TProps) {
-        if (!shouldResubscribe) return;
-        this.setState({
-          resubscribe: shouldResubscribe(this.props, nextProps),
-        });
+
+      componentDidUpate(prevProps: TProps) {
+        if (shouldResubscribe) {
+          this.setState({
+            resubscribe: shouldResubscribe(prevProps, this.props)
+          });
+        }
       }
 
       render() {
@@ -95,7 +97,7 @@ export function withSubscription<
               if (operationOptions.withRef) {
                 this.withRef = true;
                 props = Object.assign({}, props, {
-                  ref: this.setWrappedInstance,
+                  ref: this.setWrappedInstance
                 });
               }
               // if we have skipped, no reason to manage any reshaping
@@ -121,11 +123,11 @@ export function withSubscription<
                   TGraphQLVariables
                 > = {
                   [name]: result,
-                  ownProps: props as TProps,
+                  ownProps: props as TProps
                 };
                 lastResultProps = operationOptions.props(
                   newResult,
-                  lastResultProps,
+                  lastResultProps
                 );
                 childProps = lastResultProps;
               }

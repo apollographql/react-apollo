@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import { ApolloProvider, ChildProps } from '@apollo/react-components';
 import { stripSymbols, createClient } from '@apollo/react-testing';
@@ -16,10 +16,12 @@ const query = gql`
   }
 `;
 const expectedData = {
-  allPeople: { people: [{ name: 'Luke Skywalker' }] },
+  allPeople: { people: [{ name: 'Luke Skywalker' }] }
 };
 
 describe('graphql(mutation) lifecycle', () => {
+  afterEach(cleanup);
+
   it('allows falsy values in the mapped variables from props', done => {
     const client = createClient(expectedData, query, { id: null });
 
@@ -39,13 +41,13 @@ describe('graphql(mutation) lifecycle', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container id={null} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -56,10 +58,10 @@ describe('graphql(mutation) lifecycle', () => {
     }
     const Container = graphql<Props>(query)(() => null);
     try {
-      renderer.create(
+      render(
         <ApolloProvider client={client}>
           <Container frst={1} />
-        </ApolloProvider>,
+        </ApolloProvider>
       );
     } catch (e) {
       expect(e).toMatch(/Invariant Violation: The operation 'addPerson'/);
@@ -68,7 +70,7 @@ describe('graphql(mutation) lifecycle', () => {
 
   it('rebuilds the mutation on prop change when using `options`', done => {
     const client = createClient(expectedData, query, {
-      id: 2,
+      id: 2
     });
 
     interface Props {
@@ -77,17 +79,15 @@ describe('graphql(mutation) lifecycle', () => {
     function options(props: Props) {
       return {
         variables: {
-          id: props.listId,
-        },
+          id: props.listId
+        }
       };
     }
 
     class Container extends React.Component<ChildProps<Props>> {
-      componentWillReceiveProps(props: ChildProps<Props>) {
-        if (props.listId !== 2) return;
-        props.mutate!().then(() => done());
-      }
       render() {
+        if (this.props.listId !== 2) return null;
+        this.props.mutate!().then(() => done());
         return null;
       }
     }
@@ -106,10 +106,10 @@ describe('graphql(mutation) lifecycle', () => {
       }
     }
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ChangingProps />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -130,13 +130,13 @@ describe('graphql(mutation) lifecycle', () => {
         render() {
           return null;
         }
-      },
+      }
     );
 
-    renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
@@ -12,28 +12,26 @@ import { graphql } from '../../graphql';
 
 describe('subscriptions', () => {
   let error: typeof console.error;
-  let wrapper: renderer.ReactTestRenderer | null;
+
   beforeEach(() => {
     jest.useRealTimers();
     error = console.error;
     console.error = jest.fn(() => {});
   });
+
   afterEach(() => {
     console.error = error;
-    if (wrapper) {
-      wrapper.unmount();
-      wrapper = null;
-    }
+    cleanup();
   });
 
   const results = [
     'James Baxley',
     'John Pinkerton',
     'Sam Claridge',
-    'Ben Coleman',
+    'Ben Coleman'
   ].map(name => ({
     result: { data: { user: { name } } },
-    delay: 10,
+    delay: 10
   }));
 
   it('binds a subscription to props', () => {
@@ -47,7 +45,7 @@ describe('subscriptions', () => {
     const link = new MockSubscriptionLink();
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     interface Props {}
@@ -61,13 +59,13 @@ describe('subscriptions', () => {
         expect(data!.user).toBeFalsy();
         expect(data!.loading).toBeTruthy();
         return null;
-      },
+      }
     );
 
-    wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -83,7 +81,7 @@ describe('subscriptions', () => {
     const link = new MockSubscriptionLink();
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     interface Variables {
@@ -99,13 +97,13 @@ describe('subscriptions', () => {
         expect(data).toBeTruthy();
         expect(data!.variables).toEqual(variables);
         return null;
-      },
+      }
     );
 
-    wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ContainerWithData name={'James Baxley'} />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -120,7 +118,7 @@ describe('subscriptions', () => {
     const link = new MockSubscriptionLink();
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let bar: any;
@@ -141,12 +139,12 @@ describe('subscriptions', () => {
       }
     }
 
-    wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <ErrorBoundary>
           <ContainerWithData />
         </ErrorBoundary>
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 
@@ -167,50 +165,57 @@ describe('subscriptions', () => {
     const link = new MockSubscriptionLink();
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let count = 0;
     const Container = graphql<{}, Data>(query)(
-      class extends React.Component<ChildProps<{}, Data>> {
-        componentWillMount() {
-          expect(this.props.data!.loading).toBeTruthy();
-        }
-        componentWillReceiveProps(props: ChildProps<{}, Data>) {
-          const { loading, user } = props.data!;
-
-          expect(loading).toBeFalsy();
-          if (count === 0)
-            expect(stripSymbols(user)).toEqual(results[0].result.data.user);
-          if (count === 1)
-            expect(stripSymbols(user)).toEqual(results[1].result.data.user);
-          if (count === 2)
-            expect(stripSymbols(user)).toEqual(results[2].result.data.user);
-          if (count === 3) {
-            expect(stripSymbols(user)).toEqual(results[3].result.data.user);
-            done();
-          }
-          count++;
-        }
+      class Query extends React.Component<ChildProps<{}, Data>> {
         render() {
+          const { loading, user } = this.props.data!;
+          switch (count) {
+            case 0:
+              expect(loading).toBeTruthy();
+              done();
+              break;
+            case 1:
+              expect(loading).toBeFalsy();
+              expect(stripSymbols(user)).toEqual(results[0].result.data.user);
+              break;
+            case 2:
+              expect(loading).toBeFalsy();
+              expect(stripSymbols(user)).toEqual(results[1].result.data.user);
+              break;
+            case 3:
+              expect(loading).toBeFalsy();
+              expect(stripSymbols(user)).toEqual(results[2].result.data.user);
+              break;
+            case 4:
+              expect(loading).toBeFalsy();
+              expect(stripSymbols(user)).toEqual(results[3].result.data.user);
+              break;
+            default:
+          }
+          count += 1;
           return null;
         }
-      },
+      }
     );
 
     const interval = setInterval(() => {
-      link.simulateResult(results[count]);
-      if (count > 3) clearInterval(interval);
+      link.simulateResult(results[count - 1]);
+      if (count - 1 > 3) clearInterval(interval);
     }, 50);
 
-    wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
 
     jest.runTimersToTime(230);
   });
+
   it('resubscribes to a subscription', done => {
     //we make an extra Hoc which will trigger the inner HoC to resubscribe
     //these are the results for the outer subscription
@@ -221,10 +226,10 @@ describe('subscriptions', () => {
       '4',
       '5',
       '6',
-      '7',
+      '7'
     ].map(trigger => ({
       result: { data: { trigger } },
-      delay: 10,
+      delay: 10
     }));
 
     //These are the results from the resubscription
@@ -232,10 +237,10 @@ describe('subscriptions', () => {
       'NewUser: 1',
       'NewUser: 2',
       'NewUser: 3',
-      'NewUser: 4',
+      'NewUser: 4'
     ].map(name => ({
       result: { data: { user: { name } } },
-      delay: 10,
+      delay: 10
     }));
 
     const query: DocumentNode = gql`
@@ -263,12 +268,12 @@ describe('subscriptions', () => {
     const link = new ApolloLink((o, f) => (f ? f(o) : null)).split(
       ({ operationName }) => operationName === 'UserInfo',
       userLink,
-      triggerLink,
+      triggerLink
     );
 
     const client = new ApolloClient({
       link,
-      cache: new Cache({ addTypename: false }),
+      cache: new Cache({ addTypename: false })
     });
 
     let count = 0;
@@ -280,14 +285,11 @@ describe('subscriptions', () => {
       graphql<TriggerQueryChildProps, QueryData>(query, {
         shouldResubscribe: nextProps => {
           return nextProps.data!.trigger === 'trigger resubscribe';
-        },
+        }
       })(
-        class extends React.Component<ComposedProps> {
-          componentWillMount() {
-            expect(this.props.data!.loading).toBeTruthy();
-          }
-          componentWillReceiveProps(props: ComposedProps) {
-            const { loading, user } = props.data!;
+        class Query extends React.Component<ComposedProps> {
+          componentDidUpdate() {
+            const { loading, user } = this.props.data!;
             try {
               // odd counts will be outer wrapper getting subscriptions - ie unchanged
               expect(loading).toBeFalsy();
@@ -301,11 +303,11 @@ describe('subscriptions', () => {
                 expect(stripSymbols(user)).toEqual(results[2].result.data.user);
               if (count === 4)
                 expect(stripSymbols(user)).toEqual(
-                  results3[2].result.data.user,
+                  results3[2].result.data.user
                 );
               if (count === 5) {
                 expect(stripSymbols(user)).toEqual(
-                  results3[2].result.data.user,
+                  results3[2].result.data.user
                 );
                 done();
               }
@@ -318,8 +320,8 @@ describe('subscriptions', () => {
           render() {
             return null;
           }
-        },
-      ),
+        }
+      )
     );
 
     const interval = setInterval(() => {
@@ -337,10 +339,10 @@ describe('subscriptions', () => {
       if (count > 3) clearInterval(interval);
     }, 50);
 
-    wrapper = renderer.create(
+    render(
       <ApolloProvider client={client}>
         <Container />
-      </ApolloProvider>,
+      </ApolloProvider>
     );
   });
 });

@@ -22,14 +22,11 @@
     "clean": "rm -Rf ./node_modules ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
     "prepare": "npm run build",
     "prebuild": "npm run clean",
-    "build": "tsc -p ./config/tsconfig.json",
-    "postbuild": "../../node_modules/rollup/bin/rollup -c ./config/rollup.config.js",
-    "watch": "tsc-watch --onSuccess \"npm run postbuild\"",
+    "build": "npx -p typescript tsc -p ./config",
+    "postbuild": "npx rollup -c ./config/rollup.config.js",
+    "watch": "npx -p typescript tsc -p ./config -w",
     "predeploy": "npm run build",
-    "deploy": "npm publish",
-    "test": "jest --config ./config/jest.config.js",
-    "test:watch": "jest --config ./config/jest.config.js --watch",
-    "test:full": "npm run type-check && jest --config ./config/jest.config.js --coverage"
+    "deploy": "npm publish"
   },
   "peerDependencies": {
     "apollo-cache": "^1.2.1",
@@ -46,9 +43,6 @@
     "prop-types": "^15.7.2",
     "ts-invariant": "^0.4.0",
     "tslib": "^1.9.3"
-  },
-  "devDependencies": {
-    "@apollo/react-testing": "file:../common"
   },
   "files": [
     "./README.md",

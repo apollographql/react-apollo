@@ -5,9 +5,16 @@ module.exports = {
   projects: ['<rootDir>'],
   globals: {
     'ts-jest': {
-      tsConfig: './config/tsconfig.cjs.json',
+      tsConfig: './config/tsconfig.base.json',
     },
   },
-  setupFiles: ['./config/tests-setup.ts'],
+  // globals: {
+  //   'ts-jest': {
+  //     tsConfig: './config/tsconfig.cjs.json',
+  //   },
+  // },
   coverageDirectory: './meta/coverage',
+  moduleNameMapper: {
+    '^@apollo\\/react-([^/]+)': '<rootDir>/packages/$1/src',
+  },
 };
