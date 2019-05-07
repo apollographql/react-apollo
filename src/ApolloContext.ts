@@ -7,7 +7,5 @@ export interface ApolloContextValue {
   operations?: Map<string, { query: DocumentNode; variables: any }>;
 }
 
-type ContextType = ApolloContextValue | undefined;
-
 export const ApolloContext = React.createContext &&
-  React.createContext<ContextType | undefined>(undefined)
+  React.createContext<ApolloContextValue | undefined>(undefined)
