@@ -20,7 +20,7 @@ const ApolloConsumer: React.StatelessComponent<ApolloConsumerProps> =
       return props.children(context.client);
     }
 
-    return React.createContext ? (
+    return ApolloContext ? (
       <ApolloContext.Consumer>
         {finish}
       </ApolloContext.Consumer>

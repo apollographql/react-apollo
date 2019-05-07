@@ -9,4 +9,5 @@ export interface ApolloContextValue {
 
 type ContextType = ApolloContextValue | undefined;
 
-export const ApolloContext = React.createContext<ContextType | undefined>(undefined)
+export const ApolloContext = React.createContext &&
+  React.createContext<ContextType | undefined>(undefined)

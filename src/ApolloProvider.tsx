@@ -50,7 +50,7 @@ export default class ApolloProvider<TCache> extends Component<ApolloProviderProp
   }
 
   render() {
-    return React.createContext ? (
+    return ApolloContext? (
       <ApolloContext.Provider value={this.getChildContext()}>
         {this.props.children}
       </ApolloContext.Provider>
