@@ -56,12 +56,19 @@ export function withMutation<
 
         return (
           <Mutation {...opts} mutation={document} ignoreResults>
-            {(mutate, _result) => {
+            {(mutate, { data, ...r }) => {
+              // the HOC's historically hoisted the data from the execution result
+              // up onto the result since it was passed as a nested prop
+              // we massage the Mutation component's shape here to replicate that
+              // this matches the query HoC
+              const result = Object.assign(r, data || {});
               const name = operationOptions.name || 'mutate';
-              let childProps = { [name]: mutate };
+              const resultName = operationOptions.name ? `${name}Result` : 'result';
+              let childProps = { [name]: mutate, [resultName]: result };
               if (operationOptions.props) {
                 const newResult: OptionProps<TProps, TData, TGraphQLVariables> = {
                   [name]: mutate,
+                  [resultName]: result,
                   ownProps: props,
                 };
                 childProps = operationOptions.props(newResult) as any;
@@ -70,7 +77,7 @@ export function withMutation<
               return (
                 <WrappedComponent
                   {...props as TProps}
-                  {...childProps as any}
+                  {...childProps as TChildProps}
                 />
               );
             }}
