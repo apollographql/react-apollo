@@ -135,7 +135,7 @@
     "enzyme-adapter-react-16": "1.12.1",
     "graphql": "14.2.1",
     "graphql-tag": "2.10.1",
-    "jest": "24.7.1",
+    "jest": "24.8.0",
     "jest-junit": "6.4.0",
     "jsdom": "14.1.0",
     "lodash.includes": "4.3.0",
