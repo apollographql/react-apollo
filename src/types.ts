@@ -52,6 +52,7 @@ export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   notifyOnNetworkStatusChange?: boolean;
   context?: Context;
   partialRefetch?: boolean;
+  returnPartialData?: boolean;
 }
 
 export interface QueryControls<TData = any, TGraphQLVariables = OperationVariables> {
