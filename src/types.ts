@@ -2,7 +2,6 @@ import ApolloClient, {
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
-  WatchQueryFetchPolicy,
   ErrorPolicy,
   FetchMoreOptions,
   UpdateQueryOptions,
@@ -45,14 +44,13 @@ export interface MutationOpts<TData = any, TGraphQLVariables = OperationVariable
 export interface QueryOpts<TGraphQLVariables = OperationVariables> {
   ssr?: boolean;
   variables?: TGraphQLVariables;
-  fetchPolicy?: WatchQueryFetchPolicy;
+  fetchPolicy?: FetchPolicy;
   errorPolicy?: ErrorPolicy;
   pollInterval?: number;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Context;
   partialRefetch?: boolean;
-  returnPartialData?: boolean;
 }
 
 export interface QueryControls<TData = any, TGraphQLVariables = OperationVariables> {
