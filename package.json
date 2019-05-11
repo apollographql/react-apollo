@@ -133,7 +133,7 @@
     "danger": "7.1.4",
     "enzyme": "3.9.0",
     "enzyme-adapter-react-16": "1.12.1",
-    "graphql": "14.2.1",
+    "graphql": "14.3.0",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
     "jest-junit": "6.4.0",
