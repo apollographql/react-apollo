@@ -152,7 +152,7 @@
     "rollup": "1.11.3",
     "rollup-plugin-commonjs": "9.3.4",
     "rollup-plugin-filesize": "6.0.1",
-    "rollup-plugin-invariant": "0.5.3",
+    "rollup-plugin-invariant": "0.5.4",
     "rollup-plugin-node-resolve": "4.2.4",
     "rollup-plugin-typescript2": "0.21.0",
     "rollup-plugin-uglify": "6.0.2",
