@@ -12,10 +12,7 @@ export function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export function calculateVariablesFromProps<TProps>(
-  operation: IDocumentDefinition,
-  props: TProps,
-) {
+export function calculateVariablesFromProps<TProps>(operation: IDocumentDefinition, props: TProps) {
   let variables: OperationVariables = {};
   for (let { variable, type } of operation.variables) {
     if (!variable.name || !variable.name.value) continue;
@@ -30,7 +27,7 @@ export function calculateVariablesFromProps<TProps>(
 
     // Allow optional props
     if (type.kind !== 'NonNullType') {
-      variables[variableName] = null;
+      variables[variableName] = undefined;
     }
   }
   return variables;
