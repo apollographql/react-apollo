@@ -103,6 +103,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     variables: PropTypes.object,
     ssr: PropTypes.bool,
     partialRefetch: PropTypes.bool,
+    returnPartialData: PropTypes.bool,
   };
 
   context: QueryContext | undefined;
