@@ -65,12 +65,17 @@
     {
       "name": "@apollo/react-components",
       "path": "./packages/components/meta/bundlesize/bundlesize.js",
-      "maxSize": "4 KB"
+      "maxSize": "4.1 KB"
     },
     {
       "name": "@apollo/react-hoc",
       "path": "./packages/hoc/meta/bundlesize/bundlesize.js",
       "maxSize": "1.5 KB"
+    },
+    {
+      "name": "@apollo/react-hooks",
+      "path": "./packages/hooks/meta/bundlesize/bundlesize.js",
+      "maxSize": "3.8 KB"
     }
   ],
   "renovate": {
