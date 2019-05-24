@@ -1,16 +1,13 @@
 import { useContext, useState, useRef, useEffect } from 'react';
 import { DocumentNode } from 'graphql';
-import {
-  getApolloContext,
-  OperationVariables,
-  SubscriptionOptions
-} from '@apollo/react-common';
+import { getApolloContext, OperationVariables } from '@apollo/react-common';
 
+import { SubscriptionHookOptions } from './types';
 import { SubscriptionData } from './data/SubscriptionData';
 
 export function useSubscription<TData = any, TVariables = OperationVariables>(
   subscription: DocumentNode,
-  options?: SubscriptionOptions<TData, TVariables>
+  options?: SubscriptionHookOptions<TData, TVariables>
 ) {
   const context = useContext(getApolloContext());
   const [result, setResult] = useState({

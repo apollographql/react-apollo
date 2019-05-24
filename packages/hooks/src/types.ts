@@ -12,7 +12,9 @@ import {
   BaseMutationOptions,
   MutationResult,
   MutationFunctionOptions,
-  ExecutionResult
+  ExecutionResult,
+  BaseSubscriptionOptions,
+  SubscriptionResult
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
@@ -71,6 +73,21 @@ export type MutationTuple<TData, TVariables> = [
 ];
 
 /* Subscription types */
+
+export interface SubscriptionHookOptions<
+  TData = any,
+  TVariables = OperationVariables
+> extends BaseSubscriptionOptions<TData, TVariables> {
+  subscription?: DocumentNode;
+}
+
+export interface SubscriptionOptions<
+  TData = any,
+  TVariables = OperationVariables
+> extends BaseSubscriptionOptions<TData, TVariables> {
+  subscription: DocumentNode;
+  children?: null | ((result: SubscriptionResult<TData>) => JSX.Element | null);
+}
 
 export interface SubscriptionCurrentObservable {
   query?: Observable<any>;

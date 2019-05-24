@@ -150,20 +150,18 @@ export interface OnSubscriptionDataOptions<TData = any> {
   subscriptionData: SubscriptionResult<TData>;
 }
 
-export interface SubscriptionOptions<
+export interface BaseSubscriptionOptions<
   TData = any,
   TVariables = OperationVariables
 > {
-  subscription: DocumentNode;
   variables?: TVariables;
   fetchPolicy?: FetchPolicy;
   shouldResubscribe?:
     | boolean
-    | ((options: SubscriptionOptions<TData, TVariables>) => boolean);
+    | ((options: BaseSubscriptionOptions<TData, TVariables>) => boolean);
   client?: ApolloClient<object>;
   onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
   onSubscriptionComplete?: () => void;
-  children?: null | ((result: SubscriptionResult<TData>) => JSX.Element | null);
 }
 
 export interface SubscriptionResult<TData = any> {

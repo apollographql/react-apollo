@@ -1,12 +1,8 @@
 import { isEqual } from 'apollo-utilities';
-import {
-  ApolloContextValue,
-  SubscriptionOptions,
-  SubscriptionResult
-} from '@apollo/react-common';
+import { ApolloContextValue, SubscriptionResult } from '@apollo/react-common';
 
 import { OperationData } from './OperationData';
-import { SubscriptionCurrentObservable } from '../types';
+import { SubscriptionCurrentObservable, SubscriptionOptions } from '../types';
 
 export class SubscriptionData<
   TData = any,

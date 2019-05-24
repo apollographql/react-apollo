@@ -4,9 +4,11 @@ import {
   QueryResult,
   BaseMutationOptions,
   MutationFunction,
-  MutationResult
+  MutationResult,
+  SubscriptionResult
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
+import { BaseSubscriptionOptions } from '@apollo/react-common/src/types/types';
 
 export interface QueryComponentOptions<
   TData = any,
@@ -25,4 +27,12 @@ export interface MutationComponentOptions<
     mutateFunction: MutationFunction<TData, TVariables>,
     result: MutationResult<TData>
   ) => JSX.Element | null;
+}
+
+export interface SubscriptionComponentOptions<
+  TData = any,
+  TVariables = OperationVariables
+> extends BaseSubscriptionOptions<TData, TVariables> {
+  subscription: DocumentNode;
+  children?: null | ((result: SubscriptionResult<TData>) => JSX.Element | null);
 }

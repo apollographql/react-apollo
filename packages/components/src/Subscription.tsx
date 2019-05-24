@@ -1,9 +1,11 @@
-import { OperationVariables, SubscriptionOptions } from '@apollo/react-common';
+import { OperationVariables } from '@apollo/react-common';
 import { useSubscription } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 
+import { SubscriptionComponentOptions } from './types';
+
 export function Subscription<TData = any, TVariables = OperationVariables>(
-  props: SubscriptionOptions<TData, TVariables>
+  props: SubscriptionComponentOptions<TData, TVariables>
 ) {
   const result = useSubscription(props.subscription, props);
   return props.children && result ? props.children(result) : null;
