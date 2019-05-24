@@ -13,7 +13,7 @@
     "test:ci": "npm run test:coverage -- --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
     "bundlesize": "npx lerna run build && bundlesize",
     "prettier": "npx prettier --config ./config/prettier.config.js --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
-    "deploy": "npx lerna publish --contents ./build/dist",
+    "deploy": "npx lerna publish --dist-tag beta --contents ./lib",
     "clean": "rm -Rf ./node_modules ./meta && npx lerna exec -- npm run clean"
   },
   "dependencies": {
