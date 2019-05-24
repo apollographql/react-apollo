@@ -52,11 +52,6 @@ export class QueryData<TData, TVariables> extends OperationData {
       this.startQuerySubscription();
     }
 
-    // const finish = () =>
-    //   this.options.children
-    //     ? this.options.children(this.getQueryResult())
-    //     : this.getQueryResult();
-
     const finish = () => this.getQueryResult();
 
     if (this.context && this.context.renderPromises) {
