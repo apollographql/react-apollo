@@ -5,16 +5,12 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { withState } from 'recompose';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import {
-  ApolloProvider,
-  ChildProps,
-  Query,
-  QueryResult,
-  DataValue
-} from '@apollo/react-components';
+import { ApolloProvider, QueryResult } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
+import { Query } from '@apollo/react-components';
 
 import { graphql } from '../../graphql';
+import { ChildProps, DataValue } from '../../types';
 
 describe('[queries] errors', () => {
   let error: typeof console.error;

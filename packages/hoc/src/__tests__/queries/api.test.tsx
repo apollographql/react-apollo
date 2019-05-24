@@ -5,9 +5,10 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink, wrap, stripSymbols } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
-import { ApolloProvider, ChildProps } from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 describe('[queries] api', () => {
   afterEach(cleanup);
@@ -62,11 +63,11 @@ describe('[queries] api', () => {
             expect(data!.refetch instanceof Function).toBeTruthy();
             data!
               .refetch()
-              .then(result => {
+              .then((result: any) => {
                 expect(stripSymbols(result.data)).toEqual(data1);
                 return data!
                   .refetch({ first: 2 }) // new variables
-                  .then(response => {
+                  .then((response: any) => {
                     expect(stripSymbols(response.data)).toEqual(data1);
                     expect(stripSymbols(data!.allPeople)).toEqual(
                       data1.allPeople
@@ -179,7 +180,7 @@ describe('[queries] api', () => {
             props
               .data!.fetchMore({
                 variables: { skip: 2 },
-                updateQuery: (prev, { fetchMoreResult }) => ({
+                updateQuery: (prev: any, { fetchMoreResult }) => ({
                   allPeople: {
                     people: prev.allPeople.people.concat(
                       fetchMoreResult!.allPeople.people
@@ -188,7 +189,7 @@ describe('[queries] api', () => {
                 })
               })
               .then(
-                wrap(done, result => {
+                wrap(done, (result: any) => {
                   expect(stripSymbols(result.data.allPeople.people)).toEqual(
                     data1.allPeople.people
                   );

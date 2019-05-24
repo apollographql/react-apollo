@@ -39,14 +39,13 @@
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
+    "@apollo/react-hooks": "file:../hooks",
     "hoist-non-react-statics": "^3.3.0",
     "prop-types": "^15.7.2",
     "ts-invariant": "^0.4.0",
     "tslib": "^1.9.3"
   },
   "files": [
-    "./README.md",
-    "./package.json",
-    "./lib"
+    "lib"
   ]
 }

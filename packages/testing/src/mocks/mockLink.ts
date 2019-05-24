@@ -3,26 +3,18 @@ import {
   GraphQLRequest,
   ApolloLink,
   FetchResult,
-  Observable,
+  Observable
 } from 'apollo-link';
 import {
   addTypenameToDocument,
   removeClientSetsFromDocument,
   removeConnectionDirectiveFromDocument,
   cloneDeep,
-  isEqual,
+  isEqual
 } from 'apollo-utilities';
 import { print } from 'graphql/language/printer';
 
-type ResultFunction<T> = () => T;
-
-export interface MockedResponse {
-  request: GraphQLRequest;
-  result?: FetchResult | ResultFunction<FetchResult>;
-  error?: Error;
-  delay?: number;
-  newData?: ResultFunction<FetchResult>;
-}
+import { MockedResponse, ResultFunction } from './types';
 
 function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
   const queryString =
@@ -38,7 +30,7 @@ export class MockLink extends ApolloLink {
 
   constructor(
     mockedResponses: ReadonlyArray<MockedResponse>,
-    addTypename: Boolean = true,
+    addTypename: Boolean = true
   ) {
     super();
     this.addTypename = addTypename;
@@ -50,11 +42,11 @@ export class MockLink extends ApolloLink {
 
   public addMockedResponse(mockedResponse: MockedResponse) {
     const normalizedMockedResponse = this.normalizeMockedResponse(
-      mockedResponse,
+      mockedResponse
     );
     const key = requestToKey(
       normalizedMockedResponse.request,
-      this.addTypename,
+      this.addTypename
     );
     let mockedResponses = this.mockedResponsesByKey[key];
     if (!mockedResponses) {
@@ -76,14 +68,14 @@ export class MockLink extends ApolloLink {
         }
         responseIndex = index;
         return true;
-      },
+      }
     );
 
     if (!response || typeof responseIndex === 'undefined') {
       throw new Error(
         `No more mocked responses for the query: ${print(
-          operation.query,
-        )}, variables: ${JSON.stringify(operation.variables)}`,
+          operation.query
+        )}, variables: ${JSON.stringify(operation.variables)}`
       );
     }
 
@@ -98,7 +90,7 @@ export class MockLink extends ApolloLink {
 
     if (!result && !error) {
       throw new Error(
-        `Mocked response should contain either result or error: ${key}`,
+        `Mocked response should contain either result or error: ${key}`
       );
     }
 
@@ -112,13 +104,13 @@ export class MockLink extends ApolloLink {
               observer.next(
                 typeof result === 'function'
                   ? (result as ResultFunction<FetchResult>)()
-                  : result,
+                  : result
               );
             }
             observer.complete();
           }
         },
-        delay ? delay : 0,
+        delay ? delay : 0
       );
 
       return () => {
@@ -128,11 +120,11 @@ export class MockLink extends ApolloLink {
   }
 
   private normalizeMockedResponse(
-    mockedResponse: MockedResponse,
+    mockedResponse: MockedResponse
   ): MockedResponse {
     const newMockedResponse = cloneDeep(mockedResponse);
     newMockedResponse.request.query = removeConnectionDirectiveFromDocument(
-      newMockedResponse.request.query,
+      newMockedResponse.request.query
     );
     const query = removeClientSetsFromDocument(newMockedResponse.request.query);
     if (query) {

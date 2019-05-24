@@ -1,13 +1,14 @@
 import React from 'react';
 import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
-import { ApolloProvider, ChildProps } from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 import { stripSymbols, createClient } from '@apollo/react-testing';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
 import { ApolloClient } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 const query: DocumentNode = gql`
   mutation addPerson {

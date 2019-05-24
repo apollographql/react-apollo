@@ -1,70 +1,74 @@
 import {
-  ApolloClient,
   ApolloQueryResult,
   ObservableQuery,
   ApolloError,
   NetworkStatus
 } from 'apollo-client';
 import { isEqual } from 'apollo-utilities';
-import { parser, DocumentType, ApolloContextValue } from '@apollo/react-common';
-import { invariant } from 'ts-invariant';
+import {
+  ApolloContextValue,
+  DocumentType,
+  QueryResult,
+  ObservableQueryFields
+} from '@apollo/react-common';
 
 import {
-  QueryProps,
-  QueryResult,
-  ObservableQueryFields,
   QueryPreviousData,
+  QueryOptions,
   QueryCurrentObservable
 } from '../types';
-import { OperationCore } from './OperationCore';
+import { OperationData } from './OperationData';
 
-export class QueryCore<TData, TVariables> extends OperationCore {
-  public previousData: QueryPreviousData<TData> = {};
-  public currentObservable: QueryCurrentObservable<TData, TVariables> = {};
-  public forceUpdate: any;
+export class QueryData<TData, TVariables> extends OperationData {
+  private previousData: QueryPreviousData<TData, TVariables> = {};
+  private currentObservable: QueryCurrentObservable<TData, TVariables> = {};
+  private forceUpdate: any;
 
-  constructor({ forceUpdate }: any) {
-    super();
+  constructor({
+    options,
+    context,
+    forceUpdate
+  }: {
+    options: QueryOptions<TData, TVariables>;
+    context: ApolloContextValue;
+    forceUpdate: any;
+  }) {
+    super(options, context);
     this.forceUpdate = forceUpdate;
   }
 
-  public render(
-    props: QueryProps<TData, TVariables>,
-    context: ApolloContextValue
-  ): React.ReactNode {
-    const { client } = this.refreshClient(props, context);
+  public execute(): QueryResult<TData, TVariables> {
+    this.refreshClient();
 
-    const { skip, query } = props;
+    const { skip, query } = this.options;
     if (skip || query !== this.previousData.query) {
       this.removeQuerySubscription();
       this.previousData.query = query;
     }
 
-    this.updateObservableQuery(props, context);
+    this.updateObservableQuery();
 
     if (!skip) {
-      this.startQuerySubscription(props);
+      this.startQuerySubscription();
     }
 
-    const finish = () => props.children(this.getQueryResult(client, props));
-    if (context && context.renderPromises) {
-      return context.renderPromises.addQueryPromise(
-        this,
-        props,
-        finish,
-        context
-      );
+    // const finish = () =>
+    //   this.options.children
+    //     ? this.options.children(this.getQueryResult())
+    //     : this.getQueryResult();
+
+    const finish = () => this.getQueryResult();
+
+    if (this.context && this.context.renderPromises) {
+      return this.context.renderPromises.addQueryPromise(this, finish);
     }
 
     return finish();
   }
 
   // For server-side rendering (see getDataFromTree.ts)
-  public fetchData(
-    props: QueryProps<TData, TVariables>,
-    context: ApolloContextValue
-  ): Promise<ApolloQueryResult<any>> | boolean {
-    if (props.skip) return false;
+  public fetchData(): Promise<ApolloQueryResult<any>> | boolean {
+    if (this.options.skip) return false;
 
     // pull off react options
     const {
@@ -76,7 +80,7 @@ export class QueryCore<TData, TVariables> extends OperationCore {
       onError,
       partialRefetch,
       ...opts
-    } = props;
+    } = this.options;
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -84,26 +88,23 @@ export class QueryCore<TData, TVariables> extends OperationCore {
       fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
     }
 
-    const obs = this.refreshClient(props, context).client.watchQuery({
+    const obs = this.refreshClient().client.watchQuery({
       ...opts,
       fetchPolicy
     });
 
     // Register the SSR observable, so it can be re-used once the value comes back.
-    if (context && context.renderPromises) {
-      context.renderPromises.registerSSRObservable(obs, props);
+    if (this.context && this.context.renderPromises) {
+      this.context.renderPromises.registerSSRObservable(obs, this.options);
     }
 
     const result = this.currentObservable.query!.getCurrentResult();
     return result.loading ? obs.result() : false;
   }
 
-  public afterRender(
-    props: QueryProps<TData, TVariables>,
-    prevProps?: QueryProps<TData, TVariables>
-  ) {
+  public afterExecute() {
     this.isMounted = true;
-    this.handleErrorOrCompleted(props, prevProps);
+    this.handleErrorOrCompleted();
     return this.unmount.bind(this);
   }
 
@@ -119,22 +120,14 @@ export class QueryCore<TData, TVariables> extends OperationCore {
     }
   }
 
-  private extractOptsFromProps(props: QueryProps<TData, TVariables>) {
-    const operation = parser(props.query);
-
-    invariant(
-      operation.type === DocumentType.Query,
-      `The <Query /> component requires a graphql query, but got a ${
-        operation.type === DocumentType.Mutation ? 'mutation' : 'subscription'
-      }.`
-    );
-
-    const displayName = props.displayName || 'Query';
+  private prepareObservableQueryOptions() {
+    this.verifyDocumentType(this.options.query, DocumentType.Query);
+    const displayName = this.options.displayName || 'Query';
 
     return {
-      ...props,
+      ...this.options,
       displayName,
-      context: props.context || {},
+      context: this.options.context || {},
       metadata: { reactComponent: { displayName } }
     };
   }
@@ -154,47 +147,48 @@ export class QueryCore<TData, TVariables> extends OperationCore {
     return fields as ObservableQueryFields<TData, TVariables>;
   }
 
-  private initializeObservableQuery(
-    props: QueryProps<TData, TVariables>,
-    context: ApolloContextValue
-  ) {
+  private initializeObservableQuery() {
     // See if there is an existing observable that was used to fetch the same
     // data and if so, use it instead since it will contain the proper queryId
     // to fetch the result set. This is used during SSR.
-    if (context && context.renderPromises) {
-      this.currentObservable.query = context.renderPromises.getSSRObservable(
-        props
+    if (this.context && this.context.renderPromises) {
+      this.currentObservable.query = this.context.renderPromises.getSSRObservable(
+        this.options
       );
     }
 
     if (!this.currentObservable.query) {
-      const options = this.extractOptsFromProps(props);
-      this.previousData.options = { ...options, children: null };
-      this.currentObservable.query = this.refreshClient(
-        props,
-        context
-      ).client.watchQuery(options);
+      const observableQueryOptions = this.prepareObservableQueryOptions();
+      this.previousData.observableQueryOptions = {
+        ...observableQueryOptions,
+        children: null
+      };
+      this.currentObservable.query = this.refreshClient().client.watchQuery(
+        observableQueryOptions
+      );
     }
   }
 
-  private updateObservableQuery(
-    props: QueryProps<TData, TVariables>,
-    context: ApolloContextValue
-  ) {
+  private updateObservableQuery() {
     // If we skipped initially, we may not have yet created the observable
     if (!this.currentObservable.query) {
-      this.initializeObservableQuery(props, context);
+      this.initializeObservableQuery();
     }
 
-    const newOptions = {
-      ...this.extractOptsFromProps(props),
+    const newObservableQueryOptions = {
+      ...this.prepareObservableQueryOptions(),
       children: null
     };
 
-    if (!isEqual(newOptions, this.previousData.options)) {
-      this.previousData.options = newOptions;
+    if (
+      !isEqual(
+        newObservableQueryOptions,
+        this.previousData.observableQueryOptions
+      )
+    ) {
+      this.previousData.observableQueryOptions = newObservableQueryOptions;
       this.currentObservable
-        .query!.setOptions(newOptions)
+        .query!.setOptions(newObservableQueryOptions)
         // The error will be passed to the child container, so we don't
         // need to log it here. We could conceivably log something if
         // an option was set. OTOH we don't log errors w/ the original
@@ -203,7 +197,7 @@ export class QueryCore<TData, TVariables> extends OperationCore {
     }
   }
 
-  private startQuerySubscription(props: QueryProps<TData, TVariables>) {
+  private startQuerySubscription() {
     if (this.currentObservable.subscription) return;
 
     const obsQuery = this.currentObservable.query!;
@@ -225,7 +219,7 @@ export class QueryCore<TData, TVariables> extends OperationCore {
           !this.previousData.result ||
           this.previousData.result.networkStatus === NetworkStatus.refetch
         ) {
-          this.resubscribeToQuery(props);
+          this.resubscribeToQuery();
         }
 
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
@@ -235,7 +229,7 @@ export class QueryCore<TData, TVariables> extends OperationCore {
     });
   }
 
-  private resubscribeToQuery(props: QueryProps<TData, TVariables>) {
+  private resubscribeToQuery() {
     this.removeQuerySubscription();
 
     // Unfortunately, if `lastError` is set in the current
@@ -248,17 +242,14 @@ export class QueryCore<TData, TVariables> extends OperationCore {
     const lastError = this.currentObservable.query!.getLastError();
     const lastResult = this.currentObservable.query!.getLastResult();
     this.currentObservable.query!.resetLastResults();
-    this.startQuerySubscription(props);
+    this.startQuerySubscription();
     Object.assign(this.currentObservable.query!, {
       lastError,
       lastResult
     });
   }
 
-  private getQueryResult(
-    client: ApolloClient<object>,
-    props: QueryProps<TData, TVariables>
-  ): QueryResult<TData, TVariables> {
+  private getQueryResult(): QueryResult<TData, TVariables> {
     let result = {
       data: Object.create(null) as TData
     } as any;
@@ -272,7 +263,7 @@ export class QueryCore<TData, TVariables> extends OperationCore {
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
     // `loading` is set to `false` (since we aren't loading anything).
-    if (props.skip) {
+    if (this.options.skip) {
       result = {
         ...result,
         data: undefined,
@@ -287,7 +278,7 @@ export class QueryCore<TData, TVariables> extends OperationCore {
       data = data || (Object.create(null) as TData);
 
       // Until a set naming convention for networkError and graphQLErrors is
-      // decided upon, we map errors (graphQLErrors) to the error props.
+      // decided upon, we map errors (graphQLErrors) to the error options.
       if (errors && errors.length > 0) {
         error = new ApolloError({ graphQLErrors: errors });
       }
@@ -306,7 +297,7 @@ export class QueryCore<TData, TVariables> extends OperationCore {
         });
       } else {
         const { fetchPolicy } = this.currentObservable.query!.options;
-        const { partialRefetch } = props;
+        const { partialRefetch } = this.options;
         if (
           partialRefetch &&
           Object.keys(data).length === 0 &&
@@ -333,17 +324,14 @@ export class QueryCore<TData, TVariables> extends OperationCore {
       }
     }
 
-    result.client = client;
+    result.client = this.client;
     this.previousData.loading =
       (this.previousData.result && this.previousData.result.loading) || false;
     this.previousData.result = result;
     return result;
   }
 
-  private handleErrorOrCompleted(
-    props: QueryProps<TData, TVariables>,
-    prevProps?: QueryProps<TData, TVariables>
-  ) {
+  private handleErrorOrCompleted() {
     const {
       data,
       loading,
@@ -351,13 +339,13 @@ export class QueryCore<TData, TVariables> extends OperationCore {
     } = this.currentObservable.query!.getCurrentResult();
 
     if (!loading) {
-      const { query, variables, onCompleted, onError } = props;
+      const { query, variables, onCompleted, onError } = this.options;
 
       // No changes, so we won't call onError/onCompleted.
       if (
-        prevProps &&
-        isEqual(prevProps.query, query) &&
-        isEqual(prevProps.variables, variables) &&
+        this.previousOptions &&
+        isEqual(this.previousOptions.query, query) &&
+        isEqual(this.previousOptions.variables, variables) &&
         !this.previousData.loading
       ) {
         return;

@@ -3,8 +3,8 @@ import { ObservableQuery } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { getApolloContext, ApolloContextValue } from '@apollo/react-common';
 
-import { QueryCore } from '../core/QueryCore';
-import { QueryProps } from '../types';
+import { QueryData } from '../data/QueryData';
+import { QueryOptions } from '../types';
 
 type QueryInfo = {
   seen: boolean;
@@ -20,7 +20,7 @@ function makeDefaultQueryInfo(): QueryInfo {
 
 export class RenderPromises {
   // Map from Query component instances to pending fetchData promises.
-  private queryPromises = new Map<QueryProps<any, any>, Promise<any>>();
+  private queryPromises = new Map<QueryOptions<any, any>, Promise<any>>();
 
   // Two-layered map from (query document, stringified variables) to QueryInfo
   // objects. These QueryInfo objects are intended to survive through the whole
@@ -31,30 +31,28 @@ export class RenderPromises {
   // Registers the server side rendered observable.
   public registerSSRObservable<TData, TVariables>(
     observable: ObservableQuery<any, TVariables>,
-    props: QueryProps<TData, TVariables>
+    props: QueryOptions<TData, TVariables>
   ) {
     this.lookupQueryInfo(props).observable = observable;
   }
 
   // Get's the cached observable that matches the SSR Query instances query and variables.
   public getSSRObservable<TData, TVariables>(
-    props: QueryProps<TData, TVariables>
+    props: QueryOptions<TData, TVariables>
   ) {
     return this.lookupQueryInfo(props).observable;
   }
 
   public addQueryPromise<TData, TVariables>(
-    queryInstance: QueryCore<TData, TVariables>,
-    props: QueryProps<TData, TVariables>,
-    finish: () => React.ReactNode,
-    context: ApolloContextValue
+    queryInstance: QueryData<TData, TVariables>,
+    finish: () => React.ReactNode
   ): React.ReactNode {
-    const info = this.lookupQueryInfo(props);
+    const info = this.lookupQueryInfo(queryInstance.options);
     if (!info.seen) {
       this.queryPromises.set(
-        props,
+        queryInstance.options,
         new Promise(resolve => {
-          resolve(queryInstance.fetchData(props, context));
+          resolve(queryInstance.fetchData());
         })
       );
       // Render null to abandon this subtree for this rendering, so that we
@@ -88,7 +86,7 @@ export class RenderPromises {
   }
 
   private lookupQueryInfo<TData, TVariables>(
-    props: QueryProps<TData, TVariables>
+    props: QueryOptions<TData, TVariables>
   ): QueryInfo {
     const { queryInfoTrie } = this;
     const { query, variables } = props;
@@ -135,7 +133,7 @@ export function getMarkupFromTree({
     // better to render the children of the component responsible for the
     // promise, because it is not possible to reconstruct the full context
     // of the original rendering (including all unknown context provider
-    // elements) for a subtree of the orginal component tree.
+    // elements) for a subtree of the original component tree.
     const ApolloContext = getApolloContext();
     const html = renderFunction(
       React.createElement(

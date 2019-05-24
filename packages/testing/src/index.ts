@@ -1,8 +1,8 @@
 export { MockedProvider } from './mocks/MockedProvider';
-export { MockLink, mockSingleLink, MockedResponse } from './mocks/mockLink';
+export { MockLink, mockSingleLink } from './mocks/mockLink';
 export {
   MockSubscriptionLink,
-  mockObservableLink,
+  mockObservableLink
 } from './mocks/mockSubscriptionLink';
 
 export { catchAsyncError } from './utils/catchAsyncError';
@@ -11,3 +11,5 @@ export { stripSymbols } from './utils/stripSymbols';
 export { wrap } from './utils/wrap';
 export { wait } from './utils/wait';
 export { compose } from './utils/flowRight';
+
+export * from './mocks/types';

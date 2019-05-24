@@ -6,12 +6,12 @@ import { getApolloContext } from './ApolloContext';
 
 export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;
-  children: React.ReactNode;
+  children: React.ReactChild | null;
 }
 
 export const ApolloProvider: React.FC<ApolloProviderProps<any>> = ({
   client,
-  children,
+  children
 }) => {
   const ApolloContext = getApolloContext();
   return (
@@ -24,7 +24,7 @@ export const ApolloProvider: React.FC<ApolloProviderProps<any>> = ({
         invariant(
           context.client,
           'ApolloProvider was not passed a client instance. Make ' +
-            'sure you pass in your client via the "client" prop.',
+            'sure you pass in your client via the "client" prop.'
         );
 
         return (

@@ -6,14 +6,11 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import { DocumentNode } from 'graphql';
 import { mockSingleLink, compose } from '@apollo/react-testing';
-import {
-  ApolloProvider,
-  ChildProps,
-  DataValue
-} from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 
 import { graphql } from '../graphql';
 import { withApollo } from '../withApollo';
+import { ChildProps, DataValue } from '../types';
 
 describe('shared operations', () => {
   afterEach(cleanup);

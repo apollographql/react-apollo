@@ -1,14 +1,10 @@
 import { DocumentNode } from 'graphql';
 import { parser, DocumentType } from '@apollo/react-common';
-import {
-  OperationOption,
-  DataProps,
-  MutateProps,
-} from '@apollo/react-components';
 
 import { withQuery } from './query-hoc';
 import { withMutation } from './mutation-hoc';
 import { withSubscription } from './subscription-hoc';
+import { OperationOption, DataProps, MutateProps } from './types';
 
 export function graphql<
   TProps extends TGraphQLVariables | {} = {},
@@ -23,7 +19,7 @@ export function graphql<
     TData,
     TGraphQLVariables,
     TChildProps
-  > = {},
+  > = {}
 ) {
   switch (parser(document).type) {
     case DocumentType.Mutation:

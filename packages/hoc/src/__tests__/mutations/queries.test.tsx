@@ -9,9 +9,10 @@ import {
   createClient
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
-import { ApolloProvider, ChildProps } from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 describe('graphql(mutation) query integration', () => {
   afterEach(cleanup);

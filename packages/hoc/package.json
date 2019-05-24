@@ -40,8 +40,6 @@
     "tslib": "^1.9.3"
   },
   "files": [
-    "./README.md",
-    "./package.json",
-    "./lib"
+    "lib"
   ]
 }

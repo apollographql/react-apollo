@@ -4,10 +4,11 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { render, cleanup } from 'react-testing-library';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider, ChildProps } from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 describe('[queries] updateQuery', () => {
   afterEach(cleanup);

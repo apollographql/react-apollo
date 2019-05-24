@@ -5,10 +5,11 @@ import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider, ChildProps } from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 describe('subscriptions', () => {
   let error: typeof console.error;

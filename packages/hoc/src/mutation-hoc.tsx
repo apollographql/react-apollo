@@ -1,14 +1,8 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { DocumentNode } from 'graphql';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { parser } from '@apollo/react-common';
-import {
-  Mutation,
-  MutationOpts,
-  OperationOption,
-  OptionProps,
-  MutateProps
-} from '@apollo/react-components';
+import { parser, BaseMutationOptions } from '@apollo/react-common';
+import { Mutation } from '@apollo/react-components';
 
 import {
   defaultMapPropsToOptions,
@@ -16,6 +10,7 @@ import {
   calculateVariablesFromProps,
   GraphQLBase
 } from './hoc-utils';
+import { OperationOption, OptionProps, MutateProps } from './types';
 
 export function withMutation<
   TProps extends TGraphQLVariables | {} = {},
@@ -40,9 +35,9 @@ export function withMutation<
     alias = 'Apollo'
   } = operationOptions;
 
-  let mapPropsToOptions = options as (props: any) => MutationOpts;
+  let mapPropsToOptions = options as (props: any) => BaseMutationOptions;
   if (typeof mapPropsToOptions !== 'function')
-    mapPropsToOptions = () => options as MutationOpts;
+    mapPropsToOptions = () => options as BaseMutationOptions;
 
   return (
     WrappedComponent: React.ComponentType<TProps & TChildProps>

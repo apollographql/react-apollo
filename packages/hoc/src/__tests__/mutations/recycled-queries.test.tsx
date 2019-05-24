@@ -4,14 +4,11 @@ import gql from 'graphql-tag';
 import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import {
-  ApolloProvider,
-  ChildProps,
-  MutationFn
-} from '@apollo/react-components';
+import { ApolloProvider, MutationFunction } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 describe('graphql(mutation) update queries', () => {
   afterEach(cleanup);
@@ -103,7 +100,7 @@ describe('graphql(mutation) update queries', () => {
         cache: new Cache({ addTypename: false })
       });
 
-      let mutate: MutationFn<MutationData>;
+      let mutate: MutationFunction<MutationData>;
 
       const MyMutation = graphql<{}, MutationData>(mutation, {
         options: () => ({ update })
@@ -327,7 +324,7 @@ describe('graphql(mutation) update queries', () => {
         cache: new Cache({ addTypename: false })
       });
 
-      let mutate: MutationFn<MutationData>;
+      let mutate: MutationFunction<MutationData>;
 
       const Mutation = graphql<{}, MutationData>(mutation)(
         class extends React.Component<ChildProps<{}, MutationData>> {

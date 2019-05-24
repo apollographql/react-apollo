@@ -9,17 +9,15 @@ import {
   GraphQLList,
   GraphQLString,
   GraphQLID,
-  DocumentNode,
+  DocumentNode
 } from 'graphql';
-import {
-  ApolloProvider,
-  renderToStringWithData,
-  ChildProps,
-} from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
+import { renderToStringWithData } from '@apollo/react-components';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 const planetMap = new Map([['Planet:1', { id: 'Planet:1', name: 'Tatooine' }]]);
 
@@ -29,40 +27,40 @@ const shipMap = new Map([
     {
       id: 'Ship:2',
       name: 'CR90 corvette',
-      films: ['Film:4', 'Film:6', 'Film:3'],
-    },
+      films: ['Film:4', 'Film:6', 'Film:3']
+    }
   ],
   [
     'Ship:3',
     {
       id: 'Ship:3',
       name: 'Star Destroyer',
-      films: ['Film:4', 'Film:5', 'Film:6'],
-    },
-  ],
+      films: ['Film:4', 'Film:5', 'Film:6']
+    }
+  ]
 ]);
 
 const filmMap = new Map([
   ['Film:3', { id: 'Film:3', title: 'Revenge of the Sith' }],
   ['Film:4', { id: 'Film:4', title: 'A New Hope' }],
   ['Film:5', { id: 'Film:5', title: 'the Empire Strikes Back' }],
-  ['Film:6', { id: 'Film:6', title: 'Return of the Jedi' }],
+  ['Film:6', { id: 'Film:6', title: 'Return of the Jedi' }]
 ]);
 
 const PlanetType = new GraphQLObjectType({
   name: 'Planet',
   fields: {
     id: { type: GraphQLID },
-    name: { type: GraphQLString },
-  },
+    name: { type: GraphQLString }
+  }
 });
 
 const FilmType = new GraphQLObjectType({
   name: 'Film',
   fields: {
     id: { type: GraphQLID },
-    title: { type: GraphQLString },
-  },
+    title: { type: GraphQLString }
+  }
 });
 
 const ShipType = new GraphQLObjectType({
@@ -72,9 +70,9 @@ const ShipType = new GraphQLObjectType({
     name: { type: GraphQLString },
     films: {
       type: new GraphQLList(FilmType),
-      resolve: ({ films }) => films.map((id: string) => filmMap.get(id)),
-    },
-  },
+      resolve: ({ films }) => films.map((id: string) => filmMap.get(id))
+    }
+  }
 });
 
 const QueryType = new GraphQLObjectType({
@@ -82,23 +80,23 @@ const QueryType = new GraphQLObjectType({
   fields: {
     allPlanets: {
       type: new GraphQLList(PlanetType),
-      resolve: () => Array.from(planetMap.values()),
+      resolve: () => Array.from(planetMap.values())
     },
     allShips: {
       type: new GraphQLList(ShipType),
-      resolve: () => Array.from(shipMap.values()),
+      resolve: () => Array.from(shipMap.values())
     },
     ship: {
       type: ShipType,
       args: { id: { type: GraphQLID } },
-      resolve: (_, { id }) => shipMap.get(id),
+      resolve: (_, { id }) => shipMap.get(id)
     },
     film: {
       type: FilmType,
       args: { id: { type: GraphQLID } },
-      resolve: (_, { id }) => filmMap.get(id),
-    },
-  },
+      resolve: (_, { id }) => filmMap.get(id)
+    }
+  }
 });
 
 const Schema = new GraphQLSchema({ query: QueryType });
@@ -117,7 +115,7 @@ describe('SSR', () => {
               null,
               null,
               config.variables,
-              config.operationName,
+              config.operationName
             )
               .then(result => {
                 observer.next(result);
@@ -128,7 +126,7 @@ describe('SSR', () => {
               });
           });
         }),
-        cache: new Cache(),
+        cache: new Cache()
       });
 
       @graphql(gql`
@@ -180,7 +178,7 @@ describe('SSR', () => {
               <h4>{ship.name} appeared in the following films:</h4>
               <br />
               <ul>
-                {ship.films.map((film, key) => (
+                {ship.films.map((film: any, key: any) => (
                   <li key={key}>
                     <Film id={film.id} />
                   </li>
@@ -210,7 +208,7 @@ describe('SSR', () => {
               {data &&
                 !data.loading &&
                 data.allShips &&
-                data.allShips.map((ship, key) => (
+                data.allShips.map((ship: any, key: any) => (
                   <li key={key}>
                     <Starship id={ship.id} />
                   </li>
@@ -238,7 +236,7 @@ describe('SSR', () => {
           return (
             <div>
               <h1>Planets</h1>
-              {(data.allPlanets || []).map((planet, key) => (
+              {(data.allPlanets || []).map((planet: any, key: any) => (
                 <div key={key}>{planet.name}</div>
               ))}
             </div>

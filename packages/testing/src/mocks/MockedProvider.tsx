@@ -4,7 +4,8 @@ import { ApolloCache } from 'apollo-cache';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloProvider } from '@apollo/react-common';
 
-import { MockedResponse, MockLink } from './mockLink';
+import { MockLink } from './mockLink';
+import { MockedResponse } from './types';
 
 export interface MockedProviderProps<TSerializedCache = {}> {
   mocks?: ReadonlyArray<MockedResponse>;
@@ -25,7 +26,7 @@ export class MockedProvider extends React.Component<
   MockedProviderState
 > {
   public static defaultProps: MockedProviderProps = {
-    addTypename: true,
+    addTypename: true
   };
 
   constructor(props: MockedProviderProps) {
@@ -36,7 +37,7 @@ export class MockedProvider extends React.Component<
       cache: cache || new Cache({ addTypename }),
       defaultOptions,
       link: new MockLink(mocks || [], addTypename),
-      resolvers,
+      resolvers
     });
 
     this.state = { client };

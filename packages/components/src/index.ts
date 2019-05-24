@@ -6,17 +6,13 @@ export {
 } from '@apollo/react-common';
 
 export { Query } from './Query';
-
 export { Mutation } from './Mutation';
-
 export { Subscription } from './Subscription';
 
 export {
-  RenderPromises,
+  getMarkupFromTree,
   getDataFromTree,
-  getMarkupFromTree
-} from './ssr/getDataFromTree';
-export { renderToStringWithData } from './ssr/renderToStringWithData';
+  renderToStringWithData
+} from '@apollo/react-hooks';
 
-export { useApolloClient } from './useApolloClient';
 export * from './types';

@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider, DataValue } from '@apollo/react-components';
+import { ApolloProvider, DataValue } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';

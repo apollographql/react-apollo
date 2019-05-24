@@ -1,19 +1,6 @@
-import {
-  GraphQLRequest,
-  ApolloLink,
-  FetchResult,
-  Observable,
-} from 'apollo-link';
+import { ApolloLink, FetchResult, Observable } from 'apollo-link';
 
-export interface MockedSubscriptionResult {
-  result?: FetchResult;
-  error?: Error;
-  delay?: number;
-}
-
-export interface MockedSubscription {
-  request: GraphQLRequest;
-}
+import { MockedSubscriptionResult } from './types';
 
 export class MockSubscriptionLink extends ApolloLink {
   public unsubscribers: any[] = [];

@@ -10,14 +10,11 @@ import {
   stripSymbols,
   catchAsyncError
 } from '@apollo/react-testing';
-import {
-  ApolloProvider,
-  DataProps,
-  ChildProps
-} from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { ChildProps, DataProps } from '../../types';
 
 describe('queries', () => {
   let error: typeof console.error;
@@ -666,6 +663,7 @@ describe('queries', () => {
         return null;
       }
     }
+    // );
 
     // Not sure why I have to cast Container to any
     expect((Container as any).displayName).toEqual('withFoo(Container)');

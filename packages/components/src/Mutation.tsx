@@ -1,40 +1,30 @@
-import React, {
-  Fragment,
-  useContext,
-  useState,
-  useRef,
-  useEffect
-} from 'react';
-import { getApolloContext } from '@apollo/react-common';
+import { OperationVariables } from '@apollo/react-common';
+import { useMutation } from '@apollo/react-hooks';
+import PropTypes from 'prop-types';
 
-import { MutationCore } from './core/MutationCore';
-import { OperationVariables, MutationProps } from './types';
+import { MutationComponentOptions } from './types';
 
 export function Mutation<TData = any, TVariables = OperationVariables>(
-  props: MutationProps<TData, TVariables>
+  props: MutationComponentOptions<TData, TVariables>
 ) {
-  const context = useContext(getApolloContext());
-  const [result, setResult] = useState({ called: false, loading: false });
-  const mutationCoreRef = useRef(
-    new MutationCore<TData, TVariables>({
-      props,
-      result,
-      setResult
-    })
-  );
-  const mutationCore = mutationCoreRef.current;
-
-  useEffect(() => {
-    return mutationCore.afterRender();
-  });
-
-  const { children } = props;
-  return (
-    <Fragment>
-      {children(
-        options => mutationCore.render(props, context, options),
-        result
-      )}
-    </Fragment>
-  );
+  const [runMutation, result] = useMutation(props.mutation, props);
+  return props.children ? props.children(runMutation, result) : null;
 }
+
+Mutation.propTypes = {
+  mutation: PropTypes.object.isRequired,
+  variables: PropTypes.object,
+  optimisticResponse: PropTypes.object,
+  refetchQueries: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    ),
+    PropTypes.func
+  ]),
+  awaitRefetchQueries: PropTypes.bool,
+  update: PropTypes.func,
+  children: PropTypes.func.isRequired,
+  onCompleted: PropTypes.func,
+  onError: PropTypes.func,
+  fetchPolicy: PropTypes.string
+};

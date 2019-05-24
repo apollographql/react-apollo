@@ -9,10 +9,11 @@ import {
   stripSymbols,
   catchAsyncError
 } from '@apollo/react-testing';
-import { ApolloProvider, ChildProps } from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { ChildProps } from '../../types';
 
 describe('[queries] skip', () => {
   afterEach(cleanup);

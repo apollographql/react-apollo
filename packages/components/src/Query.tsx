@@ -1,42 +1,27 @@
-import React, {
-  Fragment,
-  useReducer,
-  useRef,
-  useEffect,
-  useContext
-} from 'react';
-import { getApolloContext } from '@apollo/react-common';
+import { OperationVariables } from '@apollo/react-common';
+import { useQuery } from '@apollo/react-hooks';
+import PropTypes from 'prop-types';
 
-import { QueryProps, OperationVariables } from './types';
-import { QueryCore } from './core/QueryCore';
+import { QueryComponentOptions } from './types';
 
 export function Query<TData = any, TVariables = OperationVariables>(
-  props: QueryProps<TData, TVariables>
+  props: QueryComponentOptions<TData, TVariables>
 ) {
-  const context = useContext(getApolloContext());
-  const [_ignored, forceUpdate] = useReducer(x => x + 1, 0);
-  const queryCoreRef = useRef(
-    new QueryCore<any, any>({
-      forceUpdate
-    })
-  );
-  const queryCore = queryCoreRef.current;
-
-  const prevProps = usePreviousProps<TData, TVariables>(props);
-
-  useEffect(() => {
-    return queryCore.afterRender(props, prevProps);
-  });
-
-  return <Fragment>{queryCore.render(props, context)}</Fragment>;
+  const result = useQuery(props.query, props);
+  return props.children && result ? props.children(result) : null;
 }
 
-function usePreviousProps<TData = any, TVariables = OperationVariables>(
-  prevProps: QueryProps<TData, TVariables>
-) {
-  const prevPropsRef = useRef<QueryProps<TData, TVariables>>();
-  useEffect(() => {
-    prevPropsRef.current = prevProps;
-  });
-  return prevPropsRef.current;
-}
+Query.propTypes = {
+  client: PropTypes.object,
+  children: PropTypes.func.isRequired,
+  fetchPolicy: PropTypes.string,
+  notifyOnNetworkStatusChange: PropTypes.bool,
+  onCompleted: PropTypes.func,
+  onError: PropTypes.func,
+  pollInterval: PropTypes.number,
+  query: PropTypes.object.isRequired,
+  variables: PropTypes.object,
+  ssr: PropTypes.bool,
+  partialRefetch: PropTypes.bool,
+  returnPartialData: PropTypes.bool
+};

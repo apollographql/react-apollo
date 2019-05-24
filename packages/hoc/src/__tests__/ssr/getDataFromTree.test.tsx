@@ -2,20 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
-import {
-  Query,
-  ApolloProvider,
-  getDataFromTree,
-  getMarkupFromTree,
-  DataValue,
-  ChildProps
-} from '@apollo/react-components';
+import { ApolloProvider } from '@apollo/react-common';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';
+import {
+  Query,
+  getDataFromTree,
+  getMarkupFromTree
+} from '@apollo/react-components';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { DataValue, ChildProps } from '../../types';
 
 describe('SSR', () => {
   describe('`getDataFromTree`', () => {

@@ -1,29 +1,19 @@
-import { useContext, useState, useRef, useEffect } from 'react';
-import { getApolloContext } from '@apollo/react-common';
-
-import { OperationVariables, SubscriptionProps } from './types';
-import { SubscriptionCore } from './core/SubscriptionCore';
+import { OperationVariables, SubscriptionOptions } from '@apollo/react-common';
+import { useSubscription } from '@apollo/react-hooks';
+import PropTypes from 'prop-types';
 
 export function Subscription<TData = any, TVariables = OperationVariables>(
-  props: SubscriptionProps<TData, TVariables>
+  props: SubscriptionOptions<TData, TVariables>
 ) {
-  const context = useContext(getApolloContext());
-  const [result, setResult] = useState({
-    loading: true,
-    error: undefined,
-    data: undefined
-  });
-  const subscriptionCoreRef = useRef(
-    new SubscriptionCore<TData, TVariables>(props, context, setResult)
-  );
-  const subscriptionCore = subscriptionCoreRef.current;
-
-  subscriptionCore.props = props;
-  subscriptionCore.context = context;
-
-  useEffect(() => {
-    return subscriptionCore.afterRender();
-  });
-
-  return subscriptionCore.render(result);
+  const result = useSubscription(props.subscription, props);
+  return props.children && result ? props.children(result) : null;
 }
+
+Subscription.propTypes = {
+  subscription: PropTypes.object.isRequired,
+  variables: PropTypes.object,
+  children: PropTypes.func,
+  onSubscriptionData: PropTypes.func,
+  onSubscriptionComplete: PropTypes.func,
+  shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool])
+};

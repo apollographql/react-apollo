@@ -1,14 +1,8 @@
 import React from 'react';
 import { DocumentNode } from 'graphql';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { parser } from '@apollo/react-common';
-import {
-  OperationOption,
-  QueryOpts,
-  OptionProps,
-  DataProps,
-  Subscription
-} from '@apollo/react-components';
+import { parser, BaseQueryOptions } from '@apollo/react-common';
+import { Subscription } from '@apollo/react-components';
 
 import {
   getDisplayName,
@@ -17,6 +11,7 @@ import {
   defaultMapPropsToOptions,
   defaultMapPropsToSkip
 } from './hoc-utils';
+import { OperationOption, OptionProps, DataProps } from './types';
 
 export function withSubscription<
   TProps extends TGraphQLVariables | {} = {},
@@ -42,9 +37,9 @@ export function withSubscription<
     shouldResubscribe
   } = operationOptions;
 
-  let mapPropsToOptions = options as (props: any) => QueryOpts;
+  let mapPropsToOptions = options as (props: any) => BaseQueryOptions;
   if (typeof mapPropsToOptions !== 'function')
-    mapPropsToOptions = () => options as QueryOpts;
+    mapPropsToOptions = () => options as BaseQueryOptions;
 
   let mapPropsToSkip = skip as (props: any) => boolean;
   if (typeof mapPropsToSkip !== 'function') mapPropsToSkip = () => skip as any;

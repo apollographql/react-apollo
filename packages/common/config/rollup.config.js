@@ -16,6 +16,8 @@ const globals = {
   react: 'React',
   'ts-invariant': 'invariant',
   tslib: 'tslib',
+  'fast-json-stable-stringify': 'stringify',
+  'zen-observable': 'zenObservable'
 };
 
 function external(id) {
@@ -32,7 +34,7 @@ export default [
       file: `${LIB_DIR}/react-common.esm.js`,
       format: 'esm',
       sourcemap: true,
-      globals,
+      globals
     },
     external,
     plugins: [
@@ -40,11 +42,11 @@ export default [
       typescriptPlugin({
         typescript,
         tsconfig: './config/tsconfig.json',
-        clean: true,
+        clean: true
       }),
-      invariantPlugin(),
+      invariantPlugin()
     ],
-    onwarn,
+    onwarn
   },
   {
     input: `${LIB_DIR}/react-common.esm.js`,
@@ -52,10 +54,10 @@ export default [
       file: `${LIB_DIR}/react-common.cjs.js`,
       format: 'cjs',
       name: 'react-common',
-      globals,
+      globals
     },
     external,
-    onwarn,
+    onwarn
   },
   {
     input: `${LIB_DIR}/react-common.esm.js`,
@@ -63,10 +65,10 @@ export default [
       file: `${LIB_DIR}/react-common.umd.js`,
       format: 'umd',
       name: 'react-common',
-      globals,
+      globals
     },
     external,
-    onwarn,
+    onwarn
   },
   {
     input: `${LIB_DIR}/react-common.esm.js`,
@@ -74,21 +76,21 @@ export default [
       file: './meta/bundlesize/bundlesize.js',
       format: 'cjs',
       name: 'react-common',
-      globals,
+      globals
     },
     external,
     plugins: [
       uglify({
         mangle: {
-          toplevel: true,
+          toplevel: true
         },
         compress: {
           global_defs: {
-            '@process.env.NODE_ENV': JSON.stringify('production'),
-          },
-        },
-      }),
+            '@process.env.NODE_ENV': JSON.stringify('production')
+          }
+        }
+      })
     ],
-    onwarn,
-  },
+    onwarn
+  }
 ];

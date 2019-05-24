@@ -1370,7 +1370,8 @@ describe('General Mutation testing', () => {
         </MockedProvider>
       );
     }).toThrowError(
-      'The <Mutation /> component requires a graphql mutation, but got a query.'
+      'Running a Mutation requires a graphql Mutation, but a Query was used ' +
+        'instead.'
     );
 
     console.log = errorLogger;
@@ -1393,7 +1394,8 @@ describe('General Mutation testing', () => {
       componentDidCatch(e: Error) {
         expect(e).toEqual(
           new Error(
-            'The <Mutation /> component requires a graphql mutation, but got a query.'
+            'Running a Mutation requires a graphql Mutation, but a Query ' +
+              'was used instead.'
           )
         );
         done();
@@ -1447,7 +1449,8 @@ describe('General Mutation testing', () => {
         </MockedProvider>
       );
     }).toThrowError(
-      'The <Mutation /> component requires a graphql mutation, but got a subscription.'
+      'Running a Mutation requires a graphql Mutation, but a Subscription ' +
+        'was used instead.'
     );
 
     console.log = errorLogger;
@@ -1470,7 +1473,8 @@ describe('General Mutation testing', () => {
       componentDidCatch(e: Error) {
         expect(e).toEqual(
           new Error(
-            'The <Mutation /> component requires a graphql mutation, but got a subscription.'
+            'Running a Mutation requires a graphql Mutation, but a ' +
+              'Subscription was used instead.'
           )
         );
         done();

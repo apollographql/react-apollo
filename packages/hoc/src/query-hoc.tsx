@@ -1,14 +1,8 @@
 import React from 'react';
 import { DocumentNode } from 'graphql';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { parser } from '@apollo/react-common';
-import {
-  Query,
-  OperationOption,
-  QueryOpts,
-  OptionProps,
-  DataProps
-} from '@apollo/react-components';
+import { parser, BaseQueryOptions } from '@apollo/react-common';
+import { Query } from '@apollo/react-components';
 
 import {
   getDisplayName,
@@ -17,6 +11,7 @@ import {
   defaultMapPropsToOptions,
   defaultMapPropsToSkip
 } from './hoc-utils';
+import { OperationOption, OptionProps, DataProps } from './types';
 
 export function withQuery<
   TProps extends TGraphQLVariables | {} = {},
@@ -41,9 +36,9 @@ export function withQuery<
     alias = 'Apollo'
   } = operationOptions;
 
-  let mapPropsToOptions = options as (props: any) => QueryOpts;
+  let mapPropsToOptions = options as (props: any) => BaseQueryOptions;
   if (typeof mapPropsToOptions !== 'function') {
-    mapPropsToOptions = () => options as QueryOpts;
+    mapPropsToOptions = () => options as BaseQueryOptions;
   }
 
   let mapPropsToSkip = skip as (props: any) => boolean;
@@ -71,13 +66,13 @@ export function withQuery<
         if (!shouldSkip && !opts.variables && operation.variables.length > 0) {
           opts.variables = calculateVariablesFromProps(operation, props);
         }
+
         return (
           <Query
             {...opts}
             displayName={graphQLDisplayName}
             skip={shouldSkip}
             query={document}
-            warnUnhandledError
           >
             {({ client: _, data, ...r }: any) => {
               if (operationOptions.withRef) {

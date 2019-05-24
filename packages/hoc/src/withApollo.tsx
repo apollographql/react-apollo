@@ -1,9 +1,10 @@
 import React from 'react';
-import { OperationOption } from '@apollo/react-components';
 import { ApolloConsumer } from '@apollo/react-common';
 import { ApolloClient } from 'apollo-client';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { invariant } from 'ts-invariant';
+
+import { OperationOption } from './types';
 
 function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -13,7 +14,7 @@ export type WithApolloClient<P> = P & { client: ApolloClient<any> };
 
 export function withApollo<TProps, TResult = any>(
   WrappedComponent: React.ComponentType<WithApolloClient<TProps>>,
-  operationOptions: OperationOption<TProps, TResult> = {},
+  operationOptions: OperationOption<TProps, TResult> = {}
 ): React.ComponentClass<TProps> {
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
 
@@ -33,7 +34,7 @@ export function withApollo<TProps, TResult = any>(
       invariant(
         operationOptions.withRef,
         `To access the wrapped instance, you need to specify ` +
-          `{ withRef: true } in the options`,
+          `{ withRef: true } in the options`
       );
 
       return this.wrappedInstance;
@@ -51,7 +52,7 @@ export function withApollo<TProps, TResult = any>(
               client,
               ref: operationOptions.withRef
                 ? this.setWrappedInstance
-                : undefined,
+                : undefined
             });
             return <WrappedComponent {...props} />;
           }}

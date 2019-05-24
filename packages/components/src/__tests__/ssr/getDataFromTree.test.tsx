@@ -1,12 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import ApolloClient from 'apollo-client';
-import {
-  Query,
-  ApolloProvider,
-  getDataFromTree,
-  getApolloContext
-} from '../../';
+import { ApolloProvider, getApolloContext } from '@apollo/react-common';
+import { getDataFromTree } from '@apollo/react-hooks';
+import { Query } from '../../';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';

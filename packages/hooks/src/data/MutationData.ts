@@ -1,63 +1,65 @@
 import { ApolloError } from 'apollo-client';
 import { isEqual } from 'apollo-utilities';
-import { invariant } from 'ts-invariant';
-import { DocumentNode } from 'graphql';
-import { parser, DocumentType, ApolloContextValue } from '@apollo/react-common';
-
 import {
+  ApolloContextValue,
+  DocumentType,
   OperationVariables,
-  MutationProps,
-  MutationOptions,
-  MutationState,
-  ExecutionResult
-} from '../types';
-import { OperationCore } from './OperationCore';
+  ExecutionResult,
+  MutationFunctionOptions,
+  MutationResult
+} from '@apollo/react-common';
 
-export class MutationCore<
+import { MutationOptions } from '../types';
+import { OperationData } from './OperationData';
+
+export class MutationData<
   TData = any,
   TVariables = OperationVariables
-> extends OperationCore {
+> extends OperationData {
   private mostRecentMutationId: number;
-  private result: MutationState<TData>;
-  private previousResult?: MutationState<TData>;
+  private result: MutationResult<TData>;
+  private previousResult?: MutationResult<TData>;
   private setResult: any;
 
   constructor({
-    props,
+    options,
+    context,
     result,
     setResult
   }: {
-    props: MutationProps<TData, TVariables>;
-    result: MutationState<TData>;
+    options: MutationOptions<TData, TVariables>;
+    context: ApolloContextValue;
+    result: MutationResult<TData>;
     setResult: any;
   }) {
-    super();
-    this.verifyDocumentIsMutation(props.mutation);
+    super(options, context);
+    this.verifyDocumentType(options.mutation, DocumentType.Mutation);
     this.result = result;
     this.setResult = setResult;
     this.mostRecentMutationId = 0;
   }
 
-  public render(
-    props: MutationProps<TData, TVariables>,
-    context: ApolloContextValue,
-    options: MutationOptions<TData, TVariables> = {}
+  public execute(
+    mutationFunctionOptions: MutationFunctionOptions<
+      TData,
+      TVariables
+    > = {} as MutationFunctionOptions<TData, TVariables>
   ) {
-    this.onMutationStart(props);
+    this.onMutationStart();
     const mutationId = this.generateNewMutationId();
 
-    return this.mutate(props, context, options)
+    return this.mutate(mutationFunctionOptions)
       .then((response: ExecutionResult<TData>) => {
-        this.onMutationCompleted(props, response, mutationId);
+        this.onMutationCompleted(response, mutationId);
         return response;
       })
-      .catch((e: ApolloError) => {
-        this.onMutationError(props, e, mutationId);
-        if (!props.onError) throw e;
+      .catch((error: ApolloError) => {
+        this.onMutationError(error, mutationId);
+        if (!this.options.onError) throw error;
       });
   }
 
-  public afterRender() {
+  public afterExecute() {
     this.isMounted = true;
     return this.unmount.bind(this);
   }
@@ -67,9 +69,7 @@ export class MutationCore<
   }
 
   private mutate(
-    props: MutationProps<TData, TVariables>,
-    context: ApolloContextValue,
-    options: MutationOptions<TData, TVariables>
+    mutationFunctionOptions: MutationFunctionOptions<TData, TVariables>
   ) {
     const {
       mutation,
@@ -79,10 +79,11 @@ export class MutationCore<
       context: mutationContext = {},
       awaitRefetchQueries = false,
       fetchPolicy
-    } = props;
-    const mutateOptions = { ...options };
+    } = this.options;
+    const mutateOptions = { ...mutationFunctionOptions };
 
-    let refetchQueries = mutateOptions.refetchQueries || props.refetchQueries;
+    let refetchQueries =
+      mutateOptions.refetchQueries || this.options.refetchQueries;
     const mutateVariables = Object.assign(
       {},
       variables,
@@ -90,7 +91,7 @@ export class MutationCore<
     );
     delete mutateOptions.variables;
 
-    return this.refreshClient(props, context).client.mutate({
+    return this.refreshClient().client.mutate({
       mutation,
       optimisticResponse,
       refetchQueries,
@@ -103,8 +104,8 @@ export class MutationCore<
     });
   }
 
-  private onMutationStart(props: MutationProps<TData, TVariables>) {
-    if (!this.result.loading && !props.ignoreResults) {
+  private onMutationStart() {
+    if (!this.result.loading && !this.options.ignoreResults) {
       this.updateResult({
         loading: true,
         error: undefined,
@@ -115,11 +116,10 @@ export class MutationCore<
   }
 
   private onMutationCompleted(
-    props: MutationProps<TData, TVariables>,
     response: ExecutionResult<TData>,
     mutationId: number
   ) {
-    const { onCompleted, ignoreResults } = props;
+    const { onCompleted, ignoreResults } = this.options;
 
     const { data, errors } = response;
     const error =
@@ -141,12 +141,8 @@ export class MutationCore<
     callOncomplete();
   }
 
-  private onMutationError(
-    props: MutationProps<TData, TVariables>,
-    error: ApolloError,
-    mutationId: number
-  ) {
-    const { onError } = props;
+  private onMutationError(error: ApolloError, mutationId: number) {
+    const { onError } = this.options;
     const callOnError = () => (onError ? onError(error) : null);
 
     if (this.isMostRecentMutation(mutationId)) {
@@ -169,17 +165,7 @@ export class MutationCore<
     return this.mostRecentMutationId === mutationId;
   }
 
-  private verifyDocumentIsMutation(mutation: DocumentNode) {
-    const operation = parser(mutation);
-    invariant(
-      operation.type === DocumentType.Mutation,
-      `The <Mutation /> component requires a graphql mutation, but got a ${
-        operation.type === DocumentType.Query ? 'query' : 'subscription'
-      }.`
-    );
-  }
-
-  private updateResult(result: MutationState<TData>) {
+  private updateResult(result: MutationResult<TData>) {
     if (
       this.isMounted &&
       (!this.previousResult || !isEqual(this.previousResult, result))

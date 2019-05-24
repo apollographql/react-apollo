@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-hooks",
   "description": "React Apollo Hooks.",
-  "version": "0.0.1",
+  "version": "0.1.0-beta.2",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -26,7 +26,7 @@
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "watch": "npx -p typescript tsc -p ./config -w",
     "predeploy": "npm run build",
-    "deploy": "npm publish"
+    "deploy": "npm publish --tag beta --access public"
   },
   "peerDependencies": {
     "apollo-client": "^2.5.1",
@@ -39,8 +39,6 @@
     "tslib": "^1.9.3"
   },
   "files": [
-    "./README.md",
-    "./package.json",
-    "./lib"
+    "lib"
   ]
 }

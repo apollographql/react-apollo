@@ -17,7 +17,8 @@ const globals = {
   react: 'React',
   'ts-invariant': 'invariant',
   tslib: 'tslib',
-  '@apollo/react-common': 'apolloReactCommon'
+  '@apollo/react-common': 'apolloReactCommon',
+  'fast-json-stable-stringify': 'stringify'
 };
 
 function external(id) {

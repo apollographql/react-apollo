@@ -1,7 +1,6 @@
 import React from 'react';
 import { invariant } from 'ts-invariant';
-import { OperationVariables } from '@apollo/react-components';
-import { DocumentType, IDocumentDefinition } from '@apollo/react-common';
+import { IDocumentDefinition, OperationVariables } from '@apollo/react-common';
 
 export const defaultMapPropsToOptions = () => ({});
 export const defaultMapResultToProps: <P>(props: P) => P = props => props;
@@ -13,7 +12,7 @@ export function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
 
 export function calculateVariablesFromProps<TProps>(
   operation: IDocumentDefinition,
-  props: TProps,
+  props: TProps
 ) {
   let variables: OperationVariables = {};
   for (let { variable, type } of operation.variables) {
@@ -36,7 +35,7 @@ export function calculateVariablesFromProps<TProps>(
 }
 
 export type RefSetter<TChildProps> = (
-  ref: React.ComponentClass<TChildProps>,
+  ref: React.ComponentClass<TChildProps>
 ) => void | void;
 
 // base class for hocs to easily manage refs
@@ -58,7 +57,7 @@ export class GraphQLBase<
     invariant(
       this.withRef,
       `To access the wrapped instance, you need to specify ` +
-        `{ withRef: true } in the options`,
+        `{ withRef: true } in the options`
     );
 
     return this.wrappedInstance;

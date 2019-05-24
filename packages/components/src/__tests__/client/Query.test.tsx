@@ -858,7 +858,8 @@ describe('Query component', () => {
           </MockedProvider>
         );
       }).toThrowError(
-        'The <Query /> component requires a graphql query, but got a mutation.'
+        'Running a Query requires a graphql Query, but a Mutation was used ' +
+          'instead.'
       );
 
       console.error = errorLogger;
@@ -884,7 +885,8 @@ describe('Query component', () => {
           </MockedProvider>
         );
       }).toThrowError(
-        'The <Query /> component requires a graphql query, but got a subscription.'
+        'Running a Query requires a graphql Query, but a Subscription was ' +
+          'used instead.'
       );
 
       console.error = errorLogger;
@@ -1391,8 +1393,8 @@ describe('Query component', () => {
 
       componentDidCatch(error: any) {
         const expectedError = new Error(
-          'The <Query /> component requires a graphql query, but got a ' +
-            'subscription.'
+          'Running a Query requires a graphql Query, but a Subscription was ' +
+            'used instead.'
         );
         expect(error).toEqual(expectedError);
         done();
