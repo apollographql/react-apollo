@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-testing",
   "description": "React Apollo testing utilities.",
-  "version": "0.0.1",
+  "version": "0.1.0-beta.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -44,8 +44,6 @@
     "tslib": "^1.9.3"
   },
   "files": [
-    "./README.md",
-    "./package.json",
-    "./lib"
+    "lib"
   ]
 }

@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-common",
   "description": "React Apollo common utilities.",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -25,7 +25,7 @@
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "watch": "node ../../node_modules/tsc-watch/lib/tsc-watch.js --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta --access public"
+    "deploy": "npm publish"
   },
   "peerDependencies": {
     "apollo-client": "^2.6.0",
