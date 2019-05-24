@@ -43,6 +43,7 @@
     ]
   },
   "devDependencies": {
+    "@types/graphql": "^14.2.0",
     "@types/reactstrap": "^8.0.1"
   }
 }
