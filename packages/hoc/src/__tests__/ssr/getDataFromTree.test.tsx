@@ -850,7 +850,7 @@ describe('SSR', () => {
 
       const Element = (props: { id: string }) => (
         <Query query={query} ssr={false} variables={props}>
-          {({ data, loading }) => (
+          {({ data, loading }: { data: Data; loading: boolean }) => (
             <div>
               {loading || !data ? 'loading' : data.currentUser!.firstName}
             </div>

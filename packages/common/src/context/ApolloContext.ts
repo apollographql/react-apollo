@@ -2,7 +2,7 @@ import React from 'react';
 import ApolloClient from 'apollo-client';
 
 export interface ApolloContextValue {
-  client?: ApolloClient<Object>;
+  client?: ApolloClient<object>;
   renderPromises?: Record<any, any>;
 }
 

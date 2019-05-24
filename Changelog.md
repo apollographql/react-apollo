@@ -6,35 +6,110 @@
 
 - `useApolloClient` can be used to return an `ApolloClient` instance from
   React Apollo's context, assuming it was previously set using
-  `ApolloProvider`.  <br/>
+  `ApolloProvider`. <br/>
   [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
+- TODO
 
+## 2.5.6 (2019-05-22)
+
+### Improvements
+
+- Both the `Query` component and `graphql` HOC now accept a
+  `returnPartialData` prop. This is an important new feature, that should
+  help address a lot of open Apollo Client / React Apollo issues, so we'll
+  explain it here with an example. Before this release, if you run a query
+  that looks like:
+
+  ```js
+  const GET_MEMBER = gql`
+    query GetMember($id: ID!) {
+      member(id: $id) {
+        id
+        name
+      }
+    }
+  `;
+  ```
+
+  in one component, the results are cached, then you run a superset query like
+  the following in another component:
+
+  ```js
+  const GET_MEMBER_WITH_PLANS = gql`
+    query GetMemberWithPlans($id: ID!) {
+      member(id: $id) {
+        id
+        name
+        plans {
+          id
+          title
+          duration
+        }
+      }
+    }
+  `;
+  ```
+
+  Apollo Client will not re-use the partial data that was cached from the first
+  query, when it preps and displays the second component. It can't find a
+  cache hit for the full second query, so it fires the full query over the
+  network.
+
+  With this release, if you set a `returnPartialData` prop to `true` on the
+  second component, the `data` available to that component will be
+  automatically pre-loaded with the parts of the query that can be found in the
+  cache, before the full query is fired over the network. This means you can
+  do things like showing partial data in your components, while the rest of the
+  data is being loaded over the network.
+
+## 2.5.5 (2019-04-22)
+
+### Improvements
+
+- Export the Apollo Context provider (`ApolloContext`). <br/>
+  [@MrLoh](https://github.com/MrLoh) in [#2961](https://github.com/apollographql/react-apollo/pull/2961)
+
+## 2.5.4 (2019-04-05)
+
+### Bug Fixes
+
+- Fixes `Could not find "client" in the context of ApolloConsumer` errors when
+  using `MockedProvider`. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2907](https://github.com/apollographql/react-apollo/pull/2907)
+- Ensure `Query` components using a `fetchPolicy` of `no-cache` have their
+  data preserved when the components tree is re-rendered. <br/>
+  [@hwillson](https://github.com/hwillson) in [#2914](https://github.com/apollographql/react-apollo/pull/2914)
+
+### Improvements
+
+- Documentation updates. <br/>
+  [@afenton90](https://github.com/afenton90) in [#2932](https://github.com/apollographql/react-apollo/pull/2932)
 
 ## 2.5.3
 
 ### Bug Fixes
 
 - Fixed an infinite loop caused by using `setState` in the
-  `onError` / `onCompleted` callbacks of the `Query` component.  <br/>
+  `onError` / `onCompleted` callbacks of the `Query` component. <br/>
   [@chenesan](https://github.com/chenesan) in [#2751](https://github.com/apollographql/react-apollo/pull/2751)
 - Fixed an issue that prevented good results from showing up in a `Query`
   component, after an error was received, variables were adjusted, and then
-  the good data was fetched.  <br/>
+  the good data was fetched. <br/>
   [@MerzDaniel](https://github.com/MerzDaniel) in [#2718](https://github.com/apollographql/react-apollo/pull/2718)
 - Fixed an issue that prevented `Query` component updates from firing (under
   certain circumstances) due to the internal `lastResult` value (that's used
-  to help prevent unnecessary re-renders) not being updated.  <br/>
+  to help prevent unnecessary re-renders) not being updated. <br/>
   [@Glennrs](https://github.com/Glennrs) in [#2840](https://github.com/apollographql/react-apollo/pull/2840)
 
 ### Improvements
 
 - `MockedProvider` now accepts a `childProps` prop that can be used to pass
-  props down to a child component.  <br/>
+  props down to a child component. <br/>
   [@miachenmtl](https://github.com/miachenmtl) in [#2482](https://github.com/apollographql/react-apollo/pull/2482)
-- `onCompleted` callbacks now use a destructuring-friendly type definition.  <br/>
+- `onCompleted` callbacks now use a destructuring-friendly type definition. <br/>
   [@jozanza](https://github.com/jozanza) in [#2496](https://github.com/apollographql/react-apollo/pull/2496)
 - `@connection` directives are now properly stripped from `MockedResponse`'s,
-  when using `MockedProvider`.  <br/>
+  when using `MockedProvider`. <br/>
   [@ajmath](https://github.com/ajmath) in [#2523](https://github.com/apollographql/react-apollo/pull/2523)
 - `MockedProvider` has been updated to stop setting a default `resolvers`
   value of `{}`, which means by default Apollo Client 2.5 local resolver
@@ -49,17 +124,17 @@
 
   This message can be safely ignored. If you want to use `MockedProvider`
   with AC 2.5's new local resolver functionality, you can pass your local
-  resolver map into the `MockedProvider` `resolvers` prop.  <br/>
+  resolver map into the `MockedProvider` `resolvers` prop. <br/>
   [@ajmath](https://github.com/ajmath) in [#2524](https://github.com/apollographql/react-apollo/pull/2524)
-- Improvements to the `graphql` HOC generics for `fetchMore` and `refetch`.  <br/>
+
+- Improvements to the `graphql` HOC generics for `fetchMore` and `refetch`. <br/>
   [@EricMcRay](https://github.com/EricMcRay) in [#2525](https://github.com/apollographql/react-apollo/pull/2525)
 - The `ApolloProvider` / `ApolloConsumer` implementations have been refactored
-  to use [React 16.3's new context API](https://reactjs.org/docs/context.html).  <br/>
+  to use [React 16.3's new context API](https://reactjs.org/docs/context.html). <br/>
   [@wzrdzl](https://github.com/wzrdzl) in [#2540](https://github.com/apollographql/react-apollo/pull/2540)
 - All `dependencies` and `devDependencies` have been updated to their latest
-  versions, and related Typescript changes have been applied.  <br/>
+  versions, and related Typescript changes have been applied. <br/>
   [@hwillson](https://github.com/hwillson) in [#2873](https://github.com/apollographql/react-apollo/pull/2873)
-
 
 ## v2.5.2
 
@@ -85,7 +160,7 @@
 
 - Make sure `MockedProvider` enables Apollo Client 2.5's local state handling,
   and allow custom / mocked resolvers to be passed in as props, and used with
-  the created test `ApolloClient` instance.  <br/>
+  the created test `ApolloClient` instance. <br/>
   [@hwillson](https://github.com/hwillson) in [#2825](https://github.com/apollographql/react-apollo/pull/2825)
 
 ## 2.5.0
@@ -94,13 +169,13 @@
 
 - Ready to be used with Apollo Client 2.5 and its new local state management
   features, as well as many overall code improvements to help reduce the React
-  Apollo bundle size.  <br/>
+  Apollo bundle size. <br/>
   [#2758](https://github.com/apollographql/react-apollo/pull/2758)
 - A function can now be set as a `MockedResponse` `result` when using
   `MockedProvider`, such that every time the mocked result is returned,
   the function is run to calculate the result. This opens up new testing
   possibilities, like being able to verify if a mocked result was actually
-  requested and received by a test.  <br/>
+  requested and received by a test. <br/>
   [@hwillson](https://github.com/hwillson) in [#2788](https://github.com/apollographql/react-apollo/pull/2788)
 
 ## 2.4.1
@@ -109,7 +184,7 @@
 
 - Adds a `onSubscriptionComplete` prop to the `Subscription` component, that
   can be passed a callback to be called when the subscription observable
-  is completed.  <br/>
+  is completed. <br/>
   [@sujeetsr](https://github.com/sujeetsr) in [#2716](https://github.com/apollographql/react-apollo/pull/2716)
 
 - During server-side rendering, `ObservableQuery` objects created in
@@ -132,7 +207,7 @@
   bundle size, `walkTree` is no longer exported from `react-apollo`,
   though you can still access it as follows:
   ```js
-  import { walkTree } from "react-apollo/walkTree"
+  import { walkTree } from 'react-apollo/walkTree';
   ```
 
 ## 2.4.0
@@ -146,11 +221,11 @@
 
 - Update the typescript example app to use the raw Query component directly,
   with generics, to avoid generating the extra object that's created (in the
-  compiled code) when extending the Query component as a class.  <br/>
+  compiled code) when extending the Query component as a class. <br/>
   [@evans](https://github.com/evans) in [#2721](https://github.com/apollographql/react-apollo/pull/2721)
 
 - Use new `ApolloClient#stop` method to dispose of `MockedProvider` client
-  instance.  <br/>
+  instance. <br/>
   [PR #2741](https://github.com/apollographql/react-apollo/pull/2741)
 
 - The `apollo-client` peer dependency version constraint has been updated
@@ -165,13 +240,13 @@
 ### Bug Fixes
 
 - Add `react-dom` as a peer dependency (since it's used by `getDataFromTree`
-  and `renderToStringWithData`).  <br/>
+  and `renderToStringWithData`). <br/>
   [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
 
 ### Improvements
 
 - Drop `react` 14.x support, since the 14.x release line is 2 years old now,
-  and `react-apollo` is no longer tested against it.  <br/>
+  and `react-apollo` is no longer tested against it. <br/>
   [@hwillson](https://github.com/hwillson) in [#2660](https://github.com/apollographql/react-apollo/pull/2660)
 
 ## 2.3.2
@@ -196,6 +271,7 @@
 - Restore original `getDataFromTree(tree, context)` API, and introduce a
   new alternative called `getMarkupFromTree` to enable custom rendering
   functions:
+
   ```typescript
   export default function getDataFromTree(
     tree: React.ReactNode,
@@ -220,6 +296,7 @@
     renderFunction = renderToStaticMarkup,
   }: GetMarkupFromTreeOptions): Promise<string> {...}
   ```
+
   [PR #2586](https://github.com/apollographql/react-apollo/pull/2586)
 
 ### Bug Fixes
@@ -234,7 +311,7 @@
 ### Bug Fixes
 
 - Fix `networkStatus` to reflect the loading state correctly for partial
-  refetching.  <br/>
+  refetching. <br/>
   [@steelbrain](https://github.com/steelbrain) in [#2493](https://github.com/apollographql/react-apollo/pull/2493)
 
 ### Improvements

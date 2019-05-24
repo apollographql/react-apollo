@@ -54,7 +54,7 @@ describe('SSR', () => {
 
       const WrappedElement = () => (
         <Query query={query}>
-          {({ data, loading }) => (
+          {({ data, loading }: { data: Data; loading: boolean }) => (
             <div>
               {loading || !data ? 'loading' : data.currentUser!.firstName}
             </div>

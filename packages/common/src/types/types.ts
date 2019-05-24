@@ -1,8 +1,8 @@
-import { ReactNode } from 'react';
 import ApolloClient, {
   ApolloQueryResult,
   ApolloError,
   FetchPolicy,
+  WatchQueryFetchPolicy,
   ErrorPolicy,
   FetchMoreOptions,
   FetchMoreQueryOptions,
@@ -30,13 +30,14 @@ export interface ExecutionResult<T = Record<string, any>> {
 export interface BaseQueryOptions<TVariables = OperationVariables> {
   ssr?: boolean;
   variables?: TVariables;
-  fetchPolicy?: FetchPolicy;
+  fetchPolicy?: WatchQueryFetchPolicy;
   errorPolicy?: ErrorPolicy;
   pollInterval?: number;
   client?: ApolloClient<any>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Context;
   partialRefetch?: boolean;
+  returnPartialData?: boolean;
 }
 
 export interface QueryFunctionOptions<
@@ -101,7 +102,7 @@ export interface BaseMutationOptions<
   context?: Context;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
-  fetchPolicy?: FetchPolicy;
+  fetchPolicy?: WatchQueryFetchPolicy;
   ignoreResults?: boolean;
 }
 
@@ -115,7 +116,7 @@ export interface MutationFunctionOptions<
   awaitRefetchQueries?: boolean;
   update?: MutationUpdaterFn<TData>;
   context?: Context;
-  fetchPolicy?: FetchPolicy;
+  fetchPolicy?: WatchQueryFetchPolicy;
 }
 
 export interface MutationResult<TData = any> {

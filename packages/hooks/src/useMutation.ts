@@ -1,30 +1,32 @@
 import { useContext, useState, useRef, useEffect } from 'react';
-import {
-  getApolloContext,
-  OperationVariables,
-  MutationFunctionOptions
-} from '@apollo/react-common';
+import { getApolloContext, OperationVariables } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
-import { MutationHookOptions, MutationHookResult } from './types';
+import { MutationHookOptions, MutationTuple } from './types';
 import { MutationData } from './data/MutationData';
 
 export function useMutation<TData = any, TVariables = OperationVariables>(
   mutation: DocumentNode,
   options?: MutationHookOptions<TData, TVariables>
-): MutationHookResult<TData, TVariables> {
+): MutationTuple<TData, TVariables> {
   const context = useContext(getApolloContext());
   const [result, setResult] = useState({ called: false, loading: false });
   const updatedOptions = options ? { ...options, mutation } : { mutation };
-  const mutationDataRef = useRef(
-    new MutationData<TData, TVariables>({
-      options: updatedOptions,
-      context,
-      result,
-      setResult
-    })
-  );
-  const mutationData = mutationDataRef.current;
+
+  const mutationDataRef = useRef<MutationData<TData, TVariables>>();
+  function getMutationDataRef() {
+    if (!mutationDataRef.current) {
+      mutationDataRef.current = new MutationData<TData, TVariables>({
+        options: updatedOptions,
+        context,
+        result,
+        setResult
+      });
+    }
+    return mutationDataRef.current;
+  }
+
+  const mutationData = getMutationDataRef();
   mutationData.options = updatedOptions;
   mutationData.context = context;
 
@@ -32,9 +34,5 @@ export function useMutation<TData = any, TVariables = OperationVariables>(
     return mutationData.afterExecute();
   });
 
-  return [
-    (options?: MutationFunctionOptions<TData, TVariables>) =>
-      mutationData.execute(options),
-    result
-  ];
+  return mutationData.execute(result);
 }

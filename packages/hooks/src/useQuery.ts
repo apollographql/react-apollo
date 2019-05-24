@@ -16,14 +16,20 @@ export function useQuery<TData = any, TVariables = OperationVariables>(
   const context = useContext(getApolloContext());
   const [_ignored, forceUpdate] = useReducer(x => x + 1, 0);
   const updatedOptions = options ? { ...options, query } : { query };
-  const queryDataRef = useRef(
-    new QueryData<TData, TVariables>({
-      options: updatedOptions as QueryOptions<TData, TVariables>,
-      context,
-      forceUpdate
-    })
-  );
-  const queryData = queryDataRef.current;
+
+  const queryDataRef = useRef<QueryData<TData, TVariables>>();
+  function getQueryDataRef() {
+    if (!queryDataRef.current) {
+      queryDataRef.current = new QueryData<TData, TVariables>({
+        options: updatedOptions as QueryOptions<TData, TVariables>,
+        context,
+        forceUpdate
+      });
+    }
+    return queryDataRef.current;
+  }
+
+  const queryData = getQueryDataRef();
   queryData.options = updatedOptions;
   queryData.context = context;
 

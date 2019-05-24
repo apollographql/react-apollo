@@ -4,10 +4,11 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider, DataValue } from '@apollo/react-common';
+import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
 import { graphql } from '../../graphql';
+import { DataValue } from '../../types';
 
 describe('[queries] reducer', () => {
   afterEach(cleanup);

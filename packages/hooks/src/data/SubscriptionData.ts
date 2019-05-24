@@ -44,6 +44,7 @@ export class SubscriptionData<
     if (
       shouldResubscribe !== false &&
       this.previousOptions &&
+      Object.keys(this.previousOptions).length > 0 &&
       (!isEqual(this.previousOptions.variables, this.options.variables) ||
         this.previousOptions.subscription !== this.options.subscription)
     ) {

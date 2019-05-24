@@ -21,14 +21,20 @@ export function useSubscription<TData = any, TVariables = OperationVariables>(
   const updatedOptions = options
     ? { ...options, subscription }
     : { subscription };
-  const subscriptionDataRef = useRef(
-    new SubscriptionData<TData, TVariables>({
-      options: updatedOptions,
-      context,
-      setResult
-    })
-  );
-  const subscriptionData = subscriptionDataRef.current;
+
+  const subscriptionDataRef = useRef<SubscriptionData<TData, TVariables>>();
+  function getSubscriptionDataRef() {
+    if (!subscriptionDataRef.current) {
+      subscriptionDataRef.current = new SubscriptionData<TData, TVariables>({
+        options: updatedOptions,
+        context,
+        setResult
+      });
+    }
+    return subscriptionDataRef.current;
+  }
+
+  const subscriptionData = getSubscriptionDataRef();
   subscriptionData.options = updatedOptions;
   subscriptionData.context = context;
 

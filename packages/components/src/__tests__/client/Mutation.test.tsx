@@ -1479,6 +1479,7 @@ describe('General Mutation testing', () => {
         );
         done();
       }
+
       render() {
         return (
           <Mutation mutation={this.state.query}>

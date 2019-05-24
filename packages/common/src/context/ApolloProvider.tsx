@@ -6,7 +6,7 @@ import { getApolloContext } from './ApolloContext';
 
 export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;
-  children: React.ReactChild | null;
+  children: React.ReactNode | React.ReactNode[] | null;
 }
 
 export const ApolloProvider: React.FC<ApolloProviderProps<any>> = ({

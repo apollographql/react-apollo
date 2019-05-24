@@ -28,13 +28,13 @@
     "deploy": "npm publish --tag beta --access public"
   },
   "peerDependencies": {
-    "apollo-client": "^2.5.1",
-    "apollo-utilities": "^1.2.1",
+    "apollo-client": "^2.6.0",
+    "apollo-utilities": "^1.3.0",
     "react": "^16.8.6",
     "graphql": "^14.2.1"
   },
   "dependencies": {
-    "ts-invariant": "^0.4.0",
+    "ts-invariant": "^0.4.2",
     "tslib": "^1.9.3"
   },
   "files": [

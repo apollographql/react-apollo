@@ -9,7 +9,7 @@ import {
   MutationResult
 } from '@apollo/react-common';
 
-import { MutationOptions } from '../types';
+import { MutationOptions, MutationTuple } from '../types';
 import { OperationData } from './OperationData';
 
 export class MutationData<
@@ -39,7 +39,24 @@ export class MutationData<
     this.mostRecentMutationId = 0;
   }
 
-  public execute(
+  public execute(result: MutationResult<TData>) {
+    this.verifyDocumentType(this.options.mutation, DocumentType.Mutation);
+    const runMutation = (
+      options?: MutationFunctionOptions<TData, TVariables>
+    ) => this.runMutation(options);
+    return [runMutation, result] as MutationTuple<TData, TVariables>;
+  }
+
+  public afterExecute() {
+    this.isMounted = true;
+    return this.unmount.bind(this);
+  }
+
+  protected cleanup() {
+    // No cleanup required.
+  }
+
+  private runMutation(
     mutationFunctionOptions: MutationFunctionOptions<
       TData,
       TVariables
@@ -57,15 +74,6 @@ export class MutationData<
         this.onMutationError(error, mutationId);
         if (!this.options.onError) throw error;
       });
-  }
-
-  public afterExecute() {
-    this.isMounted = true;
-    return this.unmount.bind(this);
-  }
-
-  protected cleanup() {
-    // No cleanup required.
   }
 
   private mutate(
