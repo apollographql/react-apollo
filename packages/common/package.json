@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-common",
   "description": "React Apollo common utilities.",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -30,8 +30,8 @@
   "peerDependencies": {
     "apollo-client": "^2.6.0",
     "apollo-utilities": "^1.3.0",
-    "react": "^16.8.6",
-    "graphql": "^14.2.1"
+    "graphql": "^14.2.1",
+    "react": "^16.8.6"
   },
   "dependencies": {
     "ts-invariant": "^0.4.2",
