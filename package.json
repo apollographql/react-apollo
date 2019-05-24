@@ -52,8 +52,8 @@
     "rollup-plugin-typescript2": "^0.20.1",
     "rollup-plugin-uglify": "^6.0.2",
     "ts-jest": "^24.0.2",
-    "tsc-watch": "^2.1.2",
-    "typescript": "^3.4.3",
+    "tsc-watch": "^2.2.1",
+    "typescript": "^3.4.5",
     "zen-observable-ts": "^0.8.18"
   },
   "bundlesize": [
