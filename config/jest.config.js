@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
-  rootDir: '..',
+  rootDir: '../packages',
   projects: ['<rootDir>'],
   globals: {
     'ts-jest': {
@@ -15,6 +15,7 @@ module.exports = {
   // },
   coverageDirectory: './meta/coverage',
   moduleNameMapper: {
-    '^@apollo\\/react-([^/]+)': '<rootDir>/packages/$1/src',
+    '^@apollo\\/react-([^/]+)': '<rootDir>/$1/src',
   },
+  testPathIgnorePatterns: ['/examples'],
 };

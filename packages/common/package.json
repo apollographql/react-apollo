@@ -28,12 +28,12 @@
     "deploy": "npm publish"
   },
   "peerDependencies": {
-    "apollo-client": "^2.5.1",
+    "apollo-client": "^2.6.0",
     "react": "^16.8.6",
     "graphql": "^14.2.1"
   },
   "dependencies": {
-    "ts-invariant": "^0.4.0",
+    "ts-invariant": "^0.4.2",
     "tslib": "^1.9.3"
   },
   "files": [

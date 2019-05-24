@@ -15,5 +15,5 @@
     "experimentalDecorators": true
   },
   "include": ["../packages/*/src/**/*"],
-  "exclude": ["../packages/*/node_modules", "../packages/*/lib"]
+  "exclude": ["../packages/*/node_modules", "../packages/*/lib", "../examples"]
 }

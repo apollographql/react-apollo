@@ -29,10 +29,10 @@
     "deploy": "npm publish"
   },
   "peerDependencies": {
-    "apollo-cache": "^1.2.1",
-    "apollo-client": "^2.5.1",
+    "apollo-cache": "^1.3.0",
+    "apollo-client": "^2.6.0",
     "apollo-link": "^1.2.11",
-    "apollo-utilities": "^1.2.1",
+    "apollo-utilities": "^1.3.0",
     "graphql": "^14.2.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
@@ -41,7 +41,7 @@
     "@apollo/react-common": "file:../common",
     "hoist-non-react-statics": "^3.3.0",
     "prop-types": "^15.7.2",
-    "ts-invariant": "^0.4.0",
+    "ts-invariant": "^0.4.2",
     "tslib": "^1.9.3"
   },
   "files": [

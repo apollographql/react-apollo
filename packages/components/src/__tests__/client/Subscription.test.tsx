@@ -158,7 +158,7 @@ it('should call onSubscriptionComplete if specified', done => {
 });
 
 it('executes subscription for the variables passed in the props', done => {
-  expect.assertions(4);
+  expect.assertions(5);
   const subscriptionWithVariables = gql`
     subscription UserInfo($name: String) {
       user(name: $name) {
@@ -220,7 +220,7 @@ it('executes subscription for the variables passed in the props', done => {
 });
 
 it('does not execute if variables have not changed', done => {
-  expect.assertions(4);
+  expect.assertions(6);
   const subscriptionWithVariables = gql`
     subscription UserInfo($name: String) {
       user(name: $name) {

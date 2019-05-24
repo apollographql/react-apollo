@@ -11,6 +11,7 @@ import {
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { render, cleanup } from 'react-testing-library';
+import { ApolloLink } from 'apollo-link';
 
 import { Query } from '../../Query';
 
@@ -1961,5 +1962,232 @@ describe('Query component', () => {
         }}
       </AllPeopleQuery>
     );
+  });
+
+  it(
+    'should keep data for a `Query` component using `no-cache` when the ' +
+      'tree is re-rendered',
+    done => {
+      const query1 = allPeopleQuery;
+
+      const query2: DocumentNode = gql`
+        query Things {
+          allThings {
+            thing {
+              description
+            }
+          }
+        }
+      `;
+
+      interface ThingData {
+        allThings: {
+          thing: Array<{ description: string }>;
+        };
+      }
+
+      const allThingsData: ThingData = {
+        allThings: {
+          thing: [{ description: 'Thing 1' }, { description: 'Thing 2' }]
+        }
+      };
+
+      const link = mockSingleLink(
+        { request: { query: query1 }, result: { data: allPeopleData } },
+        { request: { query: query2 }, result: { data: allThingsData } }
+      );
+
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false })
+      });
+
+      let expectCount = 0;
+
+      const People = () => {
+        let renderCount = 0;
+        return (
+          <Query query={query1} fetchPolicy="no-cache">
+            {({ data, loading }) => {
+              if (renderCount > 0 && !loading) {
+                expect(data).toEqual(allPeopleData);
+                expectCount += 1;
+                if (expectCount === 2) done();
+              }
+              renderCount += 1;
+              return null;
+            }}
+          </Query>
+        );
+      };
+
+      const Things = () => (
+        <Query query={query2}>
+          {({ data, loading }) => {
+            if (!loading) {
+              expect(data).toEqual(allThingsData);
+              expectCount += 1;
+              if (expectCount === 2) done();
+            }
+            return null;
+          }}
+        </Query>
+      );
+
+      const App = () => (
+        <ApolloProvider client={client}>
+          <People />
+          <Things />
+        </ApolloProvider>
+      );
+
+      render(<App />);
+    }
+  );
+
+  describe('Return partial data', () => {
+    it('should not return partial cache data when `returnPartialData` is false', () => {
+      const cache = new Cache();
+      const client = new ApolloClient({
+        cache,
+        link: ApolloLink.empty()
+      });
+
+      const fullQuery = gql`
+        query {
+          cars {
+            make
+            model
+            repairs {
+              date
+              description
+            }
+          }
+        }
+      `;
+
+      cache.writeQuery({
+        query: fullQuery,
+        data: {
+          cars: [
+            {
+              __typename: 'Car',
+              make: 'Ford',
+              model: 'Mustang',
+              vin: 'PONY123',
+              repairs: [
+                {
+                  __typename: 'Repair',
+                  date: '2019-05-08',
+                  description: 'Could not get after it.'
+                }
+              ]
+            }
+          ]
+        }
+      });
+
+      const partialQuery = gql`
+        query {
+          cars {
+            repairs {
+              date
+              cost
+            }
+          }
+        }
+      `;
+
+      const App = () => (
+        <ApolloProvider client={client}>
+          <Query query={partialQuery}>
+            {({ data }) => {
+              expect(data).toEqual({});
+              return null;
+            }}
+          </Query>
+        </ApolloProvider>
+      );
+
+      render(<App />);
+    });
+
+    it('should return partial cache data when `returnPartialData` is true', () => {
+      const cache = new Cache();
+      const client = new ApolloClient({
+        cache,
+        link: ApolloLink.empty()
+      });
+
+      const fullQuery = gql`
+        query {
+          cars {
+            make
+            model
+            repairs {
+              date
+              description
+            }
+          }
+        }
+      `;
+
+      cache.writeQuery({
+        query: fullQuery,
+        data: {
+          cars: [
+            {
+              __typename: 'Car',
+              make: 'Ford',
+              model: 'Mustang',
+              vin: 'PONY123',
+              repairs: [
+                {
+                  __typename: 'Repair',
+                  date: '2019-05-08',
+                  description: 'Could not get after it.'
+                }
+              ]
+            }
+          ]
+        }
+      });
+
+      const partialQuery = gql`
+        query {
+          cars {
+            repairs {
+              date
+              cost
+            }
+          }
+        }
+      `;
+
+      const App = () => (
+        <ApolloProvider client={client}>
+          <Query query={partialQuery} returnPartialData>
+            {({ data }) => {
+              expect(data).toEqual({
+                cars: [
+                  {
+                    __typename: 'Car',
+                    repairs: [
+                      {
+                        __typename: 'Repair',
+                        date: '2019-05-08'
+                      }
+                    ]
+                  }
+                ]
+              });
+              return null;
+            }}
+          </Query>
+        </ApolloProvider>
+      );
+
+      render(<App />);
+    });
   });
 });

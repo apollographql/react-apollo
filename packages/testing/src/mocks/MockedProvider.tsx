@@ -25,7 +25,7 @@ export class MockedProvider extends React.Component<
   MockedProviderState
 > {
   public static defaultProps: MockedProviderProps = {
-    addTypename: true,
+    addTypename: true
   };
 
   constructor(props: MockedProviderProps) {
@@ -36,7 +36,7 @@ export class MockedProvider extends React.Component<
       cache: cache || new Cache({ addTypename }),
       defaultOptions,
       link: new MockLink(mocks || [], addTypename),
-      resolvers,
+      resolvers
     });
 
     this.state = { client };

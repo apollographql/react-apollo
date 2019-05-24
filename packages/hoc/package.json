@@ -29,14 +29,14 @@
     "deploy": "npm publish"
   },
   "peerDependencies": {
-    "apollo-client": "^2.5.1",
+    "apollo-client": "^2.6.0",
     "graphql": "^14.2.1",
     "react": "^16.8.6"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
     "@apollo/react-components": "file:../components",
-    "ts-invariant": "^0.4.0",
+    "ts-invariant": "^0.4.2",
     "tslib": "^1.9.3"
   },
   "files": [
