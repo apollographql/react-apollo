@@ -1,5 +1,5 @@
 {
-  "name": "ssr",
+  "name": "ssr-hoc",
   "private": true,
   "scripts": {
     "start": "meteor run",
@@ -21,8 +21,8 @@
     "graphql-tools": "^4.0.4",
     "meteor-node-stubs": "^0.4.1",
     "node-fetch": "^2.6.0",
-    "react": "../../node_modules/react",
-    "react-dom": "../../node_modules/react-dom"
+    "react": "../../../node_modules/react",
+    "react-dom": "../../../node_modules/react-dom"
   },
   "devDependencies": {
     "assert": "2.0.0",
