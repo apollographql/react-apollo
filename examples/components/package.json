@@ -2,21 +2,22 @@
   "name": "components",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "apollo-boost": "^0.4.0",
-    "graphql-tag": "^2.9.2",
-    "react": "^16.5.2",
-    "react-apollo": "../../lib",
-    "react-dom": "^16.5.2",
-    "react-scripts": "2.1.8"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
+  "dependencies": {
+    "@apollo/react-components": "beta",
+    "apollo-boost": "^0.4.0",
+    "graphql-tag": "^2.10.1",
+    "react": "../../node_modules/react",
+    "react-dom": "../../node_modules/react-dom",
+    "react-scripts": "2.1.8"
+  },
   "devDependencies": {
+    "@apollo/react-testing": "beta",
     "react-testing-library": "6.1.2"
   },
   "browserslist": [

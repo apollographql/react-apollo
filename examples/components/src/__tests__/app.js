@@ -1,14 +1,13 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { MockedProvider } from 'react-apollo/test-utils';
-import { render, wait, cleanup } from 'react-testing-library';
+import { MockedProvider } from '@apollo/react-testing';
+import { render, wait } from 'react-testing-library';
 
 import App, { HERO_QUERY } from '../app';
 import { full } from '../__mocks__/data';
 
 const request = {
   query: HERO_QUERY,
-  variables: { episode: 'EMPIRE' },
+  variables: { episode: 'EMPIRE' }
 };
 
 const mocks = [
@@ -16,17 +15,17 @@ const mocks = [
     request,
     result: {
       data: {
-        hero: full,
-      },
-    },
-  },
+        hero: full
+      }
+    }
+  }
 ];
 
 const mocksWithError = [
   {
     request,
-    error: new Error('Something went wrong'),
-  },
+    error: new Error('Something went wrong')
+  }
 ];
 
 describe('App', () => {
@@ -34,7 +33,7 @@ describe('App', () => {
     const { container } = render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <App episode="EMPIRE" />
-      </MockedProvider>,
+      </MockedProvider>
     );
 
     expect(container).toMatchSnapshot();
@@ -44,7 +43,7 @@ describe('App', () => {
     const { queryByText, container } = render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <App episode="EMPIRE" />
-      </MockedProvider>,
+      </MockedProvider>
     );
 
     await waitUntilLoadingIsFinished(queryByText);
@@ -56,7 +55,7 @@ describe('App', () => {
     const { queryByText, container } = render(
       <MockedProvider mocks={mocksWithError} addTypename={false}>
         <App episode="EMPIRE" />
-      </MockedProvider>,
+      </MockedProvider>
     );
 
     await waitUntilLoadingIsFinished(queryByText);

@@ -1,13 +1,13 @@
 import React from 'react';
-
 import { render } from 'react-testing-library';
+
 import Character from '../Character';
 
 import {
   empty,
   hero_no_friends,
   empty_array_friends,
-  friend_without_appearsIn,
+  friend_without_appearsIn
 } from '../__mocks__/data';
 
 describe('Character', () => {
