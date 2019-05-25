@@ -104,13 +104,15 @@ describe('SSR', () => {
       const app = (
         <ApolloProvider client={client}>
           <Query query={query} errorPolicy="all">
-            {({ data, error }: any) => {
-              expect(data).toMatchObject({ allPeople: { people: null } });
-              expect(error).toBeDefined();
-              expect(error.graphQLErrors[0].message).toEqual(
-                'this is an error'
-              );
-              done();
+            {({ loading, data, error }: any) => {
+              if (!loading) {
+                expect(data).toMatchObject({ allPeople: { people: null } });
+                expect(error).toBeDefined();
+                expect(error.graphQLErrors[0].message).toEqual(
+                  'this is an error'
+                );
+                done();
+              }
               return null;
             }}
           </Query>

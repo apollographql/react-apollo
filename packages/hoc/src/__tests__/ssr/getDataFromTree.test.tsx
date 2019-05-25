@@ -914,24 +914,30 @@ describe('SSR', () => {
         data: DataValue<Data>;
       }
 
-      const withQuery = graphql<QueryProps, Data, {}, QueryChildProps>(query, {
-        options: () => ({ ssr: true }),
-        props: ({ data }) => {
-          expect(data!.refetch).toBeTruthy();
-          return {
-            refetchQuery: data!.refetch,
-            data: data!
-          };
+      const withQuery = graphql<QueryProps, Data, {}, QueryChildProps | null>(
+        query,
+        {
+          options: () => ({ ssr: true }),
+          props: ({ data }) => {
+            if (data!.loading) return null;
+            expect(data!.refetch).toBeTruthy();
+            return {
+              refetchQuery: data!.refetch,
+              data: data!
+            };
+          }
         }
-      });
+      );
 
       const withMutation = graphql<
         QueryChildProps,
         {},
         {},
-        { action: (variables: {}) => Promise<any> }
+        { action: (variables: {}) => Promise<any> } | null
       >(mutation, {
         props: ({ ownProps, mutate }: any) => {
+          if (ownProps.loading || typeof ownProps.loading === 'undefined')
+            return null;
           expect(ownProps.refetchQuery).toBeTruthy();
           return {
             action(variables: {}) {
@@ -945,7 +951,7 @@ describe('SSR', () => {
         QueryChildProps & { action: (variables: {}) => Promise<any> }
       > = ({ data }) => (
         <div>
-          {data.loading || !data.currentUser
+          {!data || data.loading || !data.currentUser
             ? 'loading'
             : data.currentUser.firstName}
         </div>
