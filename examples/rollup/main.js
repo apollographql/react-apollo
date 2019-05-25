@@ -3,13 +3,13 @@ import ReactDOM from 'react-dom';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
-import { Query, ApolloProvider } from 'react-apollo';
+import { useQuery, ApolloProvider } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({
-    uri: 'http://localhost:4000/graphql',
+    uri: 'http://localhost:4000/graphql'
   })
 });
 
@@ -34,17 +34,18 @@ function toggle() {
   });
 }
 
+const Query = () => {
+  const { data } = useQuery(IS_LOGGED_IN);
+  return [
+    'logged ' + (data.isLoggedIn ? 'in' : 'out'),
+    <br />,
+    <button onClick={toggle}>log {data.isLoggedIn ? 'out' : 'in'}</button>
+  ];
+};
+
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <Query query={IS_LOGGED_IN}>
-      {({data}) => [
-        "logged " + (data.isLoggedIn ? "in" : "out"),
-        <br/>,
-        <button onClick={toggle}>
-          log {data.isLoggedIn ? "out" : "in"}
-        </button>,
-      ]}
-    </Query>
+    <Query />
   </ApolloProvider>,
-  document.getElementById('root'),
+  document.getElementById('root')
 );

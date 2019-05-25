@@ -20,66 +20,68 @@ const sourceMapLoaderPlugin = {
         });
         return {
           code: fs.readFileSync(id, 'utf8'),
-          map: map,
+          map: map
         };
       } catch (e) {
-        console.log("failed to find source map for " + id);
+        console.log('failed to find source map for ' + id);
       }
     }
     return null;
-  },
+  }
 };
 
-function build({
-  outputPrefix,
-  externals = [],
-}) {
+function build({ outputPrefix, externals = [] }) {
   return {
-    input: "main.js",
+    input: 'main.js',
     output: {
-      file: outputPrefix + ".min.js",
-      format: "cjs",
-      sourcemap: true,
+      file: outputPrefix + '.min.js',
+      format: 'cjs',
+      sourcemap: true
     },
     external(id) {
       return externals.indexOf(id) >= 0;
     },
     plugins: [
       node({
-        module: true,
+        module: true
       }),
       replace({
         // It's important to replace process.env.NODE_ENV earlier in the Rollup
         // pipeline (as well as later, during minification), so Rollup can prune
         // the module dependency graph using this information.
-        "process.env.NODE_ENV": JSON.stringify("production"),
+        'process.env.NODE_ENV': JSON.stringify('production')
       }),
       sourceMapLoaderPlugin,
       babel({
-        exclude: "node_modules/**",
-        presets: [
-          require("@babel/preset-react"),
-        ],
+        exclude: 'node_modules/**',
+        presets: [require('@babel/preset-react')]
       }),
       cjs({
         namedExports: {
-          "node_modules/react/index.js": [
-            "Component",
-            "createElement",
-            "Children",
+          'node_modules/react/index.js': [
+            'Component',
+            'createElement',
+            'Children'
           ],
-          "node_modules/prop-types/index.js": [
-            "any",
-            "arrayOf",
-            "bool",
-            "func",
-            "node",
-            "number",
-            "object",
-            "oneOfType",
-            "string",
+          'node_modules/prop-types/index.js': [
+            'any',
+            'arrayOf',
+            'bool',
+            'func',
+            'node',
+            'number',
+            'object',
+            'oneOfType',
+            'string'
           ],
-        },
+          'node_modules/react/index.js': [
+            'useContext',
+            'useReducer',
+            'useRef',
+            'useEffect',
+            'useState'
+          ]
+        }
       }),
       minify({
         mangle: {
@@ -88,11 +90,11 @@ function build({
         compress: {
           dead_code: true,
           global_defs: {
-            "@process.env.NODE_ENV": JSON.stringify("production"),
-          },
-        },
-      }),
-    ],
+            '@process.env.NODE_ENV': JSON.stringify('production')
+          }
+        }
+      })
+    ]
   };
 }
 
@@ -102,11 +104,11 @@ export default [
     // would dwarf the Apollo and graphql-js packages, and there's not much we
     // can do about how large they are, since they ship their own minified
     // production builds.
-    externals: ["react", "react-dom"],
-    outputPrefix: "app-without-react",
+    externals: ['react', 'react-dom'],
+    outputPrefix: 'app-without-react'
   }),
   build({
     externals: [],
-    outputPrefix: "app-with-react",
-  }),
+    outputPrefix: 'app-with-react'
+  })
 ];
