@@ -53,9 +53,9 @@ export class QueryData<TData, TVariables> extends OperationData {
     }
 
     const finish = () => this.getQueryResult();
-
     if (this.context && this.context.renderPromises) {
-      return this.context.renderPromises.addQueryPromise(this, finish);
+      const result = this.context.renderPromises.addQueryPromise(this, finish);
+      return result || { loading: true, networkStatus: NetworkStatus.loading };
     }
 
     return finish();
