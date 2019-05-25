@@ -1,8 +1,8 @@
 export {
-  getApolloContext,
-  resetApolloContext,
   ApolloProvider,
-  ApolloConsumer
+  ApolloConsumer,
+  getApolloContext,
+  resetApolloContext
 } from '@apollo/react-common';
 
 export { Query } from './Query';

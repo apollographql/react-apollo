@@ -1,4 +1,9 @@
-export { ApolloProvider } from '@apollo/react-common';
+export {
+  ApolloProvider,
+  ApolloConsumer,
+  getApolloContext,
+  resetApolloContext
+} from '@apollo/react-common';
 
 export { useQuery } from './useQuery';
 export { useMutation } from './useMutation';
