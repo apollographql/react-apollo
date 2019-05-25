@@ -70,7 +70,7 @@
     {
       "name": "@apollo/react-hoc",
       "path": "./packages/hoc/meta/bundlesize/bundlesize.js",
-      "maxSize": "1.5 KB"
+      "maxSize": "1.6 KB"
     },
     {
       "name": "@apollo/react-hooks",
