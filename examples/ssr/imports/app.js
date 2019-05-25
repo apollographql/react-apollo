@@ -1,4 +1,4 @@
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/react-hoc';
 import gql from 'graphql-tag';
 
 const HERO_QUERY = gql`
@@ -17,9 +17,9 @@ const HERO_QUERY = gql`
 
 const withCharacter = graphql(HERO_QUERY, {
   options: ({ episode }) => ({
-    variables: { episode },
+    variables: { episode }
   }),
-  props: ({ data }) => ({ ...data }),
+  props: ({ data }) => ({ ...data })
 });
 
 export const Character = withCharacter(({ loading, hero, error }) => {
@@ -33,7 +33,8 @@ export const Character = withCharacter(({ loading, hero, error }) => {
 
           {hero.friends.map(friend => (
             <h6 key={friend.id}>
-              {friend.name}: {friend.appearsIn.map(x => x.toLowerCase()).join(', ')}
+              {friend.name}:{' '}
+              {friend.appearsIn.map(x => x.toLowerCase()).join(', ')}
             </h6>
           ))}
         </div>
