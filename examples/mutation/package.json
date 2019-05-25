@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/react-components": "beta",
     "apollo-boost": "^0.4.0",
     "graphql": "^14.0.2",
-    "react": "^16.5.2",
-    "react-dom": "^16.5.2",
-    "react-scripts": "2.1.8",
-    "react-apollo": "../../lib"
+    "graphql-tag": "^2.10.1",
+    "react": "../../node_modules/react",
+    "react-dom": "../../node_modules/react-dom",
+    "react-scripts": "2.1.8"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -17,6 +18,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
+    "@apollo/react-testing": "beta",
     "react-testing-library": "6.1.2"
   },
   "browserslist": [
