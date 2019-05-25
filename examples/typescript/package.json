@@ -3,20 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/react-components": "beta",
     "apollo-cache-inmemory": "latest",
     "apollo-client": "latest",
     "apollo-link-http": "latest",
-    "graphql-tag": "^2.6.1",
-    "react": "^16.2.0",
-    "react-apollo": "file:../..",
-    "react-dom": "^16.2.0"
+    "graphql-tag": "^2.10.1",
+    "react": "../../node_modules/react",
+    "react-dom": "../../node_modules/react-dom"
   },
   "devDependencies": {
     "@types/graphql": "14.2.0",
     "@types/jest": "24.0.13",
-    "@types/node": "11.13.11",
+    "@types/node": "12.0.2",
     "@types/prop-types": "15.7.1",
-    "@types/react": "16.8.12",
+    "@types/react": "16.8.18",
     "@types/react-dom": "16.8.4",
     "@types/react-test-renderer": "16.8.1",
     "apollo-codegen": "0.20.2",

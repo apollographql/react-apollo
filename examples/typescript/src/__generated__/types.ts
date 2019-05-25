@@ -5,7 +5,7 @@
 export enum Episode {
   NEWHOPE = 'NEWHOPE', // Star Wars Episode IV: A New Hope, released in 1977.
   EMPIRE = 'EMPIRE', // Star Wars Episode V: The Empire Strikes Back, released in 1980.
-  JEDI = 'JEDI', // Star Wars Episode VI: Return of the Jedi, released in 1983.
+  JEDI = 'JEDI' // Star Wars Episode VI: Return of the Jedi, released in 1983.
 }
 
 export interface GetCharacterQueryVariables {
