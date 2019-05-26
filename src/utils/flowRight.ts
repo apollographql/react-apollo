@@ -1,4 +1,8 @@
-export function compose(...funcs: Function[]) {
+interface ComponentEnhancer<TInner, TOuter> {
+  (component: Component<TInner>): ComponentClass<TOuter>;
+}
+
+export function compose<TInner, TOuter>(...funcs: Function[]): ComponentEnhancer<TInner, TOuter> {
   const functions = funcs.reverse();
   return function (...args: any[]) {
     const [firstFunction, ...restFunctions] = functions
