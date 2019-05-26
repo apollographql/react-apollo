@@ -1,3 +1,5 @@
+import { ComponentType as Component, ComponentClass } from 'react';
+
 interface ComponentEnhancer<TInner, TOuter> {
   (component: Component<TInner>): ComponentClass<TOuter>;
 }
