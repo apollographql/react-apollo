@@ -5,9 +5,9 @@ import { getApolloContext } from '@apollo/react-common';
 export function useApolloClient() {
   const { client } = React.useContext(getApolloContext());
   invariant(
-    !client,
+    client,
     'No Apollo Client instance can be found. Please ensure that you ' +
-      'have called `ApolloProvider` higher up in your tree.',
+      'have called `ApolloProvider` higher up in your tree.'
   );
   return client;
 }
