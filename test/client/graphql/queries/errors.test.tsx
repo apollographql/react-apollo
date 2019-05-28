@@ -280,13 +280,17 @@ describe('[queries] errors', () => {
                 break;
               case 1:
                 // Noop. Don’t handle the error so a warning will be logged to the console.
+                expect(renderCount).toBe(2);
+                expect(errorMock.mock.calls.length).toBe(0);
+                resolve();
                 break;
               default:
                 throw new Error('Too many renders.');
             }
           } catch (error) {
-            console.error = origError;
             reject(error);
+          } finally {
+            console.error = origError;
           }
           return null;
         }
