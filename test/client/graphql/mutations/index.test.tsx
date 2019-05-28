@@ -45,9 +45,55 @@ describe('graphql(mutation)', () => {
   });
 
   it('binds a mutation to props', () => {
-    const ContainerWithData = graphql(query)(({ mutate }) => {
+    const ContainerWithData = graphql(query)(({ mutate, result }) => {
       expect(mutate).toBeTruthy();
+      expect(result).toBeTruthy();
       expect(typeof mutate).toBe('function');
+      expect(typeof result).toBe('object');
+      return null;
+    });
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ContainerWithData />
+      </ApolloProvider>,
+    );
+  });
+
+  it('binds a mutation result to props', () => {
+    type InjectedProps = {
+      result: any;
+    };
+
+    const ContainerWithData = graphql<{}, Data, Variables, InjectedProps>(query)(({ result }) => {
+      const { loading, error } = result;
+      expect(result).toBeTruthy();
+      expect(typeof loading).toBe('boolean');
+      expect(error).toBeFalsy();
+
+      return null;
+    });
+
+    renderer.create(
+      <ApolloProvider client={client}>
+        <ContainerWithData />
+      </ApolloProvider>,
+    );
+  });
+
+  it('binds a mutation to props with a custom name', () => {
+    interface Props {};
+
+    type InjectedProps = {
+      customMutation: any;
+      customMutationResult: any;
+    };
+
+    const ContainerWithData = graphql<Props, Data, Variables, InjectedProps>(query, { name: 'customMutation' })(({ customMutation, customMutationResult }) => {
+      expect(customMutation).toBeTruthy();
+      expect(customMutationResult).toBeTruthy();
+      expect(typeof customMutation).toBe('function');
+      expect(typeof customMutationResult).toBe('object');
       return null;
     });
 
