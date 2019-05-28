@@ -96,7 +96,7 @@ export interface DataProps<TData, TGraphQLVariables = OperationVariables> {
 // export to allow usage individually for simple components
 export interface MutateProps<TData = any, TGraphQLVariables = OperationVariables> {
   mutate: MutationFn<TData, TGraphQLVariables>;
-  result: MutationResult<TData>
+  result: MutationResult<TData>;
 }
 
 export type ChildProps<TProps = {}, TData = {}, TGraphQLVariables = OperationVariables> = TProps &
