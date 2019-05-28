@@ -1,5 +1,12 @@
 # Change log
 
+## vNext
+
+### Bug Fixes
+
+- Removed leftover `apollo-client@beta` peer dep.  <br/>
+  [@brentertz](https://github.com/brentertz) in [#3064](https://github.com/apollographql/react-apollo/pull/3064)
+
 ## 2.5.6 (2019-05-22)
 
 ### Improvements
