@@ -7,6 +7,9 @@
 - Make sure `MockedProvider` is using the proper CJS/ESM bundle, when 
   referencing `ApolloProvider`.  <br/>
   [@jure](https://github.com/jure) in [#3029](https://github.com/apollographql/react-apollo/pull/3029).
+- Adjust the `ApolloContext` definition to play a bit more nicely with 
+  `React.createContext` types.  <br/>
+  [@JoviDeCroock](https://github.com/JoviDeCroock) in [#3018](https://github.com/apollographql/react-apollo/pull/3018)
 
 ### Bug Fixes
 
