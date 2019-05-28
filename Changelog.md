@@ -17,6 +17,9 @@
   [@brentertz](https://github.com/brentertz) in [#3064](https://github.com/apollographql/react-apollo/pull/3064)
 - Stop setting optional input to `null`, when using the `graphql` HOC.  <br/>
   [@ZhengYuTay](https://github.com/ZhengYuTay) in [#3056](https://github.com/apollographql/react-apollo/pull/3056)
+- Fix typescript error caused by `query` being mandatory in the `fetchMore`
+  signature.  <br/>
+  [@HsuTing](https://github.com/HsuTing) in [#3065](https://github.com/apollographql/react-apollo/pull/3065)
 
 
 ## 2.5.6 (2019-05-22)
