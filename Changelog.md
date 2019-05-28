@@ -2,6 +2,12 @@
 
 ## vNext
 
+### Improvements
+
+- Make sure `MockedProvider` is using the proper CJS/ESM bundle, when 
+  referencing `ApolloProvider`.  <br/>
+  [@jure](https://github.com/jure) in [#3029](https://github.com/apollographql/react-apollo/pull/3029).
+
 ### Bug Fixes
 
 - Removed leftover `apollo-client@beta` peer dep.  <br/>
