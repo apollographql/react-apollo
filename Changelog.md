@@ -10,6 +10,9 @@
 - Adjust the `ApolloContext` definition to play a bit more nicely with 
   `React.createContext` types.  <br/>
   [@JoviDeCroock](https://github.com/JoviDeCroock) in [#3018](https://github.com/apollographql/react-apollo/pull/3018)
+- The result of a mutation is now made available to the wrapped component, 
+  when using the `graphql` HOC.  <br/>
+  [@andycarrell](https://github.com/andycarrell) in [#3008](https://github.com/apollographql/react-apollo/pull/3008) 
 
 ### Bug Fixes
 
