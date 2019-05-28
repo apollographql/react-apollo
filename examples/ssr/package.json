@@ -25,7 +25,7 @@
     "react-dom": "^16.5.2"
   },
   "devDependencies": {
-    "assert": "1.4.1",
+    "assert": "1.5.0",
     "babel-plugin-transform-react-require": "1.0.1",
     "babel-preset-react": "6.24.1",
     "cheerio": "1.0.0-rc.3",

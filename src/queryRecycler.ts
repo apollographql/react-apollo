@@ -48,6 +48,7 @@ export class ObservableQueryRecycler {
     // Stop the query from polling when we recycle. Polling may resume when we
     // reuse it and call `setOptions`.
     observableQuery.setOptions({
+      query: observableQuery.options.query,
       fetchPolicy: 'standby',
       pollInterval: 0,
       fetchResults: false, // ensure we don't create another observer in AC
