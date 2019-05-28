@@ -27,7 +27,7 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
     fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> & FetchMoreOptions<TData, TVariables>,
   ) => Promise<ApolloQueryResult<TData>>) &
     (<TData2, TVariables2, K extends keyof TVariables2>(
-      fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<TVariables2, K> &
+      fetchMoreOptions: { query?: DocumentNode } & FetchMoreQueryOptions<TVariables2, K> &
         FetchMoreOptions<TData2, TVariables2>,
     ) => Promise<ApolloQueryResult<TData2>>);
 };
@@ -103,6 +103,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     variables: PropTypes.object,
     ssr: PropTypes.bool,
     partialRefetch: PropTypes.bool,
+    returnPartialData: PropTypes.bool,
   };
 
   context: QueryContext | undefined;

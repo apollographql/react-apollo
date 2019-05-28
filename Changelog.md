@@ -1,5 +1,80 @@
 # Change log
 
+## vNext
+
+### Improvements
+
+- Make sure `MockedProvider` is using the proper CJS/ESM bundle, when 
+  referencing `ApolloProvider`.  <br/>
+  [@jure](https://github.com/jure) in [#3029](https://github.com/apollographql/react-apollo/pull/3029).
+- Adjust the `ApolloContext` definition to play a bit more nicely with 
+  `React.createContext` types.  <br/>
+  [@JoviDeCroock](https://github.com/JoviDeCroock) in [#3018](https://github.com/apollographql/react-apollo/pull/3018)
+
+### Bug Fixes
+
+- Removed leftover `apollo-client@beta` peer dep.  <br/>
+  [@brentertz](https://github.com/brentertz) in [#3064](https://github.com/apollographql/react-apollo/pull/3064)
+- Stop setting optional input to `null`, when using the `graphql` HOC.  <br/>
+  [@ZhengYuTay](https://github.com/ZhengYuTay) in [#3056](https://github.com/apollographql/react-apollo/pull/3056)
+- Fix typescript error caused by `query` being mandatory in the `fetchMore`
+  signature.  <br/>
+  [@HsuTing](https://github.com/HsuTing) in [#3065](https://github.com/apollographql/react-apollo/pull/3065)
+
+
+## 2.5.6 (2019-05-22)
+
+### Improvements
+
+- Both the `Query` component and `graphql` HOC now accept a
+  `returnPartialData` prop. This is an important new feature, that should
+  help address a lot of open Apollo Client / React Apollo issues, so we'll
+  explain it here with an example. Before this release, if you run a query
+  that looks like:
+
+  ```js
+  const GET_MEMBER = gql`
+    query GetMember($id: ID!) {
+      member(id: $id) {
+        id
+        name
+      }
+    }
+  `;
+  ```
+
+  in one component, the results are cached, then you run a superset query like
+  the following in another component:
+
+  ```js
+  const GET_MEMBER_WITH_PLANS = gql`
+    query GetMemberWithPlans($id: ID!) {
+      member(id: $id) {
+        id
+        name
+        plans {
+          id
+          title
+          duration
+        }
+      }
+    }
+  `;
+  ```
+
+  Apollo Client will not re-use the partial data that was cached from the first
+  query, when it preps and displays the second component. It can't find a
+  cache hit for the full second query, so it fires the full query over the
+  network.
+
+  With this release, if you set a `returnPartialData` prop to `true` on the
+  second component, the `data` available to that component will be
+  automatically pre-loaded with the parts of the query that can be found in the
+  cache, before the full query is fired over the network. This means you can
+  do things like showing partial data in your components, while the rest of the
+  data is being loaded over the network.
+
+
 ## 2.5.5 (2019-04-22)
 
 ### Improvements
