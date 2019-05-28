@@ -6,6 +6,9 @@
 
 - Removed leftover `apollo-client@beta` peer dep.  <br/>
   [@brentertz](https://github.com/brentertz) in [#3064](https://github.com/apollographql/react-apollo/pull/3064)
+- Stop setting optional input to `null`, when using the `graphql` HOC.  <br/>
+  [@ZhengYuTay](https://github.com/ZhengYuTay) in [#3056](https://github.com/apollographql/react-apollo/pull/3056)
+
 
 ## 2.5.6 (2019-05-22)
 
