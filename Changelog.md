@@ -13,6 +13,9 @@
 - The result of a mutation is now made available to the wrapped component, 
   when using the `graphql` HOC.  <br/>
   [@andycarrell](https://github.com/andycarrell) in [#3008](https://github.com/apollographql/react-apollo/pull/3008) 
+- Check equality of stringified variables in the `MockLink` to improve
+  debugging experience used by `MockedProvider`.  <br/>
+  [@evans](https://github.com/evans) in [#3078](https://github.com/apollographql/react-apollo/pull/3078)
 
 ### Bug Fixes
 
