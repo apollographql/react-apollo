@@ -6,6 +6,7 @@ export {
 } from '@apollo/react-common';
 
 export { useQuery } from './useQuery';
+export { useQueryLoader } from './useQueryLoader';
 export { useMutation } from './useMutation';
 export { useSubscription } from './useSubscription';
 export { useApolloClient } from './useApolloClient';

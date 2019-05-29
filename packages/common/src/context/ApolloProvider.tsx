@@ -2,15 +2,17 @@ import React from 'react';
 import ApolloClient from 'apollo-client';
 import { invariant } from 'ts-invariant';
 
-import { getApolloContext } from './ApolloContext';
+import { getApolloContext, ApolloContextOptions } from './ApolloContext';
 
 export interface ApolloProviderProps<TCache> {
   client: ApolloClient<TCache>;
   children: React.ReactNode | React.ReactNode[] | null;
+  options?: ApolloContextOptions;
 }
 
 export const ApolloProvider: React.FC<ApolloProviderProps<any>> = ({
   client,
+  options,
   children
 }) => {
   const ApolloContext = getApolloContext();
@@ -19,6 +21,9 @@ export const ApolloProvider: React.FC<ApolloProviderProps<any>> = ({
       {(context = {}) => {
         if (client) {
           context.client = client;
+        }
+        if (options) {
+          context.options = options;
         }
 
         invariant(

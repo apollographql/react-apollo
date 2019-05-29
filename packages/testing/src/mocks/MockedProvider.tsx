@@ -2,7 +2,7 @@ import React from 'react';
 import { ApolloClient, DefaultOptions, Resolvers } from 'apollo-client';
 import { ApolloCache } from 'apollo-cache';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { ApolloProvider } from '@apollo/react-common';
+import { ApolloProvider, ApolloContextOptions } from '@apollo/react-common';
 
 import { MockLink } from './mockLink';
 import { MockedResponse } from './types';
@@ -15,6 +15,7 @@ export interface MockedProviderProps<TSerializedCache = {}> {
   resolvers?: Resolvers;
   childProps?: object;
   children?: React.ReactElement;
+  contextOptions?: ApolloContextOptions;
 }
 
 export interface MockedProviderState {
@@ -44,9 +45,9 @@ export class MockedProvider extends React.Component<
   }
 
   public render() {
-    const { children, childProps } = this.props;
+    const { children, childProps, contextOptions } = this.props;
     return children ? (
-      <ApolloProvider client={this.state.client}>
+      <ApolloProvider client={this.state.client} options={contextOptions}>
         {React.cloneElement(React.Children.only(children), { ...childProps })}
       </ApolloProvider>
     ) : null;

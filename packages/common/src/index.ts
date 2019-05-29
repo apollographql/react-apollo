@@ -1,5 +1,6 @@
 export {
   ApolloContextValue,
+  ApolloContextOptions,
   getApolloContext,
   resetApolloContext
 } from './context/ApolloContext';
