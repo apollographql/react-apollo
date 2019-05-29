@@ -12,6 +12,7 @@ import { OperationDefinitionNode } from 'graphql';
 
 import { LatestNews } from './LatestNews';
 import { RocketInventoryList } from './RocketInventoryList';
+import { RocketDetail } from './RocketDetail';
 import { NewRocketForm } from './NewRocketForm';
 
 const httpLink = new HttpLink({
@@ -60,13 +61,32 @@ function App() {
       </Row>
       <LatestNews />
       <RocketInventoryList />
+      <RocketDetail rocketId={1} />
       <NewRocketForm />
     </Container>
   );
 }
 
+// These components are used by the useQueryLoader() hook
+function Loader() {
+  return <div>Loading...</div>;
+}
+function ErrorMessage({ errorObject }: { errorObject: Error }) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const message = isProd ? 'An internal error occurred' : errorObject.message;
+  if (!isProd) {
+    console.log('Apollo GraphQL error: ', errorObject);
+  }
+  return <div>{message}</div>;
+}
+
+const options = {
+  defaultLoadingComponent: Loader,
+  defaultErrorComponent: ErrorMessage
+};
+
 ReactDOM.render(
-  <ApolloProvider client={client}>
+  <ApolloProvider client={client} options={options}>
     <App />
   </ApolloProvider>,
   document.getElementById('root')

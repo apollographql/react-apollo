@@ -24,6 +24,7 @@ const typeDefs = gql`
 
   type Query {
     rocketInventory: [RocketInventory]
+    rocket(id: ID!): RocketInventory
   }
 
   type Mutation {
@@ -70,6 +71,10 @@ const resolvers = {
   Query: {
     rocketInventory() {
       return rocketInventoryData;
+    },
+    rocket(_, { id }) {
+      id = parseInt(id);
+      return rocketInventoryData.find(r => r.id === id);
     }
   },
 
