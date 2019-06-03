@@ -1,7 +1,12 @@
 import React from 'react';
 import { DocumentNode } from 'graphql';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { parser, BaseMutationOptions } from '@apollo/react-common';
+import {
+  parser,
+  BaseMutationOptions,
+  MutationFunction,
+  MutationResult
+} from '@apollo/react-common';
 import { Mutation } from '@apollo/react-components';
 
 import {
@@ -62,9 +67,23 @@ export function withMutation<
 
         return (
           <Mutation {...opts} mutation={document} ignoreResults>
-            {(mutate: any, _result: any) => {
+            {(
+              mutate: MutationFunction<TData, TGraphQLVariables>,
+              { data, ...r }: MutationResult<TData>
+            ) => {
+              // the HOC's historically hoisted the data from the execution result
+              // up onto the result since it was passed as a nested prop
+              // we massage the Mutation component's shape here to replicate that
+              // this matches the query HoC
+              const result = Object.assign(r, data || {});
               const name = operationOptions.name || 'mutate';
-              let childProps = { [name]: mutate };
+              const resultName = operationOptions.name
+                ? `${name}Result`
+                : 'result';
+              let childProps = {
+                [name]: mutate,
+                [resultName]: result
+              };
               if (operationOptions.props) {
                 const newResult: OptionProps<
                   TProps,
@@ -72,6 +91,7 @@ export function withMutation<
                   TGraphQLVariables
                 > = {
                   [name]: mutate,
+                  [resultName]: result,
                   ownProps: props
                 };
                 childProps = operationOptions.props(newResult) as any;

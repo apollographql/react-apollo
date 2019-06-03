@@ -10,7 +10,8 @@ import {
   OperationVariables,
   MutationFunction,
   BaseQueryOptions,
-  BaseMutationOptions
+  BaseMutationOptions,
+  MutationResult
 } from '@apollo/react-common';
 
 export interface QueryControls<
@@ -50,6 +51,7 @@ export interface MutateProps<
   TGraphQLVariables = OperationVariables
 > {
   mutate: MutationFunction<TData, TGraphQLVariables>;
+  result: MutationResult<TData>;
 }
 
 export type ChildProps<
