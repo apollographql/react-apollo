@@ -90,8 +90,6 @@ export class MutationData<
     } = this.options;
     const mutateOptions = { ...mutationFunctionOptions };
 
-    let refetchQueries =
-      mutateOptions.refetchQueries || this.options.refetchQueries;
     const mutateVariables = Object.assign(
       {},
       variables,
@@ -102,7 +100,8 @@ export class MutationData<
     return this.refreshClient().client.mutate({
       mutation,
       optimisticResponse,
-      refetchQueries,
+      refetchQueries:
+        mutateOptions.refetchQueries || this.options.refetchQueries,
       awaitRefetchQueries,
       update,
       context: mutationContext,
