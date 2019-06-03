@@ -235,7 +235,7 @@ describe('[queries] api', () => {
         }
       }
     `;
-    const vars1 = { cursor: null };
+    const vars1 = { cursor: undefined };
     const data1 = {
       allPeople: { cursor: 1, people: [{ name: 'Luke Skywalker' }] }
     };

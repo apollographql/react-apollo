@@ -28,7 +28,7 @@ export function calculateVariablesFromProps<TProps>(
 
     // Allow optional props
     if (type.kind !== 'NonNullType') {
-      variables[variableName] = null;
+      variables[variableName] = undefined;
     }
   }
   return variables;
