@@ -17,6 +17,7 @@
     "clean": "rm -Rf ./node_modules ./meta && npx lerna exec -- npm run clean"
   },
   "dependencies": {
+    "react-apollo": "file:./packages/all",
     "@apollo/react-common": "file:./packages/common",
     "@apollo/react-components": "file:./packages/components",
     "@apollo/react-hoc": "file:./packages/hoc",
@@ -57,6 +58,11 @@
     "zen-observable-ts": "^0.8.18"
   },
   "bundlesize": [
+    {
+      "name": "react-apollo",
+      "path": "./packages/all/meta/bundlesize/bundlesize.js",
+      "maxSize": "5.4 KB"
+    },
     {
       "name": "@apollo/react-common",
       "path": "./packages/common/meta/bundlesize/bundlesize.js",
