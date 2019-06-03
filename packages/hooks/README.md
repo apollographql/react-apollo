@@ -28,9 +28,8 @@ npm install @apollo/react-hooks
 
 ### Hooks Overview
 
-<a name="useQuery">
+<a name="useQuery"></a>
 #### a) [`useQuery`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useQuery.ts)
-</a>
 
 **Function:**
 
@@ -43,21 +42,23 @@ export function useQuery<TData = any, TVariables = OperationVariables>(
 
 **Options:**
 
-- query?: DocumentNode;
-- displayName?: string;
-- skip?: boolean;
-- onCompleted?: (data: TData) => void;
-- onError?: (error: ApolloError) => void;
-- ssr?: boolean;
-- variables?: TVariables;
-- fetchPolicy?: WatchQueryFetchPolicy;
-- errorPolicy?: ErrorPolicy;
-- pollInterval?: number;
-- client?: ApolloClient<any>;
-- notifyOnNetworkStatusChange?: boolean;
-- context?: Context;
-- partialRefetch?: boolean;
-- returnPartialData?: boolean
+```ts
+query?: DocumentNode;
+displayName?: string;
+skip?: boolean;
+onCompleted?: (data: TData) => void;
+onError?: (error: ApolloError) => void;
+ssr?: boolean;
+variables?: TVariables;
+fetchPolicy?: WatchQueryFetchPolicy;
+errorPolicy?: ErrorPolicy;
+pollInterval?: number;
+client?: ApolloClient<any>;
+notifyOnNetworkStatusChange?: boolean;
+context?: Context;
+partialRefetch?: boolean;
+returnPartialData?: boolean
+```
 
 **Result:**
 
@@ -120,9 +121,8 @@ export function RocketInventoryList() {
 }
 ```
 
-<a name="useMutation">
+<a name="useMutation"></a>
 #### b) [`useMutation`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useMutation.ts)
-</a>
 
 **Function:**
 
@@ -135,20 +135,22 @@ export function useMutation<TData = any, TVariables = OperationVariables>(
 
 **Options:**
 
-- mutation?: DocumentNode;
-- variables?: TVariables;
-- optimisticResponse?: TData;
-- refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesFunction;
-- awaitRefetchQueries?: boolean;
-- errorPolicy?: ErrorPolicy;
-- update?: MutationUpdaterFn<TData>;
-- client?: ApolloClient<object>;
-- notifyOnNetworkStatusChange?: boolean;
-- context?: Context;
-- onCompleted?: (data: TData) => void;
-- onError?: (error: ApolloError) => void;
-- fetchPolicy?: WatchQueryFetchPolicy;
-- ignoreResults?: boolean;
+```ts
+mutation?: DocumentNode;
+variables?: TVariables;
+optimisticResponse?: TData;
+refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesFunction;
+awaitRefetchQueries?: boolean;
+errorPolicy?: ErrorPolicy;
+update?: MutationUpdaterFn<TData>;
+client?: ApolloClient<object>;
+notifyOnNetworkStatusChange?: boolean;
+context?: Context;
+onCompleted?: (data: TData) => void;
+onError?: (error: ApolloError) => void;
+fetchPolicy?: WatchQueryFetchPolicy;
+ignoreResults?: boolean;
+```
 
 **Result:**
 
@@ -258,9 +260,8 @@ export function NewRocketForm() {
 }
 ```
 
-<a name="useSubscription">
+<a name="useSubscription"></a>
 #### c) [`useSubscription`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useSubscription.ts)
-</a>
 
 **Function:**
 
@@ -273,13 +274,15 @@ export function useSubscription<TData = any, TVariables = OperationVariables>(
 
 **Options:**
 
-- subscription?: DocumentNode;
-- variables?: TVariables;
-- fetchPolicy?: FetchPolicy;
-- shouldResubscribe?: boolean | ((options: BaseSubscriptionOptions<TData, TVariables>) => boolean);
-- client?: ApolloClient<object>;
-- onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
-- onSubscriptionComplete?: () => void;  
+```ts
+subscription?: DocumentNode;
+variables?: TVariables;
+fetchPolicy?: FetchPolicy;
+shouldResubscribe?: boolean | ((options: BaseSubscriptionOptions<TData, TVariables>) => boolean);
+client?: ApolloClient<object>;
+onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
+onSubscriptionComplete?: () => void;
+```
 
 **Example (from the [Hooks demo app](https://github.com/apollographql/react-apollo/tree/release-3.0.0/examples/hooks)):**
 
@@ -307,9 +310,8 @@ export function LatestNews() {
 }
 ```
 
-<a name="useApolloClient">
+<a name="useApolloClient"></a>
 #### d) [`useApolloClient`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useApolloClient.ts)
-</a>
 
 **Function:**
 
