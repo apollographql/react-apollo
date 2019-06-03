@@ -56,7 +56,7 @@ export class MockLink extends ApolloLink {
     mockedResponses.push(normalizedMockedResponse);
   }
 
-  public request(operation: Operation) {
+  public request(operation: Operation): Observable<FetchResult> | null {
     const key = requestToKey(operation, this.addTypename);
     let responseIndex;
     const response = (this.mockedResponsesByKey[key] || []).find(
