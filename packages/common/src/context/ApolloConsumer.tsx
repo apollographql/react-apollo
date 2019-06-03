@@ -1,6 +1,6 @@
 import React from 'react';
 import ApolloClient from 'apollo-client';
-import { InvariantError } from 'ts-invariant';
+import { invariant } from 'ts-invariant';
 
 import { getApolloContext } from './ApolloContext';
 
@@ -13,12 +13,11 @@ export const ApolloConsumer: React.FC<ApolloConsumerProps> = props => {
   return (
     <ApolloContext.Consumer>
       {(context: any) => {
-        if (!context || !context.client) {
-          throw new InvariantError(
-            'Could not find "client" in the context of ApolloConsumer. ' +
-              'Wrap the root component in an <ApolloProvider>.'
-          );
-        }
+        invariant(
+          context && context.client,
+          'Could not find "client" in the context of ApolloConsumer. ' +
+            'Wrap the root component in an <ApolloProvider>.'
+        );
         return props.children(context.client);
       }}
     </ApolloContext.Consumer>
