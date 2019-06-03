@@ -64,7 +64,7 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
       FetchMoreOptions<TData, TVariables>
   ) => Promise<ApolloQueryResult<TData>>) &
     (<TData2, TVariables2, K extends keyof TVariables2>(
-      fetchMoreOptions: { query: DocumentNode } & FetchMoreQueryOptions<
+      fetchMoreOptions: { query?: DocumentNode } & FetchMoreQueryOptions<
         TVariables2,
         K
       > &
