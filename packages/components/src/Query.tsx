@@ -11,17 +11,19 @@ export function Query<TData = any, TVariables = OperationVariables>(
   return props.children && result ? props.children(result) : null;
 }
 
-Query.propTypes = {
-  client: PropTypes.object,
-  children: PropTypes.func.isRequired,
-  fetchPolicy: PropTypes.string,
-  notifyOnNetworkStatusChange: PropTypes.bool,
-  onCompleted: PropTypes.func,
-  onError: PropTypes.func,
-  pollInterval: PropTypes.number,
-  query: PropTypes.object.isRequired,
-  variables: PropTypes.object,
-  ssr: PropTypes.bool,
-  partialRefetch: PropTypes.bool,
-  returnPartialData: PropTypes.bool
-};
+export namespace Query {
+  export const propTypes = {
+    client: PropTypes.object,
+    children: PropTypes.func.isRequired,
+    fetchPolicy: PropTypes.string,
+    notifyOnNetworkStatusChange: PropTypes.bool,
+    onCompleted: PropTypes.func,
+    onError: PropTypes.func,
+    pollInterval: PropTypes.number,
+    query: PropTypes.object.isRequired,
+    variables: PropTypes.object,
+    ssr: PropTypes.bool,
+    partialRefetch: PropTypes.bool,
+    returnPartialData: PropTypes.bool,
+  };
+}

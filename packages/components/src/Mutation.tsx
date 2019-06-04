@@ -11,20 +11,22 @@ export function Mutation<TData = any, TVariables = OperationVariables>(
   return props.children ? props.children(runMutation, result) : null;
 }
 
-Mutation.propTypes = {
-  mutation: PropTypes.object.isRequired,
-  variables: PropTypes.object,
-  optimisticResponse: PropTypes.object,
-  refetchQueries: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.string, PropTypes.object])
-    ),
-    PropTypes.func
-  ]),
-  awaitRefetchQueries: PropTypes.bool,
-  update: PropTypes.func,
-  children: PropTypes.func.isRequired,
-  onCompleted: PropTypes.func,
-  onError: PropTypes.func,
-  fetchPolicy: PropTypes.string
-};
+export namespace Mutation {
+  export const propTypes = {
+    mutation: PropTypes.object.isRequired,
+    variables: PropTypes.object,
+    optimisticResponse: PropTypes.object,
+    refetchQueries: PropTypes.oneOfType([
+      PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+      ),
+      PropTypes.func
+    ]),
+    awaitRefetchQueries: PropTypes.bool,
+    update: PropTypes.func,
+    children: PropTypes.func.isRequired,
+    onCompleted: PropTypes.func,
+    onError: PropTypes.func,
+    fetchPolicy: PropTypes.string,
+  };
+}
