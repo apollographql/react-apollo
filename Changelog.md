@@ -5,30 +5,25 @@
 ### Breaking Changes
 
 - The minimum supported React version is now 16.8.
-- The `react-apollo` 3 package can be used to replicate `react-apollo` 2
-  functionality. In other words the `react-apollo` 3 package gives access to
-  the RA Components and HOC. If you want to use RA's Hooks, Components or HOC
-  directly though, you can use the new `@apollo/react-hooks`,
-  `@apollo/react-components` and/or `@apollo/react-hoc` packages instead.
-  The `react-apollo` package is really just an umbrella package that references
-  the newer `@apollo/react-*` packages as deps.
-- React Apollo testing utilities are no longer available as part of the
-  `react-apollo` package. They can be accessed through the new
-  `@apollo/react-testing` package.
-- The deprecated `walkTree` function has been removed
-  (https://github.com/apollographql/react-apollo/pull/2892/commits/9b24d7567be194c454395365bb5db4fbd7a5caca).
-- The deprecated `GraphqlQueryControls` and `MutationFunc` types have been
-  removed (https://github.com/apollographql/react-apollo/pull/2892/commits/ade881f07b1175d28b0aae79915bfc5ed8dd9e5a).
-- Preact is no longer supported
-  (https://github.com/apollographql/react-apollo/pull/2892/commits/b742ae6382039eac79e050a9b0f54183dafaf4a3).
+
+- The `react-apollo@3` package preserves most of the functionality of `react-apollo@2` by re-exporting existing components and functions from `@apollo/react-components` and `@apollo/react-hoc`. If you want to use Hooks, Components, or HOC directly, import the new `@apollo/react-hooks`, `@apollo/react-components`, and/or `@apollo/react-hoc` packages instead.
+
+- React Apollo testing utilities are no longer available as part of the `react-apollo` package. They should now be imported from the new `@apollo/react-testing` package.
+
+- The deprecated `walkTree` function has been removed ([9b24d756](https://github.com/apollographql/react-apollo/pull/2892/commits/9b24d7567be194c454395365bb5db4fbd7a5caca)).
+
+- The deprecated `GraphqlQueryControls` and `MutationFunc` types have been removed ([ade881f0](https://github.com/apollographql/react-apollo/pull/2892/commits/ade881f07b1175d28b0aae79915bfc5ed8dd9e5a)).
+
+- Preact is no longer supported ([b742ae63](https://github.com/apollographql/react-apollo/pull/2892/commits/b742ae6382039eac79e050a9b0f54183dafaf4a3)).
+
 - Various Typescript type changes. Since we've introduced a third way of
   managing data with React (Hooks), we had to rework many of the existing
   exported types to better align with the Hooks way of doing things. Base types
   are used to hold common properties across Hooks, Components and the `graphql`
   HOC, and these types are then extended when needed to provide properties
   that are specific to a certain React paradigm
-  (https://github.com/apollographql/react-apollo/pull/2892/commits/30edb1b080b64253b9074a5e7347c544618ea2ea and
-  https://github.com/apollographql/react-apollo/pull/2892/commits/3d138db386fe44e35203b991eb6caca0eec19d3d).
+  ([30edb1b0](https://github.com/apollographql/react-apollo/pull/2892/commits/30edb1b080b64253b9074a5e7347c544618ea2ea) and
+  [3d138db3](https://github.com/apollographql/react-apollo/pull/2892/commits/3d138db386fe44e35203b991eb6caca0eec19d3d)).
 
 ### Improvements
 
@@ -36,6 +31,7 @@
   React Apollo's context, assuming it was previously set using
   `ApolloProvider`. <br/>
   [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
+
 - TODO
 
 ## 2.5.6 (2019-05-22)
