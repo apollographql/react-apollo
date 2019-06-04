@@ -35,9 +35,7 @@ export function useSubscription<TData = any, TVariables = OperationVariables>(
   subscriptionData.options = updatedOptions;
   subscriptionData.context = context;
 
-  useEffect(() => {
-    return subscriptionData.afterExecute();
-  });
+  useEffect(() => subscriptionData.afterExecute());
 
   return subscriptionData.execute(result);
 }

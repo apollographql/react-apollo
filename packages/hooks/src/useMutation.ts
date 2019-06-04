@@ -30,9 +30,7 @@ export function useMutation<TData = any, TVariables = OperationVariables>(
   mutationData.options = updatedOptions;
   mutationData.context = context;
 
-  useEffect(() => {
-    return mutationData.afterExecute();
-  });
+  useEffect(() => mutationData.afterExecute());
 
   return mutationData.execute(result);
 }

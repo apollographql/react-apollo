@@ -130,7 +130,7 @@ export class QueryData<TData, TVariables> extends OperationData {
   private observableQueryFields(
     observable: ObservableQuery<TData, TVariables>
   ): ObservableQueryFields<TData, TVariables> {
-    const fields = {
+    return {
       variables: observable.variables,
       refetch: observable.refetch.bind(observable),
       fetchMore: observable.fetchMore.bind(observable),
@@ -138,8 +138,7 @@ export class QueryData<TData, TVariables> extends OperationData {
       startPolling: observable.startPolling.bind(observable),
       stopPolling: observable.stopPolling.bind(observable),
       subscribeToMore: observable.subscribeToMore.bind(observable)
-    };
-    return fields as ObservableQueryFields<TData, TVariables>;
+    } as ObservableQueryFields<TData, TVariables>;
   }
 
   private initializeObservableQuery() {
@@ -188,7 +187,7 @@ export class QueryData<TData, TVariables> extends OperationData {
         // need to log it here. We could conceivably log something if
         // an option was set. OTOH we don't log errors w/ the original
         // query. See https://github.com/apollostack/react-apollo/issues/404
-        .catch(() => null);
+        .catch(() => {});
     }
   }
 
