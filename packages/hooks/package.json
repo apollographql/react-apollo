@@ -22,8 +22,8 @@
     "clean": "rm -Rf ./node_modules ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
     "prepare": "npm run build",
     "prebuild": "npm run clean",
-    "build": "npx -p typescript tsc -p ./config",
-    "postbuild": "npx rollup -c ./config/rollup.config.js",
+    "build": "../../node_modules/.bin/tsc -p ./config",
+    "postbuild": "../../node_modules/.bin/rollup -c ./config/rollup.config.js",
     "watch": "node ../../node_modules/tsc-watch/lib/tsc-watch.js --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
     "deploy": "npm publish --tag beta"
