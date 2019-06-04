@@ -52,7 +52,7 @@ export function withMutation<
       static displayName = graphQLDisplayName;
       static WrappedComponent = WrappedComponent;
       render() {
-        let props = this.props;
+        let props = this.props as TProps;
         const opts = mapPropsToOptions(props);
 
         if (operationOptions.withRef) {
@@ -83,7 +83,7 @@ export function withMutation<
               let childProps = {
                 [name]: mutate,
                 [resultName]: result
-              };
+              } as any as TChildProps;
               if (operationOptions.props) {
                 const newResult: OptionProps<
                   TProps,
@@ -98,7 +98,7 @@ export function withMutation<
               }
 
               return (
-                <WrappedComponent {...props as TProps} {...childProps as any} />
+                <WrappedComponent {...props} {...childProps} />
               );
             }}
           </Mutation>
