@@ -12,5 +12,6 @@ module.exports = {
   moduleNameMapper: {
     '^@apollo\\/react-([^/]+)': '<rootDir>/$1/src',
   },
+  testMatch: ['<rootDir>/*/src/**/__tests__/**/*.test.ts?(x)'],
   testPathIgnorePatterns: ['/examples', '/lib'],
 };
