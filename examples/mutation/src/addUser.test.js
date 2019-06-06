@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, wait } from 'react-testing-library';
+import { render, fireEvent, wait } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 
 import AddUser, { ADD_USER } from './AddUser';

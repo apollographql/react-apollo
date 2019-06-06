@@ -11,7 +11,7 @@ import {
   mockSingleLink,
   stripSymbols
 } from '@apollo/react-testing';
-import { render, cleanup, fireEvent } from 'react-testing-library';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 
 import { Mutation } from '../../Mutation';
 import { Query } from '../../Query';
