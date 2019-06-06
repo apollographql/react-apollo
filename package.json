@@ -129,7 +129,7 @@
     "babel-jest": "24.8.0",
     "babel-preset-env": "1.7.0",
     "bundlesize": "0.17.2",
-    "coveralls": "3.0.3",
+    "coveralls": "3.0.4",
     "danger": "7.1.4",
     "enzyme": "3.10.0",
     "enzyme-adapter-react-16": "1.14.0",
