@@ -41,8 +41,8 @@ export class SubscriptionData<
       shouldResubscribe !== false &&
       this.previousOptions &&
       Object.keys(this.previousOptions).length > 0 &&
-      (!isEqual(this.previousOptions.variables, this.options.variables) ||
-        this.previousOptions.subscription !== this.options.subscription)
+      (this.previousOptions.subscription !== this.options.subscription ||
+        !isEqual(this.previousOptions.variables, this.options.variables))
     ) {
       this.endSubscription();
       delete this.currentObservable.query;
