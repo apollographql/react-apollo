@@ -12,25 +12,18 @@ import { DocumentNode } from 'graphql';
 import { CommonOptions } from '../types';
 
 export abstract class OperationData<TOptions = any> {
-  private _isMounted: boolean = true;
-  private _options: CommonOptions<TOptions> = {} as CommonOptions<TOptions>;
-  private _previousOptions: CommonOptions<TOptions> = {} as CommonOptions<
+  public isMounted: boolean = true;
+  public previousOptions: CommonOptions<TOptions> = {} as CommonOptions<
     TOptions
   >;
-  private _context: ApolloContextValue = {};
-  private _client: ApolloClient<object> | undefined;
+  public context: ApolloContextValue = {};
+  public client: ApolloClient<object> | undefined;
+
+  private _options: CommonOptions<TOptions> = {} as CommonOptions<TOptions>;
 
   constructor(options?: CommonOptions<TOptions>, context?: ApolloContextValue) {
     this._options = options || ({} as CommonOptions<TOptions>);
-    this._context = context || {};
-  }
-
-  get isMounted(): boolean {
-    return this._isMounted;
-  }
-
-  set isMounted(mounted: boolean) {
-    this._isMounted = mounted;
+    this.context = context || {};
   }
 
   get options(): CommonOptions<TOptions> {
@@ -42,30 +35,6 @@ export abstract class OperationData<TOptions = any> {
       this.previousOptions = this.options;
     }
     this._options = newOptions;
-  }
-
-  get previousOptions(): CommonOptions<TOptions> {
-    return this._previousOptions;
-  }
-
-  set previousOptions(newOptions: CommonOptions<TOptions>) {
-    this._previousOptions = newOptions;
-  }
-
-  get context(): ApolloContextValue {
-    return this._context;
-  }
-
-  set context(newContext: ApolloContextValue) {
-    this._context = newContext;
-  }
-
-  get client(): ApolloClient<object> | undefined {
-    return this._client;
-  }
-
-  set client(newClient: ApolloClient<object> | undefined) {
-    this._client = newClient;
   }
 
   public abstract execute(...args: any): any;
