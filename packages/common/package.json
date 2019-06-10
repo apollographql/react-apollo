@@ -25,7 +25,9 @@
     "postbuild": "../../node_modules/.bin/rollup -c ./config/rollup.config.js",
     "watch": "node ../../node_modules/tsc-watch/lib/tsc-watch.js --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta"
+    "deploy": "npm publish --tag beta",
+    "test": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/common",
+    "test:watch": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/common --watch"
   },
   "peerDependencies": {
     "apollo-client": "^2.6.0",

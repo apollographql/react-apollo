@@ -5,13 +5,13 @@ module.exports = {
   projects: ['<rootDir>'],
   globals: {
     'ts-jest': {
-      tsConfig: './config/tsconfig.base.json',
+      tsConfig: '<rootDir>/../config/tsconfig.base.json',
     },
   },
   coverageDirectory: './meta/coverage',
   moduleNameMapper: {
     '^@apollo\\/react-([^/]+)': '<rootDir>/$1/src',
   },
-  testMatch: ['<rootDir>/*/src/**/__tests__/**/*.test.ts?(x)'],
+  // testMatch: ['<rootDir>/*/src/**/__tests__/**/*.test.ts?(x)'],
   testPathIgnorePatterns: ['/examples'],
 };
