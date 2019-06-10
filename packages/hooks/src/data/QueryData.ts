@@ -338,9 +338,9 @@ export class QueryData<TData, TVariables> extends OperationData {
       // No changes, so we won't call onError/onCompleted.
       if (
         this.previousOptions &&
+        !this.previousData.loading &&
         isEqual(this.previousOptions.query, query) &&
-        isEqual(this.previousOptions.variables, variables) &&
-        !this.previousData.loading
+        isEqual(this.previousOptions.variables, variables)
       ) {
         return;
       }
