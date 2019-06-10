@@ -349,14 +349,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         this.updateCurrentData();
       },
       error: error => {
-        if (!this.lastResult) {
-          // We only want to remove the old subscription, and start a new
-          // subscription, when an error was received and we don't have a
-          // previous result stored. This means either no previous result was
-          // received due to problems fetching data, or the previous result
-          // has been forcefully cleared out.
-          this.resubscribeToQuery();
-        }
+        this.resubscribeToQuery();
+
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
         this.updateCurrentData();
       },
@@ -509,6 +503,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         }
       };
     }
+
+    // When the component is done rendering stored query errors, we'll
+    // remove those errors from the `ObservableQuery` query store, so they
+    // aren't re-displayed on subsequent (potentially error free)
+    // requests/responses.
+    setTimeout(() => {
+      this.queryObservable!.resetQueryStoreErrors();
+    });
 
     data.client = this.client;
     return data;
