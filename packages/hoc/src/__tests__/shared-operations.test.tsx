@@ -5,12 +5,24 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 import { DocumentNode } from 'graphql';
-import { mockSingleLink, compose } from '@apollo/react-testing';
+import { mockSingleLink } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 
 import { graphql } from '../graphql';
 import { withApollo } from '../withApollo';
 import { ChildProps, DataValue } from '../types';
+
+function compose(...funcs: Function[]) {
+  const functions = funcs.reverse();
+  return function(...args: any[]) {
+    const [firstFunction, ...restFunctions] = functions;
+    let result = firstFunction.apply(null, args);
+    restFunctions.forEach(fnc => {
+      result = fnc.call(null, result);
+    });
+    return result;
+  };
+}
 
 describe('shared operations', () => {
   afterEach(cleanup);
