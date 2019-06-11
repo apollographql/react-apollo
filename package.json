@@ -25,6 +25,9 @@
     "@apollo/react-testing": "file:./packages/testing"
   },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-modules-commonjs": "^7.4.4",
+    "@babel/plugin-transform-modules-umd": "^7.2.0",
     "@types/graphql": "^14.2.0",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/jest": "^24.0.13",
@@ -50,8 +53,8 @@
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-invariant": "^0.5.2",
     "rollup-plugin-node-resolve": "^4.2.2",
+    "rollup-plugin-terser": "^5.0.0",
     "rollup-plugin-typescript2": "^0.20.1",
-    "rollup-plugin-uglify": "^6.0.2",
     "ts-jest": "^24.0.2",
     "tsc-watch": "^2.2.1",
     "typescript": "^3.4.5",
@@ -60,28 +63,28 @@
   "bundlesize": [
     {
       "name": "react-apollo",
-      "path": "./packages/all/meta/bundlesize/bundlesize.js",
-      "maxSize": "5.4 KB"
+      "path": "./packages/all/lib/react-apollo.cjs.min.js",
+      "maxSize": "5.7 KB"
     },
     {
       "name": "@apollo/react-common",
-      "path": "./packages/common/meta/bundlesize/bundlesize.js",
+      "path": "./packages/common/lib/react-common.cjs.min.js",
       "maxSize": "1 KB"
     },
     {
       "name": "@apollo/react-components",
-      "path": "./packages/components/meta/bundlesize/bundlesize.js",
+      "path": "./packages/components/lib/react-components.cjs.min.js",
       "maxSize": "4.1 KB"
     },
     {
       "name": "@apollo/react-hoc",
-      "path": "./packages/hoc/meta/bundlesize/bundlesize.js",
+      "path": "./packages/hoc/lib/react-hoc.cjs.min.js",
       "maxSize": "1.6 KB"
     },
     {
       "name": "@apollo/react-hooks",
-      "path": "./packages/hooks/meta/bundlesize/bundlesize.js",
-      "maxSize": "3.8 KB"
+      "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
+      "maxSize": "3.9 KB"
     }
   ],
   "renovate": {
