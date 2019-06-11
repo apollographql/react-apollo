@@ -188,13 +188,15 @@ describe('[queries] api', () => {
                   }
                 })
               })
-              .then(
-                wrap(done, (result: any) => {
+              .then((result: any) => {
+                try {
                   expect(stripSymbols(result.data.allPeople.people)).toEqual(
                     data1.allPeople.people
                   );
-                })
-              );
+                } catch (error) {
+                  done(error);
+                }
+              });
           } else if (count === 1) {
             expect(stripSymbols(props.data!.variables)).toEqual(variables);
             expect(props.data!.loading).toBeFalsy();

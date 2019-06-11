@@ -7,7 +7,6 @@ export {
 
 export { createClient } from './utils/createClient';
 export { stripSymbols } from './utils/stripSymbols';
-export { wrap } from './utils/wrap';
 export { wait } from './utils/wait';
 
 export * from './mocks/types';
