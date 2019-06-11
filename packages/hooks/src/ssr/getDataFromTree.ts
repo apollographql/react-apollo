@@ -47,10 +47,10 @@ export class RenderPromises {
     queryInstance: QueryData<TData, TVariables>,
     finish: () => React.ReactNode
   ): React.ReactNode {
-    const info = this.lookupQueryInfo(queryInstance.options);
+    const info = this.lookupQueryInfo(queryInstance.getOptions());
     if (!info.seen) {
       this.queryPromises.set(
-        queryInstance.options,
+        queryInstance.getOptions(),
         new Promise(resolve => {
           resolve(queryInstance.fetchData());
         })
