@@ -27,7 +27,7 @@ export function useMutation<TData = any, TVariables = OperationVariables>(
   }
 
   const mutationData = getMutationDataRef();
-  mutationData.options = updatedOptions;
+  mutationData.setOptions(updatedOptions);
   mutationData.context = context;
 
   useEffect(() => mutationData.afterExecute());

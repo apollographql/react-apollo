@@ -40,7 +40,7 @@ export class MutationData<
   }
 
   public execute(result: MutationResult<TData>) {
-    this.verifyDocumentType(this.options.mutation, DocumentType.Mutation);
+    this.verifyDocumentType(this.getOptions().mutation, DocumentType.Mutation);
     const runMutation = (
       options?: MutationFunctionOptions<TData, TVariables>
     ) => this.runMutation(options);
@@ -72,7 +72,7 @@ export class MutationData<
       })
       .catch((error: ApolloError) => {
         this.onMutationError(error, mutationId);
-        if (!this.options.onError) throw error;
+        if (!this.getOptions().onError) throw error;
       });
   }
 
@@ -87,7 +87,7 @@ export class MutationData<
       context: mutationContext = {},
       awaitRefetchQueries = false,
       fetchPolicy
-    } = this.options;
+    } = this.getOptions();
     const mutateOptions = { ...mutationFunctionOptions };
 
     const mutateVariables = Object.assign(
@@ -101,7 +101,7 @@ export class MutationData<
       mutation,
       optimisticResponse,
       refetchQueries:
-        mutateOptions.refetchQueries || this.options.refetchQueries,
+        mutateOptions.refetchQueries || this.getOptions().refetchQueries,
       awaitRefetchQueries,
       update,
       context: mutationContext,
@@ -112,7 +112,7 @@ export class MutationData<
   }
 
   private onMutationStart() {
-    if (!this.result.loading && !this.options.ignoreResults) {
+    if (!this.result.loading && !this.getOptions().ignoreResults) {
       this.updateResult({
         loading: true,
         error: undefined,
@@ -126,7 +126,7 @@ export class MutationData<
     response: ExecutionResult<TData>,
     mutationId: number
   ) {
-    const { onCompleted, ignoreResults } = this.options;
+    const { onCompleted, ignoreResults } = this.getOptions();
 
     const { data, errors } = response;
     const error =
@@ -149,7 +149,7 @@ export class MutationData<
   }
 
   private onMutationError(error: ApolloError, mutationId: number) {
-    const { onError } = this.options;
+    const { onError } = this.getOptions();
 
     if (this.isMostRecentMutation(mutationId)) {
       this.updateResult({

@@ -32,28 +32,28 @@ export class SubscriptionData<
       currentResult = this.getLoadingResult();
     }
 
-    let { shouldResubscribe } = this.options;
+    let { shouldResubscribe } = this.getOptions();
     if (typeof shouldResubscribe === 'function') {
-      shouldResubscribe = !!shouldResubscribe(this.options);
+      shouldResubscribe = !!shouldResubscribe(this.getOptions());
     }
 
     if (
       shouldResubscribe !== false &&
       this.previousOptions &&
       Object.keys(this.previousOptions).length > 0 &&
-      (this.previousOptions.subscription !== this.options.subscription ||
-        !isEqual(this.previousOptions.variables, this.options.variables))
+      (this.previousOptions.subscription !== this.getOptions().subscription ||
+        !isEqual(this.previousOptions.variables, this.getOptions().variables))
     ) {
       this.endSubscription();
       delete this.currentObservable.query;
       currentResult = this.getLoadingResult();
     }
 
-    this.initialize(this.options);
+    this.initialize(this.getOptions());
     this.startSubscription();
 
-    this.previousOptions = this.options;
-    return { ...currentResult, variables: this.options.variables };
+    this.previousOptions = this.getOptions();
+    return { ...currentResult, variables: this.getOptions().variables };
   }
 
   public afterExecute() {
@@ -101,9 +101,7 @@ export class SubscriptionData<
   }
 
   private updateCurrentData(result: SubscriptionResult<TData>) {
-    const {
-      options: { onSubscriptionData }
-    } = this;
+    const { onSubscriptionData } = this.getOptions();
 
     if (onSubscriptionData) {
       onSubscriptionData({
@@ -127,7 +125,7 @@ export class SubscriptionData<
   }
 
   private completeSubscription() {
-    const { onSubscriptionComplete } = this.options;
+    const { onSubscriptionComplete } = this.getOptions();
     if (onSubscriptionComplete) onSubscriptionComplete();
     this.endSubscription();
   }

@@ -40,7 +40,7 @@ export class QueryData<TData, TVariables> extends OperationData {
   public execute(): QueryResult<TData, TVariables> {
     this.refreshClient();
 
-    const { skip, query } = this.options;
+    const { skip, query } = this.getOptions();
     if (skip || query !== this.previousData.query) {
       this.removeQuerySubscription();
       this.previousData.query = query;
@@ -63,7 +63,7 @@ export class QueryData<TData, TVariables> extends OperationData {
 
   // For server-side rendering (see getDataFromTree.ts)
   public fetchData(): Promise<ApolloQueryResult<any>> | boolean {
-    if (this.options.skip) return false;
+    if (this.getOptions().skip) return false;
 
     // pull off react options
     const {
@@ -75,7 +75,7 @@ export class QueryData<TData, TVariables> extends OperationData {
       onError,
       partialRefetch,
       ...opts
-    } = this.options;
+    } = this.getOptions();
 
     let { fetchPolicy } = opts;
     if (ssr === false) return false;
@@ -90,7 +90,7 @@ export class QueryData<TData, TVariables> extends OperationData {
 
     // Register the SSR observable, so it can be re-used once the value comes back.
     if (this.context && this.context.renderPromises) {
-      this.context.renderPromises.registerSSRObservable(obs, this.options);
+      this.context.renderPromises.registerSSRObservable(obs, this.getOptions());
     }
 
     const result = this.currentObservable.query!.getCurrentResult();
@@ -116,13 +116,13 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private prepareObservableQueryOptions() {
-    this.verifyDocumentType(this.options.query, DocumentType.Query);
-    const displayName = this.options.displayName || 'Query';
+    this.verifyDocumentType(this.getOptions().query, DocumentType.Query);
+    const displayName = this.getOptions().displayName || 'Query';
 
     return {
-      ...this.options,
+      ...this.getOptions(),
       displayName,
-      context: this.options.context || {},
+      context: this.getOptions().context || {},
       metadata: { reactComponent: { displayName } }
     };
   }
@@ -147,7 +147,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     // to fetch the result set. This is used during SSR.
     if (this.context && this.context.renderPromises) {
       this.currentObservable.query = this.context.renderPromises.getSSRObservable(
-        this.options
+        this.getOptions()
       );
     }
 
@@ -257,7 +257,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
     // `loading` is set to `false` (since we aren't loading anything).
-    if (this.options.skip) {
+    if (this.getOptions().skip) {
       result = {
         ...result,
         data: undefined,
@@ -291,7 +291,7 @@ export class QueryData<TData, TVariables> extends OperationData {
         });
       } else {
         const { fetchPolicy } = this.currentObservable.query!.options;
-        const { partialRefetch } = this.options;
+        const { partialRefetch } = this.getOptions();
         if (
           partialRefetch &&
           Object.keys(data).length === 0 &&
@@ -333,7 +333,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     } = this.currentObservable.query!.getCurrentResult();
 
     if (!loading) {
-      const { query, variables, onCompleted, onError } = this.options;
+      const { query, variables, onCompleted, onError } = this.getOptions();
 
       // No changes, so we won't call onError/onCompleted.
       if (
