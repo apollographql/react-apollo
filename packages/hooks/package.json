@@ -12,6 +12,9 @@
   "license": "MIT",
   "main": "./lib/react-hooks.cjs.js",
   "module": "./lib/react-hooks.esm.js",
+  "react-native": {
+    "react-dom/server": false
+  },
   "typings": "./lib/index.d.ts",
   "repository": {
     "type": "git",
