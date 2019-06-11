@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, Operation } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { MockSubscriptionLink, catchAsyncError } from '@apollo/react-testing';
+import { MockSubscriptionLink } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 import { render, cleanup } from 'react-testing-library';
 
@@ -49,7 +49,7 @@ it('executes the subscription', done => {
       {(result: any) => {
         const { loading, data, error } = result;
 
-        catchAsyncError(done, () => {
+        try {
           if (count === 0) {
             expect(loading).toBe(true);
             expect(error).toBeUndefined();
@@ -72,7 +72,9 @@ it('executes the subscription', done => {
             expect(data).toEqual(results[3].result.data);
             done();
           }
-        });
+        } catch (error) {
+          done.fail(error);
+        }
 
         count++;
         return null;
@@ -171,9 +173,11 @@ it('executes subscription for the variables passed in the props', done => {
 
   class MockSubscriptionLinkOverride extends MockSubscriptionLink {
     request(req: Operation) {
-      catchAsyncError(done, () => {
+      try {
         expect(req.variables).toEqual(variables);
-      });
+      } catch (error) {
+        done.fail(error);
+      }
       return super.request(req);
     }
   }
@@ -195,7 +199,7 @@ it('executes subscription for the variables passed in the props', done => {
       {(result: any) => {
         const { loading, data } = result;
 
-        catchAsyncError(done, () => {
+        try {
           if (count === 0) {
             expect(loading).toBe(true);
           } else if (count === 1) {
@@ -203,7 +207,9 @@ it('executes subscription for the variables passed in the props', done => {
             expect(data).toEqual(results[0].result.data);
             done();
           }
-        });
+        } catch (error) {
+          done.fail(error);
+        }
         count++;
         return null;
       }}
@@ -233,9 +239,11 @@ it('does not execute if variables have not changed', done => {
 
   class MockSubscriptionLinkOverride extends MockSubscriptionLink {
     request(req: Operation) {
-      catchAsyncError(done, () => {
+      try {
         expect(req.variables).toEqual({ name });
-      });
+      } catch (error) {
+        done.fail(error);
+      }
       return super.request(req);
     }
   }
@@ -258,7 +266,7 @@ it('does not execute if variables have not changed', done => {
         >
           {(result: any) => {
             const { loading, data } = result;
-            catchAsyncError(done, () => {
+            try {
               if (count === 0) {
                 expect(loading).toBe(true);
               } else if (count === 1) {
@@ -268,7 +276,9 @@ it('does not execute if variables have not changed', done => {
                 expect(loading).toBe(false);
                 done();
               }
-            });
+            } catch (error) {
+              done.fail(error);
+            }
             count++;
             return null;
           }}
@@ -311,7 +321,7 @@ it('renders an error', done => {
     >
       {(result: any) => {
         const { loading, data, error } = result;
-        catchAsyncError(done, () => {
+        try {
           if (count === 0) {
             expect(loading).toBe(true);
             expect(error).toBeUndefined();
@@ -321,7 +331,9 @@ it('renders an error', done => {
             expect(data).toBeUndefined();
             done();
           }
-        });
+        } catch (error) {
+          done.fail(error);
+        }
         count++;
 
         return null;
@@ -359,7 +371,7 @@ describe('should update', () => {
             <Subscription subscription={subscription}>
               {(result: any) => {
                 const { loading, data } = result;
-                catchAsyncError(done, () => {
+                try {
                   if (count === 0) {
                     expect(loading).toBeTruthy();
                     expect(data).toBeUndefined();
@@ -384,7 +396,9 @@ describe('should update', () => {
                     expect(data).toEqual(results[1].result.data);
                     done();
                   }
-                });
+                } catch (error) {
+                  done.fail(error);
+                }
 
                 count++;
                 return null;
@@ -444,7 +458,7 @@ describe('should update', () => {
           <Subscription subscription={this.state.subscription}>
             {(result: any) => {
               const { loading, data } = result;
-              catchAsyncError(done, () => {
+              try {
                 if (count === 0) {
                   expect(loading).toBeTruthy();
                   expect(data).toBeUndefined();
@@ -469,7 +483,9 @@ describe('should update', () => {
                   expect(data).toEqual(heroResult.result.data);
                   done();
                 }
-              });
+              } catch (error) {
+                done.fail(error);
+              }
               count++;
               return null;
             }}
@@ -557,7 +573,7 @@ describe('should update', () => {
           >
             {(result: any) => {
               const { loading, data } = result;
-              catchAsyncError(done, () => {
+              try {
                 if (count === 0) {
                   expect(loading).toBeTruthy();
                   expect(data).toBeUndefined();
@@ -582,7 +598,9 @@ describe('should update', () => {
                   expect(data).toEqual(dataHan);
                   done();
                 }
-              });
+              } catch (error) {
+                done.fail(error);
+              }
 
               count++;
               return null;
@@ -674,7 +692,7 @@ describe('should not update', () => {
           >
             {(result: any) => {
               const { loading, data } = result;
-              catchAsyncError(done, () => {
+              try {
                 if (count === 0) {
                   expect(loading).toBeTruthy();
                   expect(data).toBeUndefined();
@@ -696,7 +714,9 @@ describe('should not update', () => {
                   expect(data).toEqual(dataLuke);
                   done();
                 }
-              });
+              } catch (error) {
+                done.fail(error);
+              }
 
               count++;
               return null;
@@ -747,7 +767,7 @@ describe('should not update', () => {
           >
             {(result: any) => {
               const { loading, data } = result;
-              catchAsyncError(done, () => {
+              try {
                 if (count === 0) {
                   expect(loading).toBeTruthy();
                   expect(data).toBeUndefined();
@@ -769,7 +789,9 @@ describe('should not update', () => {
                   expect(data).toEqual(dataLuke);
                   done();
                 }
-              });
+              } catch (error) {
+                done.fail(error);
+              }
 
               count++;
               return null;
