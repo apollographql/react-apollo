@@ -5,11 +5,7 @@ import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import {
-  mockSingleLink,
-  stripSymbols,
-  catchAsyncError
-} from '@apollo/react-testing';
+import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
@@ -399,11 +395,13 @@ describe('queries', () => {
       class extends React.Component<ChildProps<{}, Data, Vars>> {
         componentDidUpdate() {
           const { props } = this;
-          catchAsyncError(done, () => {
+          try {
             expect(props.data!.loading).toBeFalsy();
             expect(stripSymbols(props.data!.allPeople)).toEqual(data.allPeople);
             done();
-          });
+          } catch (error) {
+            done.fail(error);
+          }
         }
         render() {
           return null;
