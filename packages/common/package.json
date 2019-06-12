@@ -27,7 +27,9 @@
     "predeploy": "npm run build",
     "deploy": "npm publish --tag beta",
     "test": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/common",
-    "test:watch": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/common --watch"
+    "test:watch": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/common --watch",
+    "test:cjs": "../../node_modules/jest/bin/jest.js --config ./config/jest.cjs.config.js --testPathPattern packages/common",
+    "test:umd": "../../node_modules/jest/bin/jest.js --config ./config/jest.umd.config.js --testPathPattern packages/common"
   },
   "peerDependencies": {
     "apollo-client": "^2.6.0",

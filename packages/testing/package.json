@@ -27,7 +27,7 @@
     "watch": "node ../../node_modules/tsc-watch/lib/tsc-watch.js --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
     "deploy": "npm publish --tag beta",
-    "test": "../../node_modules/.bin/jest --config ./config/jest.config.js",
+    "test": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/testing",
     "test:watch": "npm run test -- --watch",
     "test:full": "npm run type-check && npm run test -- --coverage"
   },
