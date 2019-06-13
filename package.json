@@ -112,7 +112,7 @@
     "@types/graphql": "14.2.0",
     "@types/hoist-non-react-statics": "3.3.1",
     "@types/invariant": "2.2.29",
-    "@types/jest": "24.0.13",
+    "@types/jest": "24.0.14",
     "@types/lodash.isequal": "4.5.5",
     "@types/object-assign": "4.0.30",
     "@types/prop-types": "15.7.1",
