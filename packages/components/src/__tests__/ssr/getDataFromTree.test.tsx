@@ -7,8 +7,7 @@ import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
-
-import { Query } from '../../Query';
+import { Query } from '@apollo/react-components';
 
 describe('SSR', () => {
   describe('`getDataFromTree`', () => {

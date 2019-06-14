@@ -4,8 +4,7 @@ import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
 
-import { ApolloProvider } from '../ApolloProvider';
-import { getApolloContext } from '../ApolloContext';
+import { ApolloProvider, getApolloContext } from '@apollo/react-common';
 
 describe('<ApolloProvider /> Component', () => {
   afterEach(cleanup);

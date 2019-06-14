@@ -7,10 +7,7 @@ import { ApolloLink } from 'apollo-link';
 import { DocumentNode } from 'graphql';
 import { mockSingleLink } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
-
-import { graphql } from '../graphql';
-import { withApollo } from '../withApollo';
-import { ChildProps, DataValue } from '../types';
+import { graphql, withApollo, ChildProps, DataValue } from '@apollo/react-hoc';
 
 function compose(...funcs: Function[]) {
   const functions = funcs.reverse();

@@ -6,8 +6,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 import { render, cleanup } from 'react-testing-library';
-
-import { Subscription } from '../../Subscription';
+import { Subscription } from '@apollo/react-components';
 
 const results = [
   'Luke Skywalker',

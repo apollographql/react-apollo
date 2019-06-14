@@ -7,9 +7,7 @@ import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] skip', () => {
   afterEach(cleanup);

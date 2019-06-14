@@ -15,9 +15,7 @@ import { ApolloProvider } from '@apollo/react-common';
 import { renderToStringWithData } from '@apollo/react-components';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 const planetMap = new Map([['Planet:1', { id: 'Planet:1', name: 'Tatooine' }]]);
 

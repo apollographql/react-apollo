@@ -11,8 +11,7 @@ import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { render, cleanup } from 'react-testing-library';
 import { ApolloLink } from 'apollo-link';
-
-import { Query } from '../../Query';
+import { Query } from '@apollo/react-components';
 
 const allPeopleQuery: DocumentNode = gql`
   query people {

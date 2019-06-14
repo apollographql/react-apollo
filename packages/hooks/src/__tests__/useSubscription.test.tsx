@@ -5,8 +5,7 @@ import { ApolloProvider } from '@apollo/react-common';
 import { MockSubscriptionLink } from '@apollo/react-testing';
 import { render, cleanup } from 'react-testing-library';
 import gql from 'graphql-tag';
-
-import { useSubscription } from '../useSubscription';
+import { useSubscription } from '@apollo/react-hooks';
 
 describe('useSubscription Hook', () => {
   afterEach(cleanup);

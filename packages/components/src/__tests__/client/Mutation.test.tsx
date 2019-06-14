@@ -12,9 +12,7 @@ import {
   stripSymbols
 } from '@apollo/react-testing';
 import { render, cleanup, fireEvent } from 'react-testing-library';
-
-import { Mutation } from '../../Mutation';
-import { Query } from '../../Query';
+import { Query, Mutation } from '@apollo/react-components';
 
 const mutation = gql`
   mutation createTodo($text: String!) {
