@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { parser, DocumentType } from '../parser';
+import { parser, DocumentType } from '@apollo/react-common';
 
 type OperationDefinition = any;
 
@@ -47,7 +47,7 @@ describe('parser', () => {
       query One { user { name } }
     `;
     expect(parser.bind(null, query as any)).toThrowError(
-      /not a valid GraphQL DocumentNode/,
+      /not a valid GraphQL DocumentNode/
     );
   });
 
@@ -186,7 +186,7 @@ describe('parser', () => {
     `;
     definition = subscription.definitions[0] as OperationDefinition;
     expect(parser(subscription).variables).toEqual(
-      definition.variableDefinitions,
+      definition.variableDefinitions
     );
   });
 
@@ -220,7 +220,7 @@ describe('parser', () => {
     `;
     definition = subscription.definitions[0] as OperationDefinition;
     expect(parser(subscription).variables).toEqual(
-      definition.variableDefinitions,
+      definition.variableDefinitions
     );
   });
 });

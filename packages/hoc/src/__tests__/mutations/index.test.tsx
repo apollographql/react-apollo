@@ -6,9 +6,7 @@ import { stripSymbols, createClient } from '@apollo/react-testing';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
 import { ApolloClient } from 'apollo-client';
 import { DocumentNode } from 'graphql';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 const query: DocumentNode = gql`
   mutation addPerson {
@@ -39,7 +37,7 @@ describe('graphql(mutation)', () => {
   let client: ApolloClient<NormalizedCacheObject>;
   beforeEach(() => {
     error = console.error;
-    console.error = jest.fn(() => { });
+    console.error = jest.fn(() => {});
     client = createClient(expectedData, query);
   });
 
@@ -88,7 +86,7 @@ describe('graphql(mutation)', () => {
   });
 
   it('binds a mutation to props with a custom name', () => {
-    interface Props { };
+    interface Props {}
 
     type InjectedProps = {
       customMutation: any;
@@ -243,7 +241,7 @@ describe('graphql(mutation)', () => {
       second: 2
     });
 
-    interface Props { }
+    interface Props {}
 
     const Container = graphql<Props>(queryWithVariables, {
       options: () => ({

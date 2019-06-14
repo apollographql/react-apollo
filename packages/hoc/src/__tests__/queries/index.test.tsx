@@ -8,9 +8,7 @@ import { ApolloLink } from 'apollo-link';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
-
-import { graphql } from '../../graphql';
-import { ChildProps, DataProps } from '../../types';
+import { graphql, ChildProps, DataProps } from '@apollo/react-hoc';
 
 describe('queries', () => {
   let error: typeof console.error;

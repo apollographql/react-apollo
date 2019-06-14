@@ -5,8 +5,7 @@ import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { InvariantError } from 'ts-invariant';
-
-import { useApolloClient } from '../useApolloClient';
+import { useApolloClient } from '@apollo/react-hooks';
 
 describe('useApolloClient Hook', () => {
   afterEach(() => {

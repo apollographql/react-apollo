@@ -12,9 +12,7 @@ import {
   getMarkupFromTree
 } from '@apollo/react-components';
 import { DocumentNode } from 'graphql';
-
-import { graphql } from '../../graphql';
-import { DataValue, ChildProps } from '../../types';
+import { graphql, ChildProps, DataValue } from '@apollo/react-hoc';
 
 describe('SSR', () => {
   describe('`getDataFromTree`', () => {
