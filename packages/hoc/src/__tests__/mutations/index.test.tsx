@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
 import { ApolloProvider } from '@apollo/react-common';
 import { stripSymbols, createClient } from '@apollo/react-testing';

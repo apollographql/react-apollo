@@ -21,18 +21,18 @@
   },
   "sideEffects": false,
   "scripts": {
-    "clean": "rm -Rf ./node_modules ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
+    "clean": "rm -Rf ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
     "prepare": "npm run build",
     "prebuild": "npm run clean",
-    "build": "../../node_modules/.bin/tsc -p ./config",
-    "postbuild": "../../node_modules/.bin/rollup -c ./config/rollup.config.js",
+    "build": "npx tsc -p ./config",
+    "postbuild": "npx rollup -c ./config/rollup.config.js",
     "predeploy": "npm run build",
     "deploy": "npm publish --tag beta"
   },
   "peerDependencies": {
     "apollo-client": "^2.6.0",
     "graphql": "^14.2.1",
-    "react": "^16.8.6"
+    "react": "^16.8.0"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
@@ -45,5 +45,9 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "rollup": "^1.15.5",
+    "typescript": "^3.5.2"
   }
 }

@@ -22,23 +22,23 @@
   },
   "sideEffects": false,
   "scripts": {
-    "clean": "rm -Rf ./node_modules ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
+    "clean": "rm -Rf ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
     "prepare": "npm run build",
     "prebuild": "npm run clean",
-    "build": "../../node_modules/.bin/tsc -p ./config",
-    "postbuild": "../../node_modules/.bin/rollup -c ./config/rollup.config.js",
-    "watch": "node ../../node_modules/tsc-watch/lib/tsc-watch.js --onSuccess \"npm run postbuild\" -p ./config",
+    "build": "npx tsc -p ./config",
+    "postbuild": "npx rollup -c ./config/rollup.config.js",
+    "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
     "deploy": "npm publish --tag beta",
-    "test": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/hooks",
-    "test:watch": "../../node_modules/jest/bin/jest.js --config ../../config/jest.config.js --testPathPattern packages/hooks --watch",
-    "test:cjs": "npm run build && ../../node_modules/jest/bin/jest.js --config ../../config/jest.cjs.config.js --testPathPattern packages/hooks",
-    "test:umd": "npm run build && ../../node_modules/jest/bin/jest.js --config ../../config/jest.umd.config.js --testPathPattern packages/hooks"
+    "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hooks",
+    "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hooks --watch",
+    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hooks",
+    "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/hooks"
   },
   "peerDependencies": {
     "apollo-client": "^2.6.0",
     "graphql": "^14.2.1",
-    "react": "^16.8.6"
+    "react": "^16.8.0"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
@@ -50,5 +50,11 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "jest": "^24.8.0",
+    "rollup": "^1.15.5",
+    "tsc-watch": "^2.2.1",
+    "typescript": "^3.5.2"
   }
 }

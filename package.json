@@ -51,7 +51,7 @@
     "lodash.times": "^4.3.2",
     "react": "^16.9.0-alpha.0",
     "react-dom": "^16.9.0-alpha.0",
-    "react-testing-library": "^7.0.0",
+    "@testing-library/react": "^8.0.1",
     "recompose": "^0.30.0",
     "rollup": "^1.9.3",
     "rollup-plugin-commonjs": "^9.3.4",

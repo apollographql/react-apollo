@@ -9,7 +9,7 @@ import {
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import { ApolloLink } from 'apollo-link';
 import { Query } from '@apollo/react-components';
 

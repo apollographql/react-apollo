@@ -5,7 +5,7 @@ import { ApolloLink, Operation } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { MockSubscriptionLink } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import { Subscription } from '@apollo/react-components';
 
 const results = [
