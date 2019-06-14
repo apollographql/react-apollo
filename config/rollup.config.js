@@ -9,15 +9,25 @@ import umdModulesTransform from '@babel/plugin-transform-modules-umd';
 import { terser as minify } from 'rollup-plugin-terser';
 
 const defaultGlobals = {
-  react: 'React',
+  '@apollo/react-common': 'apolloReactCommon',
+  '@apollo/react-components': 'apolloReactComponents',
+  '@apollo/react-hoc': 'apolloReactHOC',
+  '@apollo/react-hooks': 'apolloReactHooks',
+  '@apollo/react-testing': 'apolloReactTesting',
+  'apollo-client': 'apolloClient',
+  'apollo-utilities': 'apolloUtilities',
+  'apollo-cache': 'apolloCache',
+  'apollo-cache-inmemory': 'apolloCacheInMemory',
+  'apollo-link': 'apolloLink',
+  'graphql': 'graphql',
+  'react-apollo': 'reactApollo',
+  'react': 'React',
   'ts-invariant': 'invariant',
-  tslib: 'tslib',
+  'tslib': 'tslib',
   'fast-json-stable-stringify': 'stringify',
   'zen-observable': 'zenObservable',
-  'apollo-client': 'apollo.core',
   'hoist-non-react-statics': 'hoistNonReactStatics',
   'prop-types': 'PropTypes',
-  '@apollo/react-common': 'apolloReactCommon',
 };
 
 export function rollup({
