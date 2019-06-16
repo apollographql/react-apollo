@@ -1,12 +1,10 @@
 import React from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
 import { MockedProvider, MockedResponse } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
-
-import { graphql } from '../graphql';
-import { ChildProps } from '../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 const variables = {
   username: 'mock_username'

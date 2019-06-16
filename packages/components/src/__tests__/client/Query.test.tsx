@@ -5,15 +5,13 @@ import { ApolloProvider } from '@apollo/react-common';
 import {
   MockedProvider,
   mockSingleLink,
-  stripSymbols,
-  catchAsyncError
+  stripSymbols
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import { ApolloLink } from 'apollo-link';
-
-import { Query } from '../../Query';
+import { Query } from '@apollo/react-components';
 
 const allPeopleQuery: DocumentNode = gql`
   query people {
@@ -63,7 +61,7 @@ describe('Query component', () => {
     const Component = () => (
       <Query query={allPeopleQuery}>
         {(result: any) => {
-          catchAsyncError(done, () => {
+          try {
             const { client: clientResult, ...rest } = result;
 
             if (result.loading) {
@@ -77,7 +75,9 @@ describe('Query component', () => {
               );
               done();
             }
-          });
+          } catch (error) {
+            done.fail(error);
+          }
 
           return null;
         }}
@@ -101,10 +101,12 @@ describe('Query component', () => {
         <Component />
       </MockedProvider>
     );
-    catchAsyncError(done, () => {
+    try {
       expect(getByText('test')).toBeTruthy();
       done();
-    });
+    } catch (error) {
+      done.fail(error);
+    }
   });
 
   describe('result provides', () => {
@@ -138,11 +140,13 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={queryWithVariables} variables={variables}>
           {({ client }: any) => {
-            catchAsyncError(done, () => {
+            try {
               expect(client).not.toBeFalsy();
               expect(client.version).not.toBeFalsy();
               done();
-            });
+            } catch (error) {
+              done.fail(error);
+            }
             return null;
           }}
         </Query>
@@ -169,12 +173,14 @@ describe('Query component', () => {
             if (result.loading) {
               return null;
             }
-            catchAsyncError(done, () => {
+            try {
               expect(result.error).toEqual(
                 new Error('Network error: error occurred')
               );
               done();
-            });
+            } catch (error) {
+              done.fail(error);
+            }
             return null;
           }}
         </Query>
@@ -239,7 +245,7 @@ describe('Query component', () => {
               return null;
             }
 
-            catchAsyncError(done, () => {
+            try {
               if (count === 1) {
                 // first data
                 expect(stripSymbols(data)).toEqual(data1);
@@ -252,7 +258,9 @@ describe('Query component', () => {
                 // third data
                 expect(stripSymbols(data)).toEqual(data3);
               }
-            });
+            } catch (error) {
+              done.fail(error);
+            }
 
             count++;
             if (hasRefetched) {
@@ -335,7 +343,7 @@ describe('Query component', () => {
                 })
                 .catch(done.fail);
             } else if (count === 1) {
-              catchAsyncError(done, () => {
+              try {
                 expect(stripSymbols(result.data)).toEqual({
                   allPeople: {
                     people: [
@@ -346,7 +354,9 @@ describe('Query component', () => {
                 });
 
                 done();
-              });
+              } catch (error) {
+                done.fail(error);
+              }
             }
 
             count++;
@@ -400,7 +410,7 @@ describe('Query component', () => {
               result.startPolling(POLL_INTERVAL);
             }
 
-            catchAsyncError(done, () => {
+            try {
               if (count === 0) {
                 expect(stripSymbols(result.data)).toEqual(data1);
               } else if (count === 1) {
@@ -410,7 +420,9 @@ describe('Query component', () => {
               } else if (count === 3) {
                 done();
               }
-            });
+            } catch (error) {
+              done.fail(error);
+            }
 
             count++;
             return null;
@@ -503,11 +515,13 @@ describe('Query component', () => {
               return null;
             }
             if (isUpdated) {
-              catchAsyncError(done, () => {
+              try {
                 expect(stripSymbols(result.data)).toEqual(data2);
 
                 done();
-              });
+              } catch (error) {
+                done.fail(error);
+              }
 
               return null;
             }
@@ -515,10 +529,12 @@ describe('Query component', () => {
             setTimeout(() => {
               result.updateQuery(
                 (prev: any, { variables: variablesUpdate }: any) => {
-                  catchAsyncError(done, () => {
+                  try {
                     expect(stripSymbols(prev)).toEqual(data1);
                     expect(variablesUpdate).toEqual({ first: 2 });
-                  });
+                  } catch (error) {
+                    done.fail(error);
+                  }
 
                   return data2;
                 }
@@ -543,11 +559,13 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery} fetchPolicy={'cache-only'}>
           {(result: any) => {
-            catchAsyncError(done, () => {
+            try {
               expect(result.loading).toBeFalsy();
               expect(result.networkStatus).toBe(NetworkStatus.ready);
               done();
-            });
+            } catch (error) {
+              done.fail(error);
+            }
             return null;
           }}
         </Query>
@@ -564,11 +582,13 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery}>
           {(result: any) => {
-            catchAsyncError(done, () => {
+            try {
               expect(result.loading).toBeFalsy();
               expect(result.networkStatus).toBe(NetworkStatus.ready);
               done();
-            });
+            } catch (error) {
+              done.fail(error);
+            }
             return null;
           }}
         </Query>
@@ -604,7 +624,7 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery} notifyOnNetworkStatusChange>
           {(result: any) => {
-            catchAsyncError(done, () => {
+            try {
               if (count === 0) {
                 expect(result.loading).toBeTruthy();
               }
@@ -623,7 +643,9 @@ describe('Query component', () => {
               }
 
               count++;
-            });
+            } catch (error) {
+              done.fail(error);
+            }
             return null;
           }}
         </Query>
@@ -695,12 +717,14 @@ describe('Query component', () => {
       const Component = () => (
         <Query query={allPeopleQuery} skip>
           {(result: any) => {
-            catchAsyncError(done, () => {
+            try {
               expect(result.loading).toBeFalsy();
               expect(result.data).toBe(undefined);
               expect(result.error).toBe(undefined);
               done();
-            });
+            } catch (error) {
+              done.fail(error);
+            }
             return null;
           }}
         </Query>
@@ -1005,7 +1029,7 @@ describe('Query component', () => {
                 if (result.loading) {
                   return null;
                 }
-                catchAsyncError(done, () => {
+                try {
                   if (count === 0) {
                     expect(variables).toEqual({ first: 1 });
                     expect(stripSymbols(result.data)).toEqual(data1);
@@ -1015,7 +1039,9 @@ describe('Query component', () => {
                     expect(stripSymbols(result.data)).toEqual(data2);
                     done();
                   }
-                });
+                } catch (error) {
+                  done.fail(error);
+                }
 
                 count++;
                 return null;
@@ -1073,7 +1099,7 @@ describe('Query component', () => {
             <Query query={query}>
               {(result: any) => {
                 if (result.loading) return null;
-                catchAsyncError(done, () => {
+                try {
                   if (count === 0) {
                     expect(stripSymbols(result.data)).toEqual(data1);
                     setTimeout(() => {
@@ -1084,7 +1110,9 @@ describe('Query component', () => {
                     expect(stripSymbols(result.data)).toEqual(data2);
                     done();
                   }
-                });
+                } catch (error) {
+                  done.fail(error);
+                }
 
                 count++;
                 return null;
@@ -1244,14 +1272,10 @@ describe('Query component', () => {
           return (
             <AllPeopleQuery query={query} variables={variables}>
               {(result: any) => {
-                catchAsyncError(done, () => {
-                  if (result.loading && count === 2) {
-                    expect(stripSymbols(result.data)).toEqual(data1);
-                    done();
-                  }
-
-                  return null;
-                });
+                if (result.loading && count === 2) {
+                  expect(stripSymbols(result.data)).toEqual(data1);
+                  done();
+                }
 
                 count++;
                 return null;

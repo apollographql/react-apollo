@@ -1,6 +1,6 @@
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
-import { render, wait } from 'react-testing-library';
+import { render, wait } from '@testing-library/react';
 
 import App, { HERO_QUERY } from '../app';
 import { full } from '../__mocks__/data';

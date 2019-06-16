@@ -1,11 +1,9 @@
 import React from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
 import { ApolloProvider } from '@apollo/react-common';
 import { stripSymbols, createClient } from '@apollo/react-testing';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 const query = gql`
   mutation addPerson($id: Int) {

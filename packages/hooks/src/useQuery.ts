@@ -30,7 +30,7 @@ export function useQuery<TData = any, TVariables = OperationVariables>(
   }
 
   const queryData = getQueryDataRef();
-  queryData.options = updatedOptions;
+  queryData.setOptions(updatedOptions);
   queryData.context = context;
 
   useEffect(() => queryData.afterExecute());

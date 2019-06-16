@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
 import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -10,9 +10,7 @@ import {
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import { ApolloProvider } from '@apollo/react-common';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('graphql(mutation) query integration', () => {
   afterEach(cleanup);

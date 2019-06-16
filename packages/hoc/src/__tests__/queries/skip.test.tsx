@@ -1,19 +1,13 @@
 import React from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import {
-  mockSingleLink,
-  stripSymbols,
-  catchAsyncError
-} from '@apollo/react-testing';
+import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] skip', () => {
   afterEach(cleanup);
@@ -703,7 +697,7 @@ describe('[queries] skip', () => {
       class extends React.Component<ChildProps<Vars, Data>> {
         componentDidUpdate() {
           const { data } = this.props;
-          catchAsyncError(done, () => {
+          try {
             // loading is true, but data still there
             if (count === 0)
               expect(stripSymbols(data!.allPeople)).toEqual(data1.allPeople);
@@ -712,7 +706,9 @@ describe('[queries] skip', () => {
               expect(stripSymbols(data!.allPeople)).toEqual(data3.allPeople);
               done();
             }
-          });
+          } catch (error) {
+            done.fail(error);
+          }
         }
         render() {
           return null;

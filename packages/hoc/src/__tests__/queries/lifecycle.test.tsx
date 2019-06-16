@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -7,9 +7,7 @@ import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { Query as QueryComponent } from '@apollo/react-components';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] lifecycle', () => {
   afterEach(cleanup);
