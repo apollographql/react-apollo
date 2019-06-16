@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@apollo/react-testing": "beta",
-    "react-testing-library": "6.1.2"
+    "@testing-library/react": "^8.0.1"
   },
   "browserslist": [
     ">0.2%",

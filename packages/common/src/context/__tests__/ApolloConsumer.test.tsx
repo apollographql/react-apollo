@@ -2,11 +2,13 @@ import React from 'react';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloLink } from 'apollo-link';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 
-import { ApolloProvider } from '../ApolloProvider';
-import { ApolloConsumer } from '../ApolloConsumer';
-import { getApolloContext } from '../ApolloContext';
+import {
+  ApolloProvider,
+  ApolloConsumer,
+  getApolloContext
+} from '@apollo/react-common';
 
 const client = new ApolloClient({
   cache: new Cache(),

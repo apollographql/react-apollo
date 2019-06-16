@@ -2,9 +2,8 @@ import React from 'react';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider } from '@apollo/react-testing';
-import { render, cleanup } from 'react-testing-library';
-
-import { useQuery } from '../useQuery';
+import { render, cleanup } from '@testing-library/react';
+import { useQuery } from '@apollo/react-hooks';
 
 describe('useQuery Hook', () => {
   afterEach(cleanup);

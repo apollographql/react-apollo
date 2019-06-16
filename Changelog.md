@@ -25,6 +25,9 @@
   ([30edb1b0](https://github.com/apollographql/react-apollo/pull/2892/commits/30edb1b080b64253b9074a5e7347c544618ea2ea) and
   [3d138db3](https://github.com/apollographql/react-apollo/pull/2892/commits/3d138db386fe44e35203b991eb6caca0eec19d3d)).
 
+- `catchAsyncError`, `wrap`, and `compose` utilities have been removed
+  ([2c3a262](https://github.com/apollographql/react-apollo/pull/2892/commits/2c3a262f9eb1cfb9e58b40ceaeda16a628e3964c), [7de864e](https://github.com/apollographql/react-apollo/pull/2892/commits/7de864ecb90521fc2e1f211023fe436486af2324), and [e6089a7](https://github.com/apollographql/react-apollo/pull/2892/commits/e6089a716b2b19b57f36200db378b8613a91612d))
+
 ### Improvements
 
 - `useApolloClient` can be used to return an `ApolloClient` instance from
@@ -45,7 +48,7 @@
   [@JoviDeCroock](https://github.com/JoviDeCroock) in [#3018](https://github.com/apollographql/react-apollo/pull/3018)
 
 - The result of a mutation is now made available to the wrapped component, when using the `graphql` HOC. <br/>
-  [@andycarrell](https://github.com/andycarrell) in [#3008](https://github.com/apollographql/react-apollo/pull/3008) 
+  [@andycarrell](https://github.com/andycarrell) in [#3008](https://github.com/apollographql/react-apollo/pull/3008)
 
 ### Bug Fixes
 

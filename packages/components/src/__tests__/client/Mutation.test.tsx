@@ -11,10 +11,8 @@ import {
   mockSingleLink,
   stripSymbols
 } from '@apollo/react-testing';
-import { render, cleanup, fireEvent } from 'react-testing-library';
-
-import { Mutation } from '../../Mutation';
-import { Query } from '../../Query';
+import { render, cleanup, fireEvent } from '@testing-library/react';
+import { Query, Mutation } from '@apollo/react-components';
 
 const mutation = gql`
   mutation createTodo($text: String!) {

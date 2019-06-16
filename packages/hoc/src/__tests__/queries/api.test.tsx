@@ -1,14 +1,12 @@
 import React from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink, wrap, stripSymbols } from '@apollo/react-testing';
+import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import { ApolloProvider } from '@apollo/react-common';
-
-import { graphql } from '../../graphql';
-import { ChildProps } from '../../types';
+import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] api', () => {
   afterEach(cleanup);
@@ -188,13 +186,15 @@ describe('[queries] api', () => {
                   }
                 })
               })
-              .then(
-                wrap(done, (result: any) => {
+              .then((result: any) => {
+                try {
                   expect(stripSymbols(result.data.allPeople.people)).toEqual(
                     data1.allPeople.people
                   );
-                })
-              );
+                } catch (error) {
+                  done(error);
+                }
+              });
           } else if (count === 1) {
             expect(stripSymbols(props.data!.variables)).toEqual(variables);
             expect(props.data!.loading).toBeFalsy();
