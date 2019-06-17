@@ -8,7 +8,7 @@ import {
   SubscriptionResult
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
-import { BaseSubscriptionOptions } from '@apollo/react-common/src/types/types';
+import { BaseSubscriptionOptions } from '@apollo/react-common';
 
 export interface QueryComponentOptions<
   TData = any,
