@@ -65,6 +65,7 @@
     "rollup-plugin-commonjs": "9.3.4",
     "rollup-plugin-invariant": "0.5.2",
     "rollup-plugin-node-resolve": "4.2.2",
+    "rollup-plugin-terser": "5.0.0",
     "rollup-plugin-typescript2": "0.21.1",
     "ts-jest": "24.0.2",
     "tsc-watch": "2.2.1",
@@ -75,27 +76,27 @@
     {
       "name": "react-apollo",
       "path": "./packages/all/lib/react-apollo.cjs.min.js",
-      "maxSize": "375B"
+      "maxSize": "360B"
     },
     {
       "name": "@apollo/react-common",
       "path": "./packages/common/lib/react-common.cjs.min.js",
-      "maxSize": "725B"
+      "maxSize": "720B"
     },
     {
       "name": "@apollo/react-components",
       "path": "./packages/components/lib/react-components.cjs.min.js",
-      "maxSize": "685B"
+      "maxSize": "680B"
     },
     {
       "name": "@apollo/react-hoc",
       "path": "./packages/hoc/lib/react-hoc.cjs.min.js",
-      "maxSize": "1.6KB"
+      "maxSize": "1660B"
     },
     {
       "name": "@apollo/react-hooks",
       "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
-      "maxSize": "3.7KB"
+      "maxSize": "3820B"
     }
   ],
   "renovate": {
