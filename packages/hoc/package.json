@@ -12,6 +12,9 @@
   "license": "MIT",
   "main": "./lib/react-hoc.cjs.js",
   "module": "./lib/react-hoc.esm.js",
+  "react-native": {
+    "react-dom/server": false
+  },
   "typings": "./lib/index.d.ts",
   "repository": {
     "type": "git",
