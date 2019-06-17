@@ -6,7 +6,7 @@ import {
   Observable,
   // Observer,
 } from 'apollo-link';
-import stringify from 'json-stable-stringify';
+import stringify from 'fast-json-stable-stringify';
 
 import { print } from 'graphql/language/printer';
 import {
