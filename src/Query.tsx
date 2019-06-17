@@ -125,6 +125,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   private hasMounted: boolean = false;
   private operation?: IDocumentDefinition;
   private lastResult: ApolloQueryResult<TData> | null = null;
+  private lastRenderIsDifferent: boolean = false;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -232,7 +233,14 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   render(): React.ReactNode {
     const { context } = this;
-    const finish = () => this.props.children(this.getQueryResult());
+    const finish = () => {
+      const result = this.getQueryResult();
+      this.lastRenderIsDifferent =
+        !this.lastResult ||
+        this.lastResult.loading !== result.loading ||
+        this.lastResult.networkStatus !== result.networkStatus;
+      return this.props.children(result);
+    };
     if (context && context.renderPromises) {
       return context.renderPromises.addQueryPromise(this, finish);
     }
@@ -334,6 +342,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         }
 
         if (
+          !this.lastRenderIsDifferent &&
           this.lastResult &&
           this.lastResult.loading === loading &&
           this.lastResult.networkStatus === networkStatus &&
@@ -392,6 +401,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // If specified, `onError` / `onCompleted` callbacks are called here
     // after a network based Query result has been received.
     this.handleErrorOrCompleted();
+
+    this.lastRenderIsDifferent = false;
 
     // Force a rerender that goes through shouldComponentUpdate.
     if (this.hasMounted) this.forceUpdate();
