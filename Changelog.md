@@ -1,5 +1,7 @@
 # Change log
 
+## vNext
+
 ## 3.0.0
 
 ### Breaking Changes
@@ -34,12 +36,6 @@
   React Apollo's context, assuming it was previously set using
   `ApolloProvider`. <br/>
   [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
-
-- TODO
-
-## vNext
-
-### Improvements
 
 - Make sure `MockedProvider` is using the proper CJS/ESM bundle, when referencing `ApolloProvider`. <br/>
   [@jure](https://github.com/jure) in [#3029](https://github.com/apollographql/react-apollo/pull/3029).
