@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
-    "tslib": "^1.9.3"
+    "tslib": "^1.10.0"
   },
   "files": [
     "lib"

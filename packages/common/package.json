@@ -38,8 +38,8 @@
     "react": "^16.8.0"
   },
   "dependencies": {
-    "ts-invariant": "^0.4.2",
-    "tslib": "^1.9.3"
+    "ts-invariant": "^0.4.4",
+    "tslib": "^1.10.0"
   },
   "files": [
     "lib"
