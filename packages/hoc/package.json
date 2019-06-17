@@ -40,8 +40,8 @@
   "dependencies": {
     "@apollo/react-common": "file:../common",
     "@apollo/react-components": "file:../components",
-    "ts-invariant": "^0.4.2",
-    "tslib": "^1.9.3"
+    "ts-invariant": "^0.4.4",
+    "tslib": "^1.10.0"
   },
   "files": [
     "lib"
