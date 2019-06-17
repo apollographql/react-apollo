@@ -13,6 +13,7 @@ import {
   isEqual
 } from 'apollo-utilities';
 import { print } from 'graphql/language/printer';
+import stringify from 'fast-json-stable-stringify';
 
 import { MockedResponse, ResultFunction } from './types';
 
@@ -63,7 +64,12 @@ export class MockLink extends ApolloLink {
       (res, index) => {
         const requestVariables = operation.variables || {};
         const mockedResponseVariables = res.request.variables || {};
-        if (!isEqual(requestVariables, mockedResponseVariables)) {
+        if (
+          !isEqual(
+            stringify(requestVariables),
+            stringify(mockedResponseVariables)
+          )
+        ) {
           return false;
         }
         responseIndex = index;
