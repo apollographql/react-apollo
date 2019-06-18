@@ -6,6 +6,7 @@ import {
   Observable,
   // Observer,
 } from 'apollo-link';
+import stringify from 'fast-json-stable-stringify';
 
 import { print } from 'graphql/language/printer';
 import {
@@ -67,7 +68,7 @@ export class MockLink extends ApolloLink {
     const response = (this.mockedResponsesByKey[key] || []).find((res, index) => {
       const requestVariables = operation.variables || {};
       const mockedResponseVariables = res.request.variables || {};
-      if (!isEqual(requestVariables, mockedResponseVariables)) {
+      if (!isEqual(stringify(requestVariables), stringify(mockedResponseVariables))) {
         return false;
       }
       responseIndex = index;
