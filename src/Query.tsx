@@ -7,6 +7,7 @@ import ApolloClient, {
   NetworkStatus,
   FetchMoreOptions,
   FetchMoreQueryOptions,
+  ApolloCurrentResult
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
@@ -115,7 +116,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   // only delete queryObservable when we unmount the component.
   private queryObservable?: ObservableQuery<TData, TVariables> | null;
   private querySubscription?: ZenObservable.Subscription;
-  private previousData: any = {};
   private refetcherQueue?: {
     args: any;
     resolve: (value?: any | PromiseLike<any>) => void;
@@ -124,8 +124,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private hasMounted: boolean = false;
   private operation?: IDocumentDefinition;
-  private lastResult: ApolloQueryResult<TData> | null = null;
-  private lastRenderIsDifferent: boolean = false;
+  private lastRenderedResult: ApolloQueryResult<TData> | null = null;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -176,7 +175,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.hasMounted = true;
     if (this.props.skip) return;
 
-    this.startQuerySubscription(true);
+    this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
       this.queryObservable!.refetch(args)
@@ -188,6 +187,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>, nextContext: QueryContext) {
     // the next render wants to skip
     if (nextProps.skip && !this.props.skip) {
+      this.queryObservable!.resetLastResults();
       this.removeQuerySubscription();
       return;
     }
@@ -202,11 +202,10 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       this.client = nextClient;
       this.removeQuerySubscription();
       this.queryObservable = null;
-      this.previousData = {};
-      this.updateQuery(nextProps);
     }
 
     if (this.props.query !== nextProps.query) {
+      this.queryObservable!.resetLastResults();
       this.removeQuerySubscription();
     }
 
@@ -233,14 +232,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   render(): React.ReactNode {
     const { context } = this;
-    const finish = () => {
-      const result = this.getQueryResult();
-      this.lastRenderIsDifferent =
-        !this.lastResult ||
-        this.lastResult.loading !== result.loading ||
-        this.lastResult.networkStatus !== result.networkStatus;
-      return this.props.children(result);
-    };
+    const finish = () => this.props.children(this.getQueryResult());
     if (context && context.renderPromises) {
       return context.renderPromises.addQueryPromise(this, finish);
     }
@@ -308,53 +300,28 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       .catch(() => null);
   }
 
-  private startQuerySubscription = (justMounted: boolean = false) => {
+  private startQuerySubscription = () => {
     // When the `Query` component receives new props, or when we explicitly
     // re-subscribe to a query using `resubscribeToQuery`, we start a new
     // subscription in this method. To avoid un-necessary re-renders when
     // receiving new props or re-subscribing, we track the full last
     // observable result so it can be compared against incoming new data.
     // We only trigger a re-render if the incoming result is different than
-    // the stored `lastResult`.
-    //
-    // It's important to note that when a component is first mounted,
-    // the `startQuerySubscription` method is also triggered. During a first
-    // mount, we don't want to store or use the last result, as we always
-    // need the first render to happen, even if there was a previous last
-    // result (which can happen when the same component is mounted, unmounted,
-    // and mounted again).
-    if (!justMounted) {
-      this.lastResult = this.queryObservable!.getLastResult();
-    }
+    // the stored `lastRenderedResult`.
 
     if (this.querySubscription) return;
 
-    // store the initial renders worth of result
-    let initial: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
-
     this.querySubscription = this.queryObservable!.subscribe({
-      next: ({ loading, networkStatus, data }) => {
-        // to prevent a quick second render from the subscriber
-        // we compare to see if the original started finished (from cache) and is unchanged
-        if (initial && initial.networkStatus === 7 && shallowEqual(initial.data, data)) {
-          initial = undefined;
-          return;
-        }
-
+      next: (result) => {
         if (
-          !this.lastRenderIsDifferent &&
-          this.lastResult &&
-          this.lastResult.loading === loading &&
-          this.lastResult.networkStatus === networkStatus &&
-          shallowEqual(this.lastResult.data, data)
+          this.lastRenderedResult &&
+          this.lastRenderedResult.loading === result.loading &&
+          this.lastRenderedResult.networkStatus === result.networkStatus &&
+          shallowEqual(this.lastRenderedResult.data, result.data)
         ) {
           return;
         }
 
-        initial = undefined;
-        if (this.lastResult) {
-          this.lastResult = this.queryObservable!.getLastResult();
-        }
         this.updateCurrentData();
       },
       error: error => {
@@ -368,8 +335,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private removeQuerySubscription = () => {
     if (this.querySubscription) {
-      this.lastResult = this.queryObservable!.getLastResult();
       this.querySubscription.unsubscribe();
+      delete this.lastRenderedResult;
       delete this.querySubscription;
     }
   };
@@ -395,8 +362,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // If specified, `onError` / `onCompleted` callbacks are called here
     // after a network based Query result has been received.
     this.handleErrorOrCompleted();
-
-    this.lastRenderIsDifferent = false;
 
     // Force a rerender that goes through shouldComponentUpdate.
     if (this.hasMounted) this.forceUpdate();
@@ -429,7 +394,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
         loading: false,
       };
     } else {
-      // Fetch the current result (if any) from the store.
       const currentResult = this.queryObservable!.currentResult();
       const { loading, partial, networkStatus, errors } = currentResult;
       let { error } = currentResult;
@@ -443,8 +407,11 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       const { fetchPolicy } = this.queryObservable!.options;
       Object.assign(data, { loading, networkStatus, error });
 
+      const previousData =
+        this.lastRenderedResult ? this.lastRenderedResult.data : {};
+
       if (loading) {
-        Object.assign(data.data, this.previousData, currentResult.data);
+        Object.assign(data.data, previousData, currentResult.data);
       } else if (error) {
         Object.assign(data, {
           data: (this.queryObservable!.getLastResult() || {}).data,
@@ -455,11 +422,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       ) {
         // Make sure data pulled in by a `no-cache` query is preserved
         // when the components parent tree is re-rendered.
-        data.data = this.previousData;
+        data.data = previousData;
       } else {
         const { partialRefetch } = this.props;
         if (
           partialRefetch &&
+          typeof currentResult.data === 'object' &&
           Object.keys(currentResult.data).length === 0 &&
           partial &&
           fetchPolicy !== 'cache-only'
@@ -474,11 +442,11 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
           // this we'll attempt to refetch the `Query` data.
           Object.assign(data, { loading: true, networkStatus: NetworkStatus.loading });
           data.refetch();
+          this.lastRenderedResult = data;
           return data;
         }
 
         Object.assign(data.data, currentResult.data);
-        this.previousData = currentResult.data;
       }
     }
 
@@ -524,6 +492,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     });
 
     data.client = this.client;
+    this.lastRenderedResult = data;
     return data;
   };
 }
