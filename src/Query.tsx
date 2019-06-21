@@ -16,7 +16,7 @@ import { getClient } from './component-utils';
 import { RenderPromises } from './getDataFromTree';
 
 import isEqual from 'lodash.isequal';
-import shallowEqual from './utils/shallowEqual';
+import shallowEqual, { shallowEqualSansFirst } from './utils/shallowEqual';
 import { invariant } from 'ts-invariant';
 
 export type ObservableQueryFields<TData, TVariables> = Pick<
@@ -74,6 +74,10 @@ export interface QueryProps<TData = any, TVariables = OperationVariables> extend
   skip?: boolean;
   onCompleted?: (data: TData) => void;
   onError?: (error: ApolloError) => void;
+  shouldInvalidatePreviousData: (
+    nextVariables: TVariables | undefined,
+    lastVariables: TVariables | undefined,
+  ) => boolean;
 }
 
 export interface QueryContext {
@@ -94,6 +98,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   static propTypes = {
     client: PropTypes.object,
     children: PropTypes.func.isRequired,
+    shouldInvalidatePreviousData: PropTypes.func,
     fetchPolicy: PropTypes.string,
     notifyOnNetworkStatusChange: PropTypes.bool,
     onCompleted: PropTypes.func,
@@ -104,6 +109,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     ssr: PropTypes.bool,
     partialRefetch: PropTypes.bool,
     returnPartialData: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    shouldInvalidatePreviousData: (
+      nextVariables: OperationVariables | undefined,
+      lastVariables: OperationVariables | undefined,
+    ) => !shallowEqualSansFirst(nextVariables, lastVariables),
   };
 
   context: QueryContext | undefined;
@@ -203,6 +215,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       this.queryObservable = null;
       this.previousData = {};
       this.updateQuery(nextProps);
+    } else if (nextProps.shouldInvalidatePreviousData(nextProps.variables, this.props.variables)) {
+      this.previousData = {};
     }
 
     if (this.props.query !== nextProps.query) {
@@ -255,7 +269,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       ...props,
       displayName,
       context: props.context || {},
-      metadata: { reactComponent: { displayName }},
+      metadata: { reactComponent: { displayName } },
     };
   }
 
