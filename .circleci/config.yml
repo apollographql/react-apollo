@@ -46,13 +46,6 @@ jobs:
       - store_artifacts:
           path: reports/junit
 
-  Bundlesize:
-    docker: [{ image: 'circleci/node:8' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run: npm run bundlesize
-
 workflows:
   version: 2
   Build and Test:
@@ -60,4 +53,3 @@ workflows:
       - Tests - ESM
       - Tests - CJS
       - Tests - UMD
-      - Bundlesize
