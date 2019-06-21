@@ -1,7 +1,7 @@
 {
   "name": "react-apollo",
   "description": "React Apollo Hooks, Components, and HOC.",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.2",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
