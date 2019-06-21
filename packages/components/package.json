@@ -12,6 +12,9 @@
   "license": "MIT",
   "main": "./lib/react-components.cjs.js",
   "module": "./lib/react-components.esm.js",
+  "react-native": {
+    "react-dom/server": false
+  },
   "typings": "./lib/index.d.ts",
   "repository": {
     "type": "git",

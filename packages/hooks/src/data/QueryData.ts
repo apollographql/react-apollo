@@ -209,15 +209,8 @@ export class QueryData<TData, TVariables> extends OperationData {
         this.updateCurrentData();
       },
       error: error => {
-        if (
-          !this.previousData.result ||
-          this.previousData.result.networkStatus === NetworkStatus.refetch
-        ) {
-          this.resubscribeToQuery();
-        }
-
+        this.resubscribeToQuery();
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
-
         this.updateCurrentData();
       }
     });
@@ -317,6 +310,14 @@ export class QueryData<TData, TVariables> extends OperationData {
         Object.assign(result.data, data);
       }
     }
+
+    // When the component is done rendering stored query errors, we'll
+    // remove those errors from the `ObservableQuery` query store, so they
+    // aren't re-displayed on subsequent (potentially error free)
+    // requests/responses.
+    setTimeout(() => {
+      this.currentObservable.query!.resetQueryStoreErrors();
+    });
 
     result.client = this.client;
     this.previousData.loading =

@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
+    "fast-json-stable-stringify": "^2.0.0",
     "tslib": "^1.10.0"
   },
   "files": [

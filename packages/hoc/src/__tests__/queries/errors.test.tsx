@@ -601,37 +601,6 @@ describe('[queries] errors', () => {
       options: { notifyOnNetworkStatusChange: true }
     })(
       class extends React.Component<ChildProps<ContainerOwnProps, Data>> {
-        componentDidUpdate() {
-          // first payload with error has arrived from server
-          // switch (count) {
-          //   case 0:
-          //     count = 1;
-          //     expect(this.props.data!.error!.networkError!.message).toMatch(
-          //       /This is an error/
-          //     );
-          //     done();
-          //     // unmount this component
-          //     // this.props.toggle();
-          //     // setTimeout(() => {
-          //     //   // remount after 50 ms
-          //     //   this.props.toggle();
-          //     // }, 50);
-          //     break;
-          //   case 1:
-          //     // data has arrived
-          //     expect(this.props.data!.loading).toBe(false);
-          //     done();
-          //     break;
-          //   default:
-          //     throw new Error('Too many renders.');
-          // }
-        }
-
-        componentWillUnmount() {
-          // unmount after first error
-          // expect(count).toBe(1);
-        }
-
         render() {
           switch (count) {
             case 0:
@@ -652,10 +621,6 @@ describe('[queries] errors', () => {
               }, 50);
               break;
             case 2:
-              expect(this.props.data!.loading).toBe(true);
-              break;
-            case 3:
-              // data has arrived
               expect(this.props.data!.loading).toBe(false);
               done();
               break;

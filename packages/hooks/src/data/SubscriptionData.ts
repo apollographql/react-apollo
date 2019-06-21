@@ -103,18 +103,18 @@ export class SubscriptionData<
   private updateCurrentData(result: SubscriptionResult<TData>) {
     const { onSubscriptionData } = this.getOptions();
 
+    this.updateResult({
+      data: result.data,
+      loading: false,
+      error: undefined
+    });
+
     if (onSubscriptionData) {
       onSubscriptionData({
         client: this.refreshClient().client,
         subscriptionData: result
       });
     }
-
-    this.updateResult({
-      data: result.data,
-      loading: false,
-      error: undefined
-    });
   }
 
   private updateError(error: any) {
