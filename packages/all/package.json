@@ -33,8 +33,8 @@
     "deploy": "npm publish --tag beta"
   },
   "peerDependencies": {
-    "apollo-client": "^2.6.0",
-    "graphql": "^14.2.1",
+    "apollo-client": "^2.6.2",
+    "graphql": "^14.3.1",
     "react": "^16.8.0"
   },
   "dependencies": {
