@@ -610,4 +610,119 @@ describe('[queries] loading', () => {
       </ApolloProvider>
     );
   });
+
+  it(
+    'correctly sets loading state on component with changed variables, ' +
+      'unchanged result, and network-only',
+    done => {
+      const query: DocumentNode = gql`
+        query remount($first: Int) {
+          allPeople(first: $first) {
+            people {
+              name
+            }
+          }
+        }
+      `;
+      interface Data {
+        allPeople: {
+          people: { name: string }[];
+        };
+      }
+
+      const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+      const variables = { first: 1 };
+      const variables2 = { first: 2 };
+
+      type Vars = typeof variables;
+      const link = mockSingleLink(
+        { request: { query, variables }, result: { data }, delay: 10 },
+        {
+          request: { query, variables: variables2 },
+          result: { data },
+          delay: 10
+        }
+      );
+      const client = new ApolloClient({
+        link,
+        cache: new Cache({ addTypename: false })
+      });
+      let count = 0;
+
+      interface Props extends Vars {
+        setFirst: (first: number) => void;
+      }
+
+      const connect = (
+        component: React.ComponentType<Props>
+      ): React.ComponentType<{}> => {
+        return class extends React.Component<{}, { first: number }> {
+          constructor(props: {}) {
+            super(props);
+
+            this.state = {
+              first: 1
+            };
+            this.setFirst = this.setFirst.bind(this);
+          }
+
+          setFirst(first: number) {
+            this.setState({ first });
+          }
+
+          render() {
+            return React.createElement(component, {
+              first: this.state.first,
+              setFirst: this.setFirst
+            });
+          }
+        };
+      };
+
+      const Container = connect(
+        graphql<Props, Data, Vars>(query, {
+          options: ({ first }) => ({
+            variables: { first },
+            fetchPolicy: 'network-only'
+          })
+        })(
+          class extends React.Component<ChildProps<Props, Data, Vars>> {
+            render() {
+              const { props } = this;
+              if (count === 0) {
+                expect(props.data!.loading).toBeTruthy();
+              }
+
+              if (count === 1) {
+                expect(props.data!.loading).toBeFalsy(); // has initial data
+                expect(props.data!.allPeople).toEqual(data.allPeople);
+                setTimeout(() => {
+                  this.props.setFirst(2);
+                }, 5);
+              }
+
+              if (count === 2) {
+                expect(props.data!.loading).toBeTruthy(); // on variables change
+              }
+
+              if (count === 3) {
+                // new data after fetch
+                expect(props.data!.loading).toBeFalsy();
+                expect(props.data!.allPeople).toEqual(data.allPeople);
+                done();
+              }
+              count++;
+              return null;
+            }
+          }
+        )
+      );
+
+      render(
+        <ApolloProvider client={client}>
+          <Container />
+        </ApolloProvider>
+      );
+    }
+  );
 });

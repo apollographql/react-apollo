@@ -130,7 +130,7 @@ describe('graphql(mutation) update queries', () => {
 
           render() {
             try {
-              switch (queryRenderCount++) {
+              switch (queryRenderCount) {
                 case 0:
                   expect(this.props.data!.loading).toBeTruthy();
                   expect(this.props.data!.todo_list).toBeFalsy();
@@ -183,6 +183,7 @@ describe('graphql(mutation) update queries', () => {
                 default:
                   throw new Error('Rendered too many times');
               }
+              queryRenderCount += 1;
             } catch (error) {
               reject(error);
             }

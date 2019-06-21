@@ -556,16 +556,20 @@ describe('Query component', () => {
 
   describe('props allow', () => {
     it('custom fetch-policy', done => {
+      let count = 0;
       const Component = () => (
         <Query query={allPeopleQuery} fetchPolicy={'cache-only'}>
           {(result: any) => {
-            try {
-              expect(result.loading).toBeFalsy();
-              expect(result.networkStatus).toBe(NetworkStatus.ready);
-              done();
-            } catch (error) {
-              done.fail(error);
+            if (count === 0) {
+              try {
+                expect(result.loading).toBeFalsy();
+                expect(result.networkStatus).toBe(NetworkStatus.ready);
+                done();
+              } catch (error) {
+                done.fail(error);
+              }
             }
+            count += 1;
             return null;
           }}
         </Query>
@@ -579,16 +583,20 @@ describe('Query component', () => {
     });
 
     it('default fetch-policy', done => {
+      let count = 0;
       const Component = () => (
         <Query query={allPeopleQuery}>
           {(result: any) => {
-            try {
-              expect(result.loading).toBeFalsy();
-              expect(result.networkStatus).toBe(NetworkStatus.ready);
-              done();
-            } catch (error) {
-              done.fail(error);
+            if (count === 0) {
+              try {
+                expect(result.loading).toBeFalsy();
+                expect(result.networkStatus).toBe(NetworkStatus.ready);
+                done();
+              } catch (error) {
+                done.fail(error);
+              }
             }
+            count += 1;
             return null;
           }}
         </Query>

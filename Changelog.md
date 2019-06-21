@@ -37,20 +37,21 @@
   `ApolloProvider`. <br/>
   [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
 
-
 ## 2.5.7 (Not yet released)
 
 ### Improvements
 
-- Make sure `MockedProvider` is using the proper CJS/ESM bundle, when referencing `ApolloProvider`. <br/>
+- Make sure `MockedProvider` is using the proper CJS/ESM bundle, when
+  referencing `ApolloProvider`. <br/>
   [@jure](https://github.com/jure) in [#3029](https://github.com/apollographql/react-apollo/pull/3029).
-- Adjust the `ApolloContext` definition to play a bit more nicely with `React.createContext` types. <br/>
+- Adjust the `ApolloContext` definition to play a bit more nicely with
+  `React.createContext` types. <br/>
   [@JoviDeCroock](https://github.com/JoviDeCroock) in [#3018](https://github.com/apollographql/react-apollo/pull/3018)
 - The result of a mutation is now made available to the wrapped component,
-  when using the `graphql` HOC.  <br/>
+  when using the `graphql` HOC. <br/>
   [@andycarrell](https://github.com/andycarrell) in [#3008](https://github.com/apollographql/react-apollo/pull/3008)
 - Check equality of stringified variables in the `MockLink` to improve
-  debugging experience used by `MockedProvider`.  <br/>
+  debugging experience used by `MockedProvider`. <br/>
   [@evans](https://github.com/evans) in [#3078](https://github.com/apollographql/react-apollo/pull/3078)
 
 ### Bug Fixes
@@ -61,7 +62,16 @@
   [@ZhengYuTay](https://github.com/ZhengYuTay) in [#3056](https://github.com/apollographql/react-apollo/pull/3056)
 - Fix typescript error caused by `query` being mandatory in the `fetchMore` signature. <br/>
   [@HsuTing](https://github.com/HsuTing) in [#3065](https://github.com/apollographql/react-apollo/pull/3065)
-
+- Fixes an issue that caused the `Query` component to get stuck in an always
+  loading state, caused by receiving an error (meaning subsequent valid
+  responses couldn't be handled). The `Query` component can now handle an
+  error in a response, then continue to handle a valid response afterwards. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3107](https://github.com/apollographql/react-apollo/pull/3107)
+- Reorder `Subscription` component code to avoid setting state on unmounted
+  component. <br/>
+  [@jasonpaulos](https://github.com/jasonpaulos) in [#3139](https://github.com/apollographql/react-apollo/pull/3139)
+- Fix component stuck in `loading` state for `network-only` fetch policy. <br/>
+  [@jasonpaulos](https://github.com/jasonpaulos) in [#3126](https://github.com/apollographql/react-apollo/pull/3126)
 
 ## 2.5.6 (2019-05-22)
 
