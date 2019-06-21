@@ -1,6 +1,6 @@
 # Change log
 
-## vNext
+## 2.5.7 (2019-06-21)
 
 ### Improvements
 

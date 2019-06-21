@@ -1,6 +1,6 @@
 {
   "name": "react-apollo",
-  "version": "2.5.6",
+  "version": "2.5.7",
   "author": "opensource@apollographql.com",
   "private": true,
   "description": "React data container for Apollo Client",
