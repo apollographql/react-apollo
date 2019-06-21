@@ -15,6 +15,7 @@ exports[`Character returns markup for a friend without an appearsIn 1`] = `
       <h6>
         james
         : 
+        
       </h6>
     </div>
   </div>

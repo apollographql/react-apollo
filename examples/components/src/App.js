@@ -1,6 +1,7 @@
 import React from 'react';
-import { Query } from 'react-apollo';
+import { Query } from '@apollo/react-components';
 import gql from 'graphql-tag';
+
 import Character from './character';
 
 export const HERO_QUERY = gql`

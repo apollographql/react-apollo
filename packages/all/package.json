@@ -1,0 +1,56 @@
+{
+  "name": "react-apollo",
+  "description": "React Apollo Hooks, Components, and HOC.",
+  "version": "3.0.0-beta.1",
+  "author": "opensource@apollographql.com",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "react",
+    "hooks",
+    "hoc",
+    "components"
+  ],
+  "license": "MIT",
+  "main": "./lib/react-apollo.cjs.js",
+  "module": "./lib/react-apollo.esm.js",
+  "react-native": {
+    "react-dom/server": false
+  },
+  "typings": "./lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "apollographql/react-apollo"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -Rf ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
+    "prepare": "npm run build",
+    "prebuild": "npm run clean",
+    "build": "npx tsc -p ./config",
+    "postbuild": "npx rollup -c ./config/rollup.config.js",
+    "predeploy": "npm run build",
+    "deploy": "npm publish --tag beta"
+  },
+  "peerDependencies": {
+    "apollo-client": "^2.6.2",
+    "graphql": "^14.3.1",
+    "react": "^16.8.0"
+  },
+  "dependencies": {
+    "@apollo/react-common": "file:../common",
+    "@apollo/react-components": "file:../components",
+    "@apollo/react-hoc": "file:../hoc",
+    "@apollo/react-hooks": "file:../hooks"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "rollup": "^1.15.5",
+    "typescript": "^3.5.2"
+  }
+}

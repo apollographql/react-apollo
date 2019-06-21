@@ -151,7 +151,7 @@ import 'core-js/fn/object/assign';
 
 The `react-apollo` package is designed to be effectively consumed by bundlers that understand either CommonJS `require` syntax or ECMASCript `import` and `export` syntax, such as [Rollup](https://rollupjs.org), [Webpack](https://webpack.js.org), or [Parcel](https://parceljs.org). If your bundler supports tree-shaking, it should be able to eliminate unused code from the `react-apollo` package, regardless of which module syntax you're using.
 
-You should (almost) never need to reach into the `react-apollo/...` internals to import specific modules. The only supported exceptions are `react-apollo/test-links`, `react-apollo/test-utils`, and `react-apollo/walkTree` (deprecated).
+You should (almost) never need to reach into the `react-apollo/...` internals to import specific modules. The only supported exceptions are `react-apollo/test-links`, `react-apollo/test-utils`.
 
 When minifying your application, you can make the `react-apollo` package noticeably smaller by configuring your minifier to replace the expression `process.env.NODE_ENV` with a string literal (typically `"production"`). Other packages such as [React](https://reactjs.org) use the same convention, so there's a good chance you already have your minifier configured in this way.
 

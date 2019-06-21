@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/react-hoc';
 import gql from 'graphql-tag';
 
 export const HERO_QUERY = gql`
@@ -18,9 +18,9 @@ export const HERO_QUERY = gql`
 
 export const withCharacter = graphql(HERO_QUERY, {
   options: ({ episode }) => ({
-    variables: { episode },
+    variables: { episode }
   }),
-  props: ({ data }) => ({ ...data }),
+  props: ({ data }) => ({ ...data })
 });
 
 export const CharacterWithoutData = ({ loading, hero, error }) => {
@@ -37,9 +37,10 @@ export const CharacterWithoutData = ({ loading, hero, error }) => {
               friend =>
                 friend && (
                   <h6 key={friend.id}>
-                    {friend.name}: {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
+                    {friend.name}:{' '}
+                    {friend.appearsIn.map(x => x && x.toLowerCase()).join(', ')}
                   </h6>
-                ),
+                )
             )}
         </div>
       )}

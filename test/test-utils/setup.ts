@@ -1,2 +1,0 @@
-import './shim';
-import './enzyme';

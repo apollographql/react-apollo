@@ -1,0 +1,61 @@
+{
+  "name": "@apollo/react-hooks",
+  "description": "React Apollo Hooks.",
+  "version": "0.1.0-beta.8",
+  "author": "opensource@apollographql.com",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "react",
+    "hooks"
+  ],
+  "license": "MIT",
+  "main": "./lib/react-hooks.cjs.js",
+  "module": "./lib/react-hooks.esm.js",
+  "react-native": {
+    "react-dom/server": false
+  },
+  "typings": "./lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "apollographql/react-apollo"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -Rf ./lib/* ./meta/bundlesize/* ./meta/coverage/*",
+    "prepare": "npm run build",
+    "prebuild": "npm run clean",
+    "build": "npx tsc -p ./config",
+    "postbuild": "npx rollup -c ./config/rollup.config.js",
+    "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
+    "predeploy": "npm run build",
+    "deploy": "npm publish --tag beta",
+    "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hooks",
+    "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hooks --watch",
+    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hooks",
+    "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/hooks"
+  },
+  "peerDependencies": {
+    "apollo-client": "^2.6.2",
+    "graphql": "^14.3.1",
+    "react": "^16.8.0"
+  },
+  "dependencies": {
+    "@apollo/react-common": "file:../common",
+    "apollo-utilities": "^1.3.2",
+    "ts-invariant": "^0.4.4",
+    "tslib": "^1.10.0"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "jest": "^24.8.0",
+    "rollup": "^1.15.5",
+    "tsc-watch": "^2.2.1",
+    "typescript": "^3.5.2"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "ssr-hooks",
+  "private": true,
+  "scripts": {
+    "start": "meteor run",
+    "test": "nightwatch",
+    "visualize": "meteor --production --extra-packages bundle-visualizer"
+  },
+  "dependencies": {
+    "@apollo/react-hooks": "beta",
+    "@babel/runtime": "^7.4.5",
+    "apollo-cache-inmemory": "^1.6.0",
+    "apollo-client": "^2.6.0",
+    "apollo-link-http": "^1.5.14",
+    "apollo-server": "^2.5.0",
+    "apollo-server-express": "^2.5.0",
+    "babel-runtime": "^6.26.0",
+    "body-parser": "^1.19.0",
+    "graphql": "^14.3.1",
+    "graphql-tag": "^2.10.1",
+    "graphql-tools": "^4.0.4",
+    "meteor-node-stubs": "^0.4.1",
+    "node-fetch": "^2.6.0",
+    "react": "../../../node_modules/react",
+    "react-dom": "../../../node_modules/react-dom"
+  },
+  "devDependencies": {
+    "assert": "2.0.0",
+    "babel-plugin-transform-react-require": "1.0.1",
+    "babel-preset-react": "6.24.1",
+    "cheerio": "1.0.0-rc.3",
+    "chromedriver": "73.0.0",
+    "nightwatch": "0.9.21",
+    "selenium-webdriver": "4.0.0-alpha.1"
+  }
+}

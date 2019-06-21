@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`General use allows for querying with the typename 1`] = `
+Object {
+  "__typename": "User",
+  "id": "user_id",
+}
+`;
+
+exports[`General use does not error if the variables match but have different order 1`] = `
+Object {
+  "__typename": "User",
+  "id": "user_id",
+}
+`;
+
+exports[`General use errors if the query in the mock and component do not match 1`] = `
+[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+  user(username: $username) {
+    id
+    __typename
+  }
+}
+, variables: {"username":"mock_username"}]
+`;
+
+exports[`General use errors if the query in the mock and component do not match 2`] = `
+[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+  user(username: $username) {
+    id
+    __typename
+  }
+}
+, variables: {"username":"mock_username"}]
+`;
+
+exports[`General use errors if the variables do not deep equal 1`] = `
+[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+  user(username: $username) {
+    id
+    __typename
+  }
+}
+, variables: {"username":"some_user","age":42}]
+`;
+
+exports[`General use errors if the variables do not deep equal 2`] = `
+[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+  user(username: $username) {
+    id
+    __typename
+  }
+}
+, variables: {"username":"some_user","age":42}]
+`;
+
+exports[`General use errors if the variables in the mock and component do not match 1`] = `
+[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+  user(username: $username) {
+    id
+    __typename
+  }
+}
+, variables: {"username":"other_user"}]
+`;
+
+exports[`General use errors if the variables in the mock and component do not match 2`] = `
+[Error: Network error: No more mocked responses for the query: query GetUser($username: String!) {
+  user(username: $username) {
+    id
+    __typename
+  }
+}
+, variables: {"username":"other_user"}]
+`;
+
+exports[`General use mocks the data 1`] = `
+Object {
+  "__typename": "User",
+  "id": "user_id",
+}
+`;

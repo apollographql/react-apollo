@@ -1,176 +1,103 @@
 {
-  "name": "react-apollo",
-  "version": "2.5.7",
-  "author": "opensource@apollographql.com",
+  "name": "apollo-react-monorepo",
+  "version": "3.0.0",
   "private": true,
-  "description": "React data container for Apollo Client",
-  "keywords": [
-    "apollo",
-    "graphql",
-    "react"
-  ],
+  "author": "opensource@apollographql.com",
   "license": "MIT",
-  "main": "lib/react-apollo.cjs.js",
-  "module": "lib/react-apollo.esm.js",
-  "react-native": {
-    "react-dom/server": false
-  },
-  "typings": "lib/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "apollographql/react-apollo"
-  },
   "scripts": {
-    "compile": "tsc -p ./tsconfig.cjs.json",
-    "danger": "danger run --verbose",
-    "deploy": "cd lib && npm publish",
-    "filesize": "bundlesize",
-    "jest": "jest --runInBand --coverage",
-    "lint": "tslint --project tsconfig.json --config tslint.json",
-    "lint-staged": "lint-staged",
-    "lint:fix": "npm run prettier && tslint 'src/*.ts*' --project tsconfig.json --fix",
-    "postcompile": "rollup -c  && ./scripts/prepare-package.sh",
-    "precompile": "rimraf lib",
-    "predeploy": "npm run compile",
-    "prefilesize": "npm run compile",
-    "prettier": "prettier --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
-    "test": "npm run lint && npm run type-check && npm run jest",
-    "test-examples": ". ./test-examples.sh",
-    "test-preact": "jest --config ./jest.preact.config.json --runInBand",
-    "test-watch": "jest --watch",
-    "test:compiled": "npm run test:compiled:cjs && npm run test:compiled:umd",
-    "test:compiled:cjs": "jest --config jest.cjs.config.js --runInBand",
-    "test:compiled:umd": "jest --config jest.umd.config.js --runInBand",
-    "type-check": "tsc --project tsconfig.json --noEmit ",
-    "watch": "tsc-watch --onSuccess \"npm run postcompile\""
+    "postinstall": "npx lerna exec -- npm install --package-lock=false && npx lerna run prepare",
+    "build": "npx lerna run build",
+    "test": "npx jest --config ./config/jest.config.js",
+    "test:watch": "npx jest --config ./config/jest.config.js --watch",
+    "test:coverage": "npx jest --config ./config/jest.config.js --verbose --coverage",
+    "test:ci": "npm run test:coverage -- --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
+    "test:cjs": "npm run build && npx jest --config ./config/jest.cjs.config.js",
+    "test:cjs:ci": "npx jest --config ./config/jest.cjs.config.js --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
+    "test:umd": "npm run build && npx jest --config ./config/jest.umd.config.js",
+    "test:umd:ci": "npx jest --config ./config/jest.umd.config.js --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
+    "bundlesize": "npx lerna run build && bundlesize",
+    "prettier": "npx prettier --config ./config/prettier.config.js --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
+    "deploy": "npx lerna publish --dist-tag beta",
+    "clean": "rm -Rf ./node_modules ./meta && npx lerna exec -- npm run clean"
   },
-  "babel": {
-    "presets": [
-      "env"
-    ]
+  "dependencies": {
+    "react-apollo": "file:./packages/all",
+    "@apollo/react-common": "file:./packages/common",
+    "@apollo/react-components": "file:./packages/components",
+    "@apollo/react-hoc": "file:./packages/hoc",
+    "@apollo/react-hooks": "file:./packages/hooks",
+    "@apollo/react-testing": "file:./packages/testing"
   },
-  "bundlesize": [
-    {
-      "path": "./dist/bundlesize.js",
-      "maxSize": "5.4 KB"
-    }
-  ],
-  "renovate": {
-    "extends": [
-      "config:base",
-      "schedule:nonOfficeHours",
-      ":pinOnlyDevDependencies"
-    ],
-    "semanticCommits": true,
-    "timezone": "America/New_York",
-    "automerge": false,
-    "labels": [
-      "dependencies"
-    ]
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest",
-      "^.+\\.jsx?$": "babel-jest"
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ],
-    "modulePathIgnorePatterns": [
-      "<rootDir>/examples",
-      "<rootDir>/test/typescript-usage.tsx",
-      "<rootDir>/test/fail-no-entry-point.js"
-    ],
-    "projects": [
-      "<rootDir>"
-    ],
-    "testRegex": "(/test/(?!test-utils\b)\b.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "setupFiles": [
-      "<rootDir>/test/test-utils/setup.ts"
-    ]
-  },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "semi": true,
-    "trailingComma": "all"
-  },
-  "peerDependencies": {
-    "apollo-client": "^2.6.3",
-    "react": "^15.0.0 || ^16.0.0",
-    "react-dom": "^15.0.0 || ^16.0.0",
-    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
-  },
-  "sideEffects": false,
   "devDependencies": {
-    "@types/enzyme": "3.9.3",
-    "@types/enzyme-adapter-react-16": "1.0.5",
+    "@babel/core": "7.4.5",
+    "@babel/plugin-transform-modules-commonjs": "7.4.4",
+    "@babel/plugin-transform-modules-umd": "7.2.0",
+    "@testing-library/react": "8.0.1",
     "@types/fast-json-stable-stringify": "^2.0.0",
-    "@types/graphql": "14.2.0",
+    "@types/graphql": "14.2.1",
     "@types/hoist-non-react-statics": "3.3.1",
     "@types/invariant": "2.2.29",
-    "@types/jest": "24.0.14",
-    "@types/lodash.isequal": "4.5.5",
-    "@types/object-assign": "4.0.30",
+    "@types/jest": "24.0.15",
     "@types/prop-types": "15.7.1",
-    "@types/react": "16.8.12",
-    "@types/react-dom": "16.8.4",
-    "@types/react-test-renderer": "16.8.2",
+    "@types/react": "^16.8.20",
+    "@types/react-dom": "^16.8.4",
     "@types/recompose": "0.30.6",
     "@types/zen-observable": "0.8.0",
     "apollo-cache": "1.3.2",
     "apollo-cache-inmemory": "1.6.2",
     "apollo-client": "2.6.3",
-    "apollo-link": "1.2.11",
-    "babel-core": "6.26.3",
-    "babel-jest": "24.8.0",
-    "babel-preset-env": "1.7.0",
-    "bundlesize": "0.17.2",
-    "coveralls": "3.0.4",
-    "danger": "7.1.4",
-    "enzyme": "3.10.0",
-    "enzyme-adapter-react-16": "1.14.0",
+    "apollo-link": "1.2.12",
+    "bundlesize": "0.17.1",
     "graphql": "14.3.1",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
-    "jest-junit": "6.4.0",
-    "jsdom": "14.1.0",
-    "lodash.includes": "4.3.0",
-    "lodash.times": "4.3.2",
-    "preact": "8.4.2",
-    "preact-compat": "3.18.5",
-    "prettier": "1.18.2",
-    "react": "16.8.6",
-    "react-dom": "16.8.6",
-    "react-test-renderer": "16.8.6",
+    "jest-junit": "6.3.0",
+    "lerna": "3.13.2",
+    "react": "16.9.0-alpha.0",
+    "react-dom": "16.9.0-alpha.0",
     "recompose": "0.30.0",
-    "recursive-rename": "2.0.0",
-    "rimraf": "2.6.3",
     "rollup": "1.15.2",
     "rollup-plugin-commonjs": "9.3.4",
-    "rollup-plugin-filesize": "6.1.0",
-    "rollup-plugin-invariant": "0.5.6",
-    "rollup-plugin-node-resolve": "4.2.4",
+    "rollup-plugin-invariant": "0.5.2",
+    "rollup-plugin-node-resolve": "4.2.2",
+    "rollup-plugin-terser": "5.0.0",
     "rollup-plugin-typescript2": "0.21.1",
-    "rollup-plugin-uglify": "6.0.2",
     "ts-jest": "24.0.2",
     "tsc-watch": "2.2.1",
-    "tslint": "5.17.0",
-    "typescript": "3.4.5",
-    "typescript-require": "0.2.10",
-    "zen-observable-ts": "0.8.18"
+    "typescript": "3.5.2",
+    "zen-observable-ts": "0.8.19"
   },
-  "dependencies": {
-    "apollo-utilities": "^1.3.0",
-    "fast-json-stable-stringify": "^2.0.0",
-    "hoist-non-react-statics": "^3.3.0",
-    "lodash.isequal": "^4.5.0",
-    "prop-types": "^15.7.2",
-    "ts-invariant": "^0.4.2",
-    "tslib": "^1.9.3"
+  "bundlesize": [
+    {
+      "name": "react-apollo",
+      "path": "./packages/all/lib/react-apollo.cjs.min.js",
+      "maxSize": "360B"
+    },
+    {
+      "name": "@apollo/react-common",
+      "path": "./packages/common/lib/react-common.cjs.min.js",
+      "maxSize": "720B"
+    },
+    {
+      "name": "@apollo/react-components",
+      "path": "./packages/components/lib/react-components.cjs.min.js",
+      "maxSize": "680B"
+    },
+    {
+      "name": "@apollo/react-hoc",
+      "path": "./packages/hoc/lib/react-hoc.cjs.min.js",
+      "maxSize": "1660B"
+    },
+    {
+      "name": "@apollo/react-hooks",
+      "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
+      "maxSize": "3820B"
+    }
+  ],
+  "renovate": {
+    "extends": [
+      "apollo-open-source"
+    ],
+    "automerge": false
   }
 }
