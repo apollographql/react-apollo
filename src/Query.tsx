@@ -379,16 +379,16 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
-    let data = { data: Object.create(null) as TData } as any;
+    let result = { data: Object.create(null) as TData } as any;
     // Attach bound methods
-    Object.assign(data, observableQueryFields(this.queryObservable!));
+    Object.assign(result, observableQueryFields(this.queryObservable!));
 
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
     // `loading` is set to `false` (since we aren't loading anything).
     if (this.props.skip) {
-      data = {
-        ...data,
+      result = {
+        ...result,
         data: undefined,
         error: undefined,
         loading: false,
@@ -405,15 +405,15 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       }
 
       const { fetchPolicy } = this.queryObservable!.options;
-      Object.assign(data, { loading, networkStatus, error });
+      Object.assign(result, { loading, networkStatus, error });
 
       const previousData =
         this.lastRenderedResult ? this.lastRenderedResult.data : {};
 
       if (loading) {
-        Object.assign(data.data, previousData, currentResult.data);
+        Object.assign(result.data, previousData, currentResult.data);
       } else if (error) {
-        Object.assign(data, {
+        Object.assign(result, {
           data: (this.queryObservable!.getLastResult() || {}).data,
         });
       } else if (
@@ -422,11 +422,12 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       ) {
         // Make sure data pulled in by a `no-cache` query is preserved
         // when the components parent tree is re-rendered.
-        data.data = previousData;
+        result.data = previousData;
       } else {
         const { partialRefetch } = this.props;
         if (
           partialRefetch &&
+          currentResult.data !== null &&
           typeof currentResult.data === 'object' &&
           Object.keys(currentResult.data).length === 0 &&
           partial &&
@@ -440,13 +441,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
           // the original `Query` component are expecting certain data values to
           // exist, and they're all of a sudden stripped away. To help avoid
           // this we'll attempt to refetch the `Query` data.
-          Object.assign(data, { loading: true, networkStatus: NetworkStatus.loading });
-          data.refetch();
-          this.lastRenderedResult = data;
-          return data;
+          Object.assign(result, { loading: true, networkStatus: NetworkStatus.loading });
+          result.refetch();
+          this.lastRenderedResult = result;
+          return result;
         }
 
-        Object.assign(data.data, currentResult.data);
+        Object.assign(result.data, currentResult.data);
       }
     }
 
@@ -470,9 +471,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // always hit the network with refetch, since the components data will be
     // updated and a network request is not currently active.
     if (!this.querySubscription) {
-      const oldRefetch = (data as QueryControls<TData, TVariables>).refetch;
+      const oldRefetch = (result as QueryControls<TData, TVariables>).refetch;
 
-      (data as QueryControls<TData, TVariables>).refetch = args => {
+      (result as QueryControls<TData, TVariables>).refetch = args => {
         if (this.querySubscription) {
           return oldRefetch(args);
         } else {
@@ -491,8 +492,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       this.queryObservable!.resetQueryStoreErrors();
     });
 
-    data.client = this.client;
-    this.lastRenderedResult = data;
-    return data;
+    result.client = this.client;
+    this.lastRenderedResult = result;
+    return result;
   };
 }
