@@ -128,7 +128,7 @@ describe('graphql(mutation) update queries', () => {
 
           render() {
             try {
-              switch (queryRenderCount++) {
+              switch (queryRenderCount) {
                 case 0:
                   expect(this.props.data!.loading).toBeTruthy();
                   expect(this.props.data!.todo_list).toBeFalsy();
@@ -141,21 +141,6 @@ describe('graphql(mutation) update queries', () => {
                   });
                   break;
                 case 2:
-                  expect(queryMountCount).toBe(1);
-                  expect(queryUnmountCount).toBe(0);
-                  expect(stripSymbols(this.props.data!.todo_list)).toEqual({
-                    id: '123',
-                    title: 'how to apollo',
-                    tasks: [
-                      {
-                        id: '99',
-                        text: 'This one was created with a mutation.',
-                        completed: true,
-                      },
-                    ],
-                  });
-                  break;
-                case 3:
                   expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(1);
                   expect(stripSymbols(this.props.data!.todo_list)).toEqual({
@@ -175,7 +160,7 @@ describe('graphql(mutation) update queries', () => {
                     ],
                   });
                   break;
-                case 4:
+                case 3:
                   expect(stripSymbols(this.props.data!.todo_list)).toEqual({
                     id: '123',
                     title: 'how to apollo',
@@ -196,6 +181,7 @@ describe('graphql(mutation) update queries', () => {
                 default:
                   throw new Error('Rendered too many times');
               }
+              queryRenderCount += 1;
             } catch (error) {
               reject(error);
             }
@@ -247,7 +233,7 @@ describe('graphql(mutation) update queries', () => {
                   expect(todoUpdateQueryCount).toBe(2);
                   expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(2);
-                  expect(queryRenderCount).toBe(4);
+                  expect(queryRenderCount).toBe(3);
                   resolve();
                 } catch (error) {
                   reject(error);

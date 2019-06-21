@@ -581,20 +581,8 @@ describe('[queries] lifecycle', () => {
       { loading: false, a: 7, b: 8, c: 9 },
 
       // Load 6
-
-      // The first render is caused by the component having its state updated
-      // when switching the client. The 2nd and 3rd renders are caused by the
-      // component re-subscribing to get data from Apollo Client.
       { loading: false, a: 1, b: 2, c: 3 },
-      { loading: false, a: 1, b: 2, c: 3 },
-      { loading: false, a: 1, b: 2, c: 3 },
-
       { loading: false, a: 4, b: 5, c: 6 },
-      { loading: false, a: 4, b: 5, c: 6 },
-      { loading: false, a: 4, b: 5, c: 6 },
-
-      { loading: false, a: 7, b: 8, c: 9 },
-      { loading: false, a: 7, b: 8, c: 9 },
       { loading: false, a: 7, b: 8, c: 9 },
     ]);
   });

@@ -7,6 +7,7 @@ import ApolloClient, {
   NetworkStatus,
   FetchMoreOptions,
   FetchMoreQueryOptions,
+  ApolloCurrentResult
 } from 'apollo-client';
 import { DocumentNode } from 'graphql';
 import { ZenObservable } from 'zen-observable-ts';
@@ -115,7 +116,6 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   // only delete queryObservable when we unmount the component.
   private queryObservable?: ObservableQuery<TData, TVariables> | null;
   private querySubscription?: ZenObservable.Subscription;
-  private previousData: any = {};
   private refetcherQueue?: {
     args: any;
     resolve: (value?: any | PromiseLike<any>) => void;
@@ -124,7 +124,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private hasMounted: boolean = false;
   private operation?: IDocumentDefinition;
-  private lastResult: ApolloQueryResult<TData> | null = null;
+  private lastRenderedResult: ApolloQueryResult<TData> | null = null;
 
   constructor(props: QueryProps<TData, TVariables>, context: QueryContext) {
     super(props, context);
@@ -175,7 +175,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     this.hasMounted = true;
     if (this.props.skip) return;
 
-    this.startQuerySubscription(true);
+    this.startQuerySubscription();
     if (this.refetcherQueue) {
       const { args, resolve, reject } = this.refetcherQueue;
       this.queryObservable!.refetch(args)
@@ -187,6 +187,7 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   componentWillReceiveProps(nextProps: QueryProps<TData, TVariables>, nextContext: QueryContext) {
     // the next render wants to skip
     if (nextProps.skip && !this.props.skip) {
+      this.queryObservable!.resetLastResults();
       this.removeQuerySubscription();
       return;
     }
@@ -201,11 +202,10 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       this.client = nextClient;
       this.removeQuerySubscription();
       this.queryObservable = null;
-      this.previousData = {};
-      this.updateQuery(nextProps);
     }
 
     if (this.props.query !== nextProps.query) {
+      this.queryObservable!.resetLastResults();
       this.removeQuerySubscription();
     }
 
@@ -300,52 +300,28 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       .catch(() => null);
   }
 
-  private startQuerySubscription = (justMounted: boolean = false) => {
+  private startQuerySubscription = () => {
     // When the `Query` component receives new props, or when we explicitly
     // re-subscribe to a query using `resubscribeToQuery`, we start a new
     // subscription in this method. To avoid un-necessary re-renders when
     // receiving new props or re-subscribing, we track the full last
     // observable result so it can be compared against incoming new data.
     // We only trigger a re-render if the incoming result is different than
-    // the stored `lastResult`.
-    //
-    // It's important to note that when a component is first mounted,
-    // the `startQuerySubscription` method is also triggered. During a first
-    // mount, we don't want to store or use the last result, as we always
-    // need the first render to happen, even if there was a previous last
-    // result (which can happen when the same component is mounted, unmounted,
-    // and mounted again).
-    if (!justMounted) {
-      this.lastResult = this.queryObservable!.getLastResult();
-    }
+    // the stored `lastRenderedResult`.
 
     if (this.querySubscription) return;
 
-    // store the initial renders worth of result
-    let initial: QueryResult<TData, TVariables> | undefined = this.getQueryResult();
-
     this.querySubscription = this.queryObservable!.subscribe({
-      next: ({ loading, networkStatus, data }) => {
-        // to prevent a quick second render from the subscriber
-        // we compare to see if the original started finished (from cache) and is unchanged
-        if (initial && initial.networkStatus === 7 && shallowEqual(initial.data, data)) {
-          initial = undefined;
-          return;
-        }
-
+      next: (result) => {
         if (
-          this.lastResult &&
-          this.lastResult.loading === loading &&
-          this.lastResult.networkStatus === networkStatus &&
-          shallowEqual(this.lastResult.data, data)
+          this.lastRenderedResult &&
+          this.lastRenderedResult.loading === result.loading &&
+          this.lastRenderedResult.networkStatus === result.networkStatus &&
+          shallowEqual(this.lastRenderedResult.data, result.data)
         ) {
           return;
         }
 
-        initial = undefined;
-        if (this.lastResult) {
-          this.lastResult = this.queryObservable!.getLastResult();
-        }
         this.updateCurrentData();
       },
       error: error => {
@@ -359,8 +335,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
 
   private removeQuerySubscription = () => {
     if (this.querySubscription) {
-      this.lastResult = this.queryObservable!.getLastResult();
       this.querySubscription.unsubscribe();
+      delete this.lastRenderedResult;
       delete this.querySubscription;
     }
   };
@@ -403,22 +379,21 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
   }
 
   private getQueryResult = (): QueryResult<TData, TVariables> => {
-    let data = { data: Object.create(null) as TData } as any;
+    let result = { data: Object.create(null) as TData } as any;
     // Attach bound methods
-    Object.assign(data, observableQueryFields(this.queryObservable!));
+    Object.assign(result, observableQueryFields(this.queryObservable!));
 
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
     // `loading` is set to `false` (since we aren't loading anything).
     if (this.props.skip) {
-      data = {
-        ...data,
+      result = {
+        ...result,
         data: undefined,
         error: undefined,
         loading: false,
       };
     } else {
-      // Fetch the current result (if any) from the store.
       const currentResult = this.queryObservable!.currentResult();
       const { loading, partial, networkStatus, errors } = currentResult;
       let { error } = currentResult;
@@ -430,12 +405,15 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       }
 
       const { fetchPolicy } = this.queryObservable!.options;
-      Object.assign(data, { loading, networkStatus, error });
+      Object.assign(result, { loading, networkStatus, error });
+
+      const previousData =
+        this.lastRenderedResult ? this.lastRenderedResult.data : {};
 
       if (loading) {
-        Object.assign(data.data, this.previousData, currentResult.data);
+        Object.assign(result.data, previousData, currentResult.data);
       } else if (error) {
-        Object.assign(data, {
+        Object.assign(result, {
           data: (this.queryObservable!.getLastResult() || {}).data,
         });
       } else if (
@@ -444,11 +422,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       ) {
         // Make sure data pulled in by a `no-cache` query is preserved
         // when the components parent tree is re-rendered.
-        data.data = this.previousData;
+        result.data = previousData;
       } else {
         const { partialRefetch } = this.props;
         if (
           partialRefetch &&
+          currentResult.data !== null &&
+          typeof currentResult.data === 'object' &&
           Object.keys(currentResult.data).length === 0 &&
           partial &&
           fetchPolicy !== 'cache-only'
@@ -461,13 +441,13 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
           // the original `Query` component are expecting certain data values to
           // exist, and they're all of a sudden stripped away. To help avoid
           // this we'll attempt to refetch the `Query` data.
-          Object.assign(data, { loading: true, networkStatus: NetworkStatus.loading });
-          data.refetch();
-          return data;
+          Object.assign(result, { loading: true, networkStatus: NetworkStatus.loading });
+          result.refetch();
+          this.lastRenderedResult = result;
+          return result;
         }
 
-        Object.assign(data.data, currentResult.data);
-        this.previousData = currentResult.data;
+        Object.assign(result.data, currentResult.data);
       }
     }
 
@@ -491,9 +471,9 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // always hit the network with refetch, since the components data will be
     // updated and a network request is not currently active.
     if (!this.querySubscription) {
-      const oldRefetch = (data as QueryControls<TData, TVariables>).refetch;
+      const oldRefetch = (result as QueryControls<TData, TVariables>).refetch;
 
-      (data as QueryControls<TData, TVariables>).refetch = args => {
+      (result as QueryControls<TData, TVariables>).refetch = args => {
         if (this.querySubscription) {
           return oldRefetch(args);
         } else {
@@ -512,7 +492,8 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
       this.queryObservable!.resetQueryStoreErrors();
     });
 
-    data.client = this.client;
-    return data;
+    result.client = this.client;
+    this.lastRenderedResult = result;
+    return result;
   };
 }

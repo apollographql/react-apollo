@@ -31,9 +31,11 @@
   responses couldn't be handled). The `Query` component can now handle an
   error in a response, then continue to handle a valid response afterwards.  <br/>
   [@hwillson](https://github.com/hwillson) in [#3107](https://github.com/apollographql/react-apollo/pull/3107)
-- Reorder `Subscription` component code to avoid setting state on unmounted 
+- Reorder `Subscription` component code to avoid setting state on unmounted
   component.  <br/>
   [@jasonpaulos](https://github.com/jasonpaulos) in [#3139](https://github.com/apollographql/react-apollo/pull/3139)
+- Fix component stuck in `loading` state for `network-only` fetch policy.  <br/>
+  [@jasonpaulos](https://github.com/jasonpaulos) in [#3126](https://github.com/apollographql/react-apollo/pull/3126)
 
 
 ## 2.5.6 (2019-05-22)
