@@ -153,12 +153,12 @@ class Subscription<TData = any, TVariables = any> extends React.Component<
       client,
       props: { onSubscriptionData },
     } = this;
-    if (onSubscriptionData) onSubscriptionData({ client, subscriptionData: result });
     this.setState({
       data: result.data,
       loading: false,
       error: undefined,
     });
+    if (onSubscriptionData) onSubscriptionData({ client, subscriptionData: result });
   };
 
   private updateError = (error: any) => {
