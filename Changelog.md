@@ -1,7 +1,5 @@
 # Change log
 
-## vNext
-
 ## 3.0.0 (Not yet released)
 
 ### Breaking Changes
@@ -37,7 +35,7 @@
   `ApolloProvider`. <br/>
   [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
 
-## 2.5.7 (Not yet released)
+## 2.5.7 (2019-06-21)
 
 ### Improvements
 
