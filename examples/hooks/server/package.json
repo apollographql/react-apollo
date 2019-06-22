@@ -4,7 +4,7 @@
   "dependencies": {
     "apollo-server": "2.6.4",
     "apollo-server-express": "2.6.4",
-    "express": "4.16.4",
+    "express": "4.17.1",
     "graphql": "14.3.0",
     "subscriptions-transport-ws": "0.9.16"
   },
