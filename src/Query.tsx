@@ -488,8 +488,27 @@ export default class Query<TData = any, TVariables = OperationVariables> extends
     // remove those errors from the `ObservableQuery` query store, so they
     // aren't re-displayed on subsequent (potentially error free)
     // requests/responses.
+    //
+    // NOTE: Resetting query store errors is handled in 2 different ways here,
+    // since the `resetQueryStoreErrors` wasn't available until
+    // `apollo-client` 2.6.3. If a previous version of `apollo-client` is
+    // being used, errors are reset by reaching into `ObservableQuery`'s
+    // internals. This hack is temporary, as React Apollo 3 will be
+    // released shortly, and will enforce `apollo-client` 2.6.3 as the
+    // minimum.
     setTimeout(() => {
-      this.queryObservable!.resetQueryStoreErrors();
+      if ((this.queryObservable! as any).resetQueryStoreErrors) {
+        // Apollo Client >= 2.6.3
+        (this.queryObservable! as any).resetQueryStoreErrors();
+      } else {
+        // Apollo Client < 2.6.3
+        const { queryManager, queryId } = (this.queryObservable! as any);
+        const queryStore = queryManager.queryStore.get(queryId);
+        if (queryStore) {
+          queryStore.networkError = null;
+          queryStore.graphQLErrors = [];
+        }
+      }
     });
 
     result.client = this.client;
