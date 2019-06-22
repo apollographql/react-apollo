@@ -1,6 +1,13 @@
 # Change log
 
-## vNext
+## 2.5.8 (2019-06-21)
+
+### Bug Fixes
+
+- Makes the use of `apollo-client` 2.6.3's `ObservableQuery.resetQueryStoreErrors`
+  method optional, for people who can't update to `react-apollo`'s new
+  `apollo-client` peer dep of 2.6.3.  <br/>
+  [@hwillson](https://github.com/hwillson) in [#3151](https://github.com/apollographql/react-apollo/pull/3151)
 
 ## 2.5.7 (2019-06-21)
 
