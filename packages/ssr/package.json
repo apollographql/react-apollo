@@ -1,17 +1,17 @@
 {
-  "name": "@apollo/react-hoc",
-  "description": "React Apollo `graphql` higher-order component.",
-  "version": "0.1.0-beta.7",
+  "name": "@apollo/react-ssr",
+  "description": "React Apollo server-side rendering utilities",
+  "version": "0.1.0-beta.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
     "graphql",
     "react",
-    "hoc"
+    "hooks"
   ],
   "license": "MIT",
-  "main": "./lib/react-hoc.cjs.js",
-  "module": "./lib/react-hoc.esm.js",
+  "main": "./lib/react-ssr.cjs.js",
+  "module": "./lib/react-ssr.esm.js",
   "react-native": {
     "react-dom/server": false
   },
@@ -30,21 +30,18 @@
     "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
     "deploy": "npm publish --tag beta",
-    "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc",
-    "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc --watch",
-    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hoc",
-    "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/hoc"
+    "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/ssr",
+    "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/ssr --watch",
+    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/ssr",
+    "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/ssr"
   },
   "peerDependencies": {
-    "apollo-client": "^2.6.3",
-    "graphql": "^14.3.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
-    "@apollo/react-components": "file:../components",
-    "ts-invariant": "^0.4.4",
+    "@apollo/react-hooks": "file:../hooks",
     "tslib": "^1.10.0"
   },
   "files": [
@@ -54,7 +51,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@apollo/react-ssr": "file:../ssr",
     "jest": "^24.8.0",
     "rollup": "1.16.2",
     "tsc-watch": "^2.2.1",

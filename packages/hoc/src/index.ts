@@ -12,10 +12,4 @@ export {
   resetApolloContext
 } from '@apollo/react-common';
 
-export {
-  getMarkupFromTree,
-  getDataFromTree,
-  renderToStringWithData
-} from '@apollo/react-components';
-
 export * from './types';

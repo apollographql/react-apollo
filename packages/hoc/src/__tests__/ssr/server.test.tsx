@@ -12,7 +12,7 @@ import {
   DocumentNode
 } from 'graphql';
 import { ApolloProvider } from '@apollo/react-common';
-import { renderToStringWithData } from '@apollo/react-components';
+import { renderToStringWithData } from '@apollo/react-ssr';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { graphql, ChildProps } from '@apollo/react-hoc';

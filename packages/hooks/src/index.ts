@@ -10,7 +10,6 @@ export { useMutation } from './useMutation';
 export { useSubscription } from './useSubscription';
 export { useApolloClient } from './useApolloClient';
 
-export { getMarkupFromTree, getDataFromTree } from './ssr/getDataFromTree';
-export { renderToStringWithData } from './ssr/renderToStringWithData';
+export { RenderPromises } from './ssr/RenderPromises';
 
 export * from './types';

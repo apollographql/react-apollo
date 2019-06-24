@@ -58,9 +58,6 @@ export {
   useMutation,
   useSubscription,
   useApolloClient,
-  getMarkupFromTree,
-  getDataFromTree,
-  renderToStringWithData,
   // types
   CommonOptions,
   QueryOptions,
@@ -74,3 +71,9 @@ export {
   SubscriptionOptions,
   SubscriptionCurrentObservable
 } from '@apollo/react-hooks';
+
+export {
+  getMarkupFromTree,
+  getDataFromTree,
+  renderToStringWithData,
+} from '@apollo/react-ssr';
