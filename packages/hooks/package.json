@@ -38,7 +38,8 @@
   "peerDependencies": {
     "apollo-client": "^2.6.3",
     "graphql": "^14.3.1",
-    "react": "^16.8.0"
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
