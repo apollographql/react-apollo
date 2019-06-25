@@ -58,10 +58,9 @@ export class SubscriptionData<
 
   public afterExecute() {
     this.isMounted = true;
-    return this.unmount.bind(this);
   }
 
-  protected cleanup() {
+  public cleanup() {
     this.endSubscription();
     delete this.currentObservable.query;
   }
