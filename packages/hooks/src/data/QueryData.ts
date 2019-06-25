@@ -55,7 +55,13 @@ export class QueryData<TData, TVariables> extends OperationData {
     const finish = () => this.getQueryResult();
     if (this.context && this.context.renderPromises) {
       const result = this.context.renderPromises.addQueryPromise(this, finish);
-      return result || { loading: true, networkStatus: NetworkStatus.loading };
+      return (
+        result || {
+          loading: true,
+          networkStatus: NetworkStatus.loading,
+          data: {}
+        }
+      );
     }
 
     return finish();
@@ -93,8 +99,8 @@ export class QueryData<TData, TVariables> extends OperationData {
       this.context.renderPromises.registerSSRObservable(obs, this.getOptions());
     }
 
-    const result = this.currentObservable.query!.getCurrentResult();
-    return result.loading ? obs.result() : false;
+    const currentResult = this.currentObservable.query!.getCurrentResult();
+    return currentResult.loading ? obs.result() : false;
   }
 
   public afterExecute() {

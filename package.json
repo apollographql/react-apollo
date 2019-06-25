@@ -26,6 +26,7 @@
     "@apollo/react-components": "file:./packages/components",
     "@apollo/react-hoc": "file:./packages/hoc",
     "@apollo/react-hooks": "file:./packages/hooks",
+    "@apollo/react-ssr": "file:./packages/ssr",
     "@apollo/react-testing": "file:./packages/testing"
   },
   "devDependencies": {
