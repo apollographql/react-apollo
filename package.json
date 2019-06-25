@@ -91,7 +91,7 @@
     {
       "name": "@apollo/react-hooks",
       "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
-      "maxSize": "3820B"
+      "maxSize": "3900B"
     }
   ],
   "renovate": {
