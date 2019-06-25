@@ -38,9 +38,8 @@ export abstract class OperationData<TOptions = any> {
   }
 
   public abstract execute(...args: any): any;
-  public abstract afterExecute(...args: any): () => void;
-
-  protected abstract cleanup(): void;
+  public abstract afterExecute(...args: any): void | (() => void);
+  public abstract cleanup(): void;
 
   protected unmount() {
     this.isMounted = false;

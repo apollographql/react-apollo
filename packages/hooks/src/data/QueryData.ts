@@ -103,7 +103,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     return this.unmount.bind(this);
   }
 
-  protected cleanup() {
+  public cleanup() {
     this.removeQuerySubscription();
     this.currentObservable.query = null;
     this.previousData.result = null;
