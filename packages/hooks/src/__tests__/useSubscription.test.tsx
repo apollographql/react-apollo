@@ -11,8 +11,6 @@ describe('useSubscription Hook', () => {
   afterEach(cleanup);
 
   it('should handle a simple subscription properly', done => {
-    jest.useFakeTimers();
-
     const subscription = gql`
       subscription {
         car {
@@ -59,6 +57,10 @@ describe('useSubscription Hook', () => {
           break;
         default:
       }
+      setTimeout(() => {
+        renderCount <= results.length &&
+          link.simulateResult(results[renderCount - 1]);
+      });
       renderCount += 1;
       return null;
     };
@@ -68,12 +70,75 @@ describe('useSubscription Hook', () => {
         <Component />
       </ApolloProvider>
     );
+  });
 
-    const interval = setInterval(() => {
-      link.simulateResult(results[renderCount - 1]);
-      if (renderCount > 3) clearInterval(interval);
-    }, 10);
+  it('should cleanup after the subscription component has been unmounted', done => {
+    const subscription = gql`
+      subscription {
+        car {
+          make
+        }
+      }
+    `;
 
-    jest.runTimersToTime(40);
+    const results = [
+      {
+        result: { data: { car: { make: 'Pagani' } } }
+      }
+    ];
+
+    const link = new MockSubscriptionLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false })
+    });
+
+    let renderCount = 0;
+    let onSubscriptionDataCount = 0;
+    let unmount: any;
+
+    const Component = () => {
+      const { loading, data, error } = useSubscription(subscription, {
+        onSubscriptionData() {
+          onSubscriptionDataCount += 1;
+        }
+      });
+      switch (renderCount) {
+        case 0:
+          expect(loading).toBe(true);
+          expect(error).toBeUndefined();
+          expect(data).toBeUndefined();
+          link.simulateResult(results[0]);
+          break;
+        case 1:
+          expect(loading).toBe(false);
+          expect(data).toEqual(results[0].result.data);
+
+          setTimeout(() => {
+            expect(onSubscriptionDataCount).toEqual(1);
+
+            // After the component has been unmounted, the internal
+            // ObservableQuery should be stopped, meaning it shouldn't
+            // receive any new data (so the onSubscriptionDataCount should
+            // stay at 1).
+            unmount();
+            link.simulateResult(results[0]);
+            setTimeout(() => {
+              expect(onSubscriptionDataCount).toEqual(1);
+              done();
+            });
+          });
+          break;
+        default:
+      }
+      renderCount += 1;
+      return null;
+    };
+
+    unmount = render(
+      <ApolloProvider client={client}>
+        <Component />
+      </ApolloProvider>
+    ).unmount;
   });
 });

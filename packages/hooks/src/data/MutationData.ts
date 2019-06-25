@@ -52,7 +52,7 @@ export class MutationData<
     return this.unmount.bind(this);
   }
 
-  protected cleanup() {
+  public cleanup() {
     // No cleanup required.
   }
 
