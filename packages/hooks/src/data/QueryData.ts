@@ -61,7 +61,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     return finish();
   }
 
-  // For server-side rendering (see getDataFromTree.ts)
+  // For server-side rendering
   public fetchData(): Promise<ApolloQueryResult<any>> | boolean {
     if (this.getOptions().skip) return false;
 

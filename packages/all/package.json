@@ -42,7 +42,8 @@
     "@apollo/react-common": "file:../common",
     "@apollo/react-components": "file:../components",
     "@apollo/react-hoc": "file:../hoc",
-    "@apollo/react-hooks": "file:../hooks"
+    "@apollo/react-hooks": "file:../hooks",
+    "@apollo/react-ssr": "file:../ssr"
   },
   "files": [
     "lib"

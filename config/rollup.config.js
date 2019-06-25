@@ -14,6 +14,7 @@ const defaultGlobals = {
   '@apollo/react-hoc': 'apolloReactHOC',
   '@apollo/react-hooks': 'apolloReactHooks',
   '@apollo/react-testing': 'apolloReactTesting',
+  '@apollo/react-ssr': 'apolloReactSSR',
   'apollo-client': 'apolloClient',
   'apollo-utilities': 'apolloUtilities',
   'apollo-cache': 'apolloCache',

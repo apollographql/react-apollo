@@ -71,7 +71,7 @@
     {
       "name": "react-apollo",
       "path": "./packages/all/lib/react-apollo.cjs.min.js",
-      "maxSize": "360B"
+      "maxSize": "375B"
     },
     {
       "name": "@apollo/react-common",
@@ -92,6 +92,11 @@
       "name": "@apollo/react-hooks",
       "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
       "maxSize": "3900B"
+    },
+    {
+      "name": "@apollo/react-ssr",
+      "path": "./packages/ssr/lib/react-ssr.cjs.min.js",
+      "maxSize": "450B"
     }
   ],
   "renovate": {

@@ -6,11 +6,11 @@ import { ApolloProvider } from '@apollo/react-common';
 import gql from 'graphql-tag';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';
+import { Query } from '@apollo/react-components';
 import {
-  Query,
   getDataFromTree,
   getMarkupFromTree
-} from '@apollo/react-components';
+} from '@apollo/react-ssr';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps, DataValue } from '@apollo/react-hoc';
 
