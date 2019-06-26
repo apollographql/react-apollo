@@ -4,7 +4,7 @@ import {
   ApolloError,
   NetworkStatus
 } from 'apollo-client';
-import { isEqual } from 'apollo-utilities';
+import { equal as isEqual } from '@wry/equality';
 import {
   ApolloContextValue,
   DocumentType,
