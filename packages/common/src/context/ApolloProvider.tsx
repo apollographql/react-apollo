@@ -17,8 +17,8 @@ export const ApolloProvider: React.FC<ApolloProviderProps<any>> = ({
   return (
     <ApolloContext.Consumer>
       {(context = {}) => {
-        if (client) {
-          context.client = client;
+        if (client && context.client !== client) {
+          context = Object.assign({}, context, { client });
         }
 
         invariant(
