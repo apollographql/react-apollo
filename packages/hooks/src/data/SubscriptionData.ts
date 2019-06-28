@@ -1,4 +1,4 @@
-import { isEqual } from 'apollo-utilities';
+import { equal as isEqual } from '@wry/equality';
 import { ApolloContextValue, SubscriptionResult } from '@apollo/react-common';
 
 import { OperationData } from './OperationData';

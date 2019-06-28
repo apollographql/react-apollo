@@ -20,15 +20,16 @@ const defaultGlobals = {
   'apollo-cache': 'apolloCache',
   'apollo-cache-inmemory': 'apolloCacheInMemory',
   'apollo-link': 'apolloLink',
-  'graphql': 'graphql',
+  graphql: 'graphql',
   'react-apollo': 'reactApollo',
-  'react': 'React',
+  react: 'React',
   'ts-invariant': 'invariant',
-  'tslib': 'tslib',
+  tslib: 'tslib',
   'fast-json-stable-stringify': 'stringify',
   'zen-observable': 'zenObservable',
   'hoist-non-react-statics': 'hoistNonReactStatics',
   'prop-types': 'PropTypes',
+  '@wry/equality': 'equal',
 };
 
 export function rollup({

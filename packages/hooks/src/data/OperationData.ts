@@ -1,5 +1,5 @@
 import { ApolloClient } from 'apollo-client';
-import { isEqual } from 'apollo-utilities';
+import { equal as isEqual } from '@wry/equality';
 import { invariant } from 'ts-invariant';
 import {
   ApolloContextValue,
