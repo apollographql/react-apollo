@@ -44,7 +44,7 @@ describe('useMutation Hook', () => {
 
     let renderCount = 0;
     const Component = () => {
-      const [createTodo, { loading, data }] = useMutation(mutation);
+      const [{ loading, data }, createTodo] = useMutation(mutation);
       switch (renderCount) {
         case 0:
           expect(loading).toBeFalsy();
@@ -109,7 +109,7 @@ describe('useMutation Hook', () => {
 
     let renderCount = 0;
     const useCreateTodo = () => {
-      const [createTodo, { loading, data }] = useMutation(mutation);
+      const [{ loading, data }, createTodo] = useMutation(mutation);
 
       useEffect(() => {
         createTodo({ variables });

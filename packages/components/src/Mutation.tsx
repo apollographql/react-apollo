@@ -7,7 +7,7 @@ import { MutationComponentOptions } from './types';
 export function Mutation<TData = any, TVariables = OperationVariables>(
   props: MutationComponentOptions<TData, TVariables>
 ) {
-  const [runMutation, result] = useMutation(props.mutation, props);
+  const [result, runMutation] = useMutation(props.mutation, props);
   return props.children ? props.children(runMutation, result) : null;
 }
 
@@ -27,6 +27,6 @@ export namespace Mutation {
     children: PropTypes.func.isRequired,
     onCompleted: PropTypes.func,
     onError: PropTypes.func,
-    fetchPolicy: PropTypes.string,
+    fetchPolicy: PropTypes.string
   };
 }

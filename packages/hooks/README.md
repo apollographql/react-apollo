@@ -14,10 +14,12 @@ React Apollo [Hooks](https://reactjs.org/docs/hooks-intro.html).
 
 1. [Installation](#installation)
 2. [Hooks Overview](#hooks-overview)
-  - [`useQuery`](#useQuery)
-  - [`useMutation`](#useMutation)
-  - [`useSubscription`](#useSubscription)
-  - [`useApolloClient`](#useApolloClient)
+
+- [`useQuery`](#useQuery)
+- [`useMutation`](#useMutation)
+- [`useSubscription`](#useSubscription)
+- [`useApolloClient`](#useApolloClient)
+
 3. [Reference]()
 
 ### Installation
@@ -29,6 +31,7 @@ npm install @apollo/react-hooks
 ### Hooks Overview
 
 <a name="useQuery"></a>
+
 #### a) [`useQuery`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useQuery.ts)
 
 **Function:**
@@ -37,7 +40,7 @@ npm install @apollo/react-hooks
 export function useQuery<TData = any, TVariables = OperationVariables>(
   query: DocumentNode,
   options?: QueryHookOptions<TData, TVariables>
-): QueryResult<TData, TVariables>
+): QueryResult<TData, TVariables>;
 ```
 
 **Options:**
@@ -122,6 +125,7 @@ export function RocketInventoryList() {
 ```
 
 <a name="useMutation"></a>
+
 #### b) [`useMutation`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useMutation.ts)
 
 **Function:**
@@ -130,7 +134,7 @@ export function RocketInventoryList() {
 export function useMutation<TData = any, TVariables = OperationVariables>(
   mutation: DocumentNode,
   options?: MutationHookOptions<TData, TVariables>
-): MutationTuple<TData, TVariables>
+): MutationTuple<TData, TVariables>;
 ```
 
 **Options:**
@@ -156,16 +160,16 @@ ignoreResults?: boolean;
 
 ```ts
 [
-  (
-    options?: MutationFunctionOptions<TData, TVariables>
-  ) => Promise<void | ExecutionResult<TData>>,
   {
     data?: TData;
     error?: ApolloError;
     loading: boolean;
     called: boolean;
     client?: ApolloClient<object>
-  }
+  },
+  (
+    options?: MutationFunctionOptions<TData, TVariables>
+  ) => Promise<void | ExecutionResult<TData>>
 ];
 ```
 
@@ -261,6 +265,7 @@ export function NewRocketForm() {
 ```
 
 <a name="useSubscription"></a>
+
 #### c) [`useSubscription`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useSubscription.ts)
 
 **Function:**
@@ -269,7 +274,7 @@ export function NewRocketForm() {
 export function useSubscription<TData = any, TVariables = OperationVariables>(
   subscription: DocumentNode,
   options?: SubscriptionHookOptions<TData, TVariables>
-)
+);
 ```
 
 **Options:**
@@ -311,12 +316,13 @@ export function LatestNews() {
 ```
 
 <a name="useApolloClient"></a>
+
 #### d) [`useApolloClient`](https://github.com/apollographql/react-apollo/blob/release-3.0.0/packages/hooks/src/useApolloClient.ts)
 
 **Function:**
 
 ```ts
-export function useApolloClient(): ApolloClient<object>
+export function useApolloClient(): ApolloClient<object>;
 ```
 
 **Result:**
@@ -335,7 +341,3 @@ consol.log('AC instance stored in the Context', client);
 - Main [Apollo Client / React Apollo documentation](https://www.apollographql.com/docs/react/)
 - `useQuery`, `useMutation` and `useSubscription` [Hooks demo app](https://github.com/apollographql/react-apollo/tree/release-3.0.0/examples/hooks)
 - Need help? Join us in the [Apollo Spectrum community](https://spectrum.chat/apollo)
-
-
-
-
