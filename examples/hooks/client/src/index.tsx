@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ApolloClient } from 'apollo-client';
-import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { ApolloLink, split } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
@@ -26,12 +25,11 @@ const wsLink = new WebSocketLink({
 });
 
 const terminatingLink = split(
-  ({ query }) => {
-    const { kind, operation } = getMainDefinition(
-      query
-    ) as OperationDefinitionNode;
-    return kind === 'OperationDefinition' && operation === 'subscription';
-  },
+  ({ query: { definitions } }) =>
+    definitions.some(node => {
+      const { kind, operation } = node as OperationDefinitionNode;
+      return kind === 'OperationDefinition' && operation === 'subscription';
+    }),
   wsLink,
   httpLink
 );
