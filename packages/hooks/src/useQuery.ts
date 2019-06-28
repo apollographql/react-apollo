@@ -8,13 +8,14 @@ import { DocumentNode } from 'graphql';
 
 import { QueryHookOptions, QueryOptions } from './types';
 import { QueryData } from './data/QueryData';
+import { useDeepMemo } from './utils/useDeepMemo';
 
 export function useQuery<TData = any, TVariables = OperationVariables>(
   query: DocumentNode,
   options?: QueryHookOptions<TData, TVariables>
 ): QueryResult<TData, TVariables> {
   const context = useContext(getApolloContext());
-  const [_ignored, forceUpdate] = useReducer(x => x + 1, 0);
+  const [tick, forceUpdate] = useReducer(x => x + 1, 0);
   const updatedOptions = options ? { ...options, query } : { query };
 
   const queryDataRef = useRef<QueryData<TData, TVariables>>();
@@ -33,7 +34,14 @@ export function useQuery<TData = any, TVariables = OperationVariables>(
   queryData.setOptions(updatedOptions);
   queryData.context = context;
 
-  useEffect(() => queryData.afterExecute());
+  const memo = {
+    options: updatedOptions,
+    context,
+    tick
+  };
+  const result = useDeepMemo(() => queryData.execute(), memo);
 
-  return queryData.execute();
+  useEffect(() => queryData.afterExecute(), [result]);
+
+  return result;
 }
