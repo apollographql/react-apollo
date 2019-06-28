@@ -103,4 +103,50 @@ describe('useQuery Hook SSR', () => {
 
     return renderToStringWithData(app);
   });
+
+  it('should skip SSR if `ssr` option is `false`', () => {
+    const query: DocumentNode = gql`
+      query {
+        foo {
+          bar
+        }
+      }
+    `;
+
+    const resultData = {
+      foo: {
+        __typename: 'Foo',
+        bar: 'baz'
+      }
+    };
+
+    const mocks = [
+      {
+        request: {
+          query
+        },
+        result: { data: resultData }
+      }
+    ];
+
+    const Component = () => {
+      const { data, loading } = useQuery(query, { ssr: false });
+      if (!loading) {
+        expect(data).toEqual(resultData);
+        const { bar } = data.foo;
+        return <div>{bar}</div>;
+      }
+      return null;
+    };
+
+    const app = (
+      <MockedProvider mocks={mocks}>
+        <Component />
+      </MockedProvider>
+    );
+
+    return renderToStringWithData(app).then(result => {
+      expect(result).toEqual('');
+    });
+  });
 });
