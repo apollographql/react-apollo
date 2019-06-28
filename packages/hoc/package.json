@@ -44,6 +44,7 @@
   "dependencies": {
     "@apollo/react-common": "file:../common",
     "@apollo/react-components": "file:../components",
+    "hoist-non-react-statics": "^3.3.0",
     "ts-invariant": "^0.4.4",
     "tslib": "^1.10.0"
   },
