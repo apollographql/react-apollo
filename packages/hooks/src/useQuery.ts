@@ -8,7 +8,7 @@ import { DocumentNode } from 'graphql';
 
 import { QueryHookOptions, QueryOptions } from './types';
 import { QueryData } from './data/QueryData';
-import { useDeepMemo } from './useDeepMemo';
+import { useDeepMemo } from './utils/useDeepMemo';
 
 export function useQuery<TData = any, TVariables = OperationVariables>(
   query: DocumentNode,
@@ -37,7 +37,7 @@ export function useQuery<TData = any, TVariables = OperationVariables>(
   const memo = {
     options: updatedOptions,
     context,
-    tick,
+    tick
   };
   const result = useDeepMemo(() => queryData.execute(), memo);
 
