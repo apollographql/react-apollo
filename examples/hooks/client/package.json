@@ -9,7 +9,7 @@
     "@types/react": "16.8.18",
     "@types/react-dom": "16.8.4",
     "apollo-cache-inmemory": "^1.6.0",
-    "apollo-client": "^2.6.0",
+    "apollo-client": "^2.6.3",
     "apollo-link-http": "^1.5.14",
     "apollo-link-ws": "^1.0.17",
     "graphql": "^14.3.1",

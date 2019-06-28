@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "npx lerna exec -- npm install --package-lock=false && npx lerna run prepare",
     "build": "npx lerna run build",
-    "test": "npx jest --config ./config/jest.config.js",
+    "test": "npx jest --config ./config/jest.config.js --silent",
     "test:watch": "npx jest --config ./config/jest.config.js --watch",
     "test:coverage": "npx jest --config ./config/jest.config.js --verbose --coverage",
     "test:ci": "npm run test:coverage -- --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
@@ -92,7 +92,7 @@
     {
       "name": "@apollo/react-hooks",
       "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
-      "maxSize": "3.7 kB"
+      "maxSize": "3.9 kB"
     },
     {
       "name": "@apollo/react-ssr",
