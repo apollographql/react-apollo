@@ -33,7 +33,7 @@
     "@babel/core": "7.4.5",
     "@babel/plugin-transform-modules-commonjs": "7.4.4",
     "@babel/plugin-transform-modules-umd": "7.2.0",
-    "@testing-library/react": "8.0.1",
+    "@testing-library/react": "8.0.4",
     "@types/fast-json-stable-stringify": "^2.0.0",
     "@types/graphql": "14.2.1",
     "@types/hoist-non-react-statics": "3.3.1",
