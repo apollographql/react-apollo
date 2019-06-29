@@ -58,7 +58,7 @@
     "react-dom": "^16.9.0-alpha.0",
     "recompose": "0.30.0",
     "rollup": "1.16.3",
-    "rollup-plugin-commonjs": "9.3.4",
+    "rollup-plugin-commonjs": "10.0.1",
     "rollup-plugin-invariant": "0.5.2",
     "rollup-plugin-node-resolve": "4.2.2",
     "rollup-plugin-terser": "5.0.0",
