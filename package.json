@@ -48,7 +48,7 @@
     "apollo-cache-inmemory": "1.6.2",
     "apollo-client": "2.6.3",
     "apollo-link": "1.2.12",
-    "bundlesize": "0.17.1",
+    "bundlesize": "0.18.0",
     "graphql": "14.4.1",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
