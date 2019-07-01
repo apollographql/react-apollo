@@ -7,8 +7,9 @@ import { QueryComponentOptions } from './types';
 export function Query<TData = any, TVariables = OperationVariables>(
   props: QueryComponentOptions<TData, TVariables>
 ) {
-  const result = useQuery(props.query, props);
-  return props.children && result ? props.children(result) : null;
+  const { children, query, ...options } = props;
+  const result = useQuery(query, options);
+  return children && result ? children(result) : null;
 }
 
 export namespace Query {

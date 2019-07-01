@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "npx lerna exec -- npm install --package-lock=false && npx lerna run prepare",
     "build": "npx lerna run build",
-    "test": "npx jest --config ./config/jest.config.js",
+    "test": "npx jest --config ./config/jest.config.js --silent",
     "test:watch": "npx jest --config ./config/jest.config.js --watch",
     "test:coverage": "npx jest --config ./config/jest.config.js --verbose --coverage",
     "test:ci": "npm run test:coverage -- --ci --maxWorkers=2 --reporters=default --reporters=jest-junit",
@@ -33,9 +33,9 @@
     "@babel/core": "7.4.5",
     "@babel/plugin-transform-modules-commonjs": "7.4.4",
     "@babel/plugin-transform-modules-umd": "7.2.0",
-    "@testing-library/react": "8.0.1",
+    "@testing-library/react": "8.0.4",
     "@types/fast-json-stable-stringify": "^2.0.0",
-    "@types/graphql": "14.2.1",
+    "@types/graphql": "14.2.2",
     "@types/hoist-non-react-statics": "3.3.1",
     "@types/invariant": "2.2.29",
     "@types/jest": "24.0.15",
@@ -48,8 +48,8 @@
     "apollo-cache-inmemory": "1.6.2",
     "apollo-client": "2.6.3",
     "apollo-link": "1.2.12",
-    "bundlesize": "0.17.1",
-    "graphql": "14.3.1",
+    "bundlesize": "0.18.0",
+    "graphql": "14.4.1",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
     "jest-junit": "6.3.0",
@@ -57,7 +57,7 @@
     "react": "^16.9.0-alpha.0",
     "react-dom": "^16.9.0-alpha.0",
     "recompose": "0.30.0",
-    "rollup": "1.16.2",
+    "rollup": "1.16.3",
     "rollup-plugin-commonjs": "9.3.4",
     "rollup-plugin-invariant": "0.5.2",
     "rollup-plugin-node-resolve": "4.2.2",
@@ -77,7 +77,7 @@
     {
       "name": "@apollo/react-common",
       "path": "./packages/common/lib/react-common.cjs.min.js",
-      "maxSize": "720B"
+      "maxSize": "750B"
     },
     {
       "name": "@apollo/react-components",
@@ -87,17 +87,17 @@
     {
       "name": "@apollo/react-hoc",
       "path": "./packages/hoc/lib/react-hoc.cjs.min.js",
-      "maxSize": "1660B"
+      "maxSize": "1.55 kB"
     },
     {
       "name": "@apollo/react-hooks",
       "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
-      "maxSize": "3900B"
+      "maxSize": "3.9 kB"
     },
     {
       "name": "@apollo/react-ssr",
       "path": "./packages/ssr/lib/react-ssr.cjs.min.js",
-      "maxSize": "450B"
+      "maxSize": "440B"
     }
   ],
   "renovate": {

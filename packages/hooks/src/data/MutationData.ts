@@ -1,5 +1,5 @@
 import { ApolloError } from 'apollo-client';
-import { isEqual } from 'apollo-utilities';
+import { equal as isEqual } from '@wry/equality';
 import {
   ApolloContextValue,
   DocumentType,
@@ -44,7 +44,7 @@ export class MutationData<
     const runMutation = (
       options?: MutationFunctionOptions<TData, TVariables>
     ) => this.runMutation(options);
-    return [runMutation, result] as MutationTuple<TData, TVariables>;
+    return [result, runMutation] as MutationTuple<TData, TVariables>;
   }
 
   public afterExecute() {
