@@ -34,6 +34,9 @@
   React Apollo's context, assuming it was previously set using
   `ApolloProvider`. <br/>
   [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
+- Typescript: `client` prop is no longer required when using `withApollo`.  <br/>
+  [@RigoTheDev](https://github.com/RigoTheDev) in [#3178](https://github.com/apollographql/react-apollo/pull/3178)
+
 
 ## 2.5.7 (2019-06-21)
 
