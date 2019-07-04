@@ -15,21 +15,23 @@ import {
 import {
   QueryPreviousData,
   QueryOptions,
-  QueryCurrentObservable
+  QueryCurrentObservable,
+  QueryTuple
 } from '../types';
 import { OperationData } from './OperationData';
 
-export class QueryData<TData, TVariables> extends OperationData {
+export class QueryData<TData, TVariables, TLazy> extends OperationData {
   private previousData: QueryPreviousData<TData, TVariables> = {};
   private currentObservable: QueryCurrentObservable<TData, TVariables> = {};
   private forceUpdate: any;
+  private runLazy: boolean = false;
 
   constructor({
     options,
     context,
     forceUpdate
   }: {
-    options: QueryOptions<TData, TVariables>;
+    options: QueryOptions<TData, TVariables, TLazy>;
     context: ApolloContextValue;
     forceUpdate: any;
   }) {
@@ -37,8 +39,15 @@ export class QueryData<TData, TVariables> extends OperationData {
     this.forceUpdate = forceUpdate;
   }
 
-  public execute(): QueryResult<TData, TVariables> {
+  public execute(): TLazy extends boolean
+    ? QueryTuple<TData, TVariables>
+    : QueryResult<TData, TVariables> {
     this.refreshClient();
+
+    const { lazy } = this.getOptions();
+    if (lazy && !this.runLazy) {
+      return this.initialLazyResult() as any;
+    }
 
     const { skip, query } = this.getOptions();
     if (skip || query !== this.previousData.query) {
@@ -50,10 +59,14 @@ export class QueryData<TData, TVariables> extends OperationData {
 
     if (this.isMounted) this.startQuerySubscription();
 
-    const finish = () => {
+    const finish = (): TLazy extends boolean
+      ? QueryTuple<TData, TVariables>
+      : QueryResult<TData, TVariables> => {
       const result = this.getQueryResult();
       this.startQuerySubscription();
-      return result;
+      return (lazy !== undefined
+        ? [result, this.executeLazy.bind(this)]
+        : result) as any;
     };
 
     if (this.context && this.context.renderPromises) {
@@ -108,7 +121,9 @@ export class QueryData<TData, TVariables> extends OperationData {
 
   public afterExecute() {
     this.isMounted = true;
-    this.handleErrorOrCompleted();
+    if (!this.getOptions().lazy || this.runLazy) {
+      this.handleErrorOrCompleted();
+    }
     return this.unmount.bind(this);
   }
 
@@ -116,6 +131,22 @@ export class QueryData<TData, TVariables> extends OperationData {
     this.removeQuerySubscription();
     delete this.currentObservable.query;
     delete this.previousData.result;
+  }
+
+  private initialLazyResult(): QueryTuple<TData, TVariables> {
+    return [
+      {
+        loading: false,
+        networkStatus: NetworkStatus.ready,
+        data: undefined
+      } as QueryResult<TData, TVariables>,
+      this.executeLazy.bind(this)
+    ];
+  }
+
+  private executeLazy() {
+    this.runLazy = true;
+    this.forceUpdate();
   }
 
   private updateCurrentData() {

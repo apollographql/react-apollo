@@ -1,7 +1,7 @@
-import { ObservableQuery } from "apollo-client";
-import { QueryOptions } from "../types";
-import { DocumentNode } from "graphql";
-import { QueryData } from "../data/QueryData";
+import { ObservableQuery } from 'apollo-client';
+import { QueryOptions } from '../types';
+import { DocumentNode } from 'graphql';
+import { QueryData } from '../data/QueryData';
 
 type QueryInfo = {
   seen: boolean;
@@ -40,8 +40,8 @@ export class RenderPromises {
     return this.lookupQueryInfo(props).observable;
   }
 
-  public addQueryPromise<TData, TVariables>(
-    queryInstance: QueryData<TData, TVariables>,
+  public addQueryPromise<TData, TVariables, TLazy>(
+    queryInstance: QueryData<TData, TVariables, TLazy>,
     finish: () => React.ReactNode
   ): React.ReactNode {
     const info = this.lookupQueryInfo(queryInstance.getOptions());

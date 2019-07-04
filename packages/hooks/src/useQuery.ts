@@ -6,23 +6,29 @@ import {
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
-import { QueryHookOptions, QueryOptions } from './types';
+import { QueryHookOptions, QueryOptions, QueryTuple } from './types';
 import { QueryData } from './data/QueryData';
 import { useDeepMemo } from './utils/useDeepMemo';
 
-export function useQuery<TData = any, TVariables = OperationVariables>(
+export function useQuery<
+  TData = any,
+  TVariables = OperationVariables,
+  TLazy = undefined
+>(
   query: DocumentNode,
-  options?: QueryHookOptions<TData, TVariables>
-): QueryResult<TData, TVariables> {
+  options?: QueryHookOptions<TData, TVariables, TLazy>
+): TLazy extends boolean
+  ? QueryTuple<TData, TVariables>
+  : QueryResult<TData, TVariables> {
   const context = useContext(getApolloContext());
   const [tick, forceUpdate] = useReducer(x => x + 1, 0);
   const updatedOptions = options ? { ...options, query } : { query };
 
-  const queryDataRef = useRef<QueryData<TData, TVariables>>();
+  const queryDataRef = useRef<QueryData<TData, TVariables, TLazy>>();
   function getQueryDataRef() {
     if (!queryDataRef.current) {
-      queryDataRef.current = new QueryData<TData, TVariables>({
-        options: updatedOptions as QueryOptions<TData, TVariables>,
+      queryDataRef.current = new QueryData<TData, TVariables, TLazy>({
+        options: updatedOptions as QueryOptions<TData, TVariables, TLazy>,
         context,
         forceUpdate
       });
