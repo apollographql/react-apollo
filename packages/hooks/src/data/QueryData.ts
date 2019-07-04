@@ -48,11 +48,14 @@ export class QueryData<TData, TVariables> extends OperationData {
 
     this.updateObservableQuery();
 
-    if (!skip) {
-      this.startQuerySubscription();
-    }
+    if (this.isMounted) this.startQuerySubscription();
 
-    const finish = () => this.getQueryResult();
+    const finish = () => {
+      const result = this.getQueryResult();
+      this.startQuerySubscription();
+      return result;
+    };
+
     if (this.context && this.context.renderPromises) {
       const result = this.context.renderPromises.addQueryPromise(this, finish);
       return (
@@ -111,8 +114,8 @@ export class QueryData<TData, TVariables> extends OperationData {
 
   public cleanup() {
     this.removeQuerySubscription();
-    this.currentObservable.query = null;
-    this.previousData.result = null;
+    delete this.currentObservable.query;
+    delete this.previousData.result;
   }
 
   private updateCurrentData() {
@@ -198,7 +201,7 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private startQuerySubscription() {
-    if (this.currentObservable.subscription) return;
+    if (this.currentObservable.subscription || this.getOptions().skip) return;
 
     const obsQuery = this.currentObservable.query!;
     this.currentObservable.subscription = obsQuery.subscribe({
