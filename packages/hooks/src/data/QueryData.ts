@@ -16,7 +16,8 @@ import {
   QueryPreviousData,
   QueryOptions,
   QueryCurrentObservable,
-  QueryTuple
+  QueryTuple,
+  QueryLazyOptions
 } from '../types';
 import { OperationData } from './OperationData';
 
@@ -24,7 +25,9 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
   private previousData: QueryPreviousData<TData, TVariables> = {};
   private currentObservable: QueryCurrentObservable<TData, TVariables> = {};
   private forceUpdate: any;
+
   private runLazy: boolean = false;
+  private lazyOptions?: QueryLazyOptions<TVariables>;
 
   constructor({
     options,
@@ -133,6 +136,22 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     delete this.previousData.result;
   }
 
+  public getOptions() {
+    const options = super.getOptions();
+    const lazyOptions = this.lazyOptions || {};
+    return {
+      ...options,
+      variables: {
+        ...options.variables,
+        ...lazyOptions.variables
+      },
+      context: {
+        ...options.context,
+        ...lazyOptions.context
+      }
+    };
+  }
+
   private initialLazyResult(): QueryTuple<TData, TVariables> {
     return [
       {
@@ -144,8 +163,9 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     ];
   }
 
-  private executeLazy() {
+  private executeLazy(options?: QueryLazyOptions<TVariables>) {
     this.runLazy = true;
+    this.lazyOptions = options;
     this.forceUpdate();
   }
 

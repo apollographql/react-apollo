@@ -14,7 +14,8 @@ import {
   MutationFunctionOptions,
   ExecutionResult,
   BaseSubscriptionOptions,
-  SubscriptionResult
+  SubscriptionResult,
+  Context
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
@@ -59,9 +60,14 @@ export interface QueryCurrentObservable<TData, TVariables> {
   subscription?: ZenObservable.Subscription;
 }
 
+export interface QueryLazyOptions<TVariables> {
+  variables?: TVariables;
+  context?: Context;
+}
+
 export type QueryTuple<TData, TVariables> = [
   QueryResult<TData, TVariables>,
-  () => void
+  (options?: QueryLazyOptions<TVariables>) => void
 ];
 
 /* Mutation types */
