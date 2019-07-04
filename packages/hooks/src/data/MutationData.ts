@@ -40,6 +40,7 @@ export class MutationData<
   }
 
   public execute(result: MutationResult<TData>) {
+    this.isMounted = true;
     this.verifyDocumentType(this.getOptions().mutation, DocumentType.Mutation);
     const runMutation = (
       options?: MutationFunctionOptions<TData, TVariables>

@@ -12,7 +12,7 @@ import { DocumentNode } from 'graphql';
 import { CommonOptions } from '../types';
 
 export abstract class OperationData<TOptions = any> {
-  public isMounted: boolean = true;
+  public isMounted: boolean = false;
   public previousOptions: CommonOptions<TOptions> = {} as CommonOptions<
     TOptions
   >;

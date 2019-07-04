@@ -84,7 +84,7 @@ describe('[queries] observableQuery', () => {
           // during the second mount, the loading prop should be false, and data should
           // be present;
           if (count === 2) {
-            expect(this.props.data!.loading).toBeTruthy();
+            expect(this.props.data!.loading).toBeFalsy();
             expect(stripSymbols(this.props.data!.allPeople)).toEqual(
               data.allPeople
             );
