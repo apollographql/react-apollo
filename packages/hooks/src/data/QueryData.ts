@@ -139,7 +139,7 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
   public getOptions() {
     const options = super.getOptions();
     const lazyOptions = this.lazyOptions || {};
-    return {
+    const updatedOptions = {
       ...options,
       variables: {
         ...options.variables,
@@ -150,6 +150,13 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
         ...lazyOptions.context
       }
     };
+
+    // Triggering a query in lazy mode overrides `skip` settings.
+    if (options.lazy) {
+      updatedOptions.skip = false;
+    }
+
+    return updatedOptions;
   }
 
   private initialLazyResult(): QueryTuple<TData, TVariables> {
