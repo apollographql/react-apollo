@@ -79,6 +79,7 @@ export interface QueryResult<TData = any, TVariables = OperationVariables>
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
+  called: boolean;
 }
 
 /* Mutation types */

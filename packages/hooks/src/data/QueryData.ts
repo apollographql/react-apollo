@@ -143,6 +143,7 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
       {
         loading: false,
         networkStatus: NetworkStatus.ready,
+        called: false,
         data: undefined
       } as QueryResult<TData, TVariables>,
       this.executeLazy.bind(this)
@@ -174,6 +175,7 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
       ) || {
         loading: true,
         networkStatus: NetworkStatus.loading,
+        called: true,
         data: {}
       };
 
@@ -330,7 +332,8 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
         ...result,
         data: undefined,
         error: undefined,
-        loading: false
+        loading: false,
+        called: true
       };
     } else {
       // Fetch the current result (if any) from the store.
@@ -345,7 +348,7 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
         error = new ApolloError({ graphQLErrors: errors });
       }
 
-      Object.assign(result, { loading, networkStatus, error });
+      Object.assign(result, { loading, networkStatus, error, called: true });
 
       if (loading) {
         const previousData = this.previousData.result

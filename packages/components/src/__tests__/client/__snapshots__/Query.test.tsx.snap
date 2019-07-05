@@ -2,6 +2,7 @@
 
 exports[`Query component calls the children prop: result in render prop 1`] = `
 Object {
+  "called": true,
   "data": Object {
     "allPeople": Object {
       "people": Array [
@@ -19,6 +20,7 @@ Object {
 
 exports[`Query component calls the children prop: result in render prop while loading 1`] = `
 Object {
+  "called": true,
   "data": Object {},
   "error": undefined,
   "fetchMore": [Function],
