@@ -62,28 +62,7 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
 
     if (this.isMounted) this.startQuerySubscription();
 
-    const finish = (): TLazy extends boolean
-      ? QueryTuple<TData, TVariables>
-      : QueryResult<TData, TVariables> => {
-      const result = this.getQueryResult();
-      this.startQuerySubscription();
-      return (lazy !== undefined
-        ? [result, this.executeLazy.bind(this)]
-        : result) as any;
-    };
-
-    if (this.context && this.context.renderPromises) {
-      const result = this.context.renderPromises.addQueryPromise(this, finish);
-      return (
-        result || {
-          loading: true,
-          networkStatus: NetworkStatus.loading,
-          data: {}
-        }
-      );
-    }
-
-    return finish();
+    return this.getExecuteSsrResult() || this.getExecuteResult();
   }
 
   // For server-side rendering
@@ -174,6 +153,35 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     this.runLazy = true;
     this.lazyOptions = options;
     this.forceUpdate();
+  }
+
+  private getExecuteResult(): TLazy extends boolean
+    ? QueryTuple<TData, TVariables>
+    : QueryResult<TData, TVariables> {
+    const result = this.getQueryResult();
+    this.startQuerySubscription();
+    return (this.getOptions().lazy !== undefined
+      ? [result, this.executeLazy.bind(this)]
+      : result) as any;
+  }
+
+  private getExecuteSsrResult() {
+    let result;
+    if (this.context && this.context.renderPromises) {
+      result = this.context.renderPromises.addQueryPromise(
+        this,
+        this.getExecuteResult.bind(this)
+      ) || {
+        loading: true,
+        networkStatus: NetworkStatus.loading,
+        data: {}
+      };
+
+      if (this.getOptions().lazy !== undefined) {
+        result = [result, this.executeLazy.bind(this)];
+      }
+    }
+    return result;
   }
 
   private updateCurrentData() {
