@@ -2,10 +2,10 @@
   "name": "hooks-demo-server",
   "description": "",
   "dependencies": {
-    "apollo-server": "2.6.7",
-    "apollo-server-express": "2.6.7",
+    "apollo-server": "2.6.9",
+    "apollo-server-express": "2.6.9",
     "express": "4.17.1",
-    "graphql": "14.4.1",
+    "graphql": "14.4.2",
     "subscriptions-transport-ws": "0.9.16"
   },
   "license": "MIT",
