@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  GetCharacterQuery,
-  GetCharacterQueryVariables,
+  GetCharacter,
+  GetCharacterVariables,
   Episode
 } from './__generated__/types';
 import { GetCharacter as QUERY } from './queries';
@@ -15,7 +15,7 @@ export const Character: React.SFC<CharacterProps> = props => {
   const { episode } = props;
 
   return (
-    <Query<GetCharacterQuery, GetCharacterQueryVariables>
+    <Query<GetCharacter, GetCharacterVariables>
       query={QUERY}
       variables={{ episode }}
     >
