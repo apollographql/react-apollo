@@ -49,7 +49,7 @@
     "apollo-client": "2.6.3",
     "apollo-link": "1.2.12",
     "bundlesize": "0.18.0",
-    "graphql": "14.4.1",
+    "graphql": "14.4.2",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
     "jest-junit": "6.3.0",
