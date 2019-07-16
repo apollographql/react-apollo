@@ -42,9 +42,9 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     this.forceUpdate = forceUpdate;
   }
 
-  public execute(): TLazy extends boolean
-    ? QueryTuple<TData, TVariables>
-    : QueryResult<TData, TVariables> {
+  public execute(): TLazy extends undefined
+    ? QueryResult<TData, TVariables>
+    : QueryTuple<TData, TVariables> {
     this.refreshClient();
 
     const { lazy } = this.getOptions();
@@ -156,9 +156,9 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     this.forceUpdate();
   }
 
-  private getExecuteResult(): TLazy extends boolean
-    ? QueryTuple<TData, TVariables>
-    : QueryResult<TData, TVariables> {
+  private getExecuteResult(): TLazy extends undefined
+    ? QueryResult<TData, TVariables>
+    : QueryTuple<TData, TVariables> {
     const result = this.getQueryResult();
     this.startQuerySubscription();
     return (this.getOptions().lazy !== undefined
@@ -166,24 +166,32 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
       : result) as any;
   }
 
-  private getExecuteSsrResult() {
+  private getExecuteSsrResult(): TLazy extends undefined
+    ? QueryResult<TData, TVariables>
+    : QueryTuple<TData, TVariables> {
     let result;
+
+    const ssrLoading = {
+      loading: true,
+      networkStatus: NetworkStatus.loading,
+      called: true,
+      data: {}
+    };
+
     if (this.context && this.context.renderPromises) {
       result = this.context.renderPromises.addQueryPromise(
         this,
         this.getExecuteResult.bind(this)
-      ) || {
-        loading: true,
-        networkStatus: NetworkStatus.loading,
-        called: true,
-        data: {}
-      };
-
-      if (this.getOptions().lazy !== undefined) {
-        result = [result, this.executeLazy.bind(this)];
+      );
+      if (!result) {
+        result =
+          this.getOptions().lazy !== undefined
+            ? [ssrLoading, this.getExecuteResult.bind(this)]
+            : ssrLoading;
       }
     }
-    return result;
+
+    return result as any;
   }
 
   private updateCurrentData() {

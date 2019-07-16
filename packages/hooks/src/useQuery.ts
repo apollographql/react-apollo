@@ -17,14 +17,15 @@ export function useQuery<
 >(
   query: DocumentNode,
   options?: QueryHookOptions<TData, TVariables, TLazy>
-): TLazy extends boolean
-  ? QueryTuple<TData, TVariables>
-  : QueryResult<TData, TVariables> {
+): TLazy extends undefined
+  ? QueryResult<TData, TVariables>
+  : QueryTuple<TData, TVariables> {
   const context = useContext(getApolloContext());
   const [tick, forceUpdate] = useReducer(x => x + 1, 0);
   const updatedOptions = options ? { ...options, query } : { query };
 
   const queryDataRef = useRef<QueryData<TData, TVariables, TLazy>>();
+
   function getQueryDataRef() {
     if (!queryDataRef.current) {
       queryDataRef.current = new QueryData<TData, TVariables, TLazy>({
