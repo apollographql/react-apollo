@@ -40,11 +40,12 @@ export class MutationData<
   }
 
   public execute(result: MutationResult<TData>) {
+    this.isMounted = true;
     this.verifyDocumentType(this.getOptions().mutation, DocumentType.Mutation);
     const runMutation = (
       options?: MutationFunctionOptions<TData, TVariables>
     ) => this.runMutation(options);
-    return [result, runMutation] as MutationTuple<TData, TVariables>;
+    return [runMutation, result] as MutationTuple<TData, TVariables>;
   }
 
   public afterExecute() {

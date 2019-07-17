@@ -160,16 +160,16 @@ ignoreResults?: boolean;
 
 ```ts
 [
+  (
+    options?: MutationFunctionOptions<TData, TVariables>
+  ) => Promise<void | ExecutionResult<TData>>,
   {
     data?: TData;
     error?: ApolloError;
     loading: boolean;
     called: boolean;
     client?: ApolloClient<object>
-  },
-  (
-    options?: MutationFunctionOptions<TData, TVariables>
-  ) => Promise<void | ExecutionResult<TData>>
+  }
 ];
 ```
 
