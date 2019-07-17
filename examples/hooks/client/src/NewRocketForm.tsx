@@ -27,7 +27,7 @@ export function NewRocketForm() {
   const [year, setYear] = useState(0);
   const [stock, setStock] = useState(0);
 
-  const [{ error, data }, saveRocket] = useMutation<
+  const [saveRocket, { error, data }] = useMutation<
     {
       saveRocket: RocketInventory;
     },
