@@ -27,23 +27,15 @@ export type CommonOptions<TOptions> = TOptions & {
 
 /* Query types */
 
-export interface QueryOptions<
-  TData = any,
-  TVariables = OperationVariables,
-  TLazy = undefined
-> extends QueryFunctionOptions<TData, TVariables> {
+export interface QueryOptions<TData = any, TVariables = OperationVariables>
+  extends QueryFunctionOptions<TData, TVariables> {
   children?: (result: QueryResult<TData, TVariables>) => ReactNode;
   query: DocumentNode;
-  lazy?: TLazy;
 }
 
-export interface QueryHookOptions<
-  TData = any,
-  TVariables = OperationVariables,
-  TLazy = undefined
-> extends QueryFunctionOptions<TData, TVariables> {
+export interface QueryHookOptions<TData = any, TVariables = OperationVariables>
+  extends QueryFunctionOptions<TData, TVariables> {
   query?: DocumentNode;
-  lazy?: TLazy;
 }
 
 export interface QueryPreviousData<TData, TVariables> {

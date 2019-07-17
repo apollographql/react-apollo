@@ -21,7 +21,7 @@ import {
 } from '../types';
 import { OperationData } from './OperationData';
 
-export class QueryData<TData, TVariables, TLazy> extends OperationData {
+export class QueryData<TData, TVariables> extends OperationData {
   private previousData: QueryPreviousData<TData, TVariables> = {};
   private currentObservable: QueryCurrentObservable<TData, TVariables> = {};
   private forceUpdate: any;
@@ -34,7 +34,7 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     context,
     forceUpdate
   }: {
-    options: QueryOptions<TData, TVariables, TLazy>;
+    options: QueryOptions<TData, TVariables>;
     context: ApolloContextValue;
     forceUpdate: any;
   }) {
@@ -42,15 +42,8 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     this.forceUpdate = forceUpdate;
   }
 
-  public execute(): TLazy extends undefined
-    ? QueryResult<TData, TVariables>
-    : QueryTuple<TData, TVariables> {
+  public execute(): QueryResult<TData, TVariables> {
     this.refreshClient();
-
-    const { lazy } = this.getOptions();
-    if (lazy && !this.runLazy) {
-      return this.initialLazyResult() as any;
-    }
 
     const { skip, query } = this.getOptions();
     if (skip || query !== this.previousData.query) {
@@ -63,6 +56,20 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     if (this.isMounted) this.startQuerySubscription();
 
     return this.getExecuteSsrResult() || this.getExecuteResult();
+  }
+
+  public executeLazy(): QueryTuple<TData, TVariables> {
+    return !this.runLazy
+      ? [
+          {
+            loading: false,
+            networkStatus: NetworkStatus.ready,
+            called: false,
+            data: undefined
+          } as QueryResult<TData, TVariables>,
+          this.runLazyQuery
+        ]
+      : [this.execute(), this.runLazyQuery];
   }
 
   // For server-side rendering
@@ -101,9 +108,9 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     return currentResult.loading ? obs.result() : false;
   }
 
-  public afterExecute() {
+  public afterExecute({ lazy = false }: { lazy?: boolean } = {}) {
     this.isMounted = true;
-    if (!this.getOptions().lazy || this.runLazy) {
+    if (!lazy || this.runLazy) {
       this.handleErrorOrCompleted();
     }
     return this.unmount.bind(this);
@@ -118,7 +125,7 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
   public getOptions() {
     const options = super.getOptions();
     const lazyOptions = this.lazyOptions || {};
-    const updatedOptions = {
+    return {
       ...options,
       variables: {
         ...options.variables,
@@ -129,46 +136,21 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
         ...lazyOptions.context
       }
     };
-
-    // Triggering a query in lazy mode overrides `skip` settings.
-    if (options.lazy) {
-      updatedOptions.skip = false;
-    }
-
-    return updatedOptions;
   }
 
-  private initialLazyResult(): QueryTuple<TData, TVariables> {
-    return [
-      {
-        loading: false,
-        networkStatus: NetworkStatus.ready,
-        called: false,
-        data: undefined
-      } as QueryResult<TData, TVariables>,
-      this.executeLazy.bind(this)
-    ];
-  }
-
-  private executeLazy(options?: QueryLazyOptions<TVariables>) {
+  private runLazyQuery = (options?: QueryLazyOptions<TVariables>) => {
     this.runLazy = true;
     this.lazyOptions = options;
     this.forceUpdate();
-  }
+  };
 
-  private getExecuteResult(): TLazy extends undefined
-    ? QueryResult<TData, TVariables>
-    : QueryTuple<TData, TVariables> {
+  private getExecuteResult = (): QueryResult<TData, TVariables> => {
     const result = this.getQueryResult();
     this.startQuerySubscription();
-    return (this.getOptions().lazy !== undefined
-      ? [result, this.executeLazy.bind(this)]
-      : result) as any;
-  }
+    return result;
+  };
 
-  private getExecuteSsrResult(): TLazy extends undefined
-    ? QueryResult<TData, TVariables>
-    : QueryTuple<TData, TVariables> {
+  private getExecuteSsrResult() {
     let result;
 
     const ssrLoading = {
@@ -181,17 +163,14 @@ export class QueryData<TData, TVariables, TLazy> extends OperationData {
     if (this.context && this.context.renderPromises) {
       result = this.context.renderPromises.addQueryPromise(
         this,
-        this.getExecuteResult.bind(this)
+        this.getExecuteResult
       );
       if (!result) {
-        result =
-          this.getOptions().lazy !== undefined
-            ? [ssrLoading, this.getExecuteResult.bind(this)]
-            : ssrLoading;
+        result = ssrLoading as QueryResult<TData, TVariables>;
       }
     }
 
-    return result as any;
+    return result;
   }
 
   private updateCurrentData() {

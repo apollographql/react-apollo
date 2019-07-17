@@ -40,8 +40,8 @@ export class RenderPromises {
     return this.lookupQueryInfo(props).observable;
   }
 
-  public addQueryPromise<TData, TVariables, TLazy>(
-    queryInstance: QueryData<TData, TVariables, TLazy>,
+  public addQueryPromise<TData, TVariables>(
+    queryInstance: QueryData<TData, TVariables>,
     finish: () => React.ReactNode
   ): React.ReactNode {
     const info = this.lookupQueryInfo(queryInstance.getOptions());

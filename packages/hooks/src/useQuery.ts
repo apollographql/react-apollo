@@ -1,54 +1,15 @@
-import { useContext, useEffect, useReducer, useRef } from 'react';
-import {
-  getApolloContext,
-  OperationVariables,
-  QueryResult
-} from '@apollo/react-common';
+import { OperationVariables, QueryResult } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
-import { QueryHookOptions, QueryOptions, QueryTuple } from './types';
-import { QueryData } from './data/QueryData';
-import { useDeepMemo } from './utils/useDeepMemo';
+import { QueryHookOptions } from './types';
+import { useBaseQuery } from './utils/useBaseQuery';
 
-export function useQuery<
-  TData = any,
-  TVariables = OperationVariables,
-  TLazy = undefined
->(
+export function useQuery<TData = any, TVariables = OperationVariables>(
   query: DocumentNode,
-  options?: QueryHookOptions<TData, TVariables, TLazy>
-): TLazy extends undefined
-  ? QueryResult<TData, TVariables>
-  : QueryTuple<TData, TVariables> {
-  const context = useContext(getApolloContext());
-  const [tick, forceUpdate] = useReducer(x => x + 1, 0);
-  const updatedOptions = options ? { ...options, query } : { query };
-
-  const queryDataRef = useRef<QueryData<TData, TVariables, TLazy>>();
-
-  function getQueryDataRef() {
-    if (!queryDataRef.current) {
-      queryDataRef.current = new QueryData<TData, TVariables, TLazy>({
-        options: updatedOptions as QueryOptions<TData, TVariables, TLazy>,
-        context,
-        forceUpdate
-      });
-    }
-    return queryDataRef.current;
-  }
-
-  const queryData = getQueryDataRef();
-  queryData.setOptions(updatedOptions);
-  queryData.context = context;
-
-  const memo = {
-    options: updatedOptions,
-    context,
-    tick
-  };
-  const result = useDeepMemo(() => queryData.execute(), memo);
-
-  useEffect(() => queryData.afterExecute(), [result]);
-
-  return result;
+  options?: QueryHookOptions<TData, TVariables>
+) {
+  return useBaseQuery<TData, TVariables>(query, options, false) as QueryResult<
+    TData,
+    TVariables
+  >;
 }
