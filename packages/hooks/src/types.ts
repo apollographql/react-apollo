@@ -14,7 +14,8 @@ import {
   MutationFunctionOptions,
   ExecutionResult,
   BaseSubscriptionOptions,
-  SubscriptionResult
+  SubscriptionResult,
+  Context
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
@@ -37,6 +38,13 @@ export interface QueryHookOptions<TData = any, TVariables = OperationVariables>
   query?: DocumentNode;
 }
 
+export interface LazyQueryHookOptions<
+  TData = any,
+  TVariables = OperationVariables
+> extends Omit<QueryFunctionOptions<TData, TVariables>, 'skip'> {
+  query?: DocumentNode;
+}
+
 export interface QueryPreviousData<TData, TVariables> {
   client?: ApolloClient<object>;
   query?: DocumentNode;
@@ -50,6 +58,16 @@ export interface QueryCurrentObservable<TData, TVariables> {
   query?: ObservableQuery<TData, TVariables> | null;
   subscription?: ZenObservable.Subscription;
 }
+
+export interface QueryLazyOptions<TVariables> {
+  variables?: TVariables;
+  context?: Context;
+}
+
+export type QueryTuple<TData, TVariables> = [
+  (options?: QueryLazyOptions<TVariables>) => void,
+  QueryResult<TData, TVariables>
+];
 
 /* Mutation types */
 

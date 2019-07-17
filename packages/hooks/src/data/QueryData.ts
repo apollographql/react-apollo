@@ -15,7 +15,9 @@ import {
 import {
   QueryPreviousData,
   QueryOptions,
-  QueryCurrentObservable
+  QueryCurrentObservable,
+  QueryTuple,
+  QueryLazyOptions
 } from '../types';
 import { OperationData } from './OperationData';
 
@@ -23,6 +25,9 @@ export class QueryData<TData, TVariables> extends OperationData {
   private previousData: QueryPreviousData<TData, TVariables> = {};
   private currentObservable: QueryCurrentObservable<TData, TVariables> = {};
   private forceUpdate: any;
+
+  private runLazy: boolean = false;
+  private lazyOptions?: QueryLazyOptions<TVariables>;
 
   constructor({
     options,
@@ -50,24 +55,21 @@ export class QueryData<TData, TVariables> extends OperationData {
 
     if (this.isMounted) this.startQuerySubscription();
 
-    const finish = () => {
-      const result = this.getQueryResult();
-      this.startQuerySubscription();
-      return result;
-    };
+    return this.getExecuteSsrResult() || this.getExecuteResult();
+  }
 
-    if (this.context && this.context.renderPromises) {
-      const result = this.context.renderPromises.addQueryPromise(this, finish);
-      return (
-        result || {
-          loading: true,
-          networkStatus: NetworkStatus.loading,
-          data: {}
-        }
-      );
-    }
-
-    return finish();
+  public executeLazy(): QueryTuple<TData, TVariables> {
+    return !this.runLazy
+      ? [
+          this.runLazyQuery,
+          {
+            loading: false,
+            networkStatus: NetworkStatus.ready,
+            called: false,
+            data: undefined
+          } as QueryResult<TData, TVariables>
+        ]
+      : [this.runLazyQuery, this.execute()];
   }
 
   // For server-side rendering
@@ -106,9 +108,11 @@ export class QueryData<TData, TVariables> extends OperationData {
     return currentResult.loading ? obs.result() : false;
   }
 
-  public afterExecute() {
+  public afterExecute({ lazy = false }: { lazy?: boolean } = {}) {
     this.isMounted = true;
-    this.handleErrorOrCompleted();
+    if (!lazy || this.runLazy) {
+      this.handleErrorOrCompleted();
+    }
     return this.unmount.bind(this);
   }
 
@@ -116,6 +120,64 @@ export class QueryData<TData, TVariables> extends OperationData {
     this.removeQuerySubscription();
     delete this.currentObservable.query;
     delete this.previousData.result;
+  }
+
+  public getOptions() {
+    const options = super.getOptions();
+    const lazyOptions = this.lazyOptions || {};
+    const updatedOptions = {
+      ...options,
+      variables: {
+        ...options.variables,
+        ...lazyOptions.variables
+      },
+      context: {
+        ...options.context,
+        ...lazyOptions.context
+      }
+    };
+
+    // skip is not supported when using lazy query execution.
+    if (this.runLazy) {
+      delete updatedOptions.skip;
+    }
+
+    return updatedOptions;
+  }
+
+  private runLazyQuery = (options?: QueryLazyOptions<TVariables>) => {
+    this.runLazy = true;
+    this.lazyOptions = options;
+    this.forceUpdate();
+  };
+
+  private getExecuteResult = (): QueryResult<TData, TVariables> => {
+    const result = this.getQueryResult();
+    this.startQuerySubscription();
+    return result;
+  };
+
+  private getExecuteSsrResult() {
+    let result;
+
+    const ssrLoading = {
+      loading: true,
+      networkStatus: NetworkStatus.loading,
+      called: true,
+      data: {}
+    };
+
+    if (this.context && this.context.renderPromises) {
+      result = this.context.renderPromises.addQueryPromise(
+        this,
+        this.getExecuteResult
+      );
+      if (!result) {
+        result = ssrLoading as QueryResult<TData, TVariables>;
+      }
+    }
+
+    return result;
   }
 
   private updateCurrentData() {
@@ -264,7 +326,8 @@ export class QueryData<TData, TVariables> extends OperationData {
         ...result,
         data: undefined,
         error: undefined,
-        loading: false
+        loading: false,
+        called: true
       };
     } else {
       // Fetch the current result (if any) from the store.
@@ -279,7 +342,7 @@ export class QueryData<TData, TVariables> extends OperationData {
         error = new ApolloError({ graphQLErrors: errors });
       }
 
-      Object.assign(result, { loading, networkStatus, error });
+      Object.assign(result, { loading, networkStatus, error, called: true });
 
       if (loading) {
         const previousData = this.previousData.result

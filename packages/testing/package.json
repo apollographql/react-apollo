@@ -19,7 +19,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "clean": "rm -Rf ./lib/* ./meta/coverage/*",
+    "clean": "rm -Rf ./lib/* ./meta/coverage/* ./.rpt2_cache",
     "prepare": "npm run build",
     "prebuild": "npm run clean",
     "build": "npx tsc -p ./config",
