@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@apollo/react-components": "beta",
+    "apollo": "^2.15.0",
     "apollo-cache-inmemory": "latest",
     "apollo-client": "latest",
     "apollo-link-http": "latest",
@@ -19,7 +20,6 @@
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
     "@types/react-test-renderer": "16.8.2",
-    "apollo-codegen": "0.20.2",
     "react-scripts-ts": "3.1.0",
     "react-test-renderer": "16.8.6",
     "typescript": "3.5.3"
@@ -29,7 +29,7 @@
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "schema": "apollo-codegen introspect-schema https://mpjk0plp9.lp.gql.zone/graphql --output ./src/schema.json",
-    "types": "apollo-codegen generate ./src/**/queries.ts --addTypename --schema ./src/schema.json --target typescript --output ./src/__generated__/types.ts"
+    "schema": "apollo client:download-schema --endpoint=https://uyx9x.sse.codesandbox.io ./src/schema.json",
+    "types": "apollo client:codegen ./src/__generated__/types.ts --outputFlat --includes=./src/**/queries.ts --addTypename --localSchemaFile=./src/schema.json --target=typescript"
   }
 }
