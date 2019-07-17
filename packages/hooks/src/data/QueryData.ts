@@ -61,15 +61,15 @@ export class QueryData<TData, TVariables> extends OperationData {
   public executeLazy(): QueryTuple<TData, TVariables> {
     return !this.runLazy
       ? [
+          this.runLazyQuery,
           {
             loading: false,
             networkStatus: NetworkStatus.ready,
             called: false,
             data: undefined
-          } as QueryResult<TData, TVariables>,
-          this.runLazyQuery
+          } as QueryResult<TData, TVariables>
         ]
-      : [this.execute(), this.runLazyQuery];
+      : [this.runLazyQuery, this.execute()];
   }
 
   // For server-side rendering

@@ -58,8 +58,8 @@ export interface QueryLazyOptions<TVariables> {
 }
 
 export type QueryTuple<TData, TVariables> = [
-  QueryResult<TData, TVariables>,
-  (options?: QueryLazyOptions<TVariables>) => void
+  (options?: QueryLazyOptions<TVariables>) => void,
+  QueryResult<TData, TVariables>
 ];
 
 /* Mutation types */

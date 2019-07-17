@@ -43,7 +43,7 @@ describe('useLazyQuery Hook', () => {
   it('should hold query execution until manually triggered', done => {
     let renderCount = 0;
     const Component = () => {
-      const [{ loading, data }, execute] = useLazyQuery(CAR_QUERY);
+      const [execute, { loading, data }] = useLazyQuery(CAR_QUERY);
       switch (renderCount) {
         case 0:
           expect(loading).toEqual(false);
@@ -72,7 +72,7 @@ describe('useLazyQuery Hook', () => {
 
   it('should set `called` to false by default', () => {
     const Component = () => {
-      const [{ loading, called }] = useLazyQuery(CAR_QUERY);
+      const [execute, { loading, called }] = useLazyQuery(CAR_QUERY);
       expect(loading).toBeFalsy();
       expect(called).toBeFalsy();
       return null;
@@ -88,7 +88,7 @@ describe('useLazyQuery Hook', () => {
   it('should set `called` to true after calling the lazy execute function', done => {
     let renderCount = 0;
     const Component = () => {
-      const [{ loading, called, data }, execute] = useLazyQuery(CAR_QUERY);
+      const [execute, { loading, called, data }] = useLazyQuery(CAR_QUERY);
       switch (renderCount) {
         case 0:
           expect(loading).toBeFalsy();
@@ -122,7 +122,7 @@ describe('useLazyQuery Hook', () => {
     let renderCount = 0;
     const Component = () => {
       const [skip, setSkip] = useState(true);
-      const [{ loading, data }, execute] = useLazyQuery(CAR_QUERY, {
+      const [execute, { loading, data }] = useLazyQuery(CAR_QUERY, {
         skip
       });
       switch (renderCount) {
@@ -194,7 +194,7 @@ describe('useLazyQuery Hook', () => {
 
       let renderCount = 0;
       const Component = () => {
-        const [{ loading, data }, execute] = useLazyQuery(CAR_QUERY, {
+        const [execute, { loading, data }] = useLazyQuery(CAR_QUERY, {
           variables: { year: 2001 }
         });
         switch (renderCount) {
@@ -263,7 +263,7 @@ describe('useLazyQuery Hook', () => {
 
       let renderCount = 0;
       const Component = () => {
-        const [{ loading, data }, execute] = useLazyQuery(CAR_QUERY, {
+        const [execute, { loading, data }] = useLazyQuery(CAR_QUERY, {
           variables: { year: 2001 }
         });
         switch (renderCount) {

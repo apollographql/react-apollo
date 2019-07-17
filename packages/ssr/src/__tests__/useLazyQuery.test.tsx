@@ -43,7 +43,7 @@ describe('useLazyQuery Hook SSR', () => {
 
     const Component = () => {
       let html = null;
-      const [{ loading, called, data }, execute] = useLazyQuery(CAR_QUERY);
+      const [execute, { loading, called, data }] = useLazyQuery(CAR_QUERY);
 
       if (!loading && !called) {
         execute();
