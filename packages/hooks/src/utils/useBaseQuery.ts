@@ -9,7 +9,7 @@ import { useDeepMemo } from './useDeepMemo';
 export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   query: DocumentNode,
   options?: QueryHookOptions<TData, TVariables>,
-  lazy?: boolean
+  lazy = false
 ) {
   const context = useContext(getApolloContext());
   const [tick, forceUpdate] = useReducer(x => x + 1, 0);
@@ -17,18 +17,15 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
 
   const queryDataRef = useRef<QueryData<TData, TVariables>>();
 
-  function getQueryDataRef() {
-    if (!queryDataRef.current) {
-      queryDataRef.current = new QueryData<TData, TVariables>({
-        options: updatedOptions as QueryOptions<TData, TVariables>,
-        context,
-        forceUpdate
-      });
-    }
-    return queryDataRef.current;
+  if (!queryDataRef.current) {
+    queryDataRef.current = new QueryData<TData, TVariables>({
+      options: updatedOptions as QueryOptions<TData, TVariables>,
+      context,
+      forceUpdate
+    });
   }
 
-  const queryData = getQueryDataRef();
+  const queryData = queryDataRef.current;
   queryData.setOptions(updatedOptions);
   queryData.context = context;
 
