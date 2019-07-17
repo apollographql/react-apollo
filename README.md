@@ -1,4 +1,4 @@
-# [React Apollo](http://dev.apollodata.com/react/) [![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/react-apollo) [![Get on Slack](https://img.shields.io/badge/slack-join-orange.svg)](http://www.apollostack.com/#slack)
+# [React Apollo](http://dev.apollodata.com/react/) [![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/react-apollo) [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/apollo)
 
 React Apollo allows you to fetch data from your GraphQL server and use it in building complex and reactive UIs using the React framework. React Apollo may be used in any context that React may be used. In the browser, in React Native, or in Node.js when you want to do server-side rendering.
 
