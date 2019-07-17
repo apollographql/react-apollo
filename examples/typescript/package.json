@@ -29,7 +29,7 @@
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "schema": "apollo client:download-schema --endpoint=https://ojo6385vn6.sse.codesandbox.io ./src/schema.json",
+    "schema": "apollo client:download-schema --endpoint=https://uyx9x.sse.codesandbox.io ./src/schema.json",
     "types": "apollo client:codegen ./src/__generated__/types.ts --outputFlat --includes=./src/**/queries.ts --addTypename --localSchemaFile=./src/schema.json --target=typescript"
   }
 }

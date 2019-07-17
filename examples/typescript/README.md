@@ -21,7 +21,7 @@ npm start
 Executing `npm run schema` in terminal will run the following command
 
 ```bash
-apollo client:download-schema --endpoint=https://ojo6385vn6.sse.codesandbox.io ./src/schema.json
+apollo client:download-schema --endpoint=https://uyx9x.sse.codesandbox.io ./src/schema.json
 ```
 
 It will download a remote schema and save it as `schema.json` inside `./src/` directory.
