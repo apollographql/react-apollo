@@ -38,6 +38,13 @@ export interface QueryHookOptions<TData = any, TVariables = OperationVariables>
   query?: DocumentNode;
 }
 
+export interface LazyQueryHookOptions<
+  TData = any,
+  TVariables = OperationVariables
+> extends Omit<QueryFunctionOptions<TData, TVariables>, 'skip'> {
+  query?: DocumentNode;
+}
+
 export interface QueryPreviousData<TData, TVariables> {
   client?: ApolloClient<object>;
   query?: DocumentNode;

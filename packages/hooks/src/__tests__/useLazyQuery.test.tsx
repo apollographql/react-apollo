@@ -121,23 +121,18 @@ describe('useLazyQuery Hook', () => {
   it('should override `skip` if lazy mode execution function is called', done => {
     let renderCount = 0;
     const Component = () => {
-      const [skip, setSkip] = useState(true);
       const [execute, { loading, data }] = useLazyQuery(CAR_QUERY, {
-        skip
-      });
+        skip: true
+      } as any);
       switch (renderCount) {
         case 0:
           expect(loading).toBeFalsy();
-          setSkip(false);
-          break;
-        case 1:
-          expect(loading).toBeFalsy();
           execute();
           break;
-        case 2:
+        case 1:
           expect(loading).toBeTruthy();
           break;
-        case 3:
+        case 2:
           expect(loading).toEqual(false);
           expect(data).toEqual(CAR_RESULT_DATA);
           done();

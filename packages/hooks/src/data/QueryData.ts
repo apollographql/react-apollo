@@ -125,7 +125,7 @@ export class QueryData<TData, TVariables> extends OperationData {
   public getOptions() {
     const options = super.getOptions();
     const lazyOptions = this.lazyOptions || {};
-    return {
+    const updatedOptions = {
       ...options,
       variables: {
         ...options.variables,
@@ -136,6 +136,13 @@ export class QueryData<TData, TVariables> extends OperationData {
         ...lazyOptions.context
       }
     };
+
+    // skip is not supported when using lazy query execution.
+    if (this.runLazy) {
+      delete updatedOptions.skip;
+    }
+
+    return updatedOptions;
   }
 
   private runLazyQuery = (options?: QueryLazyOptions<TVariables>) => {
