@@ -6,41 +6,41 @@ import { useQuery } from '@apollo/react-hooks';
 import { renderToStringWithData } from '@apollo/react-ssr';
 
 describe('useQuery Hook SSR', () => {
-  it('should support SSR', () => {
-    const query: DocumentNode = gql`
-      query {
-        cars {
-          make
-          model
-          vin
-        }
+  const CAR_QUERY: DocumentNode = gql`
+    query {
+      cars {
+        make
+        model
+        vin
       }
-    `;
+    }
+  `;
 
-    const resultData = {
-      cars: [
-        {
-          make: 'Audi',
-          model: 'RS8',
-          vin: 'DOLLADOLLABILL',
-          __typename: 'Car'
-        }
-      ]
-    };
-
-    const mocks = [
+  const CAR_RESULT_DATA = {
+    cars: [
       {
-        request: {
-          query
-        },
-        result: { data: resultData }
+        make: 'Audi',
+        model: 'RS8',
+        vin: 'DOLLADOLLABILL',
+        __typename: 'Car'
       }
-    ];
+    ]
+  };
 
+  const CAR_MOCKS = [
+    {
+      request: {
+        query: CAR_QUERY
+      },
+      result: { data: CAR_RESULT_DATA }
+    }
+  ];
+
+  it('should support SSR', () => {
     const Component = () => {
-      const { data, loading } = useQuery(query);
+      const { data, loading } = useQuery(CAR_QUERY);
       if (!loading) {
-        expect(data).toEqual(resultData);
+        expect(data).toEqual(CAR_RESULT_DATA);
         const { make, model, vin } = data.cars[0];
         return (
           <div>
@@ -52,7 +52,7 @@ describe('useQuery Hook SSR', () => {
     };
 
     const app = (
-      <MockedProvider mocks={mocks}>
+      <MockedProvider mocks={CAR_MOCKS}>
         <Component />
       </MockedProvider>
     );
@@ -63,32 +63,8 @@ describe('useQuery Hook SSR', () => {
   });
 
   it('should initialize data as an empty object when loading', () => {
-    const query: DocumentNode = gql`
-      query {
-        foo {
-          bar
-        }
-      }
-    `;
-
-    const resultData = {
-      foo: {
-        __typename: 'Foo',
-        bar: 'baz'
-      }
-    };
-
-    const mocks = [
-      {
-        request: {
-          query
-        },
-        result: { data: resultData }
-      }
-    ];
-
     const Component = () => {
-      const { data, loading } = useQuery(query);
+      const { data, loading } = useQuery(CAR_QUERY);
       if (loading) {
         expect(data).toEqual({});
       }
@@ -96,7 +72,7 @@ describe('useQuery Hook SSR', () => {
     };
 
     const app = (
-      <MockedProvider mocks={mocks}>
+      <MockedProvider mocks={CAR_MOCKS}>
         <Component />
       </MockedProvider>
     );
@@ -105,42 +81,18 @@ describe('useQuery Hook SSR', () => {
   });
 
   it('should skip SSR if `ssr` option is `false`', () => {
-    const query: DocumentNode = gql`
-      query {
-        foo {
-          bar
-        }
-      }
-    `;
-
-    const resultData = {
-      foo: {
-        __typename: 'Foo',
-        bar: 'baz'
-      }
-    };
-
-    const mocks = [
-      {
-        request: {
-          query
-        },
-        result: { data: resultData }
-      }
-    ];
-
     const Component = () => {
-      const { data, loading } = useQuery(query, { ssr: false });
+      const { data, loading } = useQuery(CAR_QUERY, { ssr: false });
       if (!loading) {
-        expect(data).toEqual(resultData);
-        const { bar } = data.foo;
-        return <div>{bar}</div>;
+        expect(data).toEqual(CAR_RESULT_DATA);
+        const { make } = data.cars[0];
+        return <div>{make}</div>;
       }
       return null;
     };
 
     const app = (
-      <MockedProvider mocks={mocks}>
+      <MockedProvider mocks={CAR_MOCKS}>
         <Component />
       </MockedProvider>
     );

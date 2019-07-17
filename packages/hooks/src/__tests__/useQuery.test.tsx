@@ -6,51 +6,51 @@ import { render, cleanup } from '@testing-library/react';
 import { useQuery } from '@apollo/react-hooks';
 
 describe('useQuery Hook', () => {
+  const CAR_QUERY: DocumentNode = gql`
+    query {
+      cars {
+        make
+        model
+        vin
+      }
+    }
+  `;
+
+  const CAR_RESULT_DATA = {
+    cars: [
+      {
+        make: 'Audi',
+        model: 'RS8',
+        vin: 'DOLLADOLLABILL',
+        __typename: 'Car'
+      }
+    ]
+  };
+
+  const CAR_MOCKS = [
+    {
+      request: {
+        query: CAR_QUERY
+      },
+      result: { data: CAR_RESULT_DATA }
+    }
+  ];
+
   afterEach(cleanup);
 
   describe('General use', () => {
     it('should handle a simple query properly', done => {
-      const query: DocumentNode = gql`
-        query {
-          cars {
-            make
-            model
-            vin
-          }
-        }
-      `;
-
-      const resultData = {
-        cars: [
-          {
-            make: 'Audi',
-            model: 'RS8',
-            vin: 'DOLLADOLLABILL',
-            __typename: 'Car'
-          }
-        ]
-      };
-
-      const mocks = [
-        {
-          request: {
-            query
-          },
-          result: { data: resultData }
-        }
-      ];
-
       const Component = () => {
-        const { data, loading } = useQuery(query);
+        const { data, loading } = useQuery(CAR_QUERY);
         if (!loading) {
-          expect(data).toEqual(resultData);
+          expect(data).toEqual(CAR_RESULT_DATA);
           done();
         }
         return null;
       };
 
       render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={CAR_MOCKS}>
           <Component />
         </MockedProvider>
       );
@@ -59,39 +59,9 @@ describe('useQuery Hook', () => {
 
   describe('Polling', () => {
     it('should support polling', done => {
-      const query: DocumentNode = gql`
-        query {
-          cars {
-            make
-            model
-            vin
-          }
-        }
-      `;
-
-      const resultData = {
-        cars: [
-          {
-            make: 'Audi',
-            model: 'RS8',
-            vin: 'DOLLADOLLABILL',
-            __typename: 'Car'
-          }
-        ]
-      };
-
-      const mocks = [
-        {
-          request: {
-            query
-          },
-          result: { data: resultData }
-        }
-      ];
-
       let renderCount = 0;
       const Component = () => {
-        let { data, loading, stopPolling } = useQuery(query, {
+        let { data, loading, stopPolling } = useQuery(CAR_QUERY, {
           pollInterval: 10
         });
         switch (renderCount) {
@@ -100,11 +70,11 @@ describe('useQuery Hook', () => {
             break;
           case 1:
             expect(loading).toBeFalsy();
-            expect(data).toEqual(resultData);
+            expect(data).toEqual(CAR_RESULT_DATA);
             break;
           case 2:
             expect(loading).toBeFalsy();
-            expect(data).toEqual(resultData);
+            expect(data).toEqual(CAR_RESULT_DATA);
             stopPolling();
             setTimeout(() => {
               done();
@@ -121,47 +91,17 @@ describe('useQuery Hook', () => {
       };
 
       render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={CAR_MOCKS}>
           <Component />
         </MockedProvider>
       );
     });
 
     it('should stop polling when skip is true', done => {
-      const query: DocumentNode = gql`
-        query {
-          cars {
-            make
-            model
-            vin
-          }
-        }
-      `;
-
-      const resultData = {
-        cars: [
-          {
-            make: 'Audi',
-            model: 'RS8',
-            vin: 'DOLLADOLLABILL',
-            __typename: 'Car'
-          }
-        ]
-      };
-
-      const mocks = [
-        {
-          request: {
-            query
-          },
-          result: { data: resultData }
-        }
-      ];
-
       let renderCount = 0;
       const Component = () => {
         const [shouldSkip, setShouldSkip] = useState(false);
-        let { data, loading } = useQuery(query, {
+        let { data, loading } = useQuery(CAR_QUERY, {
           pollInterval: 10,
           skip: shouldSkip
         });
@@ -172,11 +112,11 @@ describe('useQuery Hook', () => {
             break;
           case 1:
             expect(loading).toBeFalsy();
-            expect(data).toEqual(resultData);
+            expect(data).toEqual(CAR_RESULT_DATA);
             break;
           case 2:
             expect(loading).toBeFalsy();
-            expect(data).toEqual(resultData);
+            expect(data).toEqual(CAR_RESULT_DATA);
             setShouldSkip(true);
             break;
           case 3:
@@ -197,7 +137,22 @@ describe('useQuery Hook', () => {
       };
 
       render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={CAR_MOCKS}>
+          <Component />
+        </MockedProvider>
+      );
+    });
+
+    it('should set called to true by default', () => {
+      const Component = () => {
+        const { loading, called } = useQuery(CAR_QUERY);
+        expect(loading).toBeTruthy();
+        expect(called).toBeTruthy();
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={CAR_MOCKS}>
           <Component />
         </MockedProvider>
       );

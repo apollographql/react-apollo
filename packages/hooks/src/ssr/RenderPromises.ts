@@ -1,7 +1,7 @@
-import { ObservableQuery } from "apollo-client";
-import { QueryOptions } from "../types";
-import { DocumentNode } from "graphql";
-import { QueryData } from "../data/QueryData";
+import { ObservableQuery } from 'apollo-client';
+import { QueryOptions } from '../types';
+import { DocumentNode } from 'graphql';
+import { QueryData } from '../data/QueryData';
 
 type QueryInfo = {
   seen: boolean;
