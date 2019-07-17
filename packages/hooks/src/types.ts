@@ -84,10 +84,10 @@ export interface MutationOptions<TData = any, TVariables = OperationVariables>
 }
 
 export type MutationTuple<TData, TVariables> = [
-  MutationResult<TData>,
   (
     options?: MutationFunctionOptions<TData, TVariables>
-  ) => Promise<void | ExecutionResult<TData>>
+  ) => Promise<void | ExecutionResult<TData>>,
+  MutationResult<TData>
 ];
 
 /* Subscription types */

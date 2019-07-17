@@ -45,7 +45,7 @@ export class MutationData<
     const runMutation = (
       options?: MutationFunctionOptions<TData, TVariables>
     ) => this.runMutation(options);
-    return [result, runMutation] as MutationTuple<TData, TVariables>;
+    return [runMutation, result] as MutationTuple<TData, TVariables>;
   }
 
   public afterExecute() {
