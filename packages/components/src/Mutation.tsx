@@ -15,7 +15,7 @@ export namespace Mutation {
   export const propTypes = {
     mutation: PropTypes.object.isRequired,
     variables: PropTypes.object,
-    optimisticResponse: PropTypes.object,
+    optimisticResponse: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
     refetchQueries: PropTypes.oneOfType([
       PropTypes.arrayOf(
         PropTypes.oneOfType([PropTypes.string, PropTypes.object])
