@@ -80,10 +80,10 @@ export function withMutation<
               const resultName = operationOptions.name
                 ? `${name}Result`
                 : 'result';
-              let childProps = {
+              let childProps = ({
                 [name]: mutate,
                 [resultName]: result
-              } as any as TChildProps;
+              } as any) as TChildProps;
               if (operationOptions.props) {
                 const newResult: OptionProps<
                   TProps,
@@ -97,9 +97,7 @@ export function withMutation<
                 childProps = operationOptions.props(newResult) as any;
               }
 
-              return (
-                <WrappedComponent {...props} {...childProps} />
-              );
+              return <WrappedComponent {...props} {...childProps} />;
             }}
           </Mutation>
         );
