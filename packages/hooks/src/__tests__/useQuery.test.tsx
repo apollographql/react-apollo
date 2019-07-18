@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DocumentNode } from 'graphql';
+import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, cleanup } from '@testing-library/react';
@@ -153,6 +153,43 @@ describe('useQuery Hook', () => {
 
       render(
         <MockedProvider mocks={CAR_MOCKS}>
+          <Component />
+        </MockedProvider>
+      );
+    });
+  });
+
+  describe('Error handling', () => {
+    it("should render GraphQLError's", done => {
+      const query = gql`
+        query TestQuery {
+          rates(currency: "USD") {
+            rate
+          }
+        }
+      `;
+
+      const mocks = [
+        {
+          request: { query },
+          result: {
+            errors: [new GraphQLError('forced error')]
+          }
+        }
+      ];
+
+      const Component = () => {
+        const { loading, error } = useQuery(query);
+        if (!loading) {
+          expect(error).toBeDefined();
+          expect(error!.message).toEqual('GraphQL error: forced error');
+          done();
+        }
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>
       );
