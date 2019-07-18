@@ -142,7 +142,7 @@ export function useMutation<TData = any, TVariables = OperationVariables>(
 ```ts
 mutation?: DocumentNode;
 variables?: TVariables;
-optimisticResponse?: TData;
+optimisticResponse?: TData | ((vars: TVariables) => TData);
 refetchQueries?: Array<string | PureQueryOptions> | RefetchQueriesFunction;
 awaitRefetchQueries?: boolean;
 errorPolicy?: ErrorPolicy;
