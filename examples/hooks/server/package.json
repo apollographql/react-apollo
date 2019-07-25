@@ -2,7 +2,7 @@
   "name": "hooks-demo-server",
   "description": "",
   "dependencies": {
-    "apollo-server": "2.7.0",
+    "apollo-server": "2.7.1",
     "apollo-server-express": "2.7.0",
     "express": "4.17.1",
     "graphql": "14.4.2",
