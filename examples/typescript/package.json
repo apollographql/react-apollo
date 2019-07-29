@@ -13,7 +13,7 @@
     "react-dom": "../../node_modules/react-dom"
   },
   "devDependencies": {
-    "@types/graphql": "14.2.2",
+    "@types/graphql": "14.2.3",
     "@types/jest": "24.0.14",
     "@types/node": "12.6.8",
     "@types/prop-types": "15.7.1",
