@@ -134,6 +134,59 @@ describe('useMutation Hook', () => {
         </MockedProvider>
       );
     });
+
+    it('should ensure the mutation callback function has a stable identity', done => {
+      const variables = {
+        description: 'Get milk!'
+      };
+
+      const mocks = [
+        {
+          request: {
+            query: CREATE_TODO_MUTATION,
+            variables
+          },
+          result: { data: CREATE_TODO_RESULT }
+        }
+      ];
+
+      let mutationFn: any;
+      let renderCount = 0;
+      const Component = () => {
+        const [createTodo, { loading, data }] = useMutation(
+          CREATE_TODO_MUTATION
+        );
+        switch (renderCount) {
+          case 0:
+            mutationFn = createTodo;
+            expect(loading).toBeFalsy();
+            expect(data).toBeUndefined();
+            setTimeout(() => {
+              createTodo({ variables });
+            });
+            break;
+          case 1:
+            expect(mutationFn).toBe(createTodo);
+            expect(loading).toBeTruthy();
+            expect(data).toBeUndefined();
+            break;
+          case 2:
+            expect(loading).toBeFalsy();
+            expect(data).toEqual(CREATE_TODO_RESULT);
+            done();
+            break;
+          default:
+        }
+        renderCount += 1;
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <Component />
+        </MockedProvider>
+      );
+    });
   });
 
   describe('Optimistic response', () => {
