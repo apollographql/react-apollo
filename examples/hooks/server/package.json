@@ -15,7 +15,7 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@types/graphql": "14.2.2",
+    "@types/graphql": "14.2.3",
     "nodemon": "1.19.1"
   }
 }
