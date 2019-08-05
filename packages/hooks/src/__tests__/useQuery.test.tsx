@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider, MockLink } from '@apollo/react-testing';
 import { render, cleanup } from '@testing-library/react';
 import { useQuery } from '@apollo/react-hooks';
 
@@ -138,6 +138,51 @@ describe('useQuery Hook', () => {
 
       render(
         <MockedProvider mocks={CAR_MOCKS}>
+          <Component />
+        </MockedProvider>
+      );
+    });
+
+    it('should stop polling when the component is unmounted', done => {
+      const mockLink = new MockLink(CAR_MOCKS);
+      const linkRequestSpy = jest.spyOn(mockLink, 'request');
+      let renderCount = 0;
+      const QueryComponent = ({ unmount }: { unmount: () => void }) => {
+        const { data, loading } = useQuery(CAR_QUERY, { pollInterval: 10 });
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            break;
+          case 1:
+            expect(loading).toBeFalsy();
+            expect(data).toEqual(CAR_RESULT_DATA);
+            expect(linkRequestSpy).toHaveBeenCalledTimes(1);
+            break;
+          case 2:
+            expect(loading).toBeFalsy();
+            expect(data).toEqual(CAR_RESULT_DATA);
+            expect(linkRequestSpy).toHaveBeenCalledTimes(2);
+            unmount();
+            break;
+          default:
+        }
+        renderCount += 1;
+        return null;
+      };
+
+      const Component = () => {
+        const [queryMounted, setQueryMounted] = useState(true);
+        const unmount = () => setTimeout(() => setQueryMounted(false), 0);
+        if (!queryMounted)
+          setTimeout(() => {
+            expect(linkRequestSpy).toHaveBeenCalledTimes(2);
+            done();
+          }, 30);
+        return <>{queryMounted && <QueryComponent unmount={unmount} />}</>;
+      };
+
+      render(
+        <MockedProvider mocks={CAR_MOCKS} link={mockLink}>
           <Component />
         </MockedProvider>
       );

@@ -41,5 +41,9 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
 
   useEffect(() => queryData.afterExecute({ lazy }), [result]);
 
+  useEffect(() => {
+    return () => queryData.cleanup();
+  }, []);
+
   return result;
 }
