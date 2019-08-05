@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/react-components": "beta",
+    "@apollo/react-components": "3.0.0",
     "apollo-boost": "^0.4.2",
     "graphql": "^14.3.1",
     "graphql-tag": "^2.10.1",
@@ -18,7 +18,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "@apollo/react-testing": "beta",
+    "@apollo/react-testing": "3.0.0",
     "@testing-library/react": "8.0.7"
   },
   "browserslist": [
