@@ -25,6 +25,6 @@ export namespace Query {
     variables: PropTypes.object,
     ssr: PropTypes.bool,
     partialRefetch: PropTypes.bool,
-    returnPartialData: PropTypes.bool,
+    returnPartialData: PropTypes.bool
   };
 }
