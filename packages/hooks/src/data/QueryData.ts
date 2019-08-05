@@ -189,12 +189,6 @@ export class QueryData<TData, TVariables> extends OperationData {
     return result;
   }
 
-  private updateCurrentData() {
-    if (this.isMounted) {
-      this.forceUpdate();
-    }
-  }
-
   private prepareObservableQueryOptions() {
     this.verifyDocumentType(this.getOptions().query, DocumentType.Query);
     const displayName = this.getOptions().displayName || 'Query';
@@ -286,12 +280,12 @@ export class QueryData<TData, TVariables> extends OperationData {
           return;
         }
 
-        this.updateCurrentData();
+        this.forceUpdate();
       },
       error: error => {
         this.resubscribeToQuery();
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
-        this.updateCurrentData();
+        this.forceUpdate();
       }
     });
   }
