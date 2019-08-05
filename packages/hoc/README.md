@@ -7,3 +7,15 @@
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/apollo)
 
 React Apollo `graphql` higher-order component.
+
+### Installation
+
+```
+npm install @apollo/react-hoc
+```
+
+### Documentation
+
+All Apollo Client documentation, including React Apollo usage articles and helpful recipes, lives on [https://www.apollographql.com/docs/react/](https://www.apollographql.com/docs/react/)
+
+For the React Apollo API reference, visit [https://www.apollographql.com/docs/react/api/react-apollo.html](https://www.apollographql.com/docs/react/api/react-apollo.html)
