@@ -41,11 +41,8 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
 
   useEffect(() => queryData.afterExecute({ lazy }), [result]);
 
-  // cleanup when queryData component did unmounted
   useEffect(() => {
-    return () => {
-      setTimeout(() => queryData.cleanup());
-    };
+    return () => queryData.cleanup();
   }, []);
 
   return result;

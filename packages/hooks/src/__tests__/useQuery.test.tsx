@@ -143,7 +143,7 @@ describe('useQuery Hook', () => {
       );
     });
 
-    it('should stop polling when component did unmounted', done => {
+    it('should stop polling when the component is unmounted', done => {
       const mockLink = new MockLink(CAR_MOCKS);
       const linkRequestSpy = jest.spyOn(mockLink, 'request');
       let renderCount = 0;
