@@ -1,4 +1,5 @@
 import {
+  ApolloClient,
   ApolloQueryResult,
   ApolloError,
   FetchMoreOptions,
@@ -97,3 +98,5 @@ export interface OperationOption<
   shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
   alias?: string;
 }
+
+export type WithApolloClient<P> = P & { client: ApolloClient<any> };
