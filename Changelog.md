@@ -1,42 +1,38 @@
 # Change log
 
-## 3.0.0 (Not yet released)
+## 3.0.0 (2019-08-??)
+
+### Overview
+
+This major release includes a large refactoring of the existing React Apollo codebase, to introduce new improvements, changes, features and bug fixes. The biggest new features are:
+
+- Provides new `useQuery`, `useLazyQuery`, `useMutation`, `useSubscription`, and `useApolloClient` hooks, following [React's Hooks API](https://reactjs.org/docs/hooks-intro.html).
+- Maintains support for React Apollo's `graphql` HOC and render proper components.
+- Introduces a new monorepo structure, with separately published packages, making it easier to use just the parts of React Apollo you're interested in:
+  - `@apollo/react-common`
+  - `@apollo/react-hooks`
+  - `@apollo/react-components`
+  - `@apollo/react-hoc`
+  - `@apollo/react-ssr`
+  - `@apollo/react-testing`
+- Thorough codebase pruning and cleaning to reduce the overall React Apollo bundle size.
+- And more!
+
+Consult the [React Apollo 3 Migration Guide](https://www.apollographql.com/docs/react/migrating-to-react-apollo-3/) for more details around upgrading. For more information regarding how to use the new hooks, please consult the updated [React Apollo docs](https://www.apollographql.com/docs/react/) (all docs have been updated to be hooks first).
 
 ### Breaking Changes
 
 - The minimum supported React version is now 16.8.
-
 - The `react-apollo@3` package preserves most of the functionality of `react-apollo@2` by re-exporting existing components and functions from `@apollo/react-components` and `@apollo/react-hoc`. If you want to use Hooks, Components, or HOC directly, import the new `@apollo/react-hooks`, `@apollo/react-components`, and/or `@apollo/react-hoc` packages instead.
-
 - React Apollo testing utilities are no longer available as part of the `react-apollo` package. They should now be imported from the new `@apollo/react-testing` package.
-
 - The deprecated `walkTree` function has been removed ([9b24d756](https://github.com/apollographql/react-apollo/pull/2892/commits/9b24d7567be194c454395365bb5db4fbd7a5caca)).
-
 - The deprecated `GraphqlQueryControls` and `MutationFunc` types have been removed ([ade881f0](https://github.com/apollographql/react-apollo/pull/2892/commits/ade881f07b1175d28b0aae79915bfc5ed8dd9e5a)).
-
 - Preact is no longer supported ([b742ae63](https://github.com/apollographql/react-apollo/pull/2892/commits/b742ae6382039eac79e050a9b0f54183dafaf4a3)).
-
-- Various Typescript type changes. Since we've introduced a third way of
-  managing data with React (Hooks), we had to rework many of the existing
-  exported types to better align with the Hooks way of doing things. Base types
-  are used to hold common properties across Hooks, Components and the `graphql`
-  HOC, and these types are then extended when needed to provide properties
-  that are specific to a certain React paradigm
+- Various Typescript type changes. Since we've introduced a third way of managing data with React (Hooks), we had to rework many of the existing exported types to better align with the Hooks way of doing things. Base types are used to hold common properties across Hooks, Components and the `graphql` HOC, and these types are then extended when needed to provide properties that are specific to a certain React paradigm
   ([30edb1b0](https://github.com/apollographql/react-apollo/pull/2892/commits/30edb1b080b64253b9074a5e7347c544618ea2ea) and
   [3d138db3](https://github.com/apollographql/react-apollo/pull/2892/commits/3d138db386fe44e35203b991eb6caca0eec19d3d)).
-
 - `catchAsyncError`, `wrap`, and `compose` utilities have been removed
   ([2c3a262](https://github.com/apollographql/react-apollo/pull/2892/commits/2c3a262f9eb1cfb9e58b40ceaeda16a628e3964c), [7de864e](https://github.com/apollographql/react-apollo/pull/2892/commits/7de864ecb90521fc2e1f211023fe436486af2324), and [e6089a7](https://github.com/apollographql/react-apollo/pull/2892/commits/e6089a716b2b19b57f36200db378b8613a91612d))
-
-### Improvements
-
-- `useApolloClient` can be used to return an `ApolloClient` instance from
-  React Apollo's context, assuming it was previously set using
-  `ApolloProvider`. <br/>
-  [@FredyC](https://github.com/FredyC) in [#2872](https://github.com/apollographql/react-apollo/pull/2872)
-- Typescript: `client` prop is no longer required when using `withApollo`.  <br/>
-  [@RigoTheDev](https://github.com/RigoTheDev) in [#3178](https://github.com/apollographql/react-apollo/pull/3178)
-
 
 ## 2.5.7 (2019-06-21)
 

@@ -7,7 +7,7 @@
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
   "dependencies": {
-    "@apollo/react-hoc": "beta",
+    "@apollo/react-hoc": "3.0.0",
     "@babel/runtime": "^7.4.5",
     "apollo-cache-inmemory": "^1.6.0",
     "apollo-client": "^2.6.0",

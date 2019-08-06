@@ -30,7 +30,7 @@
     "build": "npx tsc -p ./config",
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta"
+    "deploy": "npm publish"
   },
   "peerDependencies": {
     "apollo-client": "^2.6.3",
