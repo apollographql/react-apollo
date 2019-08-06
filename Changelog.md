@@ -18,7 +18,7 @@ This major release includes a large refactoring of the existing React Apollo cod
 - Thorough codebase pruning and cleaning to reduce the overall React Apollo bundle size.
 - And more!
 
-Consult the [React Apollo 3 Migration Guide](https://www.apollographql.com/docs/react/migrating-to-react-apollo-3/) for more details around upgrading. For more information regarding how to use the new hooks, please consult the updated [React Apollo docs](https://www.apollographql.com/docs/react/) (all docs have been updated to be hooks first).
+Consult the [Hooks migration guide](https://www.apollographql.com/docs/react/hooks-migration/) for more details around upgrading. For more information regarding how to use the new hooks, please consult the updated [React Apollo docs](https://www.apollographql.com/docs/react/) (all docs have been updated to be hooks first).
 
 ### Breaking Changes
 
