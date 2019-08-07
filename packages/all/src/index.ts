@@ -56,6 +56,7 @@ export {
 // @apollo/react-hooks
 export {
   useQuery,
+  useLazyQuery,
   useMutation,
   useSubscription,
   useApolloClient,
