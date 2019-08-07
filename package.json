@@ -72,7 +72,7 @@
     {
       "name": "react-apollo",
       "path": "./packages/all/lib/react-apollo.cjs.min.js",
-      "maxSize": "375B"
+      "maxSize": "380B"
     },
     {
       "name": "@apollo/react-common",
