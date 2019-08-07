@@ -1,5 +1,12 @@
 # Change log
 
+## 3.0.1 (TBD)
+
+## Bug Fixes
+
+- Add missing `useLazyQuery` export to the `react-apollo` (all) package. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3320](https://github.com/apollographql/react-apollo/pull/3320)
+
 ## 3.0.0 (2019-08-06)
 
 ### Overview
