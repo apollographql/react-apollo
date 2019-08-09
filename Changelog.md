@@ -2,7 +2,12 @@
 
 ## 3.0.1 (TBD)
 
-## Bug Fixes
+### Improvements
+
+- Documentation updates.  <br/>
+  [@joshalling](https://github.com/joshalling) in [#3324](https://github.com/apollographql/react-apollo/pull/3324)
+
+### Bug Fixes
 
 - Add missing `useLazyQuery` export to the `react-apollo` (all) package. <br/>
   [@hwillson](https://github.com/hwillson) in [#3320](https://github.com/apollographql/react-apollo/pull/3320)
@@ -38,8 +43,14 @@ Consult the [Hooks migration guide](https://www.apollographql.com/docs/react/hoo
 - Various Typescript type changes. Since we've introduced a third way of managing data with React (Hooks), we had to rework many of the existing exported types to better align with the Hooks way of doing things. Base types are used to hold common properties across Hooks, Components and the `graphql` HOC, and these types are then extended when needed to provide properties that are specific to a certain React paradigm
   ([30edb1b0](https://github.com/apollographql/react-apollo/pull/2892/commits/30edb1b080b64253b9074a5e7347c544618ea2ea) and
   [3d138db3](https://github.com/apollographql/react-apollo/pull/2892/commits/3d138db386fe44e35203b991eb6caca0eec19d3d)).
-- `catchAsyncError`, `wrap`, and `compose` utilities have been removed
-  ([2c3a262](https://github.com/apollographql/react-apollo/pull/2892/commits/2c3a262f9eb1cfb9e58b40ceaeda16a628e3964c), [7de864e](https://github.com/apollographql/react-apollo/pull/2892/commits/7de864ecb90521fc2e1f211023fe436486af2324), and [e6089a7](https://github.com/apollographql/react-apollo/pull/2892/commits/e6089a716b2b19b57f36200db378b8613a91612d))
+- `catchAsyncError`, `wrap`, and `compose` utilities have been removed 
+  ([2c3a262](https://github.com/apollographql/react-apollo/pull/2892/commits/2c3a262f9eb1cfb9e58b40ceaeda16a628e3964c), [7de864e](https://github.com/apollographql/react-apollo/pull/2892/commits/7de864ecb90521fc2e1f211023fe436486af2324), and [e6089a7](https://github.com/apollographql/react-apollo/pull/2892/commits/e6089a716b2b19b57f36200db378b8613a91612d)). 
+  
+  Previously, `compose` was imported then exported directly from lodash using [`flowRight`](https://lodash.com/docs/4.17.15#flowRight). To keep using `compose`, install the [`lodash.flowright`](https://www.npmjs.com/package/lodash.flowright) package, then update your `compose` imports as:
+  
+  ```js
+  import * as compose from 'lodash.flowright';
+  ```
 
 ## 2.5.7 (2019-06-21)
 
