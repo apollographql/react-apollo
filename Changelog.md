@@ -13,6 +13,8 @@
   [@hwillson](https://github.com/hwillson) in [#3320](https://github.com/apollographql/react-apollo/pull/3320)
 - Remove `void` from being one of the `MutationTuple` mutate function possible generics. This will make it easier to properly destructure results returned by the mutate function Promise. <br/>
   [@hwillson](https://github.com/hwillson) in [#3334](https://github.com/apollographql/react-apollo/pull/3334)
+- Export `MockedProviderProps` and `MockedProviderState` from `@apollo/react-testing`. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3337](https://github.com/apollographql/react-apollo/pull/3337)
 
 ## 3.0.0 (2019-08-06)
 
