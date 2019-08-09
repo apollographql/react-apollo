@@ -8,6 +8,12 @@ import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 
 describe('useMutation Hook', () => {
+  interface Todo {
+    id: number;
+    description: string;
+    priority: string;
+  }
+
   const CREATE_TODO_MUTATION: DocumentNode = gql`
     mutation createTodo($description: String!) {
       createTodo(description: $description) {
@@ -178,6 +184,49 @@ describe('useMutation Hook', () => {
           default:
         }
         renderCount += 1;
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <Component />
+        </MockedProvider>
+      );
+    });
+
+    it('should resolve mutate function promise with mutation results', done => {
+      const variables = {
+        description: 'Get milk!'
+      };
+
+      const mocks = [
+        {
+          request: {
+            query: CREATE_TODO_MUTATION,
+            variables
+          },
+          result: { data: CREATE_TODO_RESULT }
+        }
+      ];
+
+      const Component = () => {
+        const [createTodo] = useMutation<{ createTodo: Todo }>(
+          CREATE_TODO_MUTATION
+        );
+
+        async function doIt() {
+          const { data } = await createTodo({ variables });
+          expect(data).toEqual(CREATE_TODO_RESULT);
+          expect(data!.createTodo.description).toEqual(
+            CREATE_TODO_RESULT.createTodo.description
+          );
+          done();
+        }
+
+        useEffect(() => {
+          doIt();
+        }, []);
+
         return null;
       };
 
