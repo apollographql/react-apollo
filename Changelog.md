@@ -9,6 +9,8 @@
 
 ### Bug Fixes
 
+- Dedupe `onError` callback calls and ensure `refetch` sets `loading` state properly. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3339](https://github.com/apollographql/react-apollo/pull/3339)
 - Add missing `useLazyQuery` export to the `react-apollo` (all) package. <br/>
   [@hwillson](https://github.com/hwillson) in [#3320](https://github.com/apollographql/react-apollo/pull/3320)
 - Remove `void` from being one of the `MutationTuple` mutate function possible generics. This will make it easier to properly destructure results returned by the mutate function Promise. <br/>

@@ -285,7 +285,10 @@ export class QueryData<TData, TVariables> extends OperationData {
       error: error => {
         this.resubscribeToQuery();
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
-        this.forceUpdate();
+        if (!isEqual(error, this.previousData.error)) {
+          this.previousData.error = error;
+          this.forceUpdate();
+        }
       }
     });
   }
