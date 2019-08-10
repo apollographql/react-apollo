@@ -1524,14 +1524,11 @@ describe('Query component', () => {
                     });
                   }, 0);
                   break;
-                // Further fix required in QueryManager, we should have an extra
-                // step for the loading status of the third result
-                // case 4:
-                //   expect(result.loading).toBeTruthy();
-                //   expect(result.error).toBeFalsy();
-                //   break;
                 case 4:
-                  // Third result's data is loaded
+                  expect(result.loading).toBeTruthy();
+                  expect(result.error).toBeFalsy();
+                  break;
+                case 5:
                   expect(result.loading).toBeFalsy();
                   expect(result.error).toBeFalsy();
                   if (!result.data) {

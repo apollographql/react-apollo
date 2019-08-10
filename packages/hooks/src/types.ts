@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 import {
   ApolloClient,
   ApolloQueryResult,
-  ObservableQuery
+  ObservableQuery,
+  ApolloError
 } from 'apollo-client';
 import { Observable } from 'apollo-link';
 import {
@@ -52,6 +53,7 @@ export interface QueryPreviousData<TData, TVariables> {
   result?: ApolloQueryResult<TData> | null;
   loading?: boolean;
   options?: QueryOptions<TData, TVariables>;
+  error?: ApolloError;
 }
 
 export interface QueryCurrentObservable<TData, TVariables> {
