@@ -28,6 +28,8 @@ export class SubscriptionData<
   public execute(result: SubscriptionResult<TData>) {
     let currentResult = result;
     if (this.getOptions().skip === true) {
+      this.endSubscription();
+      delete this.currentObservable.query;
       currentResult = this.getSkipResult();
       return { ...currentResult, variables: this.getOptions().variables };
     }
