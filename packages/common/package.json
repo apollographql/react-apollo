@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "jest": "24.8.0",
-    "rollup": "1.18.0",
+    "rollup": "1.19.4",
     "tsc-watch": "2.2.1",
     "typescript": "3.5.3"
   }
