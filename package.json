@@ -64,7 +64,7 @@
     "rollup-plugin-terser": "5.1.1",
     "rollup-plugin-typescript2": "0.22.1",
     "ts-jest": "24.0.2",
-    "tsc-watch": "2.2.1",
+    "tsc-watch": "2.4.0",
     "typescript": "3.5.3",
     "zen-observable-ts": "0.8.19"
   },
