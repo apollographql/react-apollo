@@ -39,11 +39,6 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
-  "peerDependenciesMeta": {
-    "@types/react": {
-      "optional": true
-    }
-  },
   "dependencies": {
     "@apollo/react-common": "file:../common",
     "@apollo/react-components": "file:../components",
