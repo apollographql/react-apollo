@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider, MockLink } from '@apollo/react-testing';
@@ -317,6 +317,60 @@ describe('useQuery Hook', () => {
         <ApolloProvider client={client}>
           <Component />
         </ApolloProvider>
+      );
+    });
+
+    it('should persist errors on re-render if they are still valid', done => {
+      const query = gql`
+        query SomeQuery {
+          stuff {
+            thing
+          }
+        }
+      `;
+
+      const mocks = [
+        {
+          request: { query },
+          result: {
+            errors: [new GraphQLError('forced error')]
+          }
+        }
+      ];
+
+      let renderCount = 0;
+      function App() {
+        const [_, forceUpdate] = useReducer(x => x + 1, 0);
+        const { loading, error } = useQuery(query);
+
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            expect(error).toBeUndefined();
+            break;
+          case 1:
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: forced error');
+            setTimeout(() => {
+              forceUpdate(0);
+            });
+            break;
+          case 2:
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: forced error');
+            done();
+            break;
+          default: // Do nothing
+        }
+
+        renderCount += 1;
+        return null;
+      }
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <App />
+        </MockedProvider>
       );
     });
   });
