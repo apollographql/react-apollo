@@ -17,6 +17,8 @@
   [@hwillson](https://github.com/hwillson) in [#3334](https://github.com/apollographql/react-apollo/pull/3334)
 - Export `MockedProviderProps` and `MockedProviderState` from `@apollo/react-testing`. <br/>
   [@hwillson](https://github.com/hwillson) in [#3337](https://github.com/apollographql/react-apollo/pull/3337)
+- Add `@types/react` as a peer dep, to address potential TS compilation errors when using `ApolloProvider`. <br/>
+  [@zkochan](https://github.com/zkochan) in [#3278](https://github.com/apollographql/react-apollo/pull/3278)
 
 ## 3.0.0 (2019-08-06)
 
