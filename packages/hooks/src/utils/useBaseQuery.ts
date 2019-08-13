@@ -34,12 +34,17 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
     context,
     tick
   };
+
   const result = useDeepMemo(
     () => (lazy ? queryData.executeLazy() : queryData.execute()),
     memo
   );
 
   useEffect(() => queryData.afterExecute({ lazy }), [result]);
+
+  useEffect(() => {
+    return () => queryData.cleanup();
+  }, []);
 
   return result;
 }

@@ -1,29 +1,14 @@
 import React from 'react';
-import { ApolloClient, DefaultOptions, Resolvers } from 'apollo-client';
-import { ApolloCache } from 'apollo-cache';
+import { ApolloClient } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { ApolloProvider } from '@apollo/react-common';
 import { MockLink } from './mockLink';
-import { MockedResponse } from './types';
-
-export interface MockedProviderProps<TSerializedCache = {}> {
-  mocks?: ReadonlyArray<MockedResponse>;
-  addTypename?: boolean;
-  defaultOptions?: DefaultOptions;
-  cache?: ApolloCache<TSerializedCache>;
-  resolvers?: Resolvers;
-  childProps?: object;
-  children?: React.ReactElement;
-}
-
-export interface MockedProviderState {
-  client: ApolloClient<any>;
-}
+import { MockedProviderProps, MockedProviderState } from './types';
 
 export class MockedProvider extends React.Component<
   MockedProviderProps,
   MockedProviderState
-  > {
+> {
   public static defaultProps: MockedProviderProps = {
     addTypename: true
   };
@@ -31,11 +16,18 @@ export class MockedProvider extends React.Component<
   constructor(props: MockedProviderProps) {
     super(props);
 
-    const { mocks, addTypename, defaultOptions, cache, resolvers } = this.props;
+    const {
+      mocks,
+      addTypename,
+      defaultOptions,
+      cache,
+      resolvers,
+      link
+    } = this.props;
     const client = new ApolloClient({
       cache: cache || new Cache({ addTypename }),
       defaultOptions,
-      link: new MockLink(mocks || [], addTypename),
+      link: link || new MockLink(mocks || [], addTypename),
       resolvers
     });
 

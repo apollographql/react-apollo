@@ -428,6 +428,9 @@ describe('[queries] errors', () => {
                   });
                 break;
               case 3:
+                expect(props.data!.loading).toBeTruthy();
+                break;
+              case 4:
                 expect(props.data!.loading).toBeFalsy();
                 expect(props.data!.error).toBeFalsy();
                 expect(stripSymbols(props.data!.allPeople)).toEqual(
@@ -621,7 +624,11 @@ describe('[queries] errors', () => {
               }, 50);
               break;
             case 2:
+              expect(this.props.data!.loading).toBe(true);
+              break;
+            case 3:
               expect(this.props.data!.loading).toBe(false);
+              expect(this.props.data!.allPeople).toEqual(dataTwo.allPeople);
               done();
               break;
             default:

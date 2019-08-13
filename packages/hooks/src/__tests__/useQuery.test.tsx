@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider, MockLink } from '@apollo/react-testing';
 import { render, cleanup } from '@testing-library/react';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, ApolloProvider } from '@apollo/react-hooks';
+import { ApolloClient } from 'apollo-client';
+import { ApolloLink, Observable } from 'apollo-link';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 
 describe('useQuery Hook', () => {
   const CAR_QUERY: DocumentNode = gql`
@@ -143,6 +146,51 @@ describe('useQuery Hook', () => {
       );
     });
 
+    it('should stop polling when the component is unmounted', done => {
+      const mockLink = new MockLink(CAR_MOCKS);
+      const linkRequestSpy = jest.spyOn(mockLink, 'request');
+      let renderCount = 0;
+      const QueryComponent = ({ unmount }: { unmount: () => void }) => {
+        const { data, loading } = useQuery(CAR_QUERY, { pollInterval: 10 });
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            break;
+          case 1:
+            expect(loading).toBeFalsy();
+            expect(data).toEqual(CAR_RESULT_DATA);
+            expect(linkRequestSpy).toHaveBeenCalledTimes(1);
+            break;
+          case 2:
+            expect(loading).toBeFalsy();
+            expect(data).toEqual(CAR_RESULT_DATA);
+            expect(linkRequestSpy).toHaveBeenCalledTimes(2);
+            unmount();
+            break;
+          default:
+        }
+        renderCount += 1;
+        return null;
+      };
+
+      const Component = () => {
+        const [queryMounted, setQueryMounted] = useState(true);
+        const unmount = () => setTimeout(() => setQueryMounted(false), 0);
+        if (!queryMounted)
+          setTimeout(() => {
+            expect(linkRequestSpy).toHaveBeenCalledTimes(2);
+            done();
+          }, 30);
+        return <>{queryMounted && <QueryComponent unmount={unmount} />}</>;
+      };
+
+      render(
+        <MockedProvider mocks={CAR_MOCKS} link={mockLink}>
+          <Component />
+        </MockedProvider>
+      );
+    });
+
     it('should set called to true by default', () => {
       const Component = () => {
         const { loading, called } = useQuery(CAR_QUERY);
@@ -192,6 +240,83 @@ describe('useQuery Hook', () => {
         <MockedProvider mocks={mocks}>
           <Component />
         </MockedProvider>
+      );
+    });
+
+    it('should only call onError callbacks once', done => {
+      const query = gql`
+        query SomeQuery {
+          stuff {
+            thing
+          }
+        }
+      `;
+
+      const resultData = { stuff: { thing: 'it!', __typename: 'Stuff' } };
+
+      let callCount = 0;
+      const link = new ApolloLink(() => {
+        if (!callCount) {
+          callCount += 1;
+          return new Observable(observer => {
+            observer.error(new Error('Oh no!'));
+          });
+        } else {
+          return Observable.of({ data: resultData });
+        }
+      });
+
+      const client = new ApolloClient({
+        link,
+        cache: new InMemoryCache()
+      });
+
+      const onErrorMock = jest.fn();
+
+      let renderCount = 0;
+      const Component = () => {
+        const { loading, error, refetch, data, networkStatus } = useQuery(
+          query,
+          {
+            onError: onErrorMock,
+            notifyOnNetworkStatusChange: true
+          }
+        );
+
+        console.log('ns', networkStatus);
+
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            break;
+          case 1:
+            expect(loading).toBeFalsy();
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('Network error: Oh no!');
+            setTimeout(() => {
+              expect(onErrorMock.mock.calls.length).toBe(1);
+              refetch();
+            });
+            break;
+          case 2:
+            expect(loading).toBeTruthy();
+            break;
+          case 3:
+            expect(loading).toBeFalsy();
+            expect(data).toEqual(resultData);
+            done();
+            break;
+          default: // Do nothing
+        }
+
+        renderCount += 1;
+        return null;
+      };
+
+      render(
+        <ApolloProvider client={client}>
+          <Component />
+        </ApolloProvider>
       );
     });
   });

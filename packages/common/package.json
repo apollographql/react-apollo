@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-common",
   "description": "React Apollo common utilities.",
-  "version": "0.1.0-beta.9",
+  "version": "3.0.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -25,14 +25,14 @@
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta",
+    "deploy": "npm publish",
     "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/common",
     "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/common --watch",
     "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/common",
     "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/common"
   },
   "peerDependencies": {
-    "apollo-client": "^2.6.3",
+    "apollo-client": "^2.6.4",
     "apollo-utilities": "^1.3.2",
     "graphql": "^14.3.1",
     "react": "^16.8.0"
@@ -49,8 +49,8 @@
   },
   "devDependencies": {
     "jest": "24.8.0",
-    "rollup": "1.17.0",
-    "tsc-watch": "2.2.1",
+    "rollup": "1.19.4",
+    "tsc-watch": "2.4.0",
     "typescript": "3.5.3"
   }
 }

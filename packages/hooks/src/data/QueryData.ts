@@ -112,6 +112,15 @@ export class QueryData<TData, TVariables> extends OperationData {
     this.isMounted = true;
     if (!lazy || this.runLazy) {
       this.handleErrorOrCompleted();
+
+      // When the component is done rendering stored query errors, we'll
+      // remove those errors from the `ObservableQuery` query store, so they
+      // aren't re-displayed on subsequent (potentially error free)
+      // requests/responses.
+      setTimeout(() => {
+        this.currentObservable.query &&
+          this.currentObservable.query.resetQueryStoreErrors();
+      });
     }
     return this.unmount.bind(this);
   }
@@ -178,12 +187,6 @@ export class QueryData<TData, TVariables> extends OperationData {
     }
 
     return result;
-  }
-
-  private updateCurrentData() {
-    if (this.isMounted) {
-      this.forceUpdate();
-    }
   }
 
   private prepareObservableQueryOptions() {
@@ -277,12 +280,15 @@ export class QueryData<TData, TVariables> extends OperationData {
           return;
         }
 
-        this.updateCurrentData();
+        this.forceUpdate();
       },
       error: error => {
         this.resubscribeToQuery();
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
-        this.updateCurrentData();
+        if (!isEqual(error, this.previousData.error)) {
+          this.previousData.error = error;
+          this.forceUpdate();
+        }
       }
     });
   }
@@ -382,14 +388,6 @@ export class QueryData<TData, TVariables> extends OperationData {
         Object.assign(result.data, data);
       }
     }
-
-    // When the component is done rendering stored query errors, we'll
-    // remove those errors from the `ObservableQuery` query store, so they
-    // aren't re-displayed on subsequent (potentially error free)
-    // requests/responses.
-    setTimeout(() => {
-      this.currentObservable.query!.resetQueryStoreErrors();
-    });
 
     result.client = this.client;
     this.previousData.loading =

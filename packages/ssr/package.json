@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-ssr",
   "description": "React Apollo server-side rendering utilities",
-  "version": "0.1.0-beta.1",
+  "version": "3.0.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -29,7 +29,7 @@
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta",
+    "deploy": "npm publish",
     "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/ssr",
     "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/ssr --watch",
     "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/ssr",
@@ -52,8 +52,8 @@
   },
   "devDependencies": {
     "jest": "24.8.0",
-    "rollup": "1.17.0",
-    "tsc-watch": "2.2.1",
+    "rollup": "1.19.4",
+    "tsc-watch": "2.4.0",
     "typescript": "3.5.3"
   }
 }

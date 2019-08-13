@@ -1,19 +1,18 @@
 import React from 'react';
 import { ApolloConsumer } from '@apollo/react-common';
-import { ApolloClient } from 'apollo-client';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { invariant } from 'ts-invariant';
 
-import { OperationOption } from './types';
+import { OperationOption, WithApolloClient } from './types';
 
 function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export type WithApolloClient<P> = P & { client: ApolloClient<any> };
-
 export function withApollo<TProps, TResult = any>(
-  WrappedComponent: React.ComponentType<WithApolloClient<Omit<TProps, 'client'>>>,
+  WrappedComponent: React.ComponentType<
+    WithApolloClient<Omit<TProps, 'client'>>
+  >,
   operationOptions: OperationOption<TProps, TResult> = {}
 ): React.ComponentClass<Omit<TProps, 'client'>> {
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;

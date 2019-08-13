@@ -42,10 +42,7 @@ export class MutationData<
   public execute(result: MutationResult<TData>) {
     this.isMounted = true;
     this.verifyDocumentType(this.getOptions().mutation, DocumentType.Mutation);
-    const runMutation = (
-      options?: MutationFunctionOptions<TData, TVariables>
-    ) => this.runMutation(options);
-    return [runMutation, result] as MutationTuple<TData, TVariables>;
+    return [this.runMutation, result] as MutationTuple<TData, TVariables>;
   }
 
   public afterExecute() {
@@ -57,12 +54,12 @@ export class MutationData<
     // No cleanup required.
   }
 
-  private runMutation(
+  private runMutation = (
     mutationFunctionOptions: MutationFunctionOptions<
       TData,
       TVariables
     > = {} as MutationFunctionOptions<TData, TVariables>
-  ) {
+  ) => {
     this.onMutationStart();
     const mutationId = this.generateNewMutationId();
 
@@ -75,7 +72,7 @@ export class MutationData<
         this.onMutationError(error, mutationId);
         if (!this.getOptions().onError) throw error;
       });
-  }
+  };
 
   private mutate(
     mutationFunctionOptions: MutationFunctionOptions<TData, TVariables>
