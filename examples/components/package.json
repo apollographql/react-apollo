@@ -9,7 +9,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "@apollo/react-components": "3.0.0",
+    "@apollo/react-components": "3.0.1",
     "apollo-boost": "^0.4.0",
     "graphql-tag": "^2.10.1",
     "react": "../../node_modules/react",
