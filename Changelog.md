@@ -1,6 +1,6 @@
 # Change log
 
-## 3.0.1 (TBD)
+## 3.0.1 (2019-08-15)
 
 ### Improvements
 
