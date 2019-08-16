@@ -19,7 +19,7 @@
     "source-map-explorer": "1.8.0"
   },
   "dependencies": {
-    "@apollo/react-hooks": "3.0.0",
+    "@apollo/react-hooks": "3.0.1",
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.2",
     "apollo-link-http": "^1.5.14",
