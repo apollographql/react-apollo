@@ -85,10 +85,12 @@ export interface MutationOptions<TData = any, TVariables = OperationVariables>
   mutation: DocumentNode;
 }
 
+export type MutationFunction<TData, TVariables> = (
+  options?: MutationFunctionOptions<TData, TVariables>,
+) => Promise<ExecutionResult<TData>>;
+
 export type MutationTuple<TData, TVariables> = [
-  (
-    options?: MutationFunctionOptions<TData, TVariables>
-  ) => Promise<ExecutionResult<TData>>,
+  MutationFunction<TData, TVariables>,
   MutationResult<TData>
 ];
 
