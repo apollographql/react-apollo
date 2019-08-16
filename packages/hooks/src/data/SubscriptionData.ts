@@ -57,7 +57,7 @@ export class SubscriptionData<
 
     if (
       this.previousOptions.skip === true &&
-      Boolean(this.getOptions().skip) === false
+      !this.getOptions().skip
     ) {
       currentResult.loading = true;
       currentResult.data = undefined;
