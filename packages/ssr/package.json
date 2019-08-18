@@ -51,7 +51,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "jest": "24.8.0",
+    "jest": "24.9.0",
     "rollup": "1.19.4",
     "tsc-watch": "2.4.0",
     "typescript": "3.5.3"
