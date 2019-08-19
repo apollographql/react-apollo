@@ -17,7 +17,7 @@
     "react-scripts": "2.1.8"
   },
   "devDependencies": {
-    "@apollo/react-testing": "3.0.0",
+    "@apollo/react-testing": "3.0.1",
     "@testing-library/react": "8.0.9"
   },
   "browserslist": [
