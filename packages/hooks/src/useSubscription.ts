@@ -14,7 +14,7 @@ export function useSubscription<TData = any, TVariables = OperationVariables>(
     ? { ...options, subscription }
     : { subscription };
   const [result, setResult] = useState({
-    loading: updatedOptions.skip ? false : true,
+    loading: !updatedOptions,
     error: undefined,
     data: undefined
   });
