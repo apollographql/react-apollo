@@ -1,5 +1,13 @@
 # Change log
 
+## vNext
+
+### Bug Fixes
+
+- Documentation fixes.  <br/>
+  [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
+
+
 ## 3.0.1 (2019-08-15)
 
 ### Improvements
