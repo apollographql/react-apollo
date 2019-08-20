@@ -7,7 +7,6 @@ import {
 } from 'apollo-link';
 import {
   addTypenameToDocument,
-  removeClientSetsFromDocument,
   removeConnectionDirectiveFromDocument,
   cloneDeep,
   isEqual
@@ -132,10 +131,6 @@ export class MockLink extends ApolloLink {
     newMockedResponse.request.query = removeConnectionDirectiveFromDocument(
       newMockedResponse.request.query
     );
-    const query = removeClientSetsFromDocument(newMockedResponse.request.query);
-    if (query) {
-      newMockedResponse.request.query = query;
-    }
     return newMockedResponse;
   }
 }
