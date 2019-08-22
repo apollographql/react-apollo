@@ -341,7 +341,7 @@ describe('useQuery Hook', () => {
       let renderCount = 0;
       function App() {
         const [_, forceUpdate] = useReducer(x => x + 1, 0);
-        const { loading, error } = useQuery(query);
+        const { loading, error } = useQuery(query, { onError: () => {} });
 
         switch (renderCount) {
           case 0:
