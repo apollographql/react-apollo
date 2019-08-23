@@ -3,7 +3,7 @@
   "description": "",
   "dependencies": {
     "apollo-server": "2.8.2",
-    "apollo-server-express": "2.8.1",
+    "apollo-server-express": "2.8.2",
     "express": "4.17.1",
     "graphql": "14.4.2",
     "subscriptions-transport-ws": "0.9.16"
