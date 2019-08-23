@@ -26,8 +26,17 @@ export class SubscriptionData<
   }
 
   public execute(result: SubscriptionResult<TData>) {
-    let currentResult = result;
+    if (this.getOptions().skip === true) {
+      this.cleanup();
+      return {
+        loading: false,
+        error: undefined,
+        data: undefined,
+        variables: this.getOptions().variables
+      };
+    }
 
+    let currentResult = result;
     if (this.refreshClient().isNew) {
       currentResult = this.getLoadingResult();
     }
@@ -42,10 +51,10 @@ export class SubscriptionData<
       this.previousOptions &&
       Object.keys(this.previousOptions).length > 0 &&
       (this.previousOptions.subscription !== this.getOptions().subscription ||
-        !isEqual(this.previousOptions.variables, this.getOptions().variables))
+        !isEqual(this.previousOptions.variables, this.getOptions().variables) ||
+        this.previousOptions.skip !== this.getOptions().skip)
     ) {
-      this.endSubscription();
-      delete this.currentObservable.query;
+      this.cleanup();
       currentResult = this.getLoadingResult();
     }
 
@@ -66,7 +75,7 @@ export class SubscriptionData<
   }
 
   private initialize(options: SubscriptionOptions<TData, TVariables>) {
-    if (this.currentObservable.query) return;
+    if (this.currentObservable.query || this.getOptions().skip === true) return;
     this.currentObservable.query = this.refreshClient().client.subscribe({
       query: options.subscription,
       variables: options.variables,
