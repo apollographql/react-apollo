@@ -161,6 +161,7 @@ export interface BaseSubscriptionOptions<
     | boolean
     | ((options: BaseSubscriptionOptions<TData, TVariables>) => boolean);
   client?: ApolloClient<object>;
+  skip?: boolean;
   onSubscriptionData?: (options: OnSubscriptionDataOptions<TData>) => any;
   onSubscriptionComplete?: () => void;
 }

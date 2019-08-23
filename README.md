@@ -2,7 +2,7 @@
 
 ## React Apollo
 
-[![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/%40react-apollo)
+[![npm version](https://badge.fury.io/js/react-apollo.svg)](https://badge.fury.io/js/react-apollo)
 [![Build Status](https://circleci.com/gh/apollographql/react-apollo.svg?style=svg)](https://circleci.com/gh/apollographql/react-apollo)
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/apollo)
 
