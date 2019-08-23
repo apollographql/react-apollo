@@ -26,14 +26,17 @@ export class SubscriptionData<
   }
 
   public execute(result: SubscriptionResult<TData>) {
-    let currentResult = result;
     if (this.getOptions().skip === true) {
-      this.endSubscription();
-      delete this.currentObservable.query;
-      currentResult = this.getSkipResult();
-      return { ...currentResult, variables: this.getOptions().variables };
+      this.cleanup();
+      return {
+        loading: false,
+        error: undefined,
+        data: undefined,
+        variables: this.getOptions().variables
+      };
     }
 
+    let currentResult = result;
     if (this.refreshClient().isNew) {
       currentResult = this.getLoadingResult();
     }
@@ -48,19 +51,11 @@ export class SubscriptionData<
       this.previousOptions &&
       Object.keys(this.previousOptions).length > 0 &&
       (this.previousOptions.subscription !== this.getOptions().subscription ||
-        !isEqual(this.previousOptions.variables, this.getOptions().variables))
+        !isEqual(this.previousOptions.variables, this.getOptions().variables) ||
+        this.previousOptions.skip !== this.getOptions().skip)
     ) {
-      this.endSubscription();
-      delete this.currentObservable.query;
+      this.cleanup();
       currentResult = this.getLoadingResult();
-    }
-
-    if (
-      this.previousOptions.skip === true &&
-      !this.getOptions().skip
-    ) {
-      currentResult.loading = true;
-      currentResult.data = undefined;
     }
 
     this.initialize(this.getOptions());
@@ -102,14 +97,6 @@ export class SubscriptionData<
   private getLoadingResult() {
     return {
       loading: true,
-      error: undefined,
-      data: undefined
-    };
-  }
-
-  private getSkipResult() {
-    return {
-      loading: false,
       error: undefined,
       data: undefined
     };
