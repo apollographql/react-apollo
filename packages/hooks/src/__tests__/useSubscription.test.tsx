@@ -151,12 +151,6 @@ describe('useSubscription Hook', () => {
       }
     `;
 
-    // const results = [
-    //   {
-    //     result: { data: { car: { make: 'Pagani' } } }
-    //   }
-    // ];
-
     const link = new MockSubscriptionLink();
     const client = new ApolloClient({
       link,
@@ -201,7 +195,7 @@ describe('useSubscription Hook', () => {
     ).unmount;
   });
 
-  it('should create a subscription after skip has changed from true to a falsey value', done => {
+  it('should create a subscription after skip has changed from true to a falsy value', done => {
     const subscription = gql`
       subscription {
         car {
@@ -226,17 +220,13 @@ describe('useSubscription Hook', () => {
     });
 
     let renderCount = 0;
-    let onSubscriptionDataCount = 0;
     let unmount: any;
 
     const Component = () => {
       const [, triggerRerender] = React.useState(0);
       const [skip, setSkip] = React.useState(true);
       const { loading, data, error } = useSubscription(subscription, {
-        skip,
-        onSubscriptionData() {
-          onSubscriptionDataCount += 1;
-        }
+        skip
       });
       switch (renderCount) {
         case 0:
