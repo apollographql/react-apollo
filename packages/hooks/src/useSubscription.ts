@@ -10,14 +10,14 @@ export function useSubscription<TData = any, TVariables = OperationVariables>(
   options?: SubscriptionHookOptions<TData, TVariables>
 ) {
   const context = useContext(getApolloContext());
-  const [result, setResult] = useState({
-    loading: true,
-    error: undefined,
-    data: undefined
-  });
   const updatedOptions = options
     ? { ...options, subscription }
     : { subscription };
+  const [result, setResult] = useState({
+    loading: !updatedOptions.skip,
+    error: undefined,
+    data: undefined
+  });
 
   const subscriptionDataRef = useRef<SubscriptionData<TData, TVariables>>();
   function getSubscriptionDataRef() {
