@@ -1,6 +1,15 @@
 # Change log
 
-## 3.0.1 (TBD)
+## 3.1.0 (TBD)
+
+### Bug Fixes
+
+- Change the default query `data` state from `{}` to `undefined`. This change aligns all parts of the React Apollo query cycle so that `data` is always `undefined` if there is no data, instead of `data` being converted into an empty object. This change impacts the initial query response, initial SSR response, `data` value when errors occur, `data` value when skipping, etc. All of these areas are now aligned to only ever return a value for `data` if there really is a value to return (instead of making it seem like there is one by converting to `{}`). <br/>
+  [@hwillson](https://github.com/hwillson) in [#3388](https://github.com/apollographql/react-apollo/pull/3388)
+- Documentation fixes. <br/>
+  [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
+
+## 3.0.1 (2019-08-15)
 
 ### Improvements
 
@@ -17,6 +26,10 @@
   [@hwillson](https://github.com/hwillson) in [#3334](https://github.com/apollographql/react-apollo/pull/3334)
 - Export `MockedProviderProps` and `MockedProviderState` from `@apollo/react-testing`. <br/>
   [@hwillson](https://github.com/hwillson) in [#3337](https://github.com/apollographql/react-apollo/pull/3337)
+- Add `@types/react` as a peer dep, to address potential TS compilation errors when using `ApolloProvider`. <br/>
+  [@zkochan](https://github.com/zkochan) in [#3278](https://github.com/apollographql/react-apollo/pull/3278)
+- Make sure `error`'s are maintained after re-renders, when they should be. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3362](https://github.com/apollographql/react-apollo/pull/3362)
 
 ## 3.0.0 (2019-08-06)
 

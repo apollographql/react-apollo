@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-hooks",
   "description": "React Apollo Hooks.",
-  "version": "3.0.0",
+  "version": "3.1.0-beta.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -36,6 +36,7 @@
     "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/hooks"
   },
   "peerDependencies": {
+    "@types/react": "^16.8.0",
     "apollo-client": "^2.6.4",
     "graphql": "^14.3.1",
     "react": "^16.8.0",
@@ -54,7 +55,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "jest": "24.8.0",
+    "jest": "24.9.0",
     "rollup": "1.19.4",
     "tsc-watch": "2.4.0",
     "typescript": "3.5.3"

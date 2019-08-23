@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider, MockLink } from '@apollo/react-testing';
@@ -46,6 +46,25 @@ describe('useQuery Hook', () => {
       const Component = () => {
         const { data, loading } = useQuery(CAR_QUERY);
         if (!loading) {
+          expect(data).toEqual(CAR_RESULT_DATA);
+          done();
+        }
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={CAR_MOCKS}>
+          <Component />
+        </MockedProvider>
+      );
+    });
+
+    it('should keep data as undefined until data is actually returned', done => {
+      const Component = () => {
+        const { data, loading } = useQuery(CAR_QUERY);
+        if (loading) {
+          expect(data).toBeUndefined();
+        } else {
           expect(data).toEqual(CAR_RESULT_DATA);
           done();
         }
@@ -317,6 +336,60 @@ describe('useQuery Hook', () => {
         <ApolloProvider client={client}>
           <Component />
         </ApolloProvider>
+      );
+    });
+
+    it('should persist errors on re-render if they are still valid', done => {
+      const query = gql`
+        query SomeQuery {
+          stuff {
+            thing
+          }
+        }
+      `;
+
+      const mocks = [
+        {
+          request: { query },
+          result: {
+            errors: [new GraphQLError('forced error')]
+          }
+        }
+      ];
+
+      let renderCount = 0;
+      function App() {
+        const [_, forceUpdate] = useReducer(x => x + 1, 0);
+        const { loading, error } = useQuery(query);
+
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            expect(error).toBeUndefined();
+            break;
+          case 1:
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: forced error');
+            setTimeout(() => {
+              forceUpdate(0);
+            });
+            break;
+          case 2:
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: forced error');
+            done();
+            break;
+          default: // Do nothing
+        }
+
+        renderCount += 1;
+        return null;
+      }
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <App />
+        </MockedProvider>
       );
     });
   });
