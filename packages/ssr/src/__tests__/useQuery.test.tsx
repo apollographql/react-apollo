@@ -62,11 +62,11 @@ describe('useQuery Hook SSR', () => {
     });
   });
 
-  it('should initialize data as an empty object when loading', () => {
+  it('should initialize data as `undefined` when loading', () => {
     const Component = () => {
       const { data, loading } = useQuery(CAR_QUERY);
       if (loading) {
-        expect(data).toEqual({});
+        expect(data).toBeUndefined();
       }
       return null;
     };

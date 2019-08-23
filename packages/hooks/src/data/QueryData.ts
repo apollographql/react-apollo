@@ -173,7 +173,7 @@ export class QueryData<TData, TVariables> extends OperationData {
       loading: true,
       networkStatus: NetworkStatus.loading,
       called: true,
-      data: {}
+      data: undefined
     };
 
     if (this.context && this.context.renderPromises) {
@@ -275,7 +275,7 @@ export class QueryData<TData, TVariables> extends OperationData {
           this.previousData.result &&
           this.previousData.result.loading === loading &&
           this.previousData.result.networkStatus === networkStatus &&
-          isEqual(this.previousData.result.data, data || {})
+          isEqual(this.previousData.result.data, data)
         ) {
           return;
         }
@@ -314,15 +314,9 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private getQueryResult(): QueryResult<TData, TVariables> {
-    let result = {
-      data: Object.create(null) as TData
-    } as any;
-
-    // Attach bound methods
-    Object.assign(
-      result,
-      this.observableQueryFields(this.currentObservable.query!)
-    );
+    let result: any = {
+      ...this.observableQueryFields(this.currentObservable.query!)
+    };
 
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
@@ -340,7 +334,6 @@ export class QueryData<TData, TVariables> extends OperationData {
       const currentResult = this.currentObservable.query!.getCurrentResult();
       const { loading, partial, networkStatus, errors } = currentResult;
       let { error, data } = currentResult;
-      data = data || (Object.create(null) as TData);
 
       // Until a set naming convention for networkError and graphQLErrors is
       // decided upon, we map errors (graphQLErrors) to the error options.
@@ -348,13 +341,24 @@ export class QueryData<TData, TVariables> extends OperationData {
         error = new ApolloError({ graphQLErrors: errors });
       }
 
-      Object.assign(result, { loading, networkStatus, error, called: true });
+      result = {
+        ...result,
+        loading,
+        networkStatus,
+        error,
+        called: true
+      };
 
       if (loading) {
-        const previousData = this.previousData.result
-          ? this.previousData.result.data
-          : {};
-        Object.assign(result.data, previousData, data);
+        const previousData =
+          this.previousData.result && this.previousData.result.data;
+        result.data =
+          previousData && data
+            ? {
+                ...previousData,
+                ...data
+              }
+            : previousData || data;
       } else if (error) {
         Object.assign(result, {
           data: (this.currentObservable.query!.getLastResult() || ({} as any))
@@ -365,14 +369,14 @@ export class QueryData<TData, TVariables> extends OperationData {
         const { partialRefetch } = this.getOptions();
         if (
           partialRefetch &&
-          Object.keys(data).length === 0 &&
+          !data &&
           partial &&
           fetchPolicy !== 'cache-only'
         ) {
           // When a `Query` component is mounted, and a mutation is executed
           // that returns the same ID as the mounted `Query`, but has less
           // fields in its result, Apollo Client's `QueryManager` returns the
-          // data as an empty Object since a hit can't be found in the cache.
+          // data as `undefined` since a hit can't be found in the cache.
           // This can lead to application errors when the UI elements rendered by
           // the original `Query` component are expecting certain data values to
           // exist, and they're all of a sudden stripped away. To help avoid
@@ -385,7 +389,7 @@ export class QueryData<TData, TVariables> extends OperationData {
           return result;
         }
 
-        Object.assign(result.data, data);
+        result.data = data;
       }
     }
 
@@ -417,7 +421,7 @@ export class QueryData<TData, TVariables> extends OperationData {
       }
 
       if (onCompleted && !error) {
-        onCompleted(data as TData);
+        onCompleted(data);
       } else if (onError && error) {
         onError(error);
       }
