@@ -1,12 +1,13 @@
 # Change log
 
-## vNext
+## 3.1.0 (TBD)
 
 ### Bug Fixes
 
-- Documentation fixes.  <br/>
+- Change the default query `data` state from `{}` to `undefined`. This change aligns all parts of the React Apollo query cycle so that `data` is always `undefined` if there is no data, instead of `data` being converted into an empty object. This change impacts the initial query response, initial SSR response, `data` value when errors occur, `data` value when skipping, etc. All of these areas are now aligned to only ever return a value for `data` if there really is a value to return (instead of making it seem like there is one by converting to `{}`). <br/>
+  [@hwillson](https://github.com/hwillson) in [#3388](https://github.com/apollographql/react-apollo/pull/3388)
+- Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
-
 
 ## 3.0.1 (2019-08-15)
 

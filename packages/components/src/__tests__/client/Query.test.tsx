@@ -9,7 +9,7 @@ import {
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, wait } from '@testing-library/react';
 import { ApolloLink } from 'apollo-link';
 import { Query } from '@apollo/react-components';
 
@@ -954,7 +954,7 @@ describe('Query component', () => {
       );
     });
 
-    it('onError with error', done => {
+    it('onError with error', async () => {
       const error = new Error('error occurred');
       const mockError = [
         {
@@ -965,7 +965,6 @@ describe('Query component', () => {
 
       const onErrorFunc = (queryError: ApolloError) => {
         expect(queryError.networkError).toEqual(error);
-        done();
       };
 
       const Component = () => (
@@ -981,6 +980,8 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>
       );
+
+      await wait();
     });
   });
 
@@ -1958,7 +1959,7 @@ describe('Query component', () => {
             {(result: any) => {
               const { data, loading } = result;
               if (!loading) {
-                expect(data).toEqual({});
+                expect(data).toBeUndefined();
                 done();
               }
               return null;
@@ -2133,7 +2134,7 @@ describe('Query component', () => {
         <ApolloProvider client={client}>
           <Query query={partialQuery}>
             {({ data }: any) => {
-              expect(data).toEqual({});
+              expect(data).toBeUndefined();
               return null;
             }}
           </Query>
