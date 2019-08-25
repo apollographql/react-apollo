@@ -62,7 +62,7 @@
     "rollup-plugin-invariant": "0.5.2",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-terser": "5.1.1",
-    "rollup-plugin-typescript2": "0.22.1",
+    "rollup-plugin-typescript2": "0.23.0",
     "ts-jest": "24.0.2",
     "tsc-watch": "2.4.0",
     "typescript": "3.5.3",
