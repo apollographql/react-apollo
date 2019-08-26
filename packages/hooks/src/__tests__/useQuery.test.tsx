@@ -58,6 +58,25 @@ describe('useQuery Hook', () => {
         </MockedProvider>
       );
     });
+
+    it('should keep data as undefined until data is actually returned', done => {
+      const Component = () => {
+        const { data, loading } = useQuery(CAR_QUERY);
+        if (loading) {
+          expect(data).toBeUndefined();
+        } else {
+          expect(data).toEqual(CAR_RESULT_DATA);
+          done();
+        }
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={CAR_MOCKS}>
+          <Component />
+        </MockedProvider>
+      );
+    });
   });
 
   describe('Polling', () => {

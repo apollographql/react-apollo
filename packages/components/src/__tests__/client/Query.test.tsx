@@ -9,7 +9,7 @@ import {
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, wait } from '@testing-library/react';
 import { ApolloLink } from 'apollo-link';
 import { Query } from '@apollo/react-components';
 
@@ -954,7 +954,7 @@ describe('Query component', () => {
       );
     });
 
-    it('onError with error', done => {
+    it('onError with error', async () => {
       const error = new Error('error occurred');
       const mockError = [
         {
@@ -965,7 +965,6 @@ describe('Query component', () => {
 
       const onErrorFunc = (queryError: ApolloError) => {
         expect(queryError.networkError).toEqual(error);
-        done();
       };
 
       const Component = () => (
@@ -981,6 +980,8 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>
       );
+
+      await wait();
     });
   });
 
@@ -1749,7 +1750,7 @@ describe('Query component', () => {
     );
   });
 
-  it('should not repeatedly call onCompleted when cache exists if setState in it', done => {
+  it('should not repeatedly call onCompleted when cache exists if setState in it', async () => {
     const query = gql`
       query people($first: Int) {
         allPeople(first: $first) {
@@ -1773,9 +1774,7 @@ describe('Query component', () => {
       }
     ];
 
-    let onCompletedCallCount = 0,
-      updateCount = 0;
-    expect.assertions(1);
+    let onCompletedCallCount = 0;
 
     class Component extends React.Component {
       state = {
@@ -1808,15 +1807,6 @@ describe('Query component', () => {
         onCompletedCallCount += 1;
       }
 
-      componentDidUpdate() {
-        updateCount += 1;
-        if (updateCount === 2) {
-          // Should be 3 since we change variables twice + initial variables.
-          expect(onCompletedCallCount).toBe(3);
-          done();
-        }
-      }
-
       render() {
         const { variables } = this.state;
         return (
@@ -1836,6 +1826,10 @@ describe('Query component', () => {
         <Component />
       </MockedProvider>
     );
+
+    await wait(() => {
+      expect(onCompletedCallCount).toBe(3);
+    });
   });
 
   it('should not repeatedly call onError if setState in it', done => {
@@ -1904,7 +1898,7 @@ describe('Query component', () => {
         'partial, the returned data was reset to an empty Object by the ' +
         'Apollo Client QueryManager (due to a cache miss), and the ' +
         '`partialRefetch` prop is `true`',
-      done => {
+      async () => {
         const query = allPeopleQuery;
         const link = mockSingleLink(
           { request: { query }, result: { data: {} } },
@@ -1923,7 +1917,6 @@ describe('Query component', () => {
               const { data, loading } = result;
               if (!loading) {
                 expect(stripSymbols(data)).toEqual(allPeopleData);
-                done();
               }
               return null;
             }}
@@ -1935,6 +1928,8 @@ describe('Query component', () => {
             <Component />
           </ApolloProvider>
         );
+
+        await wait();
       }
     );
 
@@ -1958,7 +1953,7 @@ describe('Query component', () => {
             {(result: any) => {
               const { data, loading } = result;
               if (!loading) {
-                expect(data).toEqual({});
+                expect(data).toBeUndefined();
                 done();
               }
               return null;
@@ -2133,7 +2128,7 @@ describe('Query component', () => {
         <ApolloProvider client={client}>
           <Query query={partialQuery}>
             {({ data }: any) => {
-              expect(data).toEqual({});
+              expect(data).toBeUndefined();
               return null;
             }}
           </Query>

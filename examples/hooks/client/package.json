@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@apollo/react-hooks": "3.0.1",
-    "@types/jest": "24.0.17",
+    "@types/jest": "24.0.18",
     "@types/node": "12.7.2",
     "@types/react": "16.8.24",
     "@types/react-dom": "16.8.5",
@@ -16,7 +16,7 @@
     "graphql-tag": "^2.10.1",
     "react": "../../../node_modules/react",
     "react-dom": "../../../node_modules/react-dom",
-    "react-scripts": "3.0.1",
+    "react-scripts": "3.1.1",
     "reactstrap": "^8.0.0",
     "subscriptions-transport-ws": "^0.9.16",
     "typescript": "3.5.3"
@@ -44,6 +44,6 @@
   },
   "devDependencies": {
     "@types/graphql": "14.2.3",
-    "@types/reactstrap": "8.0.1"
+    "@types/reactstrap": "8.0.4"
   }
 }

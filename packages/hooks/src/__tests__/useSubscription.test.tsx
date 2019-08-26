@@ -141,4 +141,152 @@ describe('useSubscription Hook', () => {
       </ApolloProvider>
     ).unmount;
   });
+
+  it('should never execute a subscription with the skip option', done => {
+    const subscription = gql`
+      subscription {
+        car {
+          make
+        }
+      }
+    `;
+
+    const link = new MockSubscriptionLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false })
+    });
+
+    let renderCount = 0;
+    let onSubscriptionDataCount = 0;
+    let unmount: any;
+
+    const Component = () => {
+      const { loading, data, error } = useSubscription(subscription, {
+        skip: true,
+        onSubscriptionData() {
+          onSubscriptionDataCount += 1;
+        }
+      });
+      switch (renderCount) {
+        case 0:
+          expect(loading).toBe(false);
+          expect(error).toBeUndefined();
+          expect(data).toBeUndefined();
+          setTimeout(() => {
+            unmount();
+            setTimeout(() => {
+              expect(onSubscriptionDataCount).toEqual(0);
+              expect(renderCount).toEqual(1);
+              done();
+            });
+          });
+          break;
+        default:
+      }
+      renderCount += 1;
+      return null;
+    };
+
+    unmount = render(
+      <ApolloProvider client={client}>
+        <Component />
+      </ApolloProvider>
+    ).unmount;
+  });
+
+  it('should create a subscription after skip has changed from true to a falsy value', done => {
+    const subscription = gql`
+      subscription {
+        car {
+          make
+        }
+      }
+    `;
+
+    const results = [
+      {
+        result: { data: { car: { make: 'Pagani' } } }
+      },
+      {
+        result: { data: { car: { make: 'Scoop' } } }
+      }
+    ];
+
+    const link = new MockSubscriptionLink();
+    const client = new ApolloClient({
+      link,
+      cache: new Cache({ addTypename: false })
+    });
+
+    let renderCount = 0;
+    let unmount: any;
+
+    const Component = () => {
+      const [, triggerRerender] = React.useState(0);
+      const [skip, setSkip] = React.useState(true);
+      const { loading, data, error } = useSubscription(subscription, {
+        skip
+      });
+      switch (renderCount) {
+        case 0:
+          expect(loading).toBe(false);
+          expect(error).toBeUndefined();
+          expect(data).toBeUndefined();
+          setSkip(false);
+          break;
+        case 1:
+          expect(loading).toBe(true);
+          expect(error).toBeUndefined();
+          expect(data).toBeUndefined();
+          link.simulateResult(results[0]);
+          break;
+        case 2:
+          expect(loading).toBe(false);
+          expect(data).toEqual(results[0].result.data);
+          setSkip(true);
+          break;
+        case 3:
+          expect(loading).toBe(false);
+          expect(data).toBeUndefined();
+          expect(error).toBeUndefined();
+          // ensure state persists across rerenders
+          triggerRerender(i => i + 1);
+          break;
+        case 4:
+          expect(loading).toBe(false);
+          expect(data).toBeUndefined();
+          expect(error).toBeUndefined();
+          setSkip(false);
+          break;
+        case 5:
+          expect(loading).toBe(true);
+          expect(error).toBeUndefined();
+          expect(data).toBeUndefined();
+          link.simulateResult(results[1]);
+          break;
+        case 6:
+          expect(loading).toBe(false);
+          expect(error).toBeUndefined();
+          expect(data).toEqual(results[1].result.data);
+          setTimeout(() => {
+            unmount();
+            setTimeout(() => {
+              expect(renderCount).toEqual(7);
+              done();
+            });
+          });
+          break;
+        default:
+      }
+      renderCount += 1;
+      return null;
+    };
+
+    unmount = render(
+      <ApolloProvider client={client}>
+        <Component />
+      </ApolloProvider>
+    ).unmount;
+  });
 });

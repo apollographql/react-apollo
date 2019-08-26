@@ -21,7 +21,7 @@ Object {
 exports[`Query component calls the children prop: result in render prop while loading 1`] = `
 Object {
   "called": true,
-  "data": Object {},
+  "data": undefined,
   "error": undefined,
   "fetchMore": [Function],
   "loading": true,
