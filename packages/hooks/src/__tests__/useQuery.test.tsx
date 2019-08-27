@@ -360,7 +360,7 @@ describe('useQuery Hook', () => {
       let renderCount = 0;
       function App() {
         const [_, forceUpdate] = useReducer(x => x + 1, 0);
-        const { loading, error } = useQuery(query, { onError: () => {} });
+        const { loading, error } = useQuery(query, { onError: () => { }, onCompleted: () => { } });
 
         switch (renderCount) {
           case 0:
