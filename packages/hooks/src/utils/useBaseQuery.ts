@@ -29,8 +29,10 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   queryData.setOptions(updatedOptions);
   queryData.context = context;
 
+  const { onError, onCompleted, ...memoizedOptions } = updatedOptions;
+
   const memo = {
-    options: updatedOptions,
+    options: memoizedOptions,
     context,
     tick
   };
