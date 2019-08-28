@@ -2,7 +2,7 @@ import React, { useState, useReducer } from 'react';
 import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider, MockLink } from '@apollo/react-testing';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, wait } from '@testing-library/react';
 import { useQuery, ApolloProvider } from '@apollo/react-hooks';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, Observable } from 'apollo-link';
@@ -76,6 +76,50 @@ describe('useQuery Hook', () => {
           <Component />
         </MockedProvider>
       );
+    });
+
+    it('should ensure ObservableQuery fields have a stable identity', async () => {
+      let refetchFn: any;
+      let fetchMoreFn: any;
+      let updateQueryFn: any;
+      let startPollingFn: any;
+      let stopPollingFn: any;
+      let subscribeToMoreFn: any;
+      const Component = () => {
+        const {
+          loading,
+          refetch,
+          fetchMore,
+          updateQuery,
+          startPolling,
+          stopPolling,
+          subscribeToMore
+        } = useQuery(CAR_QUERY);
+        if (loading) {
+          refetchFn = refetch;
+          fetchMoreFn = fetchMore;
+          updateQueryFn = updateQuery;
+          startPollingFn = startPolling;
+          stopPollingFn = stopPolling;
+          subscribeToMoreFn = subscribeToMore;
+        } else {
+          expect(refetch).toBe(refetchFn);
+          expect(fetchMore).toBe(fetchMoreFn);
+          expect(updateQuery).toBe(updateQueryFn);
+          expect(startPolling).toBe(startPollingFn);
+          expect(stopPolling).toBe(stopPollingFn);
+          expect(subscribeToMore).toBe(subscribeToMoreFn);
+        }
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={CAR_MOCKS}>
+          <Component />
+        </MockedProvider>
+      );
+
+      await wait();
     });
   });
 
