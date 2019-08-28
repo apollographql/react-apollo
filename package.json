@@ -92,7 +92,7 @@
     {
       "name": "@apollo/react-hooks",
       "path": "./packages/hooks/lib/react-hooks.cjs.min.js",
-      "maxSize": "3.93 kB"
+      "maxSize": "3.98 kB"
     },
     {
       "name": "@apollo/react-ssr",
