@@ -74,6 +74,26 @@ Consult the [Hooks migration guide](https://www.apollographql.com/docs/react/hoo
   ```js
   import * as compose from 'lodash.flowright';
   ```
+- Render prop components (`Query`, `Mutation` and `Subscription`) can no longer be extended. In other words, this is no longer possible:
+
+  ```js
+  class SomeQuery extends Query<SomeData, SomeVariables> {}
+  ```
+
+  All class based render prop components have been converted to functional components, so they could then just wrap their hook based equivalents (`useQuery`, `useMutation`, `useSubscription`).
+
+  While we recommend switching over to use the new hooks as soon as possible, if you're looking for a stop gap you can consider typing a `Query` component in a similar fashion, like:
+
+  ```js
+  export const SomeQuery = () => (
+    <Query<SomeData, SomeVariables> query={SOME_QUERY} ...>
+      {({ data }) => {
+        return <div> ... things happen... </div>;
+      }}
+    </Query>
+  );
+  ```
+
 
 ## 2.5.7 (2019-06-21)
 
