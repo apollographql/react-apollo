@@ -8,6 +8,8 @@
   [@hwillson](https://github.com/hwillson) in [#3388](https://github.com/apollographql/react-apollo/pull/3388)
 - Adds support for the `skip` option when using `useSubscription`. <br/>
   [@n1ru4l](https://github.com/n1ru4l) in [#3356](https://github.com/apollographql/react-apollo/pull/3356)
+- Makes sure `refetch`, `fetchMore`, `updateQuery`, `startPolling`, `stopPolling`, and `subscribeToMore` maintain a stable identity when they're passed back alongside query results. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3422](https://github.com/apollographql/react-apollo/pull/3422)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 

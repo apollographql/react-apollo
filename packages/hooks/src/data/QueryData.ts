@@ -2,7 +2,11 @@ import {
   ApolloQueryResult,
   ObservableQuery,
   ApolloError,
-  NetworkStatus
+  NetworkStatus,
+  FetchMoreOptions,
+  FetchMoreQueryOptions,
+  UpdateQueryOptions,
+  SubscribeToMoreOptions
 } from 'apollo-client';
 import { equal as isEqual } from '@wry/equality';
 import {
@@ -201,20 +205,6 @@ export class QueryData<TData, TVariables> extends OperationData {
     };
   }
 
-  private observableQueryFields(
-    observable: ObservableQuery<TData, TVariables>
-  ): ObservableQueryFields<TData, TVariables> {
-    return {
-      variables: observable.variables,
-      refetch: observable.refetch.bind(observable),
-      fetchMore: observable.fetchMore.bind(observable),
-      updateQuery: observable.updateQuery.bind(observable),
-      startPolling: observable.startPolling.bind(observable),
-      stopPolling: observable.stopPolling.bind(observable),
-      subscribeToMore: observable.subscribeToMore.bind(observable)
-    } as ObservableQueryFields<TData, TVariables>;
-  }
-
   private initializeObservableQuery() {
     // See if there is an existing observable that was used to fetch the same
     // data and if so, use it instead since it will contain the proper queryId
@@ -314,9 +304,7 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private getQueryResult(): QueryResult<TData, TVariables> {
-    let result: any = {
-      ...this.observableQueryFields(this.currentObservable.query!)
-    };
+    let result: any = this.observableQueryFields();
 
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
@@ -433,5 +421,49 @@ export class QueryData<TData, TVariables> extends OperationData {
       this.currentObservable.subscription.unsubscribe();
       delete this.currentObservable.subscription;
     }
+  }
+
+  private obsRefetch = (variables?: TVariables) =>
+    this.currentObservable.query!.refetch(variables);
+
+  private obsFetchMore = <K extends keyof TVariables>(
+    fetchMoreOptions: FetchMoreQueryOptions<TVariables, K> &
+      FetchMoreOptions<TData, TVariables>
+  ) => this.currentObservable.query!.fetchMore(fetchMoreOptions);
+
+  private obsUpdateQuery = <TVars = TVariables>(
+    mapFn: (
+      previousQueryResult: TData,
+      options: UpdateQueryOptions<TVars>
+    ) => TData
+  ) => this.currentObservable.query!.updateQuery(mapFn);
+
+  private obsStartPolling = (pollInterval: number) =>
+    this.currentObservable.query!.startPolling(pollInterval);
+
+  private obsStopPolling = () => this.currentObservable.query!.stopPolling();
+
+  private obsSubscribeToMore = <
+    TSubscriptionData = TData,
+    TSubscriptionVariables = TVariables
+  >(
+    options: SubscribeToMoreOptions<
+      TData,
+      TSubscriptionVariables,
+      TSubscriptionData
+    >
+  ) => this.currentObservable.query!.subscribeToMore(options);
+
+  private observableQueryFields() {
+    const observable = this.currentObservable.query!;
+    return {
+      variables: observable.variables,
+      refetch: this.obsRefetch,
+      fetchMore: this.obsFetchMore,
+      updateQuery: this.obsUpdateQuery,
+      startPolling: this.obsStartPolling,
+      stopPolling: this.obsStopPolling,
+      subscribeToMore: this.obsSubscribeToMore
+    } as ObservableQueryFields<TData, TVariables>;
   }
 }
