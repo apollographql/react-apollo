@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, wait } from '@testing-library/react';
 import gql from 'graphql-tag';
 import ApolloClient from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
@@ -555,7 +555,7 @@ describe('[queries] skip', () => {
     );
   });
 
-  it('allows you to skip then unskip a query with opts syntax', done => {
+  it('allows you to skip then unskip a query with opts syntax', async () => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -627,7 +627,6 @@ describe('[queries] skip', () => {
               break;
             case 4:
               expect(this.props.data!.loading).toBeFalsy();
-              done();
               break;
             default:
           }
@@ -654,9 +653,13 @@ describe('[queries] skip', () => {
         <Parent />
       </ApolloProvider>
     );
+
+    await wait(() => {
+      expect(count).toEqual(5);
+    });
   });
 
-  it('removes the injected props if skip becomes true', done => {
+  it('removes the injected props if skip becomes true', async () => {
     let count = 0;
     const query: DocumentNode = gql`
       query people($first: Int) {
@@ -697,17 +700,12 @@ describe('[queries] skip', () => {
       class extends React.Component<ChildProps<Vars, Data>> {
         componentDidUpdate() {
           const { data } = this.props;
-          try {
-            // loading is true, but data still there
-            if (count === 0)
-              expect(stripSymbols(data!.allPeople)).toEqual(data1.allPeople);
-            if (count === 1) expect(data).toBeUndefined();
-            if (count === 2 && !data!.loading) {
-              expect(stripSymbols(data!.allPeople)).toEqual(data3.allPeople);
-              done();
-            }
-          } catch (error) {
-            done.fail(error);
+          // loading is true, but data still there
+          if (count === 0)
+            expect(stripSymbols(data!.allPeople)).toEqual(data1.allPeople);
+          if (count === 1) expect(data).toBeUndefined();
+          if (count === 2 && !data!.loading) {
+            expect(stripSymbols(data!.allPeople)).toEqual(data3.allPeople);
           }
         }
         render() {
@@ -740,6 +738,10 @@ describe('[queries] skip', () => {
         <ChangingProps />
       </ApolloProvider>
     );
+
+    await wait(() => {
+      expect(count).toEqual(2);
+    });
   });
 
   it('allows you to unmount a skipped query', done => {

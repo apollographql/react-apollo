@@ -10,6 +10,8 @@
   [@n1ru4l](https://github.com/n1ru4l) in [#3356](https://github.com/apollographql/react-apollo/pull/3356)
 - Makes sure `refetch`, `fetchMore`, `updateQuery`, `startPolling`, `stopPolling`, and `subscribeToMore` maintain a stable identity when they're passed back alongside query results. <br/>
   [@hwillson](https://github.com/hwillson) in [#3422](https://github.com/apollographql/react-apollo/pull/3422)
+- Fixed problematic re-renders that were caused by using `fetchMore.updateQuery` with `notifyOnNetworkStatusChange` set to true. When `notifyOnNetworkStatusChange` is true, re-renders will now wait until `updateQuery` has completed, to make sure the updated data is used during the render. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3433](https://github.com/apollographql/react-apollo/pull/3433)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 
@@ -74,6 +76,7 @@ Consult the [Hooks migration guide](https://www.apollographql.com/docs/react/hoo
   ```js
   import * as compose from 'lodash.flowright';
   ```
+
 - Render prop components (`Query`, `Mutation` and `Subscription`) can no longer be extended. In other words, this is no longer possible:
 
   ```js
@@ -93,7 +96,6 @@ Consult the [Hooks migration guide](https://www.apollographql.com/docs/react/hoo
     </Query>
   );
   ```
-
 
 ## 2.5.7 (2019-06-21)
 
