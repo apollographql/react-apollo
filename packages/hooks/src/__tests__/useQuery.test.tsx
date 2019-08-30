@@ -434,6 +434,70 @@ describe('useQuery Hook', () => {
         </MockedProvider>
       );
     });
+
+    it(
+      'should persist errors on re-render when inlining onError and/or ' +
+        'onCompleted callbacks',
+      async () => {
+        const query = gql`
+          query SomeQuery {
+            stuff {
+              thing
+            }
+          }
+        `;
+
+        const mocks = [
+          {
+            request: { query },
+            result: {
+              errors: [new GraphQLError('forced error')]
+            }
+          }
+        ];
+
+        let renderCount = 0;
+        function App() {
+          const [_, forceUpdate] = useReducer(x => x + 1, 0);
+          const { loading, error } = useQuery(query, {
+            onError: () => {},
+            onCompleted: () => {}
+          });
+
+          switch (renderCount) {
+            case 0:
+              expect(loading).toBeTruthy();
+              expect(error).toBeUndefined();
+              break;
+            case 1:
+              expect(error).toBeDefined();
+              expect(error!.message).toEqual('GraphQL error: forced error');
+              setTimeout(() => {
+                forceUpdate(0);
+              });
+              break;
+            case 2:
+              expect(error).toBeDefined();
+              expect(error!.message).toEqual('GraphQL error: forced error');
+              break;
+            default: // Do nothing
+          }
+
+          renderCount += 1;
+          return null;
+        }
+
+        render(
+          <MockedProvider mocks={mocks}>
+            <App />
+          </MockedProvider>
+        );
+
+        await wait(() => {
+          expect(renderCount).toBe(3);
+        });
+      }
+    );
   });
 
   describe('Pagination', () => {
