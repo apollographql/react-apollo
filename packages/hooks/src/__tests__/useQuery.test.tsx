@@ -346,8 +346,6 @@ describe('useQuery Hook', () => {
           }
         );
 
-        console.log('ns', networkStatus);
-
         switch (renderCount) {
           case 0:
             expect(loading).toBeTruthy();
@@ -436,5 +434,272 @@ describe('useQuery Hook', () => {
         </MockedProvider>
       );
     });
+
+    it(
+      'should persist errors on re-render when inlining onError and/or ' +
+        'onCompleted callbacks',
+      async () => {
+        const query = gql`
+          query SomeQuery {
+            stuff {
+              thing
+            }
+          }
+        `;
+
+        const mocks = [
+          {
+            request: { query },
+            result: {
+              errors: [new GraphQLError('forced error')]
+            }
+          }
+        ];
+
+        let renderCount = 0;
+        function App() {
+          const [_, forceUpdate] = useReducer(x => x + 1, 0);
+          const { loading, error } = useQuery(query, {
+            onError: () => {},
+            onCompleted: () => {}
+          });
+
+          switch (renderCount) {
+            case 0:
+              expect(loading).toBeTruthy();
+              expect(error).toBeUndefined();
+              break;
+            case 1:
+              expect(error).toBeDefined();
+              expect(error!.message).toEqual('GraphQL error: forced error');
+              setTimeout(() => {
+                forceUpdate(0);
+              });
+              break;
+            case 2:
+              expect(error).toBeDefined();
+              expect(error!.message).toEqual('GraphQL error: forced error');
+              break;
+            default: // Do nothing
+          }
+
+          renderCount += 1;
+          return null;
+        }
+
+        render(
+          <MockedProvider mocks={mocks}>
+            <App />
+          </MockedProvider>
+        );
+
+        await wait(() => {
+          expect(renderCount).toBe(3);
+        });
+      }
+    );
+  });
+
+  describe('Pagination', () => {
+    it(
+      'should render `fetchMore.updateQuery` updated results with proper ' +
+        'loading status, when `notifyOnNetworkStatusChange` is true',
+      async () => {
+        const carQuery: DocumentNode = gql`
+          query cars($limit: Int) {
+            cars(limit: $limit) {
+              id
+              make
+              model
+              vin
+              __typename
+            }
+          }
+        `;
+
+        const carResults = {
+          cars: [
+            {
+              id: 1,
+              make: 'Audi',
+              model: 'RS8',
+              vin: 'DOLLADOLLABILL',
+              __typename: 'Car'
+            }
+          ]
+        };
+
+        const moreCarResults = {
+          cars: [
+            {
+              id: 2,
+              make: 'Audi',
+              model: 'eTron',
+              vin: 'TREESRGOOD',
+              __typename: 'Car'
+            }
+          ]
+        };
+
+        const mocks = [
+          {
+            request: { query: carQuery, variables: { limit: 1 } },
+            result: { data: carResults }
+          },
+          {
+            request: { query: carQuery, variables: { limit: 1 } },
+            result: { data: moreCarResults }
+          }
+        ];
+
+        let renderCount = 0;
+        function App() {
+          const { loading, data, fetchMore } = useQuery(carQuery, {
+            variables: { limit: 1 },
+            notifyOnNetworkStatusChange: true
+          });
+
+          switch (renderCount) {
+            case 0:
+              expect(loading).toBeTruthy();
+              break;
+            case 1:
+              expect(loading).toBeFalsy();
+              expect(data).toEqual(carResults);
+              fetchMore({
+                variables: {
+                  limit: 1
+                },
+                updateQuery: (prev, { fetchMoreResult }) => ({
+                  cars: [...prev.cars, ...fetchMoreResult.cars]
+                })
+              });
+              break;
+            case 2:
+              expect(loading).toBeTruthy();
+              break;
+            case 3:
+              expect(loading).toBeFalsy();
+              expect(data).toEqual({
+                cars: [carResults.cars[0], moreCarResults.cars[0]]
+              });
+              break;
+            default:
+          }
+
+          renderCount += 1;
+          return null;
+        }
+
+        render(
+          <MockedProvider mocks={mocks}>
+            <App />
+          </MockedProvider>
+        );
+
+        await wait(() => {
+          expect(renderCount).toBe(4);
+        });
+      }
+    );
+
+    it(
+      'should render `fetchMore.updateQuery` updated results with no ' +
+        'loading status, when `notifyOnNetworkStatusChange` is false',
+      async () => {
+        const carQuery: DocumentNode = gql`
+          query cars($limit: Int) {
+            cars(limit: $limit) {
+              id
+              make
+              model
+              vin
+              __typename
+            }
+          }
+        `;
+
+        const carResults = {
+          cars: [
+            {
+              id: 1,
+              make: 'Audi',
+              model: 'RS8',
+              vin: 'DOLLADOLLABILL',
+              __typename: 'Car'
+            }
+          ]
+        };
+
+        const moreCarResults = {
+          cars: [
+            {
+              id: 2,
+              make: 'Audi',
+              model: 'eTron',
+              vin: 'TREESRGOOD',
+              __typename: 'Car'
+            }
+          ]
+        };
+
+        const mocks = [
+          {
+            request: { query: carQuery, variables: { limit: 1 } },
+            result: { data: carResults }
+          },
+          {
+            request: { query: carQuery, variables: { limit: 1 } },
+            result: { data: moreCarResults }
+          }
+        ];
+
+        let renderCount = 0;
+        function App() {
+          const { loading, data, fetchMore } = useQuery(carQuery, {
+            variables: { limit: 1 },
+            notifyOnNetworkStatusChange: false
+          });
+
+          switch (renderCount) {
+            case 0:
+              expect(loading).toBeTruthy();
+              break;
+            case 1:
+              expect(loading).toBeFalsy();
+              expect(data).toEqual(carResults);
+              fetchMore({
+                variables: {
+                  limit: 1
+                },
+                updateQuery: (prev, { fetchMoreResult }) => ({
+                  cars: [...prev.cars, ...fetchMoreResult.cars]
+                })
+              });
+              break;
+            case 2:
+              expect(loading).toBeFalsy();
+              expect(data).toEqual({
+                cars: [carResults.cars[0], moreCarResults.cars[0]]
+              });
+              break;
+            default:
+          }
+
+          renderCount += 1;
+          return null;
+        }
+
+        render(
+          <MockedProvider mocks={mocks}>
+            <App />
+          </MockedProvider>
+        );
+
+        await wait(() => {
+          expect(renderCount).toBe(3);
+        });
+      }
+    );
   });
 });

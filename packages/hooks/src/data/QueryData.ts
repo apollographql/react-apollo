@@ -261,13 +261,32 @@ export class QueryData<TData, TVariables> extends OperationData {
     const obsQuery = this.currentObservable.query!;
     this.currentObservable.subscription = obsQuery.subscribe({
       next: ({ loading, networkStatus, data }) => {
-        if (
-          this.previousData.result &&
-          this.previousData.result.loading === loading &&
-          this.previousData.result.networkStatus === networkStatus &&
-          isEqual(this.previousData.result.data, data)
-        ) {
-          return;
+        const previousResult = this.previousData.result;
+
+        if (previousResult) {
+          // Calls to `ObservableQuery.fetchMore` return a result before the
+          // `updateQuery` function fully finishes. This can lead to an
+          // extra un-necessary re-render since the initially returned data is
+          // the same as data that has already been rendered. We'll
+          // prevent the un-necessary render from happening, making sure
+          // `fetchMore` results are only rendered when `updateQuery` has
+          // completed.
+          if (
+            previousResult.loading &&
+            previousResult.networkStatus === NetworkStatus.fetchMore &&
+            isEqual(previousResult.data, data)
+          ) {
+            return;
+          }
+
+          // Make sure we're not attempting to re-render similar results
+          if (
+            previousResult.loading === loading &&
+            previousResult.networkStatus === networkStatus &&
+            isEqual(previousResult.data, data)
+          ) {
+            return;
+          }
         }
 
         this.forceUpdate();
