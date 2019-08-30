@@ -12,6 +12,8 @@
   [@hwillson](https://github.com/hwillson) in [#3422](https://github.com/apollographql/react-apollo/pull/3422)
 - Fixed problematic re-renders that were caused by using `fetchMore.updateQuery` with `notifyOnNetworkStatusChange` set to true. When `notifyOnNetworkStatusChange` is true, re-renders will now wait until `updateQuery` has completed, to make sure the updated data is used during the render. <br/>
   [@hwillson](https://github.com/hwillson) in [#3433](https://github.com/apollographql/react-apollo/pull/3433)
+- Add `client` to the `useMutation` result. <br/>
+  [@joshalling](https://github.com/joshalling) in [#3417](https://github.com/apollographql/react-apollo/pull/3417)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 
