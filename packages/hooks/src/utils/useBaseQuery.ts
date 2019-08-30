@@ -29,6 +29,9 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   queryData.setOptions(updatedOptions);
   queryData.context = context;
 
+  // `onError` and `onCompleted` callback functions will not always have a
+  // stable identity, so we'll exclude them from the memoization key to
+  // prevent `afterExecute` from being triggered un-necessarily.
   const memo = {
     options: { ...updatedOptions, onError: undefined, onCompleted: undefined },
     context,
