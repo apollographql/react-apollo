@@ -75,7 +75,7 @@ export type ObservableQueryFields<TData, TVariables> = Pick<
 export interface QueryResult<TData = any, TVariables = OperationVariables>
   extends ObservableQueryFields<TData, TVariables> {
   client: ApolloClient<any>;
-  data: TData | undefined;
+  data: TData | Partial<TData>;
   error?: ApolloError;
   loading: boolean;
   networkStatus: NetworkStatus;
