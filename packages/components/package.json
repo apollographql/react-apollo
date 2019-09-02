@@ -63,6 +63,6 @@
     "jest": "24.9.0",
     "rollup": "1.20.3",
     "tsc-watch": "2.4.0",
-    "typescript": "3.5.3"
+    "typescript": "3.6.2"
   }
 }
