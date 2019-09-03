@@ -126,6 +126,7 @@ export class QueryData<TData, TVariables> extends OperationData {
           this.currentObservable.query.resetQueryStoreErrors();
       });
     }
+
     return this.unmount.bind(this);
   }
 
@@ -159,6 +160,8 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private runLazyQuery = (options?: QueryLazyOptions<TVariables>) => {
+    this.cleanup();
+
     this.runLazy = true;
     this.lazyOptions = options;
     this.forceUpdate();
