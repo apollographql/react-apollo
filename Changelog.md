@@ -18,6 +18,8 @@
   [@dylanwulf](https://github.com/dylanwulf) in [#3419](https://github.com/apollographql/react-apollo/pull/3419)
 - `useLazyQuery`'s execution function can now be called multiple times in a row, and will properly submit network requests each time called, when using a fetch policy of `network-only`. <br/>
   [@hwillson](https://github.com/hwillson) in [#3453](https://github.com/apollographql/react-apollo/pull/3453)
+- SSR enhancements to support `network-only` and `cache-and-network` fetch policies, along with changes to ensure disabled SSR queries are not fired. <br/>
+  [@mikebm](https://github.com/mikebm) in [#3435](https://github.com/apollographql/react-apollo/pull/3435)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 
