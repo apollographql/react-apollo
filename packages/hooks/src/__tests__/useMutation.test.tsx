@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider, mockSingleLink } from '@apollo/react-testing';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, wait } from '@testing-library/react';
 import { ApolloProvider, useMutation } from '@apollo/react-hooks';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -235,6 +235,23 @@ describe('useMutation Hook', () => {
           <Component />
         </MockedProvider>
       );
+    });
+
+    it('should return the current client instance in the result object', async () => {
+      const Component = () => {
+        const [, { client }] = useMutation(CREATE_TODO_MUTATION);
+        expect(client).toBeDefined();
+        expect(client instanceof ApolloClient).toBeTruthy();
+        return null;
+      };
+
+      render(
+        <MockedProvider>
+          <Component />
+        </MockedProvider>
+      );
+
+      await wait();
     });
   });
 

@@ -12,6 +12,12 @@
   [@hwillson](https://github.com/hwillson) in [#3422](https://github.com/apollographql/react-apollo/pull/3422)
 - Fixed problematic re-renders that were caused by using `fetchMore.updateQuery` with `notifyOnNetworkStatusChange` set to true. When `notifyOnNetworkStatusChange` is true, re-renders will now wait until `updateQuery` has completed, to make sure the updated data is used during the render. <br/>
   [@hwillson](https://github.com/hwillson) in [#3433](https://github.com/apollographql/react-apollo/pull/3433)
+- Add `client` to the `useMutation` result. <br/>
+  [@joshalling](https://github.com/joshalling) in [#3417](https://github.com/apollographql/react-apollo/pull/3417)
+- Prevent inline `onError` and `onCompleted` callbacks from being part of the internal memoization that's used to decide when certain after render units of functionality are run, when using `useQuery`. This fixes issues related to un-necessary component cleanup, like `error` disappearing from results when it should be present. <br/>
+  [@dylanwulf](https://github.com/dylanwulf) in [#3419](https://github.com/apollographql/react-apollo/pull/3419)
+- `useLazyQuery`'s execution function can now be called multiple times in a row, and will properly submit network requests each time called, when using a fetch policy of `network-only`. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3453](https://github.com/apollographql/react-apollo/pull/3453)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 

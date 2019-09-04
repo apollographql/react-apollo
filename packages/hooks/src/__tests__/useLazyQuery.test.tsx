@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider } from '@apollo/react-testing';
-import { render, cleanup } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 import { ApolloProvider, useLazyQuery } from '@apollo/react-hooks';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -38,16 +38,16 @@ describe('useLazyQuery Hook', () => {
     }
   ];
 
-  afterEach(cleanup);
-
-  it('should hold query execution until manually triggered', done => {
+  it('should hold query execution until manually triggered', async () => {
     let renderCount = 0;
     const Component = () => {
       const [execute, { loading, data }] = useLazyQuery(CAR_QUERY);
       switch (renderCount) {
         case 0:
           expect(loading).toEqual(false);
-          execute();
+          setTimeout(() => {
+            execute();
+          });
           break;
         case 1:
           expect(loading).toEqual(true);
@@ -55,7 +55,6 @@ describe('useLazyQuery Hook', () => {
         case 2:
           expect(loading).toEqual(false);
           expect(data).toEqual(CAR_RESULT_DATA);
-          done();
           break;
         default: // Do nothing
       }
@@ -68,11 +67,15 @@ describe('useLazyQuery Hook', () => {
         <Component />
       </MockedProvider>
     );
+
+    await wait(() => {
+      expect(renderCount).toBe(3);
+    });
   });
 
   it('should set `called` to false by default', () => {
     const Component = () => {
-      const [execute, { loading, called }] = useLazyQuery(CAR_QUERY);
+      const [, { loading, called }] = useLazyQuery(CAR_QUERY);
       expect(loading).toBeFalsy();
       expect(called).toBeFalsy();
       return null;
@@ -85,7 +88,7 @@ describe('useLazyQuery Hook', () => {
     );
   });
 
-  it('should set `called` to true after calling the lazy execute function', done => {
+  it('should set `called` to true after calling the lazy execute function', async () => {
     let renderCount = 0;
     const Component = () => {
       const [execute, { loading, called, data }] = useLazyQuery(CAR_QUERY);
@@ -93,7 +96,9 @@ describe('useLazyQuery Hook', () => {
         case 0:
           expect(loading).toBeFalsy();
           expect(called).toBeFalsy();
-          execute();
+          setTimeout(() => {
+            execute();
+          });
           break;
         case 1:
           expect(loading).toBeTruthy();
@@ -103,7 +108,6 @@ describe('useLazyQuery Hook', () => {
           expect(loading).toEqual(false);
           expect(called).toBeTruthy();
           expect(data).toEqual(CAR_RESULT_DATA);
-          done();
           break;
         default: // Do nothing
       }
@@ -116,9 +120,13 @@ describe('useLazyQuery Hook', () => {
         <Component />
       </MockedProvider>
     );
+
+    await wait(() => {
+      expect(renderCount).toBe(3);
+    });
   });
 
-  it('should override `skip` if lazy mode execution function is called', done => {
+  it('should override `skip` if lazy mode execution function is called', async () => {
     let renderCount = 0;
     const Component = () => {
       const [execute, { loading, data }] = useLazyQuery(CAR_QUERY, {
@@ -127,7 +135,9 @@ describe('useLazyQuery Hook', () => {
       switch (renderCount) {
         case 0:
           expect(loading).toBeFalsy();
-          execute();
+          setTimeout(() => {
+            execute();
+          });
           break;
         case 1:
           expect(loading).toBeTruthy();
@@ -135,7 +145,6 @@ describe('useLazyQuery Hook', () => {
         case 2:
           expect(loading).toEqual(false);
           expect(data).toEqual(CAR_RESULT_DATA);
-          done();
           break;
         default: // Do nothing
       }
@@ -148,12 +157,16 @@ describe('useLazyQuery Hook', () => {
         <Component />
       </MockedProvider>
     );
+
+    await wait(() => {
+      expect(renderCount).toBe(3);
+    });
   });
 
   it(
     'should use variables defined in hook options (if any), when running ' +
       'the lazy execution function',
-    done => {
+    async () => {
       const CAR_QUERY: DocumentNode = gql`
         query AllCars($year: Int!) {
           cars(year: $year) @client {
@@ -195,7 +208,9 @@ describe('useLazyQuery Hook', () => {
         switch (renderCount) {
           case 0:
             expect(loading).toBeFalsy();
-            execute();
+            setTimeout(() => {
+              execute();
+            });
             break;
           case 1:
             expect(loading).toBeTruthy();
@@ -203,7 +218,6 @@ describe('useLazyQuery Hook', () => {
           case 2:
             expect(loading).toEqual(false);
             expect(data.cars).toEqual([CAR_RESULT_DATA[1]]);
-            done();
             break;
           default: // Do nothing
         }
@@ -216,13 +230,17 @@ describe('useLazyQuery Hook', () => {
           <Component />
         </ApolloProvider>
       );
+
+      await wait(() => {
+        expect(renderCount).toBe(3);
+      });
     }
   );
 
   it(
     'should use variables passed into lazy execution function, ' +
       'overriding similar variables defined in Hook options',
-    done => {
+    async () => {
       const CAR_QUERY: DocumentNode = gql`
         query AllCars($year: Int!) {
           cars(year: $year) @client {
@@ -264,7 +282,9 @@ describe('useLazyQuery Hook', () => {
         switch (renderCount) {
           case 0:
             expect(loading).toBeFalsy();
-            execute({ variables: { year: 2000 } });
+            setTimeout(() => {
+              execute({ variables: { year: 2000 } });
+            });
             break;
           case 1:
             expect(loading).toBeTruthy();
@@ -272,7 +292,6 @@ describe('useLazyQuery Hook', () => {
           case 2:
             expect(loading).toEqual(false);
             expect(data.cars).toEqual([CAR_RESULT_DATA[0]]);
-            done();
             break;
           default: // Do nothing
         }
@@ -285,6 +304,89 @@ describe('useLazyQuery Hook', () => {
           <Component />
         </ApolloProvider>
       );
+
+      await wait(() => {
+        expect(renderCount).toBe(3);
+      });
+    }
+  );
+
+  it(
+    'should fetch data each time the execution function is called, when ' +
+      'using a "network-only" fetch policy',
+    async () => {
+      const data1 = CAR_RESULT_DATA;
+
+      const data2 = {
+        cars: [
+          {
+            make: 'Audi',
+            model: 'SQ5',
+            vin: 'POWERANDTRUNKSPACE',
+            __typename: 'Car'
+          }
+        ]
+      };
+
+      const mocks = [
+        {
+          request: {
+            query: CAR_QUERY
+          },
+          result: { data: data1 }
+        },
+        {
+          request: {
+            query: CAR_QUERY
+          },
+          result: { data: data2 }
+        }
+      ];
+
+      let renderCount = 0;
+      const Component = () => {
+        const [execute, { loading, data }] = useLazyQuery(CAR_QUERY, {
+          fetchPolicy: 'network-only'
+        });
+        switch (renderCount) {
+          case 0:
+            expect(loading).toEqual(false);
+            setTimeout(() => {
+              execute();
+            });
+            break;
+          case 1:
+            expect(loading).toEqual(true);
+            break;
+          case 2:
+            expect(loading).toEqual(false);
+            expect(data).toEqual(data1);
+            setTimeout(() => {
+              execute();
+            });
+            break;
+          case 3:
+            expect(loading).toEqual(true);
+            break;
+          case 4:
+            expect(loading).toEqual(false);
+            expect(data).toEqual(data2);
+            break;
+          default: // Do nothing
+        }
+        renderCount += 1;
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <Component />
+        </MockedProvider>
+      );
+
+      await wait(() => {
+        expect(renderCount).toBe(5);
+      });
     }
   );
 });
