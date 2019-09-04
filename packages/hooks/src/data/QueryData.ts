@@ -49,7 +49,7 @@ export class QueryData<TData, TVariables> extends OperationData {
   public execute(): QueryResult<TData, TVariables> {
     this.refreshClient();
 
-    const { skip, query } = this.getOptions();
+    const { skip, query, ssr } = this.getOptions();
     if (skip || query !== this.previousData.query) {
       this.removeQuerySubscription();
       this.previousData.query = query;
@@ -59,7 +59,9 @@ export class QueryData<TData, TVariables> extends OperationData {
 
     if (this.isMounted) this.startQuerySubscription();
 
-    return this.getExecuteSsrResult() || this.getExecuteResult();
+    const ssrDisabled = ssr === false;
+
+    return this.getExecuteSsrResult(ssrDisabled) || this.getExecuteResult();
   }
 
   public executeLazy(): QueryTuple<TData, TVariables> {
@@ -78,37 +80,12 @@ export class QueryData<TData, TVariables> extends OperationData {
 
   // For server-side rendering
   public fetchData(): Promise<ApolloQueryResult<any>> | boolean {
-    if (this.getOptions().skip) return false;
+    const options = this.getOptions();
+    if (options.skip || options.ssr === false) return false;
 
-    // pull off react options
-    const {
-      children,
-      ssr,
-      displayName,
-      skip,
-      onCompleted,
-      onError,
-      partialRefetch,
-      ...opts
-    } = this.getOptions();
-
-    let { fetchPolicy } = opts;
-    if (ssr === false) return false;
-    if (fetchPolicy === 'network-only' || fetchPolicy === 'cache-and-network') {
-      fetchPolicy = 'cache-first'; // ignore force fetch in SSR;
-    }
-
-    const obs = this.refreshClient().client.watchQuery({
-      ...opts,
-      fetchPolicy
-    });
-
-    // Register the SSR observable, so it can be re-used once the value comes back.
-    if (this.context && this.context.renderPromises) {
-      this.context.renderPromises.registerSSRObservable(obs, this.getOptions());
-    }
-
-    const currentResult = this.currentObservable.query!.getCurrentResult();
+    // currentObservable.query is already assigned the registered SSR observable in initializeObservableQuery.
+    const obs = this.currentObservable.query!;
+    const currentResult = obs.getCurrentResult();
     return currentResult.loading ? obs.result() : false;
   }
 
@@ -173,17 +150,22 @@ export class QueryData<TData, TVariables> extends OperationData {
     return result;
   };
 
-  private getExecuteSsrResult() {
+  private getExecuteSsrResult(ssrDisabled: boolean) {
     let result;
 
-    const ssrLoading = {
-      loading: true,
-      networkStatus: NetworkStatus.loading,
-      called: true,
-      data: undefined
-    };
-
     if (this.context && this.context.renderPromises) {
+      const ssrLoading = {
+        loading: true,
+        networkStatus: NetworkStatus.loading,
+        called: true,
+        data: undefined
+      };
+
+      // SSR is disabled, so just return the loading event and leave it in that state.
+      if (ssrDisabled) {
+        return ssrLoading;
+      }
+
       result = this.context.renderPromises.addQueryPromise(
         this,
         this.getExecuteResult
@@ -197,13 +179,25 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private prepareObservableQueryOptions() {
-    this.verifyDocumentType(this.getOptions().query, DocumentType.Query);
-    const displayName = this.getOptions().displayName || 'Query';
+    const options = this.getOptions();
+    this.verifyDocumentType(options.query, DocumentType.Query);
+    const displayName = options.displayName || 'Query';
+
+    // Set the fetchPolicy to cache-first for network-only and cache-and-network
+    // fetches for server side renders.
+    if (
+      this.context &&
+      this.context.renderPromises &&
+      (options.fetchPolicy === 'network-only' ||
+        options.fetchPolicy === 'cache-and-network')
+    ) {
+      options.fetchPolicy = 'cache-first';
+    }
 
     return {
-      ...this.getOptions(),
+      ...options,
       displayName,
-      context: this.getOptions().context || {},
+      context: options.context || {},
       metadata: { reactComponent: { displayName } }
     };
   }
@@ -227,6 +221,13 @@ export class QueryData<TData, TVariables> extends OperationData {
       this.currentObservable.query = this.refreshClient().client.watchQuery(
         observableQueryOptions
       );
+
+      if (this.context && this.context.renderPromises) {
+        this.context.renderPromises.registerSSRObservable(
+          this.currentObservable.query,
+          observableQueryOptions
+        );
+      }
     }
   }
 
@@ -234,6 +235,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     // If we skipped initially, we may not have yet created the observable
     if (!this.currentObservable.query) {
       this.initializeObservableQuery();
+      return;
     }
 
     const newObservableQueryOptions = {
@@ -327,11 +329,12 @@ export class QueryData<TData, TVariables> extends OperationData {
 
   private getQueryResult(): QueryResult<TData, TVariables> {
     let result: any = this.observableQueryFields();
+    const options = this.getOptions();
 
     // When skipping a query (ie. we're not querying for data but still want
     // to render children), make sure the `data` is cleared out and
     // `loading` is set to `false` (since we aren't loading anything).
-    if (this.getOptions().skip) {
+    if (options.skip) {
       result = {
         ...result,
         data: undefined,
@@ -376,7 +379,7 @@ export class QueryData<TData, TVariables> extends OperationData {
         });
       } else {
         const { fetchPolicy } = this.currentObservable.query!.options;
-        const { partialRefetch } = this.getOptions();
+        const { partialRefetch } = options;
         if (
           partialRefetch &&
           !data &&

@@ -80,9 +80,11 @@ describe('useQuery Hook SSR', () => {
     return renderToStringWithData(app);
   });
 
-  it('should skip SSR if `ssr` option is `false`', () => {
+  it('should skip SSR if `ssr` option is `false`', async () => {
+    let renderCount = 0;
     const Component = () => {
       const { data, loading } = useQuery(CAR_QUERY, { ssr: false });
+      renderCount += 1;
       if (!loading) {
         expect(data).toEqual(CAR_RESULT_DATA);
         const { make } = data.cars[0];
@@ -98,6 +100,7 @@ describe('useQuery Hook SSR', () => {
     );
 
     return renderToStringWithData(app).then(result => {
+      expect(renderCount).toBe(1);
       expect(result).toEqual('');
     });
   });
