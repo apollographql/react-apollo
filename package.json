@@ -52,7 +52,7 @@
     "graphql": "14.5.4",
     "graphql-tag": "2.10.1",
     "jest": "24.9.0",
-    "jest-junit": "7.0.0",
+    "jest-junit": "8.0.0",
     "lerna": "3.16.4",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
