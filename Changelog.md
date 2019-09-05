@@ -21,7 +21,7 @@
 - SSR enhancements to support `network-only` and `cache-and-network` fetch policies, along with changes to ensure disabled SSR queries are not fired. <br/>
   [@mikebm](https://github.com/mikebm) in [#3435](https://github.com/apollographql/react-apollo/pull/3435)
 - Remove `void` from the `MutationFunction`'s returned Promise types. <br/>
-  [@hwillson](https://github.com/hwillson) in [#TODO](https://github.com/apollographql/react-apollo/pull/TODO)
+  [@hwillson](https://github.com/hwillson) in [#3458](https://github.com/apollographql/react-apollo/pull/3458)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 
