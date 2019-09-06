@@ -86,7 +86,7 @@ Consult the [Hooks migration guide](https://www.apollographql.com/docs/react/hoo
   Previously, `compose` was imported then exported directly from lodash using [`flowRight`](https://lodash.com/docs/4.17.15#flowRight). To keep using `compose`, install the [`lodash.flowright`](https://www.npmjs.com/package/lodash.flowright) package, then update your `compose` imports as:
 
   ```js
-  import * as compose from 'lodash.flowright';
+  import compose from 'lodash.flowright';
   ```
 
 - Render prop components (`Query`, `Mutation` and `Subscription`) can no longer be extended. In other words, this is no longer possible:
