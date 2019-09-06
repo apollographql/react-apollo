@@ -1,6 +1,5 @@
 import {
   ApolloQueryResult,
-  ObservableQuery,
   ApolloError,
   NetworkStatus,
   FetchMoreOptions,
