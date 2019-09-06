@@ -804,4 +804,86 @@ describe('useQuery Hook', () => {
       });
     });
   });
+
+  describe('Callbacks', () => {
+    it(
+      'should pass loaded data to onCompleted when using the cache-only ' +
+        'fetch policy',
+      async () => {
+        const cache = new InMemoryCache();
+        const client = new ApolloClient({
+          cache,
+          resolvers: {}
+        });
+
+        cache.writeQuery({
+          query: CAR_QUERY,
+          data: CAR_RESULT_DATA
+        });
+
+        let onCompletedCalled = false;
+        const Component = () => {
+          const { loading, data } = useQuery(CAR_QUERY, {
+            fetchPolicy: 'cache-only',
+            onCompleted(data) {
+              onCompletedCalled = true;
+              expect(data).toBeDefined();
+              console.log(data);
+            }
+          });
+          if (!loading) {
+            expect(data).toEqual(CAR_RESULT_DATA);
+          }
+          return null;
+        };
+
+        render(
+          <ApolloProvider client={client}>
+            <Component />
+          </ApolloProvider>
+        );
+
+        await wait(() => {
+          expect(onCompletedCalled).toBeTruthy();
+        });
+      }
+    );
+
+    it('should only call onCompleted once per query run', async () => {
+      const cache = new InMemoryCache();
+      const client = new ApolloClient({
+        cache,
+        resolvers: {}
+      });
+
+      cache.writeQuery({
+        query: CAR_QUERY,
+        data: CAR_RESULT_DATA
+      });
+
+      let onCompletedCount = 0;
+      const Component = () => {
+        const { loading, data } = useQuery(CAR_QUERY, {
+          fetchPolicy: 'cache-only',
+          onCompleted() {
+            onCompletedCount += 1;
+          }
+        });
+        if (!loading) {
+          expect(data).toEqual(CAR_RESULT_DATA);
+        }
+        return null;
+      };
+
+      render(
+        <ApolloProvider client={client}>
+          <Component />
+        </ApolloProvider>
+      );
+
+      await wait(() => {
+        expect(onCompletedCount).toBe(1);
+      });
+    });
+  });
 });

@@ -22,6 +22,8 @@
   [@mikebm](https://github.com/mikebm) in [#3435](https://github.com/apollographql/react-apollo/pull/3435)
 - Remove `void` from the `MutationFunction`'s returned Promise types. <br/>
   [@hwillson](https://github.com/hwillson) in [#3458](https://github.com/apollographql/react-apollo/pull/3458)
+- Prevent duplicate `onCompleted` calls during the same query execution cycle. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3461](https://github.com/apollographql/react-apollo/pull/3461)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 
