@@ -142,7 +142,7 @@ export declare type MutationFunction<
   TVariables = OperationVariables
 > = (
   options?: MutationFunctionOptions<TData, TVariables>
-) => Promise<void | MutationFetchResult<TData>>;
+) => Promise<MutationFetchResult<TData>>;
 
 /* Subscription types */
 

@@ -1,6 +1,6 @@
 # Change log
 
-## 3.1.0 (TBD)
+## 3.1.0 (2019-09-06)
 
 ### Bug Fixes
 
@@ -16,6 +16,14 @@
   [@joshalling](https://github.com/joshalling) in [#3417](https://github.com/apollographql/react-apollo/pull/3417)
 - Prevent inline `onError` and `onCompleted` callbacks from being part of the internal memoization that's used to decide when certain after render units of functionality are run, when using `useQuery`. This fixes issues related to un-necessary component cleanup, like `error` disappearing from results when it should be present. <br/>
   [@dylanwulf](https://github.com/dylanwulf) in [#3419](https://github.com/apollographql/react-apollo/pull/3419)
+- `useLazyQuery`'s execution function can now be called multiple times in a row, and will properly submit network requests each time called, when using a fetch policy of `network-only`. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3453](https://github.com/apollographql/react-apollo/pull/3453)
+- SSR enhancements to support `network-only` and `cache-and-network` fetch policies, along with changes to ensure disabled SSR queries are not fired. <br/>
+  [@mikebm](https://github.com/mikebm) in [#3435](https://github.com/apollographql/react-apollo/pull/3435)
+- Remove `void` from the `MutationFunction`'s returned Promise types. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3458](https://github.com/apollographql/react-apollo/pull/3458)
+- Prevent duplicate `onCompleted` calls during the same query execution cycle. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3461](https://github.com/apollographql/react-apollo/pull/3461)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 
@@ -78,7 +86,7 @@ Consult the [Hooks migration guide](https://www.apollographql.com/docs/react/hoo
   Previously, `compose` was imported then exported directly from lodash using [`flowRight`](https://lodash.com/docs/4.17.15#flowRight). To keep using `compose`, install the [`lodash.flowright`](https://www.npmjs.com/package/lodash.flowright) package, then update your `compose` imports as:
 
   ```js
-  import * as compose from 'lodash.flowright';
+  import compose from 'lodash.flowright';
   ```
 
 - Render prop components (`Query`, `Mutation` and `Subscription`) can no longer be extended. In other words, this is no longer possible:
