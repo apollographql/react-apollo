@@ -498,6 +498,226 @@ describe('useQuery Hook', () => {
         });
       }
     );
+
+    it('should render errors (different error messages) with loading done on refetch', async () => {
+      const query = gql`
+        query SomeQuery {
+          stuff {
+            thing
+          }
+        }
+      `;
+
+      const mocks = [
+        {
+          request: { query },
+          result: {
+            errors: [new GraphQLError('an error 1')]
+          }
+        },
+        {
+          request: { query },
+          result: {
+            errors: [new GraphQLError('an error 2')]
+          }
+        }
+      ];
+
+      let renderCount = 0;
+      function App() {
+        const { loading, error, refetch } = useQuery(query, {
+          notifyOnNetworkStatusChange: true
+        });
+
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            expect(error).toBeUndefined();
+            break;
+          case 1:
+            expect(loading).toBeFalsy();
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: an error 1');
+            setTimeout(() => {
+              // catch here to avoid failing due to 'uncaught promise rejection'
+              refetch().catch(() => {});
+            });
+            break;
+          case 2:
+            expect(loading).toBeTruthy();
+            break;
+          case 3:
+            expect(loading).toBeFalsy();
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: an error 2');
+            break;
+          default: // Do nothing
+        }
+
+        renderCount += 1;
+        return null;
+      }
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <App />
+        </MockedProvider>
+      );
+
+      await wait(() => {
+        expect(renderCount).toBe(4);
+      });
+    });
+
+    it('should render errors (same error messages) with loading done on refetch', async () => {
+      const query = gql`
+        query SomeQuery {
+          stuff {
+            thing
+          }
+        }
+      `;
+
+      const mocks = [
+        {
+          request: { query },
+          result: {
+            errors: [new GraphQLError('same error message')]
+          }
+        },
+        {
+          request: { query },
+          result: {
+            errors: [new GraphQLError('same error message')]
+          }
+        }
+      ];
+
+      let renderCount = 0;
+      function App() {
+        const { loading, error, refetch } = useQuery(query, {
+          notifyOnNetworkStatusChange: true
+        });
+
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            expect(error).toBeUndefined();
+            break;
+          case 1:
+            expect(loading).toBeFalsy();
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: same error message');
+            setTimeout(() => {
+              // catch here to avoid failing due to 'uncaught promise rejection'
+              refetch().catch(() => {});
+            });
+            break;
+          case 2:
+            expect(loading).toBeTruthy();
+            break;
+          case 3:
+            expect(loading).toBeFalsy();
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: same error message');
+            break;
+          default: // Do nothing
+        }
+
+        renderCount += 1;
+        return null;
+      }
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <App />
+        </MockedProvider>
+      );
+
+      await wait(() => {
+        expect(renderCount).toBe(4);
+      });
+    });
+
+    it('should render both success and errors (same error messages) with loading done on refetch', async () => {
+      const mocks = [
+        {
+          request: { query: CAR_QUERY },
+          result: {
+            errors: [new GraphQLError('same error message')]
+          }
+        },
+        {
+          request: { query: CAR_QUERY },
+          result: {
+            data: CAR_RESULT_DATA
+          }
+        },
+        {
+          request: { query: CAR_QUERY },
+          result: {
+            errors: [new GraphQLError('same error message')]
+          }
+        }
+      ];
+
+      let renderCount = 0;
+      function App() {
+        const { loading, data, error, refetch } = useQuery(CAR_QUERY, {
+          notifyOnNetworkStatusChange: true
+        });
+
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            expect(error).toBeUndefined();
+            break;
+          case 1:
+            expect(loading).toBeFalsy();
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: same error message');
+            setTimeout(() => {
+              // catch here to avoid failing due to 'uncaught promise rejection'
+              refetch().catch(() => {});
+            });
+            break;
+          case 2:
+            expect(loading).toBeTruthy();
+            break;
+          case 3:
+            expect(loading).toBeFalsy();
+            expect(error).toBeUndefined();
+            expect(data).toEqual(CAR_RESULT_DATA);
+            setTimeout(() => {
+              // catch here to avoid failing due to 'uncaught promise rejection'
+              refetch().catch(() => {});
+            });
+            break;
+          case 4:
+            expect(loading).toBeTruthy();
+            break;
+          case 5:
+            expect(loading).toBeFalsy();
+            expect(error).toBeDefined();
+            expect(error!.message).toEqual('GraphQL error: same error message');
+            break;
+          default: // Do nothing
+        }
+
+        renderCount += 1;
+        return null;
+      }
+
+      render(
+        <MockedProvider mocks={mocks}>
+          <App />
+        </MockedProvider>
+      );
+
+      await wait(() => {
+        expect(renderCount).toBe(6);
+      });
+    });
   });
 
   describe('Pagination', () => {
