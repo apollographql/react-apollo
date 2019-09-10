@@ -59,7 +59,7 @@
     "@apollo/react-ssr": "file:../ssr",
     "jest": "24.9.0",
     "rollup": "1.20.3",
-    "tsc-watch": "2.4.0",
+    "tsc-watch": "3.0.1",
     "typescript": "3.5.3"
   }
 }
