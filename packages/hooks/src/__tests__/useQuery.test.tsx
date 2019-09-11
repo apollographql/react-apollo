@@ -254,6 +254,47 @@ describe('useQuery Hook', () => {
       );
     });
 
+    it(
+      'should not throw an error if `stopPolling` is called manually after ' +
+        'a component has unmounted (even though polling has already been ' +
+        'stopped automatically)',
+      async () => {
+        let unmount: any;
+        let renderCount = 0;
+        const Component = () => {
+          const { data, loading, stopPolling } = useQuery(CAR_QUERY, {
+            pollInterval: 10
+          });
+          switch (renderCount) {
+            case 0:
+              expect(loading).toBeTruthy();
+              break;
+            case 1:
+              expect(loading).toBeFalsy();
+              expect(data).toEqual(CAR_RESULT_DATA);
+              setTimeout(() => {
+                unmount();
+                stopPolling();
+              });
+              break;
+            default:
+          }
+          renderCount += 1;
+          return null;
+        };
+
+        unmount = render(
+          <MockedProvider mocks={CAR_MOCKS}>
+            <Component />
+          </MockedProvider>
+        ).unmount;
+
+        await wait(() => {
+          expect(renderCount).toBe(2);
+        });
+      }
+    );
+
     it('should set called to true by default', () => {
       const Component = () => {
         const { loading, called } = useQuery(CAR_QUERY);

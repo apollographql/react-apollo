@@ -2,6 +2,11 @@
 
 ## 3.1.1 (not yet released)
 
+### Improvements
+
+- Calling `startPolling` or `stopPolling` after a component has unmounted is now a no-op (instead of throwing an exception). Polling is automatically stopped when a component is unmounted, so it doesn't need to be called manually. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3485](https://github.com/apollographql/react-apollo/pull/3485)
+
 ### Bug Fixes
 
 - A fix has been applied to prevent an unchanging `loading` state when an error occurs after a refetch, that is the same as the previous error. <br/>
@@ -34,6 +39,8 @@
   [@hwillson](https://github.com/hwillson) in [#3458](https://github.com/apollographql/react-apollo/pull/3458)
 - Prevent duplicate `onCompleted` calls during the same query execution cycle. <br/>
   [@hwillson](https://github.com/hwillson) in [#3461](https://github.com/apollographql/react-apollo/pull/3461)
+- Make sure polling is stopped when a component is unmounted. <br/>
+  [@dqunbp](https://github.com/dqunbp) in [#3273](https://github.com/apollographql/react-apollo/pull/3273)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 
