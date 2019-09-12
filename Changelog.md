@@ -1,11 +1,26 @@
 # Change log
 
-## 3.1.0 (2019-09-06)
+## 3.1.1 (not yet released)
+
+### Improvements
+
+- Calling `startPolling` or `stopPolling` after a component has unmounted is now a no-op (instead of throwing an exception). Polling is automatically stopped when a component is unmounted, so it doesn't need to be called manually. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3485](https://github.com/apollographql/react-apollo/pull/3485)
 
 ### Bug Fixes
 
+- A fix has been applied to prevent an unchanging `loading` state when an error occurs after a refetch, that is the same as the previous error. <br/>
+  [@jet2jet](https://github.com/jet2jet) in [#3477](https://github.com/apollographql/react-apollo/pull/3477)
+
+## 3.1.0 (2019-09-06)
+
+### Potentially Breaking Change
+
 - Change the default query `data` state from `{}` to `undefined`. This change aligns all parts of the React Apollo query cycle so that `data` is always `undefined` if there is no data, instead of `data` being converted into an empty object. This change impacts the initial query response, initial SSR response, `data` value when errors occur, `data` value when skipping, etc. All of these areas are now aligned to only ever return a value for `data` if there really is a value to return (instead of making it seem like there is one by converting to `{}`). <br/>
   [@hwillson](https://github.com/hwillson) in [#3388](https://github.com/apollographql/react-apollo/pull/3388)
+
+### Bug Fixes
+
 - Adds support for the `skip` option when using `useSubscription`. <br/>
   [@n1ru4l](https://github.com/n1ru4l) in [#3356](https://github.com/apollographql/react-apollo/pull/3356)
 - Makes sure `refetch`, `fetchMore`, `updateQuery`, `startPolling`, `stopPolling`, and `subscribeToMore` maintain a stable identity when they're passed back alongside query results. <br/>
@@ -24,6 +39,8 @@
   [@hwillson](https://github.com/hwillson) in [#3458](https://github.com/apollographql/react-apollo/pull/3458)
 - Prevent duplicate `onCompleted` calls during the same query execution cycle. <br/>
   [@hwillson](https://github.com/hwillson) in [#3461](https://github.com/apollographql/react-apollo/pull/3461)
+- Make sure polling is stopped when a component is unmounted. <br/>
+  [@dqunbp](https://github.com/dqunbp) in [#3273](https://github.com/apollographql/react-apollo/pull/3273)
 - Documentation fixes. <br/>
   [@SeanRoberts](https://github.com/SeanRoberts) in [#3380](https://github.com/apollographql/react-apollo/pull/3380)
 

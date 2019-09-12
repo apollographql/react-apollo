@@ -298,7 +298,12 @@ export class QueryData<TData, TVariables> extends OperationData {
       error: error => {
         this.resubscribeToQuery();
         if (!error.hasOwnProperty('graphQLErrors')) throw error;
-        if (!isEqual(error, this.previousData.error)) {
+
+        const previousResult = this.previousData.result;
+        if (
+          (previousResult && previousResult.loading) ||
+          !isEqual(error, this.previousData.error)
+        ) {
           this.previousData.error = error;
           this.forceUpdate();
         }
@@ -462,10 +467,17 @@ export class QueryData<TData, TVariables> extends OperationData {
     ) => TData
   ) => this.currentObservable.query!.updateQuery(mapFn);
 
-  private obsStartPolling = (pollInterval: number) =>
-    this.currentObservable.query!.startPolling(pollInterval);
+  private obsStartPolling = (pollInterval: number) => {
+    this.currentObservable &&
+      this.currentObservable.query! &&
+      this.currentObservable.query!.startPolling(pollInterval);
+  };
 
-  private obsStopPolling = () => this.currentObservable.query!.stopPolling();
+  private obsStopPolling = () => {
+    this.currentObservable &&
+      this.currentObservable.query! &&
+      this.currentObservable.query!.stopPolling();
+  };
 
   private obsSubscribeToMore = <
     TSubscriptionData = TData,
