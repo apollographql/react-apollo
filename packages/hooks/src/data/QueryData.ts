@@ -418,11 +418,13 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private handleErrorOrCompleted() {
+    // this value is undefined when fast-refreshing hooks
+    if (!this.currentObservable.query) return;
     const {
       data,
       loading,
       error
-    } = this.currentObservable.query!.getCurrentResult();
+    } = this.currentObservable.query.getCurrentResult();
 
     if (!loading) {
       const { query, variables, onCompleted, onError } = this.getOptions();
