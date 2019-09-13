@@ -6,6 +6,8 @@
 
 - Calling `startPolling` or `stopPolling` after a component has unmounted is now a no-op (instead of throwing an exception). Polling is automatically stopped when a component is unmounted, so it doesn't need to be called manually. <br/>
   [@hwillson](https://github.com/hwillson) in [#3485](https://github.com/apollographql/react-apollo/pull/3485)
+- Allow `ignoreResults` to be controlled through `graphql` and `withMutation` options. <br/>
+  [@tim-stasse](https://github.com/tim-stasse) in [#3431](https://github.com/apollographql/react-apollo/pull/3431) 
 
 ### Bug Fixes
 
