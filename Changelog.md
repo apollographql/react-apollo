@@ -17,6 +17,8 @@
 
 - A fix has been applied to prevent an unchanging `loading` state when an error occurs after a refetch, that is the same as the previous error. <br/>
   [@jet2jet](https://github.com/jet2jet) in [#3477](https://github.com/apollographql/react-apollo/pull/3477)
+- Add back in the removed `ChildDataProps` and `ChildMutateProps` types. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3495](https://github.com/apollographql/react-apollo/pull/3495)
 
 ## 3.1.0 (2019-09-06)
 

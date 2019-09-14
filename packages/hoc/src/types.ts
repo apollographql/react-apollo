@@ -63,6 +63,18 @@ export type ChildProps<
   Partial<DataProps<TData, TGraphQLVariables>> &
   Partial<MutateProps<TData, TGraphQLVariables>>;
 
+export type ChildDataProps<
+  TProps = {},
+  TData = {},
+  TGraphQLVariables = OperationVariables
+> = TProps & DataProps<TData, TGraphQLVariables>;
+
+export type ChildMutateProps<
+  TProps = {},
+  TData = {},
+  TGraphQLVariables = OperationVariables
+> = TProps & MutateProps<TData, TGraphQLVariables>;
+
 export interface OptionProps<
   TProps = any,
   TData = any,
