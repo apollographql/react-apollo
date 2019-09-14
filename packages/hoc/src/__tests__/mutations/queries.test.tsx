@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, wait } from '@testing-library/react';
 import gql from 'graphql-tag';
 import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
 import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
@@ -314,5 +314,83 @@ describe('graphql(mutation) query integration', () => {
         </Boundary>
       </ApolloProvider>
     );
+  });
+
+  it('should be able to override the internal `ignoreResults` setting', async () => {
+    const mutation: DocumentNode = gql`
+      mutation($signature: String!) {
+        mini: submitMiniCoverS3DirectUpload(signature: $signature) {
+          __typename
+          id
+          cover(maxWidth: 600, maxHeight: 400)
+        }
+      }
+    `;
+
+    const mutationData = {
+      mini: {
+        id: 1,
+        cover: 'image2',
+        __typename: 'Mini'
+      }
+    };
+
+    type MutationData = typeof mutationData;
+
+    interface MutationVariables {
+      signature: string;
+    }
+
+    const link = mockSingleLink({
+      request: { query: mutation, variables: { signature: '1233' } },
+      result: { data: mutationData }
+    });
+
+    const cache = new Cache({ addTypename: false });
+    const client = new ApolloClient({ link, cache });
+
+    let renderCount = 0;
+    const MutationContainer = graphql<MutationVariables, MutationData>(
+      mutation,
+      { options: { ignoreResults: false } }
+    )(
+      class extends React.Component<
+        ChildProps<MutationVariables, MutationData>
+      > {
+        render() {
+          switch (renderCount) {
+            case 0:
+              expect(this.props.result!.loading).toBeFalsy();
+              setTimeout(() => {
+                this.props.mutate!().then(result => {
+                  expect(stripSymbols(result && result.data)).toEqual(
+                    mutationData
+                  );
+                });
+              });
+              break;
+            case 1:
+              expect(this.props.result!.loading).toBeTruthy();
+              break;
+            case 2:
+              expect(this.props.result!.loading).toBeFalsy();
+            default: // Do nothing
+          }
+
+          renderCount += 1;
+          return null;
+        }
+      }
+    );
+
+    render(
+      <ApolloProvider client={client}>
+        <MutationContainer signature="1233" />
+      </ApolloProvider>
+    );
+
+    await wait(() => {
+      expect(renderCount).toBe(3);
+    });
   });
 });
