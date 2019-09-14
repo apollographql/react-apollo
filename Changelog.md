@@ -19,6 +19,8 @@
   [@jet2jet](https://github.com/jet2jet) in [#3477](https://github.com/apollographql/react-apollo/pull/3477)
 - Add back in the removed `ChildDataProps` and `ChildMutateProps` types. <br/>
   [@hwillson](https://github.com/hwillson) in [#3495](https://github.com/apollographql/react-apollo/pull/3495)
+- Add empty object type to `data` in `QueryFunctionOptions.onCompleted`. <br />
+  [@G07cha](https://github.com/g07cha) in [#3496](https://github.com/apollographql/react-apollo/pull/3496)
 
 ## 3.1.0 (2019-09-06)
 
