@@ -48,6 +48,8 @@ export {
   DataProps,
   MutateProps,
   ChildProps,
+  ChildDataProps,
+  ChildMutateProps,
   OptionProps,
   OperationOption,
   WithApolloClient
