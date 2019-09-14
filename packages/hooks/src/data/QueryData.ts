@@ -418,11 +418,10 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private handleErrorOrCompleted() {
-    const {
-      data,
-      loading,
-      error
-    } = this.currentObservable.query!.getCurrentResult();
+    const obsQuery = this.currentObservable.query;
+    if (!obsQuery) return;
+
+    const { data, loading, error } = obsQuery.getCurrentResult();
 
     if (!loading) {
       const { query, variables, onCompleted, onError } = this.getOptions();
