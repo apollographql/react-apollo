@@ -19,6 +19,8 @@
   [@jet2jet](https://github.com/jet2jet) in [#3477](https://github.com/apollographql/react-apollo/pull/3477)
 - Add back in the removed `ChildDataProps` and `ChildMutateProps` types. <br/>
   [@hwillson](https://github.com/hwillson) in [#3495](https://github.com/apollographql/react-apollo/pull/3495)
+- Make sure `onCompleted` is called each time a `useLazyQuery` based query completes, after the execution function is called. <br/>
+  [@hwillson](https://github.com/hwillson) in [#3497](https://github.com/apollographql/react-apollo/pull/3497)
 
 ## 3.1.0 (2019-09-06)
 
