@@ -260,7 +260,12 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   private startQuerySubscription() {
-    if (this.currentObservable.subscription || this.getOptions().skip || this.getOptions().ssr === false) return;
+    if (
+      this.currentObservable.subscription ||
+      this.getOptions().skip ||
+      this.getOptions().ssr === false
+    )
+      return;
 
     const obsQuery = this.currentObservable.query!;
     this.currentObservable.subscription = obsQuery.subscribe({

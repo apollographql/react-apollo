@@ -62,6 +62,32 @@ describe('useQuery Hook SSR', () => {
     });
   });
 
+  it('should not execute on SSR when ssr on query equals false', () => {
+    const Component = () => {
+      const { data, loading } = useQuery(CAR_QUERY, { ssr: false });
+      if (!loading) {
+        expect(data).toEqual({});
+        const { make, model, vin } = data.cars[0];
+        return (
+          <div>
+            {make}, {model}, {vin}
+          </div>
+        );
+      }
+      return null;
+    };
+
+    const app = (
+      <MockedProvider mocks={CAR_MOCKS}>
+        <Component />
+      </MockedProvider>
+    );
+
+    return renderToStringWithData(app).then(markup => {
+      expect(markup).toBe('');
+    });
+  });
+
   it('should initialize data as `undefined` when loading', () => {
     const Component = () => {
       const { data, loading } = useQuery(CAR_QUERY);
