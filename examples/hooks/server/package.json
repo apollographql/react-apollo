@@ -5,7 +5,7 @@
     "apollo-server": "2.9.3",
     "apollo-server-express": "2.9.3",
     "express": "4.17.1",
-    "graphql": "14.5.4",
+    "graphql": "14.5.7",
     "subscriptions-transport-ws": "0.9.16"
   },
   "license": "MIT",
