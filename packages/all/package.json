@@ -30,7 +30,7 @@
     "build": "npx tsc -p ./config",
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "predeploy": "npm run build",
-    "deploy": "npm publish"
+    "deploy": "npm publish --tag alpha"
   },
   "peerDependencies": {
     "@types/react": "^16.8.0",
