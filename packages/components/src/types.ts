@@ -1,14 +1,14 @@
 import {
   OperationVariables,
-  QueryFunctionOptions,
   QueryResult,
+  QueryFunctionOptions,
   BaseMutationOptions,
   MutationFunction,
   MutationResult,
-  SubscriptionResult
+  SubscriptionResult,
+  BaseSubscriptionOptions
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
-import { BaseSubscriptionOptions } from '@apollo/react-common';
 
 export interface QueryComponentOptions<
   TData = any,
