@@ -2,7 +2,7 @@ import React from 'react';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider } from '@apollo/react-testing';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/react-common';
 import { renderToStringWithData } from '@apollo/react-ssr';
 
 describe('useQuery Hook SSR', () => {

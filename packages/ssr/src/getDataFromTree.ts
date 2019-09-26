@@ -1,6 +1,5 @@
 import React from 'react';
-import { getApolloContext } from '@apollo/react-common';
-import { RenderPromises } from '@apollo/react-hooks';
+import { getApolloContext, RenderPromises } from '@apollo/react-common';
 
 export function getDataFromTree(
   tree: React.ReactNode,
