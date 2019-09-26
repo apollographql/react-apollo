@@ -41,19 +41,19 @@
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
-    "@apollo/react-hooks": "file:../hooks",
     "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "@apollo/react-testing": "file:../testing",
+    "jest": "24.9.0",
+    "rollup": "1.20.3",
+    "tsc-watch": "3.0.1",
+    "typescript": "3.5.3"
   },
   "files": [
     "lib"
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "jest": "24.9.0",
-    "rollup": "1.20.3",
-    "tsc-watch": "3.0.1",
-    "typescript": "3.5.3"
   }
 }
