@@ -1,12 +1,14 @@
 import React from 'react';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { ApolloProvider } from '@apollo/react-common';
 import { MockedProvider, mockSingleLink } from '@apollo/react-testing';
-import { useQuery } from '@apollo/react-hooks';
+import {
+  ApolloProvider,
+  useQuery,
+  ApolloClient,
+  InMemoryCache
+} from '@apollo/react-common';
 import { renderToStringWithData } from '@apollo/react-ssr';
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
 import { render, wait } from '@testing-library/react';
 
 describe('useQuery Hook SSR', () => {
