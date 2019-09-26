@@ -2,11 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import { ApolloLink } from 'apollo-link';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps, DataProps } from '@apollo/react-hoc';
 
@@ -617,7 +619,7 @@ describe('queries', () => {
     const Container = graphql<{}, Data>(query)(
       class Container extends React.Component<ChildProps<{}, Data>> {
         componentDidUpdate() {
-          const queries = client.queryManager!.queryStore.getStore();
+          const queries = (client as any).queryManager!.queryStore.getStore();
           const queryIds = Object.keys(queries);
           expect(queryIds.length).toEqual(1);
           const queryFirst = queries[queryIds[0]];

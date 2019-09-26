@@ -1,5 +1,9 @@
 import React from 'react';
-import ApolloClient from 'apollo-client';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import { ApolloLink, Observable } from 'apollo-link';
 import {
   print,
@@ -11,10 +15,8 @@ import {
   GraphQLID,
   DocumentNode
 } from 'graphql';
-import { ApolloProvider } from '@apollo/react-common';
 import { renderToStringWithData } from '@apollo/react-ssr';
 import gql from 'graphql-tag';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 const planetMap = new Map([['Planet:1', { id: 'Planet:1', name: 'Tatooine' }]]);

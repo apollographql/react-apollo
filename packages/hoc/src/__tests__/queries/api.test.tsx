@@ -1,11 +1,13 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
-import { ApolloProvider } from '@apollo/react-common';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] api', () => {

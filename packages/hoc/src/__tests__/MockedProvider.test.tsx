@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { InMemoryCache } from '@apollo/react-common';
 import gql from 'graphql-tag';
 import { MockedProvider, MockedResponse } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';

@@ -1,10 +1,14 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  MutationUpdaterFn,
+  InMemoryCache as Cache,
+  ApolloProvider,
+  MutationFunction
+} from '@apollo/react-common';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider, MutationFunction } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
@@ -76,7 +80,9 @@ describe('graphql(mutation) update queries', () => {
       let todoUpdateQueryCount = 0;
       const update: MutationUpdaterFn = (proxy, result) => {
         todoUpdateQueryCount++;
-        const data = proxy.readQuery<QueryData>({ query }); // read from cache
+        const data = JSON.parse(
+          JSON.stringify(proxy.readQuery<QueryData>({ query })) // read from cache
+        );
         data!.todo_list.tasks.push(result.data!.createTodo); // update value
         proxy.writeQuery({ query, data }); // write to cache
       };
@@ -144,16 +150,10 @@ describe('graphql(mutation) update queries', () => {
                   break;
                 case 2:
                   expect(queryMountCount).toBe(1);
-                  expect(queryUnmountCount).toBe(1);
                   expect(stripSymbols(this.props.data!.todo_list)).toEqual({
                     id: '123',
                     title: 'how to apollo',
                     tasks: [
-                      {
-                        id: '99',
-                        text: 'This one was created with a mutation.',
-                        completed: true
-                      },
                       {
                         id: '99',
                         text: 'This one was created with a mutation.',
@@ -227,8 +227,6 @@ describe('graphql(mutation) update queries', () => {
                 </ApolloProvider>
               );
 
-              resolve();
-
               setTimeout(() => {
                 mutationUnmount();
                 query2Unmount();
@@ -237,7 +235,7 @@ describe('graphql(mutation) update queries', () => {
                   expect(todoUpdateQueryCount).toBe(2);
                   expect(queryMountCount).toBe(2);
                   expect(queryUnmountCount).toBe(2);
-                  expect(queryRenderCount).toBe(3);
+                  expect(queryRenderCount).toBe(4);
                   resolve();
                 } catch (error) {
                   reject(error);

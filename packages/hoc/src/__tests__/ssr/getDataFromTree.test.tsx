@@ -1,16 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/server';
-import ApolloClient from 'apollo-client';
-import { ApolloProvider } from '@apollo/react-common';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import gql from 'graphql-tag';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';
 import { Query } from '@apollo/react-components';
-import {
-  getDataFromTree,
-  getMarkupFromTree
-} from '@apollo/react-ssr';
+import { getDataFromTree, getMarkupFromTree } from '@apollo/react-ssr';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps, DataValue } from '@apollo/react-hoc';
 
@@ -552,7 +551,7 @@ describe('SSR', () => {
         const initialState = cache.extract();
         expect(initialState).toBeTruthy();
         expect(
-          initialState['$ROOT_QUERY.currentUser({"id":"1"})']
+          initialState.ROOT_QUERY!['currentUser({"id":"1"})']
         ).toBeTruthy();
       });
     });
@@ -629,7 +628,7 @@ describe('SSR', () => {
           const initialState = cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":"1"})']
+            initialState.ROOT_QUERY!['currentUser({"id":"1"})']
           ).toBeTruthy();
           done();
         })
@@ -748,7 +747,7 @@ describe('SSR', () => {
           const initialState = apolloClient.cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":"1"})']
+            initialState.ROOT_QUERY!['currentUser({"id":"1"})']
           ).toBeTruthy();
           done();
         })

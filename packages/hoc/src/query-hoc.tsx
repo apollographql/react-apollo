@@ -86,8 +86,8 @@ export function withQuery<
               if (shouldSkip) {
                 return (
                   <WrappedComponent
-                    {...props as TProps}
-                    {...{} as TChildProps}
+                    {...(props as TProps)}
+                    {...({} as TChildProps)}
                   />
                 );
               }
@@ -116,8 +116,8 @@ export function withQuery<
 
               return (
                 <WrappedComponent
-                  {...props as TProps}
-                  {...childProps as TChildProps}
+                  {...(props as TProps)}
+                  {...(childProps as TChildProps)}
                 />
               );
             }}

@@ -1,12 +1,14 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import { ApolloLink } from 'apollo-link';
 import { DocumentNode } from 'graphql';
 import { mockSingleLink } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
 import { graphql, withApollo, ChildProps, DataValue } from '@apollo/react-hoc';
 
 function compose(...funcs: Function[]) {
