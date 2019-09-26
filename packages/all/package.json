@@ -39,8 +39,8 @@
     "react-dom": "^16.8.0"
   },
   "devDependencies": {
-    "rollup": "1.20.3",
-    "typescript": "3.5.3"
+    "rollup": "1.21.4",
+    "typescript": "3.6.3"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
