@@ -1,10 +1,12 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import { ApolloProvider } from '@apollo/react-common';
 import { stripSymbols, createClient } from '@apollo/react-testing';
-import { NormalizedCacheObject } from 'apollo-cache-inmemory';
-import { ApolloClient } from 'apollo-client';
+import {
+  ApolloClient,
+  NormalizedCacheObject,
+  ApolloProvider
+} from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 

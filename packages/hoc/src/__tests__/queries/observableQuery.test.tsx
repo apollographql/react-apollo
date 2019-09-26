@@ -1,10 +1,12 @@
 import React from 'react';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
@@ -39,12 +41,16 @@ describe('[queries] observableQuery', () => {
     let count = 0;
 
     const assert1 = () => {
-      const keys = Array.from((client.queryManager as any).queries.keys());
+      const keys = Array.from(
+        ((client as any).queryManager as any).queries.keys()
+      );
       expect(keys).toEqual(['1']);
     };
 
     const assert2 = () => {
-      const keys = Array.from((client.queryManager as any).queries.keys());
+      const keys = Array.from(
+        ((client as any).queryManager as any).queries.keys()
+      );
       expect(keys).toEqual(['1']);
     };
 

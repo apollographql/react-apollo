@@ -5,9 +5,7 @@ import {
   FetchMoreOptions,
   UpdateQueryOptions,
   FetchMoreQueryOptions,
-  SubscribeToMoreOptions
-} from 'apollo-client';
-import {
+  SubscribeToMoreOptions,
   OperationVariables,
   MutationFunction,
   BaseQueryOptions,
