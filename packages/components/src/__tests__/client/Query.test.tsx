@@ -1,7 +1,11 @@
 import React from 'react';
-import ApolloClient, { ApolloError, NetworkStatus } from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { ApolloProvider } from '@apollo/react-common';
+import {
+  ApolloClient,
+  ApolloError,
+  NetworkStatus,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import {
   MockedProvider,
   mockSingleLink,

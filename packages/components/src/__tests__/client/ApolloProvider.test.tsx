@@ -1,11 +1,13 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import { ApolloProvider } from '@apollo/react-common';
 import { Query } from '@apollo/react-components';
-import { useQuery } from '@apollo/react-hooks';
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  useQuery
+} from '@apollo/react-common';
 
 describe('ApolloProvider', () => {
   afterEach(cleanup);

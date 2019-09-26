@@ -1,5 +1,4 @@
-import { OperationVariables } from '@apollo/react-common';
-import { useSubscription } from '@apollo/react-hooks';
+import { OperationVariables, useSubscription } from '@apollo/react-common';
 import PropTypes from 'prop-types';
 
 import { SubscriptionComponentOptions } from './types';
@@ -18,6 +17,6 @@ export namespace Subscription {
     children: PropTypes.func,
     onSubscriptionData: PropTypes.func,
     onSubscriptionComplete: PropTypes.func,
-    shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+    shouldResubscribe: PropTypes.oneOfType([PropTypes.func, PropTypes.bool])
   };
 }

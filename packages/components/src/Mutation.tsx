@@ -1,5 +1,4 @@
-import { OperationVariables } from '@apollo/react-common';
-import { useMutation } from '@apollo/react-hooks';
+import { OperationVariables, useMutation } from '@apollo/react-common';
 import PropTypes from 'prop-types';
 
 import { MutationComponentOptions } from './types';
