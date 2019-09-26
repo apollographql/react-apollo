@@ -1,7 +1,10 @@
 const config = require('./jest.config');
 
 config.moduleNameMapper = {
-  '^@apollo\\/react-([^/]+)': '<rootDir>/$1/lib/react-$1.cjs.js',
+  '^@apollo\\/react-components':
+    '<rootDir>/components/lib/react-components.cjs.js',
+  '^@apollo\\/react-hoc': '<rootDir>/hoc/lib/react-hoc.cjs.js',
+  '^@apollo\\/react-ssr': '<rootDir>/ssr/lib/react-ssr.cjs.js',
 };
 
 module.exports = config;
