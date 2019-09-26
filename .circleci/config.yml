@@ -5,7 +5,7 @@ jobs:
     docker: [{ image: 'circleci/node:10' }]
     steps:
       - checkout
-      - run: npm i
+      - run: npm ci
       - run:
           name: Tests - ESM
           command: npm run test:ci
@@ -20,7 +20,7 @@ jobs:
     docker: [{ image: 'circleci/node:10' }]
     steps:
       - checkout
-      - run: npm i
+      - run: npm ci
       - run:
           name: Tests - CJS
           command: npm run test:cjs:ci
@@ -35,7 +35,7 @@ jobs:
     docker: [{ image: 'circleci/node:10' }]
     steps:
       - checkout
-      - run: npm i
+      - run: npm ci
       - run:
           name: Tests - CJS
           command: npm run test:umd:ci
@@ -50,7 +50,7 @@ jobs:
     docker: [{ image: 'circleci/node:8' }]
     steps:
       - checkout
-      - run: npm i
+      - run: npm ci
       - run: npm run bundlesize
 
 workflows:
