@@ -34,16 +34,18 @@
   },
   "peerDependencies": {
     "@types/react": "^16.8.0",
-    "apollo-client": "^2.6.4",
     "graphql": "^14.3.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
+  },
+  "devDependencies": {
+    "rollup": "1.20.3",
+    "typescript": "3.5.3"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
     "@apollo/react-components": "file:../components",
     "@apollo/react-hoc": "file:../hoc",
-    "@apollo/react-hooks": "file:../hooks",
     "@apollo/react-ssr": "file:../ssr"
   },
   "files": [
@@ -51,9 +53,5 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "rollup": "1.25.2",
-    "typescript": "3.6.4"
   }
 }
