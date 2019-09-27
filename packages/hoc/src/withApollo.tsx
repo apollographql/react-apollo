@@ -51,7 +51,7 @@ export function withApollo<TProps extends WithApolloClient<{}>, TResult = any>(
                 ? this.setWrappedInstance
                 : undefined
             });
-            return <WrappedComponent {...props} />;
+            return <WrappedComponent {...props as any} />;
           }}
         </ApolloConsumer>
       );
