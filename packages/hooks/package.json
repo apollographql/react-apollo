@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-hooks",
   "description": "React Apollo Hooks.",
-  "version": "3.1.2-beta.0",
+  "version": "3.1.2-beta.1",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
