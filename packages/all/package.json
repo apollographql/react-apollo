@@ -1,7 +1,7 @@
 {
   "name": "react-apollo",
   "description": "React Apollo Hooks, Components, and HOC.",
-  "version": "3.1.1",
+  "version": "3.1.2-beta.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -30,7 +30,7 @@
     "build": "npx tsc -p ./config",
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "predeploy": "npm run build",
-    "deploy": "npm publish"
+    "deploy": "npm publish --tag beta"
   },
   "peerDependencies": {
     "@types/react": "^16.8.0",
