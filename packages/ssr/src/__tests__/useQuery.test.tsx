@@ -1,9 +1,13 @@
 import React from 'react';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { MockedProvider } from '@apollo/react-testing';
+import { ApolloProvider } from '@apollo/react-common';
+import { MockedProvider, mockSingleLink } from '@apollo/react-testing';
 import { useQuery } from '@apollo/react-hooks';
 import { renderToStringWithData } from '@apollo/react-ssr';
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { render, wait } from '@testing-library/react';
 
 describe('useQuery Hook SSR', () => {
   const CAR_QUERY: DocumentNode = gql`
@@ -80,13 +84,13 @@ describe('useQuery Hook SSR', () => {
     return renderToStringWithData(app);
   });
 
-  it('should skip SSR if `ssr` option is `false`', async () => {
+  it('should skip SSR tree rendering if `ssr` option is `false`', async () => {
     let renderCount = 0;
     const Component = () => {
       const { data, loading } = useQuery(CAR_QUERY, { ssr: false });
       renderCount += 1;
+
       if (!loading) {
-        expect(data).toEqual(CAR_RESULT_DATA);
         const { make } = data.cars[0];
         return <div>{make}</div>;
       }
@@ -104,4 +108,62 @@ describe('useQuery Hook SSR', () => {
       expect(result).toEqual('');
     });
   });
+
+  it(
+    'should skip both SSR tree rendering and SSR component rendering if ' +
+      '`ssr` option is `false` and `ssrMode` is `true`',
+    async () => {
+      const link = mockSingleLink({
+        request: { query: CAR_QUERY },
+        result: { data: CAR_RESULT_DATA }
+      });
+
+      const client = new ApolloClient({
+        cache: new InMemoryCache(),
+        link,
+        ssrMode: true
+      });
+
+      let renderCount = 0;
+      const Component = () => {
+        const { data, loading } = useQuery(CAR_QUERY, { ssr: false });
+
+        let content = null;
+        switch (renderCount) {
+          case 0:
+            expect(loading).toBeTruthy();
+            expect(data).toBeUndefined();
+            break;
+          case 1: // FAIL; should not render a second time
+          default:
+        }
+
+        renderCount += 1;
+        return content;
+      };
+
+      const app = (
+        <ApolloProvider client={client}>
+          <Component />
+        </ApolloProvider>
+      );
+
+      await renderToStringWithData(app).then(result => {
+        expect(renderCount).toBe(1);
+        expect(result).toEqual('');
+      });
+
+      renderCount = 0;
+
+      render(
+        <ApolloProvider client={client}>
+          <Component />
+        </ApolloProvider>
+      );
+
+      await wait(() => {
+        expect(renderCount).toBe(1);
+      });
+    }
+  );
 });

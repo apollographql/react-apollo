@@ -1,7 +1,8 @@
 import { renderToString } from 'react-dom/server';
 import { onPageLoad } from 'meteor/server-render';
 import { ApolloClient } from 'apollo-client';
-import { getMarkupFromTree, ApolloProvider } from '@apollo/react-hooks';
+import { ApolloProvider } from '@apollo/react-hooks';
+import { getMarkupFromTree } from '@apollo/react-ssr';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
 import { WebApp } from 'meteor/webapp';
