@@ -1,5 +1,12 @@
 # Change log
 
+## 3.1.2 (not yet released)
+
+### Bug Fixes
+
+- Make sure SSR is fully disabled when using `ssr: false` and `ssrMode: true`. <br/>
+  [@maapteh](https://github.com/maapteh) in [#3515](https://github.com/apollographql/react-apollo/pull/3515)
+
 ## 3.1.1 (2019-09-15)
 
 ### Improvements
