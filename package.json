@@ -17,7 +17,7 @@
     "test:umd:ci": "npx jest --config ./config/jest.umd.config.js --ci --maxWorkers=2 --reporters=default --reporters=jest-junit --silent",
     "bundlesize": "npx lerna run build && bundlesize",
     "prettier": "npx prettier --config ./config/prettier.config.js --write \"./**/*.{js,jsx,ts*,md,graphql,json}\"",
-    "deploy": "npx lerna publish --dist-tag beta",
+    "deploy": "npx lerna publish",
     "clean": "rm -Rf ./node_modules ./meta && npx lerna exec -- npm run clean"
   },
   "dependencies": {

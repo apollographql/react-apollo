@@ -29,7 +29,7 @@
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta",
+    "deploy": "npm publish",
     "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc",
     "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc --watch",
     "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hoc",
