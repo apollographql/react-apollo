@@ -1,5 +1,14 @@
 # Change log
 
+## 3.1.2 (not yet released)
+
+### Bug Fixes
+
+- Make sure SSR is fully disabled when using `ssr: false` and `ssrMode: true`. <br/>
+  [@maapteh](https://github.com/maapteh) in [#3515](https://github.com/apollographql/react-apollo/pull/3515)
+- Fix `MockLink`'s broken `newData` function handling.  <br/>
+  [@pawelkleczek](https://github.com/pawelkleczek) in [#3539](https://github.com/apollographql/react-apollo/pull/3539) 
+
 ## 3.1.1 (2019-09-15)
 
 ### Improvements
