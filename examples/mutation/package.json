@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@apollo/react-testing": "3.1.2",
-    "@testing-library/react": "9.2.0"
+    "@testing-library/react": "9.3.0"
   },
   "browserslist": [
     ">0.2%",
