@@ -71,7 +71,6 @@ export class MutationData<
       })
       .catch((error: ApolloError) => {
         this.onMutationError(error, mutationId);
-        if (!this.getOptions().onError) throw error;
       });
   };
 
