@@ -11,7 +11,7 @@ import {
   defaultMapPropsToOptions,
   defaultMapPropsToSkip
 } from './hoc-utils';
-import { QueryOption, QueryOptionProps, DataProps } from './types';
+import { OperationOption, QueryOptionProps, DataProps } from './types';
 
 export function withQuery<
   TProps extends TGraphQLVariables | {} = {},
@@ -20,11 +20,12 @@ export function withQuery<
   TChildProps = DataProps<TData, TGraphQLVariables>
 >(
   document: DocumentNode,
-  operationOptions: QueryOption<
+  operationOptions: OperationOption<
     TProps,
     TData,
     TGraphQLVariables,
-    TChildProps
+    TChildProps,
+    QueryOptionProps<TProps, TData, TGraphQLVariables>
   > = {}
 ) {
   // this is memoized so if coming from `graphql` there is nearly no extra cost

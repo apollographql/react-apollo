@@ -15,7 +15,7 @@ import {
   calculateVariablesFromProps,
   GraphQLBase
 } from './hoc-utils';
-import { MutateOption, MutateOptionProps, MutateProps } from './types';
+import { OperationOption, MutateOptionProps, MutateProps } from './types';
 
 export function withMutation<
   TProps extends TGraphQLVariables | {} = {},
@@ -24,11 +24,12 @@ export function withMutation<
   TChildProps = MutateProps<TData, TGraphQLVariables>
 >(
   document: DocumentNode,
-  operationOptions: MutateOption<
+  operationOptions: OperationOption<
     TProps,
     TData,
     TGraphQLVariables,
-    TChildProps
+    TChildProps,
+    MutateOptionProps<TProps, TData, TGraphQLVariables>
   > = {}
 ) {
   // this is memoized so if coming from `graphql` there is nearly no extra cost

@@ -107,7 +107,8 @@ export interface OperationOption<
   TProps,
   TData,
   TGraphQLVariables = OperationVariables,
-  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
+  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>,
+  TOptionProps = OptionProps<TProps, TData, TGraphQLVariables>
 > {
   options?:
     | BaseQueryOptions<TGraphQLVariables>
@@ -119,7 +120,7 @@ export interface OperationOption<
         | BaseMutationOptions<TData, TGraphQLVariables>
       );
   props?: (
-    props: OptionProps<TProps, TData, TGraphQLVariables>,
+    props: TOptionProps,
     lastProps?: TChildProps | void
   ) => TChildProps;
   skip?: boolean | ((props: TProps) => boolean);
@@ -127,26 +128,6 @@ export interface OperationOption<
   withRef?: boolean;
   shouldResubscribe?: (props: TProps, nextProps: TProps) => boolean;
   alias?: string;
-}
-
-export interface QueryOption<
-  TProps,
-  TData,
-  TGraphQLVariables = OperationVariables,
-  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
->
-  extends OperationOption<TProps, TData, TGraphQLVariables, TChildProps> {
-  props?: (props: QueryOptionProps<TProps, TData, TGraphQLVariables>, lastProps?: TChildProps | void) => TChildProps;
-}
-
-export interface MutateOption<
-  TProps,
-  TData,
-  TGraphQLVariables = OperationVariables,
-  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
->
-  extends OperationOption<TProps, TData, TGraphQLVariables, TChildProps> {
-  props?: (props: MutateOptionProps<TProps, TData, TGraphQLVariables>, lastProps?: TChildProps | void) => TChildProps;
 }
 
 export type WithApolloClient<P> = P & { client: ApolloClient<any> };
