@@ -15,7 +15,7 @@ import {
   calculateVariablesFromProps,
   GraphQLBase
 } from './hoc-utils';
-import { OperationOption, OptionProps, MutateProps } from './types';
+import { MutateOption, MutateOptionProps, MutateProps } from './types';
 
 export function withMutation<
   TProps extends TGraphQLVariables | {} = {},
@@ -24,7 +24,7 @@ export function withMutation<
   TChildProps = MutateProps<TData, TGraphQLVariables>
 >(
   document: DocumentNode,
-  operationOptions: OperationOption<
+  operationOptions: MutateOption<
     TProps,
     TData,
     TGraphQLVariables,
@@ -85,13 +85,13 @@ export function withMutation<
                 [resultName]: result
               } as any) as TChildProps;
               if (operationOptions.props) {
-                const newResult: OptionProps<
+                const newResult: MutateOptionProps<
                   TProps,
                   TData,
                   TGraphQLVariables
                 > = {
-                  [name]: mutate,
-                  [resultName]: result,
+                  [name as 'mutate']: mutate,
+                  [resultName as 'result']: result,
                   ownProps: props
                 };
                 childProps = operationOptions.props(newResult) as any;
