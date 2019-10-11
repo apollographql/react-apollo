@@ -447,4 +447,65 @@ describe('useLazyQuery Hook', () => {
       expect(renderCount).toBe(5);
     });
   });
+
+  it('should pass updateQuery in QueryResult', async () => {
+    const data1 = CAR_RESULT_DATA;
+    const data2 = {
+      cars: []
+    };
+    const mocks = [
+      {
+        request: {
+          query: CAR_QUERY
+        },
+        result: { data: data1 }
+      }
+    ];
+
+    let renderCount = 0;
+    const Component = () => {
+      const [execute, { loading, data, updateQuery }] = useLazyQuery(
+        CAR_QUERY,
+        {
+          fetchPolicy: 'network-only'
+        }
+      );
+      switch (renderCount) {
+        case 0:
+          expect(updateQuery).toBeDefined();
+          expect(loading).toEqual(false);
+          setTimeout(() => {
+            execute();
+          });
+          break;
+        case 1:
+          expect(loading).toEqual(true);
+          break;
+        case 2:
+          expect(loading).toEqual(false);
+          expect(data).toEqual(data1);
+          setTimeout(() => {
+            updateQuery(() => data2);
+          });
+          break;
+        case 3:
+          expect(loading).toEqual(false);
+          expect(data).toEqual(data2);
+          break;
+        default: // Do nothing
+      }
+      renderCount += 1;
+      return null;
+    };
+
+    render(
+      <MockedProvider mocks={mocks}>
+        <Component />
+      </MockedProvider>
+    );
+
+    await wait(() => {
+      expect(renderCount).toBe(4);
+    });
+  });
 });
