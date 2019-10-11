@@ -35,7 +35,7 @@ describe('useLazyQuery Hook SSR', () => {
       result: { data: CAR_RESULT_DATA }
     });
 
-    const client = new ApolloClient({
+    const apolloClient = new ApolloClient({
       cache: new InMemoryCache(),
       link,
       ssrMode: true
@@ -43,13 +43,17 @@ describe('useLazyQuery Hook SSR', () => {
 
     const Component = () => {
       let html = null;
-      const [execute, { loading, called, data }] = useLazyQuery(CAR_QUERY);
+      const [execute, { loading, called, data, client }] = useLazyQuery(
+        CAR_QUERY
+      );
 
       if (!loading && !called) {
+        expect(client).toEqual(apolloClient);
         execute();
       }
 
       if (!loading && called) {
+        expect(client).toEqual(apolloClient);
         expect(loading).toEqual(false);
         expect(data).toEqual(CAR_RESULT_DATA);
         html = <p>{data.cars[0].make}</p>;
@@ -59,7 +63,7 @@ describe('useLazyQuery Hook SSR', () => {
     };
 
     const app = (
-      <ApolloProvider client={client}>
+      <ApolloProvider client={apolloClient}>
         <Component />
       </ApolloProvider>
     );

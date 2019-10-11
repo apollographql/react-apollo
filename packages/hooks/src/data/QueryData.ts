@@ -62,6 +62,8 @@ export class QueryData<TData, TVariables> extends OperationData {
   }
 
   public executeLazy(): QueryTuple<TData, TVariables> {
+    this.refreshClient();
+
     return !this.runLazy
       ? [
           this.runLazyQuery,
@@ -69,7 +71,8 @@ export class QueryData<TData, TVariables> extends OperationData {
             loading: false,
             networkStatus: NetworkStatus.ready,
             called: false,
-            data: undefined
+            data: undefined,
+            client: this.client
           } as QueryResult<TData, TVariables>
         ]
       : [this.runLazyQuery, this.execute()];
