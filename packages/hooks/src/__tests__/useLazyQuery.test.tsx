@@ -447,4 +447,72 @@ describe('useLazyQuery Hook', () => {
       expect(renderCount).toBe(5);
     });
   });
+  it('should pass client in QueryResult', async () => {
+    const CAR_QUERY: DocumentNode = gql`
+      query AllCars($year: Int!) {
+        cars(year: $year) @client {
+          make
+          year
+        }
+      }
+    `;
+
+    const CAR_RESULT_DATA = [
+      {
+        make: 'Audi',
+        year: 2000,
+        __typename: 'Car'
+      },
+      {
+        make: 'Hyundai',
+        year: 2001,
+        __typename: 'Car'
+      }
+    ];
+
+    const apolloClient = new ApolloClient({
+      cache: new InMemoryCache(),
+      resolvers: {
+        Query: {
+          cars(_root, { year }) {
+            return CAR_RESULT_DATA.filter(car => car.year === year);
+          }
+        }
+      }
+    });
+
+    let renderCount = 0;
+    const Component = () => {
+      const [execute, { client }] = useLazyQuery(CAR_QUERY, {
+        variables: { year: 2001 }
+      });
+      switch (renderCount) {
+        case 0:
+          expect(client).toEqual(apolloClient);
+          setTimeout(() => {
+            execute();
+          });
+          break;
+        case 1:
+          expect(client).toEqual(apolloClient);
+          break;
+        case 2:
+          expect(client).toEqual(apolloClient);
+          break;
+        default: // Do nothing
+      }
+      renderCount += 1;
+      return null;
+    };
+
+    render(
+      <ApolloProvider client={apolloClient}>
+        <Component />
+      </ApolloProvider>
+    );
+
+    await wait(() => {
+      expect(renderCount).toBe(3);
+    });
+  });
 });
