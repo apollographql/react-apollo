@@ -53,7 +53,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "rollup": "1.21.4",
+    "rollup": "1.23.1",
     "typescript": "3.6.3"
   }
 }
