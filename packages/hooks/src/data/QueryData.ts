@@ -14,6 +14,7 @@ import {
   QueryResult,
   ObservableQueryFields
 } from '@apollo/react-common';
+import { invariant } from 'ts-invariant';
 
 import {
   QueryPreviousData,
@@ -69,7 +70,8 @@ export class QueryData<TData, TVariables> extends OperationData {
             loading: false,
             networkStatus: NetworkStatus.ready,
             called: false,
-            data: undefined
+            data: undefined,
+            updateQuery: this.lazyUpdateQuery
           } as QueryResult<TData, TVariables>
         ]
       : [this.runLazyQuery, this.execute()];
@@ -487,4 +489,16 @@ export class QueryData<TData, TVariables> extends OperationData {
       subscribeToMore: this.obsSubscribeToMore
     } as ObservableQueryFields<TData, TVariables>;
   }
+
+  private lazyUpdateQuery: QueryResult<
+    TData,
+    TVariables
+  >['updateQuery'] = mapFn => {
+    const { query } = this.currentObservable;
+    invariant(
+      query,
+      `updateQuery cannot be invoked if the lazy query was not executed first.`
+    );
+    return query!.updateQuery(mapFn);
+  };
 }
