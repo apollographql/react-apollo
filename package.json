@@ -65,7 +65,7 @@
     "rollup-plugin-typescript2": "0.24.3",
     "ts-jest": "24.1.0",
     "tsc-watch": "3.0.2",
-    "typescript": "3.6.3",
+    "typescript": "3.6.4",
     "zen-observable-ts": "0.8.20"
   },
   "bundlesize": [
