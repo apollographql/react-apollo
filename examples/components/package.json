@@ -14,7 +14,7 @@
     "graphql-tag": "^2.10.1",
     "react": "../../node_modules/react",
     "react-dom": "../../node_modules/react-dom",
-    "react-scripts": "3.1.2"
+    "react-scripts": "3.2.0"
   },
   "devDependencies": {
     "@apollo/react-testing": "3.1.2",

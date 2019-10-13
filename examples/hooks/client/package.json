@@ -16,7 +16,7 @@
     "graphql-tag": "^2.10.1",
     "react": "../../../node_modules/react",
     "react-dom": "../../../node_modules/react-dom",
-    "react-scripts": "3.1.2",
+    "react-scripts": "3.2.0",
     "reactstrap": "^8.0.0",
     "subscriptions-transport-ws": "^0.9.16",
     "typescript": "3.6.3"
