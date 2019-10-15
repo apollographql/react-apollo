@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-hoc",
   "description": "React Apollo `graphql` higher-order component.",
-  "version": "3.1.2-beta.1",
+  "version": "3.1.2",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -29,7 +29,7 @@
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta",
+    "deploy": "npm publish",
     "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc",
     "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc --watch",
     "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hoc",
@@ -58,8 +58,8 @@
   "devDependencies": {
     "@apollo/react-ssr": "file:../ssr",
     "jest": "24.9.0",
-    "rollup": "1.21.4",
+    "rollup": "1.23.1",
     "tsc-watch": "3.0.2",
-    "typescript": "3.6.3"
+    "typescript": "3.6.4"
   }
 }
