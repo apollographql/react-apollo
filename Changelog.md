@@ -1,5 +1,10 @@
 # Change log
 
+## 3.1.3 (2019-10-15)
+
+- Revert the changes made in [#3497](https://github.com/apollographql/react-apollo/pull/3497), which have lead to problems with `onCompleted` being called more often than necessary. <br/>
+  [@hwillson](https://github.com/hwillson) in [#TODO](https://github.com/apollographql/react-apollo/pull/TODO)
+
 ## 3.1.2 (2019-10-01)
 
 ### Bug Fixes
