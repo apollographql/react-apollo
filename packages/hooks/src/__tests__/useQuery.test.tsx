@@ -1127,7 +1127,9 @@ describe('useQuery Hook', () => {
             .mockReturnValueOnce({ data: OWNER_RESULT_DATA_WITH_NEW_CAR })
         }
       ];
+      const link = new MockLink(OWNER_MOCKS);
       const cache = new InMemoryCache();
+      const client = new ApolloClient({ link, cache });
 
       const dataSpy = jest.fn();
       const errorSpy = jest.fn();
@@ -1149,9 +1151,9 @@ describe('useQuery Hook', () => {
       };
 
       render(
-        <MockedProvider mocks={OWNER_MOCKS} cache={cache}>
+        <ApolloProvider client={client}>
           <Component />
-        </MockedProvider>
+        </ApolloProvider>
       );
 
       // Data loads as normal
@@ -1181,7 +1183,7 @@ describe('useQuery Hook', () => {
           { __typename: 'Car', id: '3' }
         ]
       };
-      cache.writeFragment({
+      client.writeFragment({
         fragment: OWNER_FRAGMENT,
         data: OWNER_FRAGMENT_DATA,
         id: 'Owner:1612'
