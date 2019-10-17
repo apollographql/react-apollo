@@ -1121,10 +1121,11 @@ describe('useQuery Hook', () => {
       const OWNER_MOCKS = [
         {
           request: { query: OWNER_QUERY, variables: {} },
-          result: jest
-            .fn()
-            .mockReturnValueOnce({ data: OWNER_RESULT_DATA })
-            .mockReturnValueOnce({ data: OWNER_RESULT_DATA_WITH_NEW_CAR })
+          result: { data: OWNER_RESULT_DATA }
+        },
+        {
+          request: { query: OWNER_QUERY, variables: {} },
+          result: { data: OWNER_RESULT_DATA_WITH_NEW_CAR }
         }
       ];
       const link = new MockLink(OWNER_MOCKS);
