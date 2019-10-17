@@ -198,7 +198,10 @@ export class QueryData<TData, TVariables> extends OperationData {
       ...options,
       displayName,
       context: options.context,
-      metadata: { reactComponent: { displayName } }
+      metadata: { reactComponent: { displayName } },
+      // If `partialRefetch` is on, we need the `ObservableQuery` to give us
+      // back partial data so that we know to do the refetch.
+      returnPartialData: options.partialRefetch || options.returnPartialData
     };
   }
 
@@ -336,6 +339,9 @@ export class QueryData<TData, TVariables> extends OperationData {
       // Fetch the current result (if any) from the store.
       const currentResult = this.currentObservable.query!.getCurrentResult();
       const { loading, partial, networkStatus, errors } = currentResult;
+      const previousData =
+        (this.previousData.result && this.previousData.result.data) ||
+        undefined;
       let { error, data } = currentResult;
 
       // Until a set naming convention for networkError and graphQLErrors is
@@ -352,9 +358,14 @@ export class QueryData<TData, TVariables> extends OperationData {
         called: true
       };
 
+      // If we receive partial data, but `options.returnPartialData` is `false`, it means
+      // that `options.partialRefetch` is on. In this case, we set `data` to `undefined` to ignore
+      // the partial data, causing the previous non-partial data to be given to the consumer.
+      if (partial && !options.returnPartialData) {
+        data = undefined;
+      }
+
       if (loading) {
-        const previousData =
-          this.previousData.result && this.previousData.result.data;
         result.data =
           previousData && data
             ? {
@@ -385,6 +396,8 @@ export class QueryData<TData, TVariables> extends OperationData {
           // exist, and they're all of a sudden stripped away. To help avoid
           // this we'll attempt to refetch the `Query` data.
           Object.assign(result, {
+            // Give the consumer the previous non-partial data while we re-fetch
+            data: previousData,
             loading: true,
             networkStatus: NetworkStatus.loading
           });
