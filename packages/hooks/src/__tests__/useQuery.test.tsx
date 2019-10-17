@@ -1184,7 +1184,7 @@ describe('useQuery Hook', () => {
       cache.writeFragment({
         fragment: OWNER_FRAGMENT,
         data: OWNER_FRAGMENT_DATA,
-        id: '1612'
+        id: 'Owner:1612'
       });
       // Because the data of the third car is partial, and because
       // `partialRefetch` is `true`, the hook re-fetches data
