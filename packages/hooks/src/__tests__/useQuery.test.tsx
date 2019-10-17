@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, useRef, useEffect } from 'react';
 import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider, MockLink } from '@apollo/react-testing';
@@ -1067,6 +1067,132 @@ describe('useQuery Hook', () => {
 
       await wait(() => {
         expect(renderCount).toBe(6);
+      });
+    });
+
+    it('should refetch data when partial data is added to the cache and `partialRefetch` is true', async () => {
+      const OWNER_QUERY: DocumentNode = gql`
+        query {
+          owner {
+            id
+            cars {
+              id
+              make
+              model
+            }
+          }
+        }
+      `;
+      const OWNER_RESULT_DATA = {
+        owner: {
+          __typename: 'Owner',
+          id: '1612',
+          cars: [
+            {
+              __typename: 'Car',
+              id: '1',
+              make: 'Audi',
+              model: 'RS8'
+            },
+            {
+              __typename: 'Car',
+              id: '2',
+              make: 'Toyota',
+              model: 'Prius'
+            }
+          ]
+        }
+      };
+      const OWNER_RESULT_DATA_WITH_NEW_CAR = {
+        ...OWNER_RESULT_DATA,
+        owner: {
+          ...OWNER_RESULT_DATA.owner,
+          cars: [
+            ...OWNER_RESULT_DATA.owner.cars,
+            {
+              __typename: 'Car',
+              id: '3',
+              make: 'Mini',
+              model: 'Cooper'
+            }
+          ]
+        }
+      };
+      const OWNER_MOCKS = [
+        {
+          request: { query: OWNER_QUERY, variables: {} },
+          result: jest
+            .fn()
+            .mockReturnValueOnce({ data: OWNER_RESULT_DATA })
+            .mockReturnValueOnce({ data: OWNER_RESULT_DATA_WITH_NEW_CAR })
+        }
+      ];
+      const cache = new InMemoryCache();
+
+      const dataSpy = jest.fn();
+      const errorSpy = jest.fn();
+      const Component: React.FC = () => {
+        const { data, error } = useQuery(OWNER_QUERY, {
+          partialRefetch: true
+        });
+
+        useEffect(() => {
+          dataSpy(data);
+        }, [data]);
+        useEffect(() => {
+          if (error) {
+            errorSpy(error);
+          }
+        }, [error]);
+
+        return null;
+      };
+
+      render(
+        <MockedProvider mocks={OWNER_MOCKS} cache={cache}>
+          <Component />
+        </MockedProvider>
+      );
+
+      // Data loads as normal
+      await wait(() => {
+        expect(errorSpy).not.toHaveBeenCalled();
+        expect(dataSpy).toHaveBeenCalledTimes(2);
+        expect(dataSpy.mock.calls[0][0]).toBeUndefined();
+        expect(dataSpy.mock.calls[1][0]).toEqual(OWNER_RESULT_DATA);
+      });
+
+      // The cache is updated with a new owner that contains a new car, but
+      // only the `id`s of the cars are included.
+      const OWNER_FRAGMENT: DocumentNode = gql`
+        fragment OwnerFragment on Owner {
+          id
+          cars {
+            id
+          }
+        }
+      `;
+      const OWNER_FRAGMENT_DATA = {
+        __typename: 'Owner',
+        id: '1612',
+        cars: [
+          { __typename: 'Car', id: '1' },
+          { __typename: 'Car', id: '2' },
+          { __typename: 'Car', id: '3' }
+        ]
+      };
+      cache.writeFragment({
+        fragment: OWNER_FRAGMENT,
+        data: OWNER_FRAGMENT_DATA,
+        id: '1612'
+      });
+      // Because the data of the third car is partial, and because
+      // `partialRefetch` is `true`, the hook re-fetches data
+      await wait(() => {
+        expect(dataSpy).toHaveBeenCalledTimes(3);
+        expect(dataSpy.mock.calls[2][0]).toEqual(
+          OWNER_RESULT_DATA_WITH_NEW_CAR
+        );
       });
     });
   });
