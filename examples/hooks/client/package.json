@@ -7,7 +7,7 @@
     "@types/jest": "24.0.19",
     "@types/node": "12.11.1",
     "@types/react": "16.9.9",
-    "@types/react-dom": "16.9.1",
+    "@types/react-dom": "16.9.2",
     "apollo-cache-inmemory": "^1.6.0",
     "apollo-client": "^2.6.4",
     "apollo-link-http": "^1.5.14",
