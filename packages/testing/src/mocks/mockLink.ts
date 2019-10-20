@@ -4,18 +4,18 @@ import {
   ApolloLink,
   FetchResult,
   Observable
-} from 'apollo-link';
+} from "apollo-link";
 import {
   addTypenameToDocument,
   removeClientSetsFromDocument,
   removeConnectionDirectiveFromDocument,
   cloneDeep,
   isEqual
-} from 'apollo-utilities';
-import { print } from 'graphql/language/printer';
-import stringify from 'fast-json-stable-stringify';
+} from "apollo-utilities";
+import { print } from "graphql/language/printer";
+import stringify from "fast-json-stable-stringify";
 
-import { MockedResponse, ResultFunction } from './types';
+import { MockedResponse, ResultFunction } from "./types";
 
 function requestToKey(request: GraphQLRequest, addTypename: Boolean): string {
   const queryString =
@@ -58,26 +58,36 @@ export class MockLink extends ApolloLink {
   }
 
   public request(operation: Operation): Observable<FetchResult> | null {
+    console.log(JSON.stringify(operation, null, 2));
     const key = requestToKey(operation, this.addTypename);
     let responseIndex;
     const response = (this.mockedResponsesByKey[key] || []).find(
       (res, index) => {
         const requestVariables = operation.variables || {};
         const mockedResponseVariables = res.request.variables || {};
+        console.log(requestVariables, mockedResponseVariables);
         if (
           !isEqual(
             stringify(requestVariables),
             stringify(mockedResponseVariables)
           )
         ) {
-          return false;
+          throw new Error(
+            `Mocked variable mismatch for the query: ${print(
+              operation.query
+            )}, request variables: ${JSON.stringify(
+              requestVariables
+            )}, mocked response variables: ${JSON.stringify(
+              mockedResponseVariables
+            )}`
+          );
         }
         responseIndex = index;
         return true;
       }
     );
 
-    if (!response || typeof responseIndex === 'undefined') {
+    if (!response || typeof responseIndex === "undefined") {
       throw new Error(
         `No more mocked responses for the query: ${print(
           operation.query
@@ -110,7 +120,7 @@ export class MockLink extends ApolloLink {
           } else {
             if (result) {
               observer.next(
-                typeof result === 'function'
+                typeof result === "function"
                   ? (result as ResultFunction<FetchResult>)()
                   : result
               );
@@ -151,7 +161,7 @@ export function mockSingleLink(...mockedResponses: Array<any>): ApolloLink {
   let maybeTypename = mockedResponses[mockedResponses.length - 1];
   let mocks = mockedResponses.slice(0, mockedResponses.length - 1);
 
-  if (typeof maybeTypename !== 'boolean') {
+  if (typeof maybeTypename !== "boolean") {
     mocks = mockedResponses;
     maybeTypename = true;
   }
