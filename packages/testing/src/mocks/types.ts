@@ -5,12 +5,12 @@ import { ApolloLink } from 'apollo-link';
 
 export type ResultFunction<T> = () => T;
 
-export interface MockedResponse {
+export interface MockedResponse<TData = any> {
   request: GraphQLRequest;
-  result?: FetchResult | ResultFunction<FetchResult>;
+  result?: FetchResult<TData> | ResultFunction<FetchResult<TData>>;
   error?: Error;
   delay?: number;
-  newData?: ResultFunction<FetchResult>;
+  newData?: ResultFunction<FetchResult<TData>>;
 }
 
 export interface MockedSubscriptionResult {
