@@ -389,4 +389,43 @@ describe('useLazyQuery Hook', () => {
       });
     }
   );
+
+  it('should support polling programatically', done => {
+    let renderCount = 0;
+    const Component = () => {
+      let [_, { data, loading, startPolling, stopPolling }] = useLazyQuery(
+        CAR_QUERY
+      );
+      switch (renderCount) {
+        case 0:
+          expect(loading).toBeFalsy();
+          startPolling(10);
+          break;
+        case 1:
+          expect(loading).toBeTruthy();
+          break;
+        case 2:
+          expect(loading).toBeFalsy();
+          expect(data).toEqual(CAR_RESULT_DATA);
+          stopPolling();
+          setTimeout(() => {
+            done();
+          }, 10);
+          break;
+        case 3:
+          done.fail('Uh oh - we should have stopped polling!');
+          break;
+        default:
+        // Do nothing
+      }
+      renderCount += 1;
+      return null;
+    };
+
+    render(
+      <MockedProvider mocks={CAR_MOCKS}>
+        <Component />
+      </MockedProvider>
+    );
+  });
 });
