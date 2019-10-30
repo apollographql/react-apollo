@@ -101,7 +101,7 @@ export interface BaseMutationOptions<
   client?: ApolloClient<object>;
   notifyOnNetworkStatusChange?: boolean;
   context?: Context;
-  onCompleted?: (data: TData) => void;
+  onCompleted?: (data: TData | undefined) => void;
   onError?: (error: ApolloError) => void;
   fetchPolicy?: WatchQueryFetchPolicy;
   ignoreResults?: boolean;
