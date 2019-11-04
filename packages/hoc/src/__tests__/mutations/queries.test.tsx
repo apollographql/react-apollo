@@ -10,7 +10,7 @@ import {
 import {
   mockSingleLink,
   stripSymbols,
-  createClient
+  createMockClient
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
@@ -43,7 +43,7 @@ describe('graphql(mutation) query integration', () => {
 
     type Data = typeof data;
 
-    const client = createClient(data, query);
+    const client = createMockClient(data, query);
     const Container = graphql<{}, Data>(query)(
       class extends React.Component<ChildProps<{}, Data>> {
         componentDidMount() {

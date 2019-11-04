@@ -2,7 +2,7 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
 import { ApolloProvider } from '@apollo/react-common';
-import { stripSymbols, createClient } from '@apollo/react-testing';
+import { stripSymbols, createMockClient } from '@apollo/react-testing';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 const query = gql`
@@ -22,7 +22,7 @@ describe('graphql(mutation) lifecycle', () => {
   afterEach(cleanup);
 
   it('allows falsy values in the mapped variables from props', done => {
-    const client = createClient(expectedData, query, { id: null });
+    const client = createMockClient(expectedData, query, { id: null });
 
     interface Props {
       id: string | null;
@@ -51,7 +51,7 @@ describe('graphql(mutation) lifecycle', () => {
   });
 
   it("errors if the passed props don't contain the needed variables", () => {
-    const client = createClient(expectedData, query, { first: 1 });
+    const client = createMockClient(expectedData, query, { first: 1 });
     interface Props {
       frst: number;
     }
@@ -68,7 +68,7 @@ describe('graphql(mutation) lifecycle', () => {
   });
 
   it('rebuilds the mutation on prop change when using `options`', done => {
-    const client = createClient(expectedData, query, {
+    const client = createMockClient(expectedData, query, {
       id: 2
     });
 
@@ -113,7 +113,7 @@ describe('graphql(mutation) lifecycle', () => {
   });
 
   it('can execute a mutation with custom variables', done => {
-    const client = createClient(expectedData, query, { id: 1 });
+    const client = createMockClient(expectedData, query, { id: 1 });
     interface Variables {
       id: number;
     }
