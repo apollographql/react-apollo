@@ -20,7 +20,7 @@
     "clean": ""
   },
   "dependencies": {
-    "@apollo/client": "^3.0.0-alpha.6"
+    "@apollo/client": "^3.0.0-beta.2"
   },
   "publishConfig": {
     "access": "public"

@@ -30,8 +30,13 @@
     "@apollo/react-testing": "file:./packages/testing"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@apollo/client": "^3.0.0-alpha.6",
     "@babel/core": "7.6.4",
+=======
+    "@apollo/client": "^3.0.0-beta.2",
+    "@babel/core": "7.6.4",
+>>>>>>> c14ac62f... Update `@apollo/client` deps to latest beta
     "@babel/plugin-transform-modules-commonjs": "7.6.0",
     "@babel/plugin-transform-modules-umd": "7.2.0",
     "@testing-library/react": "9.3.1",
