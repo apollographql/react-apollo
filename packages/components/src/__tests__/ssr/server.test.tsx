@@ -2,9 +2,10 @@ import React from 'react';
 import {
   ApolloClient,
   InMemoryCache as Cache,
-  ApolloProvider
+  ApolloProvider,
+  ApolloLink,
+  Observable
 } from '@apollo/react-common';
-import { ApolloLink, Observable } from 'apollo-link';
 import {
   print,
   graphql as execute,

@@ -16,7 +16,6 @@ const defaultGlobals = {
   '@apollo/react-testing': 'apolloReactTesting',
   '@apollo/react-ssr': 'apolloReactSSR',
   '@apollo/client': 'apolloClient',
-  'apollo-link': 'apolloLink',
   graphql: 'graphql',
   'react-apollo': 'reactApollo',
   react: 'React',

@@ -4,7 +4,8 @@ import {
   ApolloError,
   NetworkStatus,
   InMemoryCache as Cache,
-  ApolloProvider
+  ApolloProvider,
+  ApolloLink
 } from '@apollo/react-common';
 import {
   MockedProvider,
@@ -14,7 +15,6 @@ import {
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import { render, cleanup, wait } from '@testing-library/react';
-import { ApolloLink } from 'apollo-link';
 import { Query } from '@apollo/react-components';
 
 const allPeopleQuery: DocumentNode = gql`

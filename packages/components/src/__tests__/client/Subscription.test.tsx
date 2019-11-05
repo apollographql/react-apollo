@@ -3,9 +3,10 @@ import gql from 'graphql-tag';
 import {
   ApolloClient,
   InMemoryCache as Cache,
-  ApolloProvider
+  ApolloProvider,
+  ApolloLink,
+  Operation
 } from '@apollo/react-common';
-import { ApolloLink, Operation } from 'apollo-link';
 import { MockSubscriptionLink } from '@apollo/react-testing';
 import { render, cleanup } from '@testing-library/react';
 import { Subscription } from '@apollo/react-components';

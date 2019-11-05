@@ -4,9 +4,9 @@ import gql from 'graphql-tag';
 import {
   ApolloClient,
   InMemoryCache as Cache,
-  ApolloProvider
+  ApolloProvider,
+  ApolloLink
 } from '@apollo/react-common';
-import { ApolloLink } from 'apollo-link';
 import { DocumentNode } from 'graphql';
 import { mockSingleLink } from '@apollo/react-testing';
 import { graphql, withApollo, ChildProps, DataValue } from '@apollo/react-hoc';
