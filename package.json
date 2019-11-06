@@ -48,7 +48,7 @@
     "bundlesize": "0.18.0",
     "graphql": "14.5.8",
     "graphql-tag": "2.10.1",
-    "jest": "24.9.0",
+    "jest": "^24.9.0",
     "jest-junit": "8.0.0",
     "lerna": "3.18.3",
     "react": "16.11.0",
