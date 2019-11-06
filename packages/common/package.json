@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-common",
   "description": "React Apollo common utilities.",
-  "version": "3.2.0-alpha.0",
+  "version": "3.2.0-beta.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
