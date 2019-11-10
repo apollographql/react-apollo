@@ -54,6 +54,6 @@
   },
   "devDependencies": {
     "rollup": "1.26.3",
-    "typescript": "3.6.4"
+    "typescript": "3.7.2"
   }
 }
