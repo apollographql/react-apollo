@@ -55,7 +55,7 @@
     "jest-junit": "8.0.0",
     "lerna": "3.18.4",
     "react": "16.12.0",
-    "react-dom": "16.11.0",
+    "react-dom": "16.12.0",
     "recompose": "0.30.0",
     "rollup": "1.26.3",
     "rollup-plugin-commonjs": "10.1.0",
