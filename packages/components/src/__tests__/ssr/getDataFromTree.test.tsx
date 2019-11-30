@@ -71,8 +71,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });

@@ -14,7 +14,7 @@ import {
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 import { Query } from '@apollo/react-components';
 
 const allPeopleQuery: DocumentNode = gql`
@@ -49,8 +49,6 @@ describe('Query component', () => {
   beforeEach(() => {
     jest.useRealTimers();
   });
-
-  afterEach(cleanup);
 
   it('calls the children prop', done => {
     const link = mockSingleLink({
@@ -559,19 +557,13 @@ describe('Query component', () => {
   });
 
   describe('props allow', () => {
-    it('custom fetch-policy', done => {
+    it('custom fetch-policy', async () => {
       let count = 0;
       const Component = () => (
         <Query query={allPeopleQuery} fetchPolicy={'cache-only'}>
           {(result: any) => {
-            if (count === 0) {
-              try {
-                expect(result.loading).toBeFalsy();
-                expect(result.networkStatus).toBe(NetworkStatus.ready);
-                done();
-              } catch (error) {
-                done.fail(error);
-              }
+            if (!result.loading) {
+              expect(result.networkStatus).toBe(NetworkStatus.ready);
             }
             count += 1;
             return null;
@@ -584,21 +576,19 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>
       );
+
+      return wait(() => {
+        expect(count).toBe(2);
+      });
     });
 
-    it('default fetch-policy', done => {
+    it('default fetch-policy', async () => {
       let count = 0;
       const Component = () => (
         <Query query={allPeopleQuery}>
           {(result: any) => {
-            if (count === 0) {
-              try {
-                expect(result.loading).toBeFalsy();
-                expect(result.networkStatus).toBe(NetworkStatus.ready);
-                done();
-              } catch (error) {
-                done.fail(error);
-              }
+            if (!result.loading) {
+              expect(result.networkStatus).toBe(NetworkStatus.ready);
             }
             count += 1;
             return null;
@@ -614,6 +604,10 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>
       );
+
+      return wait(() => {
+        expect(count).toBe(2);
+      });
     });
 
     it('notifyOnNetworkStatusChange', done => {
@@ -749,7 +743,7 @@ describe('Query component', () => {
       );
     });
 
-    it('onCompleted with data', done => {
+    it('onCompleted with data', async () => {
       const query = gql`
         query people($first: Int) {
           allPeople(first: $first) {
@@ -799,19 +793,12 @@ describe('Query component', () => {
           }, 0);
         }
 
-        // Make sure `onCompleted` is called both when new data is being
-        // fetched over the network, and when data is coming back from
-        // the cache.
         onCompleted(data: Data | {}) {
           if (count === 0) {
             expect(stripSymbols(data)).toEqual(data1);
           }
           if (count === 1) {
             expect(stripSymbols(data)).toEqual(data2);
-          }
-          if (count === 2) {
-            expect(stripSymbols(data)).toEqual(data1);
-            done();
           }
           count += 1;
         }
@@ -836,6 +823,10 @@ describe('Query component', () => {
           <Component />
         </MockedProvider>
       );
+
+      return wait(() => {
+        expect(count).toBe(2);
+      });
     });
 
     it('onError with data', done => {
@@ -1687,7 +1678,7 @@ describe('Query component', () => {
     }
   );
 
-  it('should not repeatedly call onCompleted if setState in it', done => {
+  it('should not repeatedly call onCompleted if setState in it', async () => {
     const query = gql`
       query people($first: Int) {
         allPeople(first: $first) {
@@ -1711,8 +1702,7 @@ describe('Query component', () => {
       }
     ];
 
-    let onCompletedCallCount = 0,
-      updateCount = 0;
+    let onCompletedCallCount = 0;
     class Component extends React.Component {
       state = {
         variables: {
@@ -1723,17 +1713,6 @@ describe('Query component', () => {
         onCompletedCallCount += 1;
         this.setState({ causeUpdate: true });
       };
-      componentDidUpdate() {
-        updateCount += 1;
-        if (updateCount === 1) {
-          // `componentDidUpdate` in `Query` is triggered by the `setState`
-          // in `onCompleted`. It will be called before `componentDidUpdate`
-          // in `Component`. `onCompleted` should have been called only once
-          // in the entire lifecycle.
-          expect(onCompletedCallCount).toBe(1);
-          done();
-        }
-      }
       render() {
         return (
           <Query
@@ -1752,6 +1731,10 @@ describe('Query component', () => {
         <Component />
       </MockedProvider>
     );
+
+    return wait(() => {
+      expect(onCompletedCallCount).toBe(1);
+    });
   });
 
   it('should not repeatedly call onCompleted when cache exists if setState in it', async () => {
@@ -1804,9 +1787,6 @@ describe('Query component', () => {
         }, 50);
       }
 
-      // Make sure `onCompleted` is called both when new data is being
-      // fetched over the network, and when data is coming back from
-      // the cache.
       onCompleted() {
         onCompletedCallCount += 1;
       }
@@ -1832,11 +1812,11 @@ describe('Query component', () => {
     );
 
     await wait(() => {
-      expect(onCompletedCallCount).toBe(3);
+      expect(onCompletedCallCount).toBe(2);
     });
   });
 
-  it('should not repeatedly call onError if setState in it', done => {
+  it('should not repeatedly call onError if setState in it', async () => {
     const mockError = [
       {
         request: { query: allPeopleQuery },
@@ -1844,8 +1824,7 @@ describe('Query component', () => {
       }
     ];
 
-    let onErrorCallCount = 0,
-      updateCount = 0;
+    let onErrorCallCount = 0;
     class Component extends React.Component {
       state = {
         variables: {
@@ -1856,16 +1835,6 @@ describe('Query component', () => {
         onErrorCallCount += 1;
         this.setState({ causeUpdate: true });
       };
-      componentDidUpdate() {
-        updateCount += 1;
-        if (updateCount === 1) {
-          // the cDU in Query is triggered by setState in onError
-          // will be called before cDU in Component
-          // onError should have been called only once in whole lifecycle
-          expect(onErrorCallCount).toBe(1);
-          done();
-        }
-      }
       render() {
         return (
           <Query
@@ -1884,6 +1853,10 @@ describe('Query component', () => {
         <Component />
       </MockedProvider>
     );
+
+    return wait(() => {
+      expect(onErrorCallCount).toBe(1);
+    });
   });
 
   describe('Partial refetching', () => {
@@ -2197,20 +2170,22 @@ describe('Query component', () => {
       const App = () => (
         <ApolloProvider client={client}>
           <Query query={partialQuery} returnPartialData>
-            {({ data }: any) => {
-              expect(data).toEqual({
-                cars: [
-                  {
-                    __typename: 'Car',
-                    repairs: [
-                      {
-                        __typename: 'Repair',
-                        date: '2019-05-08'
-                      }
-                    ]
-                  }
-                ]
-              });
+            {({ loading, data }: any) => {
+              if (!loading) {
+                expect(data).toEqual({
+                  cars: [
+                    {
+                      __typename: 'Car',
+                      repairs: [
+                        {
+                          __typename: 'Repair',
+                          date: '2019-05-08'
+                        }
+                      ]
+                    }
+                  ]
+                });
+              }
               return null;
             }}
           </Query>
@@ -2218,6 +2193,8 @@ describe('Query component', () => {
       );
 
       render(<App />);
+
+      return wait();
     });
   });
 });

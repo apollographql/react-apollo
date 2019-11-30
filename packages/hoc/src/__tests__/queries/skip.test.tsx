@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 import gql from 'graphql-tag';
 import {
   ApolloClient,
@@ -12,8 +12,6 @@ import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] skip', () => {
-  afterEach(cleanup);
-
   it('allows you to skip a query without running it', done => {
     const query: DocumentNode = gql`
       query people {

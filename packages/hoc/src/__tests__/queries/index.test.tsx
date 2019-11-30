@@ -391,7 +391,10 @@ describe('queries', () => {
       }
     };
 
-    const Container = graphql<{}, Data, Vars>(query, options)(
+    const Container = graphql<{}, Data, Vars>(
+      query,
+      options
+    )(
       class extends React.Component<ChildProps<{}, Data, Vars>> {
         componentDidUpdate() {
           const { props } = this;
@@ -841,17 +844,19 @@ describe('queries', () => {
       })(
         class Compnent extends React.Component<any> {
           render() {
-            expect(this.props.data.cars).toEqual([
-              {
-                __typename: 'Car',
-                repairs: [
-                  {
-                    __typename: 'Repair',
-                    date: '2019-05-08'
-                  }
-                ]
-              }
-            ]);
+            if (!this.props.data.loading) {
+              expect(this.props.data.cars).toEqual([
+                {
+                  __typename: 'Car',
+                  repairs: [
+                    {
+                      __typename: 'Repair',
+                      date: '2019-05-08'
+                    }
+                  ]
+                }
+              ]);
+            }
             return null;
           }
         }

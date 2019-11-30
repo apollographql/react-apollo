@@ -44,7 +44,7 @@ describe('useQuery Hook SSR', () => {
 
   it('should support SSR', () => {
     const Component = () => {
-      const { data, loading } = useQuery(CAR_QUERY);
+      const { loading, data } = useQuery(CAR_QUERY);
       if (!loading) {
         expect(data).toEqual(CAR_RESULT_DATA);
         const { make, model, vin } = data.cars[0];
