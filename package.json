@@ -53,7 +53,7 @@
     "graphql-tag": "2.10.1",
     "jest": "24.9.0",
     "jest-junit": "8.0.0",
-    "lerna": "3.18.4",
+    "lerna": "3.19.0",
     "react": "16.12.0",
     "react-dom": "16.12.0",
     "recompose": "0.30.0",
