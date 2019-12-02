@@ -5,10 +5,10 @@ export {
   resetApolloContext
 } from '@apollo/react-common';
 
-export { useQuery } from './useQuery';
-export { useLazyQuery } from './useLazyQuery';
-export { useMutation } from './useMutation';
-export { useSubscription } from './useSubscription';
+export * from './useQuery';
+export * from './useLazyQuery';
+export * from './useMutation';
+export * from './useSubscription';
 export { useApolloClient } from './useApolloClient';
 
 export { RenderPromises } from './ssr/RenderPromises';
