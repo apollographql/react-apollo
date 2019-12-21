@@ -30,7 +30,7 @@
     "@apollo/react-testing": "file:./packages/testing"
   },
   "devDependencies": {
-    "@babel/core": "7.7.5",
+    "@babel/core": "7.7.7",
     "@babel/plugin-transform-modules-commonjs": "7.7.5",
     "@babel/plugin-transform-modules-umd": "7.7.4",
     "@testing-library/react": "9.4.0",
