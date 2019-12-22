@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@babel/preset-react": "7.7.4",
-    "rollup": "1.27.13",
+    "rollup": "1.27.14",
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-jsx": "1.0.3",
