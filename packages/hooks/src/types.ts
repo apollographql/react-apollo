@@ -61,13 +61,14 @@ export interface QueryCurrentObservable<TData, TVariables> {
   subscription?: ZenObservable.Subscription;
 }
 
-export interface QueryLazyOptions<TVariables> {
+export interface QueryLazyOptions<TData, TVariables>
+  extends QueryFunctionOptions<TData, TVariables> {
   variables?: TVariables;
   context?: Context;
 }
 
 export type QueryTuple<TData, TVariables> = [
-  (options?: QueryLazyOptions<TVariables>) => void,
+  (options?: QueryLazyOptions<TData, TVariables>) => void,
   QueryResult<TData, TVariables>
 ];
 
