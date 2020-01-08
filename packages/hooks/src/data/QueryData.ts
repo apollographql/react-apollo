@@ -30,7 +30,7 @@ export class QueryData<TData, TVariables> extends OperationData {
   private forceUpdate: any;
 
   private runLazy: boolean = false;
-  private lazyOptions?: QueryLazyOptions<TVariables>;
+  private lazyOptions?: QueryLazyOptions<TData, TVariables>;
 
   constructor({
     options,
@@ -134,7 +134,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     return options;
   }
 
-  private runLazyQuery = (options?: QueryLazyOptions<TVariables>) => {
+  private runLazyQuery = (options?: QueryLazyOptions<TData, TVariables>) => {
     this.cleanup();
 
     this.runLazy = true;
