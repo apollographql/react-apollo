@@ -10,6 +10,7 @@ import {
   OperationVariables,
   QueryFunctionOptions,
   QueryResult,
+  BaseQueryOptions,
   BaseMutationOptions,
   MutationResult,
   MutationFunctionOptions,
@@ -61,7 +62,7 @@ export interface QueryCurrentObservable<TData, TVariables> {
   subscription?: ZenObservable.Subscription;
 }
 
-export interface QueryLazyOptions<TVariables> {
+export interface QueryLazyOptions<TVariables> extends BaseQueryOptions<TVariables> {
   variables?: TVariables;
   context?: Context;
 }
