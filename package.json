@@ -1,6 +1,6 @@
 {
   "name": "apollo-react-monorepo",
-  "version": "3.2.0-alpha.0",
+  "version": "3.2.0",
   "private": true,
   "author": "opensource@apollographql.com",
   "license": "MIT",
