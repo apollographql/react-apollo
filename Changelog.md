@@ -1,5 +1,34 @@
 # Change log
 
+## 3.2.0 (TBD - not yet released)
+
+> ⚠️ **Deprecation Notice** ⚠️
+>
+> Please note that as of version 3.2.0, the React Apollo project has been deprecated. `@apollo/react-hooks` and `@apollo/react-testing` functionality is now available directly from the `@apollo/client` package (refer to the [Apollo Client 3 migration guide](https://www.apollographql.com/docs/react/) for more details). Both packages still work as is, but their functionality is now re-exported from `@apollo/client`. If you're only using hooks, we  recommend using the hooks from `@apollo/client` directly, and dropping your React Apollo dependency(ies). React Apollo's `graphql` HOC and render proper components are now in maintenance mode, meaning they will continue to receive important bug fixes, but will not be updated with new functionality.
+
+### Breaking Changes
+
+- Due to changes made in Apollo Client, the previous SSR testing pattern of:
+
+  ```js
+  return getDataFromTree(app).then(() => {
+    const markup = ReactDOM.renderToString(app);
+    expect(markup).toMatch(/Waldo/);
+  });
+  ```
+
+  will no longer work (`ReactDOM.renderToString(app)` will just return the initial loading state of the component under test). Instead, we can leverage the markup returned when `getDataFromTree`'s Promise resolves:
+
+  ```js
+  return getDataFromTree(app).then(markup => {
+    expect(markup).toMatch(/Waldo/);
+  });
+  ```
+
+### Improvements
+
+- The React Apollo project now uses [`@apollo/client`](https://github.com/apollographql/apollo-client), which means it no longer houses Apollo's React hooks or testing utilities. `@apollo/react-hooks` and `@apollo/react-testing` can continue to be used, but their functionality is now re-exported from the `@apollo/client` package. If you're only using Apollo's React hooks, we recommend using `@apollo/client` directly, and dropping your dependency on `@apollo/react-hooks`.
+
 ## 3.1.3 (2019-10-15)
 
 - Revert the changes made in [#3497](https://github.com/apollographql/react-apollo/pull/3497), which have lead to problems with `onCompleted` being called more often than necessary. <br/>
