@@ -36,8 +36,8 @@
     "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/ssr"
   },
   "peerDependencies": {
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
@@ -46,9 +46,9 @@
   "devDependencies": {
     "@apollo/react-testing": "file:../testing",
     "jest": "24.9.0",
-    "rollup": "1.25.2",
-    "tsc-watch": "3.0.2",
-    "typescript": "3.6.4"
+    "rollup": "1.29.0",
+    "tsc-watch": "4.0.0",
+    "typescript": "3.7.4"
   },
   "files": [
     "lib"
