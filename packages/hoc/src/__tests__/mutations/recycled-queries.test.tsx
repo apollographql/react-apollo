@@ -361,7 +361,9 @@ describe('graphql(mutation) update queries', () => {
               break;
             case 3:
               expect(this.props.data!.loading).toBeTruthy();
-              expect(this.props.data!.todo_list).toBeUndefined();
+              expect(stripSymbols(this.props.data!.todo_list)).toEqual(
+                updatedData.todo_list
+              );
               break;
             case 4:
               expect(this.props.data!.loading).toBeFalsy();

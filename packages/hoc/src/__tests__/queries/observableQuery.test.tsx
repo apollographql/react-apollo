@@ -72,7 +72,7 @@ describe('[queries] observableQuery', () => {
             assert2();
           }
 
-          if (count === 5) {
+          if (count === 4) {
             unmount();
             done = true;
           }
@@ -86,14 +86,13 @@ describe('[queries] observableQuery', () => {
 
           // during the second mount, the loading prop should be false, and data should
           // be present;
-          if (count === 4) {
+          if (count === 3) {
             expect(this.props.data!.loading).toBeFalsy();
             expect(stripSymbols(this.props.data!.allPeople)).toEqual(
               data.allPeople
             );
           }
           count++;
-          console.log('count', count);
           return null;
         }
       }

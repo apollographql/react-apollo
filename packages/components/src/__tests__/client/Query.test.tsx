@@ -783,14 +783,7 @@ describe('Query component', () => {
                 first: 2
               }
             });
-            setTimeout(() => {
-              this.setState({
-                variables: {
-                  first: 1
-                }
-              });
-            }, 0);
-          }, 0);
+          });
         }
 
         onCompleted(data: Data | {}) {
@@ -805,7 +798,6 @@ describe('Query component', () => {
 
         render() {
           const { variables } = this.state;
-
           return (
             <AllPeopleQuery
               query={query}
@@ -1711,7 +1703,7 @@ describe('Query component', () => {
       };
       onCompleted = () => {
         onCompletedCallCount += 1;
-        this.setState({ causeUpdate: true });
+        this.setState({ variables: { first: 2 } });
       };
       render() {
         return (
@@ -1733,7 +1725,7 @@ describe('Query component', () => {
     );
 
     return wait(() => {
-      expect(onCompletedCallCount).toBe(1);
+      expect(onCompletedCallCount).toBe(2);
     });
   });
 
@@ -1772,19 +1764,21 @@ describe('Query component', () => {
 
       componentDidMount() {
         setTimeout(() => {
-          this.setState({
-            variables: {
-              first: 2
-            }
-          });
-          setTimeout(() => {
-            this.setState({
+          this.setState(
+            {
               variables: {
-                first: 1
+                first: 2
               }
-            });
-          }, 50);
-        }, 50);
+            },
+            () => {
+              this.setState({
+                variables: {
+                  first: 1
+                }
+              });
+            }
+          );
+        });
       }
 
       onCompleted() {
@@ -1811,7 +1805,7 @@ describe('Query component', () => {
       </MockedProvider>
     );
 
-    await wait(() => {
+    return wait(() => {
       expect(onCompletedCallCount).toBe(2);
     });
   });
