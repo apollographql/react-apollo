@@ -14,6 +14,5 @@ module.exports = {
     '^@apollo\\/react-hoc': '<rootDir>/hoc/src',
     '^@apollo\\/react-ssr': '<rootDir>/ssr/src',
   },
-  //testMatch: ['<rootDir>/*/src/**/__tests__/**/*.test.ts?(x)'],
   testPathIgnorePatterns: ['/examples', '/lib'],
 };
