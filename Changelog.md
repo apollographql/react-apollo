@@ -1,12 +1,14 @@
 # Change log
 
-## 3.2.0 (TBD - not yet released)
+## 4.0.0 (TBD - not yet released)
 
 > ⚠️ **Deprecation Notice** ⚠️
 >
-> Please note that as of version 3.2.0, the React Apollo project has been deprecated. `@apollo/react-hooks` and `@apollo/react-testing` functionality is now available directly from the `@apollo/client` package (refer to the [Apollo Client 3 migration guide](https://www.apollographql.com/docs/react/) for more details). Both packages still work as is, but their functionality is now re-exported from `@apollo/client`. If you're only using hooks, we  recommend using the hooks from `@apollo/client` directly, and dropping your React Apollo dependency(ies). React Apollo's `graphql` HOC and render proper components are now in maintenance mode, meaning they will continue to receive important bug fixes, but will not be updated with new functionality.
+> Please note that as of version 4.0.0, the React Apollo project has been deprecated. `@apollo/react-hooks` and `@apollo/react-testing` functionality is now available directly from the `@apollo/client` package (refer to the [Apollo Client 3 migration guide](https://www.apollographql.com/docs/react/) for more details). Both packages still work as is, but their functionality is now re-exported from `@apollo/client`. If you're only using hooks, we recommend using the hooks from `@apollo/client` directly, and dropping your React Apollo dependency(ies). React Apollo's `graphql` HOC and render proper components are now in maintenance mode, meaning they will continue to receive important bug fixes, but will not be updated with new functionality.
 
 ### Breaking Changes
+
+- **React Apollo 4.0.0 only works with `@apollo/client` 3.x; it does not work with `apollo-client` 2.x.** If you are using `apollo-client` and are not ready to update to `@apollo/client`, please use React Apollo 3.x.
 
 - Due to changes made in Apollo Client, the previous SSR testing pattern of:
 
