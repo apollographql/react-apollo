@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
+    "@apollo/react-hooks": "file:../hooks",
     "@apollo/react-components": "file:../components",
     "@apollo/react-hoc": "file:../hoc",
     "@apollo/react-ssr": "file:../ssr"
