@@ -32,8 +32,7 @@
     "deploy": "npm publish --tag beta",
     "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/ssr",
     "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/ssr --watch",
-    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/ssr",
-    "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/ssr"
+    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/ssr"
   },
   "peerDependencies": {
     "react": "^16.12.0",

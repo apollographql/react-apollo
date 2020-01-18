@@ -27,6 +27,8 @@
   });
   ```
 
+- We are no longer building UMD versions of React Apollo.
+
 ### Improvements
 
 - The React Apollo project now uses [`@apollo/client`](https://github.com/apollographql/apollo-client), which means it no longer houses Apollo's React hooks or testing utilities. `@apollo/react-hooks` and `@apollo/react-testing` can continue to be used, but their functionality is now re-exported from the `@apollo/client` package. If you're only using Apollo's React hooks, we recommend using `@apollo/client` directly, and dropping your dependency on `@apollo/react-hooks`.
