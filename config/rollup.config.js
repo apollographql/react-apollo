@@ -8,42 +8,32 @@ import cjsModulesTransform from '@babel/plugin-transform-modules-commonjs';
 import umdModulesTransform from '@babel/plugin-transform-modules-umd';
 import { terser as minify } from 'rollup-plugin-terser';
 
-const defaultGlobals = {
-  '@apollo/react-common': 'apolloReactCommon',
-  '@apollo/react-components': 'apolloReactComponents',
-  '@apollo/react-hoc': 'apolloReactHOC',
-  '@apollo/react-hooks': 'apolloReactHooks',
-  '@apollo/react-testing': 'apolloReactTesting',
-  '@apollo/react-ssr': 'apolloReactSSR',
-  '@apollo/client': 'apolloClient',
-  graphql: 'graphql',
-  'react-apollo': 'reactApollo',
-  react: 'React',
-  'ts-invariant': 'invariant',
-  tslib: 'tslib',
-  'fast-json-stable-stringify': 'stringify',
-  'zen-observable': 'zenObservable',
-  'hoist-non-react-statics': 'hoistNonReactStatics',
-  'prop-types': 'PropTypes',
-  '@wry/equality': 'equal',
-};
+const external = [
+  '@apollo/react-common',
+  '@apollo/react-components',
+  '@apollo/react-hoc',
+  '@apollo/react-hooks',
+  '@apollo/react-testing',
+  '@apollo/react-ssr',
+  '@apollo/client',
+  'graphql',
+  'react-apollo',
+  'react',
+  'ts-invariant',
+  'tslib',
+  'fast-json-stable-stringify',
+  'zen-observable',
+  'hoist-non-react-statics',
+  'prop-types',
+  '@wry/equality',
+];
 
 export function rollup({
   name,
   input = './src/index.ts',
   outputPrefix = 'react',
-  extraGlobals = {},
 }) {
   const tsconfig = './config/tsconfig.json';
-
-  const globals = {
-    ...defaultGlobals,
-    ...extraGlobals,
-  };
-
-  function external(id) {
-    return Object.prototype.hasOwnProperty.call(globals, id);
-  }
 
   function outputFile(format) {
     return `./lib/${outputPrefix}-${name}.${format}.js`;
