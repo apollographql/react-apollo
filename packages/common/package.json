@@ -10,6 +10,7 @@
   ],
   "license": "MIT",
   "main": "index.js",
+  "module": "index.esm.js",
   "types": "index.d.ts",
   "repository": {
     "type": "git",
