@@ -4,7 +4,7 @@
 
 > ⚠️ **Deprecation Notice** ⚠️
 >
-> Please note that as of version 4.0.0, the React Apollo project has been deprecated. `@apollo/react-hooks` and `@apollo/react-testing` functionality is now available directly from the `@apollo/client` package (refer to the [Apollo Client 3 migration guide](https://www.apollographql.com/docs/react/) for more details). Both packages still work as is, but their functionality is now re-exported from `@apollo/client`. If you're only using hooks, we recommend using the hooks from `@apollo/client` directly, and dropping your React Apollo dependency(ies). React Apollo's `graphql` HOC and render proper components are now in maintenance mode, meaning they will continue to receive important bug fixes, but will not be updated with new functionality.
+> Please note that as of version 4.0.0 you should prefer to import React hooks and testing utilities from `@apollo/client`. While we still have separate `@apollo/react-hooks` and `@apollo/react-testing` packages for ease of migration, they are no longer under active development, as they simply re-export from `@apollo/client`. React Apollo's `graphql` HOC (`@apollo/react-hoc`) and render proper components (`@apollo/react-components`) are in maintenance mode, meaning they will continue to receive important bug fixes, but will not be updated with new functionality.
 
 ### Breaking Changes
 
