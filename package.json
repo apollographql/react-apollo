@@ -67,22 +67,22 @@
     {
       "name": "react-apollo",
       "path": "./packages/all/lib/react-apollo.cjs.min.js",
-      "maxSize": "380B"
+      "maxSize": "405B"
     },
     {
       "name": "@apollo/react-components",
       "path": "./packages/components/lib/react-components.cjs.min.js",
-      "maxSize": "680B"
+      "maxSize": "700B"
     },
     {
       "name": "@apollo/react-hoc",
       "path": "./packages/hoc/lib/react-hoc.cjs.min.js",
-      "maxSize": "1.55 kB"
+      "maxSize": "1.58 kB"
     },
     {
       "name": "@apollo/react-ssr",
       "path": "./packages/ssr/lib/react-ssr.cjs.min.js",
-      "maxSize": "440B"
+      "maxSize": "430B"
     }
   ],
   "renovate": {
