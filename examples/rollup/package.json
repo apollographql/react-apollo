@@ -7,7 +7,7 @@
     "analyze": "npm run build && source-map-explorer app-without-react.min.js"
   },
   "devDependencies": {
-    "@babel/preset-react": "7.7.4",
+    "@babel/preset-react": "7.8.3",
     "rollup": "1.29.0",
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-commonjs": "10.1.0",
