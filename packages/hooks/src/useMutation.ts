@@ -5,6 +5,11 @@ import { DocumentNode } from 'graphql';
 import { MutationHookOptions, MutationTuple } from './types';
 import { MutationData } from './data/MutationData';
 
+export type UseMutation<TData = any, TVariables = OperationVariables> = (
+  query: DocumentNode,
+  options?: MutationHookOptions<TData, TVariables>
+) => MutationTuple<TData, TVariables>;
+
 export function useMutation<TData = any, TVariables = OperationVariables>(
   mutation: DocumentNode,
   options?: MutationHookOptions<TData, TVariables>
