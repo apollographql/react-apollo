@@ -64,14 +64,14 @@ export class QueryData<TData, TVariables> extends OperationData {
   public executeLazy(): QueryTuple<TData, TVariables> {
     return !this.runLazy
       ? [
-          this.runLazyQuery,
-          {
-            loading: false,
-            networkStatus: NetworkStatus.ready,
-            called: false,
-            data: undefined
-          } as QueryResult<TData, TVariables>
-        ]
+        this.runLazyQuery,
+        {
+          loading: false,
+          networkStatus: NetworkStatus.ready,
+          called: false,
+          data: undefined
+        } as QueryResult<TData, TVariables>
+      ]
       : [this.runLazyQuery, this.execute()];
   }
 
@@ -98,6 +98,7 @@ export class QueryData<TData, TVariables> extends OperationData {
       // requests/responses.
       setTimeout(() => {
         this.currentObservable.query &&
+          this.currentObservable.query.resetQueryStoreErrors &&
           this.currentObservable.query.resetQueryStoreErrors();
       });
     }
@@ -257,7 +258,7 @@ export class QueryData<TData, TVariables> extends OperationData {
         // need to log it here. We could conceivably log something if
         // an option was set. OTOH we don't log errors w/ the original
         // query. See https://github.com/apollostack/react-apollo/issues/404
-        .catch(() => {});
+        .catch(() => { });
     }
   }
 
@@ -358,9 +359,9 @@ export class QueryData<TData, TVariables> extends OperationData {
         result.data =
           previousData && data
             ? {
-                ...previousData,
-                ...data
-              }
+              ...previousData,
+              ...data
+            }
             : previousData || data;
       } else if (error) {
         Object.assign(result, {
