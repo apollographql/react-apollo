@@ -69,7 +69,14 @@ export class QueryData<TData, TVariables> extends OperationData {
             loading: false,
             networkStatus: NetworkStatus.ready,
             called: false,
-            data: undefined
+            data: undefined,
+            startPolling: (pollInterval: number) => {
+              this.setOptions({
+                ...super.getOptions(),
+                pollInterval
+              });
+              this.runLazyQuery();
+            }
           } as QueryResult<TData, TVariables>
         ]
       : [this.runLazyQuery, this.execute()];
