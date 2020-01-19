@@ -1,18 +1,18 @@
-import React from 'react';
-import { render, cleanup, wait } from '@testing-library/react';
-import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { ApolloLink } from 'apollo-link';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
-import { DocumentNode } from 'graphql';
-import { graphql, ChildProps } from '@apollo/react-hoc';
+import React from "react";
+import { render, cleanup, wait } from "@testing-library/react";
+import gql from "graphql-tag";
+import ApolloClient from "apollo-client";
+import { ApolloLink } from "apollo-link";
+import { InMemoryCache as Cache } from "apollo-cache-inmemory";
+import { mockSingleLink, stripSymbols } from "@apollo/react-testing";
+import { ApolloProvider } from "@apollo/react-common";
+import { DocumentNode } from "graphql";
+import { graphql, ChildProps } from "@apollo/react-hoc";
 
-describe('[queries] skip', () => {
+describe("[queries] skip", () => {
   afterEach(cleanup);
 
-  it('allows you to skip a query without running it', done => {
+  it("allows you to skip a query without running it", done => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -22,7 +22,7 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data = { allPeople: { people: [{ name: "Luke Skywalker" }] } };
     const link = mockSingleLink({
       request: { query },
       result: { data }
@@ -61,11 +61,11 @@ describe('[queries] skip', () => {
         done();
         return;
       }
-      fail(new Error('query ran even though skip present'));
+      fail(new Error("query ran even though skip present"));
     }, 25);
   });
 
-  it('continues to not subscribe to a skipped query when props change', done => {
+  it("continues to not subscribe to a skipped query when props change", done => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -77,7 +77,7 @@ describe('[queries] skip', () => {
     `;
 
     const link = new ApolloLink((o, f) => {
-      done.fail(new Error('query ran even though skip present'));
+      done.fail(new Error("query ran even though skip present"));
       return f ? f(o) : null;
     }).concat(mockSingleLink());
     // const oldQuery = link.query;
@@ -119,7 +119,7 @@ describe('[queries] skip', () => {
     );
   });
 
-  it('supports using props for skipping which are used in options', done => {
+  it("supports using props for skipping which are used in options", done => {
     const query: DocumentNode = gql`
       query people($id: ID!) {
         allPeople(first: $id) {
@@ -213,7 +213,7 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data = { allPeople: { people: [{ name: "Luke Skywalker" }] } };
     const link = mockSingleLink({
       request: { query },
       result: { data }
@@ -272,10 +272,10 @@ describe('[queries] skip', () => {
         return;
       }
       if (optionsCalled) {
-        fail(new Error('options ran even though skip present'));
+        fail(new Error("options ran even though skip present"));
         return;
       }
-      fail(new Error('query ran even though skip present'));
+      fail(new Error("query ran even though skip present"));
     }, 25);
   });
 
@@ -328,9 +328,9 @@ describe('[queries] skip', () => {
     );
 
     class Parent extends React.Component<{}, { foo: string }> {
-      state = { foo: 'bar' };
+      state = { foo: "bar" };
       componentDidMount() {
-        this.setState({ foo: 'baz' });
+        this.setState({ foo: "baz" });
       }
       render() {
         return <Container foo={this.state.foo} />;
@@ -344,7 +344,7 @@ describe('[queries] skip', () => {
     );
   });
 
-  it('allows you to skip a query without running it (alternate syntax)', done => {
+  it("allows you to skip a query without running it (alternate syntax)", done => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -354,7 +354,7 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data = { allPeople: { people: [{ name: "Luke Skywalker" }] } };
     const link = mockSingleLink({
       request: { query },
       result: { data }
@@ -388,13 +388,13 @@ describe('[queries] skip', () => {
         done();
         return;
       }
-      fail(new Error('query ran even though skip present'));
+      fail(new Error("query ran even though skip present"));
     }, 25);
   });
 
   // test the case of skip:false -> skip:true -> skip:false to make sure things
   // are cleaned up properly
-  it('allows you to skip then unskip a query with top-level syntax', done => {
+  it("allows you to skip then unskip a query with top-level syntax", done => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -404,7 +404,7 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data = { allPeople: { people: [{ name: "Luke Skywalker" }] } };
     const link = mockSingleLink({
       request: { query },
       result: { data }
@@ -460,7 +460,7 @@ describe('[queries] skip', () => {
     );
   });
 
-  it('allows you to skip then unskip a query with new options (top-level syntax)', done => {
+  it("allows you to skip then unskip a query with new options (top-level syntax)", done => {
     const query: DocumentNode = gql`
       query people($first: Int) {
         allPeople(first: $first) {
@@ -470,8 +470,8 @@ describe('[queries] skip', () => {
         }
       }
     `;
-    const dataOne = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const dataTwo = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
+    const dataOne = { allPeople: { people: [{ name: "Luke Skywalker" }] } };
+    const dataTwo = { allPeople: { people: [{ name: "Leia Skywalker" }] } };
 
     type Data = typeof dataOne;
     type Vars = { first: number };
@@ -500,7 +500,7 @@ describe('[queries] skip', () => {
     interface Props {
       skip: boolean;
       first: number;
-      setState: <K extends 'skip' | 'first'>(
+      setState: <K extends "skip" | "first">(
         state: Pick<{ skip: boolean; first: number }, K>
       ) => void;
     }
@@ -555,7 +555,7 @@ describe('[queries] skip', () => {
     );
   });
 
-  it('allows you to skip then unskip a query with opts syntax', async () => {
+  it("allows you to skip then unskip a query with opts syntax", async () => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -566,8 +566,8 @@ describe('[queries] skip', () => {
       }
     `;
 
-    const data = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
-    const nextData = { allPeople: { people: [{ name: 'Anakin Skywalker' }] } };
+    const data = { allPeople: { people: [{ name: "Luke Skywalker" }] } };
+    const nextData = { allPeople: { people: [{ name: "Anakin Skywalker" }] } };
 
     let ranQuery = 0;
 
@@ -595,7 +595,7 @@ describe('[queries] skip', () => {
     let count = 0;
     const Container = graphql<Props>(query, {
       options: {
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         notifyOnNetworkStatusChange: true
       },
       skip: ({ skip }) => skip
@@ -659,7 +659,8 @@ describe('[queries] skip', () => {
     });
   });
 
-  it('removes the injected props if skip becomes true', async () => {
+  // flaky test here as well
+  it("removes the injected props if skip becomes true", async () => {
     let count = 0;
     const query: DocumentNode = gql`
       query people($first: Int) {
@@ -671,13 +672,13 @@ describe('[queries] skip', () => {
       }
     `;
 
-    const data1 = { allPeople: { people: [{ name: 'Luke Skywalker' }] } };
+    const data1 = { allPeople: { people: [{ name: "Luke Skywalker" }] } };
     const variables1 = { first: 1 };
 
-    const data2 = { allPeople: { people: [{ name: 'Leia Skywalker' }] } };
+    const data2 = { allPeople: { people: [{ name: "Leia Skywalker" }] } };
     const variables2 = { first: 2 };
 
-    const data3 = { allPeople: { people: [{ name: 'Anakin Skywalker' }] } };
+    const data3 = { allPeople: { people: [{ name: "Anakin Skywalker" }] } };
     const variables3 = { first: 3 };
 
     type Data = typeof data1;
@@ -744,7 +745,7 @@ describe('[queries] skip', () => {
     });
   });
 
-  it('allows you to unmount a skipped query', done => {
+  it("allows you to unmount a skipped query", done => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
