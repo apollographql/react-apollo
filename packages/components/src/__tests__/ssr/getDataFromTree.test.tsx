@@ -1,10 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import ApolloClient from 'apollo-client';
-import { ApolloProvider, getApolloContext } from '@apollo/react-common';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider,
+  getApolloContext
+} from '@apollo/react-common';
 import { getDataFromTree } from '@apollo/react-ssr';
 import gql from 'graphql-tag';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
 import { Query } from '@apollo/react-components';
@@ -68,8 +71,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });

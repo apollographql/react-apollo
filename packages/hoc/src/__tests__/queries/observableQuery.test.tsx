@@ -1,18 +1,18 @@
 import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, fireEvent, wait } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] observableQuery', () => {
-  afterEach(cleanup);
-
   // observableQuery
-  it('will recycle `ObservableQuery`s when re-rendering the entire tree', done => {
+  it('will recycle `ObservableQuery`s when re-rendering the entire tree', async () => {
     const query: DocumentNode = gql`
       query people {
         allPeople(first: 1) {
@@ -39,26 +39,24 @@ describe('[queries] observableQuery', () => {
     let count = 0;
 
     const assert1 = () => {
-      const keys = Array.from((client.queryManager as any).queries.keys());
+      const keys = Array.from(
+        ((client as any).queryManager as any).queries.keys()
+      );
       expect(keys).toEqual(['1']);
     };
 
     const assert2 = () => {
-      const keys = Array.from((client.queryManager as any).queries.keys());
+      const keys = Array.from(
+        ((client as any).queryManager as any).queries.keys()
+      );
       expect(keys).toEqual(['1']);
     };
 
+    let done = false;
     const Container = graphql<{}, Data>(query, {
       options: { fetchPolicy: 'cache-and-network' }
     })(
       class extends React.Component<ChildProps<{}, Data>> {
-        componentDidMount() {
-          if (count === 3) {
-            unmount();
-            done();
-          }
-        }
-
         componentDidUpdate() {
           if (count === 2) {
             expect(this.props.data!.loading).toBeFalsy();
@@ -73,6 +71,11 @@ describe('[queries] observableQuery', () => {
             // ensure cleanup
             assert2();
           }
+
+          if (count === 4) {
+            unmount();
+            done = true;
+          }
         }
 
         render() {
@@ -83,13 +86,12 @@ describe('[queries] observableQuery', () => {
 
           // during the second mount, the loading prop should be false, and data should
           // be present;
-          if (count === 2) {
+          if (count === 3) {
             expect(this.props.data!.loading).toBeFalsy();
             expect(stripSymbols(this.props.data!.allPeople)).toEqual(
               data.allPeople
             );
           }
-
           count++;
           return null;
         }
@@ -142,6 +144,10 @@ describe('[queries] observableQuery', () => {
     );
     unmount = result.unmount;
     queryByText = result.queryByText;
+
+    return wait(() => {
+      expect(done).toBeTruthy();
+    });
   });
 
   it("will recycle `ObservableQuery`s when re-rendering a portion of the tree but not return stale data if variables don't match", done => {
@@ -263,7 +269,7 @@ describe('[queries] observableQuery', () => {
     }, 5);
   });
 
-  it('not overly rerender', done => {
+  it('not overly rerender', async () => {
     const query: DocumentNode = gql`
       query people($first: Int!) {
         allPeople(first: $first) {
@@ -302,22 +308,23 @@ describe('[queries] observableQuery', () => {
       class extends React.Component<ChildProps<Vars, Data, Vars>> {
         render() {
           count++;
-          try {
-            const { loading, allPeople } = this.props.data!;
-            // first variable render
-            if (count === 1) {
+          const { loading, allPeople } = this.props.data!;
+          switch (count) {
+            case 1:
               expect(loading).toBe(true);
-            }
-            if (count === 2 || count === 3) {
+              break;
+            case 2:
               expect(loading).toBe(false);
               expect(stripSymbols(allPeople)).toEqual(data.allPeople);
-            }
-
-            if (count > 3) {
-              throw new Error('too many renders');
-            }
-          } catch (e) {
-            done.fail(e);
+              break;
+            case 3:
+              expect(loading).toBe(true);
+              break;
+            case 4:
+              expect(loading).toBe(false);
+              expect(stripSymbols(allPeople)).toEqual(data.allPeople);
+              break;
+            default: // Do nothing
           }
 
           return null;
@@ -362,15 +369,20 @@ describe('[queries] observableQuery', () => {
     // after the initial data has been returned
     // the user navigates to a different page
     // but the query is recycled
+    let done = false;
     setTimeout(() => {
       // move to the "home" page from the "episode" page
       remount();
       setTimeout(() => {
         // move to the same "episode" page
         // make sure we dont over render
-        done();
+        done = true;
       }, 20);
     }, 5);
+
+    return wait(() => {
+      expect(done).toBeTruthy();
+    });
   });
 
   it('does rerender if query returns differnt result', done => {

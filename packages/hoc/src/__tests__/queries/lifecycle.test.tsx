@@ -1,17 +1,17 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { Query as QueryComponent } from '@apollo/react-components';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] lifecycle', () => {
-  afterEach(cleanup);
-
   // lifecycle
   it('reruns the query if it changes', done => {
     let count = 0;
@@ -728,7 +728,7 @@ describe('[queries] lifecycle', () => {
     );
   });
 
-  it('handles asynchronous racecondition with prefilled data from the server', async done => {
+  it('handles asynchronous racecondition with prefilled data from the server', async () => {
     const query: DocumentNode = gql`
       query Q {
         books {
@@ -781,23 +781,13 @@ describe('[queries] lifecycle', () => {
 
     //try to render the app / call refetch / etc
 
+    let done = false;
     let refetched = false;
     const ApolloApp = (
       <ApolloProvider client={client}>
         <QueryComponent query={query}>
-          {({ loading, data, error, refetch }: any) => {
-            if (loading) {
-              done.fail(
-                'should not be loading, since already have data from ssr'
-              );
-              return <div>loading</div>;
-            }
-            if (error) {
-              done.fail(error);
-              return <div>error</div>;
-            }
-
-            try {
+          {({ loading, data, refetch }: any) => {
+            if (!loading) {
               if (!refetched) {
                 expect(data.books[0].name).toEqual('ssrfirst');
                 //setTimeout allows component to mount, which often happens
@@ -808,19 +798,15 @@ describe('[queries] lifecycle', () => {
                 //practice, this seems like an uncommon use case, since the
                 //data you get is fresh, so one would wait for an interaction
                 setTimeout(() => {
-                  refetch()
-                    .then((refetchResult: any) => {
-                      expect(refetchResult.data.books[0].name).toEqual('first');
-                      done();
-                    })
-                    .catch(done.fail);
+                  refetch().then((refetchResult: any) => {
+                    expect(refetchResult.data.books[0].name).toEqual('first');
+                    done = true;
+                  });
                 });
                 refetched = true;
               } else {
                 expect(data.books[0].name).toEqual('first');
               }
-            } catch (e) {
-              done.fail(e);
             }
             return <p> stub </p>;
           }}
@@ -828,7 +814,10 @@ describe('[queries] lifecycle', () => {
       </ApolloProvider>
     );
 
-    //render
     expect(render(ApolloApp).container).toMatchSnapshot();
+
+    return wait(() => {
+      expect(done).toBeTruthy();
+    });
   });
 });

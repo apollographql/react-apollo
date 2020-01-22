@@ -1,7 +1,7 @@
 {
   "name": "react-apollo",
   "description": "React Apollo Hooks, Components, and HOC.",
-  "version": "3.1.3",
+  "version": "4.0.0-beta.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -30,20 +30,23 @@
     "build": "npx tsc -p ./config",
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "predeploy": "npm run build",
-    "deploy": "npm publish"
+    "deploy": "npm publish --tag beta"
   },
   "peerDependencies": {
-    "@types/react": "^16.8.0",
-    "apollo-client": "^2.6.4",
-    "graphql": "^14.3.1",
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "@types/react": "^16.9.17",
+    "graphql": "^14.5.8",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "rollup": "1.29.0",
+    "typescript": "3.7.4"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
+    "@apollo/react-hooks": "file:../hooks",
     "@apollo/react-components": "file:../components",
     "@apollo/react-hoc": "file:../hoc",
-    "@apollo/react-hooks": "file:../hooks",
     "@apollo/react-ssr": "file:../ssr"
   },
   "files": [
@@ -51,9 +54,5 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "rollup": "1.29.0",
-    "typescript": "3.7.5"
   }
 }

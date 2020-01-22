@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-hoc",
   "description": "React Apollo `graphql` higher-order component.",
-  "version": "3.1.3",
+  "version": "4.0.0-beta.0",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -29,37 +29,35 @@
     "postbuild": "npx rollup -c ./config/rollup.config.js",
     "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
     "predeploy": "npm run build",
-    "deploy": "npm publish",
+    "deploy": "npm publish --tag beta",
     "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc",
     "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc --watch",
-    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hoc",
-    "test:umd": "npm run build && npx jest --config ../../config/jest.umd.config.js --testPathPattern packages/hoc"
+    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hoc"
   },
   "peerDependencies": {
-    "@types/react": "^16.8.0",
-    "apollo-client": "^2.6.4",
-    "graphql": "^14.3.1",
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "graphql": "^14.5.8",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
     "@apollo/react-components": "file:../components",
-    "hoist-non-react-statics": "^3.3.0",
+    "hoist-non-react-statics": "^3.3.1",
     "ts-invariant": "^0.4.4",
     "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "@apollo/react-ssr": "file:../ssr",
+    "@apollo/react-testing": "file:../testing",
+    "jest": "24.9.0",
+    "rollup": "1.29.0",
+    "tsc-watch": "4.0.0",
+    "typescript": "3.7.5"
   },
   "files": [
     "lib"
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "@apollo/react-ssr": "file:../ssr",
-    "jest": "24.9.0",
-    "rollup": "1.29.0",
-    "tsc-watch": "3.0.2",
-    "typescript": "3.7.5"
   }
 }

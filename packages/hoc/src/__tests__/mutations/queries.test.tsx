@@ -1,15 +1,18 @@
 import React from 'react';
 import { render, cleanup, wait } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient, { MutationUpdaterFn } from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  MutationUpdaterFn,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import {
   mockSingleLink,
   stripSymbols,
-  createClient
+  createMockClient
 } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
-import { ApolloProvider } from '@apollo/react-common';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('graphql(mutation) query integration', () => {
@@ -40,7 +43,7 @@ describe('graphql(mutation) query integration', () => {
 
     type Data = typeof data;
 
-    const client = createClient(data, query);
+    const client = createMockClient(data, query);
     const Container = graphql<{}, Data>(query)(
       class extends React.Component<ChildProps<{}, Data>> {
         componentDidMount() {
@@ -127,8 +130,10 @@ describe('graphql(mutation) query integration', () => {
     }
 
     const update: MutationUpdaterFn = (proxy, result) => {
-      const data = proxy.readQuery<QueryData>({ query }); // read from cache
-      data!.todo_list.tasks.push(result.data!.createTodo); // update value
+      const data = JSON.parse(
+        JSON.stringify(proxy.readQuery<QueryData>({ query }))
+      );
+      data.todo_list.tasks.push(result.data!.createTodo); // update value
       proxy.writeQuery({ query, data }); // write to cache
     };
 
@@ -165,9 +170,10 @@ describe('graphql(mutation) query integration', () => {
           });
 
           const dataInStore = cache.extract(true);
-          expect(
-            stripSymbols(dataInStore['$ROOT_MUTATION.createTodo'])
-          ).toEqual(optimisticResponse.createTodo);
+          expect(stripSymbols(dataInStore.ROOT_MUTATION!.createTodo)).toEqual(
+            optimisticResponse.createTodo
+          );
+          done();
           return null;
         }
 

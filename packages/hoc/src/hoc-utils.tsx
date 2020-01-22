@@ -1,6 +1,6 @@
 import React from 'react';
 import { invariant } from 'ts-invariant';
-import { IDocumentDefinition, OperationVariables } from '@apollo/react-common';
+import { OperationVariables, IDocumentDefinition } from '@apollo/react-common';
 
 export const defaultMapPropsToOptions = () => ({});
 export const defaultMapResultToProps: <P>(props: P) => P = props => props;
@@ -43,7 +43,7 @@ export class GraphQLBase<
   TProps,
   TChildProps,
   TState = any
-  > extends React.Component<TProps, TState> {
+> extends React.Component<TProps, TState> {
   public withRef: boolean = false;
   // wrapped instance
   private wrappedInstance?: React.ComponentClass<TChildProps>;
@@ -57,7 +57,7 @@ export class GraphQLBase<
     invariant(
       this.withRef,
       `To access the wrapped instance, you need to specify ` +
-      `{ withRef: true } in the options`
+        `{ withRef: true } in the options`
     );
 
     return this.wrappedInstance;
