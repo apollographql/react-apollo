@@ -1,7 +1,7 @@
 {
   "name": "react-apollo",
   "description": "React Apollo Hooks, Components, and HOC.",
-  "version": "4.0.0-beta.0",
+  "version": "4.0.0-beta.1",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -44,9 +44,9 @@
   },
   "dependencies": {
     "@apollo/react-common": "file:../common",
-    "@apollo/react-hooks": "file:../hooks",
     "@apollo/react-components": "file:../components",
     "@apollo/react-hoc": "file:../hoc",
+    "@apollo/react-hooks": "file:../hooks",
     "@apollo/react-ssr": "file:../ssr"
   },
   "files": [
