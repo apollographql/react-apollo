@@ -630,7 +630,16 @@ describe('@client testing', () => {
       const ContainerWithData = withNetworkStatus(Container);
 
       render(
-        <MockedProvider mocks={networkStatusMocks}>
+        <MockedProvider
+          mocks={networkStatusMocks}
+          resolvers={{
+            Query: {
+              foo() {
+                return null;
+              }
+            }
+          }}
+        >
           <ContainerWithData />
         </MockedProvider>
       );
