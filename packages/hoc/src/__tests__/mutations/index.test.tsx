@@ -1,10 +1,12 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import { ApolloProvider } from '@apollo/react-common';
-import { stripSymbols, createClient } from '@apollo/react-testing';
-import { NormalizedCacheObject } from 'apollo-cache-inmemory';
-import { ApolloClient } from 'apollo-client';
+import { stripSymbols, createMockClient } from '@apollo/react-testing';
+import {
+  ApolloClient,
+  NormalizedCacheObject,
+  ApolloProvider
+} from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
@@ -38,7 +40,7 @@ describe('graphql(mutation)', () => {
   beforeEach(() => {
     error = console.error;
     console.error = jest.fn(() => {});
-    client = createClient(expectedData, query);
+    client = createMockClient(expectedData, query);
   });
 
   afterEach(() => {
@@ -199,7 +201,9 @@ describe('graphql(mutation)', () => {
         }
       }
     `;
-    client = createClient(expectedData, queryWithVariables, { first: 1 });
+    client = createMockClient(expectedData, queryWithVariables, {
+      first: 1
+    });
 
     interface Props {
       first: number;
@@ -236,7 +240,7 @@ describe('graphql(mutation)', () => {
         }
       }
     `;
-    client = createClient(expectedData, queryWithVariables, {
+    client = createMockClient(expectedData, queryWithVariables, {
       first: 1,
       second: 2
     });

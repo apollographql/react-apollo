@@ -7,5 +7,4 @@ npm
 lib
 yarn.lock
 examples/**/package-lock.json
-packages/**/package-lock.json
 junit.xml

@@ -1,16 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/server';
-import ApolloClient from 'apollo-client';
-import { ApolloProvider } from '@apollo/react-common';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider
+} from '@apollo/react-common';
 import gql from 'graphql-tag';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
 import { mockSingleLink } from '@apollo/react-testing';
 import { Query } from '@apollo/react-components';
-import {
-  getDataFromTree,
-  getMarkupFromTree
-} from '@apollo/react-ssr';
+import { getDataFromTree, getMarkupFromTree } from '@apollo/react-ssr';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps, DataValue } from '@apollo/react-hoc';
 
@@ -41,15 +40,15 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql<Props, Data>(query)(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>
-            {!data || data.loading || !data.currentUser
-              ? 'loading'
-              : data.currentUser.firstName}
-          </div>
-        )
-      );
+      const WrappedElement = graphql<Props, Data>(
+        query
+      )(({ data }: ChildProps<Props, Data>) => (
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -57,18 +56,14 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      await getDataFromTree(app).then(html => {
-        const markup = ReactDOM.renderToStaticMarkup(app);
-        expect(markup).toEqual(html);
+      await getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
 
       await getMarkupFromTree({
         tree: app,
         renderFunction: ReactDOM.renderToString
-      }).then(html => {
-        const markup = ReactDOM.renderToString(app);
-        expect(markup).toEqual(html);
+      }).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });
@@ -114,8 +109,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });
@@ -157,9 +151,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(html => {
-        expect(html).toMatch(/James/);
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });
@@ -189,15 +181,15 @@ describe('SSR', () => {
         };
       }
 
-      const WrappedElement = graphql<Props, Data>(query)(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>
-            {!data || data.loading || !data.currentUser
-              ? 'loading'
-              : data.currentUser.firstName}
-          </div>
-        )
-      );
+      const WrappedElement = graphql<Props, Data>(
+        query
+      )(({ data }: ChildProps<Props, Data>) => (
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
+      ));
 
       const Page = () => (
         <div>
@@ -214,8 +206,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });
@@ -304,8 +295,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });
@@ -425,11 +415,11 @@ describe('SSR', () => {
           firstName: string;
         };
       }
-      const WrappedElement = graphql<Props, Data>(query)(
-        ({ data }: ChildProps<Props, Data>) => (
-          <div>{!data || data.loading ? 'loading' : data.error}</div>
-        )
-      );
+      const WrappedElement = graphql<Props, Data>(
+        query
+      )(({ data }: ChildProps<Props, Data>) => (
+        <div>{!data || data.loading ? 'loading' : data.error}</div>
+      ));
 
       const Page = () => (
         <div>
@@ -494,8 +484,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/skipped/);
       });
     });
@@ -532,15 +521,15 @@ describe('SSR', () => {
       interface Variables {
         id: string;
       }
-      const Element = graphql<Props, Data, Variables>(query)(
-        ({ data }: ChildProps<Props, Data, Variables>) => (
-          <div>
-            {!data || data.loading || !data.currentUser
-              ? 'loading'
-              : data.currentUser.firstName}
-          </div>
-        )
-      );
+      const Element = graphql<Props, Data, Variables>(
+        query
+      )(({ data }: ChildProps<Props, Data, Variables>) => (
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
+      ));
 
       const app = (
         <ApolloProvider client={apolloClient}>
@@ -552,7 +541,7 @@ describe('SSR', () => {
         const initialState = cache.extract();
         expect(initialState).toBeTruthy();
         expect(
-          initialState['$ROOT_QUERY.currentUser({"id":"1"})']
+          initialState.ROOT_QUERY!['currentUser({"id":"1"})']
         ).toBeTruthy();
       });
     });
@@ -629,7 +618,7 @@ describe('SSR', () => {
           const initialState = cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":"1"})']
+            initialState.ROOT_QUERY!['currentUser({"id":"1"})']
           ).toBeTruthy();
           done();
         })
@@ -748,7 +737,7 @@ describe('SSR', () => {
           const initialState = apolloClient.cache.extract();
           expect(initialState).toBeTruthy();
           expect(
-            initialState['$ROOT_QUERY.currentUser({"id":"1"})']
+            initialState.ROOT_QUERY!['currentUser({"id":"1"})']
           ).toBeTruthy();
           done();
         })
@@ -945,9 +934,9 @@ describe('SSR', () => {
         }
       });
 
-      const Element: React.StatelessComponent<
-        QueryChildProps & { action: (variables: {}) => Promise<any> }
-      > = ({ data }) => (
+      const Element: React.StatelessComponent<QueryChildProps & {
+        action: (variables: {}) => Promise<any>;
+      }> = ({ data }) => (
         <div>
           {!data || data.loading || !data.currentUser
             ? 'loading'
@@ -963,8 +952,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });
@@ -1028,9 +1016,11 @@ describe('SSR', () => {
         }
       });
 
-      const Element: React.StatelessComponent<
-        ChildProps<ChildProps<Props, MutationData>, QueryData, {}>
-      > = ({ data }) => (
+      const Element: React.StatelessComponent<ChildProps<
+        ChildProps<Props, MutationData>,
+        QueryData,
+        {}
+      >> = ({ data }) => (
         <div>
           {!data || data.loading || !data.currentUser
             ? 'loading'
@@ -1046,8 +1036,7 @@ describe('SSR', () => {
         </ApolloProvider>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });
@@ -1076,15 +1065,15 @@ describe('SSR', () => {
         cache: new Cache({ addTypename: false })
       });
 
-      const WrappedElement = graphql<{}, Data>(query)(
-        ({ data }: ChildProps<{}, Data>) => (
-          <div>
-            {!data || data.loading || !data.currentUser
-              ? 'loading'
-              : data.currentUser.firstName}
-          </div>
-        )
-      );
+      const WrappedElement = graphql<{}, Data>(
+        query
+      )(({ data }: ChildProps<{}, Data>) => (
+        <div>
+          {!data || data.loading || !data.currentUser
+            ? 'loading'
+            : data.currentUser.firstName}
+        </div>
+      ));
 
       class MyRootContainer extends React.Component<{}, { color: string }> {
         constructor(props: {}) {
@@ -1113,8 +1102,7 @@ describe('SSR', () => {
         </MyRootContainer>
       );
 
-      return getDataFromTree(app).then(() => {
-        const markup = ReactDOM.renderToString(app);
+      return getDataFromTree(app).then(markup => {
         expect(markup).toMatch(/James/);
       });
     });

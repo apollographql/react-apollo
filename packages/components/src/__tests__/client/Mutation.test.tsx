@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { ApolloClient, ApolloError } from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { DataProxy } from 'apollo-cache';
+import {
+  ApolloClient,
+  ApolloError,
+  InMemoryCache as Cache,
+  DataProxy,
+  ApolloProvider
+} from '@apollo/react-common';
 import { ExecutionResult, GraphQLError } from 'graphql';
-import { ApolloProvider } from '@apollo/react-common';
 import {
   MockedProvider,
   MockLink,

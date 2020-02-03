@@ -2,11 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { render, cleanup } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { ApolloLink } from 'apollo-link';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider,
+  ApolloLink
+} from '@apollo/react-common';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps, DataProps } from '@apollo/react-hoc';
 
@@ -389,7 +391,10 @@ describe('queries', () => {
       }
     };
 
-    const Container = graphql<{}, Data, Vars>(query, options)(
+    const Container = graphql<{}, Data, Vars>(
+      query,
+      options
+    )(
       class extends React.Component<ChildProps<{}, Data, Vars>> {
         componentDidUpdate() {
           const { props } = this;
@@ -617,7 +622,7 @@ describe('queries', () => {
     const Container = graphql<{}, Data>(query)(
       class Container extends React.Component<ChildProps<{}, Data>> {
         componentDidUpdate() {
-          const queries = client.queryManager!.queryStore.getStore();
+          const queries = (client as any).queryManager!.queryStore.getStore();
           const queryIds = Object.keys(queries);
           expect(queryIds.length).toEqual(1);
           const queryFirst = queries[queryIds[0]];
@@ -839,17 +844,19 @@ describe('queries', () => {
       })(
         class Compnent extends React.Component<any> {
           render() {
-            expect(this.props.data.cars).toEqual([
-              {
-                __typename: 'Car',
-                repairs: [
-                  {
-                    __typename: 'Repair',
-                    date: '2019-05-08'
-                  }
-                ]
-              }
-            ]);
+            if (!this.props.data.loading) {
+              expect(this.props.data.cars).toEqual([
+                {
+                  __typename: 'Car',
+                  repairs: [
+                    {
+                      __typename: 'Repair',
+                      date: '2019-05-08'
+                    }
+                  ]
+                }
+              ]);
+            }
             return null;
           }
         }

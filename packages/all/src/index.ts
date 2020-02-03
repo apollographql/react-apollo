@@ -1,35 +1,11 @@
-// @apollo/react-common
-export {
-  ApolloContextValue,
-  getApolloContext,
-  resetApolloContext,
-  ApolloProvider,
-  ApolloConsumer,
-  // types
-  OperationVariables,
-  Context,
-  ExecutionResult,
-  BaseQueryOptions,
-  QueryFunctionOptions,
-  ObservableQueryFields,
-  QueryResult,
-  RefetchQueriesFunction,
-  BaseMutationOptions,
-  MutationFunctionOptions,
-  MutationResult,
-  MutationFetchResult,
-  MutationFunction,
-  OnSubscriptionDataOptions,
-  BaseSubscriptionOptions,
-  SubscriptionResult
-} from '@apollo/react-common';
+// Common + hooks
+export * from '@apollo/react-common';
 
 // @apollo/react-components
 export {
   Query,
   Mutation,
   Subscription,
-  // types
   QueryComponentOptions,
   MutationComponentOptions,
   SubscriptionComponentOptions
@@ -42,7 +18,6 @@ export {
   withMutation,
   withSubscription,
   withApollo,
-  // types
   QueryControls,
   DataValue,
   DataProps,
@@ -55,27 +30,7 @@ export {
   WithApolloClient
 } from '@apollo/react-hoc';
 
-// @apollo/react-hooks
-export {
-  useQuery,
-  useLazyQuery,
-  useMutation,
-  useSubscription,
-  useApolloClient,
-  // types
-  CommonOptions,
-  QueryOptions,
-  QueryHookOptions,
-  QueryPreviousData,
-  QueryCurrentObservable,
-  MutationHookOptions,
-  MutationOptions,
-  MutationTuple,
-  SubscriptionHookOptions,
-  SubscriptionOptions,
-  SubscriptionCurrentObservable
-} from '@apollo/react-hooks';
-
+// SSR
 export {
   getMarkupFromTree,
   getDataFromTree,

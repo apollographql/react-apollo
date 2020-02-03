@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { render, wait } from '@testing-library/react';
+import { InMemoryCache } from '@apollo/react-common';
 import gql from 'graphql-tag';
 import { MockedProvider, MockedResponse } from '@apollo/react-testing';
 import { DocumentNode } from 'graphql';
@@ -62,8 +62,6 @@ const mocks: ReadonlyArray<MockedResponse> = [
 ];
 
 describe('General use', () => {
-  afterEach(cleanup);
-
   it('mocks the data', done => {
     class Container extends React.Component<
       ChildProps<Variables, Data, Variables>
@@ -129,7 +127,7 @@ describe('General use', () => {
     );
   });
 
-  it('allows for using a custom cache', done => {
+  it('allows for using a custom cache', async () => {
     const cache = new InMemoryCache();
     cache.writeQuery({
       query,
@@ -137,12 +135,14 @@ describe('General use', () => {
       data: { user }
     });
 
-    const Container: React.SFC<
-      ChildProps<Variables, Data, Variables>
-    > = props => {
-      expect(props.data).toMatchObject({ user });
-      done();
-
+    const Container: React.SFC<ChildProps<
+      Variables,
+      Data,
+      Variables
+    >> = props => {
+      if (!props.data!.loading) {
+        expect(props.data).toMatchObject({ user });
+      }
       return null;
     };
     const ContainerWithData = withUser(Container);
@@ -151,6 +151,8 @@ describe('General use', () => {
         <ContainerWithData {...variables} />
       </MockedProvider>
     );
+
+    return wait();
   });
 
   it('errors if the variables in the mock and component do not match', done => {

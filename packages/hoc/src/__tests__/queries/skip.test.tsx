@@ -1,17 +1,17 @@
 import React from 'react';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 import gql from 'graphql-tag';
-import ApolloClient from 'apollo-client';
-import { ApolloLink } from 'apollo-link';
-import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import {
+  ApolloClient,
+  InMemoryCache as Cache,
+  ApolloProvider,
+  ApolloLink
+} from '@apollo/react-common';
 import { mockSingleLink, stripSymbols } from '@apollo/react-testing';
-import { ApolloProvider } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 import { graphql, ChildProps } from '@apollo/react-hoc';
 
 describe('[queries] skip', () => {
-  afterEach(cleanup);
-
   it('allows you to skip a query without running it', done => {
     const query: DocumentNode = gql`
       query people {

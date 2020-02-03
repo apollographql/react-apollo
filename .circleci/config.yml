@@ -31,21 +31,6 @@ jobs:
       - store_artifacts:
           path: reports/junit
 
-  Tests - UMD:
-    docker: [{ image: 'circleci/node:10' }]
-    steps:
-      - checkout
-      - run: npm i
-      - run:
-          name: Tests - CJS
-          command: npm run test:umd:ci
-          environment:
-            JEST_JUNIT_OUTPUT: 'reports/junit/js-test-results.xml'
-      - store_test_results:
-          path: reports/junit
-      - store_artifacts:
-          path: reports/junit
-
   Bundlesize:
     docker: [{ image: 'circleci/node:8' }]
     steps:
@@ -59,5 +44,4 @@ workflows:
     jobs:
       - Tests - ESM
       - Tests - CJS
-      - Tests - UMD
       - Bundlesize

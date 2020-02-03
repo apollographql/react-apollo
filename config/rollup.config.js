@@ -5,49 +5,34 @@ import invariantPlugin from 'rollup-plugin-invariant';
 import fs from 'fs';
 import { transformSync } from '@babel/core';
 import cjsModulesTransform from '@babel/plugin-transform-modules-commonjs';
-import umdModulesTransform from '@babel/plugin-transform-modules-umd';
 import { terser as minify } from 'rollup-plugin-terser';
 
-const defaultGlobals = {
-  '@apollo/react-common': 'apolloReactCommon',
-  '@apollo/react-components': 'apolloReactComponents',
-  '@apollo/react-hoc': 'apolloReactHOC',
-  '@apollo/react-hooks': 'apolloReactHooks',
-  '@apollo/react-testing': 'apolloReactTesting',
-  '@apollo/react-ssr': 'apolloReactSSR',
-  'apollo-client': 'apolloClient',
-  'apollo-utilities': 'apolloUtilities',
-  'apollo-cache': 'apolloCache',
-  'apollo-cache-inmemory': 'apolloCacheInMemory',
-  'apollo-link': 'apolloLink',
-  graphql: 'graphql',
-  'react-apollo': 'reactApollo',
-  react: 'React',
-  'ts-invariant': 'invariant',
-  tslib: 'tslib',
-  'fast-json-stable-stringify': 'stringify',
-  'zen-observable': 'zenObservable',
-  'hoist-non-react-statics': 'hoistNonReactStatics',
-  'prop-types': 'PropTypes',
-  '@wry/equality': 'equal',
-};
+const external = [
+  '@apollo/react-common',
+  '@apollo/react-components',
+  '@apollo/react-hoc',
+  '@apollo/react-hooks',
+  '@apollo/react-testing',
+  '@apollo/react-ssr',
+  '@apollo/client',
+  'graphql',
+  'react-apollo',
+  'react',
+  'ts-invariant',
+  'tslib',
+  'fast-json-stable-stringify',
+  'zen-observable',
+  'hoist-non-react-statics',
+  'prop-types',
+  '@wry/equality',
+];
 
 export function rollup({
   name,
   input = './src/index.ts',
   outputPrefix = 'react',
-  extraGlobals = {},
 }) {
   const tsconfig = './config/tsconfig.json';
-
-  const globals = {
-    ...defaultGlobals,
-    ...extraGlobals,
-  };
-
-  function external(id) {
-    return Object.prototype.hasOwnProperty.call(globals, id);
-  }
 
   function outputFile(format) {
     return `./lib/${outputPrefix}-${name}.${format}.js`;
@@ -89,18 +74,14 @@ export function rollup({
     };
   }
 
-  function fromESM(toFormat) {
+  function fromESM() {
     return {
       input: outputFile('esm'),
       output: {
-        file: outputFile(toFormat),
+        file: outputFile('cjs'),
         format: 'esm',
         sourcemap: false,
       },
-      // The UMD bundle expects `this` to refer to the global object. By default
-      // Rollup replaces `this` with `undefined`, but this default behavior can
-      // be overridden with the `context` option.
-      context: 'this',
       plugins: [
         {
           transform(source, id) {
@@ -109,9 +90,7 @@ export function rollup({
               sourceMaps: true,
               plugins: [
                 [
-                  toFormat === 'umd'
-                    ? umdModulesTransform
-                    : cjsModulesTransform,
+                  cjsModulesTransform,
                   {
                     loose: true,
                     allowTopLevelThis: true,
@@ -123,10 +102,10 @@ export function rollup({
             // There doesn't seem to be any way to get Rollup to emit a source map
             // that goes all the way back to the source file (rather than just to
             // the bundle.esm.js intermediate file), so we pass sourcemap:false in
-            // the output options above, and manually write the CJS and UMD source
+            // the output options above, and manually write the CJS source
             // maps here.
             fs.writeFileSync(
-              outputFile(toFormat) + '.map',
+              outputFile('cjs') + '.map',
               JSON.stringify(output.map),
             );
 
@@ -141,8 +120,7 @@ export function rollup({
 
   return [
     fromSource('esm'),
-    fromESM('cjs'),
-    fromESM('umd'),
+    fromESM(),
     {
       input: outputFile('cjs'),
       output: {

@@ -20,7 +20,9 @@ export function graphql<
     TGraphQLVariables,
     TChildProps
   > = {}
-) {
+): (
+  WrappedComponent: React.ComponentType<TProps & TChildProps>
+) => React.ComponentClass<TProps> {
   switch (parser(document).type) {
     case DocumentType.Mutation:
       return withMutation(document, operationOptions);

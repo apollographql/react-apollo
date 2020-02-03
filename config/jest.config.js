@@ -10,8 +10,9 @@ module.exports = {
   },
   coverageDirectory: './meta/coverage',
   moduleNameMapper: {
-    '^@apollo\\/react-([^/]+)': '<rootDir>/$1/src',
+    '^@apollo\\/react-components': '<rootDir>/components/src',
+    '^@apollo\\/react-hoc': '<rootDir>/hoc/src',
+    '^@apollo\\/react-ssr': '<rootDir>/ssr/src',
   },
-  testMatch: ['<rootDir>/*/src/**/__tests__/**/*.test.ts?(x)'],
   testPathIgnorePatterns: ['/examples', '/lib'],
 };
