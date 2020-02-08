@@ -44,7 +44,7 @@
     "@types/zen-observable": "0.8.0",
     "bundlesize": "0.18.0",
     "graphql": "14.6.0",
-    "graphql-tag": "2.10.1",
+    "graphql-tag": "2.10.3",
     "jest": "^24.9.0",
     "jest-junit": "10.0.0",
     "lerna": "3.20.2",
