@@ -52,7 +52,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "recompose": "0.30.0",
-    "rollup": "1.29.0",
+    "rollup": "1.31.0",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-invariant": "0.5.6",
     "rollup-plugin-node-resolve": "5.2.0",
