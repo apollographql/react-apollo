@@ -43,7 +43,7 @@
     "@types/recompose": "0.30.7",
     "@types/zen-observable": "0.8.0",
     "bundlesize": "0.18.0",
-    "graphql": "14.5.8",
+    "graphql": "14.6.0",
     "graphql-tag": "2.10.1",
     "jest": "^24.9.0",
     "jest-junit": "10.0.0",
