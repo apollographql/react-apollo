@@ -19,7 +19,7 @@
     "react-scripts": "3.4.0",
     "reactstrap": "^8.0.0",
     "subscriptions-transport-ws": "^0.9.16",
-    "typescript": "3.8.2"
+    "typescript": "3.8.3"
   },
   "scripts": {
     "start": "react-scripts start",
