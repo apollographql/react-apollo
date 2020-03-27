@@ -36,7 +36,7 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
         if (!queryData.ssrInitiated() && isRendering.current) {
           isRenderScheduled.current = true;
         } else {
-          forceUpdate(0);
+          forceUpdate();
         }
       }
     });
@@ -47,10 +47,8 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   // SSR won't trigger the effect hook below that stores the current
   // `QueryData` instance for future renders, so we'll handle that here if
   // the current render is happening server side.
-  if (queryData.ssrInitiated()) {
-    if (!queryDataRef.current) {
-      queryDataRef.current = queryData;
-    }
+  if (queryData.ssrInitiated() && !queryDataRef.current) {
+    queryDataRef.current = queryData;
   }
 
   // `onError` and `onCompleted` callback functions will not always have a
@@ -84,7 +82,7 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
     isRendering.current = false;
     if (isRenderScheduled.current) {
       isRenderScheduled.current = false;
-      forceUpdate(0);
+      forceUpdate();
     }
   });
 

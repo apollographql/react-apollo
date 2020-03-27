@@ -509,7 +509,7 @@ describe('useQuery Hook', () => {
             expect(error).toBeDefined();
             expect(error!.message).toEqual('GraphQL error: forced error');
             setTimeout(() => {
-              forceUpdate(0);
+              forceUpdate();
             });
             break;
           case 2:
@@ -569,7 +569,7 @@ describe('useQuery Hook', () => {
               expect(error).toBeDefined();
               expect(error!.message).toEqual('GraphQL error: forced error');
               setTimeout(() => {
-                forceUpdate(0);
+                forceUpdate();
               });
               break;
             case 2:
