@@ -25,24 +25,24 @@ import {
 import { OperationData } from './OperationData';
 
 export class QueryData<TData, TVariables> extends OperationData {
+  public onNewData: () => void;
+
   private previousData: QueryPreviousData<TData, TVariables> = {};
   private currentObservable: QueryCurrentObservable<TData, TVariables> = {};
-  private forceUpdate: any;
-
   private runLazy: boolean = false;
   private lazyOptions?: QueryLazyOptions<TVariables>;
 
   constructor({
     options,
     context,
-    forceUpdate
+    onNewData
   }: {
     options: QueryOptions<TData, TVariables>;
     context: ApolloContextValue;
-    forceUpdate: any;
+    onNewData: () => void;
   }) {
     super(options, context);
-    this.forceUpdate = forceUpdate;
+    this.onNewData = onNewData;
   }
 
   public execute(): QueryResult<TData, TVariables> {
@@ -134,12 +134,15 @@ export class QueryData<TData, TVariables> extends OperationData {
     return options;
   }
 
+  public ssrInitiated() {
+    return this.context && this.context.renderPromises;
+  }
+
   private runLazyQuery = (options?: QueryLazyOptions<TVariables>) => {
     this.cleanup();
-
     this.runLazy = true;
     this.lazyOptions = options;
-    this.forceUpdate();
+    this.onNewData();
   };
 
   private getExecuteResult = (): QueryResult<TData, TVariables> => {
@@ -149,7 +152,6 @@ export class QueryData<TData, TVariables> extends OperationData {
   };
 
   private getExecuteSsrResult() {
-    const treeRenderingInitiated = this.context && this.context.renderPromises;
     const ssrDisabled = this.getOptions().ssr === false;
     const fetchDisabled = this.refreshClient().client.disableNetworkFetches;
 
@@ -162,12 +164,12 @@ export class QueryData<TData, TVariables> extends OperationData {
 
     // If SSR has been explicitly disabled, and this function has been called
     // on the server side, return the default loading state.
-    if (ssrDisabled && (treeRenderingInitiated || fetchDisabled)) {
+    if (ssrDisabled && (this.ssrInitiated() || fetchDisabled)) {
       return ssrLoading;
     }
 
     let result;
-    if (treeRenderingInitiated) {
+    if (this.ssrInitiated()) {
       result =
         this.context.renderPromises!.addQueryPromise(
           this,
@@ -186,8 +188,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     // Set the fetchPolicy to cache-first for network-only and cache-and-network
     // fetches for server side renders.
     if (
-      this.context &&
-      this.context.renderPromises &&
+      this.ssrInitiated() &&
       (options.fetchPolicy === 'network-only' ||
         options.fetchPolicy === 'cache-and-network')
     ) {
@@ -206,8 +207,8 @@ export class QueryData<TData, TVariables> extends OperationData {
     // See if there is an existing observable that was used to fetch the same
     // data and if so, use it instead since it will contain the proper queryId
     // to fetch the result set. This is used during SSR.
-    if (this.context && this.context.renderPromises) {
-      this.currentObservable.query = this.context.renderPromises.getSSRObservable(
+    if (this.ssrInitiated()) {
+      this.currentObservable.query = this.context?.renderPromises?.getSSRObservable(
         this.getOptions()
       );
     }
@@ -223,8 +224,8 @@ export class QueryData<TData, TVariables> extends OperationData {
         ...observableQueryOptions
       });
 
-      if (this.context && this.context.renderPromises) {
-        this.context.renderPromises.registerSSRObservable(
+      if (this.ssrInitiated()) {
+        this.context?.renderPromises?.registerSSRObservable(
           this.currentObservable.query,
           observableQueryOptions
         );
@@ -279,7 +280,7 @@ export class QueryData<TData, TVariables> extends OperationData {
           return;
         }
 
-        this.forceUpdate();
+        this.onNewData();
       },
       error: error => {
         this.resubscribeToQuery();
@@ -291,7 +292,7 @@ export class QueryData<TData, TVariables> extends OperationData {
           !isEqual(error, this.previousData.error)
         ) {
           this.previousData.error = error;
-          this.forceUpdate();
+          this.onNewData();
         }
       }
     });
