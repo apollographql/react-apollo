@@ -18,20 +18,40 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   const context = useContext(getApolloContext());
   const [tick, forceUpdate] = useReducer(x => x + 1, 0);
   const updatedOptions = options ? { ...options, query } : { query };
+  const isRendering = useRef(true);
+  const isRenderScheduled = useRef(false);
 
   const queryDataRef = useRef<QueryData<TData, TVariables>>();
-
-  if (!queryDataRef.current) {
-    queryDataRef.current = new QueryData<TData, TVariables>({
+  const queryData =
+    queryDataRef.current ||
+    new QueryData<TData, TVariables>({
       options: updatedOptions as QueryOptions<TData, TVariables>,
       context,
-      forceUpdate
+      onNewData() {
+        // When new data is received from the `QueryData` object, we want to
+        // force a re-render to make sure the new data is displayed. We can't
+        // force that re-render if we're already rendering however, so in that
+        // case we'll defer triggering a re-render until we're inside an effect
+        // hook.
+        if (!queryData.ssrInitiated() && isRendering.current) {
+          isRenderScheduled.current = true;
+        } else {
+          forceUpdate(0);
+        }
+      }
     });
-  }
 
-  const queryData = queryDataRef.current;
   queryData.setOptions(updatedOptions);
   queryData.context = context;
+
+  // SSR won't trigger the effect hook below that stores the current
+  // `QueryData` instance for future renders, so we'll handle that here if
+  // the current render is happening server side.
+  if (queryData.ssrInitiated()) {
+    if (!queryDataRef.current) {
+      queryDataRef.current = queryData;
+    }
+  }
 
   // `onError` and `onCompleted` callback functions will not always have a
   // stable identity, so we'll exclude them from the memoization key to
@@ -50,6 +70,23 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   const queryResult = lazy
     ? (result as QueryTuple<TData, TVariables>)[1]
     : (result as QueryResult<TData, TVariables>);
+
+  useEffect(() => {
+    // We only need one instance of the `QueryData` class, so we'll store it
+    // as a ref to make it available on subsequent renders.
+    if (!queryDataRef.current) {
+      queryDataRef.current = queryData;
+    }
+
+    // If `QueryData` requested a re-render to show new data while we were
+    // in a render phase, let's handle the re-render here where it's safe to do
+    // so.
+    isRendering.current = false;
+    if (isRenderScheduled.current) {
+      isRenderScheduled.current = false;
+      forceUpdate(0);
+    }
+  });
 
   useEffect(() => queryData.afterExecute({ lazy }), [
     queryResult.loading,
