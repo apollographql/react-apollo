@@ -208,7 +208,7 @@ export class QueryData<TData, TVariables> extends OperationData {
     // data and if so, use it instead since it will contain the proper queryId
     // to fetch the result set. This is used during SSR.
     if (this.ssrInitiated()) {
-      this.currentObservable.query = this.context?.renderPromises?.getSSRObservable(
+      this.currentObservable.query = this.context!.renderPromises!.getSSRObservable(
         this.getOptions()
       );
     }
