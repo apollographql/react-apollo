@@ -1,5 +1,10 @@
 # Change log
 
+## 3.1.4 (TBD)
+
+- Prevent new data re-render attempts during an existing render. This helps avoid React 16.13.0's "Cannot update a component from inside the function body of a different component" warning (https://github.com/facebook/react/pull/17099). <br/>
+  [@hwillson](https://github.com/hwillson) in [#3902](https://github.com/apollographql/react-apollo/pull/3902)
+
 ## 3.1.3 (2019-10-15)
 
 - Revert the changes made in [#3497](https://github.com/apollographql/react-apollo/pull/3497), which have lead to problems with `onCompleted` being called more often than necessary. <br/>

@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react';
+import React, { Fragment, useState, useReducer } from 'react';
 import { DocumentNode, GraphQLError } from 'graphql';
 import gql from 'graphql-tag';
 import { MockedProvider, MockLink } from '@apollo/react-testing';
@@ -120,6 +120,61 @@ describe('useQuery Hook', () => {
       );
 
       await wait();
+    });
+
+    it('should not error when forcing an update with React >= 16.13.0', async () => {
+      let wasUpdateErrorLogged = false;
+      const consoleError = console.error;
+      console.error = (msg: string) => {
+        console.log(msg);
+        wasUpdateErrorLogged = msg.indexOf('Cannot update a component') > -1;
+      };
+
+      const CAR_MOCKS = [1, 2, 3, 4, 5, 6].map(something => ({
+        request: {
+          query: CAR_QUERY,
+          variables: { something }
+        },
+        result: { data: CAR_RESULT_DATA },
+        delay: 1000
+      }));
+
+      let renderCount = 0;
+
+      const InnerComponent = ({ something }: any) => {
+        const { loading, data } = useQuery(CAR_QUERY, {
+          fetchPolicy: 'network-only',
+          variables: { something }
+        });
+        if (loading) return null;
+        expect(wasUpdateErrorLogged).toBeFalsy();
+        expect(data).toEqual(CAR_RESULT_DATA);
+        renderCount += 1;
+        return null;
+      };
+
+      function WrapperComponent({ something }: any) {
+        const { loading } = useQuery(CAR_QUERY, {
+          variables: { something }
+        });
+        return loading ? null : <InnerComponent something={something + 1} />;
+      }
+
+      render(
+        <MockedProvider mocks={CAR_MOCKS}>
+          <Fragment>
+            <WrapperComponent something={1} />
+            <WrapperComponent something={3} />
+            <WrapperComponent something={5} />
+          </Fragment>
+        </MockedProvider>
+      );
+
+      await wait(() => {
+        expect(renderCount).toBe(3);
+      }).finally(() => {
+        console.error = consoleError;
+      });
     });
   });
 
@@ -454,7 +509,7 @@ describe('useQuery Hook', () => {
             expect(error).toBeDefined();
             expect(error!.message).toEqual('GraphQL error: forced error');
             setTimeout(() => {
-              forceUpdate(0);
+              forceUpdate();
             });
             break;
           case 2:
@@ -514,7 +569,7 @@ describe('useQuery Hook', () => {
               expect(error).toBeDefined();
               expect(error!.message).toEqual('GraphQL error: forced error');
               setTimeout(() => {
-                forceUpdate(0);
+                forceUpdate();
               });
               break;
             case 2:
@@ -1094,7 +1149,6 @@ describe('useQuery Hook', () => {
             onCompleted(data) {
               onCompletedCalled = true;
               expect(data).toBeDefined();
-              console.log(data);
             }
           });
           if (!loading) {
