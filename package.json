@@ -61,7 +61,7 @@
     "ts-jest": "24.3.0",
     "tsc-watch": "4.2.3",
     "typescript": "3.8.3",
-    "zen-observable-ts": "0.8.20"
+    "zen-observable-ts": "0.8.21"
   },
   "bundlesize": [
     {
