@@ -622,10 +622,12 @@ describe('[queries] skip', () => {
               });
               break;
             case 3:
+            case 4:
+            case 5:
               expect(this.props.data!.loading).toBeTruthy();
               expect(ranQuery).toBe(2);
               break;
-            case 4:
+            case 6:
               expect(this.props.data!.loading).toBeFalsy();
               break;
             default:
@@ -655,7 +657,7 @@ describe('[queries] skip', () => {
     );
 
     await wait(() => {
-      expect(count).toEqual(5);
+      expect(count).toEqual(7);
     });
   });
 

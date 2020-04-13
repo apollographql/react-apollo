@@ -591,7 +591,7 @@ describe('[queries] loading', () => {
               expect(this.props.data!.loading).toBeTruthy(); // on variables change
             }
 
-            if (count === 3) {
+            if (count === 4) {
               // new data after fetch
               expect(this.props.data!.loading).toBeFalsy();
               done();

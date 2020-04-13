@@ -2,7 +2,7 @@ import { useContext, useEffect, useReducer, useRef } from 'react';
 import {
   getApolloContext,
   OperationVariables,
-  QueryResult
+  QueryResult,
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
@@ -16,10 +16,8 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   lazy = false
 ) {
   const context = useContext(getApolloContext());
-  const [tick, forceUpdate] = useReducer(x => x + 1, 0);
+  const [tick, forceUpdate] = useReducer((x) => x + 1, 0);
   const updatedOptions = options ? { ...options, query } : { query };
-  const isRendering = useRef(true);
-  const isRenderScheduled = useRef(false);
 
   const queryDataRef = useRef<QueryData<TData, TVariables>>();
   const queryData =
@@ -28,17 +26,18 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
       options: updatedOptions as QueryOptions<TData, TVariables>,
       context,
       onNewData() {
-        // When new data is received from the `QueryData` object, we want to
-        // force a re-render to make sure the new data is displayed. We can't
-        // force that re-render if we're already rendering however, so in that
-        // case we'll defer triggering a re-render until we're inside an effect
-        // hook.
-        if (!queryData.ssrInitiated() && isRendering.current) {
-          isRenderScheduled.current = true;
+        if (!queryData.ssrInitiated()) {
+          // When new data is received from the `QueryData` object, we want to
+          // force a re-render to make sure the new data is displayed. We can't
+          // force that re-render if we're already rendering however so to be
+          // safe we'll trigger the re-render in a microtask.
+          Promise.resolve().then(forceUpdate);
         } else {
+          // If we're rendering on the server side we can force an update at
+          // any point.
           forceUpdate();
         }
-      }
+      },
     });
 
   queryData.setOptions(updatedOptions);
@@ -57,7 +56,7 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   const memo = {
     options: { ...updatedOptions, onError: undefined, onCompleted: undefined },
     context,
-    tick
+    tick,
   };
 
   const result = useDeepMemo(
@@ -76,26 +75,15 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
       queryDataRef.current = queryData;
     }
 
-    // If `QueryData` requested a re-render to show new data while we were
-    // in a render phase, let's handle the re-render here where it's safe to do
-    // so.
-    isRendering.current = false;
-    if (isRenderScheduled.current) {
-      isRenderScheduled.current = false;
-      forceUpdate();
-    }
-  });
+    return () => queryData.cleanup();
+  }, []);
 
   useEffect(() => queryData.afterExecute({ lazy }), [
     queryResult.loading,
     queryResult.networkStatus,
     queryResult.error,
-    queryResult.data
+    queryResult.data,
   ]);
-
-  useEffect(() => {
-    return () => queryData.cleanup();
-  }, []);
 
   return result;
 }

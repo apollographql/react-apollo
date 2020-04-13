@@ -1,10 +1,5 @@
 import { ReactNode } from 'react';
-import {
-  ApolloClient,
-  ApolloQueryResult,
-  ObservableQuery,
-  ApolloError
-} from 'apollo-client';
+import { ApolloClient, ObservableQuery, ApolloError } from 'apollo-client';
 import { Observable } from 'apollo-link';
 import {
   OperationVariables,
@@ -16,7 +11,7 @@ import {
   ExecutionResult,
   BaseSubscriptionOptions,
   SubscriptionResult,
-  Context
+  Context,
 } from '@apollo/react-common';
 import { DocumentNode } from 'graphql';
 
@@ -50,7 +45,7 @@ export interface QueryPreviousData<TData, TVariables> {
   client?: ApolloClient<object>;
   query?: DocumentNode;
   observableQueryOptions?: {};
-  result?: ApolloQueryResult<TData> | null;
+  result?: QueryResult<TData, TVariables> | null;
   loading?: boolean;
   options?: QueryOptions<TData, TVariables>;
   error?: ApolloError;

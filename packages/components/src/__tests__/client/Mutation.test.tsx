@@ -9,7 +9,7 @@ import {
   MockedProvider,
   MockLink,
   mockSingleLink,
-  stripSymbols
+  stripSymbols,
 } from '@apollo/react-testing';
 import { render, cleanup, fireEvent, wait } from '@testing-library/react';
 import { Query, Mutation } from '@apollo/react-components';
@@ -41,9 +41,9 @@ const data: Data = {
     __typename: 'Todo',
     id: '99',
     text: 'This one was created with a mutation.',
-    completed: true
+    completed: true,
   },
-  __typename: 'Mutation'
+  __typename: 'Mutation',
 };
 
 const data2: Data = {
@@ -51,20 +51,20 @@ const data2: Data = {
     __typename: 'Todo',
     id: '100',
     text: 'This one was created with a mutation.',
-    completed: true
+    completed: true,
   },
-  __typename: 'Mutation'
+  __typename: 'Mutation',
 };
 
 const mocks = [
   {
     request: { query: mutation },
-    result: { data }
+    result: { data },
   },
   {
     request: { query: mutation },
-    result: { data: data2 }
-  }
+    result: { data: data2 },
+  },
 ];
 
 const cache = new Cache({ addTypename: false });
@@ -82,11 +82,11 @@ describe('General Mutation testing', () => {
               __typename: 'Todo',
               id: '99',
               text,
-              completed: true
+              completed: true,
             },
-            __typename: 'Mutation'
-          }
-        }
+            __typename: 'Mutation',
+          },
+        },
       },
       {
         request: { query: mutation },
@@ -96,12 +96,12 @@ describe('General Mutation testing', () => {
               __typename: 'Todo',
               id: '100',
               text,
-              completed: true
+              completed: true,
             },
-            __typename: 'Mutation'
-          }
-        }
-      }
+            __typename: 'Mutation',
+          },
+        },
+      },
     ];
 
     const mocksProps = mock('This is the result of the prop client mutation.');
@@ -112,7 +112,7 @@ describe('General Mutation testing', () => {
     function mockClient(m: any) {
       return new ApolloClient({
         link: new MockLink(m, false),
-        cache: new Cache({ addTypename: false })
+        cache: new Cache({ addTypename: false }),
       });
     }
 
@@ -191,7 +191,7 @@ describe('General Mutation testing', () => {
     await wait();
   });
 
-  it('can bind only the mutation and not rerender by props', done => {
+  it('can bind only the mutation and not rerender by props', (done) => {
     let count = 0;
     const Component = () => (
       <Mutation mutation={mutation} ignoreResults>
@@ -267,8 +267,8 @@ describe('General Mutation testing', () => {
     const mocksWithErrors = [
       {
         request: { query: mutation },
-        error: new Error('Error 1')
-      }
+        error: new Error('Error 1'),
+      },
     ];
 
     render(
@@ -357,12 +357,12 @@ describe('General Mutation testing', () => {
     const mocksWithErrors = [
       {
         request: { query: mutation },
-        error: new Error('Error 2')
+        error: new Error('Error 2'),
       },
       {
         request: { query: mutation },
-        error: new Error('Error 2')
-      }
+        error: new Error('Error 2'),
+      },
     ];
 
     render(
@@ -379,14 +379,14 @@ describe('General Mutation testing', () => {
 
     class Component extends React.Component {
       state = {
-        mutationDone: false
+        mutationDone: false,
       };
 
       onCompleted = (mutationData: Data) => {
         expect(mutationData).toEqual(data);
         onCompletedCalled = true;
         this.setState({
-          mutationDone: true
+          mutationDone: true,
         });
       };
 
@@ -455,8 +455,8 @@ describe('General Mutation testing', () => {
     const mockError = [
       {
         request: { query: mutation },
-        error: new Error('error occurred')
-      }
+        error: new Error('error occurred'),
+      },
     ];
 
     render(
@@ -472,7 +472,7 @@ describe('General Mutation testing', () => {
     let count = 0;
 
     const expectedError = new ApolloError({
-      graphQLErrors: [new GraphQLError('error occurred')]
+      graphQLErrors: [new GraphQLError('error occurred')],
     });
 
     const Component = () => (
@@ -501,9 +501,9 @@ describe('General Mutation testing', () => {
       {
         request: { query: mutation },
         result: {
-          errors: [new GraphQLError('error occurred')]
-        }
-      }
+          errors: [new GraphQLError('error occurred')],
+        },
+      },
     ];
 
     render(
@@ -542,7 +542,7 @@ describe('General Mutation testing', () => {
           } else if (count === 2) {
             expect(result.error).toEqual(
               new ApolloError({
-                graphQLErrors: [new GraphQLError('error occurred')]
+                graphQLErrors: [new GraphQLError('error occurred')],
               })
             );
           }
@@ -556,9 +556,9 @@ describe('General Mutation testing', () => {
       {
         request: { query: mutation },
         result: {
-          errors: [new GraphQLError('error occurred')]
-        }
-      }
+          errors: [new GraphQLError('error occurred')],
+        },
+      },
     ];
 
     render(
@@ -576,7 +576,7 @@ describe('General Mutation testing', () => {
   it('renders an error state and throws when encountering network errors when errorPolicy=all', async () => {
     let count = 0;
     const expectedError = new ApolloError({
-      networkError: new Error('network error')
+      networkError: new Error('network error'),
     });
     const Component = () => (
       <Mutation mutation={mutation}>
@@ -603,8 +603,8 @@ describe('General Mutation testing', () => {
     const mockError = [
       {
         request: { query: mutation },
-        error: new Error('network error')
-      }
+        error: new Error('network error'),
+      },
     ];
 
     render(
@@ -624,7 +624,7 @@ describe('General Mutation testing', () => {
 
     class Component extends React.Component {
       state = {
-        mutationError: false
+        mutationError: false,
       };
 
       onError = (error: Error) => {
@@ -656,8 +656,8 @@ describe('General Mutation testing', () => {
     const mockError = [
       {
         request: { query: mutation },
-        error: new Error('error occurred')
-      }
+        error: new Error('error occurred'),
+      },
     ];
 
     render(
@@ -671,7 +671,7 @@ describe('General Mutation testing', () => {
 
   it('performs a mutation with variables prop', async () => {
     const variables = {
-      text: 'play tennis'
+      text: 'play tennis',
     };
 
     let count = 0;
@@ -697,8 +697,8 @@ describe('General Mutation testing', () => {
     const mocks1 = [
       {
         request: { query: mutation, variables },
-        result: { data }
-      }
+        result: { data },
+      },
     ];
 
     render(
@@ -712,7 +712,7 @@ describe('General Mutation testing', () => {
 
   it('allows passing a variable to the mutate function', async () => {
     const variables = {
-      text: 'play tennis'
+      text: 'play tennis',
     };
 
     let count = 0;
@@ -738,8 +738,8 @@ describe('General Mutation testing', () => {
     const mocks1 = [
       {
         request: { query: mutation, variables },
-        result: { data }
-      }
+        result: { data },
+      },
     ];
 
     render(
@@ -755,7 +755,7 @@ describe('General Mutation testing', () => {
     const link = mockSingleLink(...mocks);
     const client = new ApolloClient({
       link,
-      cache
+      cache,
     });
 
     const optimisticResponse = {
@@ -763,9 +763,9 @@ describe('General Mutation testing', () => {
         id: '99',
         text: 'This is an optimistic response',
         completed: false,
-        __typename: 'Todo'
+        __typename: 'Todo',
       },
-      __typename: 'Mutation'
+      __typename: 'Mutation',
     };
 
     let count = 0;
@@ -805,7 +805,7 @@ describe('General Mutation testing', () => {
     const link = mockSingleLink(...mocks);
     const client = new ApolloClient({
       link,
-      cache
+      cache,
     });
 
     const optimisticResponse = {
@@ -813,9 +813,9 @@ describe('General Mutation testing', () => {
         id: '99',
         text: 'This is an optimistic response',
         completed: false,
-        __typename: 'Todo'
+        __typename: 'Todo',
       },
-      __typename: 'Mutation'
+      __typename: 'Mutation',
     };
 
     let count = 0;
@@ -866,9 +866,9 @@ describe('General Mutation testing', () => {
         id: '1',
         text: 'todo from query',
         completed: false,
-        __typename: 'Todo'
+        __typename: 'Todo',
       },
-      __typename: 'Query'
+      __typename: 'Query',
     };
 
     const mocksWithQuery = [
@@ -877,22 +877,22 @@ describe('General Mutation testing', () => {
       // when refetch queries is enabled??
       {
         request: { query },
-        result: { data: queryData }
+        result: { data: queryData },
       },
       {
         request: { query },
-        result: { data: queryData }
+        result: { data: queryData },
       },
       {
         request: { query },
-        result: { data: queryData }
-      }
+        result: { data: queryData },
+      },
     ];
 
     const refetchQueries = [
       {
-        query
-      }
+        query,
+      },
     ];
 
     let count = 0;
@@ -941,79 +941,85 @@ describe('General Mutation testing', () => {
     const peopleData1 = {
       allPeople: {
         people: [{ name: 'Luke Skywalker', __typename: 'Person' }],
-        __typename: 'People'
-      }
+        __typename: 'People',
+      },
     };
     const peopleData2 = {
       allPeople: {
         people: [{ name: 'Han Solo', __typename: 'Person' }],
-        __typename: 'People'
-      }
+        __typename: 'People',
+      },
     };
     const peopleData3 = {
       allPeople: {
         people: [{ name: 'Lord Vader', __typename: 'Person' }],
-        __typename: 'People'
-      }
+        __typename: 'People',
+      },
     };
     const peopleMocks = [
       ...mocks,
       {
         request: { query, variables: { first: 1 } },
-        result: { data: peopleData1 }
+        result: { data: peopleData1 },
       },
       {
         request: { query, variables: { first: 2 } },
-        result: { data: peopleData2 }
+        result: { data: peopleData2 },
       },
       {
         request: { query, variables: { first: 2 } },
-        result: { data: peopleData3 }
-      }
+        result: { data: peopleData3 },
+      },
     ];
 
     const refetchQueries = ['people'];
 
     let count = 0;
 
-    const Component: React.FC<any> = props => {
+    const Component: React.FC<any> = (props) => {
       const [variables, setVariables] = useState(props.variables);
       return (
         <Mutation mutation={mutation} refetchQueries={refetchQueries}>
-          {(createTodo: any, resultMutation: any) => (
-            <Query query={query} variables={variables}>
-              {(resultQuery: any) => {
-                if (count === 0) {
-                  // "first: 1" loading
-                  expect(resultQuery.loading).toBe(true);
-                } else if (count === 1) {
-                  // "first: 1" loaded
-                  expect(resultQuery.loading).toBe(false);
-                  setVariables({ first: 2 });
-                } else if (count === 2) {
-                  // "first: 2" loading
-                  expect(resultQuery.loading).toBe(true);
-                } else if (count === 3) {
-                  // "first: 2" loaded
-                  expect(resultQuery.loading).toBe(false);
-                  createTodo();
-                } else if (count === 4) {
-                  // mutation loading
-                  expect(resultMutation.loading).toBe(true);
-                } else if (count === 5) {
-                  // mutation loaded
-                  expect(resultMutation.loading).toBe(false);
-                } else if (count === 6) {
-                  // query refetched
-                  expect(resultQuery.loading).toBe(false);
-                  expect(resultMutation.loading).toBe(false);
-                  expect(stripSymbols(resultQuery.data)).toEqual(peopleData3);
-                }
-                count++;
-                return null;
-              }}
-            </Query>
-          )}
+          {(createTodo: any, resultMutation: any) => {
+            return (
+              <Query query={query} variables={variables}>
+                {(resultQuery: any) => {
+                  if (count === 0) {
+                    // "first: 1" loading
+                    expect(resultQuery.loading).toBe(true);
+                  } else if (count === 1) {
+                    // "first: 1" loaded
+                    expect(resultQuery.loading).toBe(false);
+                    expect(resultQuery.data).toEqual(peopleData1);
+                    setTimeout(() => {
+                      setVariables({ first: 2 });
+                    });
+                  } else if (count === 2 || count === 3) {
+                    // "first: 2" loading
+                    expect(resultQuery.loading).toBe(true);
+                  } else if (count === 4) {
+                    // "first: 2" loaded
+                    expect(resultQuery.loading).toBe(false);
+                    expect(resultQuery.data).toEqual(peopleData2);
+                    setTimeout(createTodo);
+                  } else if (count === 5) {
+                    // mutation loading
+                    expect(resultMutation.loading).toBe(true);
+                  } else if (count === 6) {
+                    // mutation loaded
+                    expect(resultMutation.loading).toBe(false);
+                  } else if (count === 7) {
+                    // query refetched
+                    expect(resultQuery.loading).toBe(false);
+                    expect(resultMutation.loading).toBe(false);
+                    expect(stripSymbols(resultQuery.data)).toEqual(peopleData3);
+                  }
+                  count++;
+                  return null;
+                }}
+              </Query>
+            );
+          }}
         </Mutation>
       );
     };
@@ -1025,7 +1031,7 @@ describe('General Mutation testing', () => {
     );
 
     await wait(() => {
-      expect(count).toBe(7);
+      expect(count).toBe(8);
     });
   });
 
@@ -1047,9 +1053,9 @@ describe('General Mutation testing', () => {
         id: '1',
         text: 'todo from query',
         completed: false,
-        __typename: 'Todo'
+        __typename: 'Todo',
       },
-      __typename: 'Query'
+      __typename: 'Query',
     };
 
     const mocksWithQuery = [
@@ -1058,22 +1064,22 @@ describe('General Mutation testing', () => {
       // when refetch queries is enabled??
       {
         request: { query },
-        result: { data: queryData }
+        result: { data: queryData },
       },
       {
         request: { query },
-        result: { data: queryData }
+        result: { data: queryData },
       },
       {
         request: { query },
-        result: { data: queryData }
-      }
+        result: { data: queryData },
+      },
     ];
 
     const refetchQueries = [
       {
-        query
-      }
+        query,
+      },
     ];
 
     let count = 0;
@@ -1172,11 +1178,11 @@ describe('General Mutation testing', () => {
 
   it('allows for overriding the options passed in the props by passing them in the mutate function', async () => {
     const variablesProp = {
-      text: 'play tennis'
+      text: 'play tennis',
     };
 
     const variablesMutateFn = {
-      text: 'go swimming'
+      text: 'go swimming',
     };
 
     let count = 0;
@@ -1199,12 +1205,12 @@ describe('General Mutation testing', () => {
     const mocks1 = [
       {
         request: { query: mutation, variables: variablesProp },
-        result: { data }
+        result: { data },
       },
       {
         request: { query: mutation, variables: variablesMutateFn },
-        result: { data: data2 }
-      }
+        result: { data: data2 },
+      },
     ];
 
     render(
@@ -1221,11 +1227,11 @@ describe('General Mutation testing', () => {
   it('updates if the client changes', async () => {
     const link1 = mockSingleLink({
       request: { query: mutation },
-      result: { data }
+      result: { data },
     });
     const client1 = new ApolloClient({
       link: link1,
-      cache: new Cache({ addTypename: false })
+      cache: new Cache({ addTypename: false }),
     });
 
     const data3 = {
@@ -1233,25 +1239,25 @@ describe('General Mutation testing', () => {
         __typename: 'Todo',
         id: '100',
         text: 'After updating client.',
-        completed: false
+        completed: false,
       },
-      __typename: 'Mutation'
+      __typename: 'Mutation',
     };
 
     const link2 = mockSingleLink({
       request: { query: mutation },
-      result: { data: data3 }
+      result: { data: data3 },
     });
 
     const client2 = new ApolloClient({
       link: link2,
-      cache: new Cache({ addTypename: false })
+      cache: new Cache({ addTypename: false }),
     });
 
     let count = 0;
     class Component extends React.Component {
       state = {
-        client: client1
+        client: client1,
       };
 
       render() {
@@ -1267,7 +1273,7 @@ describe('General Mutation testing', () => {
                   expect(result.data).toEqual(data);
                   setTimeout(() => {
                     this.setState({
-                      client: client2
+                      client: client2,
                     });
                   });
                 } else if (count === 3) {
@@ -1295,20 +1301,20 @@ describe('General Mutation testing', () => {
   it('uses client from props instead of one provided by context', () => {
     const link1 = mockSingleLink({
       request: { query: mutation },
-      result: { data }
+      result: { data },
     });
     const client1 = new ApolloClient({
       link: link1,
-      cache: new Cache({ addTypename: false })
+      cache: new Cache({ addTypename: false }),
     });
 
     const link2 = mockSingleLink({
       request: { query: mutation },
-      result: { data: data2 }
+      result: { data: data2 },
     });
     const client2 = new ApolloClient({
       link: link2,
-      cache: new Cache({ addTypename: false })
+      cache: new Cache({ addTypename: false }),
     });
 
     let count = 0;
@@ -1364,7 +1370,7 @@ describe('General Mutation testing', () => {
     console.log = errorLogger;
   });
 
-  it('errors when changing from mutation to a query', done => {
+  it('errors when changing from mutation to a query', (done) => {
     const query = gql`
       query todos {
         todos {
@@ -1375,7 +1381,7 @@ describe('General Mutation testing', () => {
 
     class Component extends React.Component {
       state = {
-        query: mutation
+        query: mutation,
       };
 
       componentDidCatch(e: Error) {
@@ -1393,7 +1399,7 @@ describe('General Mutation testing', () => {
             {() => {
               setTimeout(() => {
                 this.setState({
-                  query
+                  query,
                 });
               });
               return null;
@@ -1443,7 +1449,7 @@ describe('General Mutation testing', () => {
     console.log = errorLogger;
   });
 
-  it('errors when changing from mutation to a subscription', done => {
+  it('errors when changing from mutation to a subscription', (done) => {
     const subscription = gql`
       subscription todos {
         todos {
@@ -1454,7 +1460,7 @@ describe('General Mutation testing', () => {
 
     class Component extends React.Component {
       state = {
-        query: mutation
+        query: mutation,
       };
 
       componentDidCatch(e: Error) {
@@ -1473,7 +1479,7 @@ describe('General Mutation testing', () => {
             {() => {
               setTimeout(() => {
                 this.setState({
-                  query: subscription
+                  query: subscription,
                 });
               });
               return null;
@@ -1497,7 +1503,7 @@ describe('General Mutation testing', () => {
   });
 
   describe('after it has been unmounted', () => {
-    it('calls the onCompleted prop after the mutation is complete', done => {
+    it('calls the onCompleted prop after the mutation is complete', (done) => {
       let success = false;
       const onCompletedFn = jest.fn();
       const checker = () => {
@@ -1510,7 +1516,7 @@ describe('General Mutation testing', () => {
 
       class Component extends React.Component {
         state = {
-          called: false
+          called: false,
         };
 
         render() {
@@ -1568,8 +1574,8 @@ describe('General Mutation testing', () => {
     const mockError = [
       {
         request: { query: mutation },
-        error: new Error('error occurred')
-      }
+        error: new Error('error occurred'),
+      },
     ];
 
     render(

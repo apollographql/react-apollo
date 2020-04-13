@@ -791,8 +791,8 @@ describe('Query component', () => {
                   first: 1
                 }
               });
-            }, 0);
-          }, 0);
+            }, 100);
+          }, 100);
         }
 
         // Make sure `onCompleted` is called both when new data is being
@@ -1374,16 +1374,12 @@ describe('Query component', () => {
                     case 2:
                       // State value changed, fire a refetch
                       expect(open).toBe(true);
-                      setTimeout(() => {
-                        props.refetch();
-                      }, 0);
+                      props.refetch();
                       break;
                     case 3:
                       // Second response received, fire another refetch
                       expect(stripSymbols(props.data)).toEqual(data1);
-                      setTimeout(() => {
-                        props.refetch();
-                      }, 0);
+                      props.refetch();
                       break;
                     case 4:
                       // Third response received
