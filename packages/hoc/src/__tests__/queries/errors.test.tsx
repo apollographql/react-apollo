@@ -193,7 +193,11 @@ describe('[queries] errors', () => {
       }
 
       let iteration = 0;
-      const ErrorContainer = withState('var', 'setVar', 1)(
+      const ErrorContainer = withState(
+        'var',
+        'setVar',
+        1
+      )(
         graphql<Props, Data, Vars>(query)(
           class extends React.Component<ChildProps<Props, Data, Vars>> {
             componentDidUpdate() {
@@ -208,7 +212,7 @@ describe('[queries] errors', () => {
               } else if (iteration === 2) {
                 // variables have changed, wee are loading again but also have data
                 expect(props.data!.loading).toBeTruthy();
-              } else if (iteration === 3) {
+              } else if (iteration === 4) {
                 // the second request had an error!
                 expect(props.data!.error).toBeTruthy();
                 expect(props.data!.error!.networkError).toBeTruthy();

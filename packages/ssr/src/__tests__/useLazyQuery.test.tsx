@@ -24,21 +24,21 @@ describe('useLazyQuery Hook SSR', () => {
         make: 'Audi',
         model: 'RS8',
         vin: 'DOLLADOLLABILL',
-        __typename: 'Car'
-      }
-    ]
+        __typename: 'Car',
+      },
+    ],
   };
 
   it('should run query only after calling the lazy mode execute function', () => {
     const link = mockSingleLink({
       request: { query: CAR_QUERY },
-      result: { data: CAR_RESULT_DATA }
+      result: { data: CAR_RESULT_DATA },
     });
 
     const client = new ApolloClient({
       cache: new InMemoryCache(),
       link,
-      ssrMode: true
+      ssrMode: true,
     });
 
     const Component = () => {
@@ -64,7 +64,7 @@ describe('useLazyQuery Hook SSR', () => {
       </ApolloProvider>
     );
 
-    return renderToStringWithData(app).then(markup => {
+    return renderToStringWithData(app).then((markup) => {
       expect(markup).toMatch(/Audi/);
     });
   });

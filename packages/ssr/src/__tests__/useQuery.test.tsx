@@ -26,18 +26,18 @@ describe('useQuery Hook SSR', () => {
         make: 'Audi',
         model: 'RS8',
         vin: 'DOLLADOLLABILL',
-        __typename: 'Car'
-      }
-    ]
+        __typename: 'Car',
+      },
+    ],
   };
 
   const CAR_MOCKS = [
     {
       request: {
-        query: CAR_QUERY
+        query: CAR_QUERY,
       },
-      result: { data: CAR_RESULT_DATA }
-    }
+      result: { data: CAR_RESULT_DATA },
+    },
   ];
 
   it('should support SSR', () => {
@@ -61,7 +61,7 @@ describe('useQuery Hook SSR', () => {
       </MockedProvider>
     );
 
-    return renderToStringWithData(app).then(markup => {
+    return renderToStringWithData(app).then((markup) => {
       expect(markup).toMatch(/Audi/);
     });
   });
@@ -103,7 +103,7 @@ describe('useQuery Hook SSR', () => {
       </MockedProvider>
     );
 
-    return renderToStringWithData(app).then(result => {
+    return renderToStringWithData(app).then((result) => {
       expect(renderCount).toBe(1);
       expect(result).toEqual('');
     });
@@ -115,13 +115,13 @@ describe('useQuery Hook SSR', () => {
     async () => {
       const link = mockSingleLink({
         request: { query: CAR_QUERY },
-        result: { data: CAR_RESULT_DATA }
+        result: { data: CAR_RESULT_DATA },
       });
 
       const client = new ApolloClient({
         cache: new InMemoryCache(),
         link,
-        ssrMode: true
+        ssrMode: true,
       });
 
       let renderCount = 0;
@@ -148,7 +148,7 @@ describe('useQuery Hook SSR', () => {
         </ApolloProvider>
       );
 
-      await renderToStringWithData(app).then(result => {
+      await renderToStringWithData(app).then((result) => {
         expect(renderCount).toBe(1);
         expect(result).toEqual('');
       });
