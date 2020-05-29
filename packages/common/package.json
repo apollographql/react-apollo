@@ -21,7 +21,7 @@
     "clean": ""
   },
   "dependencies": {
-    "@apollo/client": "^3.0.0-james"
+    "@apollo/client": "3.0.0-beta.52"
   },
   "publishConfig": {
     "access": "public"
