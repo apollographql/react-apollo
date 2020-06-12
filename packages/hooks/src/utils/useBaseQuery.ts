@@ -16,6 +16,7 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
   lazy = false
 ) {
   const context = useContext(getApolloContext());
+  const isMounted = useRef(false);
   const [tick, forceUpdate] = useReducer((x) => x + 1, 0);
   const updatedOptions = options ? { ...options, query } : { query };
 
@@ -31,7 +32,13 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
           // force a re-render to make sure the new data is displayed. We can't
           // force that re-render if we're already rendering however so to be
           // safe we'll trigger the re-render in a microtask.
-          Promise.resolve().then(forceUpdate);
+          Promise.resolve().then(() => {
+            if (!isMounted.current) {
+              return;
+            }
+
+            return forceUpdate();
+          });
         } else {
           // If we're rendering on the server side we can force an update at
           // any point.
@@ -75,7 +82,12 @@ export function useBaseQuery<TData = any, TVariables = OperationVariables>(
       queryDataRef.current = queryData;
     }
 
-    return () => queryData.cleanup();
+    isMounted.current = true;
+
+    return () => {
+      isMounted.current = false;
+      return queryData.cleanup();
+    };
   }, []);
 
   useEffect(() => queryData.afterExecute({ lazy }), [
