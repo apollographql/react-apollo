@@ -12,7 +12,7 @@
     "apollo-client": "^2.6.4",
     "apollo-link-http": "^1.5.14",
     "apollo-link-ws": "^1.0.17",
-    "graphql": "^14.3.1",
+    "graphql": "^15.0.0",
     "graphql-tag": "^2.10.1",
     "react": "../../../node_modules/react",
     "react-dom": "../../../node_modules/react-dom",
