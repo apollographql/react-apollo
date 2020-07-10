@@ -21,7 +21,7 @@
     "clean": ""
   },
   "dependencies": {
-    "@apollo/react-common": "file:../common"
+    "@apollo/client": "latest"
   },
   "publishConfig": {
     "access": "public"
