@@ -4,11 +4,20 @@
 
 > ⚠️ **Deprecation Notice** ⚠️
 >
-> Please note that as of version 4.0.0 you should prefer to import React hooks and testing utilities from `@apollo/client`. While we still have separate `@apollo/react-hooks` and `@apollo/react-testing` packages for ease of migration, they are no longer under active development, as they simply re-export from `@apollo/client`. React Apollo's `graphql` HOC (`@apollo/react-hoc`) and render proper components (`@apollo/react-components`) are in maintenance mode, meaning they will continue to receive important bug fixes, but will not be updated with new functionality.
+> Please note that this is the final version of all React Apollo packages, and that this repository is going to be archived. React Apollo functionality is now directly available from `@apollo/client` >= 3. While using the `@apollo/react-X` packages will still work, we recommend using the following imports from `@apollo/client` directly instead:
+>
+> - old: `@apollo/react-components` --> new: `@apollo/client/react/components`
+> - old: `@apollo/react-hoc` --> new: `@apollo/client/react/hoc`
+> - old: `@apollo/react-ssr` --> new: `@apollo/client/react/ssr`
+> - old: `@apollo/react-testing` --> new: `@apollo/client/testing`
+> - old: `@apollo/react-hooks` --> new: `@apollo/client`
 
 ### Breaking Changes
 
-- **React Apollo 4.0.0 only works with `@apollo/client` 3.x; it does not work with `apollo-client` 2.x.** If you are using `apollo-client` and are not ready to update to `@apollo/client`, please use React Apollo 3.x.
+- **React Apollo 4.0.0 is dependent on `@apollo/client` >= 3.** If you are using `apollo-client` 2.x and are not ready to update to `@apollo/client`, please use React Apollo 3.x.
+
+- The `react-apollo` package has been fully removed. Please use `@apollo/client` or `@apollo/react-X` packages directly. <br/>
+  [@hwillson](https://github.com/hwillson) in [#4037](https://github.com/apollographql/react-apollo/pull/4037)
 
 - Due to changes made in Apollo Client, the previous SSR testing pattern of:
 
@@ -22,16 +31,12 @@
   will no longer work (`ReactDOM.renderToString(app)` will just return the initial loading state of the component under test). Instead, we can leverage the markup returned when `getDataFromTree`'s Promise resolves:
 
   ```js
-  return getDataFromTree(app).then(markup => {
+  return getDataFromTree(app).then((markup) => {
     expect(markup).toMatch(/Waldo/);
   });
   ```
 
 - We are no longer building UMD versions of React Apollo.
-
-### Improvements
-
-- The React Apollo project now uses [`@apollo/client`](https://github.com/apollographql/apollo-client), which means it no longer houses Apollo's React hooks or testing utilities. `@apollo/react-hooks` and `@apollo/react-testing` can continue to be used, but their functionality is now re-exported from the `@apollo/client` package. If you're only using Apollo's React hooks, we recommend using `@apollo/client` directly, and dropping your dependency on `@apollo/react-hooks`.
 
 ## 3.1.3 (2019-10-15)
 
@@ -1209,7 +1214,7 @@ import { getDataFromTree, renderToStringWithData } from 'react-apollo';
 renderToStringWithData(component).then({ markup, initialState });
 
 // new -- you must get it yourself
-renderToStringWithData(component).then(markup => {
+renderToStringWithData(component).then((markup) => {
   const initialState = client.store.getState()[client.reduxRootKey];
 
   // ...
