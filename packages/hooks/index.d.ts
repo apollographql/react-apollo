@@ -1,1 +1,1 @@
-export * from '@apollo/react-common';
+export * from '@apollo/client';
