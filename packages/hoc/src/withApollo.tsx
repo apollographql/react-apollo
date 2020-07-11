@@ -9,10 +9,8 @@ function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-export function withApollo<TProps, TResult = any>(
-  WrappedComponent: React.ComponentType<
-    WithApolloClient<Omit<TProps, 'client'>>
-  >,
+export function withApollo<TProps extends WithApolloClient<{}>, TResult = any>(
+  WrappedComponent: React.ComponentType<TProps>,
   operationOptions: OperationOption<TProps, TResult> = {}
 ): React.ComponentClass<Omit<TProps, 'client'>> {
   const withDisplayName = `withApollo(${getDisplayName(WrappedComponent)})`;
@@ -53,7 +51,7 @@ export function withApollo<TProps, TResult = any>(
                 ? this.setWrappedInstance
                 : undefined
             });
-            return <WrappedComponent {...props} />;
+            return <WrappedComponent {...props as any} />;
           }}
         </ApolloConsumer>
       );
