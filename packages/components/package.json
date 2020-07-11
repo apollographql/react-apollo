@@ -44,7 +44,7 @@
     "@apollo/react-common": "file:../common",
     "prop-types": "^15.7.2",
     "ts-invariant": "^0.4.4",
-    "tslib": "^1.10.0"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@apollo/react-ssr": "file:../ssr",

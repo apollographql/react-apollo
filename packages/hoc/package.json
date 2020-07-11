@@ -44,7 +44,7 @@
     "@apollo/react-components": "file:../components",
     "hoist-non-react-statics": "^3.3.1",
     "ts-invariant": "^0.4.4",
-    "tslib": "^1.10.0"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@apollo/react-ssr": "file:../ssr",
