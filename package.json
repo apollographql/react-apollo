@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "lerna": "3.22.1",
-    "typescript": "3.8.3"
+    "typescript": "3.9.6"
   },
   "renovate": {
     "extends": [
