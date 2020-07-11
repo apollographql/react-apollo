@@ -1,1 +1,1 @@
-module.exports = require('@apollo/react-common/testing');
+module.exports = require('@apollo/client/testing');

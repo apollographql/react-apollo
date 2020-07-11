@@ -8,7 +8,13 @@
 
 > ⚠️ **Deprecation Notice** ⚠️
 >
-> Please note that as of version 4.0.0 you should prefer to import React hooks and testing utilities from `@apollo/client`. While we still have separate `@apollo/react-hooks` and `@apollo/react-testing` packages for ease of migration, they are no longer under active development, as they simply re-export from `@apollo/client`. React Apollo's `graphql` HOC (`@apollo/react-hoc`) and render proper components (`@apollo/react-components`) are in maintenance mode, meaning they will continue to receive important bug fixes, but will not be updated with new functionality.
+> Please note that 4.0.0 is the final version of all React Apollo packages, and that this repository is going to be archived. React Apollo functionality is now directly available from `@apollo/client` >= 3. While using the `@apollo/react-X` packages will still work, we recommend using the following imports from `@apollo/client` directly instead:
+>
+> - old: `@apollo/react-components` --> new: `@apollo/client/react/components`
+> - old: `@apollo/react-hoc` --> new: `@apollo/client/react/hoc`
+> - old: `@apollo/react-ssr` --> new: `@apollo/client/react/ssr`
+> - old: `@apollo/react-testing` --> new: `@apollo/client/testing`
+> - old: `@apollo/react-hooks` --> new: `@apollo/client`
 
 React Apollo allows you to fetch data from your GraphQL server and use it in building complex and reactive UIs using the React framework. React Apollo may be used in any context that React may be used. In the browser, in React Native, or in Node.js when you want to do server-side rendering.
 

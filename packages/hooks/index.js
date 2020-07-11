@@ -1,1 +1,1 @@
-module.exports = require('@apollo/react-common');
+module.exports = require('@apollo/client');

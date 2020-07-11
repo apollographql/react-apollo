@@ -1,7 +1,7 @@
 {
   "name": "@apollo/react-hoc",
   "description": "React Apollo `graphql` higher-order component.",
-  "version": "4.0.0-beta.1",
+  "version": "4.0.0-beta.2",
   "author": "opensource@apollographql.com",
   "keywords": [
     "apollo",
@@ -10,53 +10,20 @@
     "hoc"
   ],
   "license": "MIT",
-  "main": "./lib/react-hoc.cjs.js",
-  "module": "./lib/react-hoc.esm.js",
-  "react-native": {
-    "react-dom/server": false
-  },
-  "typings": "./lib/index.d.ts",
+  "main": "index.js",
+  "module": "index.esm.js",
+  "types": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "apollographql/react-apollo"
   },
   "sideEffects": false,
   "scripts": {
-    "clean": "rm -Rf ./lib/* ./meta/bundlesize/* ./meta/coverage/* ./.rpt2_cache",
-    "prepare": "npm run build",
-    "prebuild": "npm run clean",
-    "build": "npx tsc -p ./config",
-    "postbuild": "npx rollup -c ./config/rollup.config.js",
-    "watch": "npx tsc-watch --onSuccess \"npm run postbuild\" -p ./config",
-    "predeploy": "npm run build",
-    "deploy": "npm publish --tag beta",
-    "test": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc",
-    "test:watch": "npx jest --config ../../config/jest.config.js --testPathPattern packages/hoc --watch",
-    "test:cjs": "npm run build && npx jest --config ../../config/jest.cjs.config.js --testPathPattern packages/hoc"
-  },
-  "peerDependencies": {
-    "graphql": "^14.5.8",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "clean": ""
   },
   "dependencies": {
-    "@apollo/react-common": "file:../common",
-    "@apollo/react-components": "file:../components",
-    "hoist-non-react-statics": "^3.3.1",
-    "ts-invariant": "^0.4.4",
-    "tslib": "^1.10.0"
+    "@apollo/client": "latest"
   },
-  "devDependencies": {
-    "@apollo/react-ssr": "file:../ssr",
-    "@apollo/react-testing": "file:../testing",
-    "jest": "24.9.0",
-    "rollup": "1.32.1",
-    "tsc-watch": "4.2.8",
-    "typescript": "3.8.3"
-  },
-  "files": [
-    "lib"
-  ],
   "publishConfig": {
     "access": "public"
   }

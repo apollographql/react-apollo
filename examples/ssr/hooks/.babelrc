@@ -1,8 +1,0 @@
-{
-  "presets": [
-    "react"
-  ],
-  "plugins": [
-    "transform-react-require"
-  ]
-}
