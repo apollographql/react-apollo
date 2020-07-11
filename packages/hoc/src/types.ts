@@ -83,11 +83,30 @@ export interface OptionProps<
   ownProps: TProps;
 }
 
+export interface QueryOptionProps<
+  TProps = any,
+  TData = any,
+  TGraphQLVariables = OperationVariables
+>
+  extends DataProps<TData, TGraphQLVariables> {
+  ownProps: TProps;
+}
+
+export interface MutateOptionProps<
+  TProps = any,
+  TData = any,
+  TGraphQLVariables = OperationVariables
+>
+  extends MutateProps<TData, TGraphQLVariables> {
+  ownProps: TProps;
+}
+
 export interface OperationOption<
   TProps,
   TData,
   TGraphQLVariables = OperationVariables,
-  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>
+  TChildProps = ChildProps<TProps, TData, TGraphQLVariables>,
+  TOptionProps = OptionProps<TProps, TData, TGraphQLVariables>
 > {
   options?:
     | BaseQueryOptions<TGraphQLVariables>
@@ -99,7 +118,7 @@ export interface OperationOption<
         | BaseMutationOptions<TData, TGraphQLVariables>
       );
   props?: (
-    props: OptionProps<TProps, TData, TGraphQLVariables>,
+    props: TOptionProps,
     lastProps?: TChildProps | void
   ) => TChildProps;
   skip?: boolean | ((props: TProps) => boolean);

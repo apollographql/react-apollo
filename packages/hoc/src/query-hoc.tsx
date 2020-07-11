@@ -11,7 +11,7 @@ import {
   defaultMapPropsToOptions,
   defaultMapPropsToSkip
 } from './hoc-utils';
-import { OperationOption, OptionProps, DataProps } from './types';
+import { OperationOption, QueryOptionProps, DataProps } from './types';
 
 export function withQuery<
   TProps extends TGraphQLVariables | {} = {},
@@ -24,7 +24,8 @@ export function withQuery<
     TProps,
     TData,
     TGraphQLVariables,
-    TChildProps
+    TChildProps,
+    QueryOptionProps<TProps, TData, TGraphQLVariables>
   > = {}
 ) {
   // this is memoized so if coming from `graphql` there is nearly no extra cost
@@ -99,12 +100,12 @@ export function withQuery<
               const name = operationOptions.name || 'data';
               let childProps = { [name]: result };
               if (operationOptions.props) {
-                const newResult: OptionProps<
+                const newResult: QueryOptionProps<
                   TProps,
                   TData,
                   TGraphQLVariables
                 > = {
-                  [name]: result,
+                  [name as 'data']: result,
                   ownProps: props as TProps
                 };
                 lastResultProps = operationOptions.props(
