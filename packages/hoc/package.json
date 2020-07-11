@@ -49,7 +49,7 @@
   "devDependencies": {
     "@apollo/react-ssr": "file:../ssr",
     "@apollo/react-testing": "file:../testing",
-    "jest": "24.9.0",
+    "jest": "26.1.0",
     "rollup": "1.32.1",
     "tsc-watch": "4.2.8",
     "typescript": "3.8.3"
