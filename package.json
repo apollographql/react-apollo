@@ -31,7 +31,7 @@
     "@apollo/client": "3.0.0-rc.12",
     "@babel/core": "7.10.4",
     "@babel/plugin-transform-modules-commonjs": "7.10.4",
-    "@testing-library/react": "9.5.0",
+    "@testing-library/react": "10.4.5",
     "@types/fast-json-stable-stringify": "2.0.0",
     "@types/graphql": "14.5.0",
     "@types/hoist-non-react-statics": "3.3.1",
