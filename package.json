@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@apollo/client": "3.0.0-rc.12",
-    "@babel/core": "7.9.6",
+    "@babel/core": "7.10.4",
     "@babel/plugin-transform-modules-commonjs": "7.10.1",
     "@testing-library/react": "9.5.0",
     "@types/fast-json-stable-stringify": "2.0.0",
