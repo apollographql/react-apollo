@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "npx lerna exec -- npm install --package-lock=false && npx lerna run prepare",
-    "deploy": "npx lerna publish --dist-tag beta",
+    "deploy": "npx lerna publish",
     "clean": "rm -Rf ./node_modules"
   },
   "dependencies": {

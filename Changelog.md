@@ -1,6 +1,6 @@
 # Change log
 
-## 4.0.0 (TBD - not yet released)
+## 4.0.0 (2020-07-20)
 
 > ⚠️ **Deprecation Notice** ⚠️
 >

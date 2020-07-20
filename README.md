@@ -6,15 +6,21 @@
 [![Build Status](https://circleci.com/gh/apollographql/react-apollo.svg?style=svg)](https://circleci.com/gh/apollographql/react-apollo)
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/apollo)
 
-> ⚠️ **Deprecation Notice** ⚠️
->
-> Please note that 4.0.0 is the final version of all React Apollo packages, and that this repository is going to be archived. React Apollo functionality is now directly available from `@apollo/client` >= 3. While using the `@apollo/react-X` packages will still work, we recommend using the following imports from `@apollo/client` directly instead:
+---
+
+⚠️ **THIS PROJECT HAS BEEN DEPRECATED** ⚠️
+
+Please note that 4.0.0 is the final version of all React Apollo packages. React Apollo functionality is now directly available from `@apollo/client` >= 3. While using the `@apollo/react-X` packages will still work, we recommend using the following imports from `@apollo/client` directly instead:
 >
 > - old: `@apollo/react-components` --> new: `@apollo/client/react/components`
 > - old: `@apollo/react-hoc` --> new: `@apollo/client/react/hoc`
 > - old: `@apollo/react-ssr` --> new: `@apollo/client/react/ssr`
 > - old: `@apollo/react-testing` --> new: `@apollo/client/testing`
 > - old: `@apollo/react-hooks` --> new: `@apollo/client`
+
+Moving forward, all Apollo + React issues / pull requests should be opened in the [apollo-client](https://github.com/apollographql/apollo-client.git) repo. Please refer to the [Apollo Client migration guide](https://www.apollographql.com/docs/react/migrating/apollo-client-3-migration/) for more details.
+
+---
 
 React Apollo allows you to fetch data from your GraphQL server and use it in building complex and reactive UIs using the React framework. React Apollo may be used in any context that React may be used. In the browser, in React Native, or in Node.js when you want to do server-side rendering.
 
